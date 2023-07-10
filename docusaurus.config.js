@@ -21,7 +21,7 @@ const config = {
   organizationName: "neoforged", // Usually your GitHub org/user name.
   projectName: "documentation", // Usually your repo name.
 
-  onBrokenLinks: "warn",
+  onBrokenLinks: "ignore", // Yay multi versioned-docs sites
   onBrokenMarkdownLinks: "warn",
 
   // Even if you don't use internalization, you can use this field to set useful
@@ -143,24 +143,24 @@ const config = {
               },
             ],
           },
-          {
-            // TODO - fix
-            title: "Community",
-            items: [
-              {
-                label: "Stack Overflow",
-                href: "https://stackoverflow.com/questions/tagged/docusaurus",
-              },
-              {
-                label: "Discord",
-                href: "https://discordapp.com/invite/docusaurus",
-              },
-              {
-                label: "Twitter",
-                href: "https://twitter.com/docusaurus",
-              },
-            ],
-          },
+          // {
+          //   // TODO - fix
+          //   title: "Community",
+          //   items: [
+          //     {
+          //       label: "Stack Overflow",
+          //       href: "https://stackoverflow.com/questions/tagged/docusaurus",
+          //     },
+          //     {
+          //       label: "Discord",
+          //       href: "https://discordapp.com/invite/docusaurus",
+          //     },
+          //     {
+          //       label: "Twitter",
+          //       href: "https://twitter.com/docusaurus",
+          //     },
+          //   ],
+          // },
           {
             title: "More",
             items: [
@@ -171,7 +171,7 @@ const config = {
             ],
           },
         ],
-        copyright: `Copyright © ${new Date().getFullYear()} NeoForged and contributors. Built with Docusaurus.`,
+        copyright: `Copyright © 2016, under the MIT license. Built with Docusaurus.`,
       },
       prism: {
         theme: lightCodeTheme,

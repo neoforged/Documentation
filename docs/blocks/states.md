@@ -8,7 +8,7 @@ In Minecraft 1.7 and previous versions, blocks which need to store placement or 
 
 However, the metadata system was confusing and limited, since it was stored as only a number alongside the block ID, and had no meaning except what was commented in the code. For example, to implement a block that can face a direction and be on either the upper or lower half of a block space (such as a stair): 
 
-```Java
+```java
 switch (meta) {
   case 0: { ... } // south and on the lower half of the block
   case 1: { ... } // south on the upper side of the block
@@ -38,8 +38,9 @@ The `BlockState` system is a flexible and powerful system, but it also has limit
 
 Not all blocks and situations require the usage of `BlockState`; only the most basic properties of a block should be put into a `BlockState`, and any other situation is better off with having a `BlockEntity` or being a separate `Block`. Always consider if you actually need to use blockstates for your purposes.
 
-!!! note
-    A good rule of thumb is: **if it has a different name, it should be a separate block**.
+:::note
+A good rule of thumb is: **if it has a different name, it should be a separate block**.
+:::
 
 An example is making chair blocks: the *direction* of the chair should be a *property*, while the different *types of wood* should be separated into different blocks.
 An "Oak Chair" facing east (`oak_chair[facing=east]`) is different from a "Spruce Chair" facing west (`spruce_chair[facing=west]`).
@@ -69,7 +70,7 @@ When you have your desired `Property<>` objects, override `Block#createBlockStat
 
 Every block will also have a "default" state that is automatically chosen for you. You can change this "default" state by calling the `Block#registerDefaultState(BlockState)` method from your constructor. When your block is placed it will become this "default" state. An example from `DoorBlock`:
 
-```Java
+```java
 this.registerDefaultState(
   this.stateDefinition.any()
     .setValue(FACING, Direction.NORTH)

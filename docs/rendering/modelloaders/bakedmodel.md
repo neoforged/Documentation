@@ -19,8 +19,9 @@ If the model is rendered as an item in an inventory, on the ground as an entity,
 
 ### `isCustomRenderer`
 
-!!! important
-    Unless you know what you're doing, just `return false` from this and continue on.
+:::caution
+Unless you know what you're doing, just `return false` from this and continue on.
+:::
 
 When rendering this as an item, returning `true` causes the model to not be rendered, instead falling back to `BlockEntityWithoutLevelRenderer#renderByItem`. For certain vanilla items such as chests and banners, this method is hardcoded to copy data from the item into a `BlockEntity`, before using a `BlockEntityRenderer` to render that BE in place of the item. For all other items, it will use the `BlockEntityWithoutLevelRenderer` instance provided by `IClientItemExtensions#getCustomRenderer`. Refer to [BlockEntityWithoutLevelRenderer][bewlr] page for more information.
 

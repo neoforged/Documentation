@@ -33,17 +33,18 @@ By default, `#getDescriptionId` will return `block.` or `item.` prepended to the
 }
 ```
 
-!!! note
-    The only purpose of a translation key is internationalization. Do not use them for logic. Use registry names instead.
-
+:::note
+The only purpose of a translation key is internationalization. Do not use them for logic. Use registry names instead.
+:::
 
 Localization methods
 --------------------
 
-!!! warning
-    A common issue is having the server localize for clients. The server can only localize in its own locale, which does not necessarily match the locale of connected clients.
-    
-    To respect the language settings of clients, the server should have clients localize text in their own locale using `TranslatableComponent` or other methods preserving the language neutral translation keys.
+:::caution
+A common issue is having the server localize for clients. The server can only localize in its own locale, which does not necessarily match the locale of connected clients.
+
+To respect the language settings of clients, the server should have clients localize text in their own locale using `TranslatableComponent` or other methods preserving the language neutral translation keys.
+:::
 
 ### `net.minecraft.client.resources.language.I18n` (client only)
 

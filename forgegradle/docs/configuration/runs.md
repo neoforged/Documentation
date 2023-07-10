@@ -110,8 +110,9 @@ client {
 }
 ```
 
-!!! tip
-    You can see a list of all configured userdev properties within the [MinecraftForge buildscript][buildscript].
+:::tip
+You can see a list of all configured userdev properties within the [MinecraftForge buildscript][buildscript].
+:::
 
 Mod Configurations
 ------------------

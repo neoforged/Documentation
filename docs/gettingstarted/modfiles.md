@@ -63,8 +63,9 @@ Property             | Type    | Default       | Description | Example
 `properties`         | table   | `{}`          | A table of substitution properties. This is used by `StringSubstitutor` to replace `${file.<key>}` with its corresponding value. This is currently only used to replace the `version` in the [mod-specific properties][modsp]. | `{ "example" = "1.2.3" }` referenced by `${file.example}`
 `issueTrackerURL`    | string  | *nothing*     | A URL representing the place to report and track issues with the mod(s). | `"https://forums.minecraftforge.net/"`
 
-!!! important
-    The `services` property is functionally equivalent to specifying the [`uses` directive in a module][uses], which allows [*loading*][serviceload] a service of a given type.
+:::note
+The `services` property is functionally equivalent to specifying the [`uses` directive in a module][uses], which allows [*loading*][serviceload] a service of a given type.
+:::
 
 ### Mod-Specific Properties
 
@@ -119,8 +120,9 @@ Property       | Type    | Default       | Description | Example
 `side`         | string  | `"BOTH"`      | The [physical side][dist] the dependency must be present on: `"CLIENT"`, `"SERVER"`, or `"BOTH"`.| `"CLIENT"`
 `referralUrl`  | string  | *nothing*     | A URL to the download page of the dependency. Currently unused. | `"https://library.example.com/"`
 
-!!! warning
-    The `ordering` of two mods may cause a crash due to a cyclic dependency: for example, mod A must load `"BEFORE"` mod B and mod B `"BEFORE"` mod A.
+:::danger
+The `ordering` of two mods may cause a crash due to a cyclic dependency: for example, mod A must load `"BEFORE"` mod B and mod B `"BEFORE"` mod A.
+:::
 
 Mod Entrypoints
 ---------------

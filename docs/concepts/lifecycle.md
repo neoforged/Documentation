@@ -22,10 +22,11 @@ public class MyMod {
 }
 ```
 
-!!! warning
-    Most of the lifecycle events are fired in parallel: all mods will concurrently receive the same event.
-    
-    Mods *must* take care to be thread-safe, like when calling other mods' APIs or accessing vanilla systems. Defer code for later execution via `ParallelDispatchEvent#enqueueWork`.
+:::caution
+Most of the lifecycle events are fired in parallel: all mods will concurrently receive the same event.
+
+Mods *must* take care to be thread-safe, like when calling other mods' APIs or accessing vanilla systems. Defer code for later execution via `ParallelDispatchEvent#enqueueWork`.
+:::
 
 Registry Events
 ---------------
@@ -62,8 +63,9 @@ During the `InterModEnqueueEvent`, use `InterModComms#sendTo` to send messages t
 
 Then during the `InterModProcessEvent`, use `InterModComms#getMessages` to get a stream of all received messages. The mod id supplied will almost always be the mod id of the mod the method is called on. Additionally, a predicate can be specified to filter out the message keys. This will return a stream of `IMCMessage`s which hold the sender of the data, the receiver of the data, the data key, and the supplied data itself.
 
-!!! note
-    There are two other lifecycle events: `FMLConstructModEvent`, fired directly after mod instance construction but before the `RegisterEvent`, and `FMLLoadCompleteEvent`, fired after the `InterModComms` events, for when the mod loading process is complete.
+:::tip
+There are two other lifecycle events: `FMLConstructModEvent`, fired directly after mod instance construction but before the `RegisterEvent`, and `FMLLoadCompleteEvent`, fired after the `InterModComms` events, for when the mod loading process is complete.
+:::
 
 [registering]: ./registries.md#methods-for-registering
 [capabilities]: ../datastorage/capabilities.md

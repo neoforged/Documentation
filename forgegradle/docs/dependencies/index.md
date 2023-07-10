@@ -69,8 +69,9 @@ dependencies {
 }
 ```
 
-!!! note
-    The group name can be anything but must not be empty for flat directory entries as they are not checked when resolving the artifact file.
+:::note
+The group name can be anything but must not be empty for flat directory entries as they are not checked when resolving the artifact file.
+:::
 
 Non-Minecraft Dependencies
 --------------------------

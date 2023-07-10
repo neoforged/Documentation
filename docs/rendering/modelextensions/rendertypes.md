@@ -5,8 +5,9 @@ Adding the `render_type` entry at the top level of the JSON suggests to the load
 
 Custom model loaders may ignore this field entirely.
 
-!!! note
-    Since 1.19 this is preferred over the deprecated method of setting the applicable render type(s) via `ItemBlockRenderTypes#setRenderLayer()` for blocks.
+:::note
+Since 1.19 this is preferred over the deprecated method of setting the applicable render type(s) via `ItemBlockRenderTypes#setRenderLayer()` for blocks.
+:::
 
 Example of a model for a cutout block with the glass texture
 

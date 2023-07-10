@@ -38,16 +38,18 @@ Access modifiers specify to what new member visibility the given target will be 
 
 A special modifier `+f` and `-f` can be appended to the aforementioned modifiers to either add or remove respectively the `final` modifier, which prevents subclassing, method overriding, or field modification when applied.
 
-!!! warning
-    Directives only modify the method they directly reference; any overriding methods will not be access-transformed. It is advised to ensure transformed methods do not have non-transformed overrides that restrict the visibility, which will result in the JVM throwing an error.
-    
-    Examples of methods that can be safely transformed are `private` methods, `final` methods (or methods in `final` classes), and `static` methods.
+:::danger
+Directives only modify the method they directly reference; any overriding methods will not be access-transformed. It is advised to ensure transformed methods do not have non-transformed overrides that restrict the visibility, which will result in the JVM throwing an error.
+
+Examples of methods that can be safely transformed are `private` methods, `final` methods (or methods in `final` classes), and `static` methods.
+:::
 
 Targets and Directives
 ----------------------
 
-!!! important
-    When using Access Transformers on Minecraft classes, the SRG name must be used for fields and methods.
+:::caution
+When using Access Transformers on Minecraft classes, the SRG name must be used for fields and methods.
+:::
 
 ### Classes
 To target classes:

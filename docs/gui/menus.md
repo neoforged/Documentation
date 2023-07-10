@@ -23,8 +23,9 @@ public MyMenu(int containerId, Inventory playerInv) {
 }
 ```
 
-!!! note
-    The container identifier is unique for an individual player. This means that the same container id on two different players will represent two different menus, even if they are viewing the same data holder.
+:::note
+The container identifier is unique for an individual player. This means that the same container id on two different players will represent two different menus, even if they are viewing the same data holder.
+:::
 
 The `MenuSupplier` is usually responsible for creating a menu on the client with dummy data references used to store and interact with the synced information from the server data holder.
 
@@ -48,8 +49,9 @@ public MyMenuExtra(int containerId, Inventory playerInv, FriendlyByteBuf extraDa
 
 All menus are extended from `AbstractContainerMenu`. A menu takes in two parameters, the [`MenuType`][mt], which represents the type of the menu itself, and the container id, which represents the unique identifier of the menu for the current accessor.
 
-!!! important
-    The player can only have 100 unique menus open at once.
+:::caution
+The player can only have 100 unique menus open at once.
+:::
 
 Each menu should contain two constructors: one used to initialize the menu on the server and one used to initialize the menu on the client. The constructor used to initialize the menu on the client is the one supplied to the `MenuType`. Any fields that the server menu constructor contains should have some default for the client menu constructor.
 
@@ -97,8 +99,9 @@ Some data needs to be present on both the server and the client to display to th
 
 Minecraft supports two forms of data synchronization by default: `ItemStack`s via `Slot`s and integers via `DataSlot`s. `Slot`s and `DataSlot`s are views which hold references to data storages that can be be modified by the player in a screen, assuming the action is valid. These can be added to a menu within the constructor through `#addSlot` and `#addDataSlot`.
 
-!!! note
-    Since `Container`s used by `Slot`s are deprecated by Forge in favor of using the [`IItemHandler` capability][cap], the rest of the explanation will revolve around using the capability variant: `SlotItemHandler`.
+:::note
+Since `Container`s used by `Slot`s are deprecated by Forge in favor of using the [`IItemHandler` capability][cap], the rest of the explanation will revolve around using the capability variant: `SlotItemHandler`.
+:::
 
 A `SlotItemHandler` contains four parameters: the `IItemHandler` representing the inventory the stacks are within, the index of the stack this slot is specifically representing, and the x and y position of where the top-left position of the slot will render on the screen relative to `AbstractContainerScreen#leftPos` and `#topPos`. The client menu constructor should always supply an empty instance of an inventory of the same size.
 
@@ -108,8 +111,9 @@ A `DataSlot` is an abstract class which should implement a getter and setter to 
 
 These, along with slots, should be recreated every time a new menu is initialized.
 
-!!! warning
-    Although a `DataSlot` stores an integer, it is effectively limited to a **short** (-32768 to 32767) because of how it sends the value across the network. The 16 high-order bits of the integer are ignored.
+:::caution
+Although a `DataSlot` stores an integer, it is effectively limited to a **short** (-32768 to 32767) because of how it sends the value across the network. The 16 high-order bits of the integer are ignored.
+:::
 
 ```java
 // Assume we have an inventory from a data object of size 5
@@ -160,8 +164,9 @@ public MyMenuAccess(int containerId, Inventory playerInventory, ContainerData da
 }
 ```
 
-!!! warning
-    As `ContainerData` delegates to `DataSlot`s, these are also limited to a **short** (-32768 to 32767).
+:::caution
+As `ContainerData` delegates to `DataSlot`s, these are also limited to a **short** (-32768 to 32767).
+:::
 
 #### `#quickMoveStack`
 
@@ -263,8 +268,9 @@ public ItemStack quickMoveStack(Player player, int quickMovedSlotIndex) {
 
 Once a menu type has been registered, the menu itself has been finished, and a [screen] has been attached, a menu can then be opened by the player. Menus can be opened by calling `NetworkHooks#openScreen` on the logical server. The method takes in the player opening the menu, the `MenuProvider` of the server side menu, and optionally a `FriendlyByteBuf` if extra data needs to be synced to the client.
 
-!!! note
-    `NetworkHooks#openScreen` with the `FriendlyByteBuf` parameter should only be used if a menu type was created using an [`IContainerFactory`][icf].
+:::note
+`NetworkHooks#openScreen` with the `FriendlyByteBuf` parameter should only be used if a menu type was created using an [`IContainerFactory`][icf].
+:::
 
 #### `MenuProvider`
 
@@ -306,8 +312,9 @@ public InteractionResult use(BlockState state, Level level, BlockPos pos, Player
 }
 ```
 
-!!! note
-    This is the simplest way to implement the logic, not the only way. If you want the block to only open the menu under certain conditions, then some data will need to be synced to the client beforehand to return `InteractionResult#PASS` or `#FAIL` if the conditions are not met.
+:::note
+This is the simplest way to implement the logic, not the only way. If you want the block to only open the menu under certain conditions, then some data will need to be synced to the client beforehand to return `InteractionResult#PASS` or `#FAIL` if the conditions are not met.
+:::
 
 #### Mob Implementation
 
@@ -327,8 +334,9 @@ public class MyMob extends Mob implements MenuProvider {
 }
 ```
 
-!!! note
-    Once again, this is the simplest way to implement the logic, not the only way.
+:::note
+Once again, this is the simplest way to implement the logic, not the only way.
+:::
 
 [registered]: ../concepts/registries.md#methods-for-registering
 [acm]: #abstractcontainermenu

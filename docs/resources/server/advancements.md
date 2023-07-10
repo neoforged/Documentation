@@ -59,14 +59,15 @@ public ExampleTriggerInstance(EntityPredicate.Composite player, ItemPredicate it
 }
 ```
 
-!!! note
-    Typically, trigger instances have a static constructor which allow these instances to be easily created for data generation. These static factory methods can also be statically imported instead of the class itself.
+:::note
+Typically, trigger instances have a static constructor which allow these instances to be easily created for data generation. These static factory methods can also be statically imported instead of the class itself.
 
-    ```java
-    public static ExampleTriggerInstance instance(EntityPredicate.Builder playerBuilder, ItemPredicate.Builder itemBuilder) {
-      return new ExampleTriggerInstance(EntityPredicate.Composite.wrap(playerBuilder.build()), itemBuilder.build());
-    }
-    ```
+```java
+public static ExampleTriggerInstance instance(EntityPredicate.Builder playerBuilder, ItemPredicate.Builder itemBuilder) {
+  return new ExampleTriggerInstance(EntityPredicate.Composite.wrap(playerBuilder.build()), itemBuilder.build());
+}
+```
+:::
 
 Additionally, the `#serializeToJson` method should be overridden. The method should add the conditions of the instance to the other JSON data.
 
@@ -119,8 +120,9 @@ public void trigger(ServerPlayer player, ItemStack stack) {
 
 Afterwards, an instance should be registered using `CriteriaTriggers#register` during `FMLCommonSetupEvent`.
 
-!!! important
-    `CriteriaTriggers#register` must be enqueued to the synchronous work queue via `FMLCommonSetupEvent#enqueueWork` as the method is not thread-safe.
+:::danger
+`CriteriaTriggers#register` must be enqueued to the synchronous work queue via `FMLCommonSetupEvent#enqueueWork` as the method is not thread-safe.
+:::
 
 ### Calling the Trigger
 

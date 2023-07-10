@@ -8,8 +8,9 @@ Spawn Data
 
 In general, the spawning of modded entities is handled separately, by Forge.
 
-!!! note
-    This means that simply extending a vanilla entity class may not inherit all its behavior. You may need to implement certain vanilla behaviors yourself.
+:::note
+This means that simply extending a vanilla entity class may not inherit all its behavior. You may need to implement certain vanilla behaviors yourself.
+:::
 
 You can add extra data to the spawn packet Forge sends by implementing the following interface.
 
@@ -26,9 +27,10 @@ This is the main vanilla system for synchronizing entity data from the server to
 
 Firstly, you need a `EntityDataAccessor<T>` for the data you wish to keep synchronized. This should be stored as a `static final` field in your entity class, obtained by calling `SynchedEntityData#defineId` and passing the entity class and a serializer for that type of data. The available serializer implementations can be found as static constants within the `EntityDataSerializers` class.
 
-!!! warning
-    You should __only__ create data parameters for your own entities, _within that entity's class_.
-    Adding parameters to entities you do not control can cause the IDs used to send that data over the network to become desynchronized, causing difficult to debug crashes.
+:::caution
+You should __only__ create data parameters for your own entities, _within that entity's class_.
+Adding parameters to entities you do not control can cause the IDs used to send that data over the network to become desynchronized, causing difficult to debug crashes.
+:::
 
 Then, override `Entity#defineSynchedData` and call `this.entityData.define(...)` for each of your data parameters, passing the parameter and an initial value to use. Remember to always call the `super` method first!
 

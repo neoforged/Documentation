@@ -42,13 +42,14 @@ Recipes are loaded and stored via the `RecipeManager`. Any operations relating t
 
 Each method takes in a `RecipeType`, which denotes what method is being applied to use the recipe (crafting, smelting, etc.), a `Container` which holds the configuration of the inputs, and the current level which is passed to `Recipe#matches` along with the container.
 
-!!! important
-    Forge provides the `RecipeWrapper` utility class which extends `Container` for wrapping around `IItemHandler`s and passing them to methods which requires a `Container` parameter.
+:::tip
+Forge provides the `RecipeWrapper` utility class which extends `Container` for wrapping around `IItemHandler`s and passing them to methods which requires a `Container` parameter.
 
-    ```java
-    // Within some method with IItemHandlerModifiable handler
-    recipeManger.getRecipeFor(RecipeType.CRAFTING, new RecipeWrapper(handler), level);
-    ```
+```java
+// Within some method with IItemHandlerModifiable handler
+recipeManger.getRecipeFor(RecipeType.CRAFTING, new RecipeWrapper(handler), level);
+```
+:::
 
 Additional Features
 -------------------
@@ -73,8 +74,9 @@ Except for `minecraft:stonecutting` recipes, all vanilla recipe serializers expa
 }
 ```
 
-!!! note
-    The `nbt` tag can alternatively be a string containing a stringified NBT (or SNBT) for data which cannot be properly represented as a JSON object (such as `IntArrayTag`s).
+:::note
+The `nbt` tag can alternatively be a string containing a stringified NBT (or SNBT) for data which cannot be properly represented as a JSON object (such as `IntArrayTag`s).
+:::
 
 ### Conditional Recipes
 
@@ -84,8 +86,9 @@ Recipes and their unlocking advancement can be [loaded conditionally and default
 
 By default, vanilla declares a maximum width and height for a crafting grid to be a 3x3 square. This can be expanded by calling `ShapedRecipe#setCraftingSize` with the new width and height in `FMLCommonSetupEvent`.
 
-!!! warning
-    `ShapedRecipe#setCraftingSize` is **NOT** thread-safe. As such, it should be enqueued to the synchronous work queue via `FMLCommonSetupEvent#enqueueWork`.
+:::caution
+`ShapedRecipe#setCraftingSize` is **NOT** thread-safe. As such, it should be enqueued to the synchronous work queue via `FMLCommonSetupEvent#enqueueWork`.
+:::
 
 Larger crafting grids in recipes can be [data generated][datagen].
 

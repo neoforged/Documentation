@@ -23,8 +23,9 @@ public void registerBindings(RegisterKeyMappingsEvent event) {
 
 A `KeyMapping` can be created using it's constructor. The `KeyMapping` takes in a [translation key][tk] defining the name of the mapping, the default input of the mapping, and the [translation key][tk] defining the category the mapping will be put within in the [Controls option menu][controls].
 
-!!! tip
-    A `KeyMapping` can be added to a custom category by providing a category [translation key][tk] not provided by vanilla. Custom category translation keys should contain the mod id (e.g. `key.categories.examplemod.examplecategory`).
+:::tip
+A `KeyMapping` can be added to a custom category by providing a category [translation key][tk] not provided by vanilla. Custom category translation keys should contain the mod id (e.g. `key.categories.examplemod.examplecategory`).
+:::
 
 ### Default Inputs
 
@@ -32,8 +33,9 @@ Each key mapping has a default input associated with it. This is provided throug
 
 Vanilla provides three types of inputs: `KEYSYM`, which defines a keyboard through the provided `GLFW` key tokens, `SCANCODE`, which defines a keyboard through the platform-specific scancode, and `MOUSE`, which defines a mouse.
 
-!!! note
-    It is highly recommended to use `KEYSYM` over `SCANCODE` for keyboards as `GLFW` key tokens are not tied to any particular system. You can read more on the [GLFW docs][keyinput].
+:::note
+It is highly recommended to use `KEYSYM` over `SCANCODE` for keyboards as `GLFW` key tokens are not tied to any particular system. You can read more on the [GLFW docs][keyinput].
+:::
 
 The integer is dependent on the type provided. All input codes are defined in `GLFW`: `KEYSYM` tokens are prefixed with `GLFW_KEY_*` while `MOUSE` codes are prefixed with `GLFW_MOUSE_*`.
 
@@ -46,8 +48,9 @@ new KeyMapping(
 )
 ```
 
-!!! note
-    If the key mapping should not be mapped to a default, the input should be set to `InputConstants#UNKNOWN`. The vanilla constructor will require you to extract the input code via `InputConstants$Key#getValue` while the Forge constructor can be supplied the raw input field.
+:::note
+If the key mapping should not be mapped to a default, the input should be set to `InputConstants#UNKNOWN`. The vanilla constructor will require you to extract the input code via `InputConstants$Key#getValue` while the Forge constructor can be supplied the raw input field.
+:::
 
 ### `IKeyConflictContext`
 
@@ -103,8 +106,9 @@ public void onClientTick(ClientTickEvent event) {
 }
 ```
 
-!!! warning
-    Do not use the `InputEvent`s as an alternative to `ClientTickEvent`. There are separate events for keyboard and mouse inputs only, so they wouldn't handle any additional inputs.
+:::caution
+Do not use the `InputEvent`s as an alternative to `ClientTickEvent`. There are separate events for keyboard and mouse inputs only, so they wouldn't handle any additional inputs.
+:::
 
 ### Inside a GUI
 
@@ -124,8 +128,9 @@ public boolean keyPressed(int key, int scancode, int mods) {
 } 
 ```
 
-!!! note
-    If you do not own the screen which you are trying to check a **key** for, you can listen to the `Pre` or `Post` events of `ScreenEvent$KeyPressed` on the [**Forge event bus**][forgebus] instead.
+:::note
+If you do not own the screen which you are trying to check a **key** for, you can listen to the `Pre` or `Post` events of `ScreenEvent$KeyPressed` on the [**Forge event bus**][forgebus] instead.
+:::
 
 `#mouseClicked` takes in the mouse's x position, y position, and the button clicked. A mouse button can be checked against a mapping by creating the input using `InputConstants$Type#getOrCreate` with the `MOUSE` input.
 
@@ -141,8 +146,9 @@ public boolean mouseClicked(double x, double y, int button) {
 } 
 ```
 
-!!! note
-    If you do not own the screen which you are trying to check a **mouse** for, you can listen to the `Pre` or `Post` events of `ScreenEvent$MouseButtonPressed` on the [**Forge event bus**][forgebus] instead.
+:::note
+If you do not own the screen which you are trying to check a **mouse** for, you can listen to the `Pre` or `Post` events of `ScreenEvent$MouseButtonPressed` on the [**Forge event bus**][forgebus] instead.
+:::
 
 [modbus]: ../concepts/events.md#mod-event-bus
 [controls]: https://minecraft.fandom.com/wiki/Options#Controls

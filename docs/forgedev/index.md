@@ -10,8 +10,9 @@ Like most major open source projects you will find, Forge is hosted on [GitHub][
 
 For those who are beginners when it comes to collaboration via Git, here are two easy steps to get you started.
 
-!!! note
-    This guide assumes that you already have a GitHub account set up. If you do not, visit their [registration page][register] to create an account. Furthermore, this guide is not a tutorial for git's usage. Please consult different sources first if you are struggling to get it working.
+:::note
+This guide assumes that you already have a GitHub account set up. If you do not, visit their [registration page][register] to create an account. Furthermore, this guide is not a tutorial for git's usage. Please consult different sources first if you are struggling to get it working.
+:::
 
 ### Forking
 
@@ -97,8 +98,9 @@ To initiate the patch generation, simply run the `genPatches` Gradle task from y
 
 The last step before your contribution is added to Forge is a Pull Request (PR in short). This is a formal request to incorporate your fork's changes into the live code base. Creating a PR is easy. Simply go to [this GitHub page][submitpr] and follow the proposed steps. It is now that a good setup with branches pays off, since you are able to select precisely the changes you want to submit.
 
-!!! note
-    Pull Requests are bound to rules; not every request will blindly be accepted. Follow [this document][contribute] to get further information and to ensure the best quality of your PR! If you want to maximize the chances of your PR getting accepted, follow these [PR guidelines][guidelines]!
+:::note
+Pull Requests are bound to rules; not every request will blindly be accepted. Follow [this document][contribute] to get further information and to ensure the best quality of your PR! If you want to maximize the chances of your PR getting accepted, follow these [PR guidelines][guidelines]!
+:::
 
 [github]: https://www.github.com
 [register]: https://www.github.com/join

@@ -1,5 +1,7 @@
 Contributing to This Documentation
 ==================================
+This page is outdated, and it will have the relevant information soon.
+<!-- 
 
 You can make a contribution via a PR on [GitHub].
 
@@ -13,8 +15,9 @@ Please don't try to turn this documentation into a tutorial on Java Development 
 Style Guide
 -----------
 
-!!! important
-    Please use **two spaces** to indent, not tabs.
+:::caution
+Please use **two spaces** to indent, not tabs.
+:::
 
 Titles should be capitalized in the standard titling format. For example,
 
@@ -33,7 +36,7 @@ JSON code block snippets should use `js` syntax highlighting.
 
 All links should have their location specified at the bottom of the page. Any internal links should reference the page via their relative path.
 
-Admonitions (represented by `!!! <type>`) must be formatted as [documented][admonition]; otherwise they may end up rendering incorrectly.
+Admonitions (represented by `::: <type>`) must be formatted as [documented][admonition]; otherwise they may end up rendering incorrectly.
 
 [GitHub]: https://github.com/MinecraftForge/Documentation
-[admonition]: https://python-markdown.github.io/extensions/admonition/
+[admonition]: https://python-markdown.github.io/extensions/admonition/ -->

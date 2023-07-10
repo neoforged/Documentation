@@ -118,8 +118,9 @@ Creating Custom Ingredients
 
 Custom ingredients can be created by implementing `IIngredientSerializer` for the created `Ingredient` subclass.
 
-!!! tip
-    Custom ingredients should subclass `AbstractIngredient` as it provides some useful abstractions for ease of implementation.
+:::tip
+Custom ingredients should subclass `AbstractIngredient` as it provides some useful abstractions for ease of implementation.
+:::
 
 ### Ingredient Subclass
 
@@ -165,8 +166,9 @@ public IIngredientSerializer<? extends Ingredient> getSerializer() {
 }
 ```
 
-!!! tip
-    If using `FMLCommonSetupEvent` to register an ingredient serializer, it must be enqueued to the synchronous work queue via `FMLCommonSetupEvent#enqueueWork` as `CraftingHelper#register` is not thread-safe.
+:::tip
+If using `FMLCommonSetupEvent` to register an ingredient serializer, it must be enqueued to the synchronous work queue via `FMLCommonSetupEvent#enqueueWork` as `CraftingHelper#register` is not thread-safe.
+:::
 
 [recipes]: https://minecraft.fandom.com/wiki/Recipe#List_of_recipe_types
 [nbt]: #strictnbtingredient

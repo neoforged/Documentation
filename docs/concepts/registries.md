@@ -52,8 +52,9 @@ public void register(RegisterEvent event) {
 
 Not all registries are wrapped by Forge. These can be static registries, like `LootItemConditionType`, which are safe to use. There are also dynamic registries, like `ConfiguredFeature` and some other worldgen registries, which are typically represented in JSON. `DeferredRegister#create` has an overload which allows modders to specify the registry key of which vanilla registry to create a `RegistryObject` for. The registry method and attaching to the mod event bus is the same as other `DeferredRegister`s.
 
-!!! important
-    Dynamic registry objects can **only** be registered through data files (e.g. JSON). They **cannot** be registered in-code.
+:::danger
+Dynamic registry objects can **only** be registered through data files (e.g. JSON). They **cannot** be registered in-code.
+:::
 
 ```java
 private static final DeferredRegister<LootItemConditionType> REGISTER = DeferredRegister.create(Registries.LOOT_CONDITION_TYPE, "examplemod");
@@ -61,15 +62,16 @@ private static final DeferredRegister<LootItemConditionType> REGISTER = Deferred
 public static final RegistryObject<LootItemConditionType> EXAMPLE_LOOT_ITEM_CONDITION_TYPE = REGISTER.register("example_loot_item_condition_type", () -> new LootItemConditionType(...));
 ```
 
-!!! note
-    Some classes cannot by themselves be registered. Instead, `*Type` classes are registered, and used in the formers' constructors. For example, [`BlockEntity`][blockentity] has `BlockEntityType`, and `Entity` has `EntityType`. These `*Type` classes are factories that simply create the containing type on demand. 
-    
-    These factories are created through the use of their `*Type$Builder` classes. An example: (`REGISTER` refers to a `DeferredRegister<BlockEntityType>`)
-    ```java
-    public static final RegistryObject<BlockEntityType<ExampleBlockEntity>> EXAMPLE_BLOCK_ENTITY = REGISTER.register(
-      "example_block_entity", () -> BlockEntityType.Builder.of(ExampleBlockEntity::new, EXAMPLE_BLOCK.get()).build(null)
-    );
-    ```
+:::note
+Some classes cannot by themselves be registered. Instead, `*Type` classes are registered, and used in the formers' constructors. For example, [`BlockEntity`][blockentity] has `BlockEntityType`, and `Entity` has `EntityType`. These `*Type` classes are factories that simply create the containing type on demand. 
+
+These factories are created through the use of their `*Type$Builder` classes. An example: (`REGISTER` refers to a `DeferredRegister<BlockEntityType>`)
+```java
+public static final RegistryObject<BlockEntityType<ExampleBlockEntity>> EXAMPLE_BLOCK_ENTITY = REGISTER.register(
+  "example_block_entity", () -> BlockEntityType.Builder.of(ExampleBlockEntity::new, EXAMPLE_BLOCK.get()).build(null)
+);
+```
+:::
 
 Referencing Registered Objects
 ------------------------------
@@ -113,8 +115,9 @@ The rules for `@ObjectHolder` are as follows:
 
 `@ObjectHolder`-annotated fields are injected with their values after `RegisterEvent` is fired for their registry, along with the `RegistryObject`s.
 
-!!! note
-    If the object does not exist in the registry when it is to be injected, a debug message will be logged and no value will be injected.
+:::note
+If the object does not exist in the registry when it is to be injected, a debug message will be logged and no value will be injected.
+:::
 
 As these rules are rather complicated, here are some examples:
 
@@ -159,16 +162,18 @@ When using `NewRegistryEvent`, calling `#create` with a `RegistryBuilder` will r
 
 The `DeferredRegister` method is once again another wrapper around the above event. Once a `DeferredRegister` is created in a constant field using the `#create` overload which takes in the registry name and the mod id, the registry can be constructed via `DeferredRegister#makeRegistry`. This takes in  a supplied `RegistryBuilder` containing any additional configurations. The method already populates `#setName` by default. Since this method can be returned at any time, a supplied version of an `IForgeRegistry` is returned instead. Getting the custom registry from the supplier before `NewRegistryEvent` is fired will result in a `null` value.
 
-!!! important
-    `DeferredRegister#makeRegistry` must be called before the `DeferredRegister` is added to the mod event bus via `#register`. `#makeRegistry` also uses the `#register` method to create the registry during `NewRegistryEvent`.
+:::caution
+`DeferredRegister#makeRegistry` must be called before the `DeferredRegister` is added to the mod event bus via `#register`. `#makeRegistry` also uses the `#register` method to create the registry during `NewRegistryEvent`.
+:::
 
 Handling Missing Entries
 ------------------------
 
 There are cases where certain registry objects will cease to exist whenever a mod is updated or, more likely, removed. It is possible to specify actions to handle the missing mapping through the third of the registry events: `MissingMappingsEvent`. Within this event, a list of missing mappings can be obtained either by `#getMappings` given a registry key and mod id or all mappings via `#getAllMappings` given a registry key.
 
-!!! important
-    `MissingMappingsEvent` is fired on the **Forge** event bus.
+:::caution
+`MissingMappingsEvent` is fired on the **Forge** event bus.
+:::
 
 For each `Mapping`, one of four mapping types can be selected to handle the missing entry:
 

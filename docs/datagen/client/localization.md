@@ -27,13 +27,14 @@ this.addBlock(EXAMPLE_BLOCK, "Example Block");
 this.add("object.examplemod.example_object", "Example Object");
 ```
 
-!!! tip
-    Localized names which contain alphanumeric values not in American English can be supplied as is. The provider automatically translates the characters into their unicode equivalents to be read by the game.
+:::tip
+Localized names which contain alphanumeric values not in American English can be supplied as is. The provider automatically translates the characters into their unicode equivalents to be read by the game.
 
-    ```java
-    // Encdoded as 'Example with a d\u00EDacritic'
-    this.addItem("example.diacritic", "Example with a díacritic");
-    ```
+```java
+// Encdoded as 'Example with a d\u00EDacritic'
+this.addItem("example.diacritic", "Example with a díacritic");
+```
+:::
 
 [lang]: ../../concepts/internationalization.md
 [locale]: https://minecraft.fandom.com/wiki/Language#Languages

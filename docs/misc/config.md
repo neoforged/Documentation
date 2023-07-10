@@ -13,22 +13,23 @@ A configuration can be created using a subtype of `IConfigSpec`. Forge implement
 `build`     | Creates the `ForgeConfigSpec`.
 `configure` | Creates a pair of the class holding the config values and the `ForgeConfigSpec`.
 
-!!! note
-    `ForgeConfigSpec$Builder#configure` is typically used with a `static` block and a class that takes in `ForgeConfigSpec$Builder` as part of its constructor to attach and hold the values:
+:::note
+`ForgeConfigSpec$Builder#configure` is typically used with a `static` block and a class that takes in `ForgeConfigSpec$Builder` as part of its constructor to attach and hold the values:
 
-    ```java
-    // In some config class
-    ExampleConfig(ForgeConfigSpec.Builder builder) {
-      // Define values here in final fields
-    }
+```java
+// In some config class
+ExampleConfig(ForgeConfigSpec.Builder builder) {
+  // Define values here in final fields
+}
 
-    // Somewhere the constructor is accessible
-    static {
-      Pair<ExampleConfig, ForgeConfigSpec> pair = new ForgeConfigSpec.Builder()
-        .configure(ExampleConfig::new);
-      // Store pair values in some constant field
-    }
-    ```
+// Somewhere the constructor is accessible
+static {
+  Pair<ExampleConfig, ForgeConfigSpec> pair = new ForgeConfigSpec.Builder()
+    .configure(ExampleConfig::new);
+  // Store pair values in some constant field
+}
+```
+:::
 
 Each config value can be supplied with additional context to provide additional behavior. Contexts must be defined before the config value is fully built:
 
@@ -70,8 +71,9 @@ The values themselves can be obtained using `ConfigValue#get`. The values are ad
       * The minimum and maximum the config value may be
       * A class representing the data type of the config value
 
-!!! note
-    `DoubleValue`s, `IntValue`s, and `LongValue`s are range values which specify the class as `Double`, `Integer`, and `Long` respectively.
+:::note
+`DoubleValue`s, `IntValue`s, and `LongValue`s are range values which specify the class as `Double`, `Integer`, and `Long` respectively.
+:::
 
 * **Whitelisted Values**
     * Description: Value must be in supplied collection
@@ -118,16 +120,18 @@ CLIENT | Client Side Only | No               | `.minecraft/config`              
 COMMON | On Both Sides    | No               | `.minecraft/config`                          | `<server_folder>/config`             | `-common`
 SERVER | Server Side Only | Yes              | `.minecraft/saves/<level_name>/serverconfig` | `<server_folder>/world/serverconfig` | `-server`
 
-!!! tip
-    Forge documents the [config types][type] within their codebase.
+:::tip
+Forge documents the [config types][type] within their codebase.
+:::
 
 Configuration Events
 --------------------
 
 Operations that occur whenever a config is loaded or reloaded can be done using the `ModConfigEvent$Loading` and `ModConfigEvent$Reloading` events. The events must be [registered][events] to the mod event bus.
 
-!!! warning
-    These events are called for all configurations for the mod; the `ModConfig` object provided should be used to denote which configuration is being loaded or reloaded.
+:::caution
+These events are called for all configurations for the mod; the `ModConfig` object provided should be used to denote which configuration is being loaded or reloaded.
+:::
 
 [toml]: https://toml.io/
 [nightconfig]: https://github.com/TheElectronWill/night-config

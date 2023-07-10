@@ -31,8 +31,9 @@ public static final Capability<IItemHandler> ITEM_HANDLER = CapabilityManager.ge
 
 When called, `CapabilityManager#get` provides a non-null capability for your associated type. The anonymous `CapabilityToken` allows Forge to keep a soft dependency system while still having the necessary generic information to get the correct capability.
 
-!!! important
-    Even if you have a non-null capability available to you at all times, it does not mean the capability itself is usable or registered yet. This can be checked via `Capability#isRegistered`.
+:::danger
+Even if you have a non-null capability available to you at all times, it does not mean the capability itself is usable or registered yet. This can be checked via `Capability#isRegistered`.
+:::
 
 The `#getCapability` method has a second parameter, of type `Direction`, which can be used to request the specific instance for that one face. If passed `null`, it can be assumed that the request comes either from within the block or from some place where the side has no meaning, such as a different dimension. In this case a general capability instance that does not care about sides will be requested instead. The return type of `#getCapability` will correspond to a `LazyOptional` of the type declared in the capability passed to the method. For the Item Handler capability, this is `LazyOptional<IItemHandler>`. If the capability is not available for a particular provider, it will return an empty `LazyOptional` instead.
 
@@ -70,15 +71,16 @@ public void invalidateCaps() {
 }
 ```
 
-!!! tip
-    If only one capability is exposed on a given object, you can use `Capability#orEmpty` as an alternative to the if/else statement.
+:::tip
+If only one capability is exposed on a given object, you can use `Capability#orEmpty` as an alternative to the if/else statement.
 
-    ```java
-    @Override
-    public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
-      return ForgeCapabilities.ITEM_HANDLER.orEmpty(cap, inventoryHandlerLazyOptional);
-    }
-    ```
+```java
+@Override
+public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
+  return ForgeCapabilities.ITEM_HANDLER.orEmpty(cap, inventoryHandlerLazyOptional);
+}
+```
+:::
 
 `Item`s are a special case since their capability providers are stored on an `ItemStack`. Instead, a provider should be attached through `Item#initCapabilities`. This should hold your capabilities for the lifecycle of the stack.
 

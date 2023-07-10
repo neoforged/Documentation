@@ -26,8 +26,9 @@ Minecraft Versions | Java Development Kit Version
     1. Change the `version` number to reflect the current version of your mod. It is highly recommended to use [Forge's extension on semantic versioning][semver].
 
 
-!!! important
-    Make sure that any changes to the mod id are reflected in the mods.toml and main mod class. See [Structuring Your Mod][structuring] on the Forge docs for more information.
+:::caution
+Make sure that any changes to the mod id are reflected in the mods.toml and main mod class. See [Structuring Your Mod][structuring] on the Forge docs for more information.
+:::
 
 4. Reload or refresh your Gradle project using your IDE. If your IDE does not have Gradle integration, run the following from a shell in your project's directory:
 
@@ -57,8 +58,9 @@ Minecraft Versions | Java Development Kit Version
 
 You can the run the client, server, etc. using one of the generated run configurations.
 
-!!! tip
-    If your IDE is not listed, you can still run the configurations using `./gradlew run*` (e.g., `runClient`, `runServer`, `runData`). You can use these commands with the supported IDEs as well.
+:::tip
+If your IDE is not listed, you can still run the configurations using `./gradlew run*` (e.g., `runClient`, `runServer`, `runData`). You can use these commands with the supported IDEs as well.
+:::
 
 Congratulations, now you have a development environment set up!
 

@@ -8,15 +8,17 @@ Recipe
 
 The `Recipe` interface describes the recipe data and the execution logic. This includes matching the inputs and providing the associated result. As the recipe subsystem performs item transformations by default, the inputs are supplied through a `Container` subtype.
 
-!!! important
-    The `Container`s passed into the recipe should be treated as if its contents were immutable. Any mutable operations should be performed on a copy of the input through `ItemStack#copy`.
+:::caution
+The `Container`s passed into the recipe should be treated as if its contents were immutable. Any mutable operations should be performed on a copy of the input through `ItemStack#copy`.
+:::
 
 To be able to obtain a recipe instance from the manager, `#matches` must return true. This method checks against the provided container to see whether the associated inputs are valid. `Ingredient`s can be used for validation by calling `Ingredient#test`.
 
 If the recipe has been chosen, it is then built using `#assemble` which may use data from the inputs to create the result.
 
-!!! tip
-    `#assemble` should always produce a unique `ItemStack`. If unsure whether `#assemble` does so, call `ItemStack#copy` on the result before returning.
+:::tip
+`#assemble` should always produce a unique `ItemStack`. If unsure whether `#assemble` does so, call `ItemStack#copy` on the result before returning.
+:::
 
 Most of the other methods are purely for integration with the recipe book.
 
@@ -26,8 +28,9 @@ public record ExampleRecipe(Ingredient input, int data, ItemStack output) implem
 }
 ```
 
-!!! note
-    While a record is used in the above example, it is not required to do so in your own implementation.
+:::note
+While a record is used in the above example, it is not required to do so in your own implementation.
+:::
 
 RecipeType
 ----------
@@ -71,8 +74,9 @@ public RecipeSerializer<?> getSerializer() {
 }
 ```
 
-!!! tip
-    There are some useful methods to make reading and writing data for recipes easier. `Ingredient`s can use `#fromJson`, `#toNetwork`, and `#fromNetwork` while `ItemStack`s can use `CraftingHelper#getItemStack`, `FriendlyByteBuf#writeItem`, and `FriendlyByteBuf#readItem`.
+:::tip
+There are some useful methods to make reading and writing data for recipes easier. `Ingredient`s can use `#fromJson`, `#toNetwork`, and `#fromNetwork` while `ItemStack`s can use `CraftingHelper#getItemStack`, `FriendlyByteBuf#writeItem`, and `FriendlyByteBuf#readItem`.
+:::
 
 Building the JSON
 -----------------

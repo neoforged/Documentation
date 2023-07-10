@@ -21,13 +21,15 @@ A `ParticleType` is the registry object defining what a particular particle type
 
 Each `ParticleType` takes in two parameters: an `overrideLimiter` which determines whether the particle renders regardless of distance, and a `ParticleOptions$Deserializer` which is used to read the sent `ParticleOptions` on the client. As the base `ParticleType` is abstract, a single method needs to be implemented: `#codec`. This represents how to encode and decode the associated `ParticleOptions` of the type.
 
-!!! note
-    `ParticleType#codec` is only used within the biome codec for vanilla implementations.
+:::note
+`ParticleType#codec` is only used within the biome codec for vanilla implementations.
+:::
 
 In most cases, there is no need to have any particle data sent to the client. For these instances, it is easier to create a new instance of `SimpleParticleType`: an implementation of `ParticleType` and `ParticleOptions` which does not send any custom data to the client besides the type. Most vanilla implementations use `SimpleParticleType` besides redstone dust for coloring and block/item dependent particles.
 
-!!! important
-    A `ParticleType` is not needed to make a particle spawn if only referenced on the client. However, it is necessary to use any of the prebuilt logic within `ParticleEngine` or spawn a particle from the server.
+:::info
+A `ParticleType` is not needed to make a particle spawn if only referenced on the client. However, it is necessary to use any of the prebuilt logic within `ParticleEngine` or spawn a particle from the server.
+:::
 
 ### ParticleOptions
 
@@ -86,8 +88,9 @@ Finally, a particle is usually created via an `ParticleProvider`. A factory has 
 
 An `ParticleProvider` must be registered by subscribing to the `RegisterParticleProvidersEvent` on the **mod event bus**. Within the event, the factory can be registered via `#registerSpecial` by supplying an instance of the factory to the method.
 
-!!! important
-    `RegisterParticleProvidersEvent` should only be called on the client and thus sided off in some isolated client class, referenced by either `DistExecutor` or `@EventBusSubscriber`.
+:::danger
+`RegisterParticleProvidersEvent` should only be called on the client and thus sided off in some isolated client class, referenced by either `DistExecutor` or `@EventBusSubscriber`.
+:::
 
 #### ParticleDescription, SpriteSet, and SpriteParticleRegistration
 
@@ -113,8 +116,9 @@ To reference a particle texture, the subtype of `TextureSheetParticle` should ei
 
 To register these particle textures, a `SpriteParticleRegistration` needs to be supplied to the `RegisterParticleProvidersEvent#registerSpriteSet` method. This method takes in an `SpriteSet` holding the associated sprite set for the particle and creates an `ParticleProvider` to create the particle. The simplest method of implementation can be done by implementing `ParticleProvider` on some class and having the constructor take in an `SpriteSet`. Then the `SpriteSet` can be passed to the particle as normal.
 
-!!! note
-    If you are registering a `TextureSheetParticle` subtype which only contains one texture, then you can supply a `ParticleProvider$Sprite` instead to the `#registerSprite` method, which has essentially the same functional interface method as `ParticleProvider`.
+:::note
+If you are registering a `TextureSheetParticle` subtype which only contains one texture, then you can supply a `ParticleProvider$Sprite` instead to the `#registerSprite` method, which has essentially the same functional interface method as `ParticleProvider`.
+:::
 
 Spawning a Particle
 -------------------

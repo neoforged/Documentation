@@ -3,8 +3,9 @@ Structuring Your Mod
 
 Structured mods are beneficial for maintenance, making contributions, and providing a clearer understanding of the underlying codebase. Some of the recommendations from Java, Minecraft, and Forge are listed below.
 
-!!! note
-    You do not have to follow the advice below; you can structure your mod any way you see fit. However, it is still highly recommended to do so.
+:::note
+You do not have to follow the advice below; you can structure your mod any way you see fit. However, it is still highly recommended to do so.
+:::
 
 Packaging
 ---------
@@ -68,8 +69,9 @@ Classes are commonly suffixed with its type, for example:
 * A `Block` called `NotDirt` -> `NotDirtBlock`.
 * A menu for an `Oven` -> `OvenMenu`.
 
-!!! note
-    Mojang typically follows a similar structure for all classes except entities. Those are represented by just their names (e.g. `Pig`, `Zombie`, etc.).
+:::tip
+Mojang typically follows a similar structure for all classes except entities. Those are represented by just their names (e.g. `Pig`, `Zombie`, etc.).
+:::
 
 Choose One Method from Many
 ---------------------------

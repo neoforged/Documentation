@@ -141,8 +141,9 @@ Method | Description
 getID  | The registry name of the condition. Must be equivalent to [`IConditionSerializer#getID`][serializer]. Used only for [data generation][datagen].
 test   | Returns true if the condition has been satisfied.
 
-!!! note
-    Every `#test` has access to some `IContext` representing the state of the game. Currently, only tags can be obtained from a registry.
+:::note
+Every `#test` has access to some `IContext` representing the state of the game. Currently, only tags can be obtained from a registry.
+:::
 
 ### IConditionSerializer
 
@@ -154,8 +155,9 @@ getID  | The registry name of the condition. Must be equivalent to [`ICondition#
 read   | Reads the condition data from JSON.
 write  | Writes the given condition data to JSON.
 
-!!! note
-    Condition serializers are not responsible for writing or reading the type of the serializer, similar to other serializer implementations in Minecraft.
+:::note
+Condition serializers are not responsible for writing or reading the type of the serializer, similar to other serializer implementations in Minecraft.
+:::
 
 Afterwards, a static instance should be declared to hold the initialized serializer and then registered using `CraftingHelper#register` either during the `RegisterEvent` for `RecipeSerializer`s or during `FMLCommonSetupEvent`.
 
@@ -171,8 +173,9 @@ public void registerSerializers(RegisterEvent event) {
 }
 ```
 
-!!! important
-    If using `FMLCommonSetupEvent` to register a condition serializer, it must be enqueued to the synchronous work queue via `FMLCommonSetupEvent#enqueueWork` as `CraftingHelper#register` is not thread-safe.
+:::danger
+If using `FMLCommonSetupEvent` to register a condition serializer, it must be enqueued to the synchronous work queue via `FMLCommonSetupEvent#enqueueWork` as `CraftingHelper#register` is not thread-safe.
+:::
 
 [datagen]: ../../datagen/server/recipes.md
 [serializer]: #iconditionserializer

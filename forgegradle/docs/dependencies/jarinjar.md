@@ -82,8 +82,9 @@ jarJar {
 }
 ```
 
-!!! tip
-    It is generally recommended to set at least one `include` filter when using `#fromRuntimeConfiguration`.
+:::tip
+It is generally recommended to set at least one `include` filter when using `#fromRuntimeConfiguration`.
+:::
 
 Publishing a Jar-in-Jar to Maven
 --------------------------------

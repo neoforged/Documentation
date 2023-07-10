@@ -10,8 +10,9 @@ Whenever anything is rendered, there needs to be some identifier which specifies
 
 Information on how to relativize your coordinates will be within the [screen] section.
 
-!!! important
-    If you choose to use fixed coordinates or incorrectly scale the screen, the rendered objects may look strange or misplaced. An easy way to check if you relativized your coordinates correctly is to click the 'Gui Scale' button in your video settings. This value is used as the divisor to the width and height of your display when determining the scale at which a GUI should render.
+:::caution
+If you choose to use fixed coordinates or incorrectly scale the screen, the rendered objects may look strange or misplaced. An easy way to check if you relativized your coordinates correctly is to click the 'Gui Scale' button in your video settings. This value is used as the divisor to the width and height of your display when determining the scale at which a GUI should render.
+:::
 
 ## Gui Components
 
@@ -32,8 +33,9 @@ Finally, there is the `#fillGradient` method, which draws a rectangle with a ver
 
 Strings are drawn through its `Font`, typically consisting of their own shaders for normal, see through, and offset mode. There are two alignment of strings that can be rendered, each with a back shadow: a left-aligned string (`#drawString`) and a center-aligned string (`#drawCenteredString`). These both take in the font the string will be rendered in, the string to draw, the x coordinate representing the left or center of the string respectively, the top y coordinate, and the color.
 
-!!! note
-    Strings should typically be passed in as [`Component`s][component] as they handle a variety of usecases, including the two other overloads of the method.
+:::note
+Strings should typically be passed in as [`Component`s][component] as they handle a variety of usecases, including the two other overloads of the method.
+:::
 
 ### Textures
 
@@ -41,8 +43,9 @@ Textures are drawn through blitting, hence the method name `#blit`, which, for t
 
 The first static `#blit` takes in six integers and assumes the texture being rendered is on a 256 x 256 PNG file. It takes in the left x and top y screen coordinate, the left x and top y coordinate within the PNG, and the width and height of the image to render.
 
-!!! note
-    The size of the PNG file must be specified so that the coordinates can be normalized to obtain the associated UV values.
+:::tip
+The size of the PNG file must be specified so that the coordinates can be normalized to obtain the associated UV values.
+:::
 
 The static `#blit` which the first calls expands this to nine integers, only assuming the image is on a PNG file. It takes in the left x and top y screen coordinate, the z coordinate (referred to as the blit offset), the left x and top y coordinate within the PNG, the width and height of the image to render, and the width and height of the PNG file.
 
@@ -50,8 +53,9 @@ The static `#blit` which the first calls expands this to nine integers, only ass
 
 The z coordinate when rendering a texture is typically set to the blit offset. The offset is responsible for properly layering renders when viewing a screen. Renders with a smaller z coordinate are rendered in the background and vice versa where renders with a larger z coordinate are rendered in the foreground. The z offset can be set directly on the `PoseStack` itself via `#translate`.
 
-!!! important
-    When setting the blit offset, you must reset it after rendering your object. Otherwise, other objects within the screen may be rendered in an incorrect layer causing graphical issues. It is recommended to push the current pose before translating and then popping after all rendering at the offset is completed.
+:::caution
+When setting the blit offset, you must reset it after rendering your object. Otherwise, other objects within the screen may be rendered in an incorrect layer causing graphical issues. It is recommended to push the current pose before translating and then popping after all rendering at the offset is completed.
+:::
 
 ## Renderable
 
@@ -73,8 +77,9 @@ Dragging an element with the mouse, implemented via `#mouseClicked` and `#mouseR
 
 Focusing allows for a specific child to be checked first and handled during an event's execution, such as during keyboard events or dragging the mouse. Focus is typically set through `#setFocused`. In addition, interactable children can be cycled using `#nextFocusPath`, selecting the child based upon the `FocusNavigationEvent` passed in.
 
-!!! note
-    Screens implement `ContainerEventHandler` and `GuiComponent` through `AbstractContainerEventHandler`, which adds in the setter and getter logic for dragging and focusing children.
+:::note
+Screens implement `ContainerEventHandler` and `GuiComponent` through `AbstractContainerEventHandler`, which adds in the setter and getter logic for dragging and focusing children.
+:::
 
 ## NarratableEntry
 
@@ -82,8 +87,9 @@ Focusing allows for a specific child to be checked first and handled during an e
 
 `NarratableEntry`s have three methods: one which determines the priority of the element (`#narrationPriority`), one which determines whether to speak the narration (`#isActive`), and finally one which supplies the narration to its associated output, spoken or read (`#updateNarration`). 
 
-!!! note
-    All widgets from Minecraft are `NarratableEntry`s, so it typically does not need to be manually implemented if using an available subtype.
+:::note
+All widgets from Minecraft are `NarratableEntry`s, so it typically does not need to be manually implemented if using an available subtype.
+:::
 
 ## The Screen Subtype
 
@@ -213,12 +219,13 @@ Field             | Description
 `inventoryLabelX` | The relative x coordinate of where the player inventory name will be rendered.
 `inventoryLabelY` | The relative y coordinate of where the player inventory name will be rendered.
 
-!!! important
-    In a previous section, it mentioned that precomputed relative coordinates should be set in the `#init` method. This still remains true, as the values mentioned here are not precomputed coordinates but static values and relativized coordinates.
+:::caution
+In a previous section, it mentioned that precomputed relative coordinates should be set in the `#init` method. This still remains true, as the values mentioned here are not precomputed coordinates but static values and relativized coordinates.
 
-    The image values are static and non changing as they represent the background texture size. To make things easier when rendering, two additional values (`leftPos` and `topPos`) are precomputed in the `#init` method which marks the top left corner of where the background will be rendered. The label coordinates are relative to these values.
+The image values are static and non changing as they represent the background texture size. To make things easier when rendering, two additional values (`leftPos` and `topPos`) are precomputed in the `#init` method which marks the top left corner of where the background will be rendered. The label coordinates are relative to these values.
 
-    The `leftPos` and `topPos` is also used as a convenient way to render the background as they already represent the position to pass into the `#blit` method.
+The `leftPos` and `topPos` is also used as a convenient way to render the background as they already represent the position to pass into the `#blit` method.
+:::caution
 
 ```java
 // In some AbstractContainerScreen subclass
@@ -316,8 +323,9 @@ protected void renderLabels(PoseStack pose, int mouseX, int mouseY) {
 }
 ```
 
-!!! note
-    When rendering the label, you do **not** need to specify the `leftPos` and `topPos` offset. Those have already been translated within the `PoseStack` so everything within this method is drawn relative to those coordinates.
+:::note
+When rendering the label, you do **not** need to specify the `leftPos` and `topPos` offset. Those have already been translated within the `PoseStack` so everything within this method is drawn relative to those coordinates.
+:::
 
 ## Registering an AbstractContainerScreen
 
@@ -334,8 +342,9 @@ private void clientSetup(FMLClientSetupEvent event) {
 }
 ```
 
-!!! warning
-    `MenuScreens#register` is not thread-safe, so it needs to be called inside `#enqueueWork` provided by the parallel dispatch event.
+:::danger
+`MenuScreens#register` is not thread-safe, so it needs to be called inside `#enqueueWork` provided by the parallel dispatch event.
+:::
 
 [menus]: ./menus.md
 [network]: ../networking/index.md

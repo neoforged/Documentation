@@ -8,8 +8,9 @@ Model Files
 
 Models and textures are linked through [`ResourceLocation`][resloc]s but are stored in the `ModelManager` using `ModelResourceLocation`s. Models are referenced in different locations through the block or item's registry name depending on whether they are referencing [block states][statemodel] or [item models][itemmodels]. Blocks will have their `ModelResourceLocation` represent their registry name along with a stringified version of its current [`BlockState`][state] while items will use their registry name followed by `inventory`.
 
-!!! note
-    JSON models only support cuboid elements; there is no way to express a triangular wedge or anything like it. To have more complicated models, another format must be used.
+:::note
+JSON models only support cuboid elements; there is no way to express a triangular wedge or anything like it. To have more complicated models, another format must be used.
+:::
 
 ### Textures
 

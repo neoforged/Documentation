@@ -102,8 +102,9 @@ Codec         | Java Type
 
 Minecraft and Forge define many codecs for objects that are frequently encoded and decoded. Some examples include `ResourceLocation#CODEC` for `ResourceLocation`s, `ExtraCodecs#INSTANT_ISO8601` for `Instant`s in the `DateTimeFormatter#ISO_INSTANT` format, and `CompoundTag#CODEC` for `CompoundTag`s.
 
-!!! warning
-    `CompoundTag`s cannot decode lists of numbers from JSON using `JsonOps`. `JsonOps`, when converting, sets a number to its most narrow type. `ListTag`s force a specific type for its data, so numbers with different types (e.g. `64` would be `byte`, `384` would be `short`) will throw an error on conversion.
+:::caution
+`CompoundTag`s cannot decode lists of numbers from JSON using `JsonOps`. `JsonOps`, when converting, sets a number to its most narrow type. `ListTag`s force a specific type for its data, so numbers with different types (e.g. `64` would be `byte`, `384` would be `short`) will throw an error on conversion.
+:::
 
 Vanilla and Forge registries also have codecs for the type of object the registry contains (e.g. `Registry#BLOCK` or `ForgeRegistries#BLOCKS` have a `Codec<Block>`). `Registry#byNameCodec` and `IForgeRegistry#getCodec` will encode the registry object to their registry name, or an integer identifier if compressed. Vanilla registries also have a `Registry#holderByNameCodec` which encodes to a registry name and decodes to the registry object wrapped in a `Holder`.
 
@@ -302,8 +303,9 @@ public static final Codec<Map<String, BlockPos>> MAP_CODEC = Codec.unboundedMap(
 
 Map objects decoded using a unbounded map codec are stored in an **immutable** map. If a mutable map is needed, a [transformer] should be applied to the map codec.
 
-!!! warning
-    Unbounded maps only support keys that encode/decode to/from strings. A key-value [pair] list codec can be used to get around this restriction.
+:::caution
+Unbounded maps only support keys that encode/decode to/from strings. A key-value [pair] list codec can be used to get around this restriction.
+:::
 
 ### Pair
 
@@ -326,8 +328,9 @@ public static final Codec<Pair<Integer, String>> PAIR_CODEC = Codec.pair(
 }
 ```
 
-!!! tip
-    A map codec with a non-string key can be encoded/decoded using a list of key-value pairs applied with a [transformer].
+:::tip
+A map codec with a non-string key can be encoded/decoded using a list of key-value pairs applied with a [transformer].
+:::
 
 ### Either
 
@@ -350,8 +353,9 @@ public static final Codec<Either<Integer, String>> EITHER_CODEC = Codec.either(
 "value"
 ```
 
-!!! tip
-    This can be used in conjunction with a [transformer] to get a specific object from two different methods of encoding.
+:::tip
+This can be used in conjunction with a [transformer] to get a specific object from two different methods of encoding.
+:::
 
 ### Dispatch
 
