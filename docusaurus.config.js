@@ -50,12 +50,39 @@ const config = {
               label: "1.20.x",
               path: "1.20.x",
             },
-          }
+            '1.19.x': {
+              banner: 'unreleased'
+            }
+          },
         },
         theme: {
-          customCss: require.resolve('./src/css/custom.css'),
+          customCss: require.resolve("./src/css/custom.css"),
         },
       }),
+    ],
+  ],
+
+  plugins: [
+    [
+      "@docusaurus/plugin-content-docs",
+      {
+        id: "forgegradle",
+        path: "forgegradle",
+        routeBasePath: "forgegradle",
+        sidebarPath: require.resolve("./sidebarsFG.js"),
+        lastVersion: "current",
+        includeCurrentVersion: true,
+        versions: {
+          current: {
+            label: "FG6",
+            path: "6.x",
+          },
+          "5.x": {
+            label: "FG5",
+            path: "5.x",
+          },
+        },
+      },
     ],
   ],
 
@@ -73,13 +100,25 @@ const config = {
         items: [
           {
             type: "docSidebar",
-            sidebarId: "tutorialSidebar",
+            sidebarId: "mainSidebar",
             position: "left",
             label: "Get started",
           },
           {
-            type: 'docsVersionDropdown',
-            position: 'right',
+            type: "docSidebar",
+            sidebarId: "fgSidebar",
+            position: "left",
+            docsPluginId: "forgegradle",
+            label: "ForgeGradle Documentation",
+          },
+          {
+            type: "docsVersionDropdown",
+            position: "right",
+          },
+          {
+            type: "docsVersionDropdown",
+            position: "right",
+            docsPluginId: "forgegradle",
           },
           {
             href: "https://github.com/neoforged/documentation",
@@ -97,6 +136,10 @@ const config = {
               {
                 label: "Getting Started",
                 to: "/docs/gettingstarted",
+              },
+              {
+                label: "ForgeGradle Docs",
+                to: "/forgegradle/docs/",
               },
             ],
           },
