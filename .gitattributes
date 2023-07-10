@@ -1,8 +1,0 @@
-// general
-* text auto
-*.sh text eol=lf
-*.txt eol=lf
-*.md eol=lf
-*.xml text
-*.bat text eol=crlf
-*.png binary
