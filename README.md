@@ -6,6 +6,8 @@ The documentation is built using [Docusaurus 2](https://docusaurus.io)
 
 ## Contributing
 
+*Contribution guidelines are currently pending.*
+
 If you wish to contribute to the documentation, fork and clone this repository.
 
 You can run the following commands if you wish to preview the documentation website locally through the live development server. Most changes are reflected live without having to restart the server.

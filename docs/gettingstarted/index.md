@@ -1,5 +1,11 @@
 # Getting Started with Forge
 
+:::caution
+Please note that this documentation may not be up to date considering the recent creation of NeoForged.
+
+Until NeoForged releases it's first version, you should refer to Forge documentation. The Forge documentation for 1.20 have been archived here.
+:::
+
 If you have never made a Forge mod before, this section will provide the minimum amount of information needed to setup a Forge development environment. The rest of the documentation is about where to go from here.
 
 ## Prerequisites
