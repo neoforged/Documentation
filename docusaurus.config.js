@@ -166,6 +166,15 @@ const config = {
         darkTheme: darkCodeTheme,
         additionalLanguages: ["java", "gradle", "toml", "groovy", "kotlin"],
       },
+      algolia: {
+        // The application ID provided by Algolia
+        appId: '05RJFT798Z',
+  
+        // Public API key: it is safe to commit it
+        apiKey: 'b198aa85c7f2ee9364d105ef0be4d81a',
+  
+        indexName: 'neoforged'
+      },
     }),
 };
 
