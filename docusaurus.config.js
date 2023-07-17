@@ -48,11 +48,10 @@ const config = {
           versions: {
             current: {
               label: "1.20.x",
-              path: "1.20.x",
             },
-            '1.19.x': {
-              banner: 'unreleased'
-            }
+            "1.19.x": {
+              banner: "unreleased",
+            },
           },
         },
         theme: {
@@ -66,16 +65,15 @@ const config = {
     [
       "@docusaurus/plugin-content-docs",
       {
-        id: "forgegradle",
-        path: "forgegradle",
-        routeBasePath: "forgegradle",
-        sidebarPath: require.resolve("./sidebarsFG.js"),
+        id: "neogradle",
+        path: "neogradle",
+        routeBasePath: "neogradle",
+        sidebarPath: require.resolve("./sidebarsNG.js"),
         lastVersion: "current",
         includeCurrentVersion: true,
         versions: {
           current: {
             label: "FG6",
-            path: "6.x",
           },
           "5.x": {
             label: "FG5",
@@ -102,14 +100,14 @@ const config = {
             type: "docSidebar",
             sidebarId: "mainSidebar",
             position: "left",
-            label: "Get started",
+            label: "Getting Started",
           },
           {
             type: "docSidebar",
-            sidebarId: "fgSidebar",
+            sidebarId: "ngSidebar",
             position: "left",
-            docsPluginId: "forgegradle",
-            label: "ForgeGradle Documentation",
+            docsPluginId: "neogradle",
+            label: "NeoGradle Documentation",
           },
           {
             type: "docsVersionDropdown",
@@ -118,7 +116,7 @@ const config = {
           {
             type: "docsVersionDropdown",
             position: "right",
-            docsPluginId: "forgegradle",
+            docsPluginId: "neogradle",
           },
           {
             href: "https://github.com/neoforged/documentation",
@@ -134,36 +132,26 @@ const config = {
             title: "Docs",
             items: [
               {
-                label: "Getting Started",
-                to: "/docs/gettingstarted",
+                to: "/docs/gettingstarted/",
+                label: "NeoForge Documentation",
               },
               {
-                label: "ForgeGradle Docs",
-                to: "/forgegradle/docs/",
+                to: "/neogradle/docs/",
+                label: "NeoGradle Documentation",
               },
             ],
           },
-          // {
-          //   // TODO - fix
-          //   title: "Community",
-          //   items: [
-          //     {
-          //       label: "Stack Overflow",
-          //       href: "https://stackoverflow.com/questions/tagged/docusaurus",
-          //     },
-          //     {
-          //       label: "Discord",
-          //       href: "https://discordapp.com/invite/docusaurus",
-          //     },
-          //     {
-          //       label: "Twitter",
-          //       href: "https://twitter.com/docusaurus",
-          //     },
-          //   ],
-          // },
           {
-            title: "More",
+            title: "Links",
             items: [
+              {
+                label: "Discord",
+                href: "https://discord.neoforged.net/",
+              },
+              {
+                label: "Main Website",
+                href: "https://neoforged.net/",
+              },
               {
                 label: "GitHub",
                 href: "https://github.com/neoforged/documentation",

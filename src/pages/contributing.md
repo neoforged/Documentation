@@ -1,6 +1,7 @@
-Contributing to This Documentation
+Contributing to the Documentation
 ==================================
-This page is outdated, and it will have the relevant information soon.
+
+Contribution guidelines are currently being written. You may contribute at a later date.
 <!-- 
 
 You can make a contribution via a PR on [GitHub].

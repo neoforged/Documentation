@@ -1,41 +1,28 @@
-# Website
+# NeoForged Documentation
 
-This website is built using [Docusaurus 2](https://docusaurus.io/), a modern static website generator.
+This repository is used to store documentation on NeoForge, the Minecraft modding API. It also contains documentation on NeoGradle, a Gradle plugin for developing NeoForge and mods using NeoForge.
 
-### Installation
+The documentation is built using [Docusaurus 2](https://docusaurus.io)
+
+## Contributing
+
+*Contribution guidelines are currently pending.*
+
+If you wish to contribute to the documentation, fork and clone this repository.
+
+You can run the following commands if you wish to preview the documentation website locally through the live development server. Most changes are reflected live without having to restart the server.
+
+```bash
+npm install
+npm run start
+```
+
+### Building
+
+If you wish to build a static version of the documentation which can be deployed, you can run the following command:
 
 ```
-$ yarn
-```
-
-### Local Development
-
-```
-$ yarn start
-```
-
-This command starts a local development server and opens up a browser window. Most changes are reflected live without having to restart the server.
-
-### Build
-
-```
-$ yarn build
+npm run build
 ```
 
 This command generates static content into the `build` directory and can be served using any static contents hosting service.
-
-### Deployment
-
-Using SSH:
-
-```
-$ USE_SSH=true yarn deploy
-```
-
-Not using SSH:
-
-```
-$ GIT_USER=<Your GitHub username> yarn deploy
-```
-
-If you are using GitHub pages for hosting, this command is a convenient way to build the website and push to the `gh-pages` branch.
