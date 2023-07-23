@@ -69,7 +69,7 @@ The first parameter of the `TranslatableContents(String, Object...)` constructor
 
 ### `TextComponentHelper`
 
-- `createComponentTranslation(CommandSource, String, Object...)` is useful for creating `MutableComponent` when replying to `CommandSource`. If receiver is vanilla client, it will eagerly localize and format the provided translation key in English, as vanilla will lack localization data required to do it itself. Otherwise it will create `MutableComponent` with `TranslatableContents`. This is only useful if the server should allow vanilla clients to connect.
+- `createComponentTranslation(CommandSource, String, Object...)` is useful for creating `MutableComponent` when replying to `CommandSource`. If receiver is vanilla client, it will eagerly localize and format the provided translation key in English, as vanilla will lack localization data required to do it itself. Otherwise it will create `MutableComponent` with `TranslatableContents`.
 
 [langs]: https://minecraft.fandom.com/wiki/Language#Languages
 [converter]: https://tterrag.com/lang2json/
