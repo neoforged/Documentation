@@ -5,22 +5,8 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-         node-version: 18
-      
-      - name: Docusaurus Cache
-        # You may pin to the exact commit or the version.
-        # uses: docuactions/cache@ef967af911698b87d76f393f26441162500d5c3d
-        uses: docuactions/cache@v1.0.0
-        
-      - name: Docusaurus 🦖 GitHub Pages
-        # You may pin to the exact commit or the version.
-        # uses: docuactions/github-pages@23b3498c11fe38161f7edca1523e7fc56908fa97
-        uses: docuactions/github-pages@v1.0.3
+      - uses: actions/checkout@v2
+      - uses: docuactions/github-pages@main
         env:
           DOCUACTIONS_TOKEN: ${{ secrets.DOCUACTIONS_TOKEN }}
           DOCUACTIONS_DEPLOYMENT: ${{ secrets.DOCUACTIONS_DEPLOYMENT }}
