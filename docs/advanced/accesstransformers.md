@@ -3,7 +3,7 @@ Access Transformers
 
 Access Transformers (ATs for short) allow for widening the visibility and modifying the `final` flags of classes, methods, and fields. They allow modders to access and modify otherwise inaccessible members in classes outside their control.
 
-The [specification document][specs] can be viewed on the Minecraft Forge GitHub.
+The [specification document][specs] can be viewed on the NeoForged GitHub.
 
 Adding ATs
 ----------
@@ -110,5 +110,5 @@ public net.minecraft.Util m_137477_(Ljava/lang/String;)Ljava/util/concurrent/Exe
 public net.minecraft.core.UUIDUtil m_235872_(JJ)[I #leastMostToIntArray
 ```
 
-[specs]: https://github.com/MinecraftForge/AccessTransformers/blob/master/FMLAT.md
+[specs]: https://github.com/NeoForged/AccessTransformers/blob/main/FMLAT.md
 [jvmdescriptors]: https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.3.2
