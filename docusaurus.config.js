@@ -6,7 +6,7 @@ const darkCodeTheme = require("prism-react-renderer/themes/dracula");
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: "NeoForged docs",
+  title: "NeoForged 비공식 한글 문서",
   tagline: "The better mod loader",
   favicon: "img/favicon.ico",
 
@@ -14,12 +14,12 @@ const config = {
   url: "https://docs.neoforged.net",
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
-  baseUrl: "/",
+  baseUrl: "/Neoforge-Korean-Documentation",
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
-  organizationName: "neoforged", // Usually your GitHub org/user name.
-  projectName: "documentation", // Usually your repo name.
+  organizationName: "HKMOD", // Usually your GitHub org/user name.
+  projectName: "Neoforge-Korean-Documentation", // Usually your repo name.
 
   onBrokenLinks: "ignore", // Yay multi versioned-docs sites
   onBrokenMarkdownLinks: "warn",
@@ -28,8 +28,8 @@ const config = {
   // metadata like html lang. For example, if your site is Chinese, you may want
   // to replace "en" with "zh-Hans".
   i18n: {
-    defaultLocale: "en",
-    locales: ["en"],
+    defaultLocale: "ko",
+    locales: ["ko", "en"],
   },
 
   presets: [
@@ -90,7 +90,7 @@ const config = {
       // Replace with your project's social card
       //image: 'img/docusaurus-social-card.jpg',
       navbar: {
-        title: "NeoForged documentation",
+        title: "NeoForged 가이드",
         logo: {
           alt: "NeoForged Logo",
           src: "img/logo.svg",
@@ -100,14 +100,14 @@ const config = {
             type: "docSidebar",
             sidebarId: "mainSidebar",
             position: "left",
-            label: "Getting Started",
+            label: "시작하기",
           },
           {
             type: "docSidebar",
             sidebarId: "ngSidebar",
             position: "left",
             docsPluginId: "neogradle",
-            label: "NeoGradle Documentation",
+            label: "NeoGradle 가이드",
           },
           {
             type: "docsVersionDropdown",
@@ -119,7 +119,7 @@ const config = {
             docsPluginId: "neogradle",
           },
           {
-            href: "https://github.com/neoforged/documentation",
+            href: "https://github.com/HKMOD/Neoforge-Korean-Documentation",
             label: "GitHub",
             position: "right",
           },
@@ -129,31 +129,39 @@ const config = {
         style: "dark",
         links: [
           {
-            title: "Docs",
+            title: "가이드들",
             items: [
               {
                 to: "/docs/gettingstarted/",
-                label: "NeoForge Documentation",
+                label: "NeoForge 가이드",
               },
               {
                 to: "/neogradle/docs/",
-                label: "NeoGradle Documentation",
+                label: "NeoGradle 가이드",
               },
             ],
           },
           {
-            title: "Links",
+            title: "외부 링크들",
             items: [
               {
-                label: "Discord",
+                label: "HKMOD 디스코드 서버",
+                href: "https://discord.gg/99EcZ8B8nX",
+              },
+              {
+                label: "한글 문서 소스",
+                href: "https://github.com/HKMOD/Neoforge-Korean-Documentation",
+              },
+              {
+                label: "NeoForge 디스코드 서버",
                 href: "https://discord.neoforged.net/",
               },
               {
-                label: "Main Website",
+                label: "NeoForge 웹사이트",
                 href: "https://neoforged.net/",
               },
               {
-                label: "GitHub",
+                label: "영문 문서 소스",
                 href: "https://github.com/neoforged/documentation",
               },
             ],
