@@ -37,14 +37,23 @@ By default, `#getDescriptionId` will return `block.` or `item.` prepended to the
 The only purpose of a translation key is internationalization. Do not use them for logic. Use registry names instead.
 :::
 
-Localization methods
+`Component` and `ComponentContents`
 --------------------
+
+Localizable text can be represented as a tree, each node being `Component` and their text-representible contents being `ComponentContents`. `Component`'s children can be retreived with `Component#getSiblings` (yes we are aware of weird name). When displaying `Component` to user, its own `ComponentContents` and children's are appended into one String in this order. Each `Component` has `Style`, which describes how the text component should look, such as color, bold, italic, and each children inherits parent's style.
+
+`Component` itself provides multiple static methods for constructing `MutableComponent` - the only implementation of `Component` - with various `ComponentContents`. `MutableComponent` may also be constructed by providing `ComponentContents` directly with `MutableComponent#create(ComponentContents)`
+
+`ComponentContents` is for embedding an arbitrary data into text and controlling how it should be represented to user. For example, it may hold a data about keybind and represent it to user as name of corresponding key (which is what `KeybindContents` does). Or, it can hold translation key and represent it to user as localized text (which is `TranslatableContents` does).
 
 :::caution
 A common issue is having the server localize for clients. The server can only localize in its own locale, which does not necessarily match the locale of connected clients.
 
-To respect the language settings of clients, the server should have clients localize text in their own locale using `TranslatableComponent` or other methods preserving the language neutral translation keys.
+To respect the language settings of clients, the server should have clients localize text in their own locale using `TranslatableContents` or other methods preserving the language neutral translation keys.
 :::
+
+Localization methods
+--------------------
 
 ### `net.minecraft.client.resources.language.I18n` (client only)
 
@@ -58,11 +67,9 @@ To respect the language settings of clients, the server should have clients loca
 
 The first parameter of the `TranslatableContents(String, Object...)` constructor is a translation key, and the rest are used for formatting. The only supported format specifiers are `%s` and `%1$s`, `%2$s`, `%3$s` etc. Formatting arguments may be `Component`s that will be inserted into the resulting formatted text with all their attributes preserved.
 
-A `MutableComponent` can be created using `Component#translatable` by passing in the `TranslatableContents`'s parameters. It can also be created using `MutableComponent#create` by passing in the `ComponentContents` itself.
-
 ### `TextComponentHelper`
 
-- `createComponentTranslation(CommandSource, String, Object...)` creates a localized and formatted `MutableComponent` depending on a receiver. The localization and formatting is done eagerly if the receiver is a vanilla client. If not, the localization and formatting is done lazily with a `Component` containing `TranslatableContents`. This is only useful if the server should allow vanilla clients to connect.
+- `createComponentTranslation(CommandSource, String, Object...)` is useful for creating `MutableComponent` when replying to `CommandSource`. If receiver is vanilla client, it will eagerly localize and format the provided translation key in English, as vanilla will lack localization data required to do it itself. Otherwise it will create `MutableComponent` with `TranslatableContents`. This is only useful if the server should allow vanilla clients to connect.
 
 [langs]: https://minecraft.fandom.com/wiki/Language#Languages
 [converter]: https://tterrag.com/lang2json/
