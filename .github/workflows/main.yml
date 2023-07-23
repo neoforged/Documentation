@@ -21,6 +21,3 @@ jobs:
         # You may pin to the exact commit or the version.
         # uses: docuactions/github-pages@23b3498c11fe38161f7edca1523e7fc56908fa97
         uses: docuactions/github-pages@v1.0.3
-        env:
-          DOCUACTIONS_TOKEN: test
-          DOCUACTIONS_DEPLOYMENT: gh-page
