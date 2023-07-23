@@ -1,146 +1,166 @@
-Block Entities
+블록 엔티티
 ======
 
-`BlockEntities` are like simplified `Entities` that are bound to a Block.
-They are used to store dynamic data, execute tick based tasks, and dynamic rendering.
-Some examples from vanilla Minecraft would be handling of inventories on chests, smelting logic on furnaces, or area effects on beacons.
-More advanced examples exist in mods, such as quarries, sorting machines, pipes, and displays.
+`BlockEntity` 는 간소화된 `Entity` 로, 블럭에 종속된 엔티티 입니다.
+`BlockEntity` 는 동적으로 변하는 데이터를 저장하거나, 매 틱마다 수행되야 하는 작업을 하거나, 동적 렌더링을 해야 할 때 등, [`BlockState`][blockstate] 만으로는 구현하기 어려운 기능들을 만들 때 사용합니다.
+마인크래프트는 `BlockEntity`를 상자 인벤토리, 화로 제련, 신호기의 광역 포션 효과를 구현하는데에 사용합니다.
+더 복잡한 예제들은 굴착기, 아이템 정렬하는 기계, 파이프, 디스플레이 등 다른 모드에서 찾아보실 수 있습니다.
 
 :::note
-`BlockEntities` aren't a solution for everything and they can cause lag when used wrongly.
-When possible, try to avoid them.
+`BlockEntity` 는 모든 문제의 만능 해결 방법이 아니며, 남용할 경우 서버에 큰 렉을 유발할 수 있습니다.
+가능하다면 다른 방안을 먼저 찾아보세요.
 :::
 
-## Registering
+## 등록하기
 
-Block Entities are created and removed dynamically and as such are not registry objects on their own.
+`BlockEntity` 들은 얼마든지 생성되고 제거될 수 있습니다, 그러다보니 `BlockEntity`를 레지스트리에 등록하는 대신 `BlockEntity` 의 *종류*를 표현하는 `BlockEntityType`을 레지스트리에 등록합니다.
 
-In order to create a `BlockEntity`, you need to extend the `BlockEntity` class. As such, another object is registered instead to easily create and refer to the *type* of the dynamic object. For a `BlockEntity`, these are known as `BlockEntityType`s.
-
-A `BlockEntityType` can be [registered][registration] like any other registry object. To construct a `BlockEntityType`, its builder form can be used via `BlockEntityType$Builder#of`. This takes in two arguments: a `BlockEntityType$BlockEntitySupplier` which takes in a `BlockPos` and `BlockState` to create a new instance of the associated `BlockEntity`, and a varargs of `Block`s which this `BlockEntity` can be attached to. Building the `BlockEntityType` is done by calling `BlockEntityType$Builder#build`. This takes in a `Type` which represents the type-safe reference used to refer to this registry object in a `DataFixer`. Since `DataFixer`s are an optional system to use for mods, this can be passed as `null`.
+`BlockEntityType` 은 다른 레지스트리 객체들과 동일한 방법으로 [등록]합니다. `BlockEntityType`을 만들기 위해선 먼저 `BlockEntityType$Builder` 가 필요한데, `BlockEntityType$Builder#of`를 호출하여 빌더를 만들 수 있습니다. 이 메서드는 `BlockPos` 와 `BlockState`를 인자로 받아 해당 `BlockEntity` 의 새로운 인스턴스를 만들어주는 `BlockEntityType$BlockEntitySupplier`, 그리고 해당 `BlockEntity` 가 부착될 수 있는 `Block` 가변 인자를 받습니다. 이제 `BlockEntityType$Builder` 가 있으니, `BlockEntityType$Builder#build`를 호출하여 `BlockEntityType`을 생성할 수 있습니다. 이 메서드는 `DataFixer` 에서 사용할 `Type`을 인자로 받는데, 이는 이 레지스트리 객체를 타입 오류 위험 없이 참조할 때 사용됩니다. `DataFixer`를 사용하는 것은 완전히 선택사항이기 때문에 `Type` 으로 `null`을 전달하셔도 됩니다.
 
 ```java
-// For some DeferredRegister<BlockEntityType<?>> REGISTER
+// DeferredRegister<BlockEntityType<?>> REGISTER 가 이미 정의되어있다고 할 때
 public static final RegistryObject<BlockEntityType<MyBE>> MY_BE = REGISTER.register("mybe", () -> BlockEntityType.Builder.of(MyBE::new, validBlocks).build(null));
 
-// In MyBE, a BlockEntity subclass
+
+// BlockEntity를 상속하는 MyBE 클래스 내에서
 public MyBE(BlockPos pos, BlockState state) {
   super(MY_BE.get(), pos, state);
 }
 ```
 
-## Creating a `BlockEntity`
+## `BlockEntity` 만들기
 
-To create a `BlockEntity` and attach it to a `Block`, the `EntityBlock` interface must be implemented on your `Block` subclass. The method `EntityBlock#newBlockEntity(BlockPos, BlockState)` must be implemented and return a new instance of your `BlockEntity`.
+`BlockEntity`를 만들고 `Block` 에 붙이기 위해서는 대상 `Block` 이 `EntityBlock` 인터페이스를 구현해야 합니다. 해당 인터페이스의 `EntityBlock#newBlockEntity(BlockPos, BlockState)` 메서드에선 블록에 부착시킬 `BlockEntity` 의 인스턴스를 반환해야 합니다.
 
-## Storing Data within your `BlockEntity`
+네... `BlockEntity` 에 `EntityBlock` 이라니, 말장난 같은거 저도 압니다. 모장 공식 클래스 이름인데 어쩌겠어요.
 
-In order to save data, override the following two methods:
+## `BlockEntity`를 활용한 데이터 저장
+
+`BlockEntity` 의 데이터를 저장하기 위해선 아래 두 메서드를 재정의하셔야 합니다:
+
 ```java
-BlockEntity#saveAdditional(CompoundTag tag)
+BlockEntity#saveAdditional(CompoundTag tag) // 전달된 tag 에 BlockEntity 의 추가 데이터를 저장하는 메서드
 
-BlockEntity#load(CompoundTag tag)
+BlockEntity#load(CompoundTag tag) // 전달된 tag 에서 데이터를 불러오고, 이를 BlockEntity 에 적용하는 메서드
 ```
-These methods are called whenever the `LevelChunk` containing the `BlockEntity` gets loaded from/saved to a tag.
-Use them to read and write to the fields in your block entity class.
+
+이 메서드들은 해당 `BlockEntity` 가 들어있는 `LevelChunk` 가 불러와 질 때 호출됩니다.
+이들을 활용하여 `BlockEntity` 의 필드값을 저장하고 불러오세요.
 
 :::note
-Whenever your data changes, you need to call `BlockEntity#setChanged`; otherwise, the `LevelChunk` containing your `BlockEntity` might be skipped while the level is saved.
+`BlockEntity` 의 데이터가 변경되었다면 `BlockEntity#setChanged`를 호출하셔야 합니다; 그렇지 않으면 `LevelChunk` 가 해당 `BlockEntity`를 아예 무시할 수도 있습니다!
 :::
 
 :::danger
-It is important that you call the `super` methods!
+위 메서드를 재정의할 때는 `super` 메서드를 무조건 호출하세요! 그렇지 않으면 필수 정보가 누락될 수 있습니다!
 
-The tag names `id`, `x`, `y`, `z`, `ForgeData` and `ForgeCaps` are reserved by the `super` methods.
+그리고, `id`, `x`, `y`, `z`, `ForgeData`, 그리고 `ForgeCaps` 는  `super` 메서드에서 사용하는 태그들의 이름입니다!
 :::
 
-## Ticking `BlockEntities`
+## `BlockEntities` 틱 처리
 
-If you need a ticking `BlockEntity`, for example to keep track of the progress during a smelting process, another method must be implemented and overridden within `EntityBlock`: `EntityBlock#getTicker(Level, BlockState, BlockEntityType)`. This can implement different tickers depending on which logical side the user is on, or just implement one general ticker. In either case, a `BlockEntityTicker` must be returned. Since this is a functional interface, it can just take in a method representing the ticker instead:
+아이템을 굽는 화로처럼, 1틱마다 특정 작업을 수행하는 `BlockEntity`를 만들기 위해선 `EntityBlock#getTicker(Level, BlockState, BlockEntityType)`를 재정의하셔야 합니다. 이때 요청된 논리 사이드에 따라 다른 ticker를 반환하거나, 아니면 기본 ticker 하나만 사용하여도 됩니다. 이 메서드를 어떻게 구현하시든 최종적으론 `BlockEntityTicker`를 반환해야 하는데, `BlockEntityTicker` 는 함수형 인터페이스라서 메서드 참조를 대신 반환해도 됩니다:
 
 ```java
-// Inside some Block subclass
+// Block 의 자식 클래스 내부
 @Nullable
 @Override
 public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
   return type == MyBlockEntityTypes.MYBE.get() ? MyBlockEntity::tick : null;
 }
 
-// Inside MyBlockEntity
+// MyBlockEntity 클래스 내부
 public static void tick(Level level, BlockPos pos, BlockState state, MyBlockEntity blockEntity) {
-  // Do stuff
+  // 매틱마다 해야 하는 작업 처리
 }
 ```
 
 :::note
-This method is called each tick; therefore, you should avoid having complicated calculations in here. If possible, you should make more complex calculations every X ticks. (The amount of ticks in a second may be lower then 20 (twenty) but won't be higher)
+이 메서드는 매틱마다 호출됩니다; 그렇기 때문에 복잡한 연산을 이 메서드에서 하는 것은 피해야 합니다. 그 대신에, 복잡한 연산은 매 X 틱 마다 하도록 만드는 것도 고려하여 주세요. (초당 틱 횟수(tps) 는 20, 또는 그 이하입니다)
 :::
 
-## Synchronizing the Data to the Client
+## 클라이언트와 데이터 동기화하기
 
-There are three ways of syncing data to the client: synchronizing on chunk load, on block updates, and with a custom network message.
+클라이언트와 데이터를 동기화시킬 방법은 총 3가지가 있는데: 청크를 불러올 때 동기화 하기, 블록 업데이트시 동기화 하기, 그리고 커스텀 네트워크 메세지 보내기 입니다.
 
-### Synchronizing on LevelChunk Load
+### `LevelChunk` 불러올 때 동기화하기
 
-For this you need to override
+이를 위해선 다음 두 메서드를 재정의하세요:
+
 ```java
 BlockEntity#getUpdateTag()
 
 IForgeBlockEntity#handleUpdateTag(CompoundTag tag)
 ```
-Again, this is pretty simple, the first method collects the data that should be sent to the client,
-while the second one processes that data. If your `BlockEntity` doesn't contain much data, you might be able to use the methods out of the [Storing Data within your `BlockEntity`][storing-data] section.
+
+첫번째 메서드는 클라이언트로 전송되어야 할 데이터들을 수집합니다,
+두번째 메서드는 그렇게 수집한 데이터를 처리합니다. 만약 해당 `BlockEntity` 에 데이터가 많지 않다면 [`BlockEntity`를 활용한 데이터 저장][데이터-저장하기] 섹션에 소개된 메서드들을 응용하여 `BlockEntity` 전체를 재전송하셔도 됩니다.
 
 :::caution
-Synchronizing excessive/useless data for block entities can lead to network congestion. You should optimize your network usage by sending only the information the client needs when the client needs it. For instance, it is more often than not unnecessary to send the inventory of a block entity in the update tag, as this can be synchronized via its [`AbstractContainerMenu`][menu].
+필요없는 데이터를 동기화 하는 것은 네트워크를 혼잡하게 만들 수 있습니다. 그렇기에 클라이언트가 필요한 정보들을 필요할 때만 보내도록 하여 네트워크를 효율적으로 활용해야 합니다. 예를 들어, 블록 엔티티의 인벤토리가 변경될 때 마다 클라이언트와 동기화를 하는 대신 [`AbstractContainerMenu`][menu] 에서 동기화를 진행하도록 하여 블록의 메뉴를 열 때 인벤토리 정보를 업데이트 하도록 할 수 있습니다.
 :::
 
-### Synchronizing on Block Update
+### 블록이 업데이트될 때 동기화하기
 
-This method is a bit more complicated, but again you just need to override two or three methods.
-Here is a tiny example implementation of it:
+이 방법은 살짝 더 복잡하지만, 아래 메서드 3개만 재정의하면 됩니다.
+
+```java
+BlockEntity#getUpdateTag()
+
+BlockEntity#getUpdatePacket()
+
+IForgeBlockEntity#onDataPacket
+```
+
+아래 예시 `BlockEntity`를 참고하세요:
+
 ```java
 @Override
 public CompoundTag getUpdateTag() {
   CompoundTag tag = new CompoundTag();
-  //Write your data into the tag
+  // tag 에 블록 엔티티 데이터 작성
   return tag;
 }
 
 @Override
 public Packet<ClientGamePacketListener> getUpdatePacket() {
-  // Will get tag from #getUpdateTag
+  // #getUpdateTag를 호출하여 전송할 tag를 가져옵니다
   return ClientboundBlockEntityDataPacket.create(this);
 }
 
-// Can override IForgeBlockEntity#onDataPacket. By default, this will defer to the #load.
+// IForgeBlockEntity#onDataPacket을 재정의하는 것은 선택사항입니다. 기본적으로 #load를 호출합니다.
 ```
-The static constructors `ClientboundBlockEntityDataPacket#create` takes:
 
-* The `BlockEntity`.
-* An optional function to get the `CompoundTag` from the `BlockEntity`. By default, this uses `BlockEntity#getUpdateTag`.
+이때 여기서 사용된 정적 생성자 `ClientboundBlockEntityDataPacket#create` 는 아래 2개의 인자를 받습니다:
 
-Now, to send the packet, an update notification must be given on the server.
+* `BlockEntity`.
+* `CompoundTag`를 `BlockEntity` 로 부터 얻어오는 함수(`Function<BlockEntity, CompoundTag>`). 기본값으로 `BlockEntity#getUpdateTag`를 사용합니다.
+
+이제 서버측에서 블록 업데이트를 클라이언트들에 전송할 수 있습니다.
+
 ```java
 Level#sendBlockUpdated(BlockPos pos, BlockState oldState, BlockState newState, int flags)
 ```
-The `pos` should be your `BlockEntity`'s position.
-For `oldState` and `newState`, you can pass the current `BlockState` at that position.
-`flags` is a bitmask that should contain `2`, which will sync the changes to the client. See `Block` for more info as well as the rest of the flags. The flag `2` is equivalent to `Block#UPDATE_CLIENTS`.
 
-### Synchronizing Using a Custom Network Message
+`pos` 는 업데이트할 `BlockEntity` 의 위치 입니다.
+`oldState` 랑 `newState` 는 해당 위치의 `BlockState`를 전달하시면 됩니다.
+`flags` 는 비트 마스크들로, `2`를 포함하고 있어야 합니다. 그래야 서버가 클라이언트들에 업데이트 패킷을 전송합니다. `Block` 클래스를 참고하여 다른 플래그들의 역할 또한 볼 수 있습니다. `2` 는 `Block#UPDATE_CLIENTS` 와 동일합니다.
 
-This way of synchronizing is probably the most complicated but is usually the most optimized,
-as you can make sure that only the data you need to be synchronized is actually synchronized.
-You should first check out the [`Networking`][networking] section and especially [`SimpleImpl`][simple_impl] before attempting this.
-Once you've created your custom network message, you can send it to all users that have the `BlockEntity` loaded with `SimpleChannel#send(PacketDistributor$PacketTarget, MSG)`.
+### 커스텀 네트워크 메세지로 동기화하기
+
+이 방법은 가장 복잡하지만, 그러면서도 가장 많은 최적화를 적용할 수 있습니다.
+동기화를 해야 하는 정보들만 실제로 동기화가 되도록 세밀하게 조절할 수 있기 때문입니다.
+이 방법을 시도해보기 전에 [네트워킹][네트워크-통신] 에 대해 미리 알아보시고 오세요, 특히 [`SimpleImpl`][simple_impl] 에 대해 잘 알고 계셔야 합니다.
+커스텀 네트워크 메세지를 정의하셨다면, 해당 `BlockEntity`를 추적하고 있는 모든 클라이언트에 커스텀 메세지를 `SimpleChannel#send(PacketDistributor$PacketTarget, MSG)`를 통해 보낼 수 있습니다.
+이때 사용하는 `PacketDistributor` 는 `TRACKING_ENTITY` 입니다.
 
 :::caution
-It is important that you do safety checks, the `BlockEntity` might already be destroyed/replaced when the message arrives at the player! You should also check if the chunk is loaded (`Level#hasChunkAt(BlockPos)`).
+플레이어에게 패킷이 전달되었을 때는 해당 `BlockEntity` 가 부서지거나 다른 블록으로 대체되어 레벨에 존재하지 않을 수도 있습니다. 그렇기 때문에 블록이 진짜 존재하는지 무조건 확인하셔야 합니다! 또한 해당 `BlockEntity` 가 들어있는 청크가 불러와졌는지도 확인하셔야 합니다! (`Level#hasChunkAt(BlockPos)`).
 :::
 
-[registration]: ../concepts/registries.md#methods-for-registering
-[storing-data]: #storing-data-within-your-blockentity
-[menu]: ../gui/menus.md
-[networking]: ../networking/index.md
+[등록]: ../concepts/registries.md#객체-등록하기
+[데이터-저장하기]: #blockentity-를-활용한-데이터-저장
+[네트워크-통신]: ../networking/index.md
 [simple_impl]: ../networking/simpleimpl.md
+[blockstate]: ../blocks/states.md
+[menu]: ../gui/menus.md
