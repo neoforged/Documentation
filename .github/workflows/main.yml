@@ -20,6 +20,7 @@ jobs:
         run: |
           npm install 
           npm run build
+      
       - name: GitHub Pages에 배포
         if: success()
         uses: peaceiris/actions-gh-pages@v3
