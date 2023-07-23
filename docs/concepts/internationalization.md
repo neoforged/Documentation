@@ -40,7 +40,7 @@ The only purpose of a translation key is internationalization. Do not use them f
 `Component` and `ComponentContents`
 --------------------
 
-Localizable text can be represented as a tree, each node being `Component` and their text-representible contents being `ComponentContents`. `Component`'s children can be retreived with `Component#getSiblings` (yes we are aware of weird name). When displaying `Component` to user, its own `ComponentContents` and children's are appended into one String in this order. Each `Component` has `Style`, which describes how the text component should look, such as color, bold, italic, and each children inherits parent's style.
+Localizable text can be represented as a tree, each node being `Component` and their text-representible contents being `ComponentContents`. `Component`'s children can be retrieved with `Component#getSiblings` (yes we are aware of weird name). When displaying `Component` to user, its own `ComponentContents` and children's are appended into one String in this order. Each `Component` has `Style`, which describes how the text component should look, such as color, bold, italic, and each children inherits parent's style.
 
 `Component` itself provides multiple static methods for constructing `MutableComponent` - the only implementation of `Component` - with various `ComponentContents`. `MutableComponent` may also be constructed by providing `ComponentContents` directly with `MutableComponent#create(ComponentContents)`
 
