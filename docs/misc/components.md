@@ -1,8 +1,8 @@
 Text Components
 ==================
 
-`Component` is part of text that can be formatted, have styles applied, and be chained with other components.
-`MutableComponent` is currently the only implementation of `Component` whose style and list of chained components changed, it can be created by either passing its contents directly to `MutableComponent#create` or using one of these static helpers:
+`Component` is a holder for text which can be formatted and chained with other components.
+The subtype `MutableComponent` is used to apply formats and chain other compoennts.
 
 * `Component#literal(String text)` - creates component whose represented text is simply `text` that was passed in.
 * `Component#nullToEmpty(@Nullable String text)` - same as `#literal` except it creates empty component if null has been passed 
@@ -16,7 +16,7 @@ Text Components
 Applying Style
 ==============
 
-`Style` specifies how component should look like, such as bold, italic, color, custom font, etc.
+Components can be formatted (e.g. bold, click actions, color) via `Style`s.
 Style is immutable objects and any modification to already existing style will instead create new instance. Its constructor is `private` so you'll have to copy and reconfigure `Style.EMPTY`.
 
 Style's default configurations are `null` instead of concrete value. This means not explicitly specified configuration may be overridden.
