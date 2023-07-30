@@ -3,7 +3,7 @@ Text Components
 
 `Component` is a holder for text which can be formatted and chained with other components.
 The subtype `MutableComponent` is used to apply formats and chain other components.
-A Component can be created using one of the available static helpers:
+A component can be created using one of the available static helpers:
 
 | Method Name    | Description                                                                                                           |
 |----------------|-----------------------------------------------------------------------------------------------------------------------|
@@ -68,10 +68,10 @@ Chaining Components
 
 `MutableComponent` can have additional components chained as siblings with `MutableComponent#append`. Chained components can be retrieved with `MutableComponent#getSiblings`.
 
-`Component` stores its siblings like a tree, and its style is merged with those of siblings as shown in the [image][tree].
+`Component` stores its siblings like a tree and traversed in preorder; the parent style is merged with those of its siblings.
 The tree is traversed in preorder.
 
-Below example will create a component with the same structure as the above image:
+The code below will create a component with the same structure in the above example:
 ```java
 // Create text only components
 MutableComponent first = Component.literal("first ");
@@ -106,7 +106,7 @@ Text formatting is the process of inserting data as text into predefined larger 
 It can be used for displaying coordinate with x, y, z annotation, showing number with respectful units alongside, etc.
 Usually special notation called **format specifiers** are used for indicating where a text can be inserted into.
 
-`TranslatableContents` uses two types of format specifiers: `%s` and `%1$s`, `%2$s`, `%3$s`.
+`TranslatableContents` uses two types of format specifiers: `%s` and `%n$s`.
 Its `args` are inserted in place of format specifiers.
 This feature is useful as order of information in various languages varies.
 
