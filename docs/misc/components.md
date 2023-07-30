@@ -1,8 +1,7 @@
 Text Components
 ==================
 
-`Component` is a holder for text which can be formatted and chained with other components.
-The subtype `MutableComponent` is used to apply formats and chain other components.
+A `Component` is a holder for text which can be formatted and chained with other components via its subtype `MutableComponent`.
 A component can be created using one of the available static helpers:
 
 | Method Name    | Description                                                                                                           |
