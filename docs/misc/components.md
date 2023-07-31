@@ -99,8 +99,8 @@ Text formatting is the process of inserting data as text into predefined larger 
 It can be used for displaying coordinate with x, y, z annotation, showing number with respectful units alongside, etc.
 Usually special notation called **format specifiers** are used for indicating where a text can be inserted into.
 
-`TranslatableContents` supports text formatting and uses two types of format specifiers: `%s` and `%n$s` as order of information in various languages varies.
-It holds what to insert in place of format specifiers in array `args`
+`TranslatableContents` supports text formatting and uses two types of format specifiers: `%s` and `%n$s`.
+It has object array `args` for holding what to insert in place of format specifiers.
 
 `%s` is replaced with elements of `args` in order they appear, i.e., First `%s` is replaced with a first element of `args`, and so on.
 `%n$s` is positional specifier; they can specify which element will replace them with number `n`.
