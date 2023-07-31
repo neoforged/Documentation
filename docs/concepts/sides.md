@@ -1,121 +1,113 @@
-Sides in Minecraft
+마인크래프트의 사이드
 ===================
 
-A very important concept to understand when modding Minecraft are the two sides: *client* and *server*. There are many, many common misconceptions and mistakes regarding siding, which can lead to bugs that might not crash the game, but can rather have unintended and often unpredictable effects.
+마인크래프트 모드를 개발하면서 숙지해야 할 매우 중요한 개념은 "클라이언트 사이드" 와 "서버 사이드" 입니다. 이에 대해 많은 사람들이 오해하고 있고, 이로 인해 게임을 튕기게 하진 않지만 예기치 못한 동작을 하도록 만들 수 있는 해결하기 까다로운 오류가 발생할 수 있습니다.
 
-Different Kinds of Sides
+사이드의 종류들
 ------------------------
 
-When we say "client" or "server", it usually follows with a fairly intuitive understanding of what part of the game we are talking about. After all, a client is what the user interacts with, and a server is where the user connects for a multiplayer game. Easy, right?
+"클라이언트"와 "서버"를 구분할 때, 겉으로 보면 클라이언트는 유저와 상호작용 하는 것이고 서버는 멀티 플레이를 위해 여러 유저가 접속하는 것, 즉 "실행한 프로그램"을 기준삼아 나눌 수 있을 것 같습니다.
 
-As it turns out, there can be some ambiguity even with two such terms. Here we disambiguate the four possible meanings of "client" and "server":
+하지만 이들을 "코드의 역할"로도 구분할 수 있어 모호할 수 있기 때문에, 여기 확실하게 "클라이언트" 또는 "서버" 가 가지는 4가지 의미를 정리해 놓았습니다:
 
-* Physical client - The *physical client* is the entire program that runs whenever you launch Minecraft from the launcher. All threads, processes, and services that run during the game's graphical, interactable lifetime are part of the physical client.
-* Physical server - Often known as the dedicated server, the *physical server* is the entire program that runs whenever you launch any sort of `minecraft_server.jar` that does not bring up a playable GUI.
-* Logical server - The *logical server* is what runs game logic: mob spawning, weather, updating inventories, health, AI, and all other game mechanics. The logical server is present within a physical server, but it also can run inside a physical client together with a logical client, as a single player world. The logical server always runs in a thread named the `Server Thread`.
-* Logical client - The *logical client* is what accepts input from the player and relays it to the logical server. In addition, it also receives information from the logical server and makes it available graphically to the player. The logical client runs in the `Render Thread`, though often several other threads are spawned to handle things like audio and chunk render batching.
+* 물리 클라이언트 - *물리 클라이언트*는 마인크래프트를 런처로 실행하였을때 켜지는 프로그램 전체를 뜻합니다. 이는 모든 스레드, 프로세스, 그래픽을 표시하는 상호 작용 가능한 생명주기 동안 실행되는 서비스들을 포함합니다.
+* 물리 서버 - 전용 서버라고 불리기도 합니다. *물리 서버*는 아무 종류의 "minecraft_server.jar"을 실행하면 켜지는, 플레이 가능한 GUI를 표시하지 않는 프로그램 전체를 뜻합니다.
+* 논리 서버 - *논리 서버*는 게임의 논리 연산을 수행하는 것입니다: 몬스터 생성, 날씨 조절, 인벤토리 갱신, 채력 관리, 몬스터의 행동 등이 있습니다. 논리 서버는 물리 서버에 존재하나, 물리 클라이언트에 논리 클라이언트와 같이 존재할 수도 있습니다. 싱글 플레이 월드에는 `Server Thread`에 논리 서버가 언제나 실행됩니다.
+* 논리 클라이언트 - *논리 클라이언트*는 플레이어의 입력을 받고 논리 서버로 전달하는 것입니다. 또, 논리 서버로 부터 정보를 받아 플레이어에게 그래픽을 활용해 표시하기도 합니다. 논리 클라이언트는 `Render Thread`에서 실행됩니다만, 오디오나 청크 배칭 등과 같은 작업들을 처리하기 위해 추가적인 스레드가 더 실행됩니다.
 
-In the MinecraftForge codebase, the physical side is represented by an enum called `Dist`, while the logical side is represented by an enum called `LogicalSide`.
+포지에서는 물리 사이드를 `Dist` 열거형으로, 논리 사이드는 `LogicalSide` 열거형으로 표현합니다.
 
-Performing Side-Specific Operations
+사이드별 연산 수행하기
 -----------------------------------
 
 ### `Level#isClientSide`
 
-This boolean check will be your most used way to check sides. Querying this field on a `Level` object establishes the  **logical** side the level belongs to. That is, if this field is `true`, the level is currently running on the logical client. If the field is `false`, the level is running on the logical server. It follows that the physical server will always contain `false` in this field, but we cannot assume that `false` implies a physical server, since this field can also be `false` for the logical server inside a physical client (in other words, a single player world).
+이 boolean 필드는 논리 사이드를 구분할 때 사용합니다. 이 필드의 값이 `true` 라면 그 코드는 논리 클라이언트에서 실행되고 있다는 것이고, `false`를 반환하면 논리 서버에서 실행되고 있는 것입니다. 물리 서버에서는 당연히 늘 `false`가 반환되지만, 물리 클라이언트에 포함된 논리 서버 또한 `false`를 반환하기 때문에, 이 메서드가 `false`를 반환한다고 해서 물리 서버에서 실행되고 있다고 짐작하시면 안됩니다.
 
-Use this check whenever you need to determine if game logic and other mechanics should be run. For example, if you want to damage the player every time they click your block, or have your machine process dirt into diamonds, you should only do so after ensuring `#isClientSide` is `false`. Applying game logic to the logical client can cause desynchronization (ghost entities, desynchronized stats, etc.) in the best case, and crashes in the worst case.
+이 필드를 사용해서 논리 연산이나 게임 메카닉을 처리해야 할지를 결정하도록 하세요. 예를 들어, 플레이어가 블록을 클릭할 때마다 피해를 주고 싶다면, 또는 기계를 사용해 흙을 다이아몬드로 가공하고 싶다면, `#isClientSide` 가 `false`임을 먼저 확인한 이후 논리 연산을 수행해야 합니다, 이러한 연산을 논리 클라이언트에서 수행하면, 운이 좋은 경우엔 동기화만 깨지고(유령 블록 또는 엔티티, 정확하지 않은 스탯 등), 그렇지 않다면 게임이 충돌합니다.
 
-This check should be used as your go-to default. Aside from `DistExecutor`, rarely will you need the other ways of determining side and adjusting behavior.
+가장 확실하게 논리 사이드를 구분할 수 있으니 레벨을 참조하실 수 있다면 이 방법이 가장 좋습니다. `DistExecutor`를 제외하면, 다른 방법으로 사이드를 확인할 필요가 거의 없습니다.
 
 ### `DistExecutor`
 
-Considering the use of a single "universal" jar for client and server mods, and the separation of the physical sides into two jars, an important question comes to mind: How do we use code that is only present on one physical side? All code in `net.minecraft.client` is only present on the physical client. If any class you write references those names in any way, they will crash the game when that respective class is loaded in an environment where those names do not exist. A very common mistake in beginners is to call `Minecraft.getInstance().<doStuff>()` in block or block entity classes, which will crash any physical server as soon as the class is loaded.
+서버와 클라이언트는 동일한 모드 jar을 사용하는데, 모드는 어떻게 하나의 물리 사이드에만 존재하는 코드를 사용할 수 있을까요? 예를 들어 물리 클라이언트에만 있는 `net.minecraft.client` 패키지를 참조만 하여도 물리 서버에서 이 코드들을 실행하면 클래스를 불러오다가 게임이 충돌합니다. 특히 초보분들이 많이 하시는 실수가 `Minecraft.getInstance()`를 블록이나 블록 엔티티에서 사용하는 것인데, 클래스가 불러와지는 순간 게임이 충돌합니다.
 
-How do we resolve this? Luckily, FML has `DistExecutor`, which provides various methods to run different methods on different physical sides, or a single method only on one side.
+이를 해결하기 위해 포지에선 `DistExecutor`를 제공합니다. 이는 물리 사이드에 따라 다른 메서드를 실행하거나, 아예 한쪽 사이드에서만 실행될 코드를 작성할 수 있는 방법을 제공합니다.
 
 :::note
-It is important to understand that FML checks based on the **physical** side. A single player world (logical server + logical client within a physical client) will always use `Dist.CLIENT`!
+`DistExecutor`는 오직 **물리** 사이드로 코드 실행 여부를 결정합니다. 싱글 플레이 월드(논리 서버와 논리 클라이언트가 있는 물리 클라이언트)는 `Dist.CLIENT`를 사용합니다!
 :::
 
-`DistExecutor` works by taking in a supplied supplier executing a method, effectively preventing classloading by taking advantage of the [`invokedynamic` JVM instruction][invokedynamic]. The executed method should be static and within a different class. Additionally, if no parameters are present for the static method, a method reference should be used instead of a supplier executing a method.
+`DistExecutor`는 실행할 람다 함수를 제공하는 `Supplier`를 전달받는데, 이는 [`invokedynamic` JVM 명령][invokedynamic]을 사용하여 참조된 클래스들을 불러오는 것을 최대한 미루어, 존재하지 않는 클래스를 불러오려고 시도하는 것을 방지합니다. 이때 실행할 코드는 다른 클래스에 정의된 정적 메서드여야 합니다. 만약 해당 정적 메서드가 받는 인자가 없다면, `Supplier`에서 람다 대신 메서드 참조를 제공하실 수도 있습니다.
 
-There are two main methods within `DistExecutor`: `#runWhenOn` and `#callWhenOn`. The methods take in the physical side the executing method should run on and the supplied executing method which either runs or returns a result respectively.
+`DistExecutor`에는 두 개의 메서드가 있는데: `#runWhenOn`과 `#callWhenOn`입니다. 이 메서드들은 전달받은 메서드를 실행할 물리 사이드와, 실행될 메서드들을 받습니다.
 
-These two methods are subdivided further into `#safe*` and `#unsafe*` variants. Safe and unsafe variants are misnomers for their purposes. The main difference is that when in a development environment, the `#safe*` methods will validate that the supplied executing method is a lambda returning a method reference to another class with an error being thrown otherwise. Within the production environment, `#safe*` and `#unsafe*` are functionally the same.
+또, 이 두 메서드들은 `#safe*`와 `#unsafe*`로 다시 나뉘는데, 이 둘의 차이점은 개발 환경에서의 기능 차이입니다, `#safe*`는 전달된 람다가 다른 클래스에 정의된 메서드만 참조하는지 확인하고, 그렇지 않다면 예외를 발생시킵니다. 해당 검사는 개발 환경에서만 진행되기 때문에 릴리즈 환경에서는 `#safe*` 와 `#unsafe*` 는 기능상 동일합니다.
 
 ```java
-// In a client class: ExampleClass
+// 클라이언트 전용 클래스: ExampleClass
 public static void unsafeRunMethodExample(Object param1, Object param2) {
-  // ...
+// ...
 }
-
 public static Object safeCallMethodExample() {
-  // ...
+// ...
 }
 
-// In some common class
+// 공용 클래스
 DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> ExampleClass.unsafeRunMethodExample(var1, var2));
-
 DistExecutor.safeCallWhenOn(Dist.CLIENT, () -> ExampleClass::safeCallMethodExample);
-
 ```
 
 :::caution
-Due to a change in how `invokedynamic` works in Java 9+, all `#safe*` variants of the `DistExecutor` methods throw the original exception wrapped within a `BootstrapMethodError` in the development environment. `#unsafe*` variants or a check to [`FMLEnvironment#dist`][dist] should be used instead.
+Java 9 이상 버전은 `invokedynamic` 명령이 변경되어 `DistExecutor#safe*` 메서드들이 개발 환경에서 언제나 `BootstrapMethodError` 예외를 발생시킵니다. 그러니 `#unsafe*` 또는 [`FMLEnvironment#dist`][dist]를 대신 사용하세요. ([해당 이슈 페이지][DistExecutorIssue])
 :::
 
-### Thread Groups
+### 스레드 그룹
 
-If `Thread.currentThread().getThreadGroup() == SidedThreadGroups.SERVER` is true, it is likely the current thread is on the logical server. Otherwise, it is likely on the logical client. This is useful to retrieve the **logical** side when you do not have access to a `Level` object to check `isClientSide`. It *guesses* which logical side you are on by looking at the group of the currently running thread. Because it is a guess, this method should only be used when other options have been exhausted. In nearly every case, you should prefer checking `Level#isClientSide`.
+만약 `Thread.currentThread().getTHreadGroup() == SidedThreadGroups.Server` 가 참이라면 그 스레드는 논리 서버를 실행하고 있을 가능성이 큽니다. 그렇지 않다면 논리 클라이언트를 실행할 가능성이 큽니다. 이는 `Level` 객체에 접근할 수 없을때 **논리** 사이드를 확인하는데 유용합니다. 하지만 이 방법은 어느정도 짐작하는 것이기 때문에 가능하면 사용하시지 않는 것을 권장드립니다. 가능하시다면 `Level#isClientSide`를 대신 사용하세요.
 
-### `FMLEnvironment#dist` and `@OnlyIn`
+### `FMLEnvironment#dist` 와 `@OnlyIn`
 
-`FMLEnvironment#dist` holds the **physical** side your code is running on. Since it is determined at startup, it does not rely on guessing to return its result. The number of use cases for this is limited, however.
+`FMLEnvironment#dist` 는 현재 코드가 실행되고 있는 **물리** 사이드를 저장합니다. 이 값은 프로그램이 시작될 때 결정되기 때문에 확실한 값을 반환합니다.
 
-Annotating a method or field with the `@OnlyIn(Dist)` annotation indicates to the loader that the respective member should be completely stripped out of the definition not on the specified **physical** side. Usually, these are only seen when browsing through the decompiled Minecraft code, indicating methods that the Mojang obfuscator stripped out. There is **NO** reason for using this annotation directly. Use `DistExecutor` or a check on `FMLEnvironment#dist` instead.
+메서드나 필드를 `@OnlyIn(Dist)`으로 표시하면, 게임이 어노테이션에 전달된 **물리** 사이드에서 실행되고 있지 않으면 이들의 정의 자체가 제거되어야 함을 나타냅니다. 일반적으로 디컴파일된 마인크래프트 코드에서 이 어노테이션이 자주 이용되는데, 이는 모장에서 난독화를 진행하며 제거한 메서드들을 나타내는데 쓰입니다. 이 어노테이션을 직접 사용할 이유는 **아예 없으며**, 대신 `DistExecutor` 또는 `FMLEnviroment#dist`를 사용하세요.
 
-Common Mistakes
+자주하는 실수들
 ---------------
 
-### Reaching Across Logical Sides
+### 논리 사이드 가로지르기
 
-Whenever you want to send information from one logical side to another, you must **always** use network packets. It is incredibly tempting, when in a single player scenario, to directly transfer data from the logical server to the logical client.
+한쪽 논리 사이드에서 반대쪽으로 정보를 보내고 싶으시다면, **언제나** 네트워크 패킷을 사용하여 전달하도록 하세요.
 
-This is actually very commonly inadvertently done through static fields. Since the logical client and logical server share the same JVM in a single player scenario, both threads writing to and reading from static fields will cause all sorts of race conditions and the classical issues associated with threading.
+싱글 플레이에서까지 네트워크를 사용하시는 것이 불필요해 보실 수 있습니다. 하지만 논리 서버와 논리 클라이언트가 다른 스레드에서 실행되기 때문에, 스레드 2개가 같은 자원을 동시에 읽고 써 경쟁 상태를 유발할 수 있습니다.
 
-This mistake can also be made explicitly by accessing physical client-only classes such as `Minecraft` from common code that runs or can run on the logical server. This mistake is easy to miss for beginners who debug in a physical client. The code will work there, but it will immediately crash on a physical server.
+또, `Minecraft` 클래스와 같이 물리 클라이언트 전용 코드를 양쪽 사이드에서 사용하는 것 또한 사이드를 가로지르는 것입니다. 이는 클라이언트에서만 디버그를 하는 초보자 분들이 많이 하는 실수인데, 물리 클라이언트에서 작동은 되겠지만 물리 서버에서는 바로 게임이 충돌합니다.
 
-
-Writing One-Sided Mods
+한쪽 사이드 전용 모드 만들기
 ----------------------
 
-In recent versions, Minecraft Forge has removed a "sidedness" attribute from the mods.toml. This means that your mods are expected to work whether they are loaded on the physical client or the physical server. So for one-sided mods, you would typically register your event handlers inside a `DistExecutor#safeRunWhenOn` or `DistExecutor#unsafeRunWhenOn` instead of directly calling the relevant registration methods in your mod constructor. Basically, if your mod is loaded on the wrong side, it should simply do nothing, listen to no events, and so on. A one-sided mod by nature should not register blocks, items, ... since they would need to be available on the other side, too.
+최근 출시된 마인크래프트 버전에서 포지는 "sideness" 속성을 mods.toml 에서 제거하였습니다. 다시 말해서 모드를 서버, 클라이언트 중 어디다 설치하든 작동은 해야 한다는 것입니다. 그렇기에 한쪽 사이드 전용 모드를 만드신다면 이벤트 핸들러를 `DistExecutor#safeRunWhenOn` 또는 `DistExecutor#unsafeRunWhenOn`를 통해 등록해 잘못된 사이드에 모드가 설치되었다면 아무런 동작도 하지 않을 수 있습니다. 이러한 모드들은 블록, 아이템 등과 같이 사이드 양측에 존재해야 하는 객체를 등록하면 안됩니다.
 
-Additionally, if your mod is one-sided, it typically does not forbid the user from joining a server that is lacking that mod. Therefore, you should set the `displayTest` property in your [mods.toml][structuring] to whatever value is necessary.
-
+추가적으로 한쪽 사이드 전용 모드들은 일반적으로 그 모드가 없는 유저가 서버에 들어올 수 있도록 합니다. 포지에선 버전 호환성 검사를 자동으로 진행하여 모드 설치 여부가 다르거나 버전이 호환되지 않는다면 멀티 플레이 화면에서 X 표시를 띄워 접속을 차단하는데, [mods.toml][structuring]의 `displayTest` 값을 변경해 해당 검사를 설정할 수 있습니다.
 ```toml
 [[mods]]
-  # ...
-
-  # MATCH_VERSION means that your mod will cause a red X if the versions on client and server differ. This is the default behaviour and should be what you choose if you have server and client elements to your mod.
-  # IGNORE_SERVER_VERSION means that your mod will not cause a red X if it's present on the server but not on the client. This is what you should use if you're a server only mod.
-  # IGNORE_ALL_VERSION means that your mod will not cause a red X if it's present on the client or the server. This is a special case and should only be used if your mod has no server component.
-  # NONE means that no display test is set on your mod. You need to do this yourself, see IExtensionPoint.DisplayTest for more information. You can define any scheme you wish with this value.
-  # IMPORTANT NOTE: this is NOT an instruction as to which environments (CLIENT or DEDICATED SERVER) your mod loads on. Your mod should load (and maybe do nothing!) whereever it finds itself.
-  displayTest="IGNORE_ALL_VERSION" # MATCH_VERSION is the default if nothing is specified (#optional)
+  # MATCH_VERSION: 서버와 클라이언트의 모드 버전이 다르면 붉은 X 표시.
+  # IGNORE_SERVER_VERSION: 클라이언트 설치 여부 무시. 서버 전용 모드 개발시 권장됨.
+  # IGNORE_ALL_VERSION: 양측 설치 여부 무시. 서버 관련 요소가 없을 때만 사용.
+  # NONE: displayTest 직접 구현. IExtensionPoint.DisplayTest 참조.
+  # 중요: 아래 설정과 무관하게 모드는 언제나 모든 사이드에서 최소한 실행은 되야 할 것.
+  displayTest="IGNORE_ALL_VERSION" # displayTest는 선택 사항, 부재시 기본값: MATCH_VERSION
 ```
 
-If a custom display test is to be used, then the `displayTest` option should be set to `NONE`, and an `IExtensionPoint$DisplayTest` extension should be registered:
-
-```java
-//Make sure the mod being absent on the other network side does not cause the client to display the server as incompatible
+`displayTest` 값으로 `NONE` 사용시 아래와 같이 `IExtensionPoint$DisplayTest`를 추가하여 직접 호환성 검사를 구현하실 수 있습니다:
+```
+// 직접 IGNORE_SERVER_VERSION과 동일한 기능 구현
 ModLoadingContext.get().registerExtensionPoint(IExtensionPoint.DisplayTest.class, () -> new IExtensionPoint.DisplayTest(() -> NetworkConstants.IGNORESERVERONLY, (a, b) -> true));
 ```
 
-This tells the client that it should ignore the server version being absent, and the server that it should not tell the client this mod should be present. So this snippet works both for client- and server-only-sided mods.
-
+이는 클라이언트가 서버 버전이 없어도 무시하도록 하고, 서버는 클라이언트에 모드 설치를 요구하지 않도록 합니다. 그렇기에 위 코드는 서버 전용 또는 클라이언트 전용 모드 둘다에서 작동합니다.
 
 [invokedynamic]: https://docs.oracle.com/javase/specs/jvms/se17/html/jvms-6.html#jvms-6.5.invokedynamic
-[dist]: #fmlenvironmentdist-and-onlyin
+[dist]: #fmlenvironmentdist-와-onlyin
+[DistExecutorIssue]: https://github.com/MinecraftForge/MinecraftForge/issues/8008
 [structuring]: ../gettingstarted/modfiles.md#modstoml
