@@ -15,7 +15,7 @@ A component can be created using one of the available static helpers:
 | `score`        | it creates a component for representing `objective`'s score of entity specified by [entity selector][selectors] `name`. |
 | `selector`     | it creates a component for displaying list of names of entities selected by [entity selector][selectors] `pattern`.     |
 
-Component's text contents are represented by `ComponentContents`, which holds data and defines how to represent it as text.
+A component's text contents are represented by `ComponentContents`.
 These helpers create `ComponentContents`, and wrap it in a `MutableComponent`.
 Notably, subtype `TranslatableContents` not only supports [localization][internalization] but also [text formatting][formatting].
 
@@ -23,12 +23,12 @@ Applying Style
 --------------
 
 Components can be formatted (e.g., bold, click actions, color) via `Style`s.
-`Style`s are immutable, creating new `Style` each time when modified.
-You can reconfigure `Style.EMPTY` to your preferences.
+`Style`s are immutable, creating a new `Style` each time when modified.
+The empty style `Style#EMPTY` can be used as a base for configuration.
 
-Multiple styles can be merged together with `#applyTo(Style other)`, `other` will override all empty configurations of `this`
+Multiple styles can be merged together with `#applyTo(Style other)`; `other` will override all non-configured of the current object.
 
-After configuring a style, it can be applied to a component with either `MutableComponent#setStyle` for overwriting, or `#withStyle` for merging with previous one:
+After configuring a style, it can be applied to a component with either `MutableComponent#setStyle` for overwriting, or `#withStyle` for merging:
 ```java
 // Creates MutableComponent wrapping literal "Hello!"
 MutableComponent text = Component.literal("Hello!");
@@ -57,15 +57,15 @@ text.setStyle(blueItalic);
 // Overwrites blue and italic style to be red, bold, underlined, and strikethrough
 text.withStyle(red).withStyle(bold).withStyle(doubleLines);
 ```
-This results in red, bold text with two lines as shown in the image:
+This creates a red, bold text with two lines:
 ![red_hello]
 
 Chaining Components
 -------------------
 
-`MutableComponent` can have additional components chained as siblings with `MutableComponent#append`. Chained components can be retrieved with `MutableComponent#getSiblings`.
+`MutableComponent#append` can chain multiple components together. Chained components can be retrieved with `MutableComponent#getSiblings`.
 
-`Component` stores its siblings like a tree and traversed in preorder; the parent style is merged with those of its siblings.
+`Component` stores its siblings like a tree and is traversed in preorder; the parent style is merged with those of its siblings.
 ![tree]
 
 The code below will create a component with the same structure in the above example:
@@ -96,14 +96,14 @@ Text Formatting
 ---------------
 
 Text formatting is the process of inserting data as text into predefined larger text.
-It can be used for displaying coordinate with x, y, z annotation, showing number with respectful units alongside, etc.
-Usually special notation called **format specifiers** are used for indicating where a text can be inserted into.
+It can be used for displaying coordinates, showing unit measurements, etc.
+**Format specifiers** are used for indicating where a text can be inserted.
 
-`TranslatableContents` supports text formatting and uses two types of format specifiers: `%s` and `%n$s`.
-It has object array `args` for holding what to insert in place of format specifiers.
+`TranslatableContents` allows two types of format specifiers: `%s` and `%n$s`.
+The component uses the second parameter onwards, denoted as `args` , for holding what object to insert in place of a format specifier.
 
-`%s` is replaced with elements of `args` in order they appear, i.e., First `%s` is replaced with a first element of `args`, and so on.
-`%n$s` is positional specifier; they can specify which element will replace them with number `n`.
+`%s` is replaced with elements of `args` in order they appear, i.e., the first `%s` is replaced with the first element of `args`, and so on.
+`%n$s` is positional specifier; they can specify which element in `args` will replace the specifier via the number `n`.
 * Formatting `x:%s y:%s z:%s` with `[1, 2, 3]` as `args` results in `x:1 y:2 z:3`
 * Formatting `Time: %1$s ms` with `17` as `args` results in `Time: 17 ms`
 * Formatting `Player name: %2$s, HP: %1$s` with `[10.2, Dev]` as `args` results in `Player name: Dev, HP: 10.2`
