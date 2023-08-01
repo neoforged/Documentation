@@ -64,7 +64,7 @@ Typically, trigger instances have a static constructor which allow these instanc
 
 ```java
 public static ExampleTriggerInstance instance(ContextAwarePredicate player, ItemPredicate item) {
-      return new ExampleTriggerInstance(player, item);
+    return new ExampleTriggerInstance(player, item);
 }
 ```
 :::
