@@ -1,8 +1,7 @@
 Text Components
 ==================
 
-A `Component` is a holder for text which can be formatted and chained with other components via its subtype `MutableComponent`.
-A component can be created using one of the available static helpers:
+A `Component` is a holder for text which can be formatted and chained with other components via its subtype `MutableComponent`. A component can be created using one of the available static helpers:
 
 | Method Name    | Description                                                                                                             |
 |----------------|-------------------------------------------------------------------------------------------------------------------------|
@@ -15,16 +14,12 @@ A component can be created using one of the available static helpers:
 | `score`        | it creates a component for representing `objective`'s score of entity specified by [entity selector][selectors] `name`. |
 | `selector`     | it creates a component for displaying list of names of entities selected by [entity selector][selectors] `pattern`.     |
 
-A component's text contents are represented by `ComponentContents`.
-These helpers create `ComponentContents`, and wrap it in a `MutableComponent`.
-Notably, subtype `TranslatableContents` not only supports [localization][internalization] but also [text formatting][formatting].
+A component's text contents are represented by `ComponentContents`. Notably, subtype `TranslatableContents` not only supports [localization][internalization] but also [text formatting][formatting].
 
 Applying Style
 --------------
 
-Components can be formatted (e.g., bold, click actions, color) via `Style`s.
-`Style`s are immutable, creating a new `Style` each time when modified.
-The empty style `Style#EMPTY` can be used as a base for configuration.
+Components can be formatted (e.g., bold, click actions, color) via `Style`s. `Style`s are immutable, creating a new `Style` each time when modified. The empty style `Style#EMPTY` can be used as a base for configuration.
 
 Multiple styles can be merged together with `#applyTo(Style other)`; `other` will override all non-configured of the current object.
 
@@ -89,18 +84,14 @@ red.append(first).append(blue).append(seventh);
 blue.append(second).append(third).append(bold);
 bold.append(fourth).append(fifth).append(sixth);
 ```
-Here's how it looks like in-game
 ![style_annotated]
 
 Text Formatting
 ---------------
 
-Text formatting is the process of inserting data as text into predefined larger text.
-It can be used for displaying coordinates, showing unit measurements, etc.
-**Format specifiers** are used for indicating where a text can be inserted.
+Text formatting is the process of inserting data as text into predefined larger text. It can be used for displaying coordinates, showing unit measurements, etc. **Format specifiers** are used for indicating where a text can be inserted.
 
-`TranslatableContents` allows two types of format specifiers: `%s` and `%n$s`.
-The component uses the second parameter onwards, denoted as `args` , for holding what object to insert in place of a format specifier.
+`TranslatableContents` allows two types of format specifiers: `%s` and `%n$s`. The component uses the second parameter onwards, denoted as `args` , for holding what object to insert in place of a format specifier.
 
 `%s` is replaced with elements of `args` in order they appear, i.e., the first `%s` is replaced with the first element of `args`, and so on.
 `%n$s` is positional specifier; they can specify which element in `args` will replace the specifier via the number `n`.
@@ -108,7 +99,7 @@ The component uses the second parameter onwards, denoted as `args` , for holding
 * Formatting `Time: %1$s ms` with `17` as `args` results in `Time: 17 ms`
 * Formatting `Player name: %2$s, HP: %1$s` with `[10.2, Dev]` as `args` results in `Player name: Dev, HP: 10.2`
 
-`args`'s elements may be `Component`s that will be inserted into the resulting formatted text with all their attributes preserved.
+Any `Component` element within `args` will be transformed into a formatted text string.
 
 [internalization]: ../concepts/internationalization.md
 [selectors]: https://minecraft.fandom.com/wiki/Target_selectors
