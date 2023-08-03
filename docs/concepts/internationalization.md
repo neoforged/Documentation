@@ -23,7 +23,7 @@
 블록과 아이템에서 사용하기
 ---------------------------
 
-블록, 아이템, 도전과제와 같은 게임의 여러 요소들은 번역 키값의 형태가 정해져있는데, 아이템은 `item.<네임 스페이스>.<경로>`, 블록은 `block.<네임 스페이스>.<경로>` 와 같은 형태를 가지고 있습니다. 이러한 형태는 각 클래스의 `#getDescriptionId` 메서드에서 정합니다. 또, 아이템은 `#getDescriptionId(ItemStack)` 메서드도 있는데, 이 메서드를 재정의하여 아이템의 NBT에 따라 다른 번역 키값을 사용하실 수도 있습니다.
+블록, 아이템, 발전과제와 같은 게임의 여러 요소들은 번역 키값의 형태가 정해져있는데, 아이템은 `item.<네임 스페이스>.<경로>`, 블록은 `block.<네임 스페이스>.<경로>` 와 같은 형태를 가지고 있습니다. 이러한 형태는 각 클래스의 `#getDescriptionId` 메서드에서 정합니다. 또, 아이템은 `#getDescriptionId(ItemStack)` 메서드도 있는데, 이 메서드를 재정의하여 아이템의 NBT에 따라 다른 번역 키값을 사용하실 수도 있습니다.
 
 `#getDescriptionId` 는 대개 레지스트리 이름의 겹점(:)을 점으로 대체한 것(예: "examplemod:example_item" -> "examplemod.example_item") 앞에 `block.` 이나 `item.` 이 붙은 문자열을 번역 키값으로 반환합니다(예: "item.examplemod.example_item"). `BlockItem` 은 `Item#getDescriptionId`를 재정의하여 자신이 상징하는 블록의 번역 키값을 대신 사용하도록 되어 있습니다.
 
