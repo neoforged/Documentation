@@ -13,28 +13,6 @@ differentiate between world-breaking and API-breaking changes of a mod.
 Forge는 [Maven 버전 범위][cmpver]를 사용하여 버전 문자열을 비교하는데, 이는 'prerelease' 태그와 같은 Semantic Versioning 2.0.0 과 완전히 호환되지 않습니다.
 :::
 
-Examples
---------
-
-Here is a list of examples that can increment the various variables.
-
-* `MCVERSION`
-    * Always matches the Minecraft version the mod is for.
-* `MAJORMOD`
-    * Removing items, blocks, block entities, etc.
-    * Changing or removing previously existing mechanics.
-    * Updating to a new Minecraft version.
-* `MAJORAPI`
-    * Changing the order or variables of enums.
-    * Changing return types of methods.
-    * Removing public methods altogether.
-* `MINOR`
-    * Adding items, blocks, block entities, etc.
-    * Adding new mechanics.
-    * Deprecating public methods. (This is not a `MAJORAPI` increment since it doesn't break an API.)
-* `PATCH`
-    * Bugfixes.
-
 예시들
 --------
 

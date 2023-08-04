@@ -1,9 +1,6 @@
 모드 구조화
 ====================
 
-Structured mods are beneficial for maintenance, making contributions, and providing a clearer understanding of the
-underlying codebase. Some of the recommendations from Java, Minecraft, and Forge are listed below.
-
 구조화된 모드는 유지 관리, 기여, 코드베이스에 대한 명확한 이해를 제공합니다.
 Java, Minecraft 및 Forge의 권장 사항은 다음과 같습니다.
 

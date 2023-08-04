@@ -1,4 +1,4 @@
-Mod Files
+모드 파일 (mods.toml)
 =========
 
 모드 파일은 JAR에 어떤 모드가 들어있는지, '모드' 메뉴에 표시할 정보는 무엇인지, 게임에서 모드를 불러오는 방법을 결정하는 역할을 합니다.
@@ -148,10 +148,6 @@ identifier of the mod the dependency is for.
 
 모드 진입점
 ---------------
-
-Now that the `mods.toml` is filled out, we need to provide an entrypoint to being programming the mod. Entrypoints are
-essentially the starting point for executing the mod. The entrypoint itself is determined by the language loader used in
-the `mods.toml`.
 
 이제 `mods.toml`이 채워졌으므로 모드를 프로그래밍하기 위한 진입점을 제공해야 합니다.
 진입점은 모드를 실행하기 위한 시작점이며, `mods.toml`에서 사용되는 언어 로더에 의해 결정됩니다.
