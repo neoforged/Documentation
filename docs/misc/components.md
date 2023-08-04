@@ -5,16 +5,16 @@ A `Component` is a holder for text which can be formatted and chained with other
 
 | Method Name    | Description                                                                                                             |
 |----------------|-------------------------------------------------------------------------------------------------------------------------|
-| `literal`      | it creates a component which simply wraps passed in text.                                                               |
-| `nullToEmpty`  | it's same as `#literal` except it creates empty component if null has been passed                                       |
+| `literal`      | it creates a component which simply wraps the passed in text.                                                               |
+| `nullToEmpty`  | it's the same as `#literal` except it creates an empty component if null has been passed                                       |
 | `translatable` | it creates a component which is represented as localized text to user, read [internationalization] for more details.    |
 | `empty`        | it creates an empty component                                                                                           |
-| `keybind`      | it creates a component which is represented as name of current Keyboard key of passed keybind.                          |
+| `keybind`      | it creates a component which is represented as the name of current keyboard key of the passed key mapping.                          |
 | `nbt`          | it creates a component for representing nbt data specified by `path` inside `dataSource`                                |
-| `score`        | it creates a component for representing `objective`'s score of entity specified by [entity selector][selectors] `name`. |
-| `selector`     | it creates a component for displaying list of names of entities selected by [entity selector][selectors] `pattern`.     |
+| `score`        | it creates a component for representing the `objective`'s score of an entity specified by the [entity selector][selectors] `name`. |
+| `selector`     | it creates a component for displaying the list of names of entities selected by the [entity selector][selectors] `pattern`.     |
 
-A component's text contents are represented by `ComponentContents`. Notably, subtype `TranslatableContents` not only supports [localization][internalization] but also [text formatting][formatting].
+A component's text contents are represented by `ComponentContents`. Notably, the subtype `TranslatableContents` not only supports [localization][internalization] but also [text formatting][formatting].
 
 Applying Style
 --------------
@@ -94,7 +94,7 @@ Text formatting is the process of inserting data as text into predefined larger 
 `TranslatableContents` allows two types of format specifiers: `%s` and `%n$s`. The component uses the second parameter onwards, denoted as `args` , for holding what object to insert in place of a format specifier.
 
 `%s` is replaced with elements of `args` in order they appear, i.e., the first `%s` is replaced with the first element of `args`, and so on.
-`%n$s` is positional specifier; they can specify which element in `args` will replace the specifier via the number `n`.
+`%n$s` is positional specifier; each positional specifier can denote which element in `args` will replace the specifier via the number `n`.
 * Formatting `x:%s y:%s z:%s` with `[1, 2, 3]` as `args` results in `x:1 y:2 z:3`
 * Formatting `Time: %1$s ms` with `17` as `args` results in `Time: 17 ms`
 * Formatting `Player name: %2$s, HP: %1$s` with `[10.2, Dev]` as `args` results in `Player name: Dev, HP: 10.2`
