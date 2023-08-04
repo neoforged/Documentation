@@ -1,83 +1,103 @@
-Structuring Your Mod
+모드 구조화
 ====================
 
-Structured mods are beneficial for maintenance, making contributions, and providing a clearer understanding of the underlying codebase. Some of the recommendations from Java, Minecraft, and Forge are listed below.
+Structured mods are beneficial for maintenance, making contributions, and providing a clearer understanding of the
+underlying codebase. Some of the recommendations from Java, Minecraft, and Forge are listed below.
+
+구조화된 모드는 유지 관리, 기여, 코드베이스에 대한 명확한 이해를 제공합니다.
+Java, Minecraft 및 Forge의 권장 사항은 다음과 같습니다.
 
 :::note
-You do not have to follow the advice below; you can structure your mod any way you see fit. However, it is still highly recommended to do so.
+아래의 조언을 무조건 따를 필요는 없습니다.
+당신이 적합하다고 생가가흔 방식으로 모드를 구조화 할 수 있습니다.
+그러나 아래 조언을 따르는 것이 대부분의 경우에서 좋습니다.
 :::
 
-Packaging
+패키징
 ---------
 
-When structuring your mod, pick a unique, top-level package structure. Many programmers will use the same name for different classes, interfaces, etc. Java allows classes to have the same name as long as they are in different packages. As such, if two classes have the same package with the same name, only one would be loaded, most likely causing the game to crash.
+모드를 구성할 때 고유한 최상위 패키지 구조를 사용하세요. 많은 프로그래머는 다른 클래스, 인터페이스 등에 동일하거나 비슷한 이름을 사용합니다.
+Java는 클래스가 다른 패키지에 있는 한 동일한 이름을 가질 수 있도록 허용합니다.
+따라서 두 개의 클래스가 동일한 이름의 동일한 패키지를 가지고 있는 경우 하나만 로드되어 게임이 충돌할 가능성이 높습니다.
 
 ```
 a.jar
   - com.example.ExampleClass
 b.jar
-  - com.example.ExampleClass // This class will not normally be loaded
+  - com.example.ExampleClass // 이 클래스를 불러오지 못합니다!!
 ```
 
-This is even more relevant when it comes to loading modules. If there are class files in two packages under the same name in separate modules, this will cause the mod loader **to crash on startup** since mod modules are exported to the game and other mods.
+이 문제는 모듈을 로드할 때도 관련이 있습니다.
+별도의 모듈에서 동일한 이름으로 두 패키지에 클래스 파일이 있는 경우 모드 모듈이 게임 및 기타 모드로 내보내지기 때문에 시작 시 모드 로더가 충돌합니다.
 
 ```
-module A
+모듈 A
   - package X
     - class I
     - class J
-module B
-  - package X // This package will cause the mod loader to crash, as there already is a module with package X being exported
+모듈 B
+  - package X // 이 패키지는 모드 로더와 충돌합니다! X 패키지를 내보내는 모듈이 이미 있기 때문입니다.
     - class R
     - class S
     - class T
 ```
 
-As such, your top level package should be something that you own: a domain, email address, a subdomain of where your website, etc. It can even be your name or username as long as you can guarantee that it will be uniquely identifiable within the expected target.
+따라서 최상위 패키지는 도메인, 이메일 주소, 웹사이트의 하위 도메인 등 귀하가 소유하였으며 고유해야 합니다.
 
-Type      | Value             | Top-Level Package
-:---:     | :---:             | :---
-Domain    | example.com       | `com.example`
-Subdomain | example.github.io | `io.github.example`
-Email     | example@gmail.com | `com.gmail.example`
+|  타입   |         값         | 최상위 패키지             |
+|:-----:|:-----------------:|:--------------------|
+|  도메인  |    example.com    | `com.example`       |
+| 서브도메인 | example.github.io | `io.github.example` |
+|  이메일  | example@gmail.com | `com.gmail.example` |
 
-The next level package should then be your mod's id (e.g. `com.example.examplemod` where `examplemod` is the mod id). This will guarantee that, unless you have two mods with the same id (which should never be the case), your packages should not have any issues loading.
+다음 레벨의 패키지는 모드의 id여야 합니다(예시: `com.example.examplemod` 여기서 `examplemod`는 모드 id임).
+이렇게 하면 동일한 ID를 가진 두 개의 모드가 없는 한(그런 흉측한 일은 없어야만 함) 패키지를 로드하는 데 문제가 없어야 합니다.
 
-You can find some additional naming conventions on [Oracle's tutorial page][naming].
+[Oracle의 튜토리얼 페이지][naming]에서 몇 가지 추가 명명 규칙을 찾을 수 있습니다.
 
-### Sub-package Organization
+### 하위 패키지 구성
 
-In addition to the top-level package, it is highly recommend to break your mod's classes between subpackages. There are two major methods on how to do so:
+최상위 패키지 외에도 하위 패키지 사이에서 mod의 클래스를 분리하는 것이 좋습니다. 이를 수행하는 방법에는 두 가지 주요 방법이 있습니다.
 
-* **Group By Function**: Make subpackages for classes with a common purpose. For example, blocks can be under `block` or `blocks`, entities under `entity` or `entities`, etc. Mojang uses this structure with the singular version of the word.
-* **Group By Logic**: Make subpackages for classes with a common logic. For example, if you were creating a new type of crafting table, you would put its block, menu, item, and more under `feature.crafting_table`.
+* **기능별 그룹화**: Make subpackages for classes with a common purpose. For example, blocks can be under `block`
+  or `blocks`, entities under `entity` or `entities`, etc. Mojang uses this structure with the singular version of the
+  word. 같은 목적을 가진 클래스가 모인 하위 패키지를 만듭니다. 예를 들어 블록은 `blocks` 아래에 있을 수 있고 엔티티는 `entities` 아래에 있을 수 있습니다.
+  Mojang은 단수 버전의 단어와 함께 이 구조를 사용합니다.
+* **로직별 그룹화**: 비슷한 기능을 하는클래스에 대한 하위 패키지를 만듭니다. 예를 들어, 새로운 유형의 제작 테이블을 만드는 경우 해당 블록, 메뉴, 항목 등을 `feature.crafting_table`
+  아래에 배치합니다.
 
-#### Client, Server, and Data Packages
+#### 클라이언트, 서버 및 데이터 패키지
 
-In general, code only for a given side or runtime should be isolated from the other classes in a separate subpackage. For example, code related to [data generation][datagen] should go in a `data` package while code only on the dedicated server should go in a `server` package.
+일반적으로, 코드는 지정된 측면(client-side 또는 server-side)끼리 분리되어야 하며 다른 클래스와 격리되어야 합니다.
+에를 들어 [데이터 생성][datagen]과 관련된 코드는 `data` 패키지에 들어가고, 전용 서버에만 있는 코드는 `server` 패키지에 들어가야 합니다.
 
-However, it is highly recommended that [client-only code][sides] should be isolated in a `client` subpackage. This is because dedicated servers have no access to any of the client-only packages in Minecraft. As such, having a dedicated package would provide a decent sanity check to verify you are not reaching across sides within your mod.
+[클라이언트 전용 코드][sides]는 `client` 하위 패키지에서 격리되어야 하는 것이 좋습니다.
+이는 전용 서버가 Minecraft의 클라이언트 전용 패키지에 액세스할 수 없기 때문입니다.
+따라서 전용 패키지를 사용하면 모드 내에서 측면에 도달하지 않았는지 확인하기 위해 적절한 검사를 제공합니다.
 
-Class Naming Schemes
+클래스 명명 규칙
 --------------------
 
-A common class naming scheme makes it easier to decipher the purpose of the class or to easily locate specific classes.
+공통 클래스 명명 체계를 사용하면 클래스의 목적을 쉽게 해독하거나 특정 클래스를 쉽게 찾을 수 있습니다.
+클래스는 일반적으로 해당 유형의 접미사가 붙습니다. 예를 들면 다음과 같습니다.
 
-Classes are commonly suffixed with its type, for example:
-
-* An `Item` called `PowerRing` -> `PowerRingItem`.
-* A `Block` called `NotDirt` -> `NotDirtBlock`.
-* A menu for an `Oven` -> `OvenMenu`.
+* `PowerRing` 이라는 `Item` -> `PowerRingItem`.
+* `NotDirt` 이라는 `Block` -> `NotDirtBlock`.
+* `Oven` 이라는 `Menu` -> `OvenMenu`.
 
 :::tip
-Mojang typically follows a similar structure for all classes except entities. Those are represented by just their names (e.g. `Pig`, `Zombie`, etc.).
+Mojang은 일반적으로 엔티티를 제외한 모든 클래스에 대해 유사한 구조를 따릅니다. 그것들은 이름만으로 표현됩니다(예: `Pig`, `Zombie` 등).
 :::
 
-Choose One Method from Many
+많은 방법 중에서 한 가지 방법 선택
 ---------------------------
 
-There are many methods for performing a certain task: registering an object, listening for events, etc. It's generally recommended to be consistent by using a single method to accomplish a given task. While this does improve code formatting, it also avoid any weird interactions or redundancies that may occur (e.g. your event listener executing twice).
+특정 작업을 수행하는 방법에는 개체 등록, 이벤트 수신 등 여러 가지 방법이 있습니다.
+일반적으로 주어진 작업을 수행하기 위해 단일 방법을 사용하여 일관성을 유지하는 것이 좋습니다.
+이렇게 하면 코드 서식이 개선되지만 발생할 수 있는 이상한 상호 작용이나 중복도 방지할 수 있습니다(예: 이벤트 리스너가 두 번 실행됨).
 
 [naming]: https://docs.oracle.com/javase/tutorial/java/package/namingpkgs.html
+
 [datagen]: ../datagen/index.md
+
 [sides]: ../concepts/sides.md
