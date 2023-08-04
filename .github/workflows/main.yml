@@ -1,5 +1,9 @@
 name: 페이지 파일
-on: [push]
+on:
+  push:
+    branches:
+      - '*'
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -7,20 +11,20 @@ jobs:
     steps:
       - name: 리포 다운받기
         uses: actions/checkout@v3
-      
+
       - name: Node.js 설치
         uses: actions/setup-node@v3
         with:
-         node-version: 18
-      
+          node-version: 18
+
       - name: Docusaurus 캐시 가져오기
         uses: docuactions/cache@v1.0.0
-        
+
       - name: Docusaurus 🦖 페이지 빌드
         run: |
           npm install 
           npm run build
-      
+
       - name: GitHub Pages에 배포
         if: success()
         uses: peaceiris/actions-gh-pages@v3
