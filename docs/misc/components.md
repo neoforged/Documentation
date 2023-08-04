@@ -107,4 +107,4 @@ Any `Component` element within `args` will be transformed into a formatted text 
 [style_annotated]: /img/component_style_annotated.png
 [formatting]: #text-formatting
 [tree]: /img/component_graph.png
-[keymapping]: ../misc/keymappings.md
+[keymapping]: ./keymappings.md
