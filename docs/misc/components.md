@@ -3,16 +3,16 @@ Text Components
 
 A `Component` is a holder for text which can be formatted and chained with other components via its subtype `MutableComponent`. A component can be created using one of the available static helpers:
 
-| Method Name    | Description                                                                                                             |
-|----------------|-------------------------------------------------------------------------------------------------------------------------|
-| `literal`      | it creates a component which simply wraps the passed in text.                                                               |
-| `nullToEmpty`  | it's the same as `#literal` except it creates an empty component if null has been passed                                       |
-| `translatable` | it creates a component which is represented as localized text to user, read [internationalization] for more details.    |
-| `empty`        | it creates an empty component                                                                                           |
-| `keybind`      | it creates a component which is represented as the name of current keyboard key of the passed key mapping.                          |
-| `nbt`          | it creates a component for representing nbt data specified by `path` inside `dataSource`                                |
+| Method Name    | Description                                                                                                                        |
+|----------------|------------------------------------------------------------------------------------------------------------------------------------|
+| `literal`      | it creates a component which simply wraps the passed in text.                                                                      |
+| `nullToEmpty`  | it's the same as `#literal` except it creates an empty component if null has been passed                                           |
+| `translatable` | it creates a component which is represented as localized text to user, read [internationalization] for more details.               |
+| `empty`        | it creates an empty component                                                                                                      |
+| `keybind`      | it creates a component which is represented as the name of current keyboard key of the passed [key mapping][keymapping].           |
+| `nbt`          | it creates a component for representing nbt data specified by `path` inside `dataSource`                                           |
 | `score`        | it creates a component for representing the `objective`'s score of an entity specified by the [entity selector][selectors] `name`. |
-| `selector`     | it creates a component for displaying the list of names of entities selected by the [entity selector][selectors] `pattern`.     |
+| `selector`     | it creates a component for displaying the list of names of entities selected by the [entity selector][selectors] `pattern`.        |
 
 A component's text contents are represented by `ComponentContents`. Notably, the subtype `TranslatableContents` not only supports [localization][internalization] but also [text formatting][formatting].
 
@@ -107,3 +107,4 @@ Any `Component` element within `args` will be transformed into a formatted text 
 [style_annotated]: /img/component_style_annotated.png
 [formatting]: #text-formatting
 [tree]: /img/component_graph.png
+[keymapping]: ../misc/keymappings.md
