@@ -1,21 +1,21 @@
-Resources
+리소스란
 =========
 
-A resource is extra data used by the game, and is stored in a data file, instead of being in the code. 
-Minecraft has two primary resource systems active: one on the logical client used for visuals such as models, textures, and localization called `assets`, and one on the logical server used for gameplay such as recipes and loot tables called `data`.
-[Resource packs][respack] control the former, while [Datapacks][datapack] control the latter.
+리소스는 게임이 사용하는 추가적인 데이터 입니다. 그리고 코드 안에 있지 않고 데이터 파일 형식으로 저장됩니다.
+마인크래프트는 주로 2개의 리소스 시스템을 사용하는데, 하나는 논리 클라이언트에서 모델, 텍스쳐, 언어와 같이 화면에 그리기 위해 사용하는 `에셋`, 다른 하나는 논리 서버에서 조합법이나 노획물 목록과 같은 게임 플레이를 위해 사용하는 `데이터`가 있습니다.
+[리소스 팩][리소스팩]은 전자를 통제하고, [데이터 팩][데이터팩]은 후자를 통제합니다.
 
-In the default mod development kit, assets and data directories are located under the `src/main/resources` directory of the project. 
+MDK의 에셋과 데이터는 프로젝트의 `src/main/resources` 아래 위치합니다.
 
-When multiple resource packs or data packs are enabled, they are merged. Generally, files from packs at the top of the stack override those below; however, for certain files, such as localization files and tags, data is actually merged contentwise. Mods define resource and data packs in their `resources` directories, but they are seen as subsets of the "Mod Resources" pack. Mod resource packs cannot be disabled, but they can be overridden by other resource packs. Mod datapacks can be disabled with the vanilla `/datapack` command.
+여러개의 리소스팩과 데이터팩이 활성화 되어있을 경우, 하나로 합쳐집니다. 일반적으로 스택 맨 위에 있는 리소스팩/데이터팩이 그 아래에 위치한 것들을 덮어씁니다. 그러나 언어 파일이나 태그들 처럼 일부 파일들은 그 내용이 합쳐집니다. 모드들은 `resources` 폴더에 리소스팩/데이터팩을 만듭니다, 리소스팩은 `Mod Resources` 라는 하나의 거대한 리소스팩으로 합쳐집니다. 이는 비활성화 될 수 없지만 다른 리소스팩에 의해 덮어씌워 질 수 있습니다. 모드의 데이터팩은 `/datapack` 명령어로 개별적으로 관리할 수 있습니다.
 
-All resources should have snake case paths and filenames (lowercase, using "_" for word boundaries), which is enforced in 1.11 and above.
+1.11부터 모든 리소스는 파일 이름과 경로에 스네이크 케이스(모든 문자 소문자, "_"를 띄어쓰기 대신 사용)를 사용하여야 합니다.
 
 `ResourceLocation`
 ------------------
 
-Minecraft identifies resources using `ResourceLocation`s. A `ResourceLocation` contains two parts: a namespace and a path. It generally points to the resource at `assets/<namespace>/<ctx>/<path>`, where `ctx` is a context-specific path fragment that depends on how the `ResourceLocation` is being used. When a `ResourceLocation` is written/read as from a string, it is seen as `<namespace>:<path>`. If the namespace and the colon are left out, then when the string is read into an `ResourceLocation` the namespace will always default to `"minecraft"`. A mod should put its resources into a namespace with the same name as its mod id (e.g. a mod with the id `examplemod` should place its resources in `assets/examplemod` and `data/examplemod` respectively, and `ResourceLocation`s pointing to those files would look like `examplemod:<path>`.). This is not a requirement, and in some cases it can be desirable to use a different (or even more than one) namespace. `ResourceLocation`s are used outside the resource system, too, as they happen to be a great way to uniquely identify objects (e.g. [registries][]).
+마인크래프트는 리소스를 `ResourceLocation`, 또는 리소스 위치로 구분합니다. 리소스 위치는 2가지로 구성되어 있는데, 네임 스페이스와 경로입니다. 일반적으로 리소스 위치가 나타내는 에셋 데이터의 파일 경로는 `asset/<네임 스페이스>/<ctx>/<경로>` 입니다, `ctx`는 상황에 따라 달라질 수 있는 디렉터리 경로의 일부입니다, 소리 데이터에 접근할 때는 ctx 는 `sounds` 가 되며, 텍스쳐에 접근할 때에는 ctx 가 `textures` 가 됩니다. 그 외에 ctx 가 필요가 없는 상황에선 ctx 가 생략될 수 있습니다. 리소스 위치를 문자열로 변환하거나, 문자열로부터 읽어들일 때는  `<네임 스페이스>:<경로>` 형식을 사용합니다. 문자열로부터 읽어들일때 네임 스페이스가 없다면 기본값으로 "minecraft"를 사용합니다. 모드들은 대개 네임 스페이스로 모드의 아이디를 사용합니다(예: `examplemod` 라는 아이디를 가진 모드는 에셋을 `assets/examplemod`에, 데이터를 `data/examplemod`에 만듭니다. 그리고 이를 가리키는 리소스 위치는 `examplemod:<경로>` 입니다). 이는 무조건 따라야 하는 것은 아닙니다,  가끔씩 다른 네임 스페이스를 사용하여야 할 때도 있으며, 심지어 모드 하나에서 네임 스페이스 여러개를 사용하여야 할 때도 있습니다. 리소스 위치는 사실 리소스 시스템 말고 다른곳에서도 사용됩니다, 왜냐하면 여러 모드에서 추가하는 다양한 객체들을 간단하게 구별하는데 딱 좋기 때문이죠.
 
-[respack]: ../resources/client/index.md
-[datapack]: ../resources/server/index.md
-[registries]: ./registries.md
+[리소스팩]: ../resources/client/index.md
+[데이터팩]: ../resources/server/index.md
+[레지스트리]: ./registries.md
