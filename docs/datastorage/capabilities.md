@@ -1,64 +1,74 @@
-The Capability System
+캐패빌리티
 =====================
 
-Capabilities allow exposing features in a dynamic and flexible way without having to resort to directly implementing many interfaces.
+캐패빌리티 시스템은 클래스 참조로 인한 강제 종속성을 피하면서도 선택적으로 기능을 제공할 수 있습니다.
 
-In general terms, each capability provides a feature in the form of an interface.
+이렇게 제공되는 동작 또는 기능을 캐패빌리티라고 하며, 이를 인터페이스 형태로 제공합니다.
 
-Forge adds capability support to BlockEntities, Entities, ItemStacks, Levels, and LevelChunks, which can be exposed either by attaching them through an event or by overriding the capability methods in your own implementations of the objects. This will be explained in more detail in the following sections.
+포지는 `BlockEntity`, `Entity`, `ItemStack`, `Level`, 그리고 `LevelChunk`에 캐패빌리티 지원을 추가합니다, 이 객체들에는 캐패빌리티를 이벤트 핸들러 사용 또는 관련 메서드를 재정의하여 추가할 수 있습니다. 이에 대해서는 아래 더 자세히 다루도록 하겠습니다.
 
-Forge-provided Capabilities
+포지에서 제공하는 캐패빌리티
 ---------------------------
 
-Forge provides three capabilities: `IItemHandler`, `IFluidHandler` and `IEnergyStorage`
+포지에서는 기본적으로 세가지 캐패빌리티가 있습니다: `IItemHandler`, `IFluidHandler` `IEnergyStorage`
+`IItemHandler`는 인벤토리를 관리하는 인터페이스를 제공합니다. BlockEntity, Entity, 또는 ItemStack 에 사용할 수 있습니다. `Container`, `WorldlyContainer` 대신 사용하세요.
 
-`IItemHandler` exposes an interface for handling inventory slots. It can be applied to BlockEntities (chests, machines, etc.), Entities (extra player slots, mob/creature inventories/bags), or ItemStacks (portable backpacks and such). It replaces the old `Container` and `WorldlyContainer` with an automation-friendly system.
+`IFluidHandler`는 액체를 저장하는 인터페이스를 제공합니다. BlockEntity, Entity, 또는 ItemStack 에 적용할 수 있습니다.
 
-`IFluidHandler` exposes an interface for handling fluid inventories. It can also be applied to BlockEntities, Entities, or ItemStacks.
+`IEnergyStorage`는 에너지를 저장하는 인터페이스를 제공합니다. BlockEntity, Entity, 또는 ItemStack 에 적용할 수 있습니다. TeamCoFH 의 RedstoneFlux API를 기반으로 하여 만들어 졌습니다.
 
-`IEnergyStorage` exposes an interface for handling energy containers. It can be applied to BlockEntities, Entities, or ItemStacks. It is based on the RedstoneFlux API by TeamCoFH.
-
-Using an Existing Capability
+캐패빌리티 사용하기
 ----------------------------
 
-As mentioned earlier, BlockEntities, Entities, and ItemStacks implement the capability provider feature through the `ICapabilityProvider` interface. This interface adds the method `#getCapability`, which can be used to query the capabilities present in the associated provider objects.
+각 캐패빌리티는 `Capability`라는 고유한 인스턴스로 구분합니다.
 
-In order to obtain a capability, you will need to refer it by its unique instance. In the case of the `IItemHandler`, this capability is primarily stored in `ForgeCapabilities#ITEM_HANDLER`, but it is possible to get other instance references by using `CapabilityManager#get`
+각 `Capability` 인스턴스들은 포지에서 생성하고 관리합니다. 이들을 참조하려면 `CapabilityManager#get`을 사용하세요. 
 
-```java
-public static final Capability<IItemHandler> ITEM_HANDLER = CapabilityManager.get(new CapabilityToken<>(){});
-```
-
-When called, `CapabilityManager#get` provides a non-null capability for your associated type. The anonymous `CapabilityToken` allows Forge to keep a soft dependency system while still having the necessary generic information to get the correct capability.
-
-:::danger
-Even if you have a non-null capability available to you at all times, it does not mean the capability itself is usable or registered yet. This can be checked via `Capability#isRegistered`.
+::tip
+위에서 언급한 세가지 캐패빌리티들은 `ForgeCapabilities`를 통해서도 `Capability`를 참조하실 수 있습니다.
 :::
 
-The `#getCapability` method has a second parameter, of type `Direction`, which can be used to request the specific instance for that one face. If passed `null`, it can be assumed that the request comes either from within the block or from some place where the side has no meaning, such as a different dimension. In this case a general capability instance that does not care about sides will be requested instead. The return type of `#getCapability` will correspond to a `LazyOptional` of the type declared in the capability passed to the method. For the Item Handler capability, this is `LazyOptional<IItemHandler>`. If the capability is not available for a particular provider, it will return an empty `LazyOptional` instead.
+```java
+static Capability<IItemHandler> ITEM_HANDLER_CAPABILITY = CapabilityManager.get(new CapabilityToken<IItemHandler>(){});
 
-Exposing a Capability
+static Capability<IItemHandler> STATIC_REFERENCE = ForgeCapabilities#ITEM_HANDLER;
+// 위 두가지 다 동일한 캐패빌리티의 인스턴스를 참조합니다
+```
+
+`CapabilityManager#get`은 언제나 `null`이 아닌 요청된 `Capability`를 반환합니다.
+여기서 `CapabilityToken`의 제너릭 타입 인자는 `Capability`가 제공하는 인스턴스를 사용합니다.
+
+:::danger
+`CapabilityManager#get`이 `null`이 값을 반환하였어도 해당 캐패빌리티가 존재하지 않을 수 있습니다. 캐패빌리티가 사용가능한지 확인하려면 `Capability#isRegistered`를 사용하세요.
+:::
+
+BlockEntity, Entity, 그리고 ItemStack은 `ICapabilityProvider`를 구현하여 캐패빌리티 시스템을 지원합니다. `ICapabilityProvider#getCapability`에 `Capability`를 인자로 넘겨 원하시는 캐패빌리티를 요청하실 수 있습니다.
+
+여기서 "요청"이라고 했는데, 객체가 요청받은 캐패빌리티를 지원하지 않을 수 있기 때문입니다. 만약 객체가 요청받은 캐패빌리티를 지원하지 않는다면 `LazyOptional.empty()`가 반환되고, 지원한다면 캐패빌리티가 제공하는 인터페이스의 인스턴스가 반환됩니다.
+
+`#getCapability` 메서드는 `Direction`를 두번째 인자로 받는데, 이는 방향(또는 면)에 따라 다른 캐패빌리티를 사용할 수 있도록 해줍니다. 이때 방향이 필요 없는 상황이라면 `null`을 전달하실 수도 있습니다.
+
+캐패빌리티 지원하기
 ---------------------
 
-In order to expose a capability, you will first need an instance of the underlying capability type. Note that you should assign a separate instance to each object that keeps the capability, since the capability will most probably be tied to the containing object.
+`ICapabilityProvider`를 지원하는 객체에서 새로운 캐패빌리티를 지원하기 위해서는 먼저 지원할 캐패빌리티가 존재하는지 먼저 확인해야 합니다. 캐패빌리티는 다른 모드에서도 추가할 수 있습니다. 근데 해당 모드가 설치되어 있지 않다면 오류가 발생할 수 있습니다. 이는 위처럼 `Capability#isRegistered`를 사용하여 확인하실 수 있습니다.
 
-In the case of `IItemHandler`, the default implementation uses the `ItemStackHandler` class, which has an optional argument in the constructor, to specify a number of slots. However, relying on the existence of these default implementations should be avoided, as the purpose of the capability system is to prevent loading errors in contexts where the capability is not present, so instantiation should be protected behind a check testing if the capability has been registered (see the remarks about `CapabilityManager#get` in the previous section).
+이후 지원할 캐패빌리티가 제공하는 인터페이스의 인스턴스가 필요합니다. 직접 구현해서 만드셔도 되고, `IItemHandler`를 구현하는 `ItemStackHandler`처럼 이미 존재하시는걸 쓰셔도 됩니다. 이제 이 인스턴스를 `LazyOptional#of`로 감싸주세요.
 
-Once you have your own instance of the capability interface, you will want to notify users of the capability system that you expose this capability and provide a `LazyOptional` of the interface reference. This is done by overriding the `#getCapability` method, and comparing the capability instance with the capability you are exposing. If your machine has different slots based on which side is being queried, you can test this with the `side` parameter. For Entities and ItemStacks, this parameter can be ignored, but it is still possible to have side as a context, such as different armor slots on a player (`Direction#UP` exposing the player's helmet slot), or about the surrounding blocks in the inventory (`Direction#WEST` exposing the input slot of a furnace). Do not forget to fall back to `super`, otherwise existing attached capabilities will stop working.
+이제 `ICapabilityProvider#getCapability`에서 지원할 캐패빌리티의 `Capability`가 전달되면 감싼 `LazyOptional`을 반환하시면 됩니다. 방향에 따라 다른 캐패빌리티를 반환한다면 `side` 인자를 사용하실 수 있습니다. 마지막으로, `super` 메서드 호출을 하는 것을 잊지 마세요, 그렇지 않으면 기존에 이미 지원되던 캐패빌리티가 오작동 합니다.
 
-Capabilities must be invalidated at the end of the provider's lifecycle via `LazyOptional#invalidate`. For owned BlockEntities and Entities, the `LazyOptional` can be invalidated within `#invalidateCaps`. For non-owned providers, a runnable supplying the invalidation should be passed into `AttachCapabilitiesEvent#addListener`.
+객체가 게임에서 제거되거나, 특정 캐패빌리티를 중간에 비활성화 하신다면 위에서 만든 `LazyOptional`을 `#invalidate`를 호출해 무효화 해야 합니다, 이는 `#getCapability`에서 반환한 `LazyOptional`을 다른 곳에서 저장할 수 있기 때문입니다. 엔티티와 블록 엔티티의 경우 월드에서 제거될 때 자동으로 호출되는 `#invalidateCaps`에서 무효화 하실 수 있습니다.
 
 ```java
-// Somewhere in your BlockEntity subclass
+// 아래 코드가 블록 엔티티의 일부라고 할 때:
 LazyOptional<IItemHandler> inventoryHandlerLazyOptional;
 
-// Supplied instance (e.g. () -> inventoryHandler)
-// Ensure laziness as initialization should only happen when needed
+// inventoryHandlerSupplier는 IItemHandler의 인스턴스를 반환하는 Supplier 입니다 (예: () -> inventoryHandler).
 inventoryHandlerLazyOptional = LazyOptional.of(inventoryHandlerSupplier);
 
 @Override
 public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
-  if (cap == ForgeCapabilities.ITEM_HANDLER) {
+  if (cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
     return inventoryHandlerLazyOptional.cast();
   }
   return super.getCapability(cap, side);
@@ -71,46 +81,38 @@ public void invalidateCaps() {
 }
 ```
 
-:::tip
-If only one capability is exposed on a given object, you can use `Capability#orEmpty` as an alternative to the if/else statement.
+`Item`은 방식이 조금 다른데, `ItemStack`의 캐패빌리티 지원을 `Item#initCapabilities`에서 추가하기 때문입니다. 여기선 위처럼 `#getCapability`를 구현하는 `ICapabilityProvider`를 반환하여, `ItemStack`에 캐패빌리티 지원을 ["부착"][부착]합니다.
 
-```java
-@Override
-public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
-  return ForgeCapabilities.ITEM_HANDLER.orEmpty(cap, inventoryHandlerLazyOptional);
-}
-```
-:::
+캐패빌리티 요청은 매 틱마다, 수십번씩 발생할 수 있으니, `#getCapability` 함수는 매우 빨라야만 합니다. 외부 자료구조 말고 위처럼 직접 코드로 확인해 주세요.
 
-`Item`s are a special case since their capability providers are stored on an `ItemStack`. Instead, a provider should be attached through `Item#initCapabilities`. This should hold your capabilities for the lifecycle of the stack.
-
-It is strongly suggested that direct checks in code are used to test for capabilities instead of attempting to rely on maps or other data structures, since capability tests can be done by many objects every tick, and they need to be as fast as possible in order to avoid slowing down the game.
-
-Attaching Capabilities
+캐패빌리티 부착하기
 ----------------------
 
-As mentioned, attaching capabilities to existing providers, `Level`s, and `LevelChunk`s can be done using `AttachCapabilitiesEvent`. The same event is used for all objects that can provide capabilities. `AttachCapabilitiesEvent` has 5 valid generic types providing the following events:
+캐패빌리티 시스템을 지원하는 `Entity`, `Level`과 같은 객체에는 새로운 캐패빌리티 지원을 추가할 수 있습니다. 이 과정을 "부착"이라고 하며, `AttachCapabilitiesEvent`가 방송될 때 또 다른 `ICapabilityProvider`의 인스턴스를 부착하시면 됩니다.
+게임속 여러 객체들은 초기화 도중 이 이벤트를 방송하여 다른 캐패빌리티가 부착될 수 있도록 합니다:
 
-* `AttachCapabilitiesEvent<Entity>`: Fires only for entities.
-* `AttachCapabilitiesEvent<BlockEntity>`: Fires only for block entities.
-* `AttachCapabilitiesEvent<ItemStack>`: Fires only for item stacks.
-* `AttachCapabilitiesEvent<Level>`: Fires only for levels.
-* `AttachCapabilitiesEvent<LevelChunk>`: Fires only for level chunks.
+* `AttachCapabilitiesEvent<Entity>`: 엔티티 초기화시 방송됨.
+* `AttachCapabilitiesEvent<BlockEntity>`: 블록 엔티티 초기화시 방송됨.
+* `AttachCapabilitiesEvent<ItemStack>`: 아이템 스택 초기화시 방송됨.
+* `AttachCapabilitiesEvent<Level>`: 레벨 초기화시 방송됨.
+* `AttachCapabilitiesEvent<LevelChunk>`: 청크 초기화시 방송됨.
 
-The generic type cannot be more specific than the above types. For example: If you want to attach capabilities to `Player`, you have to subscribe to the `AttachCapabilitiesEvent<Entity>`, and then determine that the provided object is an `Player` before attaching the capability.
+이때 이벤트의 제너릭 타입은 위에 나열된 것만 쓰세요, 예를 들어, `Player`에 캐패빌리티를 부착한다면 `AttachCapabilitiesEvent<Entity>`를 구독하고, 객체가 `Player`인지 확인하여야 합니다.
 
-In all cases, the event has a method `#addCapability` which can be used to attach capabilities to the target object. Instead of adding capabilities themselves to the list, you add capability providers, which have the chance to return capabilities only from certain sides. While the provider only needs to implement `ICapabilityProvider`, if the capability needs to store data persistently, it is possible to implement `ICapabilitySerializable<T extends Tag>` which, on top of returning the capabilities, will provide tag save/load functions.
+캐패빌리티를 부착하려면 해당 이벤트의 `#addCapability`를 호출하시면 됩니다. 이때 부착할 캐패빌리티의 데이터를 저장할 필요가 없다면 `ICapabilityProvider`만 구현해도 되지만, 데이터를 저장해야 할 경우, `ICapabilitySerializable<T extends Tag>`를 대신 구현하세요, 이 인터페이스는 NBT를 저장하고 불러오는 메서드도 가지고 있습니다.
 
-For information on how to implement `ICapabilityProvider`, refer to the [Exposing a Capability][expose] section.
+부착하시는 캐패빌리티는 `LazyOptional`을 무효화시킬 람다 함수를 `#addListener`에 전달해야 하셔야 합니다.
 
-Creating Your Own Capability
+`ICapabilityProvider` 구현에 관해서는 [캐패빌리티 지원하기][지원]를 참고하세요.
+
+캐패빌리티 직접 만들기
 ----------------------------
 
-A capability can be registered using one of two ways: `RegisterCapabilitiesEvent` or `@AutoRegisterCapability`.
+캐패빌리티는 `RegisterCapabilitiesEvent` 또는 `@AutoRegisterCapability`로 등록합니다.
 
 ### RegisterCapabilitiesEvent
 
-A capability can be registered using `RegisterCapabilitiesEvent` by supplying the class of the capability type to the `#register` method. The event is [handled] on the mod event bus.
+캐피빌리티가 제공할 인터페이스를 `RegisterCapabilitiesEvent#register`에 전달하는 것으로 등록합니다. 이 이벤트는 [모드 버스에 방송됩니다][handled].
 
 ```java
 @SubscribeEvent
@@ -121,21 +123,21 @@ public void registerCaps(RegisterCapabilitiesEvent event) {
 
 ### @AutoRegisterCapability
 
-A capability is registered using `@AutoRegisterCapability` by annotating the capability type.
+캐패빌리티가 제공할 인터페이스를 `@AutoRegisterCapability`로 표시하면 포지가 알아서 등록해 줍니다.
 
 ```java
 @AutoRegisterCapability
 public interface IExampleCapability {
-  // ...
+    // ...
 }
 ```
 
-Persisting LevelChunk and BlockEntity capabilities
+LevelChunk 와 BlockEntity 캐패빌리티 데이터 유지시키지
 --------------------------------------------
 
-Unlike Levels, Entities, and ItemStacks, LevelChunks and BlockEntities are only written to disk when they have been marked as dirty. A capability implementation with persistent state for a LevelChunk or a BlockEntity should therefore ensure that whenever its state changes, its owner is marked as dirty.
+`LevelChunk`와 `BlockEntity`는 데이터가 수정되었다고 표기되었을 경우에만 디스크에 저장됩니다. 이들의 캐패빌리티의 데이터를 올바르게 유지시키지 위해서는 데이터가 변경되었을 때 수정되었다고 표기하여야만 합니다. `LevelChunk`는 `#setUnsaved`로, `BlockEntity`는 `#setChanged`로 데이터 변경을 표시할 수 있습니다.
 
-`ItemStackHandler`, commonly used for inventories in BlockEntities, has an overridable method `void onContentsChanged(int slot)` designed to be used to mark the BlockEntity as dirty.
+블록 엔티티에서 많이 쓰이는 `ItemStackHandler`는 `void onContentsChanged(int slot)`에서 데이터가 수정되었다고 표기합니다.
 
 ```java
 public class MyBlockEntity extends BlockEntity {
@@ -144,7 +146,7 @@ public class MyBlockEntity extends BlockEntity {
     @Override
     protected void onContentsChanged(int slot) {
       super.onContentsChanged(slot);
-      setChanged();
+      setChanged(); // BlockEntity에서 데이터 수정 표시
     }
   }
 
@@ -152,44 +154,28 @@ public class MyBlockEntity extends BlockEntity {
 }
 ```
 
-Synchronizing Data with Clients
+클라이언트와 데이터 동기화 하기
 -------------------------------
 
-By default, capability data is not sent to clients. In order to change this, the mods have to manage their own synchronization code using packets.
+캐패빌리티의 데이터는 클라이언트에게 전송되지 않습니다. 모드를 만드실 때 직접 패킷을 사용해서 데이터를 동기화 하여야 합니다.
 
-There are three different situations in which you may want to send synchronization packets, all of them optional:
+데이터를 동기화 할만한 크게 아래 3가지가 있습니다:
 
-1. When the entity spawns in the level, or the block is placed, you may want to share the initialization-assigned values with the clients.
-2. When the stored data changes, you may want to notify some or all of the watching clients.
-3. When a new client starts viewing the entity or block, you may want to notify it of the existing data.
+1. 엔티티가 레벨에 스폰될때나, 블록이 설치되는 경우. 이럴땐 클라이언트들에 초기 값을 보내볼 수 있습니다.
+2. 저장된 데이터가 수정되는 경우, 이경우 데이터가 필요한 클라이언트들에 데이터를 보내볼 수 있습니다.
+3. 클라이언트가 특정 엔티티나 블록을 처다보기 시작할 때, 이 경우 이미 존재하는 데이터를 보내볼 수 있습니다.
 
-Refer to the [Networking][network] page for more information on implementing network packets.
+[네트워킹][network]을 참고하여 네트워크 패킷을 구현하는 방법에 대해 자세히 알아보세요.
 
-Persisting across Player Deaths
+플레이어가 죽어도 데이터 유지시키기
 -------------------------------
 
-By default, the capability data does not persist on death. In order to change this, the data has to be manually copied when the player entity is cloned during the respawn process.
+캐패빌리티의 데이터는 엔티티가 사망하면 다 사라집니다. 플레이어 사망시 캐패빌리티의 데이터를 리스폰 과정에서 직접 복사하여야만 합니다.
 
-This can be done via `PlayerEvent$Clone` by reading the data from the original entity and assigning it to the new entity. In this event, the `#isWasDeath` method can be used to distinguish between respawning after death and returning from the End. This is important because the data will already exist when returning from the End, so care has to be taken to not duplicate values in this case.
+`PlayerEvent$Clone`을 통해 이를 구현할 수 있는데, 죽기 전 플레이어 엔티티의 데이터를 새로운 플레이어 엔티티에 데이터로 복사하는 것입니다.
+이 이벤트는 플레이어가 엔드에서 돌아올 때도 방송됩니다. 이때는 데이터가 유지되기 때문에 복사하면 안되는데, `#isWasDead`로 플레이어가 진짜 죽은 것인지, 아니면 엔드에서 돌아오는 것인지 구분할 수 있습니다.
 
-Migrating from IExtendedEntityProperties
----------------------------
-
-Although the Capability system can do everything IEEPs (IExtendedEntityProperties) did and more, the two concepts don't fully match 1:1. This section will explain how to convert existing IEEPs into Capabilities.
-
-This is a quick list of IEEP concepts and their Capability equivalent:
-
-* Property name/id (`String`): Capability key (`ResourceLocation`)
-* Registration (`EntityConstructing`): Attaching (`AttachCapabilitiesEvent<Entity>`), the real registration of the `Capability` happens during `FMLCommonSetupEvent`.
-* Tag read/write methods: Does not happen automatically. Attach an `ICapabilitySerializable` in the event and run the read/write methods from the `serializeNBT`/`deserializeNBT`.
-
-Quick conversion guide:
-
-1. Convert the IEEP key/id string into a `ResourceLocation` (which will use your MODID as a namespace).
-2. In your handler class (not the class that implements your capability interface), create a field that will hold the Capability instance.
-3. Change the `EntityConstructing` event to `AttachCapabilitiesEvent`, and instead of querying the IEEP, you will want to attach an `ICapabilityProvider` (probably `ICapabilitySerializable`, which allows saving/loading from a tag).
-4. Create a registration method if you don't have one (you may have one where you registered your IEEP's event handlers) and in it, run the capability registration function.
-
-[expose]: #exposing-a-capability
+[지원]: #캐패빌리티-지원하기
 [handled]: ../concepts/events.md#creating-an-event-handler
 [network]: ../networking/index.md
+[부착]: #캐패빌리티-부착하기
