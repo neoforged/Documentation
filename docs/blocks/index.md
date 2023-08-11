@@ -18,7 +18,7 @@
 위 모든 메서드들은 *연쇠적으로* 사용 가능합니다. `Blocks` 클래스를 참고하세요.
 
 :::note
-블록 자체에는 `CreativeModeTab`을 지정할 수 없습니다, 만약 블록에 해당하는 아이템(예: `BlockItem`)이 존재한다면 [`CreativeModeTabEvent$BuildContents`][creativetabs]를 이용해 그 아이템이 소속되는 탭을 지정하실 수 있습니다. 계다가 블록의 번역 키값또한 레지스트리 이름으로부터 생성되기 때문에 직접 지정하실 수 없습니다.
+블록 자체에는 `CreativeModeTab`을 지정할 수 없습니다, 만약 블록에 해당하는 아이템(예: `BlockItem`)이 존재한다면 [`BuildCreativeModeTabContentsEvent`][creativetabs]를 이용해 그 아이템이 소속되는 탭을 지정하실 수 있습니다. 계다가 블록의 번역 키값또한 `Block#getDescriptionId`가 레지스트리 이름으로부터 생성하기 때문에 직접 지정하실 수 없습니다.
 :::
 
 ### 고급 블록
@@ -37,7 +37,7 @@
 
 #### 선택적으로 블록 등록하기
 
-과거에는 여러 모드에서 특정 블록/아이템들을 설정 파일에서 비활성화할 수 있도록 하였습니다. 그러나 이젠 레지스트리에 등록할 수 있는 블록 갯수의 제한이 없으니 데이터 손상을 완전히 피하기 위해 전부다 등록하시는걸 권장드립니다! 만약 특정 블록을 설정을 통해 비활성화 하고 싶으시다면, 블록의 조합법을 비활성화 하세요. 만약 크리에이티브 탭에서도 숨기고 싶으시다면 [`CreativeModeTabEvent$BuildContents`][creativetabs]의 `FeatureFlag`를 사용하실 수 있습니다.
+과거에는 여러 모드에서 특정 블록/아이템들을 설정 파일에서 비활성화할 수 있도록 하였습니다. 그러나 이젠 레지스트리에 등록할 수 있는 블록 갯수의 제한이 없으니 데이터 손상을 완전히 피하기 위해 전부다 등록하시는걸 권장드립니다! 만약 특정 블록을 설정을 통해 비활성화 하고 싶으시다면, 블록의 조합법을 비활성화 하세요. 만약 크리에이티브 탭에서도 숨기고 싶으시다면 [`BuildCreativeModeTabContentsEvent`][creativetabs]의 `FeatureFlag`를 사용하실 수 있습니다.
 
 추가 정보
 ---------------
@@ -47,4 +47,4 @@
 [소리]: ../gameeffects/sounds.md
 [등록]: ../concepts/registries.md#객체-등록하기
 [blockstates]: states.md
-[creativetabs]: ../items/index.md#creativemodetabevent
+[creativetabs]: ../items/index.md#creative-tabs

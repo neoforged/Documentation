@@ -12,9 +12,11 @@
 레지스트리 이벤트
 ---------------
 
-레지스트리 이벤트들은 모드 메인 클래스 초기화 이후 방송됩니다. 이 이벤트들의 종류는 `NewRegistryEvent` 그리고 `RegistryEvent`가 있습니다.
+레지스트리 이벤트들은 모드 메인 클래스 초기화 이후 방송됩니다. 이 이벤트들의 종류는 `NewRegistryEvent`, `DataPackRegistryEvent$NewRegistry`, 그리고 `RegistryEvent`가 있습니다.
 
 `NewRegistryEvent`는 `RegistryBuilder`를 사용해 직접 레지스트리를 만들고 등록할 수 있도록 해줍니다.
+
+`DataPackRegistryEvent$NewRegistry`는 JSON으로부터 레지스트리 객체를 읽고 쓸 `Codec`으로 새로운 데이터팩 레지스트리를 정의할 수 있습니다.
 
 `RegistryEvent`는 [객체들을 레지스트리에 등록할 때][등록] 사용합니다. 이 이벤트는 각 레지스트리당 방송됩니다.
 

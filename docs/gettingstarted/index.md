@@ -84,21 +84,6 @@ NeoForged가 첫 번째 릴리즈를 출시하기 전까지 Forge 문서를 참�
 base.archivesName = 'mymod'
 ```
 
-:::info
-
-현재 Forge MDK는 `base.archivesName` 대신에 아티팩트 이름을 설정하기 위해 `archivesBaseName`을 사용합니다.
-`archivesBaseName`가 Gradle 9에서 제거될 예정이며, 향후 버전의 ForgeGradle이 지원할 것이기 때문에
-`base.archivesName`을 사용하는 것을 권장합니다. 아래와 같이 `archivesBaseName`을 아직 사용할 수 있습니다:
-
-다음을 설정하여 `archivesBaseName`를 계속 사용할 수 있습니다.:
-
-```gradle
-// build.gradle 에서
-base.archivesName = 'mymod'
-```
-
-:::
-
 #### 그룹 ID
 
 `group` 속성은 [최상위 패키지][packaging]으로 설정해야 하며, 다음과 같이 소유한 도메인 또는 이메일 주소여야 합니다:
@@ -129,7 +114,7 @@ com
 
 ```gradle
 // build.gradle 에서
-version = '1.19.4-1.0.0.0'
+version = '1.20-1.0.0.0'
 ```
 
 ### 추가 구성
@@ -154,17 +139,10 @@ version = '1.19.4-1.0.0.0'
 :::
 
 [jdk]: https://adoptium.net/temurin/releases?version=17 "Eclipse Temurin 17 Prebuilt Binaries"
-
-[ForgeGradle]: https://docs.minecraftforge.net/en/fg-5.x
-
-[files]: https://files.minecraftforge.net "Forge Files distribution site"
-
-[config]: https://docs.minecraftforge.net/en/fg-5.x/configuration/runs/
-
+[ForgeGradle]: https://docs.neoforged.net/neogradle/docs/
+[files]: https://files.minecraftforge.net "포지 파일 배포 사이트"
+[config]: https://docs.neoforged.net/neogradle/docs/configuration/runs
 [modfiles]: ./modfiles.md
-
 [packaging]: ./structuring.md#packaging
-
 [mvnver]: ./versioning.md
-
 [client]: ../concepts/sides.md#writing-one-sided-mods

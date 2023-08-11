@@ -195,6 +195,14 @@ class Holder {
 `DeferredRegister#makeRegistry`는 무조건 `DeferredRegister#register`를 통해 모드 버스에 등록되기 이전에 호출되어야만 합니다.
 :::
 
+#### 새로운 데이터팩 레지스트리 만들기
+
+새로운 데이터팩 레지스트리는 모드 이벤트 버스에서 `DataPackRegistryEvent$NewRegistry` 이벤트로 정의할 수 있습니다. `#dataPackRegistry`에 레지스트리의 이름을 표현하는 `ResourceKey`와 JSON으로부터 레지스트리 객체를 읽고 쓸 `Codec`을 전달하시면 됩니다. 클라이언트와 레지스트리를 동기화 해야 한다면 동기화용 `Codec` 또한 전달하세요. 
+
+:::note
+데이터팩 레지스트리는 `DeferredRegister`로 만들 수 없습니다. 오직 위 이벤트로만 만들 수 있습니다.
+:::
+
 누락된 항목 처리하기
 ------------------------
 

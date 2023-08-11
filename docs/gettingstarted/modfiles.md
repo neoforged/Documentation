@@ -14,8 +14,8 @@ mods.toml
 다음은 `mods.toml` 의 예시입니다.
 
 ```toml
-modLoader = "javafml"
-loaderVersion = "[45,)"
+modLoader="javafml"
+loaderVersion="[46,)"
 
 license = "All Rights Reserved"
 issueTrackerURL = "https://github.com/MinecraftForge/MinecraftForge/issues"
@@ -36,18 +36,18 @@ description = '''
 displayTest = "MATCH_VERSION"
 
 [[dependencies.examplemod]]
-modId = "forge"
-mandatory = true
-versionRange = "[45,)"
-ordering = "NONE"
-side = "BOTH"
+  modId="forge"
+  mandatory=true
+  versionRange="[46,)"
+  ordering="NONE"
+  side="BOTH"
 
 [[dependencies.examplemod]]
-modId = "minecraft"
-mandatory = true
-versionRange = "[1.19.4]"
-ordering = "NONE"
-side = "BOTH"
+  modId="minecraft"
+  mandatory=true
+  versionRange="[1.20]"
+  ordering="NONE"
+  side="BOTH"
 ```
 
 `mods.toml`은 세 부분으로 나뉩니다.
@@ -68,7 +68,7 @@ mods.toml 파일과 관련된 각 속성은 아래에서 설명됩니다.
 | Property             |  Type   |    Default    |                                                                          Description                                                                          | Example                                                         |
 |:---------------------|:-------:|:-------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------:|:----------------------------------------------------------------|
 | `modLoader`          | string  | **mandatory** | 모드에서 사용하는 언어 로더. Kotlin 오브젝트와 같은 대체 언어 구조 또는 인터페이스 및 메서드와 같은 진입점을 결정하는 등 다양한 방법으로 사용할 수 있습니다. Forge는 Java 로더 `"javafml"` 및 lowno 코드 로더 `"lowcodefml"`을 지원합니다. | `"javafml"`                                                     |
-| `loaderVersion`      | string  | **mandatory** |                                   javafml 및 lowcodefml의 경우 Maven 버전 범위로 표시된 언어 로더의 허용 가능한 버전 범위입니다. 버전은 Forge 버전의 주요 버전입니다.                                   | `"[45,)"`                                                       |
+| `loaderVersion`      | string  | **mandatory** |                                   javafml 및 lowcodefml의 경우 Maven 버전 범위로 표시된 언어 로더의 허용 가능한 버전 범위입니다. 버전은 Forge 버전의 주요 버전입니다.                                   | `"[46,)"`                                                       |
 | `license`            | string  | **mandatory** |                    JAR에 존재하는 모드의 라이센스입니다. [SPDX 식별자][spdx]를 사용하는걸 권장합니다. 또는 자신에게 맞는 라이센스 선택을 위해 https://choosealicense.com/ 를 이용할 수 있습니다.                     | `"MIT"`                                                         |
 | `showAsResourcePack` | boolean |    `false`    |                                         만약 `true`인 경우 모드의 리소스는 `Mod resources` 과 병합되지 않고 `Resource Packs` 메뉴에 나타납니다.                                          | `true`                                                          |
 | `services`           |  array  |     `[]`      |                                    모드에서 사용하는 서비스의 배열입니다. 이는 Java Platform Module System의 Forge 구현에서 모드의 생성된 모듈의 일부로 사용됩니다.                                    | `["net.minecraftforge.forgespi.language.IModLanguageProvider"]` |
@@ -186,31 +186,17 @@ public class Example {
 향후 최소한의 코딩이 필요할 수 있는 사소한 추가 사항에 대해 'nocodefml'이 아닌 'lowcodefml'라고 합니다.
 
 [toml]: https://toml.io/
-
 [mvr]: https://maven.apache.org/enforcer/enforcer-rules/versionRanges.html
-
 [spdx]: https://spdx.org/licenses/
-
-[modsp]: #mod-specific-properties
-
+[modsp]: #모드별-속성
 [uses]: https://docs.oracle.com/javase/specs/jls/se17/html/jls-7.html#jls-7.7.3
-
 [serviceload]: https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/ServiceLoader.html#load(java.lang.Class)
-
 [array]: https://toml.io/en/v1.0.0#array-of-tables
-
 [mvnver]: ./versioning.md
-
 [multiline]: https://toml.io/en/v1.0.0#string
-
 [update]: ../misc/updatechecker.md
-
-[features]: #features
-
-[sides]: ../concepts/sides.md#writing-one-sided-mods
-
-[dist]: ../concepts/sides.md#different-kinds-of-sides
-
+[features]: #필요-기능
+[sides]: ../concepts/sides.md#한쪽-사이드-전용-모드-만들기
+[dist]: ../concepts/sides.md#사이드의-종류들
 [events]: ../concepts/events.md
-
 [registration]: ../concepts/registries.md#deferredregister
