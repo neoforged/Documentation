@@ -4,8 +4,7 @@ title: Blocks
 
 Blocks are, obviously, essential to the Minecraft world. They make up all of the terrain, structures, and machines. Chances are if you are interested in making a mod, then you will want to add some blocks. This page will guide you through the creation of blocks, and some of the things you can do with them.
 
-Creating a Block
-----------------
+## Creating a Block
 
 ### Basic Blocks
 
@@ -26,8 +25,7 @@ Blocks have no setter for their `CreativeModeTab`. This is handled by the [`Buil
 
 Of course, the above only allows for extremely basic blocks. If you want to add functionality, like player interaction, a custom class is required. However, the `Block` class has many methods and unfortunately not every single one can be documented here. See the rest of the pages in this section for things you can do with blocks.
 
-Registering a Block
--------------------
+## Registering a Block
 
 Blocks must be [registered][registering] to function.
 
@@ -41,8 +39,7 @@ When a block is registered, *only* a block is registered. The block does not aut
 
 In the past there have been several mods that have allowed users to disable blocks/items in a configuration file. However, you shouldn't do this. There is no limit on the amount of blocks that can be register, so register all blocks in your mod! If you want a block to be disabled through a configuration file, you should disable the crafting recipe. If you would like to disable the block in the creative tab, use a `FeatureFlag` when building the contents within [`BuildCreativeModeTabContentsEvent`][creativetabs].
 
-Further Reading
----------------
+## Further Reading
 
 For information about block properties, such as those used for vanilla blocks like fences, walls, and many more, see the section on [blockstates].
 
