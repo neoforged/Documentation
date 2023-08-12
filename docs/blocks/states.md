@@ -3,8 +3,7 @@ sidebar_position: 1
 title: Block States
 ---
 
-Legacy Behavior
----------------------------------------
+## Legacy Behavior
 
 In Minecraft 1.7 and previous versions, blocks which need to store placement or state data that did not have BlockEntities used **metadata**. Metadata was an extra number stored with the block, allowing different rotations, facings, or even completely separate behaviors within a block.
 
@@ -22,8 +21,7 @@ switch (meta) {
 
 Because the numbers carry no meaning by themselves, no one could know what they represent unless they had access to the source code and comments.
 
-Introduction of States
----------------------------------------
+## Introduction of States
 
 In Minecraft 1.8 and above, the metadata system, along with the block ID system, was deprecated and eventually replaced with the **block state system**. The block state system abstracts out the details of the block's properties from the other behaviors of the block.
 
@@ -33,8 +31,7 @@ A unique pair can be constructed from the `Block` and a map of the `Property<?>`
 
 The previous system of meaningless metadata values were replaced by a system of block properties, which are easier to interpret and deal with. Previously, a stone button which is facing east and is powered or held down is represented by "`minecraft:stone_button` with metadata `9`. Now, this is represented by "`minecraft:stone_button[facing=east,powered=true]`".
 
-Proper Usage of Block States
----------------------------------------
+## Proper Usage of Block States
 
 The `BlockState` system is a flexible and powerful system, but it also has limitations. `BlockState`s are immutable, and all combinations of their properties are generated on startup of the game. This means that having a `BlockState` with many properties and possible values will slow down the loading of the game, and befuddle anyone trying to make sense of your block logic.
 
@@ -47,8 +44,7 @@ A good rule of thumb is: **if it has a different name, it should be a separate b
 An example is making chair blocks: the *direction* of the chair should be a *property*, while the different *types of wood* should be separated into different blocks.
 An "Oak Chair" facing east (`oak_chair[facing=east]`) is different from a "Spruce Chair" facing west (`spruce_chair[facing=west]`).
 
-Implementing Block States
----------------------------------------
+## Implementing Block States
 
 In your Block class, create or reference `static final` `Property<?>` objects for every property that your Block has. You are free to make your own `Property<?>` implementations, but the means to do that are not covered in this article. The vanilla code provides several convenience implementations:
 
@@ -89,8 +85,7 @@ Because `BlockState`s are immutable, and all combinations of their properties ar
 
 Because all possible `BlockState`s are generated at startup, you are free and encouraged to use the reference equality operator (`==`) to check if two `BlockState`s are equal.
 
-Using `BlockState`'s
----------------------
+## Using `BlockState`'s
 
 You can get the value of a property by calling `BlockState#getValue(Property<?>)`, passing it the property you want to get the value of.
 If you want to get a `BlockState` with a different set of values, simply call `BlockState#setValue(Property<T>, T)` with the property and its value.
