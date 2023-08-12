@@ -1,5 +1,7 @@
-Block States
-============
+---
+sidebar_position: 1
+title: Block States
+---
 
 Legacy Behavior
 ---------------------------------------
