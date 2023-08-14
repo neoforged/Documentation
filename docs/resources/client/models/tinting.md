@@ -1,5 +1,7 @@
-Coloring Textures
-=================
+---
+sidebar_position: 1
+title: Texture Tinting
+---
 
 Many blocks and items in vanilla change their texture color depending on where they are or what properties they have, such as grass. Models support specifying "tint indices" on faces, which are integers that can then be handled by `BlockColor`s and `ItemColor`s. See the [wiki][] for information on how tint indices are defined in vanilla models.
 
