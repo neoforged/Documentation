@@ -1,5 +1,6 @@
-Networking
-==========
+---
+title: Networking
+---
 
 Communication between servers and clients is the backbone of a successful mod implementation.
 
