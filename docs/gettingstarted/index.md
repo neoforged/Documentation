@@ -1,4 +1,6 @@
-# Getting Started with Forge
+---
+title: Getting Started with Forge
+---
 
 :::caution
 Please note that this documentation may not be up to date considering the recent creation of NeoForged.
