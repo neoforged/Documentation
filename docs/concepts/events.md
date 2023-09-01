@@ -1,5 +1,7 @@
-Events
-======
+---
+sidebar_position: 3
+title: Events
+---
 
 Forge uses an event bus that allows mods to intercept events from various Vanilla and mod behaviors.
 
@@ -11,8 +13,7 @@ Every event is fired on one of these busses: most events are fired on the main f
 
 An event handler is some method that has been registered to an event bus.
 
-Creating an Event Handler
--------------------------
+## Creating an Event Handler
 
 Event handlers methods have a single parameter and do not return a result. The method could be static or instance depending on implementation.
 
@@ -88,8 +89,7 @@ public class MyStaticClientOnlyEventHandler {
 This does not register an instance of the class; it registers the class itself (i.e. the event handling methods must be static).
 :::
 
-Canceling
----------
+## Canceling
 
 If an event can be canceled, it will be marked with the `@Cancelable` annotation, and the method `Event#isCancelable()` will return `true`. The cancel state of a cancelable event may be modified by calling `Event#setCanceled(boolean canceled)`, wherein passing the boolean value `true` is interpreted as canceling the event, and passing the boolean value `false` is interpreted as "un-canceling" the event. However, if the event cannot be canceled (as defined by `Event#isCancelable()`), an `UnsupportedOperationException` will be thrown regardless of the passed boolean value, since the cancel state of a non-cancelable event event is considered immutable.
 
@@ -97,8 +97,7 @@ If an event can be canceled, it will be marked with the `@Cancelable` annotation
 Not all events can be canceled! Attempting to cancel an event that is not cancelable will result in an unchecked `UnsupportedOperationException` being thrown, which is expected to result in the game crashing! Always check that an event can be canceled using `Event#isCancelable()` before attempting to cancel it!
 :::
 
-Results
--------
+## Results
 
 Some events have an `Event$Result`. A result can be one of three things: `DENY` which stops the event, `DEFAULT` which uses the Vanilla behavior, and `ALLOW` which forces the action to take place, regardless if it would have originally. The result of an event can be set by calling `#setResult` with an `Event$Result` on the event. Not all events have results; an event with a result will be annotated with `@HasResult`.
 
@@ -106,18 +105,15 @@ Some events have an `Event$Result`. A result can be one of three things: `DENY` 
 Different events may use results in different ways, refer to the event's JavaDoc before using the result.
 :::
 
-Priority
---------
+## Priority
 
 Event handler methods (marked with `@SubscribeEvent`) have a priority. You can set the priority of an event handler method by setting the `priority` value of the annotation. The priority can be any value of the `EventPriority` enum (`HIGHEST`, `HIGH`, `NORMAL`, `LOW`, and `LOWEST`). Event handlers with priority `HIGHEST` are executed first and from there in descending order until `LOWEST` events which are executed last.
 
-Sub Events
-----------
+## Sub Events
 
 Many events have different variations of themselves. These can be different but all based around one common factor (e.g. `PlayerEvent`) or can be an event that has multiple phases (e.g. `PotionBrewEvent`). Take note that if you listen to the parent event class, you will receive calls to your method for *all* subclasses.
 
-Mod Event Bus
--------------
+## Mod Event Bus
 
 The mod event bus is primarily used for listening to lifecycle events in which mods should initialize. Each event on the mod bus is required to implement `IModBusEvent`. Many of these events are also ran in parallel so mods can be initialized at the same time. This does mean you can't directly execute code from other mods in these events. Use the `InterModComms` system for that.
 

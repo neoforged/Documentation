@@ -1,5 +1,7 @@
-Registries
-==========
+---
+sidebar_position: 1
+title: Registries
+---
 
 Registration is the process of taking the objects of a mod (such as items, blocks, sounds, etc.) and making them known to the game. Registering things is important, as without registration the game will simply not know about these objects, which will cause unexplainable behaviors and crashes. 
 
@@ -7,8 +9,7 @@ Most things that require registration in the game are handled by the Forge regis
 
 Every type of registrable object has its own registry. To see all registries wrapped by Forge, see the `ForgeRegistries` class. All registry names within a registry must be unique. However, names in different registries will not collide. For example, there's a `Block` registry, and an `Item` registry. A `Block` and an `Item` may be registered with the same name `example:thing` without colliding; however, if two different `Block`s or `Item`s were registered with the same exact name, the second object will override the first.
 
-Methods for Registering
-------------------
+## Methods for Registering
 
 There are two proper ways to register objects: the `DeferredRegister` class, and the `RegisterEvent` lifecycle event.
 
@@ -73,8 +74,7 @@ public static final RegistryObject<BlockEntityType<ExampleBlockEntity>> EXAMPLE_
 ```
 :::
 
-Referencing Registered Objects
-------------------------------
+## Referencing Registered Objects
 
 Registered objects should not be stored in fields when they are created and registered. They are to be always newly created and registered whenever `RegisterEvent` is fired for that registry. This is to allow dynamic loading and unloading of mods in a future version of Forge.
 
@@ -145,8 +145,7 @@ class Holder {
 }
 ```
 
-Creating Custom Forge Registries
---------------------------------
+## Creating Custom Forge Registries
 
 Custom registries can usually just be a simple map of key to value. This is a common style; however, it forces a hard dependency on the registry being present. It also requires that any data that needs to be synced between sides must be done manually. Custom Forge Registries provide a simple alternative for creating soft dependents along with better management and automatic syncing between sides (unless told otherwise). Since the objects also use a Forge registry, registration becomes standardized in the same way.
 
@@ -174,8 +173,7 @@ The `DeferredRegister` method is once again another wrapper around the above eve
 `DeferredRegister#makeRegistry` must be called before the `DeferredRegister` is added to the mod event bus via `#register`. `#makeRegistry` also uses the `#register` method to create the registry during `NewRegistryEvent`.
 :::
 
-Handling Missing Entries
-------------------------
+## Handling Missing Entries
 
 There are cases where certain registry objects will cease to exist whenever a mod is updated or, more likely, removed. It is possible to specify actions to handle the missing mapping through the third of the registry events: `MissingMappingsEvent`. Within this event, a list of missing mappings can be obtained either by `#getMappings` given a registry key and mod id or all mappings via `#getAllMappings` given a registry key.
 

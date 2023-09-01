@@ -1,5 +1,9 @@
-Internationalization and Localization
-=====================================
+---
+sidebar_position: 6
+title: Internationalization
+---
+
+# Internationalization and Localization
 
 Internationalization, i18n for short, is a way of designing code so that it requires no changes to be adapted for various languages. Localization is the process of adapting displayed text to the user's language.
 
@@ -7,8 +11,7 @@ I18n is implemented using _translation keys_. A translation key is a string that
 
 Localization will happen in the game's locale. In a Minecraft client the locale is specified by the language settings. On a dedicated server, the only supported locale is `en_us`. A list of available locales can be found on the [Minecraft Wiki][langs].
 
-Language files
---------------
+## Language files
 
 Language files are located by `assets/[namespace]/lang/[locale].json` (e.g. all US English translations provided by `examplemod` would be within `assets/examplemod/lang/en_us.json`). The file format is simply a json map from translation keys to values. The file must be encoded in UTF-8. Old .lang files can be converted to json using a [converter][converter].
 
@@ -20,8 +23,7 @@ Language files are located by `assets/[namespace]/lang/[locale].json` (e.g. all 
 }
 ```
 
-Usage with Blocks and Items
----------------------------
+## Usage with Blocks and Items
 
 Block, Item and a few other Minecraft classes have built-in translation keys used to display their names. These translation keys are specified by overriding `#getDescriptionId`. Item also has `#getDescriptionId(ItemStack)` which can be overridden to provide different translation keys depending on ItemStack NBT.
 
@@ -37,8 +39,7 @@ By default, `#getDescriptionId` will return `block.` or `item.` prepended to the
 The only purpose of a translation key is internationalization. Do not use them for logic. Use registry names instead.
 :::
 
-Localization methods
---------------------
+## Localization methods
 
 :::caution
 A common issue is having the server localize for clients. The server can only localize in its own locale, which does not necessarily match the locale of connected clients.

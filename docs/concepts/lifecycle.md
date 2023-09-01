@@ -1,5 +1,7 @@
-Mod Lifecycle
-==============
+---
+sidebar_position: 4
+title: Mod Lifecycle
+---
 
 During the mod loading process, the various lifecycle events are fired on the mod-specific event bus. Many actions are performed during these events, such as [registering objects][registering], preparing for [data generation][datagen], or [communicating with other mods][imc].
 
@@ -28,8 +30,7 @@ Most of the lifecycle events are fired in parallel: all mods will concurrently r
 Mods *must* take care to be thread-safe, like when calling other mods' APIs or accessing vanilla systems. Defer code for later execution via `ParallelDispatchEvent#enqueueWork`.
 :::
 
-Registry Events
----------------
+## Registry Events
 
 The registry events are fired after the mod instance construction. There are three: `NewRegistryEvent`, `DataPackRegistryEvent$NewRegistry` and `RegisterEvent`. These events are fired synchronously during mod loading.
 
@@ -39,23 +40,19 @@ The registry events are fired after the mod instance construction. There are thr
 
 `RegisterEvent` is for [registering objects][registering] into the registries. The event is fired for each registry. 
 
-Data Generation
----------------
+## Data Generation
 
 If the game is setup to run [data generators][datagen], then the `GatherDataEvent` will be the last event to fire. This event is for registering mods' data providers to their associated data generator. This event is also fired synchronously.
 
-Common Setup
-------------
+## Common Setup
 
 `FMLCommonSetupEvent` is for actions that are common to both physical client and server, such as registering [capabilities][capabilities].
 
-Sided Setup
------------
+## Sided Setup
 
 The sided-setup events are fired on their respective [physical sides][sides]: `FMLClientSetupEvent` on the physical client, and `FMLDedicatedServerSetupEvent` for the dedicated server. This is where physical side-specific initialization should occur, such as registering client-side key bindings.
 
-InterModComms
--------------
+## InterModComms
 
 This is where messages can be sent to mods for cross-mod compatibility. There are two events: `InterModEnqueueEvent` and `InterModProcessEvent`.
 

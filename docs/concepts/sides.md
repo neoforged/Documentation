@@ -1,10 +1,13 @@
-Sides in Minecraft
-===================
+---
+sidebar_position: 2
+title: Sides
+---
+
+# Sides in Minecraft
 
 A very important concept to understand when modding Minecraft are the two sides: *client* and *server*. There are many, many common misconceptions and mistakes regarding siding, which can lead to bugs that might not crash the game, but can rather have unintended and often unpredictable effects.
 
-Different Kinds of Sides
-------------------------
+## Different Kinds of Sides
 
 When we say "client" or "server", it usually follows with a fairly intuitive understanding of what part of the game we are talking about. After all, a client is what the user interacts with, and a server is where the user connects for a multiplayer game. Easy, right?
 
@@ -17,8 +20,7 @@ As it turns out, there can be some ambiguity even with two such terms. Here we d
 
 In the MinecraftForge codebase, the physical side is represented by an enum called `Dist`, while the logical side is represented by an enum called `LogicalSide`.
 
-Performing Side-Specific Operations
------------------------------------
+## Performing Side-Specific Operations
 
 ### `Level#isClientSide`
 
@@ -75,8 +77,7 @@ If `Thread.currentThread().getThreadGroup() == SidedThreadGroups.SERVER` is true
 
 Annotating a method or field with the `@OnlyIn(Dist)` annotation indicates to the loader that the respective member should be completely stripped out of the definition not on the specified **physical** side. Usually, these are only seen when browsing through the decompiled Minecraft code, indicating methods that the Mojang obfuscator stripped out. There is **NO** reason for using this annotation directly. Use `DistExecutor` or a check on `FMLEnvironment#dist` instead.
 
-Common Mistakes
----------------
+## Common Mistakes
 
 ### Reaching Across Logical Sides
 
@@ -87,8 +88,7 @@ This is actually very commonly inadvertently done through static fields. Since t
 This mistake can also be made explicitly by accessing physical client-only classes such as `Minecraft` from common code that runs or can run on the logical server. This mistake is easy to miss for beginners who debug in a physical client. The code will work there, but it will immediately crash on a physical server.
 
 
-Writing One-Sided Mods
-----------------------
+## Writing One-Sided Mods
 
 In recent versions, Minecraft Forge has removed a "sidedness" attribute from the mods.toml. This means that your mods are expected to work whether they are loaded on the physical client or the physical server. So for one-sided mods, you would typically register your event handlers inside a `DistExecutor#safeRunWhenOn` or `DistExecutor#unsafeRunWhenOn` instead of directly calling the relevant registration methods in your mod constructor. Basically, if your mod is loaded on the wrong side, it should simply do nothing, listen to no events, and so on. A one-sided mod by nature should not register blocks, items, ... since they would need to be available on the other side, too.
 
