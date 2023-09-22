@@ -1,5 +1,7 @@
-Advancement Generation
-======================
+---
+sidebar_position: 4
+title: Advancement Generation
+---
 
 [Advancements] can be generated for a mod by constructing a new `AdvancementProvider` and providing `AdvancementSubProvider`s. Advancements can either be created and supplied manually or, for convenience, created using `Advancement$Builder`. The provider must be [added][datagen] to the `DataGenerator`.
 
@@ -24,8 +26,7 @@ public void gatherData(GatherDataEvent event) {
 }
 ```
 
-`ForgeAdvancementProvider$AdvancementGenerator`
------------------------------------------------
+## `ForgeAdvancementProvider$AdvancementGenerator`
 
 A `ForgeAdvancementProvider$AdvancementGenerator` is responsible for generating advancements, containing a method which takes in a registry lookup, the writer (`Consumer<Advancement>`), and the existing file helper..
 
@@ -38,8 +39,7 @@ public void generate(HolderLookup.Provider registries, Consumer<Advancement> wri
 }
 ```
 
-`Advancement$Builder`
----------------------
+## `Advancement$Builder`
 
 `Advancement$Builder` is a convenience implementation for creating `Advancement`s to generate. It allows the definition of the parent advancement, the display information, the rewards when the advancement has been completed, and the requirements to unlock the advancement. Only the requirements need to be specified to create an `Advancement`.
 

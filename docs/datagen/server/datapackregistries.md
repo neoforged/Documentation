@@ -1,5 +1,7 @@
-Datapack Registry Object Generation
-==================================
+---
+sidebar_position: 6
+title: Datapack Registry Object Generation
+---
 
 Datapack registry objects can be generated for a mod by constructing a new `DatapackBuiltinEntriesProvider` and providing a `RegistrySetBuilder` with the new objects to register. The provider must be [added][datagen] to the `DataGenerator`.
 
@@ -25,8 +27,7 @@ public void gatherData(GatherDataEvent event) {
 }
 ```
 
-`RegistrySetBuilder`
---------------------
+## `RegistrySetBuilder`
 
 A `RegistrySetBuilder` is responsible for building all datapack registry objects to be used within the game. The builder can add a new entry for a registry, which can then register objects to that registry.
 
@@ -47,8 +48,7 @@ new RegistrySetBuilder()
 !!! note
     Datapack registries created through Forge can also generate their objects using this builder by also passing in the associated `ResourceKey`.
 
-Registering with `BootstapContext`
-----------------------------------
+## Registering with `BootstapContext`
 
 The `#register` method in the `BootstapContext` provided by the builder can be used to register objects. It takes in the `ResourceKey` representing the registry name of the object, the object to register, and an optional `Lifecycle` argument to indicate the registry object's current lifecycle status. 
 

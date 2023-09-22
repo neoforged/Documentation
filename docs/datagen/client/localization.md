@@ -1,5 +1,7 @@
-Language Generation
-===================
+---
+sidebar_position: 2
+title: Language Generation
+---
 
 [Language files][lang] can be generated for a mod by subclassing `LanguageProvider` and implementing `#addTranslations`. Each `LanguageProvider` subclass created represents a separate [locale] (`en_us` represents American English, `es_es` represents Spanish, etc.). After implementation, the provider must be [added][datagen] to the `DataGenerator`.
 
@@ -16,8 +18,7 @@ public void gatherData(GatherDataEvent event) {
 }
 ```
 
-`LanguageProvider`
-------------------
+## `LanguageProvider`
 
 Each language provider is simple a map of strings where each translation key is mapped to a localized name. A translation key mapping can be added using `#add`. Additionally, there are methods which use the translation key of a `Block`, `Item`, `ItemStack`, `Enchantment`, `MobEffect`, and `EntityType`.
 
