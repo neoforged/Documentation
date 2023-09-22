@@ -1,4 +1,7 @@
-# Key Mappings
+---
+sidebar_position: 2
+title: Key Mappings
+---
 
 A key mapping, or key binding, defines a particular action that should be tied to an input: mouse click, key press, etc. Each action defined by a key mapping can be checked whenever the client can take an input. Furthermore, each key mapping can be assigned to any input through the [Controls option menu][controls].
 

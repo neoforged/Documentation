@@ -1,10 +1,11 @@
-Configuration
-=============
+---
+sidebar_position: 1
+title: Configuration
+---
 
 Configurations define settings and consumer preferences that can be applied to a mod instance. Forge uses a configuration system using [TOML][toml] files and read with [NightConfig][nightconfig].
 
-Creating a Configuration
-------------------------
+## Creating a Configuration
 
 A configuration can be created using a subtype of `IConfigSpec`. Forge implements the type via `ForgeConfigSpec` and enables its construction through `ForgeConfigSpec$Builder`. The builder can separate the config values into sections via `Builder#push` to create a section and `Builder#pop` to leave a section. Afterwards, the configuration can be built using one of two methods:
 
@@ -102,8 +103,7 @@ The values themselves can be obtained using `ConfigValue#get`. The values are ad
     * Class Type: `Boolean`
     * Method Name: `#define`
 
-Registering a Configuration
----------------------------
+## Registering a Configuration
 
 Once a `ForgeConfigSpec` has been built, it must be registered to allow Forge to load, track, and sync the configuration settings as required. Configurations should be registered in the mod constructor via `ModLoadingContext#registerConfig`. A configuration can be registered with a given type representing the side the config belongs to, the `ForgeConfigSpec`, and optionally a specific file name for the configuration.
 
@@ -124,8 +124,7 @@ SERVER | Server Side Only | Yes              | `.minecraft/saves/<level_name>/se
 Forge documents the [config types][type] within their codebase.
 :::
 
-Configuration Events
---------------------
+## Configuration Events
 
 Operations that occur whenever a config is loaded or reloaded can be done using the `ModConfigEvent$Loading` and `ModConfigEvent$Reloading` events. The events must be [registered][events] to the mod event bus.
 

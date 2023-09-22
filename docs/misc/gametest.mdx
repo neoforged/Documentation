@@ -1,10 +1,11 @@
-Game Tests
-==========
+---
+sidebar_position: 3
+title: Game Tests
+---
 
 Game Tests are a way to run in-game unit tests. The system was designed to be scalable and in parallel to run large numbers of different tests efficiently. Testing object interactions and behaviors are simply a few of the many applications of this framework.
 
-Creating a Game Test
---------------------
+## Creating a Game Test
 
 A standard Game Test follows three basic steps:
 
@@ -128,8 +129,7 @@ public class ExampleGameTests {
 }
 ```
 
-Registering a Game Test
------------------------
+## Registering a Game Test
 
 A Game Test must be registered to be ran in-game. There are two methods of doing so: via the `@GameTestHolder` annotation or `RegisterGameTestsEvent`. Both registration methods still require the test methods to be annotated with either `@GameTest`, `@GameTestGenerator`, `@BeforeBatch`, or `@AfterBatch`.
 
@@ -165,8 +165,7 @@ public static void exampleTest3(GameTestHelper helper) {
 The value supplied to `GameTestHolder#value` and `GameTest#templateNamespace` can be different from the current mod id. The configuration within the [buildscript][namespaces] would need to be changed.
 :::
 
-Structure Templates
--------------------
+## Structure Templates
 
 Game Tests are performed within scenes loaded by structures, or templates. All templates define the dimensions of the scene and the initial data (blocks and entities) that will be loaded. The template must be stored as an `.nbt` file within `data/<namespace>/structures`.
 
@@ -215,8 +214,7 @@ public class ExampleGameTests {
 }
 ```
 
-Running Game Tests
-------------------
+## Running Game Tests
 
 Game Tests can be run using the `/test` command. The `test` command is highly configurable; however, only a few are of importance to running tests:
 
@@ -232,8 +230,7 @@ Subcommand  | Description
 Subcommands follow the test command: `/test <subcommand>`.
 :::
 
-Buildscript Configurations
---------------------------
+## Buildscript Configurations
 
 Game Tests provide additional configuration settings within a buildscript (the `build.gradle` file) to run and integrate into different settings.
 

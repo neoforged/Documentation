@@ -1,5 +1,7 @@
-Text Components
-==================
+---
+sidebar_position: 6
+title: Text Components
+---
 
 A `Component` is a holder for text which can be formatted and chained with other components via its subtype `MutableComponent`. A component can be created using one of the available static helpers:
 
@@ -16,8 +18,7 @@ A `Component` is a holder for text which can be formatted and chained with other
 
 A component's text contents are represented by `ComponentContents`. Notably, the subtype `TranslatableContents` not only supports [localization][internalization] but also [text formatting][formatting].
 
-Applying Style
---------------
+## Applying Style
 
 Components can be formatted (e.g., bold, click actions, color) via `Style`s. `Style`s are immutable, creating a new `Style` each time when modified. The empty style `Style#EMPTY` can be used as a base for configuration.
 
@@ -55,8 +56,7 @@ text.withStyle(red).withStyle(bold).withStyle(doubleLines);
 This creates a red, bold text with two lines:
 ![red_hello]
 
-Chaining Components
--------------------
+## Chaining Components
 
 `MutableComponent#append` can chain multiple components together. Chained components can be retrieved with `MutableComponent#getSiblings`.
 
@@ -86,8 +86,7 @@ bold.append(fourth).append(fifth).append(sixth);
 ```
 ![style_annotated]
 
-Text Formatting
----------------
+## Text Formatting
 
 Text formatting is the process of inserting data as text into predefined larger text. It can be used for displaying coordinates, showing unit measurements, etc. **Format specifiers** are used for indicating where a text can be inserted.
 

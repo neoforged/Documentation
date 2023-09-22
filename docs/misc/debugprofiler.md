@@ -1,4 +1,7 @@
-# Debug Profiler
+---
+sidebar_position: 5
+title: Debug Profiler
+---
 
 Minecraft provides a Debug Profiler that provides system data, current game settings, JVM data, level data, and sided tick information to find time consuming code. Considering things like `TickEvent`s and ticking `BlockEntities`, this can be very useful for modders and server owners that want to find a lag source.
 
