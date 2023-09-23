@@ -1,5 +1,7 @@
-SimpleImpl
-==========
+---
+sidebar_position: 1
+title: SimpleImpl
+---
 
 SimpleImpl is the name given to the packet system that revolves around the `SimpleChannel` class. Using this system is by far the easiest way to send custom data between clients and the server.
 
