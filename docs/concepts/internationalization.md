@@ -65,7 +65,7 @@ Read [components] for more details.
 
 - `createComponentTranslation(CommandSource, String, Object...)` is useful for sending messages between clients and the server. If the receiver is a vanilla client, the method will eagerly localize and format the provided translation key in sender's locale, or American English if no locale is loaded; the modded server may allow vanilla clients to join, and they will lack localization data required to localize the message itself. Otherwise, the method will create the component with `TranslatableContents`.
 
-[langs]: https://minecraft.fandom.com/wiki/Language#Languages
+[langs]: https://minecraft.wiki/w/Language#Languages
 [converter]: https://tterrag.com/lang2json/
 [formatting]: ../misc/components.md#text-formatting
 [components]: ../misc/components.md
