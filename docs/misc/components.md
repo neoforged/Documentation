@@ -102,7 +102,7 @@ Text formatting is the process of inserting data as text into predefined larger 
 Any `Component` element within `args` will be transformed into a formatted text string.
 
 [internalization]: ../concepts/internationalization.md
-[selectors]: https://minecraft.fandom.com/wiki/Target_selectors
+[selectors]: https://minecraft.wiki/w/Target_selectors
 [red_hello]: /img/component_red_hello.png
 [style_annotated]: /img/component_style_annotated.png
 [formatting]: #text-formatting
