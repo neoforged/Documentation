@@ -37,12 +37,5 @@ There are three different situations in which you may want to send synchronizati
 
 Refer to the [Networking][network] page for more information on implementing network packets.
 
-Persisting across Player Deaths
--------------------------------
-
-By default, the capability data does not persist on death. In order to change this, the data has to be manually copied when the player entity is cloned during the respawn process.
-
-This can be done via `PlayerEvent$Clone` by reading the data from the original entity and assigning it to the new entity. In this event, the `#isWasDeath` method can be used to distinguish between respawning after death and returning from the End. This is important because the data will already exist when returning from the End, so care has to be taken to not duplicate values in this case.
-
 [registry]: ../concepts/registries.md
 [network]: ../networking/index.md

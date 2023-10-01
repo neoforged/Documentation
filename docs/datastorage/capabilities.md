@@ -62,5 +62,8 @@ The first parameter is it's name. That means that the same type interface can be
 BlockCapability.create(forge("item_handler"), IItemHandler.class, Direction.class);
 ```
 
-[handled]: ../concepts/events.md#creating-an-event-handler
-[network]: ../networking/index.md
+Caching and Invalidation
+----------------------------
+
+Only BlockCapabilities can be cached, for that you can use the the BlockCapabilityCache. It tracks creation and removal of BlockCapabilities at a given pos for a given context, and the current instance for the cap can be queried with `BlockCapabilityCache#getCapability`.
+BlockCapabilityCaches have to be unregistered when not using them anymore by calling `BlockCapabilityCache#unregister`. This will mostly be done during `BlockEntity#setRemoved` in your BlockEntity, but you might have to unregister at other times too, depending on how you use it.
