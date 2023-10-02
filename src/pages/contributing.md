@@ -53,6 +53,10 @@ public float applyDiscount(float price) {
 
 If the pseudocode is not explanatory enough to understand the concept, then a full code example can be used instead. A full code example should supply dummy values and explain what they represent.
 
+## Minor and Patch Changes
+
+If a change occurs between a minor or patch versions of NeoForge, then relevant changes in the documentation should be split into separate sections or put into tabs. This maintains the accuracy of the information depending on the version the modder is currently developing for.
+
 ## Style Guide
 
 This documentation uses [Docusaurus][docusaurus], which internally uses [MDX][mdx], to generate the pages. You can find more detailed information about available features on their pages. This style guide will be more focused towards common features and formatting we use in the Markdown files.
@@ -68,6 +72,20 @@ There are other metadata fields like `title` and `description`, but those are ty
 ---
 sidebar_position: 2
 ---
+```
+
+#### Categories
+
+Categories are folders within the documentation. They inherit titles and positional data from `index.md`. If an `index.md` is not within a subfolder, a `_category_.json` file should be created, specifying the `label` representing the name of the section, and `position` representing where on the sidebar it should go.
+
+```js
+{
+    // Name of the category to display
+    "label": "Example Title",
+
+    // This will be rendered as the third element on the sidebar at the current level.
+    "position": 3
+}
 ```
 
 ### Titles
