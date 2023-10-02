@@ -1,43 +1,182 @@
-Contributing to the Documentation
-==================================
+# Contributing to the Documentation
 
-Contribution guidelines are currently being written. You may contribute at a later date.
-<!-- 
+This is a non-exhaustive guideline for making contributions to the [NeoForged Documentation][docs] repository. Contributions can be made by forking and cloning the repository and then added via a pull request, or PR, on the [GitHub][docs].
 
-You can make a contribution via a PR on [GitHub].
+You can run the website locally using [npm]. It is recommended to use a Node Version Manager like [nvm] (Mac, Linux) or [nvs] (Windows) to setup and install npm and Node. From there, you can run the following commands:
 
-This documentation is meant to be explanatory. Please explain how to do things, and break it down into reasonable chunks.
-We have a wiki elsewhere that can capture more comprehensive code examples.
+```bash
+nvm use # or nvs use on Windows
+npm install
+npm run start
+```
 
-Our audience is anyone who wants to understand how to build a mod using Forge.
+## An Overview
 
-Please don't try to turn this documentation into a tutorial on Java Development - it is intended for people who understand how a Java class works, and other fundamental structures of Java.
+This documentation is a guide to help a modder understand and implement a given concept from Minecraft or NeoForged.
 
-Style Guide
------------
+This documentation is NOT meant as a tutorial, allowing a modder to copy-paste the examples. If you are looking for a tutorial, there are plenty of videos and pages, which are not linked here, that you can use and follow along with.
 
-:::caution
-Please use **two spaces** to indent, not tabs.
+This documentation is also NOT meant as documentation for a class. Providing a description of an element is unavoidable when writing a guide; however, if you would like to document a class, you should contribute to [Parchment for Minecraft][parchment] or [NeoForge for NeoForged][neo].
+
+Final, this documentation is NOT meant to explain Java concepts. This documentation is intended for people who already has a solid basis in Java. If a Java concept needs to be explained to better understand the concept (such as JVM Descriptors for Access Transformers), a link should be provided to the original resource. Otherwise, if you are unfamiliar with Java, there are plenty of online resources to learn from:
+
+* [JetBrains Academy][jetbrains]
+* [Codeacademy][codeacademy]
+* [University of Helsinki][helsinki]
+* [Oracle][oracle]
+* [Introduction to Programming using Java by David J. Eck][eck]
+
+## Concepts
+
+Each page should guide a modder on a particular concept. If the concept is too large in scope, the concept should be split into separate sub-concepts, each within its own page. For example, if you are writing  a cookbook, there can be a page for each recipe, rather than a single page containing all the recipes.
+
+When describing a concept, you should first introduce what the concept is, where it is used in Minecraft, why it should be used, and how to use it. Each section within a concept should have a header. A section can also be broken into sub-sections if necessary. For example, each recipe within a cookbook can have a sub-section for ingredients and the recipe itself.
+
+If you need to prefer to other concepts, the relevant page should be linked along with a summary and/or some example to understand the application.
+
+## Examples
+
+Code examples should generally be pseudocode-like objects meant to enhance the understanding of a modder. When implementing a method, it is usually specific to the desired goal a modder is trying to achieve. As a guide, this documentation aims to be somewhat agnostic to a modder's specific goal, instead covering the general use case.
+
+Let's say we are using a method called `#applyDiscount` to take some value off the current price. Not everyone will implement the same logic within the method. So, the pseudocode can leave a comment mentioning what to do instead:
+
+```java
+// In some class
+
+public float applyDiscount(float price) {
+    float newPrice = price;
+    // Apply discount to newPrice
+    // ...
+    return newPrice;
+}
+```
+
+If the pseudocode is not explanatory enough to understand the concept, then a full code example can be used instead. A full code example should supply dummy values and explain what they represent.
+
+## Style Guide
+
+This documentation uses [Docusaurus][docusaurus], which internally uses [MDX][mdx], to generate the pages. You can find more detailed information about available features on their pages. This style guide will be more focused towards common features and formatting we use in the Markdown files.
+
+### Front Matter
+
+Front matter defines metadata fields which can affect how the page is rendered. This is denoted using `---`, similar to a code block. The only front matter that should usually be defined is `sidebar_position`, which determines where the page should be rendered on the sidebar.
+
+There are other metadata fields like `title` and `description`, but those are typically parsed from the page itself.
+
+```md
+<!-- Second page in the sidebar -->
+---
+sidebar_position: 2
+---
+```
+
+### Titles
+
+Titles are defined using up to six hashtags (`#`) to define each section. Titles should capitalize everything but unimportant words.
+
+```md
+<!-- There should only be one title with a single '#'. -->
+# Guide For Contributing to This Documentation
+
+### Building and Testing Your Mod
+```
+
+### Diction
+
+Spelling, grammar, and syntax should follow those in American English. Avoid using contractions in sentences; use two separate words ('is not' instead of 'isn't'). Additionally, avoid using pronouns when possible, unless you need to directly refer to the reader.
+
+### Paragraphs
+
+Paragraphs should be a continuous block, separated by a newline. Paragraphs should NOT have each sentence be on a new line.
+
+```md
+This is my first paragraph. See how the next sentence is on the same line? You can use word wrapping in your editor to stop the line from going off the screen.
+
+This is my next paragraph. It is separated by a new line.
+```
+
+### Indentation
+
+When indenting lines, use four spaces instead of tabs. Most markdown features require four spaces to recognize indentation, so it allows consistency across the document.
+
+```md
+* Hello World
+    * Four Spaces In
+```
+
+### Code References
+
+When referencing elements outside of code blocks, they should be surrounded with backticks (`` ` ``). Classes should use their simple name. Methods and fields should specify the class name followed by a `#`. If the class name is implied, the method or field can simply be prefixed with `#`. Inner classes should specify the name of the outer class followed by a `$`.
+
+```md
+<!-- Classes -->
+`MyClass`
+`MyClass$InnerClass`
+
+<!-- Method and Fields -->
+`MyClass#foo`
+`MyClass$InnerClass#bar`
+`#SOME_CONSTANT`
+```
+
+Code blocks should specify the language after the triple backtick (`` ``` ``). When writing a JSON block, the JavaScript (`js`) syntax highlighter should be used to allow comments.
+
+````md
+<!-- Java Code Block -->
+```java
+public void run() {
+    //...
+}
+```
+
+<!-- JSON Code Block -->
+```js
+{
+    // Comments are allowed here
+    "text": "Hiya"
+}
+```
+````
+
+### Links
+
+All links should use brackets (`[]`) to refer to a link specified on the bottom of the markdown page. The second pair of brackets can be omitted if the name between the first pair of brackets is used.
+
+```md
+<!-- Somewhere on a page -->
+There are [two] different types of [link references][linkref].
+
+<!-- At the bottom of a page -->
+[two]: https://linkrefwithoutref.donotclick
+[linkref]: https://linkref.donotclick
+```
+
+### Admonitions
+
+Admonitions can be specified on the page using three colons (`:::`) and by specifying its type. Admonition formatting can be found on the [Docusaurus wiki][admonition].
+
+```md
+:::note
+I'm within an admonition!
 :::
+```
 
-Titles should be capitalized in the standard titling format. For example,
+[docs]: https://github.com/neoforged/Documentation
 
-* Guide For Contributing to This Documentation
-* Building and Testing Your Mod
+[npm]: https://www.npmjs.com/
+[nvm]: https://github.com/nvm-sh/nvm
+[nvs]: https://github.com/jasongin/nvs
 
-Essentially, capitalize everything but unimportant words.
+[parchment]: https://github.com/ParchmentMC/Parchment
+[neo]: https://github.com/neoforged/NeoForge/
 
-Spelling, grammar, and syntax should follow those of American English. Also, prefer using separate words over contractions (e.g. "are not" instead of "aren't").
+[jetbrains]: https://www.jetbrains.com/academy/
+[codeacademy]: https://www.codecademy.com/learn/learn-java
+[helsinki]: https://java-programming.mooc.fi/
+[oracle]: https://docs.oracle.com/javase/tutorial/
+[eck]: http://math.hws.edu/javanotes/
 
-Please use equals and dash underlines, instead of `#` and `##`. For h3 and lower, `###` etc. is fine. The source of this file contains an example for equals and dash underlining. Equals underlines create h1 text, and dash underlines create h2 text.
+[docusaurus]: https://docusaurus.io/docs/markdown-features
+[mdx]: https://mdxjs.com/guides/
 
-When referencing fields and methods outside of code block snippets, they should use a `#` separator (e.g. `ClassName#methodName`). Inner classes should use a `$` separator (e.g. `ClassName$InnerClassName`).
-
-JSON code block snippets should use `js` syntax highlighting.
-
-All links should have their location specified at the bottom of the page. Any internal links should reference the page via their relative path.
-
-Admonitions (represented by `::: <type>`) must be formatted as [documented][admonition]; otherwise they may end up rendering incorrectly.
-
-[GitHub]: https://github.com/MinecraftForge/Documentation
-[admonition]: https://python-markdown.github.io/extensions/admonition/ -->
+[admonition]: https://docusaurus.io/docs/markdown-features/admonitions
