@@ -1,10 +1,10 @@
-Attributes
-==========
+# Attributes
 
-Attributes are ways to modify specific values for living entities in a mod compatible way. 
+The attribute system is a system to provide values that are modifiable by multiple other things.
+Attributes can be used in a mod compatible way to change attack damage, maximum health and other things without each mod setting the value to something they expect and instead use modifications to e.g. add 2 hearts.
 
-Existing Attributes
------------
+## Existing Attributes
+
 Vanilla adds the following attributes:
 
 | Attribute                     | Description                                                                                  |
@@ -34,26 +34,35 @@ NeoForge adds the following attributes:
 | `ENTITY_REACH`         | how far the player can interact with entities                          |
 | `STEP_HEIGHT_ADDITION` | how high the entity can walk up blocks in addition to Entity#maxUpStep |
 
-Attribute, AttributeInstance and AttributeModifier
------------
+## Attribute, AttributeInstance and AttributeModifier
 
 Attributes have to be [registered][registration] and are used to look up the current `AttributeInstance` for a given LivingEntity. The `AttributeInstance` holds all `AttributeModifier` currently active on the entity.
-AttributeModifiers require a UUID that should be unique to this modifier. It's used to ensure that an `AttributeModifier` can only be applied once to a LivingEntity. You should generate a random one once and then hardcode it. They also require an Operation and an amount to perform the calculation. How the calculation works can be read in the next section.
-The value of an `Attribute` for a given `LivingEntity` can be obtained by the `AttributeMap` for the LivingEntity and getting the `AttributeInstance` from it and then calling `AttributeInstance#getValue`.
+AttributeModifiers require a UUID that should be unique to this modifier. It's used to ensure that an `AttributeModifier` can only be applied once to a LivingEntity. If you want to keep track of that modifier to remove it at a later point, then you should generate a random one once and then hardcode it. If you don't need to keep track of the modifier, it is sufficient to use a random UUID.
+They also require an Operation and an amount to perform the calculation. How the calculation works can be read in the next section.
+```java
+double maxHealth = livingentity.getAttribute(Attributes.MAX_HEALTH).getValue()
+```
 
-Operations
------------
+### Calculation
 
 AttributeInstances can have 3 different operations, `ADDITION`, `MULTIPLY_BASE` and `MULTIPLY_TOTAL`.
-First the default value is used and all `ADDITION`-Modifiers are added to it. This is the base value.
-`MULTIPLY_BASE`-Modifiers are applied next, they multiply the base value with 1 + the sum of the `MULTIPLY_BASE` modifiers.
-`MULTIPLY_TOTAL`-Modifiers are applied last, they multiply the value created with 1+modifier each.
+```
+value = (base + sum(addition))*(1+sum(multiply_base))*(1+z1)*(1+z2)[...]
+```
+The base value is set by the attributes default, but is sometimes set by the entity in some other events(e.g. Wolf taming).
+z1 and z2 are two multiply_total modifiers and more are calculated the same way.
 
-Applying AttributeModifier
------------
+## Using AttributeModifiers
 
 AttributeModifiers can be applied for held items and worn armor.
 Changing the AttributeModifier for custom Items can be achieved by overriding IForgeItem#getAttributeModifiers. You can also apply AttributeModifiers to ItemStacks by calling ItemStack#addAttributeModifier.
-Attribute Modifiers can also be added and removed to LivingEntities directly by obtaining the `AttributeMap` with `LivingEntity#getAttributes` and getting the AttributeInstance with `AttributeMap#getInstance`. You can then remove and add them with the methods present on the AttributeInstance.
+Another way to apply AttributeModifiers is by adding them with a `MobEffect`. For that you can call `MobEffect#addAttributeModifier` on the MobEffect to add AttributeModifiers when this MobEffect is applied. The applied AttributeModifier has an effect of x*(1+amplifier) with x being the amplifier value that was passed into `MobEffect#addAttributeModifier`.
+Attribute Modifiers can also be added and removed from/to LivingEntities directly:
+```java
+livingEntity.getAttribute(Attributes.MAX_HEALTH).addPermanentModifier(new AttributeModifier("health upgrade", 10, AttributeModifier.Operation.ADDITION));
+livingEntity.getAttribute(Attributes.MAX_HEALTH).addTransientModifier(new AttributeModifier("health upgrade", 10, AttributeModifier.Operation.ADDITION));
+livingEntity.getAttribute(Attributes.MAX_HEALTH).removeModifier(UUID.fromString("556E1665-8B10-40C8-8F9D-CF9B1667F295"));
+```
+Transient modifiers are modifiers that are not serialized and saved, permanent modifiers are saved.
 
 [registration]: ../concepts/registries.md
