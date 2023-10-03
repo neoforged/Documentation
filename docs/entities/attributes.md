@@ -21,7 +21,7 @@ Vanilla adds the following attributes:
 | `ARMOR_TOUGHNESS`             | how resistant the entity is to strong attacks                                                |
 | `LUCK`                        | changes the chance for treasure, junk and normal fishing loottables                          |
 | `SPAWN_REINFORCEMENTS_CHANCE` | how likely a zombie spawns reinforcements when attacked                                      |
-| `JUMP_STRENGTH`               | how high the entity jumps. Only applicable for horse like more (including mules and camels). |
+| `JUMP_STRENGTH`               | how high the entity jumps. Only applicable for horse like mobs (including mules and camels). |
 
 NeoForge adds the following attributes:
 
