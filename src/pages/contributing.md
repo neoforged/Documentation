@@ -32,7 +32,7 @@ Each page should guide a modder on a particular concept. If the concept is too l
 
 When describing a concept, you should first introduce what the concept is, where it is used in Minecraft, why it should be used, and how to use it. Each section within a concept should have a header. A section can also be broken into sub-sections if necessary. For example, each recipe within a cookbook can have a sub-section for ingredients and the recipe itself.
 
-If you need to prefer to other concepts, the relevant page should be linked along with a summary and/or some example to understand the application.
+If you need to refer to other concepts, the relevant page should be linked along with a summary and/or some example to understand the application.
 
 ## Examples
 
