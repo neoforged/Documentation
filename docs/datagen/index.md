@@ -64,9 +64,9 @@ MDK의 `build.gradle`은 기본적으로 `runData` 실행 구성을 추가하여
 * [`advancements.AdvancementProvider`][advgen] - [발전과제 생성용][advancements]; 생성자에 `AdvancementSubProvider` 전달
 
 [langgen]: ./client/localization.md
-[lang]: https://minecraft.fandom.com/wiki/Language
+[lang]: https://minecraft.wiki/w/Language
 [soundgen]: ./client/sounds.md
-[sounds]: https://minecraft.fandom.com/wiki/Sounds.json
+[sounds]: https://minecraft.wiki/w/Sounds.json
 [modelgen]: ./client/modelproviders.md
 [models]: ../resources/client/models/index.md
 [itemmodelgen]: ./client/modelproviders.md#itemmodelprovider

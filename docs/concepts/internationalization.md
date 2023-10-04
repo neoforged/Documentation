@@ -65,7 +65,7 @@
 
 - `createComponentTranslation(CommandSource, String, Object...)`는 클라이언트와 서버간 메세지를 주고 받을 때 유용합니다. 모드가 설치된 서버에 바닐라 클라이언트가 접속할 수도 있는데, 만약 메세지의 수신자가 바닐라 클라이언트라면 현지화에 필요한 언어 데이터가 없을 것이니 서버가 직접 자신의 언어로 현지화한 메세지를 클라이언트에 전송합니다. 만약 수신자가 바닐라 클라이언트가 아니라면 단순하게 `TranslatableComponent`를 생성합니다.
 
-[langs]: https://minecraft.fandom.com/wiki/Language#Languages
+[langs]: https://minecraft.wiki/w/Language#Languages
 [converter]: https://tterrag.com/lang2json/
 [formatting]: ../misc/components.md#text-formatting
 [components]: ../misc/components.md
