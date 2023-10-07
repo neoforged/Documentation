@@ -28,7 +28,7 @@ Final, this documentation is NOT meant to explain Java concepts. This documentat
 
 ## Concepts
 
-Each page should guide a modder on a particular concept. If the concept is too large in scope, the concept should be split into separate sub-concepts, each within its own page. For example, if you are writing  a cookbook, there can be a page for each recipe, rather than a single page containing all the recipes.
+Each page should guide a modder on a particular concept. If the concept is too large in scope, the concept should be split into separate sub-concepts, each within its own page. For example, if you are writing a cookbook, there can be a page for each recipe, rather than a single page containing all the recipes.
 
 When describing a concept, you should first introduce what the concept is, where it is used in Minecraft, why it should be used, and how to use it. Each section within a concept should have a header. A section can also be broken into sub-sections if necessary. For example, each recipe within a cookbook can have a sub-section for ingredients and the recipe itself.
 
