@@ -66,7 +66,7 @@ Java 9 이상 버전은 `invokedynamic` 명령이 변경되어 `DistExecutor#saf
 
 만약 `Thread.currentThread().getTHreadGroup() == SidedThreadGroups.Server` 가 참이라면 그 스레드는 논리 서버를 실행하고 있을 가능성이 큽니다. 그렇지 않다면 논리 클라이언트를 실행할 가능성이 큽니다. 이는 `Level` 객체에 접근할 수 없을때 **논리** 사이드를 확인하는데 유용합니다. 하지만 이 방법은 어느정도 짐작하는 것이기 때문에 가능하면 사용하시지 않는 것을 권장드립니다. 가능하시다면 `Level#isClientSide`를 대신 사용하세요.
 
-### `FMLEnvironment#dist` 와 `@OnlyIn`
+### `FMLEnvironment#dist`와 `@OnlyIn`
 
 `FMLEnvironment#dist` 는 현재 코드가 실행되고 있는 **물리** 사이드를 저장합니다. 이 값은 프로그램이 시작될 때 결정되기 때문에 확실한 값을 반환합니다.
 
@@ -86,9 +86,9 @@ Java 9 이상 버전은 `invokedynamic` 명령이 변경되어 `DistExecutor#saf
 한쪽 사이드 전용 모드 만들기
 ----------------------
 
-최근 출시된 마인크래프트 버전에서 포지는 "sideness" 속성을 mods.toml 에서 제거하였습니다. 다시 말해서 모드를 서버, 클라이언트 중 어디다 설치하든 작동은 해야 한다는 것입니다. 그렇기에 한쪽 사이드 전용 모드를 만드신다면 이벤트 핸들러를 `DistExecutor#safeRunWhenOn` 또는 `DistExecutor#unsafeRunWhenOn`를 통해 등록해 잘못된 사이드에 모드가 설치되었다면 아무런 동작도 하지 않을 수 있습니다. 이러한 모드들은 블록, 아이템 등과 같이 사이드 양측에 존재해야 하는 객체를 등록하면 안됩니다.
+모드가 서버, 클라이언트 중 어디에 설치 되었든 작동은 해야 합니다. 한쪽 사이드 전용 모드를 만드신다면 잘못된 사이드에 설치되었을 시 아무런 동작도 하지 않도록 만들 수 있습니다. 이벤트 핸들러를 `DistExecutor#safeRunWhenOn` 또는 `DistExecutor#unsafeRunWhenOn`를 통해 등록하면 잘못된 사이드에선 아무런 동작도 하지 않습니다. 이러한 모드들은 블록, 아이템 등과 같이 사이드 양측에 존재해야 하는 객체를 등록하면 안됩니다.
 
-추가적으로 한쪽 사이드 전용 모드들은 일반적으로 그 모드가 없는 유저가 서버에 들어올 수 있도록 합니다. 포지에선 버전 호환성 검사를 자동으로 진행하여 모드 설치 여부가 다르거나 버전이 호환되지 않는다면 멀티 플레이 화면에서 X 표시를 띄워 접속을 차단하는데, [mods.toml][structuring]의 `displayTest` 값을 변경해 해당 검사를 설정할 수 있습니다.
+또한, 한쪽 사이드 전용 모드들의 설치 여부와 관계 없이 서버에 접속할 수 있어야 합니다. 포지에선 버전 호환성 검사를 자동으로 진행하여 모드가 없거나, 버전이 호환되지 않는다면 멀티 플레이 화면에서 X 표시를 띄워 접속을 차단하는데, [mods.toml][structuring]의 `displayTest` 값을 변경해 해당 검사를 설정할 수 있습니다.
 ```toml
 [[mods]]
   # MATCH_VERSION: 서버와 클라이언트의 모드 버전이 다르면 붉은 X 표시.
@@ -96,7 +96,7 @@ Java 9 이상 버전은 `invokedynamic` 명령이 변경되어 `DistExecutor#saf
   # IGNORE_ALL_VERSION: 양측 설치 여부 무시. 서버 관련 요소가 없을 때만 사용.
   # NONE: displayTest 직접 구현. IExtensionPoint.DisplayTest 참조.
   # 중요: 아래 설정과 무관하게 모드는 언제나 모든 사이드에서 최소한 실행은 되야 할 것.
-  displayTest="IGNORE_ALL_VERSION" # displayTest는 선택 사항, 부재시 기본값: MATCH_VERSION
+  displayTest="IGNORE_ALL_VERSION" # displayTest는 선택 사항, 기본값: MATCH_VERSION
 ```
 
 `displayTest` 값으로 `NONE` 사용시 아래와 같이 `IExtensionPoint$DisplayTest`를 추가하여 직접 호환성 검사를 구현하실 수 있습니다:
@@ -105,9 +105,9 @@ Java 9 이상 버전은 `invokedynamic` 명령이 변경되어 `DistExecutor#saf
 ModLoadingContext.get().registerExtensionPoint(IExtensionPoint.DisplayTest.class, () -> new IExtensionPoint.DisplayTest(() -> NetworkConstants.IGNORESERVERONLY, (a, b) -> true));
 ```
 
-이는 클라이언트가 서버 버전이 없어도 무시하도록 하고, 서버는 클라이언트에 모드 설치를 요구하지 않도록 합니다. 그렇기에 위 코드는 서버 전용 또는 클라이언트 전용 모드 둘다에서 작동합니다.
+이는 클라이언트가 서버에 모드가 없어도 무시하도록 하고, 서버는 클라이언트에 모드 설치를 요구하지 않도록 합니다. 그렇기에 위 코드는 서버 전용 또는 클라이언트 전용 모드 개발시 둘다 사용 가능합니다.
 
 [invokedynamic]: https://docs.oracle.com/javase/specs/jvms/se17/html/jvms-6.html#jvms-6.5.invokedynamic
-[dist]: #fmlenvironmentdist-와-onlyin
+[dist]: #fmlenvironmentdist와-onlyin
 [DistExecutorIssue]: https://github.com/MinecraftForge/MinecraftForge/issues/8008
 [structuring]: ../gettingstarted/modfiles.md#modstoml

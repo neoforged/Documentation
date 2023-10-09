@@ -143,6 +143,6 @@ version = '1.20-1.0.0.0'
 [files]: https://files.minecraftforge.net "포지 파일 배포 사이트"
 [config]: https://docs.neoforged.net/neogradle/docs/configuration/runs
 [modfiles]: ./modfiles.md
-[packaging]: ./structuring.md#packaging
+[packaging]: ./structuring.md#패키징
 [mvnver]: ./versioning.md
-[client]: ../concepts/sides.md#writing-one-sided-mods
+[client]: ../concepts/sides.md#한쪽-사이드-전용-모드-만들기
