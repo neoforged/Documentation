@@ -1,0 +1,22 @@
+{
+  "title": {
+    "message": "NeoForged 文档",
+    "description": "The title in the navbar"
+  },
+  "logo.alt": {
+    "message": "NeoForged Logo",
+    "description": "The alt text of navbar logo"
+  },
+  "item.label.Getting Started": {
+    "message": "入门",
+    "description": "Navbar item with label Getting Started"
+  },
+  "item.label.NeoGradle Documentation": {
+    "message": "NeoGradle 文档",
+    "description": "Navbar item with label NeoGradle Documentation"
+  },
+  "item.label.GitHub": {
+    "message": "GitHub",
+    "description": "Navbar item with label GitHub"
+  }
+}

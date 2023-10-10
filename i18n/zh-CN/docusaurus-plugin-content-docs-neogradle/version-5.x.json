@@ -1,0 +1,18 @@
+{
+  "version.label": {
+    "message": "FG5",
+    "description": "The label for version 5.x"
+  },
+  "sidebar.ngSidebar.category.ForgeGradle Documentation": {
+    "message": "ForgeGradle Documentation",
+    "description": "The label for category ForgeGradle Documentation in sidebar ngSidebar"
+  },
+  "sidebar.ngSidebar.category.ForgeGradle Configurations": {
+    "message": "ForgeGradle Configurations",
+    "description": "The label for category ForgeGradle Configurations in sidebar ngSidebar"
+  },
+  "sidebar.ngSidebar.category.Dependencies": {
+    "message": "Dependencies",
+    "description": "The label for category Dependencies in sidebar ngSidebar"
+  }
+}
