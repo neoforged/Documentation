@@ -61,7 +61,7 @@ private static final DeferredRegister<LootItemConditionType> REGISTER = Deferred
 public static final RegistryObject<LootItemConditionType> EXAMPLE_LOOT_ITEM_CONDITION_TYPE = REGISTER.register("example_loot_item_condition_type", () -> new LootItemConditionType(...));
 ```
 
-!!! 注意
+:::caution
     有些类无法自行注册。相反，`*Type`类被注册，并在前者的构造函数中被使用。例如，[`BlockEntity`][blockentity]具有`BlockEntityType`，`Entity`具有`EntityType`。这些`*Type`类是工厂，它们只是根据需要创建包含类型。
     
     这些工厂是通过使用它们的`*Type$Builder`类创建的。例如：（`REGISTER`指的是`DeferredRegister<BlockEntityType>`）
@@ -70,6 +70,7 @@ public static final RegistryObject<LootItemConditionType> EXAMPLE_LOOT_ITEM_COND
       "example_block_entity", () -> BlockEntityType.Builder.of(ExampleBlockEntity::new, EXAMPLE_BLOCK.get()).build(null)
     );
     ```
+:::
 
 引用已注册的对象
 ---------------
@@ -113,8 +114,9 @@ public static final RegistryObject<ManaType> COFFEINUM = RegistryObject.create(n
 
 被`@ObjectHolder`注释的字段会在`RegisterEvent`为其注册表激发之后注入其值，与`RegistryObjects`的引用的更新同时发生。
 
-!!! 注意
+:::caution
     如果要注入对象时该对象不存在于注册表中，那么日志会记录一条调试信息，并且不会注入任何值。
+:::
 
 由于这些规则相当复杂，案例如下：
 

@@ -14,8 +14,9 @@
 !!! 重要
     使用`FMLClientSetupEvent#enqueueWork`执行这些任务，因为`ItemProperties`中的数据结构不是线程安全的。
 
-!!! 注意
+:::caution
     Mojang反对使用`ItemPropertyFunction`而推荐使用`ClampedItemPropertyFunction`子接口，该子接口将结果夹在`0`和`1`之间。
+:::
 
 覆盖的使用
 ---------

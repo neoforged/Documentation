@@ -15,8 +15,9 @@
 
 如果已经选择了配方，则使用`#assemble`构建配方，该`#assemble`可以使用来自输入的数据来创建结果。
 
-!!! 提示
+:::tip
     `#assemble`应始终生成唯一的”`ItemStack`。如果不确定`#assemble`是否执行此操作，请在返回之前对结果调用`ItemStack#copy`。
+:::
 
 大多数其他方法纯粹是为了与配方相结合。
 
@@ -26,8 +27,9 @@ public record ExampleRecipe(Ingredient input, int data, ItemStack output) implem
 }
 ```
 
-!!! 注意
+:::caution
     虽然在上面的示例中使用了一个记录，但在你自己的实现中不需要这样做。
+:::
 
 RecipeType
 ----------
@@ -71,8 +73,9 @@ public RecipeSerializer<?> getSerializer() {
 }
 ```
 
-!!! 提示
+:::tip
     有一些有用的方法可以让配方的读写数据变得更容易。`Ingredient`可以使用`#fromJson`、`#toNetwork`和`#fromNetwork`，而`ItemStack`可以使用`CraftingHelper#getItemStack`、`FriendlyByteBuf#writeItem`和`FriendlyByteBuf#readItem`。
+:::
 
 构建JSON
 --------

@@ -5,9 +5,10 @@
 原版Minecraft中的一些例子是处理箱子的物品栏、熔炉的熔炼逻辑或信标的区域效果。
 模组中存在更高级的示例，例如采石场（如BC）、分拣机（如IC2）、管道（如BC）和显示器（如OC）。（括号内容为译者注。）
 
-!!! 注意
+:::caution
     `BlockEntities`并不是万能的解决方案，如果使用错误，它们可能会导致游戏卡顿。
     如果可能的话，尽量避免使用。
+:::
 
 ## 注册
 
@@ -42,8 +43,9 @@ BlockEntity#load(CompoundTag tag)
 每当包含`BlockEntity`的`LevelChunk`从标签加载/保存到标签时，都会调用这些方法。
 使用它们以读取和写入你的方块实体类的字段。
 
-!!! 注意
+:::caution
     每当你的数据发生改变时，你需要调用`BlockEntity#setChanged`；否则，保存存档时可能会跳过包含你的`BlockEntity`的`LevelChunk`。
+:::
 
 !!! 重要
     调用`super`方法非常重要！
@@ -68,8 +70,9 @@ public static void tick(Level level, BlockPos pos, BlockState state, MyBlockEnti
 }
 ```
 
-!!! 注意
+:::caution
     这个方法在每个游戏刻都会调用；因此，你应该避免在这里进行复杂的计算。如果可能的话，你应该每X个游戏刻进行更复杂的计算。（一秒钟内的游戏刻数量可能低于20（二十），但不会更高）
+:::
 
 ## 向客户端同步数据
 
@@ -125,8 +128,9 @@ Level#sendBlockUpdated(BlockPos pos, BlockState oldState, BlockState newState, i
 
 这种同步方式可能是最复杂的，但通常是最优化的，因为你可以确保只有需要同步的数据才是真正同步的。在尝试之前，你应该先查看[`Networking`][networking]部分，尤其是[`SimpleImpl`][simple_impl]。一旦你创建了自定义网络消息，你就可以使用`SimpleChannel#send(PacketDistributor$PacketTarget, MSG)`将其发送给所有加载了该`BlockEntity`的用户。
 
-!!! 警告
+:::danger
     进行安全检查很重要，当消息到达玩家时，`BlockEntity`可能已经被销毁/替换！你还应该检查区块是否已加载（`Level#hasChunkAt(BlockPos)`）。
+:::
 
 [registration]: ../concepts/registries.md#methods-for-registering
 [storing-data]: #storing-data-within-your-blockentity

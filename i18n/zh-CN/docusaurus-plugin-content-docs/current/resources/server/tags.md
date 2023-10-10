@@ -35,8 +35,9 @@
 ---------------
 登录和重新加载时，所有注册表的标签都会自动从服务器发送到任何远程客户端。`Block`、`Item`、`EntityType`、`Fluid`和`GameEvent`都被特殊地包装，因为它们具有`Holder`，允许通过对象本身访问可用标签。
 
-!!! 注意
+:::caution
     在未来版本的Minecraft中，侵入性的`Holder`可能会被移除。如果被移除了，则可以使用以下方法来查询关联的`Holder`。
+:::
 
 ### ITagManager
 

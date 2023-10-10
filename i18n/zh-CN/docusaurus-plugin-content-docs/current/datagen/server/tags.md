@@ -26,8 +26,9 @@ public void gatherData(GatherDataEvent event) {
 
 标签提供者有两种用于生成标签的方法：通过`#tag`创建带有对象和其他标签的标签，或通过`#getOrCreateRawBuilder`使用其他对象类型的标签生成标签数据。
 
-!!! 注意
+:::caution
     通常，提供者不会直接调用`#getOrCreateRawBuilder`，除非注册表包含来自不同注册表的对象表示（方块具有物品表示以获得物品栏中的方块）。
+:::
 
 当调用`#tag`时，将创建一个`TagAppender`，它充当要添加到标签中的元素的可链接Consumer：
 

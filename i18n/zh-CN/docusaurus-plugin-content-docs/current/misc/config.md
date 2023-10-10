@@ -13,8 +13,9 @@
 `build`     | 创建`ForgeConfigSpec`.
 `configure` | 创建一对包含配置值和`ForgeConfigSpec`的类。
 
-!!! 注意
+:::caution
     `ForgeConfigSpec$Builder#configure`通常与`static`块和一个类一起使用，该类将`ForgeConfigSpec$Builder`作为其构造函数的一部分，用于附加和保存值：
+:::
 
     ```java
     // 在某个配置类中
@@ -70,8 +71,9 @@ ConfigValue<T> value = builder.comment("Comment")
       * 配置值可能的最小值和最大值
       * 表示配置值的数据类型的类
 
-!!! 注意
+:::caution
     `DoubleValue`、`IntValue`和`LongValue`是将类型分别指定为`Double`、`Integer`和`Long`的范围值。
+:::
 
 * **白名单值**
     * 描述: 值必须在所提供的集合中
@@ -118,16 +120,18 @@ CLIENT | 仅在客户端        | 否               | `.minecraft/config`       
 COMMON | 在两端           | 否               | `.minecraft/config`                          | `<server_folder>/config`             | `-common`
 SERVER | 仅在服务端        | 是               | `.minecraft/saves/<level_name>/serverconfig` | `<server_folder>/world/serverconfig` | `-server`
 
-!!! 提示
+:::tip
     Forge在相应的代码库中用文档详述了[配置类型][type]。
+:::
 
 配置事件
 --------
 
 每当加载或重新加载配置时发生的操作可以使用`ModConfigEvent$Loading`和`ModConfigEvent$Reloading`事件来完成。事件必须[注册][events]到模组事件总线。
 
-!!! 警告
+:::danger
     这些事件对于模组的所有配置都被调用；所提供的`ModConfig`对象应被用于表示正在加载或重新加载哪个配置。
+:::
 
 [toml]: https://toml.io/
 [nightconfig]: https://github.com/TheElectronWill/night-config

@@ -21,8 +21,9 @@
 
 每个`ParticleType`都有两个参数：一个`overrideLimiter`，用于确定粒子是否在不考虑距离的情况下渲染，以及一个`ParticleOptions$Deserializer`，用于读取客户端上发送的`ParticleOptions`。由于基类`ParticleType`是抽象类，因此需要实现一个方法：`#codec`。其表示如何对与该类型相关的`ParticleOptions`进行编码和解码。
 
-!!! 注意
+:::caution
     `ParticleType#codec`仅在用于原版实现的生物群系编解码器中使用。
+:::
 
 在大多数情况下，不需要将任何粒子数据发送到客户端。对于这些例子，更容易创建`SimpleParticleType`的新实例：一个对`ParticleType`和`ParticleOptions`的实现，除了类型之外，它不向客户端发送任何自定义数据。除了红石粉之外，对于着色和依赖方块/物品的粒子而言，大多数原版实现还使用`SimpleParticleType`。
 
@@ -113,8 +114,9 @@
 
 要注册这些粒子纹理，需要向`RegisterParticleProvidersEvent#registerSpriteSet`方法提供一个`SpriteParticleRegistration`。此方法接收一个`SpriteSet`，其中包含粒子的相关sprite集，并创建一个`ParticleProvider`来创建粒子。最简单的实现方法可以通过在某个类上实现`ParticleProvider`并让构造函数接受`SpriteSet`来完成。然后，`SpriteSet`可以正常地传递给粒子。
 
-!!! 注意
+:::caution
     如果你注册的是仅包含一个纹理的`TextureSheetParticle`子类型，则可以转而向`#registerSprite`方法提供`ParticleProvider$Sprite`，其与`ParticleProvider`具有基本相同的功能接口方法。
+:::
 
 生成一个粒子
 -----------

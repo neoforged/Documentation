@@ -25,13 +25,15 @@ public void gatherData(GatherDataEvent event) {
 !!! 重要
     原版配方生成器中不支持配方中的[`ItemStack`输出][stack]。对于现有的原版配方序列化器，必须以不同的方式构建`FinishedRecipe`才能生成此数据。
 
-!!! 警告
+:::danger
     正在生成的物品结果必须指定有效的`RecipeCategory`；否则，将引发`NullPointerException`。
+:::
 
 除[`SpecialRecipeBuilder`]外的所有配方构建器都需要指定一个进度标准。如果玩家以前使用过配方，则所有配方都会生成解锁配方的标准。然而，必须指定一个额外的标准，允许玩家在没有任何先验知识的情况下获得配方。如果指定的任何标准为真，则玩家将获得配方书的配方。
 
-!!! 提示
+:::tip
     配方标准通常使用`InventoryChangeTrigger`在用户物品栏中存在某些物品时解锁配方。
+:::
 
 ### ShapedRecipeBuilder
 
@@ -184,8 +186,9 @@ ConditionalRecipe.builder()
 
 自定义配方序列化器可以是通过创建可以构造`FinishedRecipe`的生成器生成的数据。完成的配方将配方数据及其所解锁的进度（如果存在）编码为JSON。此外，还指定了配方的名称和序列化器，以了解在加载时向何处写入以及可以解码对象的内容。构造完`FinishedRecipe`后，只需将其传递给`RecipeProvider#buildRecipes`提供的`Consumer`。
 
-!!! 提示
+:::tip
     `FinishedRecipe`足够灵活，任何对象转换都可以是数据生成的，而不仅仅是物品。
+:::
 
 [datagen]: ../index.md#data-providers
 [ingredients]: ../../resources/server/recipes/ingredients.md#forge-types

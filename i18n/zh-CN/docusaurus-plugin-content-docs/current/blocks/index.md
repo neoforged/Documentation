@@ -17,8 +17,9 @@
 
 所有这些方法都是*可链接*的，这意味着你可以串联地调用它们。有关此方面的示例，请参见`Blocks`类。
 
-!!! 注意
+:::caution
     `CreativeModeTab`未针对方块定义setter。如果方块有与之关联的物品（例如`BlockItem`），则由[`BuildCreativeModeTabContentsEvent`][creativetabs]处理。此外，也没有针对翻译键的setter，因为它是通过`Block#getDescriptionId`从注册表名称生成的。
+:::
 
 ### 进阶方块
 

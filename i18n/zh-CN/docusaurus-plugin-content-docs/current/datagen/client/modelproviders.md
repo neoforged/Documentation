@@ -35,26 +35,30 @@ public void gatherData(GatherDataEvent event) {
 
 `UncheckedModelFile`是`ModelFile`的一个子类，它假定指定的模型存在于某个位置。
 
-!!! 注意
+:::caution
     不应存在使用`UncheckedModelFile`引用模型的情况。如果存在，则`ExistingFileHelper`无法正确跟踪关联的资源。
+:::
 
 模型生成器
 ---------
 
 `ModelBuilder`表示要生成的`ModelFile`。它包含了关于模型的所有数据：它的父级、面、纹理、变换、照明和[加载器][loader]。
 
-!!! 提示
+:::tip
     虽然可以生成复杂的模型，但建议事先使用建模软件构建这些模型。然后，数据提供者可以生成具有通过父复杂模型中定义的引用应用的特定纹理的子模型。
+:::
 
 生成器的父级（通过`ModelBuilder#parent`）可以是任何`ModelFile`：生成的或现有的。一旦创建了生成器，生成的文件就会添加到`ModelProvider`中。生成器本身可以作为父级传入，也可以提供`ResourceLocation`。
 
-!!! 警告
+:::danger
     如果在传递`ResourceLocation`时父模型不是在子模型之前生成的，则将引发异常。
+:::
 
 模型中的每个元素（通过`ModelBuilder#element`）都被定义为使用两个三维点（分别为`ElementBuilder#from`和`#to`）的立方体，其中每个轴都被限制为值`[-16,32]`（包括-16和32）。多维数据集的每个面（`ElementBuilder#face`）都可以指定面何时被剔除（`FaceBuilder#cullface`）、[色调索引][color]（`FaceBuilder#tintindex`）、来自`textures`键的纹理引用（`FaceBuilder#texture`）、纹理上的UV坐标（`FaceBuilder#uvs`）以及以90度间隔旋转（`FaceBuilder#rotation`）。
 
-!!! 注意
+:::caution
     建议在任何轴上元素超过`[0,16]`界限的方块模型分离为多个方块，例如多方块结构，以避免照明和剔除问题。
+:::
 
 每个立方体还可以围绕指定点（`RotationBuilder#origin`）以22.5度的间隔（`RotationBuilder#angle`）为给定轴（`RotationBuilder#axis`）旋转（`ElementBuilder#rotation`）。立方体也可以相对于整个模型缩放所有面（`RotationBuilder#rescale`）。多维数据集还可以确定是否应渲染其阴影（`ElementBuilder#shade`）。
 
@@ -88,22 +92,25 @@ public void gatherData(GatherDataEvent event) {
 
 此外，还有几个助手可以使用普通模板轻松生成通用模型。大多数是方块模型，只有少数是通用的。
 
-!!! 注意
+:::caution
     尽管模型在一个特定的子目录中，但**并不**意味着该模型不能被另一个子目录中的模型引用。通常，它表示该模型用于该类型的对象。
+:::
 
 ### `BlockModelProvider`
 
 `BlockModelProvider`用于通过`block`文件夹中的`BlockModelBuilder`生成方块模型。方块模型通常应为`minecraft:block/block`或其子模型之一的父模型，以便与物品模型一起使用。
 
-!!! 注意
+:::caution
     方块模型及其物品模型对应物通常不是通过`BlockModelProvider`和`ItemModelProvider`的直接子类生成的，而是通过[`BlockStateProvider`][blockstateprovider]生成的。
+:::
 
 ### `ItemModelProvider`
 
 `ItemModelProvider`用于通过`item`文件夹中的`ItemModelBuilder`生成块模型。大多数物品模型的父级为`item/generated`，并使用`layer0`来指定其纹理，这可以使用`#singleTexture`来完成。
 
-!!! 注意
+:::caution
     `item/generated`可以支持堆叠在一起的五个纹理层：`layer0`、`layer1`、`layer2`、`layer3`和`layer4`。
+:::
 
 ```java
 // 在某个ItemModelProvider#registerModels中
@@ -115,8 +122,9 @@ public void gatherData(GatherDataEvent event) {
 this.basicItem(EXAMPLE_ITEM.get());
 ```
 
-!!! 注意
+:::caution
     方块的物品模型通常应作为现有方块模型的父级，而不是为物品生成单独的模型。
+:::
 
 方块状态提供者
 -------------

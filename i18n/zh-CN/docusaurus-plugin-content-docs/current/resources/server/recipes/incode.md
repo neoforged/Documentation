@@ -8,8 +8,9 @@
 
 酿造是代码中为数不多的仍然存在的配方之一。酿造配方是作为`PotionBrewing`中的引导程序的一部分添加的，用于容器、容器配方和药水混合物。为了扩展现有系统，Forge允许通过在`FMLCommonSetupEvent`中调用`BrewingRecipeRegistry#addRecipe`来添加酿造配方。
 
-!!! 警告
+:::danger
     `BrewingRecipeRegistry#addRecipe`必须在同步工作队列中通过`#enqueueWork`调用，因为该方法不是线程安全的。
+:::
 
 默认实现接受标准实现的输入成分、催化剂成分和物品栈输出。此外，还可以提供一个`IBrewingRecipe`实例来执行转换。
 

@@ -70,7 +70,7 @@ public void invalidateCaps() {
 }
 ```
 
-!!! 提示
+:::tip
     如果给定对象上只公开了一个Capability，则可以使用`Capability#orEmpty`作为if/else语句的替代语句。
 
     ```java
@@ -79,6 +79,7 @@ public void invalidateCaps() {
       return ForgeCapabilities.ITEM_HANDLER.orEmpty(cap, inventoryHandlerLazyOptional);
     }
     ```
+:::
 
 `Item`是一种特殊情况，因为它们的Capability提供者存储在`ItemStack`上。相反的是，应该通过`Item#initCapabilities`附加提供者。其应该在物品栈的生命周期中保持你的Capability。
 

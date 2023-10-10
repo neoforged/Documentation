@@ -27,13 +27,14 @@ this.addBlock(EXAMPLE_BLOCK, "Example Block");
 this.add("object.examplemod.example_object", "Example Object");
 ```
 
-!!! 提示
+:::tip
     包含非美式英语字母数字值的本地化名称可以按原样提供。提供者会自动将字符翻译为等效的unicode，供游戏读取。
 
     ```java
     // 编码为'Example with a d\u00EDacritic'
     this.addItem("example.diacritic", "Example with a díacritic");
     ```
+:::
 
 [lang]: ../../concepts/internationalization.md
 [locale]: https://minecraft.fandom.com/wiki/Language#Languages

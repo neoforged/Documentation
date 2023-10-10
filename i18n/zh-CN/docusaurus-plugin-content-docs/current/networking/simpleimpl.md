@@ -80,17 +80,19 @@ public static void handlePacket(MyClientMessage msg, Supplier<NetworkEvent.Conte
 请注意`#setPacketHandled`的存在，它用于告诉网络系统该数据包已成功完成处理。
 
 
-!!! 警告
+:::danger
     从Minecraft 1.8开始，默认情况下在网络线程上处理数据包。
 
     这意味着你的处理器 _不_ 能直接与大多数游戏对象交互。Forge提供了一种方便的方法，可以通过提供的`NetworkEvent$Context`在主线程上执行代码。只需调用`NetworkEvent$Context#enqueueWork(Runnable)`，它将在下一次有机会时调用主线程上的给定`Runnable`。
+:::
 
-!!! 警告
+:::danger
     在服务端上处理数据包时要采取防御措施。客户端可能试图通过发送意外数据来对数据包处理过程施压。
 
     一个常见的问题是易受**任意区块生成**的攻击。当服务端信任客户端发送的方块位置来访问方块和块方实体时，通常会发生这种情况。当访问存档中的未加载区域中的方块和方块实体时，服务端将会要么生成要么从磁盘加载该区域，然后立即将其写入磁盘。利用这一点，可以在不留下痕迹的情况下对服务端的性能和存储空间造成**灾难性破坏**。
 
     为了避免这个问题，一个普遍的经验法则是，仅访问`Level#hasChunkAt`为true的方块和方块实体。
+:::
 
 
 发送数据包

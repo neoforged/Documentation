@@ -3,8 +3,9 @@
 
 可以通过构建新的`AdvancementProvider`并提供`AdvancementSubProvider`来为模组生成[进度][Advancements]。进度既可以手动创建和提供，也可以为方便起见，使用`Advancement$Builder`创建。该提供者必须被[添加][datagen]到`DataGenerator`中。
 
-!!! 注意
+:::caution
     Forge为`AdvancementProvider`提供了一个名为`ForgeAdvancementProvider`的扩展，它可以更好地集成以生成进度。因此，本文档将使用`ForgeAdvancementProvider`和子提供者接口`ForgeAdvancementProvider$AdvancementGenerator`。
+:::
 
 ```java
 // 在模组事件总线上

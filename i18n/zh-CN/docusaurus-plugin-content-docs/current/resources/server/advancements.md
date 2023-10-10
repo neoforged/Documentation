@@ -59,7 +59,7 @@ public ExampleTriggerInstance(ContextAwarePredicate player, ItemPredicate item) 
 }
 ```
 
-!!! 注意
+:::caution
     通常，触发器实例有一个静态构造函数，允许轻松创建这些实例以生成数据。这些静态工厂方法也可以静态导入，而不是类本身。
 
     ```java
@@ -67,6 +67,7 @@ public ExampleTriggerInstance(ContextAwarePredicate player, ItemPredicate item) 
       return new ExampleTriggerInstance(player, item);
     }
     ```
+:::
 
 此外，应该重写`#serializeToJson`方法。该方法应该将实例的条件添加到其他JSON数据中。
 

@@ -73,8 +73,9 @@ Forge为配方纲要及其实现提供了一些额外的行为，以更好地控
 }
 ```
 
-!!! 注意
+:::caution
     `nbt`标签也可以是一个字符串，其中包含无法正确表示为JSON对象（如`IntArrayTag`）的数据的字符串化NBT（或SNBT）。
+:::
 
 ### 条件性配方
 
@@ -84,8 +85,9 @@ Forge为配方纲要及其实现提供了一些额外的行为，以更好地控
 
 默认情况下，原版声明合成网格的最大宽度和高度为3x3正方形。这可以通过在`FMLCommonSetupEvent`中使用新的宽度和高度调用`ShapedRecipe#setCraftingSize`来扩展。
 
-!!! 警告
+:::danger
     `ShapedRecipe#setCraftingSize`**不**是线程安全的。因此，它应该通过`FMLCommonSetupEvent#enqueueWork`排入同步工作队列。
+:::
 
 配方中较大的合成网格可以是[数据生成的][datagen]。
 

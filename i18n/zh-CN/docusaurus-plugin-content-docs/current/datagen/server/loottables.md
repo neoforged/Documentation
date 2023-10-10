@@ -75,7 +75,7 @@ public MyEntityLootSubProvider() {
 
 要使用它们，所有注册的对象必须分别提供给`BlockLootSubProvider#getKnownBlocks`和`EntityLootSubProvider#getKnownEntityTypes`。这些方法是为了确保Iterable中的所有对象都有一个战利品表。
 
-!!! 提示
+:::tip
     如果`DeferredRegister`用于注册模组的对象，则可以通过`DeferredRegister#getEntries`向`#getKnown*`方法提供条目：
 
     ```java
@@ -88,6 +88,7 @@ public MyEntityLootSubProvider() {
         ::iterator; // 创建该Iterable
     }
     ```
+:::
 
 战利品表本身可以通过实现`#generate`方法来添加。
 
@@ -104,8 +105,9 @@ public void generate() {
 
 要生成战利品表，它们被`LootTableSubProvider`接受为`LootTable$Builder`。之后，在`LootTableProvider$SubProviderEntry`中设置指定的`LootContextParamSet`，然后通过`#build`生成。在构建之前，生成器可以指定影响战利品表功能的条目、条件和修改器。
 
-!!! 注意
+:::caution
     战利品表的功能非常广泛，因此本文档不会对其进行全面介绍。取而代之的是，将对每个组件进行简要描述。每个组件的特定子类型可以使用IDE找到。它们的实现将留给读者练习。
+:::
 
 ### LootTable
 

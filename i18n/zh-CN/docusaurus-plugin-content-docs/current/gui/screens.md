@@ -31,8 +31,9 @@ Minecraft渲染的任何GUI通常都是使用`GuiGraphics`完成的。`GuiGraphi
 
 字符串是通过其`Font`绘制的，通常由它们自己的普通、透视和偏移模式的着色器组成。可以渲染两种对齐的字符串，每种都有一个后阴影：左对齐字符串（`#drawString`）和居中对齐字符串（`#drawCenteredString`）。这两者都采用了字符串将被渲染的字体、要绘制的字符串、分别表示字符串左侧或中心的x坐标、顶部的y坐标和颜色。
 
-!!! 注意
+:::caution
     字符串通常应作为[`Component`][component]传入，因为它们处理各种用例，包括方法的另外两个重载。
+:::
 
 ### 纹理
 
@@ -40,8 +41,9 @@ Minecraft渲染的任何GUI通常都是使用`GuiGraphics`完成的。`GuiGraphi
 
 第一个静态`#blit`取六个整数，并假设渲染的纹理位于256 x 256 PNG文件上。它接受左侧x和顶部y屏幕坐标，PNG中的左侧x和底部y坐标，以及要渲染的图像的宽度和高度。
 
-!!! 注意
+:::caution
     必须指定PNG文件的大小，以便可以规范化坐标以获得关联的UV值。
+:::
 
 第一个`#blit`所调用的另一个静态`#blit`将参数扩展为九个整数，仅假设图像位于PNG文件上。它获取左侧x和顶部y屏幕坐标、z坐标（称为blit偏移）、PNG中的左侧x和上部y坐标、要渲染的图像的宽度和高度以及PNG文件的宽度和高。
 
@@ -72,8 +74,9 @@ Minecraft渲染的任何GUI通常都是使用`GuiGraphics`完成的。`GuiGraphi
 
 聚焦允许在事件执行期间，例如在键盘事件或拖动鼠标期间，首先检查并处理特定的子项。焦点通常通过`#setFocused`设置。此外，可以使用`#nextFocusPath`循环可交互的子级，根据传入的`FocusNavigationEvent`选择子级。
 
-!!! 注意
+:::caution
     屏幕通过`AbstractContainerEventHandler`实现了`ContainerEventHandler`和`GuiComponent`，添加了setter和getter逻辑用于拖动和聚焦子级。
+:::
 
 ## NarratableEntry
 
@@ -81,8 +84,9 @@ Minecraft渲染的任何GUI通常都是使用`GuiGraphics`完成的。`GuiGraphi
 
 `NarratableEntry`有三种方法：一种是确定元素的优先级（`#narrationPriority`），一种是决定是否说出讲述（`#isActive`），最后一种是将讲述提供给相关的输出（说出或读取）（`#updateNarration`）。
 
-!!! 注意
+:::caution
     Minecraft中的所有小部件都是`NarratableEntry`，因此如果使用可用的子类型，通常不需要手动实现。
+:::
 
 ## 屏幕子类型
 
@@ -304,8 +308,9 @@ protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
 }
 ```
 
-!!! 注意
+:::caution
     渲染标签时，**不**需要指定`leftPos`和`topPos`偏移量。这些已经在`PoseStack`中进行了转换，因此该方法中的所有内容都是相对于这些坐标绘制的。
+:::
 
 ## 注册一个AbstractContainerScreen
 
@@ -322,8 +327,9 @@ private void clientSetup(FMLClientSetupEvent event) {
 }
 ```
 
-!!! 警告
+:::danger
     `MenuScreens#register`不是线程安全的，因此它需要在并行调度事件提供的`#enqueueWork`内部调用。
+:::
 
 [menus]: ./menus.md
 [network]: ../networking/index.md

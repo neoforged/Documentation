@@ -119,8 +119,9 @@ modId = "examplemod2"
 `side`         | string  | `"BOTH"`      | 所依赖模组必须位于的[端位][dist]：`"CLIENT"`、`"SERVER"`或`"BOTH"`。 | `"CLIENT"`
 `referralUrl`  | string  | *无*          | 指向依赖下载界面的URL。目前无作用。 | `"https://library.example.com/"`
 
-!!! 警告
+:::danger
     两个模组的`ordering`可能会因循环依赖而造成崩溃：例如模组A必须在模组B之前（`"BEFORE"`）加载，而模组B也必须在模组A之前（`"BEFORE"`）加载。
+:::
 
 模组入口点
 ----------

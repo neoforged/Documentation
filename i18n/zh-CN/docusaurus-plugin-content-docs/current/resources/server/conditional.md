@@ -141,8 +141,9 @@
 getID  | 该条件的注册表名称。必须等效于[`IConditionSerializer#getID`][serializer]。仅用于[数据生成][datagen]。
 test   | 当条件满足时返回true。
 
-!!! 注意
+:::caution
     每个`#test`都可以访问一些代表游戏状态的`IContext`。目前，从注册表中只能获取标签。
+:::
 
 ### IConditionSerializer
 
@@ -154,8 +155,9 @@ getID  | 该条件的注册表名称。必须等效于[`ICondition#getID`][condi
 read   | 从JSON中读取条件数据。
 write  | 将给定的条件数据写入JSON。
 
-!!! 注意
+:::caution
     条件序列化器不负责写入或读取序列化器的类型，类似于Minecraft中的其他序列化器实现。
+:::
 
 之后，应声明一个静态实例来保存初始化的序列化器，然后在`RecipeSerializer`的`RegisterEvent`期间或在`FMLCommonSetupEvent`期间使用`CraftingHelper#register`进行注册。
 

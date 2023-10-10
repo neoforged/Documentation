@@ -23,8 +23,9 @@ public void registerBindings(RegisterKeyMappingsEvent event) {
 
 `KeyMapping`可以使用其构造函数创建。`KeyMapping`接受一个定义映射名称的[翻译键][tk]，映射的默认输入，以及定义映射将放在[控制选项菜单][controls]中的类别的[翻译键][tk]。
 
-!!! 提示
+:::tip
     通过提供原版未提供的类别[翻译键][tk]，可以将`KeyMapping`添加到自定义类别中。自定义类别转换键应包含mod id（例如`key.categories.examplemod.examplecategory`）。
+:::
 
 ### 默认输入
 
@@ -32,8 +33,9 @@ public void registerBindings(RegisterKeyMappingsEvent event) {
 
 原版提供三种类型的输入：`KEYSYM`，通过提供的`GLFW`键标记定义键盘，`SCANCODE`，通过平台特定扫描码定义键盘，以及`MOUSE`，定义鼠标。
 
-!!! 注意
+:::caution
     强烈建议键盘使用`KEYSYM`而不是`SCANCODE`，因为`GLFW`键令牌不与任何特定系统绑定。你可以在[GLFW文档][keyinput]上阅读更多内容。
+:::
 
 整数取决于提供的类型。所有输入代码都在`GLFW`中定义：`KEYSYM`令牌以`GLFW_KEY_*`为前缀，而`MOUSE`代码以`GLFW_MOUSE_*`作为前缀。
 
@@ -46,8 +48,9 @@ new KeyMapping(
 )
 ```
 
-!!! 注意
+:::caution
     如果键映射不应映射到默认值，则应将输入设置为`InputConstants#UNKNOWN`。原版构造函数将要求你通过`InputConstants$Key#getValue`提取输入代码，而Forge构造函数可以提供原始输入字段。
+:::
 
 ### `IKeyConflictContext`
 
@@ -103,8 +106,9 @@ public void onClientTick(ClientTickEvent event) {
 }
 ```
 
-!!! 警告
+:::danger
     不要将`InputEvent`用作`ClientTickEvent`的替代项。只有键盘和鼠标输入有单独的事件，所以它们不会处理任何额外的输入。
+:::
 
 ### Inside a GUI
 
@@ -124,8 +128,9 @@ public boolean keyPressed(int key, int scancode, int mods) {
 } 
 ```
 
-!!! 注意
+:::caution
     如果你不拥有要检查**键**的屏幕，你可以在[**Forge事件总线**][forgebus]上监听`ScreenEvent$KeyPressed`的`Pre`或`Post`事件。
+:::
 
 `#mouseClicked`获取鼠标的x位置、y位置和单击的按钮。通过使用带有`MOUSE`输入的`InputConstants$Type#getOrCreate`创建输入，可以根据映射检查鼠标按钮。
 
@@ -141,8 +146,9 @@ public boolean mouseClicked(double x, double y, int button) {
 } 
 ```
 
-!!! 注意
+:::caution
     如果你不拥有要检查**鼠标**的屏幕，你可以在[**Forge事件总线**][forgebus]上监听`ScreenEvent$MouseButtonPressed`的`Pre`或`Post`事件。
+:::
 
 [modbus]: ../concepts/events.md#mod-event-bus
 [controls]: https://minecraft.fandom.com/wiki/Options#Controls

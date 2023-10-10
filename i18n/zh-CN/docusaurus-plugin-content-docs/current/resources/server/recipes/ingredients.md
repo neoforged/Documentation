@@ -118,8 +118,9 @@ Forge提供了一些额外的`Ingredient`类型供程序员实现。
 
 可以通过为创建的`Ingredient`子类实现`IIngredientSerializer`来创建自定义原料。
 
-!!! 提示
+:::tip
     自定义原料应该是`AbstractIngredient`的子类，因为它提供了一些有用的抽象以便于实现。
+:::
 
 ### 原料的子类
 
@@ -165,8 +166,9 @@ public IIngredientSerializer<? extends Ingredient> getSerializer() {
 }
 ```
 
-!!! 提示
+:::tip
     如果使用`FMLCommonSetupEvent`注册原料序列化器，则必须通过`FMLCommonSetupEvent#enqueueWork`将其排入同步工作队列，因为`CraftingHelper#register`不是线程安全的。
+:::
 
 [recipes]: https://minecraft.fandom.com/wiki/Recipe#List_of_recipe_types
 [nbt]: #strictnbtingredient

@@ -20,8 +20,9 @@ public void gatherData(GatherDataEvent event) {
 
 可以通过`#add`指定音效名称和定义来生成音效定义。音效名称可以从[`SoundEvent`][soundevent]、`ResourceLocation`或字符串中提供。
 
-!!! 警告
+:::danger
     提供的音效名称将始终假定命名空间是提供给提供者的构造函数的mod id。没有对音效名称的命名空间执行验证！
+:::
 
 ### `SoundDefinition`
 

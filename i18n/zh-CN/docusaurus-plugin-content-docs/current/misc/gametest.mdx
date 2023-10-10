@@ -46,12 +46,13 @@ public static void exampleConfiguredTest(GameTestHelper helper) {
 
 结构模板的相对位置可以在游戏中通过[test命令][test]加载结构，将玩家放置在所需位置，最后运行`/test pos`命令来获得。这将获取玩家相对于玩家200个方块内最近结构的坐标。该命令将相对位置导出为聊天中的可复制文本组件，用作最终的本地变量。
 
-!!! 提示
+:::tip
     `/test pos`生成的局部变量可以通过将其附加到命令末尾来指定其引用名称：
 
     ```bash
     /test pos <var> # 导出'final BlockPos <var> = new BlockPos(...);'
     ```
+:::
 
 #### 成功完成
 
@@ -100,8 +101,9 @@ public class ExampleGameTests {
 
 `TestFunction`是`@GameTest`注释和运行测试的方法所包含的包装信息。
 
-!!! 提示
+:::tip
     任何使用`@GameTest`注释的方法都会使用`GameTestRegistry#turnMethodIntoTestFunction`转换为`TestFunction`。该方法可以用作创建`TestFunction`的引用，而无需使用注释。
+:::
 
 ### 批量处理
 
@@ -158,16 +160,18 @@ public static void exampleTest3(GameTestHelper helper) {
 }
 ```
 
-!!! 注意
+:::caution
     提供给`GameTestHolder#value`和`GameTest#templateNamespace`的值可能与当前的mod id不同。需要更改[buildscript][namespaces]中的配置。
+:::
 
 结构模板
 --------
 
 游戏测试是在由结构或模板加载的场景中执行的。所有模板都定义了场景的尺寸以及将要加载的初始数据（方块和实体）。模板必须存储为`data/<namespace>/structures`中的`.nbt`文件。
 
-!!! 提示
+:::tip
     可以使用结构方块创建和保存结构模板。
+:::
 
 模板的位置由以下几个因素指定：
 
@@ -223,8 +227,9 @@ public class ExampleGameTests {
 `runthese`  | 运行离玩家200个方块内的测试。
 `runfailed` | 运行上一次运行中失败的所有测试。
 
-!!! 注意
+:::caution
     子命令跟在test命令后面：`/test <subcommand>`。
+:::
 
 构建脚本（buildscript）配置
 --------------------------
@@ -240,8 +245,9 @@ public class ExampleGameTests {
 property 'forge.enabledGameTestNamespaces', 'modid1,modid2,modid3'
 ```
 
-!!! 警告
+:::danger
     命名空间之间不能有空格；否则，将无法正确加载命名空间。
+:::
 
 ### 游戏测试服务端运行配置
 

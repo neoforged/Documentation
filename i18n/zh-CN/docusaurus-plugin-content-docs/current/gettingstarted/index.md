@@ -8,8 +8,9 @@ Forge入门
 
 * 安装Java 17开发包（JDK）和64位JVM。Forge推荐并官方支持[Eclipse Temurin][jdk]。
 
-    !!! 警告
+    :::danger
         确保你正在使用64位的JVM。一种检查方式是在终端中运行`java -version`。使用32位的JVM会导致在使用[ForgeGradle]的过程中出现问题。
+    :::
 
 * 熟练使用一款集成开发环境（IDE）。
     * 建议使用一款集成了Gradle功能的IDE。
@@ -20,7 +21,7 @@ Forge入门
 1. 从[Forge文件站][files]下载Mod开发包（MDK）。点击“Mdk”，等待一段时间之后点击右上角的“Skip”按钮。如果可能的话，推荐下载最新版本的Forge。
 1. 解压所下载的MDK到一个空文件夹中。它会成为你的模组的目录，且现在应该已包含一些gradle文件和一个含有example模组的`src`子目录。
 
-    !!! 注意
+    :::caution
         许多文件可以在不同的模组中重复使用。这些文件是：
 
         * `gradle`子目录
@@ -30,6 +31,7 @@ Forge入门
         * `settings.gradle`
 
         `src`子目录不需要跨工作区进行复制；但是，如果稍后创建java（`src/main/java`）和resource（`src/main/resources`），则可能需要刷新Gradle项目。
+    :::
 
 1. 打开你选择的IDE：
     * Forge只明确支持在Eclipse和IntelliJ IDEA上进行开发，但还有其他针对Visual Studio代码的运行配置。无论如何，从Apache NetBeans到Vim/Emacs的任何开发环境都可被使用。
@@ -104,8 +106,9 @@ version = '1.19.4-1.0.0.0'
 1. 要在测试环境中运行你的模组，你既可以使用已生成的运行配置，也可以运行功能类似的Gradle任务（例如`gradlew runClient`）。这将使用任何所指定的源码集从run文件夹中启动Minecraft。默认的MDK包括`main`源码集，因此任何在`src/main/java`中编写的源代码都会被应用。
 1. 如果你想要运行dedicated服务端，无论是通过运行配置，还是通过`gradlew runServer`，服务端都会立刻宕机。你需要通过编辑run文件夹中的`eula.txt`文件同意Minecraft EULA。一旦同意后，服务器就会加载，之后就可以通过直连`localhost`进行访问了。
 
-!!! 注意
+:::caution
     在服务端环境测试你的模组是必要的。这包括[只针对客户端的模组][client]，因为在加载到服务端后它们不应该做任何事。
+:::
 
 [jdk]: https://adoptium.net/temurin/releases?version=17 "Eclipse Temurin 17 Prebuilt Binaries"
 [ForgeGradle]: https://docs.minecraftforge.net/en/fg-6.x

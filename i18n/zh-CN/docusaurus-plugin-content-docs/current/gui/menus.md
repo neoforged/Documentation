@@ -23,8 +23,9 @@ public MyMenu(int containerId, Inventory playerInv) {
 }
 ```
 
-!!! 注意
+:::caution
     容器id对于单个玩家是唯一的。这意味着，两个不同玩家上的相同容器id将代表两个不同的菜单，即使他们正在查看相同的数据持有者。
+:::
 
 `MenuSupplier`通常负责在客户端上创建一个菜单，其中包含用于存储来自服务端数据持有者的同步信息并与之交互的伪数据引用。
 
@@ -97,8 +98,9 @@ public boolean stillValid(Player player) {
 
 Minecraft默认支持两种形式的数据同步：通过`Slot`进行的`ItemStack`同步和通过`DataSlot`进行的整数同步。`Slot`和`DataSlot`是保存对数据存储的引用的视图，假设操作有效，玩家可以在屏幕中修改这些数据存储。这些可以通过`#addSlot`和`#addDataSlot`在菜单的构造函数中添加。
 
-!!! 注意
+:::caution
     由于`Slot`使用的`Container`已被Forge弃用，取而代之的是使用[`IItemHandler`功能][cap]，因此其余解释将围绕使用功能变体：`SlotItemHandler`展开。
+:::
 
 `SlotItemHandler`包含四个参数：`IItemHandler`表示物品栈所在的物品栏，该Slot具体表示的物品栈索引，以及该Slot左上角将在屏幕上呈现的相对于`AbstractContainerScreen#leftPos`和`#topPos`的x和y位置。客户端菜单构造函数应该始终提供相同大小的物品栏的空实例。
 
@@ -108,8 +110,9 @@ Minecraft默认支持两种形式的数据同步：通过`Slot`进行的`ItemSta
 
 每次初始化新菜单时，都应该重新创建上述内容以及Slot。
 
-!!! 警告
+:::danger
     尽管`DataSlot`存储一个整数（int），但由于它在网络上发送数值的方式，它实际上被限制为**short**类型（-32768到32767）。该整数（int）的16个高比特位被忽略。
+:::
 
 ```java
 // 假设我们有一个来自大小为5的数据对象的物品栏
@@ -160,8 +163,9 @@ public MyMenuAccess(int containerId, Inventory playerInventory, ContainerData da
 }
 ```
 
-!!! 警告
+:::danger
     由于`ContainerData`委托`DataSlot`，这些整数也被限制为**short**（-32768到32767）。
+:::
 
 #### `#quickMoveStack`
 
@@ -261,8 +265,9 @@ public ItemStack quickMoveStack(Player player, int quickMovedSlotIndex) {
 
 一旦注册了菜单类型，菜单本身已经完成，并且一个[屏幕（Screen）][screen]已被附加，玩家就可以打开菜单。可以通过在逻辑服务端上调用`NetworkHooks#openScreen`来打开菜单。该方法让玩家打开菜单，服务端端菜单的`MenuProvider`，如果需要将额外数据同步到客户端，还可以选择`FriendlyByteBuf`。
 
-!!! 注意
+:::caution
     只有在使用[`IContainerFactory`][icf]创建菜单类型时，才应使用带有`FriendlyByteBuf`参数的`NetworkHooks#openScreen`。
+:::
 
 #### `MenuProvider`
 
@@ -304,8 +309,9 @@ public InteractionResult use(BlockState state, Level level, BlockPos pos, Player
 }
 ```
 
-!!! 注意
+:::caution
     这是实现逻辑的最简单的方法，而不是唯一的方法。如果你希望方块仅在特定条件下打开菜单，则需要提前将一些数据同步到客户端，以便在不满足条件的情况下返回`InteractionResult#PASS`或`#FAIL`。
+:::
 
 #### 生物的实现
 
@@ -325,8 +331,9 @@ public class MyMob extends Mob implements MenuProvider {
 }
 ```
 
-!!! 注意
+:::caution
     再次说明，这是实现逻辑的最简单的方法，而不是唯一的方法。
+:::
 
 [registered]: ../concepts/registries.md#methods-for-registering
 [acm]: #abstractcontainermenu

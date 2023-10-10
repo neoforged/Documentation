@@ -4,8 +4,9 @@
 Datapack registry objects can be generated for a mod by constructing a new `DatapackBuiltinEntriesProvider` and providing a `RegistrySetBuilder` with the new objects to register. The provider must be [added][datagen] to the `DataGenerator`.
 通过构造新的`DatapackBuiltinEntriesProvider`并为`RegistrySetBuilder`提供要注册的新对象，可以为模组生成数据包注册表对象。该提供者必须被[添加][datagen]到`DataGenerator`中。
 
-!!! 注意
+:::caution
     `DatapackBuiltinEntriesProvider`是`RegistriesDatapackGenerator`之上的一个Forge扩展，它可以正确处理引用现有数据包注册表对象而不会分解条目。因此，本文档将使用`DatapackBuiltinEntriesProvider`。
+:::
 
 ```java
 // 在模组事件总线上
@@ -45,8 +46,9 @@ new RegistrySetBuilder()
   });
 ```
 
-!!! 注意
+:::caution
     通过Forge创建的数据包注册表也可以通过传递相关的`ResourceKey`来使用该生成器生成它们的对象。
+:::
 
 使用`BootstapContext`注册
 -------------------------

@@ -22,10 +22,11 @@ public class MyMod {
 }
 ```
 
-!!! 警告
+:::danger
     大多数生命周期事件都是并行触发的（多线程——译者注）：所有模组都将同时接收相同的事件。
     
     模组必须注意线程安全，就像调用其他模组的API或访问原版系统一样。延迟代码，以便稍后通过`ParallelDispatchEvent#enqueueWork`执行。
+:::
 
 注册表事件
 ---------
@@ -64,8 +65,9 @@ InterModComms
 
 之后在`InterModProcessEvent`期间，使用`InterModComms#getMessages`获取所有接收到的消息的Stream。提供的mod id几乎总是先前调用发送消息方法的模组的mod id。此外，可以指定一个Predicate来对消息键进行过滤。这将返回一个带有`IMCMessages`的Stream，其中包含数据的发送方、数据的接收方、数据键以及所提供的数据本身。
 
-!!! 注意
+:::caution
     还有另外两个生命周期事件：`FMLConstructModEvent`，在模组实例构造之后但在`RegisterEvent`之前直接触发；`FMLLoadCompleteEvent`，在`InterModComms`事件之后触发，用于模组加载过程完成时。
+:::
 
 [registering]: ./registries.md#methods-for-registering
 [capabilities]: ../datastorage/capabilities.md

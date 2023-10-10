@@ -8,8 +8,9 @@
 
 模型和纹理通过[`ResourceLocation`][resloc]链接，但使用`ModelResourceLocation`存储在`ModelManager`中。模型通过方块或物品的注册表名称在不同位置引用，具体取决于它们是引用[方块状态][statemodel]还是[物品模型][itemmodels]。方块将使其`ModelResourceLocation`代表其注册表名称及其当前[`BlockState`][state]的字符串化版本，而物品将使用其注册表名称后跟`inventory`。
 
-!!! 注意
+:::caution
     JSON模型只支持长方体元素；没有办法表达三角楔或类似的东西。要有更复杂的模型，必须使用另一种格式。
+:::
 
 ### 纹理
 

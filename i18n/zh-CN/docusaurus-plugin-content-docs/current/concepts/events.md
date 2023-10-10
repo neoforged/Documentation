@@ -84,8 +84,9 @@ public class MyStaticClientOnlyEventHandler {
 }
 ```
 
-!!! 注意
+:::caution
     这不会注册类的实例；它注册类本身（即事件处理方法必须是静态的）。
+:::
 
 事件的取消
 ---------
@@ -125,8 +126,9 @@ public class MyStaticClientOnlyEventHandler {
 * `InterModEnqueueEvent`
 * `InterModProcessEvent`
 
-!!! 注意
+:::caution
 	`FMLClientSetupEvent`和`FMLDedicatedServerSetupEvent`仅在各自的分发版本（物理端——译者注）上调用。
+:::
 
 这四个生命周期事件都是并行运行的，因为它们都是`ParallelDispatchEvent`的子类。如果你想在任何`ParallelDispatchEvent`期间在主线程上运行运行代码，可以使用`#enqueueWork`来执行此操作。
 

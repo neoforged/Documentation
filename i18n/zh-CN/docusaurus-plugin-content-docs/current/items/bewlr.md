@@ -9,8 +9,9 @@ BlockEntityWithoutLevelRenderer允许你使用`public void renderByItem(ItemStac
 
 为了使用BEWLR，`Item`必须首先满足其模型的`BakedModel#isCustomRenderer`返回true。如果没有，它将使用默认的`ItemRenderer#getBlockEntityRenderer`。一旦返回true，将访问该Item的BEWLR进行渲染。
 
-!!! 注意
+:::caution
     如果`Block#getRenderShape`设置为`RenderShape#ENTITYBLOCK_ANIMATED`，`Block`也会使用BEWLR进行渲染。
+:::
 
 若要设置物品的BEWLR，必须在`Item#initializeClient`中使用`IClientItemExtensions`的一个匿名实例。在该匿名实例中，应重写`IClientItemExtensions#getCustomRenderer`以返回你的BEWLR的实例：
 

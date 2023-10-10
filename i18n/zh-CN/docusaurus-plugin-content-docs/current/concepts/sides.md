@@ -34,8 +34,9 @@ Minecraft中的端位
 
 我们如何解决这个问题？幸运的是，FML有一个`DistExecutor`，它提供了各种方法来在不同的物理端运行不同的方法，或者只在某一物理端运行单个方法。
 
-!!! 注意
+:::caution
     对FML基于**物理**端进行检查的理解尤为重要。单机世界（包含逻辑服务端+物理客户端的逻辑客户端）将始终使用`Dist.CLIENT`！
+:::
 
 `DistExecutor`的工作原理是接收所提供的执行方法的Supplier，通过利用[JVM指令`invokedynamic`][invokedynamic]有效地防止类加载。被执行的方法应该是静态的并且在不同的类中。此外，如果这个静态方法没有参数，则应使用该方法的引用，而不是一个执行方法的Supplier。
 
@@ -60,8 +61,9 @@ DistExecutor.safeCallWhenOn(Dist.CLIENT, () -> ExampleClass::safeCallMethodExamp
 
 ```
 
-!!! 警告
+:::danger
     由于`invokedynamic`在Java 9+中的工作方式发生了变化，`DistExecutor`方法的所有`#safe*`变体都会在开发环境中抛出封装在`BootstrapMethodError`中的原始异常。应该使用`#unsafe*`变体或对[`FMLEnvironment#dist`][dist]的检查作为替代。
+:::
 
 ### 线程组
 

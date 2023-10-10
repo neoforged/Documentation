@@ -102,8 +102,9 @@ Codec         | Java类型
 
 Minecraft和Forge为经常编码和解码的对象定义了许多编解码器。一些示例包括`ResourceLocation`的`ResourceLocation#CODEC`，`DateTimeFormatter#ISO_INSTANT`格式的`Instant`的`ExtraCodecs#INSTANT_ISO8601`，以及`CompoundTag`的`CompoundTag#CODEC`。
 
-!!! 警告
+:::danger
     `CompoundTag`无法使用`JsonOps`解码JSON中的数字列表。转换时，`JsonOps`将数字设置为其最窄的类型。`ListTag`强制为其数据指定一个特定类型，因此具有不同类型的数字（例如，`64`将是`byte`，`384`为`short`）将在转换时引发错误。
+:::
 
 原版和Forge注册表也具有注册表所包含对象类型的编解码器（例如`Registry#BLOCK`或`ForgeRegistries#BLOCKS`具有`Codec<Block>`）。`Registry#byNameCodec`和`IForgeRegistry#getCodec`将把注册表对象编码为其注册表名称，或者如果被压缩，则编码为整数标识符。原版注册表还有一个`Registry#holderByNameCodec`，它编码为注册表名称，并解码为`Holder`中包装的注册表对象。
 
@@ -303,8 +304,9 @@ public static final Codec<Map<String, BlockPos>> MAP_CODEC = Codec.unboundedMap(
 
 使用无界映射编解码器解码的映射对象存储在**不可变**映射中。如果需要一个可变映射，则应该将[转换器][transformer]应用于映射编解码器。
 
-!!! 警告
+:::danger
     无界映射仅支持对字符串进行编码/解码的键。键值[对][pair]列表编解码器可以用来绕过这个限制。
+:::
 
 ### Pair
 
@@ -327,8 +329,9 @@ public static final Codec<Pair<Integer, String>> PAIR_CODEC = Codec.pair(
 }
 ```
 
-!!! 提示
+:::tip
     可以使用[转换器][transformer]应用的键值对列表对具有非字符串键的映射编解码器进行编码/解码。
+:::
 
 ### Either
 
@@ -351,8 +354,9 @@ public static final Codec<Either<Integer, String>> EITHER_CODEC = Codec.either(
 "value"
 ```
 
-!!! 提示
+:::tip
     这可以与[转换器][transformer]结合使用，从两种不同的编码方法中获取特定对象。
+:::
 
 ### Dispatch
 
