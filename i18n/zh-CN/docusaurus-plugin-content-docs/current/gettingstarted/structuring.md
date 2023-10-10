@@ -1,25 +1,24 @@
-Structuring Your Mod
-====================
+规划你的模组结构
+==============
 
-Structured mods are beneficial for maintenance, making contributions, and providing a clearer understanding of the underlying codebase. Some of the recommendations from Java, Minecraft, and Forge are listed below.
+结构分明的模组有利于维护和做出贡献，并提供对底层代码库的更清晰理解。下面列举了由Java、Minecraft和Forge提出的一些建议。
 
-:::note
-You do not have to follow the advice below; you can structure your mod any way you see fit. However, it is still highly recommended to do so.
-:::
+!!! 注意
+    你不必遵循以下建议；你可以以任何你认为合适的方式规划你的模组。然而，我们仍强烈建议这样做。
 
-Packaging
----------
+程序包
+------
 
-When structuring your mod, pick a unique, top-level package structure. Many programmers will use the same name for different classes, interfaces, etc. Java allows classes to have the same name as long as they are in different packages. As such, if two classes have the same package with the same name, only one would be loaded, most likely causing the game to crash.
+在规划你的模组时，选择一个独特的、顶级的程序包结构。许多程序员会对不同的类、接口等使用相同的名称。Java允许类具有相同的名称，只要它们位于不同的包中。因此，如果两个类具有相同的名称和相同的包，则只有一个会被加载，这很可能导致游戏崩溃。
 
 ```
 a.jar
   - com.example.ExampleClass
 b.jar
-  - com.example.ExampleClass // This class will not normally be loaded
+  - com.example.ExampleClass // 这个类不会被正常加载
 ```
 
-This is even more relevant when it comes to loading modules. If there are class files in two packages under the same name in separate modules, this will cause the mod loader **to crash on startup** since mod modules are exported to the game and other mods.
+当涉及到加载模块时，这一点更为重要。如果在不同的模块中有两个同名包下的类文件，这将导致模组加载器**在启动时崩溃**，因为模组模块会被导出到游戏和其他模组中。
 
 ```
 module A
@@ -27,56 +26,55 @@ module A
     - class I
     - class J
 module B
-  - package X // This package will cause the mod loader to crash, as there already is a module with package X being exported
+  - package X // 此包将导致模组加载器崩溃，因为已经有一个模块将包X导出
     - class R
     - class S
     - class T
 ```
 
-As such, your top level package should be something that you own: a domain, email address, a subdomain of where your website, etc. It can even be your name or username as long as you can guarantee that it will be uniquely identifiable within the expected target.
+正因如此，你的顶级程序包应该是你自己的东西：域名、电子邮件地址、网站的子域等。它甚至可以是你的名字或用户名，只要你能保证它在预期目标中是唯一可识别的。
 
-Type      | Value             | Top-Level Package
-:---:     | :---:             | :---
-Domain    | example.com       | `com.example`
-Subdomain | example.github.io | `io.github.example`
-Email     | example@gmail.com | `com.gmail.example`
+类型          | 值                | 顶级程序包
+:---:         | :---:             | :---
+域名          | example.com       | `com.example`
+子域名        | example.github.io | `io.github.example`
+电子邮箱地址  | example@gmail.com | `com.gmail.example`
 
-The next level package should then be your mod's id (e.g. `com.example.examplemod` where `examplemod` is the mod id). This will guarantee that, unless you have two mods with the same id (which should never be the case), your packages should not have any issues loading.
+下一个级别的包应该是你的mod id（例如`com.example.examplemod`，其中`examplemod`是mod id）。这将保证，除非你有两个id相同的模组（这种情况永远不会发生），否则你的包在加载时不会出现任何问题。
 
-You can find some additional naming conventions on [Oracle's tutorial page][naming].
+你可以在[Oracle的教程页面][naming]上找到一些其他命名约定。
 
-### Sub-package Organization
+### 子包的组织
 
-In addition to the top-level package, it is highly recommend to break your mod's classes between subpackages. There are two major methods on how to do so:
+除了顶级包以外，强烈建议将你的模组的类拆分为不同的子包。关于如何做到这一点，主要有两种方法：
 
-* **Group By Function**: Make subpackages for classes with a common purpose. For example, blocks can be under `block` or `blocks`, entities under `entity` or `entities`, etc. Mojang uses this structure with the singular version of the word.
-* **Group By Logic**: Make subpackages for classes with a common logic. For example, if you were creating a new type of crafting table, you would put its block, menu, item, and more under `feature.crafting_table`.
+* **按功能分组**: 将具有共同目的的类归入同一个子包。例如，方块相关的类可被置于`block`或`blocks`子包下，实体相关的类可被置于`entity`或`entities`子包下等等。Mojang就在使用这种结构，单词用的是单数形式（`block`、`entity`）。
+* **按逻辑分组**: 将具有共同逻辑的类归入同一个子包。例如，如果你正在创建一种新配方，你可以将它的方块、菜单、物品等等都放在`feature.crafting_table`子包下。
 
-#### Client, Server, and Data Packages
+#### 客户端、服务端和数据相关的子包
 
-In general, code only for a given side or runtime should be isolated from the other classes in a separate subpackage. For example, code related to [data generation][datagen] should go in a `data` package while code only on the dedicated server should go in a `server` package.
+通常，仅用于给定端位或运行时的代码都应该在单独的子包中与其他类隔离。例如，与[数据生成][datagen]相关的代码应该放在`data`子包中，而仅与dedicated服务器相关的代码应该在`server`子包中。
 
-However, it is highly recommended that [client-only code][sides] should be isolated in a `client` subpackage. This is because dedicated servers have no access to any of the client-only packages in Minecraft. As such, having a dedicated package would provide a decent sanity check to verify you are not reaching across sides within your mod.
+然而，强烈建议在`client`子包中隔离[仅限客户端][sides]的代码。这是因为dedicated服务器不应有任何权限访问Minecraft中仅限客户端的包。因此，拥有一个专用的包将提供一个不错的健全性检查，以保证你的模组中的代码没有越过端位的行为。
 
-Class Naming Schemes
---------------------
+类的命名规则
+-----------
 
-A common class naming scheme makes it easier to decipher the purpose of the class or to easily locate specific classes.
+一个普适的类命名方案可以让你更容易地读懂类的目的或查找某个特定的类。
 
-Classes are commonly suffixed with its type, for example:
+类的名称通常以其类型作为后缀，例如：
 
-* An `Item` called `PowerRing` -> `PowerRingItem`.
-* A `Block` called `NotDirt` -> `NotDirtBlock`.
-* A menu for an `Oven` -> `OvenMenu`.
+* 一个叫作`PowerRing`的`Item` -> `PowerRingItem`。
+* 一个叫作`NotDirt`的`Block` -> `NotDirtBlock`。
+* 为`Oven`设计的一个菜单 -> `OvenMenu`。
 
-:::tip
-Mojang typically follows a similar structure for all classes except entities. Those are represented by just their names (e.g. `Pig`, `Zombie`, etc.).
-:::
+!!! 注意
+    Mojang通常对除实体以外的所有类命名时都遵循类似的结构。而实体只用它们的名字来表示（例如`Pig`、`Zombie`等）。
 
-Choose One Method from Many
----------------------------
+选择仅用一个方法而非多个
+----------------------
 
-There are many methods for performing a certain task: registering an object, listening for events, etc. It's generally recommended to be consistent by using a single method to accomplish a given task. While this does improve code formatting, it also avoid any weird interactions or redundancies that may occur (e.g. your event listener executing twice).
+执行特定任务的方法有很多：注册对象、监听事件等。通常建议使用单一方法来完成给定的任务以保持一致。这在改善了代码格式的同时，也避免了可能发生的任何奇怪的交互或冗余（例如，你的事件监听器执行了两次）。
 
 [naming]: https://docs.oracle.com/javase/tutorial/java/package/namingpkgs.html
 [datagen]: ../datagen/index.md

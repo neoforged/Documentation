@@ -1,22 +1,22 @@
-Registries
-==========
+注册表
+======
 
-Registration is the process of taking the objects of a mod (such as items, blocks, sounds, etc.) and making them known to the game. Registering things is important, as without registration the game will simply not know about these objects, which will cause unexplainable behaviors and crashes. 
+注册是获取模组的对象（如物品、方块、音效等）并使其为游戏所知的过程。注册东西很重要，因为如果没有注册，游戏将根本不知道这些对象，这将导致无法解释的行为和崩溃。
 
-Most things that require registration in the game are handled by the Forge registries. A registry is an object similar to a map that assigns values to keys. Forge uses registries with [`ResourceLocation`][ResourceLocation] keys to register objects. This allows the `ResourceLocation` to act as the "registry name" for objects.
+游戏中的大多数注册相关事项都由Forge注册表处理。注册表是一个与为键分配值的Map的行为类似的对象。Forge使用带有[`ResourceLocation`][ResourceLocation]键的注册表来注册对象。这允许`ResourceLocation`充当对象的“注册表名称”。
 
-Every type of registrable object has its own registry. To see all registries wrapped by Forge, see the `ForgeRegistries` class. All registry names within a registry must be unique. However, names in different registries will not collide. For example, there's a `Block` registry, and an `Item` registry. A `Block` and an `Item` may be registered with the same name `example:thing` without colliding; however, if two different `Block`s or `Item`s were registered with the same exact name, the second object will override the first.
+每种类型的可注册对象都有自己的注册表。要查看由Forge封装的所有注册表，请参阅`ForgeRegistries`类。注册表中的所有注册表名称必须是唯一的。但是，不同注册表中的名称不会发生冲突。例如，有一个`Block`注册表和一个`Item`注册表。一个方块和一个物品可以用相同的名称`example:thing`注册而不冲突；但是，如果两个不同的方块（或物品）以相同的名称被注册，则第二个对象将覆盖第一个对象。
 
-Methods for Registering
-------------------
+注册的方式
+---------
 
-There are two proper ways to register objects: the `DeferredRegister` class, and the `RegisterEvent` lifecycle event.
+有两种正确的方式来注册对象：`DeferredRegister`类和`RegisterEvent`生命周期事件。
 
 ### DeferredRegister
 
-`DeferredRegister` is the recommended way to register objects. It allows the use and convenience of static initializers while avoiding the issues associated with it. It simply maintains a list of suppliers for entries and registers the objects from those suppliers during `RegisterEvent`.
+`DeferredRegister`是注册对象的推荐方式。它包容静态初始化的使用与便利，同时也避免与之相关的问题。它只需维护一系列的Supplier，并在`RegisterEvent`期间注册这些Supplier所提供的对象。（Supplier是Java 8加入的新语法。——译者注）
 
-An example of a mod registering a custom block:
+以下是一个模组注册一个自定义方块的案例：
 
 ```java
 private static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, MODID);
@@ -30,9 +30,9 @@ public ExampleMod() {
 
 ### `RegisterEvent`
 
-`RegisterEvent` is the second way to register objects. This [event] is fired for each registry after the mod constructors and before the loading of configs. Objects are registered using `#register` by passing in the registry key, the name of the registry object, and the object itself. There is an additional `#register` overload which takes in a consumed helper to register an object with a given name. It is recommended to use this method to avoid unnecessary object creation.
+`RegisterEvent`是注册对象的第二种方式。在模组构造函数之后和加载configs之前，该[事件][event]会为每个注册表激发。对象通过调用`#register`并传入注册表键、注册表对象的名称和对象本身而得以注册。还有一个额外的`#register`重载，它接收一个已使用的助手来注册具有给定名称的对象。建议使用此方法以避免不必要的对象创建。
 
-Here is an example: (the event handler is registered on the *mod event bus*)
+案例如下：（事件处理器已被注册到*模组事件总线*）
 
 ```java
 @SubscribeEvent
@@ -48,13 +48,12 @@ public void register(RegisterEvent event) {
 }
 ```
 
-### Registries that aren't Forge Registries
+### 未被Forge封装的注册表
 
-Not all registries are wrapped by Forge. These can be static registries, like `LootItemConditionType`, which are safe to use. There are also dynamic registries, like `ConfiguredFeature` and some other worldgen registries, which are typically represented in JSON. `DeferredRegister#create` has an overload which allows modders to specify the registry key of which vanilla registry to create a `RegistryObject` for. The registry method and attaching to the mod event bus is the same as other `DeferredRegister`s.
+并非所有的注册表都由Forge封装。这些可以是静态注册表，如`LootItemConditionType`，使用起来是安全的。还有动态注册表，如`ConfiguredFeature`和其他一些世界生成注册表，它们通常以JSON表示。`DeferredRegister#create`有一个重载，允许模组开发者指定原版注册表所创建的`RegistryObject`的注册表键。注册表方法和模组事件总线的附加与其他`DeferredRegister`相同。
 
-:::danger
-Dynamic registry objects can **only** be registered through data files (e.g. JSON). They **cannot** be registered in-code.
-:::
+!!! 重要
+    动态注册表对象**只能**通过数据文件（如JSON）被注册。它们**不能**在代码中被注册。
 
 ```java
 private static final DeferredRegister<LootItemConditionType> REGISTER = DeferredRegister.create(Registries.LOOT_CONDITION_TYPE, "examplemod");
@@ -62,137 +61,132 @@ private static final DeferredRegister<LootItemConditionType> REGISTER = Deferred
 public static final RegistryObject<LootItemConditionType> EXAMPLE_LOOT_ITEM_CONDITION_TYPE = REGISTER.register("example_loot_item_condition_type", () -> new LootItemConditionType(...));
 ```
 
-:::note
-Some classes cannot by themselves be registered. Instead, `*Type` classes are registered, and used in the formers' constructors. For example, [`BlockEntity`][blockentity] has `BlockEntityType`, and `Entity` has `EntityType`. These `*Type` classes are factories that simply create the containing type on demand. 
+!!! 注意
+    有些类无法自行注册。相反，`*Type`类被注册，并在前者的构造函数中被使用。例如，[`BlockEntity`][blockentity]具有`BlockEntityType`，`Entity`具有`EntityType`。这些`*Type`类是工厂，它们只是根据需要创建包含类型。
+    
+    这些工厂是通过使用它们的`*Type$Builder`类创建的。例如：（`REGISTER`指的是`DeferredRegister<BlockEntityType>`）
+    ```java
+    public static final RegistryObject<BlockEntityType<ExampleBlockEntity>> EXAMPLE_BLOCK_ENTITY = REGISTER.register(
+      "example_block_entity", () -> BlockEntityType.Builder.of(ExampleBlockEntity::new, EXAMPLE_BLOCK.get()).build(null)
+    );
+    ```
 
-These factories are created through the use of their `*Type$Builder` classes. An example: (`REGISTER` refers to a `DeferredRegister<BlockEntityType>`)
-```java
-public static final RegistryObject<BlockEntityType<ExampleBlockEntity>> EXAMPLE_BLOCK_ENTITY = REGISTER.register(
-  "example_block_entity", () -> BlockEntityType.Builder.of(ExampleBlockEntity::new, EXAMPLE_BLOCK.get()).build(null)
-);
-```
-:::
+引用已注册的对象
+---------------
 
-Referencing Registered Objects
-------------------------------
+已注册的对象在创建和注册时不应存储在字段中。每当为相应的注册表触发`RegisterEvent`时，它们应总是新创建并注册的。这是为了允许在未来版本的Forge中动态加载和卸载模组。
 
-Registered objects should not be stored in fields when they are created and registered. They are to be always newly created and registered whenever `RegisterEvent` is fired for that registry. This is to allow dynamic loading and unloading of mods in a future version of Forge.
+已注册的对象必须始终通过`RegistryObject`或带有`@ObjectHolder`的字段引用。
 
-Registered objects must always be referenced through a `RegistryObject` or a field with `@ObjectHolder`.
+### 使用RegistryObjects
 
-### Using RegistryObjects
+一旦注册对象可用，就可以使用`RegistryObjects`检索对这些对象的引用。`DeferredRegister`使用它们来返回对已注册对象的引用。在为其注册表触发`RegisterEvent`后，它们的引用以及带有`@ObjectHolder`注释的字段都将被更新。
 
-`RegistryObject`s can be used to retrieve references to registered objects once they are available. These are used by `DeferredRegister` to return a reference to the registered objects. Their references are updated after `RegisterEvent` is called for their registry, along with the `@ObjectHolder` annotations.
+要获取`RegistryObject`，请使用可注册对象的`IForgeRegistry`和一个`ResourceLocation`调用`RegistryObject#create`。亦可使用自定义注册表，方式是向其提供注册表名称。请将`RegistryObject`存储在一个`public static final`字段中，并在需要该已注册对象时调用`#get`。
 
-To get a `RegistryObject`, call `RegistryObject#create` with a `ResourceLocation` and the `IForgeRegistry` of the registrable object. Custom registries can also be used by supplying the registry name instead. Store the `RegistryObject` in a `public static final` field, and call `#get` whenever you need the registered object.
-
-An example of using `RegistryObject`:
+使用`RegistryObject`的一个案例：
 
 ```java
 public static final RegistryObject<Item> BOW = RegistryObject.create(new ResourceLocation("minecraft:bow"), ForgeRegistries.ITEMS);
 
-// assume that 'neomagicae:mana_type' is a valid registry, and 'neomagicae:coffeinum' is a valid object within that registry
+// 假设'neomagicae:mana_type'是一个合法的注册表，且'neomagicae:coffeinum'是该注册表中一个合法的对象
 public static final RegistryObject<ManaType> COFFEINUM = RegistryObject.create(new ResourceLocation("neomagicae", "coffeinum"), new ResourceLocation("neomagicae", "mana_type"), "neomagicae"); 
 ```
 
-### Using @ObjectHolder
+### 使用@ObjectHolder
 
-Registered objects from registries can be injected into the `public static` fields by annotating classes or fields with `@ObjectHolder` and supplying enough information to construct a `ResourceLocation` to identify a specific object in a specific registry.
+通过使用`@ObjectHolder`注释类或字段，并提供足够的信息来构造`ResourceLocation`以标识特定注册表中的特定对象，可以将注册表中的已注册对象注入`public static`字段。
 
-The rules for `@ObjectHolder` are as follows:
+使用`@ObjectHolder`的规则如下：
 
-* If the class is annotated with `@ObjectHolder`, its value will be the default namespace for all fields within if not explicitly defined
-* If the class is annotated with `@Mod`, the modid will be the default namespace for all annotated fields within if not explicitly defined
-* A field is considered for injection if:
-  * it has at least the modifiers `public static`;
-  * the **field** is annotated with `@ObjectHolder`, and:
-    * the name value is explicitly defined; and
-    * the registry name value is explicitly defined
-  * _A compile-time exception is thrown if a field does not have a corresponding registry or name._
-* _An exception is thrown if the resulting `ResourceLocation` is incomplete or invalid (non-valid characters in path)_
-* If no other errors or exceptions occur, the field will be injected
-* If all of the above rules do not apply, no action will be taken (and a message may be logged)
+* 若类被使用`@ObjectHolder`注释，则如果未明确定义，其值将是该类中所有字段的默认命名空间
+* 若类被使用`@Mod`注释，则如果未明确定义，modid将是其中所有已注释字段的默认命名空间
+* 若符合下列条件，该类中的一个字段将会被考虑注入：
+  * 其至少包含修饰符`public static`;
+  * 该**字段**被`@ObjectHolder`注释，并且：
+    * name值已被显式指明；并且
+    * registry name值已被显式指明
+  * _如果某个字段没有相应的注册表（registry name）或名称（name），则会引发编译时异常。_
+* _如果最终的`ResourceLocation`不完整或无效（路径中存在无效字符），则会引发异常。_
+* 如果没有发生其他错误或异常，则该字段将被注入
+* 如果以上所有规则都不适用，则不会采取任何操作（并且日志可能会输出一条信息）
 
-`@ObjectHolder`-annotated fields are injected with their values after `RegisterEvent` is fired for their registry, along with the `RegistryObject`s.
+被`@ObjectHolder`注释的字段会在`RegisterEvent`为其注册表激发之后注入其值，与`RegistryObjects`的引用的更新同时发生。
 
-:::note
-If the object does not exist in the registry when it is to be injected, a debug message will be logged and no value will be injected.
-:::
+!!! 注意
+    如果要注入对象时该对象不存在于注册表中，那么日志会记录一条调试信息，并且不会注入任何值。
 
-As these rules are rather complicated, here are some examples:
+由于这些规则相当复杂，案例如下：
 
 ```java
 class Holder {
   @ObjectHolder(registryName = "minecraft:enchantment", value = "minecraft:flame")
-  public static final Enchantment flame = null;     // Annotation present. [public static] is required. [final] is optional.
-                                                    // Registry name is explicitly defined: "minecraft:enchantment"
-                                                    // Resource location is explicitly defined: "minecraft:flame"
-                                                    // To inject: "minecraft:flame" from the [Enchantment] registry
+  public static final Enchantment flame = null;     // 注释存在。[public static]是必需的。[final]是可选的。
+                                                    // Registry name已被显式指明："minecraft:enchantment"
+                                                    // Resource location已被显式指明："minecraft:flame"
+                                                    // 将注入：[Enchantment]注册表中的"minecraft:flame"
 
-  public static final Biome ice_flat = null;        // No annotation on the field.
-                                                    // Therefore, the field is ignored.
+  public static final Biome ice_flat = null;        // 该字段无注释。
+                                                    // 因此，该字段被忽略。
 
   @ObjectHolder("minecraft:creeper")
-  public static Entity creeper = null;              // Annotation present. [public static] is required.
-                                                    // The registry has not been specified on the field.
-                                                    // Therefore, THIS WILL PRODUCE A COMPILE-TIME EXCEPTION.
+  public static Entity creeper = null;              // 注释存在。[public static]是必需的。
+                                                    // 该字段未指明注册表。
+                                                    // 因此，其将引发编译时异常。
 
   @ObjectHolder(registryName = "potion")
-  public static final Potion levitation = null;     // Annotation present. [public static] is required. [final] is optional.
-                                                    // Registry name is explicitly defined: "minecraft:potion"
-                                                    // Resource location is not specified on the field
-                                                    // Therefore, THIS WILL PRODUCE A COMPILE-TIME EXCEPTION.
+  public static final Potion levitation = null;     // 注释存在。[public static]是必需的。[final]是可选的。
+                                                    // Registry name已被显式指明："minecraft:potion"
+                                                    // Resource location未在该字段中指明
+                                                    // 因此，其将引发编译时异常。
 }
 ```
 
-Creating Custom Forge Registries
---------------------------------
+创建自定义的Forge注册表
+----------------------
 
-Custom registries can usually just be a simple map of key to value. This is a common style; however, it forces a hard dependency on the registry being present. It also requires that any data that needs to be synced between sides must be done manually. Custom Forge Registries provide a simple alternative for creating soft dependents along with better management and automatic syncing between sides (unless told otherwise). Since the objects also use a Forge registry, registration becomes standardized in the same way.
+自定义注册表通常只是一个简单的键值映射。这是一种常见的风格；然而，它强制对存在的注册表进行严格的依赖。它还要求任何需要在端位之间同步的数据都必须手动完成。自定义Forge注册表为创建软依赖项提供了一个简单的替代方案，同时提供了更好的管理手段和端位之间的自动同步（除非另有说明）。由于这些对象也使用Forge注册表，注册也以同样的方式标准化。
 
-Custom Forge Registries are created with the help of a `RegistryBuilder`, through either `NewRegistryEvent` or the `DeferredRegister`. The `RegistryBuilder` class takes various parameters (such as the registry's name, id range, and various callbacks for different events happening on the registry). New registries are registered to the `RegistryManager` after `NewRegistryEvent` finishes firing.
+自定义Forge注册表是在`RegistryBuilder`的帮助下通过`NewRegistryEvent`或`DeferredRegister`创建的。`RegistryBuilder`类接受多种参数（例如注册表的名称、id范围以及注册表上发生的不同事件的各种回调）。`NewRegistryEvent`完成激发后，新的注册表将被注册到`RegistryManager`。
 
-Any newly created registry should use its associated [registration method][registration] to register the associated objects.
+任何新创建的注册表都应该使用其关联的[注册方法][registration]来注册关联的对象。
 
-### Using NewRegistryEvent
+### 使用NewRegistryEvent
 
-When using `NewRegistryEvent`, calling `#create` with a `RegistryBuilder` will return a supplier-wrapped registry. The supplied registry can be accessed after `NewRegistryEvent` has finished posting to the mod event bus. Getting the custom registry from the supplier before `NewRegistryEvent` finishes firing will result in a `null` value.
+使用`NewRegistryEvent`时，用`RegistryBuilder`调用`#create`将返回一个用Supplier包装的注册表。`NewRegistryEvent`在模组事件总线处理完毕后，这个Supplier注册表就可以访问了。在`NewRegistryEvent`被处理完毕之前试图从Supplier获取该自定义注册表将得到`null`值。
 
-#### New Datapack Registries
+#### 新的数据包注册表
 
-New datapack registries can be added using the `DataPackRegistryEvent$NewRegistry` event on the mod event bus. The registry is created via `#dataPackRegistry` by passing in the `ResourceKey` representing the registry name and the `Codec` used to encode and decode the data from JSON. An optional `Codec` can be provided to sync the datapack registry to the client.
+可以使用模组事件总线上的`DataPackRegistryEvent$NewRegistry`事件添加新的数据包注册表。注册表是通过`#dataPackRegistry`创建的，方法是传入表示注册表名称的`ResourceKey`和用于对JSON中的数据进行编码和解码的`Codec`。可以提供可选的`Codec`来将数据包注册表同步到客户端。
 
-:::note
-Datapack Registries cannot be created with `DeferredRegister`. They can only be created through the event.
-:::
+!!! 重要
+    数据包注册表不能用`DeferredRegister`创建。它们只能通过这个事件创建。
 
-### With DeferredRegister
+### 使用DeferredRegister
 
-The `DeferredRegister` method is once again another wrapper around the above event. Once a `DeferredRegister` is created in a constant field using the `#create` overload which takes in the registry name and the mod id, the registry can be constructed via `DeferredRegister#makeRegistry`. This takes in  a supplied `RegistryBuilder` containing any additional configurations. The method already populates `#setName` by default. Since this method can be returned at any time, a supplied version of an `IForgeRegistry` is returned instead. Getting the custom registry from the supplier before `NewRegistryEvent` is fired will result in a `null` value.
+`DeferredRegister`方法又是上述事件的另一个包装。一旦使用`#create`重载在常量字段中创建了`DeferredRegister`（该重载接受注册表名称和mod id），就可以通过`DeferredRegistry#makeRegistry`构建注册表。该方法接受了由Supplier提供的包含任何其他配置的`RegistryBuilder`。默认情况下，该方法已调用`#setName`。由于此方法可以在任何时候返回，因此会返回由Supplier提供的`IForgeRegistry`版本。在激发NewRegistryEvent之前试图从Supplier获取自定义注册表将得到`null`值。
 
-:::caution
-`DeferredRegister#makeRegistry` must be called before the `DeferredRegister` is added to the mod event bus via `#register`. `#makeRegistry` also uses the `#register` method to create the registry during `NewRegistryEvent`.
-:::
+!!! 重要
+    在通过`#register`将`DeferredRegister`添加到模组事件总线之前，必须调用`DeferredRegister#makeRegistry`。`#makeRegistry`也使用`#register`方法在`NewRegistryEvent`期间创建注册表。
 
-Handling Missing Entries
-------------------------
+处理缺失的注册表条目
+------------------
 
-There are cases where certain registry objects will cease to exist whenever a mod is updated or, more likely, removed. It is possible to specify actions to handle the missing mapping through the third of the registry events: `MissingMappingsEvent`. Within this event, a list of missing mappings can be obtained either by `#getMappings` given a registry key and mod id or all mappings via `#getAllMappings` given a registry key.
+在某些情况下，每当更新模组或删除模组（更可能的情况）时，某些注册表对象将不复存在。可以通过第三个注册表事件指定操作来处理丢失的映射：`MissingMappingsEvent`。在该事件中，既可以通过给定注册表项和mod id的`#getMappings`获取丢失映射的列表，也可以通过给定注册项的`#getAllMappings`获取所有映射。
 
-:::caution
-`MissingMappingsEvent` is fired on the **Forge** event bus.
-:::
+!!! 重要
+    `MissingMappingsEvent`在**Forge**事件总线上触发。
 
-For each `Mapping`, one of four mapping types can be selected to handle the missing entry:
+对于每个映射（`Mapping`），可以选择四种映射类型之一来处理丢失的条目：
 
-| Action | Description |
+| 操作   | 描述        |
 | :---:  |     :---    |
-| IGNORE | Ignores the missing entry and abandons the mapping. |
-|  WARN  | Generates a warning in the log. |
-|  FAIL  | Prevents the world from loading. |
-| REMAP  | Remaps the entry to an already registered, non-null object. |
+| IGNORE | 忽略丢失的条目并丢弃映射。 |
+|  WARN  | 在日志中生成警告。 |
+|  FAIL  | 阻止世界加载。 |
+| REMAP  | 将条目重新映射到已注册的非null对象。 |
 
-If no action is specified, then the default action will occur by notifying the user about the missing entry and whether they still would like to load the world. All actions besides remapping will prevent any other registry object from taking the place of the existing id in case the associated entry ever gets added back into the game.
+如果未指定任何操作，则默认操作为通过通知用户丢失的条目以及用户是否仍要加载世界。除了重新映射之外的所有操作都将防止任何其他注册表对象取代现有id，以防止相关条目被添加回游戏中。
 
 [ResourceLocation]: ./resources.md#resourcelocation
 [registration]: #methods-for-registering

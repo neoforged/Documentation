@@ -1,15 +1,15 @@
-Tags
+标签
 ====
 
-Tags are generalized sets of objects in the game used for grouping related things together and providing fast membership checks.
+标签是游戏中用于将相关事物分组在一起并提供快速成员身份检查的通用对象集。
 
-Declaring Your Own Groupings
-----------------------------
-Tags are declared in your mod's [datapack][datapack]. For example, a `TagKey<Block>` with a given identifier of  `modid:foo/tagname` will reference a tag at `/data/<modid>/tags/blocks/foo/tagname.json`. Tags for `Block`s, `Item`s, `EntityType`s, `Fluid`s, and `GameEvent`s use the plural forms for their folder location while all other registries use the singular version (`EntityType` uses the folder `entity_types` while `Potion` would use the folder `potion`).
-Similarly, you may append to or override tags declared in other domains, such as Vanilla, by declaring your own JSONs.
-For example, to add your own mod's saplings to the Vanilla sapling tag, you would specify it in `/data/minecraft/tags/blocks/saplings.json`, and Vanilla will merge everything into one tag at reload, if the `replace` option is false.
-If `replace` is true, then all entries before the json specifying `replace` will be removed.
-Values listed that are not present will cause the tag to error unless the value is listed using an `id` string and `required` boolean set to false, as in the following example:
+声明你自己的组别
+---------------
+标签在你的模组的[数据包][datapack]中声明。例如，给定标识符为`modid:foo/tagname`的`TagKey<Block>`将引用位于`/data/<modid>/tags/blocks/foo/tagname.json`的标签。`Block`、`Item`、`EntityType`、`Fluid`以及`GameEvent`的标签，将使用复数形式作为其文件夹位置，而所有其他注册表使用单数形式（`EntityType`使用文件夹`entity_types`，而`Potion`将使用文件夹`potion`）。
+类似地，你可以通过声明自己的JSON来附加或覆盖在其他域（如原版）中声明的标签。
+例如，要将你自己的模组的树苗添加到原版树苗标签中，你可以在`/data/minecraft/tags/blocks/saplings.json`中指定它，如果`replace`选项为false，原版将在重载时将所有内容合并到一个标签中。
+如果`replace`为true，那么指定`replace`的json之前的所有条目都将被删除。
+列出的不存在的值将导致标签出错，除非使用`id`字符串和设置为false的`required`布尔值列出该值，如以下示例所示：
 
 ```js
 {
@@ -25,48 +25,47 @@ Values listed that are not present will cause the tag to error unless the value 
 }
 ```
 
-See the [Vanilla wiki][tags] for a description of the base syntax.
+有关基本语法的描述，请参阅[原版wiki][tags]。
 
-There is also a Forge extension on the Vanilla syntax.
-You may declare a `remove` array of the same format as the `values` array. Any values listed here will be removed from the tag. This acts as a finer grained version of the Vanilla `replace` option.
+原版语法上还有一个Forge扩展。
+你可以声明一个与`values`数组格式相同的`remove`数组。此处列出的任何值都将从标签中删除。这相当于原版`replace`选项的细粒度版本。
 
 
-Using Tags In Code
-------------------
-Tags for all registries are automatically sent from the server to any remote clients on login and reload. `Block`s, `Item`s, `EntityType`s, `Fluid`s, and `GameEvent`s are special cased as they have `Holder`s allowing for available tags to be accessible through the object itself.
+在代码中使用标签
+---------------
+登录和重新加载时，所有注册表的标签都会自动从服务器发送到任何远程客户端。`Block`、`Item`、`EntityType`、`Fluid`和`GameEvent`都被特殊地包装，因为它们具有`Holder`，允许通过对象本身访问可用标签。
 
-:::note
-Intrusive `Holder`s may be removed in a future version of Minecraft. If they are, the below methods can be used instead to query the associated `Holder`s.
-:::
+!!! 注意
+    在未来版本的Minecraft中，侵入性的`Holder`可能会被移除。如果被移除了，则可以使用以下方法来查询关联的`Holder`。
 
 ### ITagManager
 
-Forge wrapped registries provide an additional helper for creating and managing tags through `ITagManager` which can be obtained via `IForgeRegistry#tags`. Tags can be created using using `#createTagKey` or `#createOptionalTagKey`. Tags or registry objects can also be checked for either or using `#getTag` or `#getReverseTag` respectively.
+Forge封装的注册表提供了一个额外的帮助，用于通过`ITagManager`创建和管理标签，该标签可以通过`IForgeRegistry#tags`获得。可以使用`#createTagKey`或`#createOptionalTagKey`创建标签。标签或注册表对象也可以分别使用`#getTag`或`#getReverseTag` 检查。
 
-#### Custom Registries
+#### 自定义注册表
 
-Custom registries can create tags when constructing their `DeferredRegister` via `#createTagKey` or `#createOptionalTagKey` respectively. Their tags or registry objects can then checked for either using the `IForgeRegistry` obtained by calling `DeferredRegister#makeRegistry`.
+自定义注册表可以在分别通过`#createTagKey`或`#createOptionalTagKey`构造其`DeferredRegister`时创建标签。然后，可以使用通过调用`DeferredRegister#makeRegistry`获得的`IForgeRegistry`来检查它们的标签或注册表对象。
 
-### Referencing Tags
+### 引用标签
 
-There are four methods of creating a tag wrapper:
+创建标签包装有四种方法：
 
-Method                          | For
+方法                            | 对于
 :---:                           | :---
-`*Tags#create`                  | `BannerPattern`, `Biome`, `Block`, `CatVariant`, `DamageType`, `EntityType`, `FlatLevelGeneratorPreset`, `Fluid`, `GameEvent`, `Instrument`, `Item`, `PaintingVariant`, `PoiType`, `Structure`, and `WorldPreset` where `*` represents one of these types.
-`ITagManager#createTagKey`      | Forge wrapped vanilla registries, registries can be obtained from `ForgeRegistries`.
-`DeferredRegister#createTagKey` | Custom forge registries.
-`TagKey#create`                 | Vanilla registries without forge wrappers, registries can be obtained from `Registry`.
+`*Tags#create`                  | `BannerPattern`、`Biome`、`Block`、`CatVariant`、`DamageType`、`EntityType`、`FlatLevelGeneratorPreset`、`Fluid`、`GameEvent`、`Instrument`、`Item`、`PaintingVariant`、`PoiType`、`Structure`以及`WorldPreset`，其中`*`代表这些类型之一。
+`ITagManager#createTagKey`      | 由Forge包装的原版注册表，可从`ForgeRegistries`取得。
+`DeferredRegister#createTagKey` | 自定义的Forge注册表。
+`TagKey#create`                 | 无Forge包装的原版注册表，可从`Registry`取得。
 
-Registry objects can check their tags or registry objects either through their `Holder` or through `ITag`/`IReverseTag` for vanilla or forge registry objects respectively.
+注册表对象可以通过其`Holder`或通过`ITag`/`IReverseTag`分别检查其标签或注册表对象是否为原版或Forge注册表对象。
 
-Vanilla registry objects can grab their associated holder using either `Registry#getHolder` or `Registry#getHolderOrThrow` and then compare if the registry object has a tag using `Holder#is`.
+原版注册表对象可以使用`Registry#getHolder`或`Registry#getHolderOrThrow`获取其关联的持有者，然后使用`Holder#is`比较注册表对象是否有标签。
 
-Forge registry objects can grab their tag definition using either `ITagManager#getTag` or `ITagManager#getReverseTag` and then compare if a registry object has a tag using `ITag#contains` or `IReverseTag#containsTag` respectively.
+Forge注册表对象可以使用`ITagManager#getTag`或`ITagManager#getReverseTag`获取其标签定义，然后分别使用`ITag#contains`或`IReverseTag#containsTag`比较注册表对象是否有标签。
 
-Tag-holding registry objects contain a method called `#is` in either their registry object or state-aware class to check whether the object belongs to a certain tag.
+持有标签的注册表对象在其注册表对象或状态感知类中包含一个名为`#is`的方法，以检查该对象是否属于某个标签。
 
-As an example:
+举一个例子：
 ```java
 public static final TagKey<Item> myItemTag = ItemTags.create(new ResourceLocation("mymod", "myitemgroup"));
 
@@ -74,7 +73,7 @@ public static final TagKey<Potion> myPotionTag = ForgeRegistries.POTIONS.tags().
 
 public static final TagKey<VillagerType> myVillagerTypeTag = TagKey.create(Registries.VILLAGER_TYPE, new ResourceLocation("mymod", "myvillagertypegroup"));
 
-// In some method:
+// 在某个方法中：
 
 ItemStack stack = /*...*/;
 boolean isInItemGroup = stack.is(myItemTag);
@@ -86,36 +85,36 @@ ResourceKey<VillagerType> villagerTypeKey = /*...*/;
 boolean isInVillagerTypeGroup = BuiltInRegistries.VILLAGER_TYPE.getHolder(villagerTypeKey).map(holder -> holder.is(myVillagerTypeTag)).orElse(false);
 ```
 
-Conventions
------------
+惯例
+----
 
-There are several conventions that will help facilitate compatibility in the ecosystem:
+有几个惯例将有助于促进该生态系统中的兼容性：
 
-* If there is a Vanilla tag that fits your block or item, add it to that tag. See the [list of Vanilla tags][taglist].
-* If there is a Forge tag that fits your block or item, add it to that tag. The list of tags declared by Forge can be seen on [GitHub][forgetags].
-* If there is a group of something you feel should be shared by the community, use the `forge` namespace instead of your mod id.
-* Tag naming conventions should follow Vanilla conventions. In particular, item and block groupings are plural instead of singular (e.g. `minecraft:logs`, `minecraft:saplings`).
-* Item tags should be sorted into subdirectories according to their type (e.g. `forge:ingots/iron`, `forge:nuggets/brass`, etc.).
-
-
-Migration from OreDictionary
-----------------------------
-
-* For recipes, tags can be used directly in the vanilla recipe format (see below).
-* For matching items in code, see the section above.
-* If you are declaring a new type of item grouping, follow a couple naming conventions:
-  * Use `domain:type/material`. When the name is a common one that all modders should adopt, use the `forge` domain.
-  * For example, brass ingots should be registered under the `forge:ingots/brass` tag and cobalt nuggets under the `forge:nuggets/cobalt` tag.
+* 如果有适合你的方块或物品的原版标签，请将其添加到该标签中。请参阅[原版标签列表][taglist]。
+* 如果有一个Forge标签适合你的方块或物品，请将其添加到该标签中。Forge声明的标签列表可以在[GitHub][forgetags]上看到。
+* 如果有一组你认为应该由社区共享的东西，请使用`forge`命名空间，而不是你的mod id。
+* 标签命名约定应遵循原版约定。特别是，物品和方块组别是复数而不是单数（例如`minecraft:logs`、`minecraft:saplings`）。
+* 物品标签应根据其类型分类到子目录中（例如`forge:ingots/iron`、`forge:nuggets/brass`等）。
 
 
-Using Tags in Recipes and Advancements
---------------------------------------
+从OreDictionary迁移
+-------------------
 
-Tags are directly supported by Vanilla. See the respective Vanilla wiki pages for [recipes] and [advancements] for usage details.
+* 对于配方，标签可以直接以原版配方格式使用（见下文）。
+* 有关代码中的匹配物品，请参阅上面的章节。
+* 如果你要声明一种新类型的物品组别，请遵循以下几个命名约定：
+  * 使用`domain:type/material`。当名称是所有模组开发者都应该采用的通用名称时，请使用`forge`域。
+  * 例如，铜锭应在`forge:ingots/brass`标签下注册，钴粒应在`forge:nuggets/cobalt`标签下注册。
+
+
+在配方和进度中使用标签
+--------------------
+
+原版直接支持标签。有关用法的详细信息，请参阅[配方][recipes]和[进度][advancements]的原版wiki页面。
 
 [datapack]: ./index.md
-[tags]: https://minecraft.wiki/w/Tag#JSON_format
-[taglist]: https://minecraft.wiki/w/Tag#List_of_tags
+[tags]: https://minecraft.fandom.com/wiki/Tag#JSON_format
+[taglist]: https://minecraft.fandom.com/wiki/Tag#List_of_tags
 [forgetags]: https://github.com/MinecraftForge/MinecraftForge/tree/1.19.x/src/generated/resources/data/forge/tags
-[recipes]: https://minecraft.wiki/w/Recipe#JSON_format
-[advancements]: https://minecraft.wiki/w/Advancement
+[recipes]: https://minecraft.fandom.com/wiki/Recipe#JSON_format
+[advancements]: https://minecraft.fandom.com/wiki/Advancement

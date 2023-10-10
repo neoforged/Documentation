@@ -1,25 +1,24 @@
-Models
-======
+模型
+====
 
-The [model system][models] is Minecraft's way of giving blocks and items their shapes. Through the model system, blocks and items are mapped to their models, which define how they look. One of the main goals of the model system is to allow not only textures but the entire shape of a block/item to be changed by resource packs. Indeed, any mod that adds items or blocks also contains a mini-resource pack for their blocks and items.
+[模型系统][models]是Minecraft赋予方块和物品形状的方式。通过模型系统，方块和物品被映射到它们的模型，这些模型定义了它们的外观。模型系统的主要目标之一是不仅允许纹理，还允许资源包更改方块/物品的整个形状。事实上，任何添加物品或方块的模组也包含用于其方块和物品的迷你资源包。
 
-Model Files
------------
+模型文件
+-------
 
-Models and textures are linked through [`ResourceLocation`][resloc]s but are stored in the `ModelManager` using `ModelResourceLocation`s. Models are referenced in different locations through the block or item's registry name depending on whether they are referencing [block states][statemodel] or [item models][itemmodels]. Blocks will have their `ModelResourceLocation` represent their registry name along with a stringified version of its current [`BlockState`][state] while items will use their registry name followed by `inventory`.
+模型和纹理通过[`ResourceLocation`][resloc]链接，但使用`ModelResourceLocation`存储在`ModelManager`中。模型通过方块或物品的注册表名称在不同位置引用，具体取决于它们是引用[方块状态][statemodel]还是[物品模型][itemmodels]。方块将使其`ModelResourceLocation`代表其注册表名称及其当前[`BlockState`][state]的字符串化版本，而物品将使用其注册表名称后跟`inventory`。
 
-:::note
-JSON models only support cuboid elements; there is no way to express a triangular wedge or anything like it. To have more complicated models, another format must be used.
-:::
+!!! 注意
+    JSON模型只支持长方体元素；没有办法表达三角楔或类似的东西。要有更复杂的模型，必须使用另一种格式。
 
-### Textures
+### 纹理
 
-Textures, like models, are contained within resource packs and are referred to with `ResourceLocation`s. In Minecraft, the [UV coordinates][uv] (0,0) are taken to mean the **top-left** corner. UVs are *always* from 0 to 16. If a texture is larger or smaller, the coordinates are scaled to fit. A texture should also be square, and the side length of a texture should be a power of two, as doing otherwise breaks mipmapping (e.g. 1x1, 2x2, 8x8, 16x16, and 128x128 are good. 5x5 and 30x30 are not recommended because they are not powers of 2. 5x10 and 4x8 are completely broken as they are not square.). Textures should only ever be not a square if it is [animated][animated].
+纹理和模型一样，包含在资源包中，并被称为`ResourceLocation`。在《我的世界》中，[UV坐标][UV] (0,0)表示**左上角**。UV*总是*从0到16。如果纹理较大或较小，则会缩放坐标以进行拟合。纹理也应该是正方形的，纹理的边长应该是2的幂，否则会破坏mipmapping（例如1x1、2x2、8x8、16x16和128x128是好的。不建议使用5x5和30x30，因为它们不是2的幂。5x10和4x8会完全断裂，因为它们不是正方形的。）。只有当纹理是[动画化的][animated]时，纹理才应该不是正方形。
 
-[models]: https://minecraft.wiki/w/Tutorials/Models#File_path
+[models]: https://minecraft.fandom.com/wiki/Tutorials/Models#File_path
 [resloc]: ../../../concepts/resources.md#resourcelocation
-[statemodel]: https://minecraft.wiki/w/Tutorials/Models#Block_states
-[itemmodels]: https://minecraft.wiki/w/Tutorials/Models#Item_models
+[statemodel]: https://minecraft.fandom.com/wiki/Tutorials/Models#Block_states
+[itemmodels]: https://minecraft.fandom.com/wiki/Tutorials/Models#Item_models
 [state]: ../../../blocks/states.md
 [uv]: https://en.wikipedia.org/wiki/UV_mapping
-[animated]: https://minecraft.wiki/w/Resource_Pack?so=search#Animation
+[animated]: https://minecraft.fandom.com/wiki/Resource_Pack?so=search#Animation

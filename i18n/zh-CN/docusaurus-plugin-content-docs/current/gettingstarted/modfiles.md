@@ -1,14 +1,14 @@
-Mod Files
-=========
+模组文件
+=======
 
-The mod files are responsible for determining what mods are packaged into your JAR, what information to display within the 'Mods' menu, and how your mod should be loaded in the game.
+模组文件负责确定哪些文件会被打包到你模组的JAR文件中，在“Mods”菜单中显示哪些信息，以及你的模组如何被加载到游戏中。
 
 mods.toml
 ---------
 
-The `mods.toml` file defines the metadata of your mod(s). It also contains additional information that is displayed within the 'Mods' menu and how your mod(s) should be loaded into the game.
+`mods.toml`定义你的一个或多个模组的元数据。它也包含一些附加信息，这些信息将在Mods菜单中被展示，并决定你的模组如何被加载进游戏。
 
-The file uses the [Tom's Obvious Minimal Language, or TOML][toml], format. The file must be stored under the `META-INF` folder in the resource directory of the source set you are using (`src/main/resources/META-INF/mods.toml` for the `main` source set). A `mods.toml` file may look something like this:
+该文件采用[Tom's Obvious Minimal Language][toml]（简称TOML）格式。这个文件必须保存在你所使用的源码集的resource目录中的`META-INF`文件夹下（例如对于`main`源码集，其路径为`src/main/resources/META-INF/mods.toml`）。`mods.toml`文件看起来长这样：
 
 ```toml
 modLoader="javafml"
@@ -47,98 +47,96 @@ showAsResourcePack=false
   side="BOTH"
 ```
 
-`mods.toml` is broken into three parts: the non-mod-specific properties, which are linked to the mod file; the mod properties, with a section for each mod; and the dependency configurations, with a section for each mod's or mods' dependencies. Each of the properties associated with the `mods.toml` file will be explained below, where `required` means that a value must be specified or an exception will be thrown.
+`mods.toml`被分为三个部分：非模组特定属性，与模组文件相关联；模组特定属性，对每个模组都有单独的小节；以及依赖配置，对每个模组依赖都有单独的小节。下面将解释与`mods.toml`文件相关的各个属性，其中`required`表示必须指定一个值，否则将引发异常。
 
-### Non-Mod-Specific Properties
+### 非模组特定属性
 
-Non-mod-specific properties are properties associated with the JAR itself, indicating how to load the mod(s) and any additional global metadata.
+非模组特定属性是与JAR文件本身相关的属性，指明如何加载模组和任何附加的全局元数据。
 
-Property             | Type    | Default       | Description | Example
+属性                 | 类型    | 缺省值         | 描述        | 样例
 :---                 | :---:   | :---:         | :---:       | :---
-`modLoader`          | string  | **mandatory** | The language loader used by the mod(s). Can be used to support alternative language structures, such as Kotlin objects for the main file, or different methods of determining the entrypoint, such as an interface or method. Forge provides the Java loader `"javafml"` and low/no code loader `"lowcodefml"`. | `"javafml"`
-`loaderVersion`      | string  | **mandatory** | The acceptable version range of the language loader, expressed as a [Maven Version Range][mvr]. For `javafml` and `lowcodefml`, the version is the major version of the Forge version. | `"[46,)"`
-`license`            | string  | **mandatory** | The license the mod(s) in this JAR are provided under. It is suggested that this is set to the [SPDX identifier][spdx] you are using and/or a link to the license. You can visit https://choosealicense.com/ to help pick the license you want to use. | `"MIT"`
-`showAsResourcePack` | boolean | `false`       | When `true`, the mod(s)'s resources will be displayed as a separate resource pack on the 'Resource Packs' menu, rather than being combined with the 'Mod resources' pack. | `true`
-`services`           | array   | `[]`          | An array of services your mod **uses**. This is consumed as part of the created module for the mod from Forge's implementation of the Java Platform Module System. | `["net.minecraftforge.forgespi.language.IModLanguageProvider"]`
-`properties`         | table   | `{}`          | A table of substitution properties. This is used by `StringSubstitutor` to replace `${file.<key>}` with its corresponding value. This is currently only used to replace the `version` in the [mod-specific properties][modsp]. | `{ "example" = "1.2.3" }` referenced by `${file.example}`
-`issueTrackerURL`    | string  | *nothing*     | A URL representing the place to report and track issues with the mod(s). | `"https://forums.minecraftforge.net/"`
+`modLoader`          | string  | **必需** | 模组所使用的语言加载器。可用于支持额外的语言结构，如为主文件定义的Kotlin对象，或确定入口点的不同方法，如接口或方法。Forge提供Java加载器`"javafml"`和低/无代码加载器`"lowcodefml"`。 | `"javafml"`
+`loaderVersion`      | string  | **必需** | 可接受的语言加载器版本范围，以[Maven版本范围][mvr]表示。对于`javafml`和`lowcodefml`，其版本是Forge版本的主版本号。 | `"[46,)"`
+`license`            | string  | **必需** | 该JAR文件中的模组所遵循的许可证。建议将其设置为你正在使用的[SPDX标识符][spdx]和/或许可证的链接。你可以访问 https://choosealicense.com/ 以帮助选取你想使用的许可证。 | `"MIT"`
+`showAsResourcePack` | boolean | `false`       | 当为`true`时，模组的资源会以一个单独的资源包的形式在“资源包”菜单中展示，而不是与“模组资源”包融为一体。 | `true`
+`services`           | array   | `[]`          | 表示你的模组所**使用**的一系列服务的数组。这是从Forge的Java平台模块系统实现中为模组创建的模块的一部分。 | `["net.minecraftforge.forgespi.language.IModLanguageProvider"]`
+`properties`         | table   | `{}`          | 替换属性表。`StringSubstitutor`使用它将`${file.<key>}`替换为相应的值。该功能目前仅用于替换模组特定属性中的`version`。 | 由`${file.example}`引用的`{ "example" = "1.2.3" }`
+`issueTrackerURL`    | string  | *无*     | 指向报告与追踪模组问题的地点的URL。 | `"https://forums.minecraftforge.net/"`
 
-:::note
-The `services` property is functionally equivalent to specifying the [`uses` directive in a module][uses], which allows [*loading*][serviceload] a service of a given type.
-:::
+!!! 重要
+    `services`属性在功能上等效于在指定[在模块中的`uses`指令][uses]，该指令允许加载给定类型的服务。
 
-### Mod-Specific Properties
+### 模组特定属性
 
-Mod-specific properties are tied to the specified mod using the `[[mods]]` header. This is an [array of tables][array]; all key/value properties will be attached to that mod until the next header.
+模组特定属性通过`[[mods]]`头与指定的模组绑定。其本质是一个[表格数组（Array of Tables）][array]；直到下一个头之前的所有键/值对都会被关联到那个模组。
 
 ```toml
-# Properties for examplemod1
+# examplemod1的属性
 [[mods]]
 modId = "examplemod1"
 
-# Properties for examplemod2
+# examplemod2的属性
 [[mods]]
 modId = "examplemod2"
 ```
 
-Property        | Type    | Default                 | Description | Example
+属性            | 类型    | 缺省值                   | 描述        | 样例
 :---            | :---:   | :---:                   | :---:       | :---
-`modId`         | string  | **mandatory**           | The unique identifier representing this mod. The id must match `^[a-z][a-z0-9_]{1,63}$` (a string 2-64 characters; starts with a lowercase letter; made up of lowercase letters, numbers, or underscores). | `"examplemod"`
-`namespace`     | string  | value of `modId`        | An override namespace for the mod. The namespace much match `^[a-z][a-z0-9_.-]{1,63}$` (a string 2-64 characters; starts with a lowercase letter; made up of lowercase letters, numbers, underscores, dots, or dashes). Currently unused. | `"example"`
-`version`       | string  | `"1"`                   | The version of the mod, preferably in a [variation of Maven versioning][mvnver]. When set to `${file.jarVersion}`, it will be replaced with the value of the `Implementation-Version` property in the JAR's manifest (displays as `0.0NONE` in a development environment). | `"1.20-1.0.0.0"`
-`displayName`   | string  | value of `modId`        | The pretty name of the mod. Used when representing the mod on a screen (e.g., mod list, mod mismatch). | `"Example Mod"`
-`description`   | string  | `"MISSING DESCRIPTION"` | The description of the mod shown in the mod list screen. It is recommended to use a [multiline literal string][multiline]. | `"This is an example."`
-`logoFile`      | string  | *nothing*               | The name and extension of an image file used on the mods list screen. The logo must be in the root of the JAR or directly in the root of the source set (e.g., `src/main/resources` for the main source set). | `"example_logo.png"`
-`logoBlur`      | boolean | `true`                  | Whether to use `GL_LINEAR*` (true) or `GL_NEAREST*` (false) to render the `logoFile`. | `false`
-`updateJSONURL` | string  | *nothing*               | A URL to a JSON used by the [update checker][update] to make sure the mod you are playing is the latest version. | `"https://files.minecraftforge.net/net/minecraftforge/forge/promotions_slim.json"`
-`features`      | table   | `{}`                    | See '[features]'. | `{ java_version = "17" }`
-`modproperties` | table   | `{}`                    | A table of key/values associated with this mod. Currently unused by Forge, but is mainly for use by mods. | `{ example = "value" }` 
-`modUrl`        | string  | *nothing*               | A URL to the download page of the mod. Currently unused. | `"https://files.minecraftforge.net/"`
-`credits`       | string  | *nothing*               | Credits and acknowledges for the mod shown on the mod list screen. | `"The person over here and there."`
-`authors`       | string  | *nothing*               | The authors of the mod shown on the mod list screen. | `"Example Person"`
-`displayURL`    | string  | *nothing*               | A URL to the display page of the mod shown on the mod list screen. | `"https://minecraftforge.net/"`
-`displayTest`   | string  | `"MATCH_VERSION"`       | See '[sides]'. | `"NONE"`
+`modId`         | string  | **必需**                | 代表这个模组的唯一标识符。该标识符必须匹配`^[a-z][a-z0-9_]{1,63}$`（一个长度在[2,64]闭区间内的字符串；以小写字母开头；由小写字母、数字或下划线组成）。 | `"examplemod"`
+`namespace`     | string  | `modId`的值             | 该模组的一个重载命名空间。该命名空间必须匹配`^[a-z][a-z0-9_.-]{1,63}$`（一个长度在[2,64]闭区间内的字符串；以小写字母开头；由小写字母、数字、下划线、点或短横线组成）。目前无作用。 | `"example"`
+`version`       | string  | `"1"`                   | 该模组的版本，最好符合[Maven版本号命名格式][mvnver]。当设置为`${file.jarVersion}`时，它将被替换为JAR清单文件中`Implementation-Version`属性的值（在开发环境下默认显示为`0.0NONE`）。 | `"1.20-1.0.0.0"`
+`displayName`   | string  | `modId`的值             | 该模组的更具可读性的名字。用于将模组展示到屏幕上时（如模组列表、模组不匹配）。 | `"Example Mod"`
+`description`   | string  | `"MISSING DESCRIPTION"` | 在模组列表中展示的该模组的描述。建议使用一个[多行文字字符串][multiline]。 | `"This is an example."`
+`logoFile`      | string  | *无*                    | 在模组列表中展示的该模组的logo图像文件的名称和扩展名。该logo必须位于JAR文件的根目录或直接位于源码集的根目录。 | `"example_logo.png"`
+`logoBlur`      | boolean | `true`                  | 决定使用`GL_LINEAR*`（true）或`GL_NEAREST*`（false）渲染`logoFile`。 | `false`
+`updateJSONURL` | string  | *无*                    | 被[更新检查器][update]用来检查你所使用的模组是否为最新版本的指向一个JSON文件的URL。 | `"https://files.minecraftforge.net/net/minecraftforge/forge/promotions_slim.json"`
+`features`      | table   | `{}`                    | 参见 '[features]'。 | `{ java_version = "17" }`
+`modproperties` | table   | `{}`                    | 与本模组相关联的一个键/值对表。目前尚未被Forge使用，但主要被模组使用。 | `{ example = "value" }` 
+`modUrl`        | string  | *无*                    | 指向本模组下载界面的URL。目前无作用。 | `"https://files.minecraftforge.net/"`
+`credits`       | string  | *无*                    | 在模组列表中展示的致谢声明。 | `"The person over here and there."`
+`authors`       | string  | *无*                    | 在模组列表中展示的本模组的作者。 | `"Example Person"`
+`displayURL`    | string  | *无*                    | 在模组列表中展示的本模组的展示页面（项目主页）。 | `"https://minecraftforge.net/"`
+`displayTest`   | string  | `"MATCH_VERSION"`       | 参见 '[sides]'。 | `"NONE"`
 
-#### Features
+#### 功能
 
-The features system allows mods to demand that certain settings, software, or hardware are available when loading the system. When a feature is not satisfied, mod loading will fail, informing the user about the requirement. Currently, Forge provides the following features:
+功能系统允许模组在加载系统时要求某些设置、软件或硬件可用。当某个功能不满足时，模组加载将失败，并将要求通知给用户。目前，Forge提供以下功能：
 
-Feature        | Description | Example
+功能           | 描述        | 样例
 :---:          | :---:       | :---
-`java_version` | The acceptable version range of the Java version, expressed as a [Maven Version Range][mvr]. This should be the supported version used by Minecraft. | `"[17,)"`
+`java_version` | 可支持的Java版本范围，以[Maven版本范围][mvr]表示。该范围须能够支持Minecraft所使用的Java版本。 | `"[17,)"`
 
-### Dependency Configurations
+### 依赖配置
 
-Mods can specify their dependencies, which are checked by Forge before loading the mods. These configurations are created using the [array of tables][array] `[[dependencies.<modid>]]` where `modid` is the identifier of the mod the dependency is for.
+模组可以指定它们的依赖项，这些依赖项在加载模组之前由Forge检查。这些配置是使用[表格数组（Array of Tables）][array]`[[dependencies.<modid>]]`创建的，其中`modid`是所依赖的模组的标识符。
 
-Property       | Type    | Default       | Description | Example
+属性           | 类型    | 缺省值         | 描述        | 样例
 :---           | :---:   | :---:         | :---:       | :---
-`modId`        | string  | **mandatory** | The identifier of the mod added as a dependency. | `"example_library"`
-`mandatory`    | boolean | **mandatory** | Whether the game should crash when this dependency is not met. | `true`
-`versionRange` | string  | `""`          | The acceptable version range of the language loader, expressed as a [Maven Version Range][mvr]. An empty string matches any version. | `"[1, 2)"`
-`ordering`     | string  | `"NONE"`      | Defines if the mod must load before (`"BEFORE"`) or after (`"AFTER"`) this dependency. If the ordering does not matter, return `"NONE"` | `"AFTER"`
-`side`         | string  | `"BOTH"`      | The [physical side][dist] the dependency must be present on: `"CLIENT"`, `"SERVER"`, or `"BOTH"`.| `"CLIENT"`
-`referralUrl`  | string  | *nothing*     | A URL to the download page of the dependency. Currently unused. | `"https://library.example.com/"`
+`modId`        | string  | **必需**      | 被添加为依赖的模组的标识符。 | `"example_library"`
+`mandatory`    | boolean | **必需**      | 当依赖未满足时游戏是否崩溃。 | `true`
+`versionRange` | string  | `""`          | 可接受的语言加载器版本范围，以[Maven版本范围][mvr]表示。空字符串表示匹配所有版本。 | `"[1, 2)"`
+`ordering`     | string  | `"NONE"`      | 定义本模组是否必须在所依赖的模组之前（`"BEFORE"`）或之后（`"AFTER"`）加载。`"NONE"`表示不规定顺序。 | `"AFTER"`
+`side`         | string  | `"BOTH"`      | 所依赖模组必须位于的[端位][dist]：`"CLIENT"`、`"SERVER"`或`"BOTH"`。 | `"CLIENT"`
+`referralUrl`  | string  | *无*          | 指向依赖下载界面的URL。目前无作用。 | `"https://library.example.com/"`
 
-:::danger
-The `ordering` of two mods may cause a crash due to a cyclic dependency: for example, mod A must load `"BEFORE"` mod B and mod B `"BEFORE"` mod A.
-:::
+!!! 警告
+    两个模组的`ordering`可能会因循环依赖而造成崩溃：例如模组A必须在模组B之前（`"BEFORE"`）加载，而模组B也必须在模组A之前（`"BEFORE"`）加载。
 
-Mod Entrypoints
----------------
+模组入口点
+----------
 
-Now that the `mods.toml` is filled out, we need to provide an entrypoint to being programming the mod. Entrypoints are essentially the starting point for executing the mod. The entrypoint itself is determined by the language loader used in the `mods.toml`.
+现在我们已经填写了`mods.toml`，我们需要提供一个对模组进行编程的入口点。入口点本质上是执行模组的起点。入口点本身由`mods.toml`中使用的语言加载器决定。
 
-### `javafml` and `@Mod`
+### `javafml`和`@Mod`
 
-`javafml` is a language loader provided by Forge for the Java programming language. The entrypoint is defined using a public class with the `@Mod` annotation. The value of `@Mod` must contain one of the mod ids specified within the `mods.toml`. From there, all initialization logic (e.g., [registering events][events], [adding `DeferredRegister`s][registration]) can be specified within the constructor of the class. The mod bus can be obtained from `FMLJavaModLoadingContext`.
+`javafml`是Forge为Java编程语言提供的语言加载器。入口点是通过使用带有`@Mod`注释的公共类来定义的。`@Mod`的值必须包含`mods.toml`中指定的一个Mod id。从那里，所有初始化逻辑（例如[注册事件][events]、添加[`DeferredRegister`][registration]）都可以在类的构造函数中写明。模组总线可以从`FMLJavaModLoadingContext`获得。
 
 ```java
-@Mod("examplemod") // Must match mods.toml
+@Mod("examplemod") // 必须匹配mods.toml
 public class Example {
 
   public Example() {
-    // Initialize logic here
+    // 此处初始化逻辑
     var modBus = FMLJavaModLoadingContext.get().getModEventBus();
 
     // ...
@@ -148,7 +146,7 @@ public class Example {
 
 ### `lowcodefml`
 
-`lowcodefml` is a language loader used as a way to distribute datapacks and resource packs as mods without the need of an in-code entrypoint. It is specified as `lowcodefml` rather than `nocodefml` for minor additions in the future that might require minimal coding.
+`lowcodefml`是一种语言加载器，用于将数据包和资源包作为模组形式分发，而无需代码形式的入口点。它被指定为`lowcodefml`而不是`nocodefml`，用于将来可能需要的最少量代码的小添加。
 
 [toml]: https://toml.io/
 [mvr]: https://maven.apache.org/enforcer/enforcer-rules/versionRanges.html

@@ -1,143 +1,132 @@
-Block Entities
-======
+# 方块实体
 
-`BlockEntities` are like simplified `Entities` that are bound to a Block.
-They are used to store dynamic data, execute tick based tasks, and dynamic rendering.
-Some examples from vanilla Minecraft would be handling of inventories on chests, smelting logic on furnaces, or area effects on beacons.
-More advanced examples exist in mods, such as quarries, sorting machines, pipes, and displays.
+`BlockEntities`类似于绑定到某一方块的简化的`Entities`。
+它们能用于存储动态数据、执行基于游戏刻的任务和动态渲染。
+原版Minecraft中的一些例子是处理箱子的物品栏、熔炉的熔炼逻辑或信标的区域效果。
+模组中存在更高级的示例，例如采石场（如BC）、分拣机（如IC2）、管道（如BC）和显示器（如OC）。（括号内容为译者注。）
 
-:::note
-`BlockEntities` aren't a solution for everything and they can cause lag when used wrongly.
-When possible, try to avoid them.
-:::
+!!! 注意
+    `BlockEntities`并不是万能的解决方案，如果使用错误，它们可能会导致游戏卡顿。
+    如果可能的话，尽量避免使用。
 
-## Registering
+## 注册
 
-Block Entities are created and removed dynamically and as such are not registry objects on their own.
+方块实体是动态创建和删除的，因此它们本身不是注册表对象。
 
-In order to create a `BlockEntity`, you need to extend the `BlockEntity` class. As such, another object is registered instead to easily create and refer to the *type* of the dynamic object. For a `BlockEntity`, these are known as `BlockEntityType`s.
+为了创建`BlockEntity`，你需要继承`BlockEntity`类。这样，另一个对象被替代性地注册以方便创建和引用动态对象的*类型*。对于`BlockEntity`，这些对象被称为`BlockEntityType`。
 
-A `BlockEntityType` can be [registered][registration] like any other registry object. To construct a `BlockEntityType`, its builder form can be used via `BlockEntityType$Builder#of`. This takes in two arguments: a `BlockEntityType$BlockEntitySupplier` which takes in a `BlockPos` and `BlockState` to create a new instance of the associated `BlockEntity`, and a varargs of `Block`s which this `BlockEntity` can be attached to. Building the `BlockEntityType` is done by calling `BlockEntityType$Builder#build`. This takes in a `Type` which represents the type-safe reference used to refer to this registry object in a `DataFixer`. Since `DataFixer`s are an optional system to use for mods, this can be passed as `null`.
+`BlockEntityType`可以像任何其他注册表对象一样进行[注册][registration]。若要构造`BlockEntityType`，可以通过`BlockEntityType$Builder#of`使用其Builder形式。这需要两个参数：`BlockEntityType$BlockEntitySupplier`，它接受`BlockPos`和`BlockState`来创建关联`BlockEntity`的新实例，以及该`BlockEntity`可以附加到的`Block`的可变参数。构建该`BlockEntityType`是通过调用`BlockEntityType$Builder#build`来完成的。其接受一个`Type`，表示用于引用某个`DataFixer`中的此注册表对象的类型安全引用。由于`DataFixer`是用于模组的可选系统，因此其也可用`null`代替。
 
 ```java
-// For some DeferredRegister<BlockEntityType<?>> REGISTER
+// 对于某个类型为DeferredRegister<BlockEntityType<?>>的REGISTER
 public static final RegistryObject<BlockEntityType<MyBE>> MY_BE = REGISTER.register("mybe", () -> BlockEntityType.Builder.of(MyBE::new, validBlocks).build(null));
 
-// In MyBE, a BlockEntity subclass
+// 在MyBE（一个BlockEntity的子类）中
 public MyBE(BlockPos pos, BlockState state) {
   super(MY_BE.get(), pos, state);
 }
 ```
 
-## Creating a `BlockEntity`
+## 创建一个`BlockEntity`
 
-To create a `BlockEntity` and attach it to a `Block`, the `EntityBlock` interface must be implemented on your `Block` subclass. The method `EntityBlock#newBlockEntity(BlockPos, BlockState)` must be implemented and return a new instance of your `BlockEntity`.
+要创建`BlockEntity`并将其附加到`Block`，`EntityBlock`接口必须在你的`Block`子类上实现。方法`EntityBlock#newBlockEntity(BlockPos, BlockState)`必须实现并返回一个你的`BlockEntity`的新实例。
 
-## Storing Data within your `BlockEntity`
+## 将数据存储到你的`BlockEntity`
 
-In order to save data, override the following two methods:
+为了保存数据，请重写以下两个方法：
 ```java
 BlockEntity#saveAdditional(CompoundTag tag)
 
 BlockEntity#load(CompoundTag tag)
 ```
-These methods are called whenever the `LevelChunk` containing the `BlockEntity` gets loaded from/saved to a tag.
-Use them to read and write to the fields in your block entity class.
+每当包含`BlockEntity`的`LevelChunk`从标签加载/保存到标签时，都会调用这些方法。
+使用它们以读取和写入你的方块实体类的字段。
 
-:::note
-Whenever your data changes, you need to call `BlockEntity#setChanged`; otherwise, the `LevelChunk` containing your `BlockEntity` might be skipped while the level is saved.
-:::
+!!! 注意
+    每当你的数据发生改变时，你需要调用`BlockEntity#setChanged`；否则，保存存档时可能会跳过包含你的`BlockEntity`的`LevelChunk`。
 
-:::danger
-It is important that you call the `super` methods!
+!!! 重要
+    调用`super`方法非常重要！
 
-The tag names `id`, `x`, `y`, `z`, `ForgeData` and `ForgeCaps` are reserved by the `super` methods.
-:::
+    标签名称`id`、`x`、`y`、`z`、`ForgeData`和`ForgeCaps`均由`super`方法保留。
 
-## Ticking `BlockEntities`
+## 计时的`BlockEntity`
 
-If you need a ticking `BlockEntity`, for example to keep track of the progress during a smelting process, another method must be implemented and overridden within `EntityBlock`: `EntityBlock#getTicker(Level, BlockState, BlockEntityType)`. This can implement different tickers depending on which logical side the user is on, or just implement one general ticker. In either case, a `BlockEntityTicker` must be returned. Since this is a functional interface, it can just take in a method representing the ticker instead:
+如果你需要一个计时的`BlockEntity`，例如为了跟踪冶炼过程中的进度，则必须在`EntityBlock`中实现并重写另一个方法：`EntityBlock#getTicker(Level, BlockState, BlockEntityType)`。这可以根据用户所处的逻辑端实现不同的计时器，或者只实现一个通用计时器。无论哪种情况，都必须返回`BlockEntityTicker`。由于这是一个功能性的接口，因此它可以转而采用一个表示计时器的方法：
 
 ```java
-// Inside some Block subclass
+// 在某个Block子类内
 @Nullable
 @Override
 public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
   return type == MyBlockEntityTypes.MYBE.get() ? MyBlockEntity::tick : null;
 }
 
-// Inside MyBlockEntity
+// 在MyBlockEntity内
 public static void tick(Level level, BlockPos pos, BlockState state, MyBlockEntity blockEntity) {
-  // Do stuff
+  // 处理一些事情
 }
 ```
 
-:::note
-This method is called each tick; therefore, you should avoid having complicated calculations in here. If possible, you should make more complex calculations every X ticks. (The amount of ticks in a second may be lower then 20 (twenty) but won't be higher)
-:::
+!!! 注意
+    这个方法在每个游戏刻都会调用；因此，你应该避免在这里进行复杂的计算。如果可能的话，你应该每X个游戏刻进行更复杂的计算。（一秒钟内的游戏刻数量可能低于20（二十），但不会更高）
 
-## Synchronizing the Data to the Client
+## 向客户端同步数据
 
-There are three ways of syncing data to the client: synchronizing on chunk load, on block updates, and with a custom network message.
+有三种方法可以将数据同步到客户端：在区块加载时同步、在方块更新时同步以及使用自定义网络消息同步。
 
-### Synchronizing on LevelChunk Load
+### 在LevelChunk加载时同步
 
-For this you need to override
+为此你需要重写
 ```java
 BlockEntity#getUpdateTag()
 
 IForgeBlockEntity#handleUpdateTag(CompoundTag tag)
 ```
-Again, this is pretty simple, the first method collects the data that should be sent to the client,
-while the second one processes that data. If your `BlockEntity` doesn't contain much data, you might be able to use the methods out of the [Storing Data within your `BlockEntity`][storing-data] section.
+同样，这非常简单，第一个方法收集应该发送到客户端的数据，而第二个方法处理这些数据。如果你的`BlockEntity`不包含太多数据，你可以使用[将数据存储到你的`BlockEntity`][storing-data]小节之外的方法。
 
-:::caution
-Synchronizing excessive/useless data for block entities can lead to network congestion. You should optimize your network usage by sending only the information the client needs when the client needs it. For instance, it is more often than not unnecessary to send the inventory of a block entity in the update tag, as this can be synchronized via its [`AbstractContainerMenu`][menu].
-:::
+!!! 重要
+    为方块实体同步过多/无用的数据可能会导致网络拥塞。你应该通过在客户端需要时仅发送客户端需要的信息来优化网络使用。例如，在更新标签中发送方块实体的物品栏通常是没有必要的，因为这可以通过其[`AbstractContainerMenu`][menu]进行同步。
 
-### Synchronizing on Block Update
+### 在方块更新时同步
 
-This method is a bit more complicated, but again you just need to override two or three methods.
-Here is a tiny example implementation of it:
+这个方法有点复杂，但同样，你只需要重写两个或三个方法。
+下面是它的一个简易的实现示例：
 ```java
 @Override
 public CompoundTag getUpdateTag() {
   CompoundTag tag = new CompoundTag();
-  //Write your data into the tag
+  //将你的数据写入标签
   return tag;
 }
 
 @Override
 public Packet<ClientGamePacketListener> getUpdatePacket() {
-  // Will get tag from #getUpdateTag
+  // 将从#getUpdateTag得到标签
   return ClientboundBlockEntityDataPacket.create(this);
 }
 
-// Can override IForgeBlockEntity#onDataPacket. By default, this will defer to the #load.
+// 可以重写IForgeBlockEntity#onDataPacket。默认地，其将遵从#load。
 ```
-The static constructors `ClientboundBlockEntityDataPacket#create` takes:
+静态构造器`ClientboundBlockEntityDataPacket#create`接受：
 
-* The `BlockEntity`.
-* An optional function to get the `CompoundTag` from the `BlockEntity`. By default, this uses `BlockEntity#getUpdateTag`.
+* 该`BlockEntity`。
+* 从该`BlockEntity`中获取`CompoundTag`的可选函数。默认情况下，其使用`BlockEntity#getUpdateTag`。
 
-Now, to send the packet, an update notification must be given on the server.
+现在，要发送数据包，必须在服务端上发出更新通知。
 ```java
 Level#sendBlockUpdated(BlockPos pos, BlockState oldState, BlockState newState, int flags)
 ```
-The `pos` should be your `BlockEntity`'s position.
-For `oldState` and `newState`, you can pass the current `BlockState` at that position.
-`flags` is a bitmask that should contain `2`, which will sync the changes to the client. See `Block` for more info as well as the rest of the flags. The flag `2` is equivalent to `Block#UPDATE_CLIENTS`.
+`pos`应为你的`BlockEntity`的位置。
+对于`oldState`和`newState`，你可以传递那个位置的`BlockState`。
+`flags`是一个应含有`2`的位掩码（bitmask），其将向客户端同步数据。有关更多信息以及flags的其余信息，参见`Block`。flag `2`与`Block#UPDATE_CLIENTS`相同。
 
-### Synchronizing Using a Custom Network Message
+### 使用自定义网络消息同步
 
-This way of synchronizing is probably the most complicated but is usually the most optimized,
-as you can make sure that only the data you need to be synchronized is actually synchronized.
-You should first check out the [`Networking`][networking] section and especially [`SimpleImpl`][simple_impl] before attempting this.
-Once you've created your custom network message, you can send it to all users that have the `BlockEntity` loaded with `SimpleChannel#send(PacketDistributor$PacketTarget, MSG)`.
+这种同步方式可能是最复杂的，但通常是最优化的，因为你可以确保只有需要同步的数据才是真正同步的。在尝试之前，你应该先查看[`Networking`][networking]部分，尤其是[`SimpleImpl`][simple_impl]。一旦你创建了自定义网络消息，你就可以使用`SimpleChannel#send(PacketDistributor$PacketTarget, MSG)`将其发送给所有加载了该`BlockEntity`的用户。
 
-:::caution
-It is important that you do safety checks, the `BlockEntity` might already be destroyed/replaced when the message arrives at the player! You should also check if the chunk is loaded (`Level#hasChunkAt(BlockPos)`).
-:::
+!!! 警告
+    进行安全检查很重要，当消息到达玩家时，`BlockEntity`可能已经被销毁/替换！你还应该检查区块是否已加载（`Level#hasChunkAt(BlockPos)`）。
 
 [registration]: ../concepts/registries.md#methods-for-registering
 [storing-data]: #storing-data-within-your-blockentity

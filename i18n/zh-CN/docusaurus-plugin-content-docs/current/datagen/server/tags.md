@@ -1,16 +1,16 @@
-Tag Generation
-==============
+标签生成
+========
 
-[Tags] can be generated for a mod by subclassing `TagsProvider` and implementing `#addTags`. After implementation, the provider must be [added][datagen] to the `DataGenerator`.
+可以通过子类化`TagsProvider`并实现`#addTags`来为模组生成[标签][Tags]。实现后，该提供者必须被[添加][datagen]到`DataGenerator`中。
 
 ```java
-// On the MOD event bus
+// 在模组事件总线上
 @SubscribeEvent
 public void gatherData(GatherDataEvent event) {
     event.getGenerator().addProvider(
-        // Tell generator to run only when server data are generating
+        // 告诉生成器仅在生成服务端资源时运行
         event.includeServer(),
-        // Extends net.minecraftforge.common.data.BlockTagsProvider
+        // 扩展net.minecraftforge.common.data.BlockTagsProvider
         output -> new MyBlockTagsProvider(
           output,
           event.getLookupProvider(),
@@ -24,41 +24,41 @@ public void gatherData(GatherDataEvent event) {
 `TagsProvider`
 --------------
 
-The tags provider has two methods used for generating tags: creating a tag with objects and other tags via `#tag`, or using tags from other object types to generate the tag data via `#getOrCreateRawBuilder`.
+标签提供者有两种用于生成标签的方法：通过`#tag`创建带有对象和其他标签的标签，或通过`#getOrCreateRawBuilder`使用其他对象类型的标签生成标签数据。
 
-!!! note
-    Typically, a provider will not call `#getOrCreateRawBuilder` directly unless a registry contains a representation of objects from a different registry (blocks have item representations to obtain the blocks in the inventory).
+!!! 注意
+    通常，提供者不会直接调用`#getOrCreateRawBuilder`，除非注册表包含来自不同注册表的对象表示（方块具有物品表示以获得物品栏中的方块）。
 
-When `#tag` is called, a `TagAppender` is created which acts as a chainable consumer of elements to add to the tag:
+当调用`#tag`时，将创建一个`TagAppender`，它充当要添加到标签中的元素的可链接Consumer：
 
-Method           | Description
+方法             | 描述
 :---:            | :---
-`add`            | Adds an object to a tag through its resource key. 
-`addOptional`    | Adds an object to a tag through its name. If the object is not present, then the object will be skipped when loading.
-`addTag`         | Adds a tag to a tag through its tag key. All elements within the inner tag are now a part of the outer tag.
-`addOptionalTag` | Adds a tag to a tag through its name. If the tag is not present, then the tag will be skipped when loading.
-`replace`        | When `true`, all previously loaded entries added to this tag from other datapacks will be discarded. If a datapack is loaded after this one, then it will still append the entries to the tag.
-`remove`         | Removes an object or tag from a tag through its name or key.
+`add`            | 通过对象的资源键将对象添加到标签中。
+`addOptional`    | 通过对象的名称将对象添加到标签中。如果对象不存在，则加载时将跳过该对象。
+`addTag`         | 通过标签键将标签添加到标签中。内部标签中的所有元素现在都是外部标签的一部分。
+`addOptionalTag` | 通过标签的名称将标签添加到标签中。如果标签不存在，则加载时将跳过该标签。
+`replace`        | 当为`true`时，从其他数据包添加到此标签的所有先前加载的条目都将被丢弃。如果在这个数据包之后加载了一个数据包，那么它仍然会将条目附加到标签中。
+`remove`         | 通过对象或标签的名称或键从标签中删除对象或标签。
 
 ```java
-// In some TagProvider#addTags
+// 在某个TagProvider#addTags中
 this.tag(EXAMPLE_TAG)
-  .add(EXAMPLE_OBJECT) // Adds an object to the tag
-  .addOptional(new ResourceLocation("othermod", "other_object")) // Adds an object from another mod to the tag
+  .add(EXAMPLE_OBJECT) // 向该标签添加一个对象
+  .addOptional(new ResourceLocation("othermod", "other_object")) // 向该标签添加一个来自其他模组的对象
 
 this.tag(EXAMPLE_TAG_2)
-  .addTag(EXAMPLE_TAG) // Adds a tag to the tag
-  .remove(EXAMPLE_OBJECT) // Removes an object from this tag
+  .addTag(EXAMPLE_TAG) // 向该标签添加一个标签
+  .remove(EXAMPLE_OBJECT) // 从该标签中移除一个对象
 ```
 
-!!! important
-    If the mod's tags softly depends on another mod's tags (the other mod may or may not be present at runtime), the other mods' tags should be referenced using the optional methods.
+!!! 重要
+    如果模组的标签软依赖于另一个模组的标签（另一个模组可能在运行时存在，也可能不存在），则应使用可选方法引用其他模组的标签。
 
 ### Existing Providers
 
-Minecraft contains a few tag providers for certain registries that can be subclassed instead. Additionally, some providers contain additional helper methods to more easily create tags.
+Minecraft包含一些用于某些注册表的标签提供者，这些注册表可以被子类化。此外，一些提供者包含额外的辅助方法，以便更容易地创建标签。
 
-Registry Object Type         | Tag Provider
+注册表对象类型                | 标签提供者
 :---:                        | :---
 `Block`                      | `BlockTagsProvider`\*
 `Item`                       | `ItemTagsProvider`
@@ -76,21 +76,21 @@ Registry Object Type         | Tag Provider
 `Instrument`                 | `InstrumentTagsProvider`
 `DamageType`                 | `DamageTypeTagsProvider`
 
-\* `BlockTagsProvider` is a Forge added `TagsProvider`.
+\* `BlockTagsProvider`是一个由Forge添加的`TagsProvider`。
 
 #### `ItemTagsProvider#copy`
 
-Blocks have item representations to obtain them in the inventory. As such, many of the block tags can also be an item tag. To easily generate item tags to have the same entries as block tags, the `#copy` method can be used which takes in the block tag to copy from and the item tag to copy to.
+方块具有用于在物品栏中获取它们的物品表示。因此，许多方块标签也可以是物品标签。为了容易地生成与方块标签具有相同条目的物品标签，可以使用`#copy`方法，该方法接受要从中复制的方块标签和要复制到的物品标签。
 
 ```java
-//In ItemTagsProvider#addTags
+// 在ItemTagsProvider#addTags中
 this.copy(EXAMPLE_BLOCK_TAG, EXAMPLE_ITEM_TAG);
 ```
 
-Custom Tag Providers
---------------------
+自定义标签提供者
+---------------
 
-A custom tag provider can be created via a `TagsProvider` subclass which takes in the registry key to generate tags for.
+可以通过`TagsProvider`子类创建自定义标签提供者，该子类接受注册表键来为其生成标签。
 
 ```java
 public RecipeTypeTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries, ExistingFileHelper fileHelper) {
@@ -100,10 +100,10 @@ public RecipeTypeTagsProvider(PackOutput output, CompletableFuture<HolderLookup.
 
 ### Intrinsic Holder Tags Providers
 
-One special type of `TagProvider`s are `IntrinsicHolderTagsProvider`s. When creating a tag using this provider via `#tag`, the object itself can be used to add itself to the tag via `#add`. To do so, a function is provided within the constructor to turn an object into its `ResourceKey`.
+一种特殊类型的`TagProvider`是`IntrinsicHolderTagsProvider`。当通过`#tag`使用此提供者创建标签时，可以使用对象本身通过`#add`将自己添加到标签中。为此，在构造函数中提供了一个函数，将对象转换为其`ResourceKey`。
 
 ```java
-// Subtype of `IntrinsicHolderTagsProvider`
+// `IntrinsicHolderTagsProvider`的子类型
 public AttributeTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries, ExistingFileHelper fileHelper) {
   super(
     output,

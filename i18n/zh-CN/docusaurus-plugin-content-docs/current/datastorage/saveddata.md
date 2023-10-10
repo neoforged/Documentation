@@ -1,41 +1,42 @@
 Saved Data
 ==========
 
-The Saved Data (SD) system is an alternative to level capabilities that can attach data per level.
+Saved Data（SD）系统是存档Capability功能的替代方案，可以按存档附加数据。
 
-Declaration
------------
+声明
+----
 
 Each SD implementation must subtype the `SavedData` class. There are two important methods to be aware of:
+每个SD实现都必须继承`SavedData`类。有两种重要方法需要注意：
 
-* `save`: Allows the implementation to write NBT data to the level.
-* `setDirty`: A method that must be called after changing the data, to notify the game that there are changes that need to be written. If not called, `#save` will not get called and the existing data will persist.
+* `save`：允许实现将NBT数据写入该存档。
+* `setDirty`：在更改数据后必须调用的方法，以通知游戏有需要写入的更改。如果未调用，将不会调用`#save`，并且现有数据将持久存在。
 
-Attaching to a Level
-----------------------
+附加到存档
+---------
 
-Any `SavedData` is loaded and/or attached to a level dynamically. As such, if one is never created on a level, then it will not exist.
+任何`SavedData`都是动态加载和/或附加到一个存档的。因此，如果一个`SavedData`从来没有在一个存档上创建过，那么它就不存在了。
 
-`SavedData`s are created and loaded from the `DimensionDataStorage`, which can be accessed by either `ServerChunkCache#getDataStorage` or `ServerLevel#getDataStorage`. From there, you can get or create an instance of your SD by calling `DimensionDataStorage#computeIfAbsent`. This will attempt to get the current instance of the SD if present or create a new one and load all available data.
+`SavedData`是从`DimensionDataStorage`创建和加载的，借助`ServerChunkCache#getDataStorage`或`ServerLevel#getDataStorage`都可以访问该存储。从那里，您可以通过调用`DimensionDataStorage#computeIfAbsent`来获取或创建SD的实例。这将尝试获取SD的当前实例（如果存在），或者创建一个新实例并加载所有可用数据。
 
-`DimensionDataStorage#computeIfAbsent` takes in three arguments: a function to load NBT data into a SD and return it, a supplier to construct a new instance of the SD, and the name of the `.dat` file stored within the `data` folder for the implemented level.
+`DimensionDataStorage#computeIfAbsent`接受三个参数：一个将NBT数据加载到SD并返回它的函数，一个构造SD新实例的Supplier，以及存储在所实现的存档的`data`文件夹中的`.dat`文件的名称。
 
-For example, if a SD was named "example" within the Nether, then a file would be created at `./<level_folder>/DIM-1/data/example.dat` and would be implemented like so:
+例如，如果一个SD在下界中被命名为"example"，那么一个文件将在`./<level_folder>/DIM-1/data/example.dat`创建并且将这样实现：
 
 ```java
-// In some class
+// 在某个类中
 public ExampleSavedData create() {
   return new ExampleSavedData();
 }
 
 public ExampleSavedData load(CompoundTag tag) {
   ExampleSavedData data = this.create();
-  // Load saved data
+  // 加载saved data
   return data;
 }
 
-// In some method within the class
+// 在该类的某个方法中
 netherDataStorage.computeIfAbsent(this::load, this::create, "example");
 ```
 
-To persist a SD across levels, a SD should be attached to the Overworld, which can be obtained from `MinecraftServer#overworld`. The Overworld is the only dimension that is never fully unloaded and as such makes it perfect to store multi-level data on.
+要在多个存档之间保持SD，应将SD连接到主世界，其可以从`MinecraftServer#overworld`获得。主世界是唯一一个从未完全卸载的维度，因此非常适合在其上存储多存档数据。

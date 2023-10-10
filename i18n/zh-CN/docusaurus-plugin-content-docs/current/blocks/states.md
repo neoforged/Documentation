@@ -1,76 +1,75 @@
-Block States
-============
+方块状态
+=======
 
-Legacy Behavior
----------------------------------------
+旧版本的行为
+-----------
 
-In Minecraft 1.7 and previous versions, blocks which need to store placement or state data that did not have BlockEntities used **metadata**. Metadata was an extra number stored with the block, allowing different rotations, facings, or even completely separate behaviors within a block.
+在Minecraft 1.7及以前的版本中，需要存储没有BlockEntity的位置或状态数据的方块使用**元数据（metadata）**。元数据是与方块一起存储的额外数字，允许方块不同的旋转、朝向，甚至完全独立的行为。
 
-However, the metadata system was confusing and limited, since it was stored as only a number alongside the block ID, and had no meaning except what was commented in the code. For example, to implement a block that can face a direction and be on either the upper or lower half of a block space (such as a stair): 
+然而，元数据系统是令人费解且有限度的，因为它只存储为方块ID旁边的一个数字，离开了代码中注释的内容后便没有任何意义。例如，要实现可以面向某个方向并且位于方块空间（例如楼梯）的上半部分或下半部分的方块，下列操作被执行：
 
-```java
+```Java
 switch (meta) {
-  case 0: { ... } // south and on the lower half of the block
-  case 1: { ... } // south on the upper side of the block
-  case 2: { ... } // north and on the lower half of the block
-  case 3: { ... } // north and on the upper half of the block
+  case 0: { ... } // 面向南方且位于方块的下半部分
+  case 1: { ... } // 面向南方且位于方块的上半部分
+  case 2: { ... } // 面向北方且位于方块的下半部分
+  case 3: { ... } // 面向北方且位于方块的上半部分
   // ... etc. ...
 }
 ```
 
-Because the numbers carry no meaning by themselves, no one could know what they represent unless they had access to the source code and comments.
+因为这些数字本身没有任何意义，所以除非能够访问源代码和注释，否则没有人能够知道它们代表什么。
 
-Introduction of States
----------------------------------------
+状态简介
+-------
 
-In Minecraft 1.8 and above, the metadata system, along with the block ID system, was deprecated and eventually replaced with the **block state system**. The block state system abstracts out the details of the block's properties from the other behaviors of the block.
+在Minecraft 1.8及以上版本中，元数据系统和方块ID系统被弃用，最终被**方块状态系统**取代。方块状态系统从方块的其他行为中抽象出方块属性的细节。
 
-Each *property* of a block is described by an instance of `Property<?>`. Examples of block properties include instruments (`EnumProperty<NoteBlockInstrument>`), facing (`DirectionProperty`), poweredness (`Property<Boolean>`), etc. Each property has the value of the type `T` parametrized by `Property<T>`.
+方块的每个*属性*都由`Property<?>`的一个实例来描述。方块属性的示例包括乐器（`EnumProperty<NoteBlockInstrument>`）、朝向（`DirectionProperty`）、充能状态（`Property<Boolean>`）等。每个属性都具有由`Property<T>`参数化后的类型`T`的值。
 
-A unique pair can be constructed from the `Block` and a map of the `Property<?>` to their associated values. This unique pair is called a `BlockState`.
+可以构建从`Block`和`Property<?>`的Map到与它们相关联的值的唯一的对。这个唯一的对被称为`BlockState`。
 
-The previous system of meaningless metadata values were replaced by a system of block properties, which are easier to interpret and deal with. Previously, a stone button which is facing east and is powered or held down is represented by "`minecraft:stone_button` with metadata `9`. Now, this is represented by "`minecraft:stone_button[facing=east,powered=true]`".
+以前无意义的元数据值系统被更容易解释和处理的方块属性系统所取代。以前，朝向东方并充能或按下的石头按钮由“带有元数据`9`的`minecraft:stone_button`”表示。现在，其用“`minecraft:stone_button[facing=east,powered=true]`”来表示。
 
-Proper Usage of Block States
----------------------------------------
+方块状态系统的正确用法
+--------------------
 
-The `BlockState` system is a flexible and powerful system, but it also has limitations. `BlockState`s are immutable, and all combinations of their properties are generated on startup of the game. This means that having a `BlockState` with many properties and possible values will slow down the loading of the game, and befuddle anyone trying to make sense of your block logic.
+`BlockState`系统是一个灵活而强大的系统，但它也有局限性。`BlockState`是不可变的，其属性的所有组合都是在游戏启动时生成的。这意味着拥有一个具有许多属性和可能值的`BlockState`会减慢游戏的加载速度，并让任何试图理解你的方块逻辑的人感到困惑。
 
-Not all blocks and situations require the usage of `BlockState`; only the most basic properties of a block should be put into a `BlockState`, and any other situation is better off with having a `BlockEntity` or being a separate `Block`. Always consider if you actually need to use blockstates for your purposes.
+并非所有方块和情况都需要使用`BlockState`；只有方块的最基本属性才应该被放入`BlockState`，而任何其他情况都最好有一个`BlockEntity`或是一个区分开的`Block`。要始终考虑是否确实需要出于你的目的而使用方块状态。
 
-:::note
-A good rule of thumb is: **if it has a different name, it should be a separate block**.
-:::
+!!! 注意
+    一个很好的经验法则是：**如果它有不同的名称，那么它应该是一个单独的方块**。
 
-An example is making chair blocks: the *direction* of the chair should be a *property*, while the different *types of wood* should be separated into different blocks.
-An "Oak Chair" facing east (`oak_chair[facing=east]`) is different from a "Spruce Chair" facing west (`spruce_chair[facing=west]`).
+一个案例是制作椅子方块：椅子的*朝向*应该是一个*属性*，而*不同类型的木材*应该被分成不同的块。朝向东方的“橡木椅子”（`oak_chair[facing=east]`）与朝向西方的“云杉椅子”（`oak_chair[facing=east]`）不同。
 
-Implementing Block States
----------------------------------------
+实现方块状态
+-----------
 
-In your Block class, create or reference `static final` `Property<?>` objects for every property that your Block has. You are free to make your own `Property<?>` implementations, but the means to do that are not covered in this article. The vanilla code provides several convenience implementations:
+在你的Block类中，为你的方块所拥有的所有属性创建或引用`static final` `Property<?>`对象。你尽可以创建自己的`Property<?>`实现，但本文没有介绍实现的方法。原版代码提供了几个方便的实现：
 
 * `IntegerProperty`
-    * Implements `Property<Integer>`. Defines a property that holds an integer value.
-    * Created by calling `IntegerProperty#create(String propertyName, int minimum, int maximum)`.
+    * 实现了`Property<Integer>`。定义具有整数值的一个属性。
+    * 通过调用`IntegerProperty#create(String propertyName, int minimum, int maximum)`创建。
 * `BooleanProperty`
-    * Implements `Property<Boolean>`. Defines a property that holds a `true` or `false` value.
-    * Created by calling `BooleanProperty#create(String propertyName)`.
+    * 实现了`Property<Boolean>`。定义具有`true`或`false`值的一个属性。
+    * 通过调用`BooleanProperty#create(String propertyName)`创建。
 * `EnumProperty<E extends Enum<E>>`
-    * Implements `Property<E>`. Defines a property that can take on the values of an Enum class.
-    * Created by calling `EnumProperty#create(String propertyName, Class<E> enumClass)`.
-    * It is also possible to use only a subset of the Enum values (e.g. 4 out of 16 `DyeColor`s). See the overloads of `EnumProperty#create`.
+    * 实现了`Property<E>`定义具有某一枚举类的值的一个属性。
+    * 通过调用`EnumProperty#create(String propertyName, Class<E> enumClass)`创建。
+    * 也能够仅使用枚举值的一个子集（例如16个`DyeColor`中的4个）。请参阅`EnumProperty#create`的重载。
 * `DirectionProperty`
-    * This is a convenience implementation of `EnumProperty<Direction>`
+    * 这是`EnumProperty<Direction>`的一个便利实现。
     * Several convenience predicates are also provided. For example, to get a property that represents the cardinal directions, call `DirectionProperty.create("<name>", Direction.Plane.HORIZONTAL)`; to get the X directions, `DirectionProperty.create("<name>", Direction.Axis.X)`.
+    * 也提供了一些便利的Predicate。例如，要获得一个表示基本方向的属性，请调用`DirectionProperty.create("<name>", Direction.Plane.HORIZONTAL)`；要获得仅X方向的，请调用`DirectionProperty.create("<name>", Direction.Axis.X)`。
 
-The class `BlockStateProperties` contains shared vanilla properties which should be used or referenced whenever possible, in place of creating your own properties.
+类`BlockStateProperties`包含共有的原版属性，应该尽可能先使用或引用这些属性，而不是创建自己的属性。
 
-When you have your desired `Property<>` objects, override `Block#createBlockStateDefinition(StateDefinition$Builder)` in your Block class. In that method, call `StateDefinition$Builder#add(...);`  with the parameters as every `Property<?>` you wish the block to have.
+当你拥有所需的`Property<>`对象时，请重写你的Block类中的`Block#createBlockStateDefinition(StateDefinition$Builder)`。在该方法中，使用你希望这个方块具有的每个`Property<?>`作为参数调用`StateDefinition$Builder#add(...);`。
 
-Every block will also have a "default" state that is automatically chosen for you. You can change this "default" state by calling the `Block#registerDefaultState(BlockState)` method from your constructor. When your block is placed it will become this "default" state. An example from `DoorBlock`:
+每个方块也将有一个自动为你选择的“默认”状态。你可以通过从构造函数中调用`Block#registerDefaultState(BlockState)`方法来更改此“默认”状态。放置方块后，它将变为此“默认”状态。如`DoorBlock`的一个案例：
 
-```java
+```Java
 this.registerDefaultState(
   this.stateDefinition.any()
     .setValue(FACING, Direction.NORTH)
@@ -81,16 +80,15 @@ this.registerDefaultState(
 );
 ```
 
-If you wish to change what `BlockState` is used when placing your block, you can overwrite `Block#getStateForPlacement(BlockPlaceContext)`. This can be used to, for example, set the direction of your block depending on where the player is standing when they place it.
+如果你希望更改放置方块时使用的`BlockState`，可以重写`Block#getStateForPlacement(BlockPlaceContext)`。例如，这可以用来根据玩家放置方块时所站的位置来设置方块的方向。
 
-Because `BlockState`s are immutable, and all combinations of their properties are generated on startup of the game, calling `BlockState#setValue(Property<T>, T)` will simply go to the `Block`'s `StateHolder` and request the `BlockState` with the set of values you want.
+由于`BlockState`是不可变的，并且其属性的所有组合都是在游戏启动时生成的，因此调用`BlockState#setValue(Property<T>, T)`将只需转到`Block`的`StateHolder`并请求具有你所需的一系列值的`BlockState`。
 
-Because all possible `BlockState`s are generated at startup, you are free and encouraged to use the reference equality operator (`==`) to check if two `BlockState`s are equal.
+因为所有可能的`BlockState`都是在启动时生成的，所以你可以自由地使用引用相等运算符（`==`）来检查两个`BlockState`是否相等。
 
-Using `BlockState`'s
----------------------
+使用`BlockState`
+----------------
 
-You can get the value of a property by calling `BlockState#getValue(Property<?>)`, passing it the property you want to get the value of.
-If you want to get a `BlockState` with a different set of values, simply call `BlockState#setValue(Property<T>, T)` with the property and its value.
+你可以通过调用`BlockState#getValue(Property<?>)`来获取某个属性的值，并将要获取值的属性传递给它。如果你想获得一个具有不同的一系列值的`BlockState`，只需使用该属性及其值调用`BlockState#setValue(Property<T>, T)`。
 
-You can get and place `BlockState`'s in the level using `Level#setBlockAndUpdate(BlockPos, BlockState)` and `Level#getBlockState(BlockPos)`. If you are placing a `Block`, call `Block#defaultBlockState()` to get the "default" state, and use subsequent calls to `BlockState#setValue(Property<T>, T)` as stated above to achieve the desired state.
+你可以使用`Level#setBlockAndUpdate(BlockPos, BlockState)`和`Level#getBlockState(BlockPos)`在存档中获取并放置`BlockState`。如果你正在放置一个`Block`，请调用`Block#defaultBlockState()`以获得“默认”状态，并使用对`BlockState#setValue(Property<T>, T)`的后续调用，如上所述，以保存所需状态。

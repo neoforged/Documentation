@@ -1,37 +1,35 @@
-Entities
-========
+实体
+====
 
-In addition to regular network messages, there are various other systems provided to handle synchronizing entity data.
+除了常规的网络消息之外，Forge还提供了各种其他系统来处理同步实体数据。
 
-Spawn Data
-----------
+生成数据
+-------
 
-In general, the spawning of modded entities is handled separately, by Forge.
+一般来说，由模组编写的实体的生成是由Forge单独处理的。
 
-:::note
-This means that simply extending a vanilla entity class may not inherit all its behavior. You may need to implement certain vanilla behaviors yourself.
-:::
+!!! 注意
+    这意味着简单地继承一个原版实体类可能不会继承它的所有行为。你可能需要自己实施某些原版行为。
 
-You can add extra data to the spawn packet Forge sends by implementing the following interface.
+你可以通过实现以下接口向Forge发送的生成数据包添加额外的数据。
 
 ### IEntityAdditionalSpawnData
 
-If your entity has data that is needed on the client, but does not change over time, then it can be added to the entity spawn packet using this interface. `#writeSpawnData` and `#readSpawnData` control how the data should be encoded to/decoded from the network buffer.
+如果你的实体具有客户端所需的数据，但不会随时间变化，则可以使用此接口将其添加到实体生成数据包中。`#writeSpawnData`和`#readSpawnData`控制如何将数据编码到网络缓冲区/从网络缓冲区解码数据。
 
-Dynamic Data
-------------
+动态数据
+-------
 
-### Data Parameters
+### 数据参数
 
-This is the main vanilla system for synchronizing entity data from the server to the client. As such, a number of vanilla examples are available to refer to.
+这是用于将实体数据从服务端同步到客户端的主要原版系统。因此，可以参考一些原版的例子。
 
-Firstly, you need a `EntityDataAccessor<T>` for the data you wish to keep synchronized. This should be stored as a `static final` field in your entity class, obtained by calling `SynchedEntityData#defineId` and passing the entity class and a serializer for that type of data. The available serializer implementations can be found as static constants within the `EntityDataSerializers` class.
+首先，对于要保持同步的数据，你需要一个`EntityDataAccessor<T>`。这应该存储为你的实体类中的`static final`字段，通过调用`SynchedEntityData#defineId`并传递实体类和该类型数据的序列化器来获得。可用的序列化器实现可以在`EntityDataSerializers`类中的静态常量找到。
 
-:::caution
-You should __only__ create data parameters for your own entities, _within that entity's class_.
-Adding parameters to entities you do not control can cause the IDs used to send that data over the network to become desynchronized, causing difficult to debug crashes.
-:::
+!!! 警告
+    你应该 __只__ _在相应实体的类_ 中为自己的实体创建数据参数。
+    向并非你所控制的实体添加参数可能会导致用于通过网络发送数据的ID不同步，从而导致难以调试的崩溃。
 
-Then, override `Entity#defineSynchedData` and call `this.entityData.define(...)` for each of your data parameters, passing the parameter and an initial value to use. Remember to always call the `super` method first!
+然后，重写`Entity#defineSynchedData`并为每个数据参数调用`this.entityData.define(...)`，传递参数和要使用的初始值。请记住始终首先调用`super`方法！
 
-You can then get and set these values via your entity's `entityData` instance. Changes made will be synchronized to the client automatically.
+然后，你可以通过实体的`entityData`实例获取并设置这些值。所做的更改将自动同步到客户端。

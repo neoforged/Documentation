@@ -1,20 +1,20 @@
-Networking
-==========
+网络
+====
 
-Communication between servers and clients is the backbone of a successful mod implementation.
+服务端与客户端之间的通信是成功实现模组的中流砥柱。
 
-There are two primary goals in network communication:
+网络通信有两个主要目标：
 
-1. Making sure the client view is "in sync" with the server view
-    - The flower at coordinates (X, Y, Z) just grew
-2. Giving the client a way to tell the server that something has changed about the player
-    - the player pressed a key
+1. 确保客户端视图与服务端视图“同步”
+    - 坐标（X，Y，Z）处的花刚刚生长
+2. 为客户端提供一种方法，告诉服务端玩家发生了变化
+    - 玩家按下了一个按键
 
-The most common way to accomplish these goals is to pass messages between the client and the server. These messages will usually be structured, containing data in a particular arrangement, for easy sending and receiving.
+实现这些目标的最常见方法是在客户端和服务端之间传递消息。这些消息通常是结构化的，包含特定排列的数据，以便于发送和接收。
 
-There are a variety of techniques provided by Forge to facilitate communication mostly built on top of [netty][].
+Forge提供了多种技术来促进通信，这些技术大多建立在[netty][]之上。
 
-The simplest, for a new mod, would be [SimpleImpl][channel], where most of the complexity of the netty system is abstracted away. It uses a message and handler style system.
+对于一个新模组来说，最简单的当是[SimpleImpl][channel]，在这里，网络系统的大部分复杂性都被抽象掉了。它使用消息和处理器样式的系统。
 
 [netty]: https://netty.io "Netty Website"
 [channel]: ./simpleimpl.md "SimpleImpl in Detail"

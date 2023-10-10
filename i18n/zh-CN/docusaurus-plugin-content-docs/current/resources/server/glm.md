@@ -1,40 +1,39 @@
-Global Loot Modifiers
-===========
+全局战利品修改器
+===============
 
-Global Loot Modifiers are a data-driven method of handling modification of harvested drops without the need to overwrite dozens to hundreds of vanilla loot tables or to handle effects that would require interactions with another mod's loot tables without knowing what mods may be loaded. Global Loot Modifiers are also stacking, rather than last-load-wins, similar to tags.
+全局战利品修改器是一种数据驱动的方法，可以处理收割掉落的修改，而无需覆盖数十到数百个原版战利品表，也无需处理需要与另一个模组的战利品表交互的效果，而不知道可能加载了什么模组。全局战利品修改器也是堆叠的，而不是后来者为王，类似于标签。
 
-Registering a Global Loot Modifier
--------------------------------
+注册一个全局战利品修改器
+----------------------
 
-You will need 4 things:
+你将需要4件事物：
 
-1. Create a `global_loot_modifiers.json`.
-    * This will tell Forge about your modifiers and works similar to [tags].
-2. A serialized json representing your modifier.
-    * This will contain all of the data about your modification and allows data packs to tweak your effect.
-3. A class that extends `IGlobalLootModifier`.
-    * The operational code that makes your modifier work. Most modders can extend `LootModifier` as it supplies base functionality.
-4. Finally, a codec to encode and decode your operational class.
-    * This is [registered] as any other `IForgeRegistryEntry`.
+1. 创建一个`global_loot_modifiers.json`。
+    * 这将告诉Forge你的修改器以及类似于[tags][标签]的工作。
+2. 代表修改器的序列化json。
+    * 这将包含有关你修改的所有数据，并允许数据包调整你的效果。
+3. 一个继承自`IGlobalLootModifier`的类。
+    * 使修改器工作的操作代码。大多数模组开发者都可以继承`LootModifier`，因为它提供了基本功能。
+4. 最后，使用编解码器对操作类进行编码和解码。
+    * 其应像任何其他`IForgeRegistryEntry`一样被[注册][registered]。
 
-The `global_loot_modifiers.json`
--------------------------------
+`global_loot_modifiers.json`文件
+--------------------------------
 
-The `global_loot_modifiers.json` represents all loot modifiers to be loaded into the game. This file **MUST** be placed within `data/forge/loot_modifiers/global_loot_modifiers.json`.
+`global_loot_modifiers.json`表示要加载到游戏中的所有战利品修改器。此文件**必须**放在`data/forge/loot_modifiers/global_loot_modifiers.json`。
 
-:::danger
-`global_loot_modifiers.json` will only be read in the `forge` namespace. The file will be neglected if it is under the mod's namespace.
-:::
+!!! 重要
+    `global_loot_modifiers.json`只能在`forge`命名空间中被读取。如果该文件位于模组的命名空间下，则会被忽略。
 
-`entries` is an *ordered list* of the modifiers that will be loaded. The [ResourceLocation][resloc]s specified points to their associated entry within `data/<namespace>/loot_modifiers/<path>.json`. This is primarily relevant to data pack makers for resolving conflicts between modifiers from separate mods.
+`entries`是将要加载的修改器的*有序列表*。指定的[ResourceLocation][resloc]指向其在`data/<namespace>/loot_modifiers/<path>.json`中的关联条目。这主要与数据包生成器有关，用于解决独立模组的修改器之间的冲突。
 
-`replace`, when `true`, changes the behavior from appending loot modifiers to the global list to replacing the global list entries entirely. Modders will want to use `false` for compatibility with other mod implementations. Datapack makers may want to specify their overrides with `true`.
+`replace`，当`true`时，会将行为从向全局列表添加战利品修改器更改为完全替换全局列表条目。为了与其他模组实现兼容，模组开发者将希望使用`false`。数据包作者可能希望用`true`以指定其覆盖。
 
 ```js
 {
-  "replace": false, // Must be present
+  "replace": false, // 必须存在
   "entries": [
-    // Represents a loot modifier in 'data/examplemod/loot_modifiers/example_glm.json'
+    // 代表'data/examplemod/loot_modifiers/example_glm.json'中的一个战利品修改器
     "examplemod:example_glm",
     "examplemod:example_glm2"
     // ...
@@ -42,27 +41,26 @@ The `global_loot_modifiers.json` represents all loot modifiers to be loaded into
 }
 ```
 
-The Serialized JSON
--------------------------------
+序列化JSON
+----------
 
-This file contains all of the potential variables related to your modifier, including the conditions that must be met prior to modifying any loot. Avoid hard-coded values wherever possible so that data pack makers can adjust balance if they wish to.
+该文件包含与修改器相关的所有潜在变量，包括修改任何战利品之前必须满足的条件。尽可能避免硬编码值，以便数据包作者可以根据需要调整平衡。
 
-`type` represents the registry name of the [codec] used to read the associated JSON file. This must always be present.
+`type`表示用于读取关联JSON文件的[编解码器][codec]的注册表名称。这必须始终存在。
 
-`conditions` should represent the loot table conditions for this modifier to activate. Conditions should avoid being hardcoded to allow datapack creators as much flexibility to adjust the criteria. This must also be always present.
+`conditions`应该表示该修改器要激活的战利品表条件。条件应该避免被硬编码，以允许数据包作者尽可能灵活地调整标准。这也必须始终存在。
 
-:::caution
-Although `conditions` should represent what is needed for the modifier to activate, this is only the case if using the bundled Forge classes. If using `LootModifier` as a subclass, all conditions will be **ANDed** together and checked to see if the modifier should be applied.
-:::
+!!! 重要
+    尽管`conditions`应该表示修改器激活所需的内容，但只有在使用捆绑的Forge类时才会出现这种情况。如果使用`LootModifier`作为子类，则所有条件都将用**逻辑与（AND）**相连，并检查是否应应用修改器。
 
-Any additional properties read by the serializer and defined by the modifier can also be specified.
+还可以指定由序列化器读取并由修改器定义的任何附加属性。
 
 ```js
-// Within data/examplemod/loot_modifiers/example_glm.json
+// 在data/examplemod/loot_modifiers/example_glm.json内
 {
   "type": "examplemod:example_loot_modifier",
   "conditions": [
-    // Normal loot table conditions
+    // 普通的战利品表条件
     // ...
   ],
   "prop1": "val1",
@@ -74,56 +72,55 @@ Any additional properties read by the serializer and defined by the modifier can
 `IGlobalLootModifier`
 ---------------------
 
-To supply the functionality a global loot modifier specifies, a `IGlobalLootModifier` implementation must be specified. These are instances generated each time a serializer decodes the information from JSON and supplies it into this object.
+要提供全局战利品修改器指定的功能，必须指定一个`IGlobalLootModifier`实现。这些是每次序列化器解码JSON中的信息并将其提供给该对象时生成的实例。
 
-There are two methods that needs to be defined in order to create a new modifier: `#apply` and `#codec`. `#apply` takes in the current loot that will be generated along with the context information such as the currently level or additional defined parameters. It returns the list of drops to generate.
+为了创建新的修改器，需要定义两种方法：`#apply`和`#codec`。`#apply`获取将与上下文信息一起生成的当前战利品，例如当前等级或额外定义的参数。它返回要生成的掉落物列表。
 
-:::info
-The returned list of drops from any one modifier is fed into other modifiers in the order they are registered. As such, modified loot can be modified by another loot modifier.
-:::
+!!! 注意
+    从任何一个修改器返回的掉落物列表都会按照它们注册的顺序输入到其他修改器中。因此，修改后的战利品可以被另一个战利品修改器修改。
 
-`#codec` returns the registered [codec] used to encode and decode the modifier to/from JSON.
+`#codec`返回已注册的[编解码器][codec]，用于将修改器编码到JSON或从JSON解码修改器。
 
-### The `LootModifier` Subclass
+### `LootModifier`子类
 
-`LootModifier` is an abstract implementation of `IGlobalLootModifier` to provide the base functionality which most modders can easily extend and implement. This expands upon the existing interface by defining the `#apply` method to check the conditions to determine whether or not to modify the generated loot.
+`LootModifier`是`IGlobalLootModifier`的一个抽象实现，用于提供大多数模组开发者可以轻松扩展和实现的基本功能。其通过定义`#apply`方法来检查条件，以确定是否修改生成的战利品，从而扩展了现有接口。
 
-There are two things of note within the subclass implementation: the constructor which must take in an array of `LootItemCondition`s and the `#doApply` method.
+在子类实现中有两件事需要注意：构造函数必须接受`LootItemCondition`的一个数组和`#doApply`方法。
 
-The array of `LootItemCondition`s define the list of conditions that must be true before the loot can be modified. The supplied conditions are **ANDed** together, meaning that all conditions must be true.
+`LootItemCondition`的数组定义了在修改战利品之前必须为true的条件列表。所提供的条件是用**逻辑和（AND）**连在一起的，这意味着所有条件都必须为true。
 
-The `#doApply` method works the same as the `#apply` method except that it only executes once all conditions return true.
+`#doApply`方法的工作原理与`#apply`方法相同，只是它只在所有条件都返回true时执行。
 
 ```java
 public class ExampleModifier extends LootModifier {
 
   public ExampleModifier(LootItemCondition[] conditionsIn, String prop1, int prop2, Item prop3) {
     super(conditionsIn);
-    // Store the rest of the parameters
+    // 存储其余参数
   }
 
   @NotNull
   @Override
   protected ObjectArrayList<ItemStack> doApply(ObjectArrayList<ItemStack> generatedLoot, LootContext context) {
-    // Modify the loot and return the new drops
+    // 修改战利品并返回新的掉落物
   }
 
   @Override
   public Codec<? extends IGlobalLootModifier> codec() {
-    // Return the codec used to encode and decode this modifier
+    // 返回用于编码和解码此修改器的编解码器
   }
 }
 ```
 
-The Loot Modifier Codec
------------------------
+战利品修改器的编解码器
+--------------------
 
-The connector between the JSON and the `IGlobalLootModifier` instance is a [`Codec<T>`][codecdef], where `T` represents the type of the `IGlobalLootModifier` to use.
+JSON和`IGlobalLootModifier`实例之间的桥梁是[`Codec<T>`][codecdef]，其中`T`表示要使用的`IGlobalLootModifier`的具体类型。
 
-For ease of convenience, a loot conditions codec has been provided for an easy addition to a record-like codec via `LootModifier#codecStart`. This is utilized for [data generation][datagen] of the associated loot modifier.
+为了方便起见，通过`LootModifier#codecStart`为类似记录的编解码器提供了一个战利品条件编解码器。这用于相关战利品修改器的[数据生成][datagen]。
 
 ```java
-// For some DeferredRegister<Codec<? extends IGlobalLootModifier>> REGISTRAR
+// 对于某个DeferredRegister<Codec<? extends IGlobalLootModifier>> REGISTRAR
 public static final RegistryObject<Codec<ExampleModifier>> = REGISTRAR.register("example_codec", () ->
   RecordCodecBuilder.create(
     inst -> LootModifier.codecStart(inst).and(
@@ -137,7 +134,7 @@ public static final RegistryObject<Codec<ExampleModifier>> = REGISTRAR.register(
 );
 ```
 
-[Examples][examples] can be found on the Forge Git repository, including silk touch and smelting effects.
+[示例][examples]可以在Forge Git存储库中找到，包括精准采集和熔炼效果。
 
 [tags]: ./tags.md
 [resloc]: ../../concepts/resources.md#ResourceLocation

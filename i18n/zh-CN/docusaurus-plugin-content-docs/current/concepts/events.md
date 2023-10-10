@@ -1,44 +1,44 @@
-Events
-======
+事件
+====
 
-Forge uses an event bus that allows mods to intercept events from various Vanilla and mod behaviors.
+Forge使用事件总线以允许模组拦截来自各种原版和模组行为的事件。
 
-Example: An event can be used to perform an action when a Vanilla stick is right clicked.
+例如：右键单击原版的木棍时，一个事件可被触发以用于执行操作。
 
-The main event bus used for most events is located at `MinecraftForge#EVENT_BUS`. There is another event bus for mod specific events located at `FMLJavaModLoadingContext#getModEventBus` that you should only use in specific cases. More information about this bus can be found below.
+用于大多数事件的主事件总线位于`MinecraftForge#EVENT_BUS`。在`FMLJavaModLoadingContext#getModEventBus`中还有另一个用于特定于模组事件的事件总线，你应该只在特定情况下使用它。关于该事件总线的更多信息可以在下面找到。
 
-Every event is fired on one of these busses: most events are fired on the main forge event bus, but some are fired on the mod specific event buses.
+每个事件都在其中一条总线上触发：大多数事件在主要的Forge事件总线上触发，但也有一些在特定于模组的事件总线上触发。
 
-An event handler is some method that has been registered to an event bus.
+事件处理器是某个已注册到事件总线的方法。
 
-Creating an Event Handler
--------------------------
+创建一个事件处理器
+----------------
 
-Event handlers methods have a single parameter and do not return a result. The method could be static or instance depending on implementation.
+事件处理器方法只有一个参数，不返回结果。该方法可以是静态的，也可以是实例化的，具体取决于实现。
 
-Event handlers can be directly registered using `IEventBus#addListener` for or `IEventBus#addGenericListener` for generic events (as denoted by subclassing `GenericEvent<T>`). Either listener adder takes in a consumer representing the method reference. Generic event handlers need to specify the class of the generic as well. Event handlers must be registered within the constructor of the main mod class.
+事件处理器可以使用`IEventBus#addListener`直接注册，或对于泛型事件（`GenericEvent<T>`的子类）使用`IEventBus#addGenericListener`直接注册。任一监听器注册方法接收表示方法引用的Consumer。泛型事件处理器还需要指定泛型的具体类型。事件处理器必须在模组主类的构造函数中注册。
 
 ```java
-// In the main mod class ExampleMod
+// 在模组主类ExampleMod中
 
-// This event is on the mod bus
+// 该事件位于模组事件总线上
 private void modEventHandler(RegisterEvent event) {
 	// Do things here
 }
 
-// This event is on the forge bus
+// 该事件位于Forge事件总线上
 private static void forgeEventHandler(AttachCapabilitiesEvent<Entity> event) {
 	// ...
 }
 
-// In the mod constructor
+// 在模组构造函数内
 modEventBus.addListener(this::modEventHandler);
 forgeEventBus.addGenericListener(Entity.class, ExampleMod::forgeEventHandler);
 ```
 
-### Instance Annotated Event Handlers
+### 实例化的已注释的事件处理器
 
-This event handler listens for the `EntityItemPickupEvent`, which is, as the name states, posted to the event bus whenever an `Entity` picks up an item.
+该事件处理器监听`EntityItemPickupEvent`，正如名称所述，每当`Entity`拾取一件物品时，该事件就会被发布到事件总线。
 
 ```java
 public class MyForgeEventHandler {
@@ -49,11 +49,11 @@ public class MyForgeEventHandler {
 }
 ```
 
-To register this event handler, use `MinecraftForge.EVENT_BUS.register(...)` and pass it an instance of the class the event handler is within. If you want to register this handler to the mod specific event bus, you should use `FMLJavaModLoadingContext.get().getModEventBus().register(...)` instead.
+要注册这个事件处理器，请使用`MinecraftForge.EVENT_BUS.register(...)`并向其传递事件处理器所在类的一个实例。如果要将此处理器注册到特定于模组的事件总线，则应使用`FMLJavaModLoadingContext.get().getModEventBus().register(...)`。
 
-### Static Annotated Event Handlers
+### 静态的已注释的事件处理器
 
-An event handler may also be static. The handling method is still annotated with `@SubscribeEvent`. The only difference from an instance handler is that it is also marked `static`. In order to register a static event handler, an instance of the class won't do. The `Class` itself has to be passed in. An example:
+事件处理器也可以是静态的。处理事件的方法仍然使用`@SubscribeEvent`进行注释。与实例化的事件处理器的唯一区别是它也被标记为`static`。要注册静态的事件处理器，传入类的实例是不行的。必须传入类本身。例如：
 
 ```java
 public class MyStaticForgeEventHandler {
@@ -64,15 +64,15 @@ public class MyStaticForgeEventHandler {
 }
 ```
 
-which must be registered like this: `MinecraftForge.EVENT_BUS.register(MyStaticForgeEventHandler.class)`.
+其必须像这样注册：`MinecraftForge.EVENT_BUS.register(MyStaticForgeEventHandler.class)`。
 
-### Automatically Registering Static Event Handlers
+### 自动注册静态的事件处理器
 
-A class may be annotated with the `@Mod$EventBusSubscriber` annotation. Such a class is automatically registered to `MinecraftForge#EVENT_BUS` when the `@Mod` class itself is constructed. This is essentially equivalent to adding `MinecraftForge.EVENT_BUS.register(AnnotatedClass.class);` at the end of the `@Mod` class's constructor.
+类可以使用`@Mod$EventBusSubscriber`进行注释。当`@Mod`类本身被构造时，这样的类会自动注册到`MinecraftForge#EVENT_BUS`。这实质上相当于在`@Mod`类的构造函数的末尾添加`MinecraftForge.EVENT_BUS.register(AnnotatedClass.class);`。
 
-You can pass the bus you want to listen to the `@Mod$EventBusSubscriber` annotation. It is recommended you also specify the mod id, since the annotation process may not be able to figure it out, and the bus you are registering to, since it serves as a reminder to make sure you are on the correct one. You can also specify the `Dist`s or physical sides to load this event subscriber on. This can be used to not load client specific event subscribers on the dedicated server.
+你可以向`@Mod$EventBusSubscriber`注释指明所要监听的总线。建议你也指定mod id，因为注释在处理的过程中可能无法确定它，以及你所注册的总线，因为它作为一个保障可以确保你所注册的是正确的总线。你还可以指定要加载此事件处理器的`Dist`或物理端。这可用于保证不在dedicated服务器上加载客户端特定的事件处理器。
 
-An example for a static event listener listening to `RenderLevelStageEvent` which will only be called on the client:
+下面是静态事件处理器监听`RenderLevelStageEvent`的示例，该处理器将仅在客户端上调用：
 
 ```java
 @Mod.EventBusSubscriber(modid = "mymod", bus = Bus.FORGE, value = Dist.CLIENT)
@@ -84,61 +84,57 @@ public class MyStaticClientOnlyEventHandler {
 }
 ```
 
-:::note
-This does not register an instance of the class; it registers the class itself (i.e. the event handling methods must be static).
-:::
+!!! 注意
+    这不会注册类的实例；它注册类本身（即事件处理方法必须是静态的）。
 
-Canceling
+事件的取消
 ---------
 
-If an event can be canceled, it will be marked with the `@Cancelable` annotation, and the method `Event#isCancelable()` will return `true`. The cancel state of a cancelable event may be modified by calling `Event#setCanceled(boolean canceled)`, wherein passing the boolean value `true` is interpreted as canceling the event, and passing the boolean value `false` is interpreted as "un-canceling" the event. However, if the event cannot be canceled (as defined by `Event#isCancelable()`), an `UnsupportedOperationException` will be thrown regardless of the passed boolean value, since the cancel state of a non-cancelable event event is considered immutable.
+如果一个事件可以被取消，它将带有`@Cancelable`注释，并且方法`Event#isCancelable()`将返回`true`。可取消事件的取消状态可以通过调用`Event#setCanceled(boolean canceled)`来修改，其中传递布尔值`true`意为取消事件，传递布尔值`false`被解释为“不取消”事件。但是，如果无法取消事件（如`Event#isCancelable()`所定义），则无论传递的布尔值如何，都将抛出`UnsupportedOperationException`，因为不可取消事件事件的取消状态被认为是不可变的。
 
-:::danger
-Not all events can be canceled! Attempting to cancel an event that is not cancelable will result in an unchecked `UnsupportedOperationException` being thrown, which is expected to result in the game crashing! Always check that an event can be canceled using `Event#isCancelable()` before attempting to cancel it!
-:::
+!!! 重要
+	并非所有事件都可以取消！试图取消不可取消的事件将导致抛出未经检查的`UnsupportedOperationException`，可能将导致游戏崩溃！在尝试取消某个事件之前，请始终使用`Event#isCancelable()`检查该事件是否可以取消！
 
-Results
--------
+事件的结果
+---------
 
-Some events have an `Event$Result`. A result can be one of three things: `DENY` which stops the event, `DEFAULT` which uses the Vanilla behavior, and `ALLOW` which forces the action to take place, regardless if it would have originally. The result of an event can be set by calling `#setResult` with an `Event$Result` on the event. Not all events have results; an event with a result will be annotated with `@HasResult`.
+某些事件具有`Event$Result`。结果可以是以下三种情况之一：`DENY`（停止事件）、`DEFAULT`（使用默认行为）和`ALLOW`（强制执行操作，而不管最初是否执行）。事件的结果可以通过调用`#setResult`并用一个`Event$Result`来设置。并非所有事件都有结果；带有结果的事件将用`@HasResult`进行注释。
 
-:::caution
-Different events may use results in different ways, refer to the event's JavaDoc before using the result.
-:::
+!!! 重要
+    不同的事件可能以不同的方式处理结果，在使用事件的结果之前请参阅事件的JavaDoc。
 
-Priority
---------
-
-Event handler methods (marked with `@SubscribeEvent`) have a priority. You can set the priority of an event handler method by setting the `priority` value of the annotation. The priority can be any value of the `EventPriority` enum (`HIGHEST`, `HIGH`, `NORMAL`, `LOW`, and `LOWEST`). Event handlers with priority `HIGHEST` are executed first and from there in descending order until `LOWEST` events which are executed last.
-
-Sub Events
-----------
-
-Many events have different variations of themselves. These can be different but all based around one common factor (e.g. `PlayerEvent`) or can be an event that has multiple phases (e.g. `PotionBrewEvent`). Take note that if you listen to the parent event class, you will receive calls to your method for *all* subclasses.
-
-Mod Event Bus
+事件处理优先级
 -------------
 
-The mod event bus is primarily used for listening to lifecycle events in which mods should initialize. Each event on the mod bus is required to implement `IModBusEvent`. Many of these events are also ran in parallel so mods can be initialized at the same time. This does mean you can't directly execute code from other mods in these events. Use the `InterModComms` system for that.
+事件处理方法（用`@SubscribeEvent`标记）具有优先级。你可以通过设置注释的`priority`值来安排事件处理方法的优先级。优先级可以是`EventPriority`枚举的任何值（`HIGHEST`、`HIGH`、`NORMAL`、`LOW`和`LOWEST`）。优先级为`HIGHEST`的事件处理器首先执行，然后按降序执行，直到最后执行的`LOWEST`为止。
 
-These are the four most commonly used lifecycle events that are called during mod initialization on the mod event bus:
+子事件
+------
+
+许多事件本身都有不同的变体。这些变体事件可以不尽相同，但都基于一个共同的因素（例如`PlayerEvent`），也可以是具有多个阶段的事件（例如`PotionBrewEvent`）。请注意，如果你监听父类事件，你的事件处理方法也将收到其*所有*子类事件。
+
+模组事件总线
+-----------
+
+模组事件总线主要用于监听模组应该初始化的生命周期事件。模组总线上的每个事件类型都需要实现`IModBusEvent`。其中许多事件也是并行运行的（多线程——译者注），因此多个模组可以同时被初始化。这意味着你不能在这些事件中直接执行来自其他模组的代码。为此，请使用`InterModComms`系统。
+
+以下是在模组事件总线上的模组初始化期间调用的四个最常用的生命周期事件：
 
 * `FMLCommonSetupEvent`
-* `FMLClientSetupEvent` & `FMLDedicatedServerSetupEvent`
+* `FMLClientSetupEvent`和`FMLDedicatedServerSetupEvent`
 * `InterModEnqueueEvent`
 * `InterModProcessEvent`
 
-:::note
-The `FMLClientSetupEvent` and `FMLDedicatedServerSetupEvent` are only called on their respective distribution.
-:::
+!!! 注意
+	`FMLClientSetupEvent`和`FMLDedicatedServerSetupEvent`仅在各自的分发版本（物理端——译者注）上调用。
 
-These four lifecycle events are all ran in parallel since they all are a subclass of `ParallelDispatchEvent`. If you want to run run code on the main thread during any `ParallelDispatchEvent`, you can use the `#enqueueWork` to do so.
+这四个生命周期事件都是并行运行的，因为它们都是`ParallelDispatchEvent`的子类。如果你想在任何`ParallelDispatchEvent`期间在主线程上运行运行代码，可以使用`#enqueueWork`来执行此操作。
 
-Next to the lifecycle events, there are a few miscellaneous events that are fired on the mod event bus where you can register, set up, or initialize various things. Most of these events are not ran in parallel in contrast to the lifecycle events. A few examples:
+除了生命周期事件之外，还有一些在模组事件总线上触发的杂项事件，你可以在其中注册、设置或初始化各种事情。与生命周期事件相比，这些事件中的大多数不是并行运行的。举几个例子：
 
 * `RegisterColorHandlersEvent`
 * `ModelEvent$BakingCompleted`
 * `TextureStitchEvent`
 * `RegisterEvent`
 
-A good rule of thumb: events are fired on the mod event bus when they should be handled during initialization of a mod.
+一个很好的经验法则是：当事件应该在模组初始化期间处理时，就在模组事件总线上触发事件。

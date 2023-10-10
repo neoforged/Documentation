@@ -1,15 +1,14 @@
-Render Types
-============
+渲染类型
+=======
 
-Adding the `render_type` entry at the top level of the JSON suggests to the loader what render type the model should use. If not specified, the loader gets to pick the render type(s) used, often falling back to the render types returned by `ItemBlockRenderTypes#getRenderLayers()`.
+在JSON的顶层添加`render_type`条目会向加载器建议模型应该使用什么渲染类型。如果未指定，加载器将选择所使用的渲染类型，通常会回到`ItemBlockRenderTypes#getRenderLayers()`返回的渲染类型。
 
-Custom model loaders may ignore this field entirely.
+自定义模型加载器可能会完全忽略此字段。
 
-:::note
-Since 1.19 this is preferred over the deprecated method of setting the applicable render type(s) via `ItemBlockRenderTypes#setRenderLayer()` for blocks.
-:::
+!!! 注意
+    自1.19以来，这比不推荐的通过`ItemBlockRenderTypes#setRenderLayer()`为方块设置适用渲染类型的方法更可取。
 
-Example of a model for a cutout block with the glass texture
+具有玻璃纹理的透明方块的模型示例
 
 ```js
 {
@@ -21,52 +20,52 @@ Example of a model for a cutout block with the glass texture
 }
 ```
 
-Vanilla Values
---------------
+原版值
+------
 
-The following options with the respective chunk and entity render type are supplied by Forge (`NamedRenderTypeManager#preRegisterVanillaRenderTypes()`):
+Forge提供了以下具有相应区块和实体渲染类型的选项（`NamedRenderTypeManager#preRegisterVanillaRenderTypes()`）：
 
 * `minecraft:solid`
-    * Chunk render type: `RenderType#solid()`
-    * Entity render type: `ForgeRenderTypes#ITEM_LAYERED_SOLID`
-    * Used for fully solid blocks (i.e. Stone)
+    * 区块渲染类型：`RenderType#solid()`
+    * 实体渲染类型：`ForgeRenderTypes#ITEM_LAYERED_SOLID`
+    * 用于完全固体方块（即石头）
 * `minecraft:cutout`
-    * Chunk render type: `RenderType#cutout()`
-    * Entity render type: `ForgeRenderTypes#ITEM_LAYERED_CUTOUT`
-    * Used for blocks where any given pixel is either fully transparent or fully opaque (i.e. Glass Block)
+    * 区块渲染类型：`RenderType#cutout()`
+    * 实体渲染类型：`ForgeRenderTypes#ITEM_LAYERED_CUTOUT`
+    * 用于任何给定像素完全透明或完全不透明的方块（即玻璃方块）
 * `minecraft:cutout_mipped`
-    * Chunk render type: `RenderType#cutoutMipped()`
-    * Entity render type: `ForgeRenderTypes#ITEM_LAYERED_CUTOUT`
-    * Chunk and entity render type differ due to mipmapping on the entity render type making items look weird
-    * Used for blocks where any given pixel is either fully transparent or fully opaque and the texture should be scaled down at larger distances ([mipmapping]) to avoid visual artifacts (i.e. Leaves)
+    * 区块渲染类型：`RenderType#cutoutMipped()`
+    * 实体渲染类型：`ForgeRenderTypes#ITEM_LAYERED_CUTOUT`
+    * 方块和实体渲染类型不同，因为实体渲染类型上的mipmapping使物品看起来很奇怪
+    * 用于任何给定像素是完全透明或完全不透明的方块，并且纹理应在较大距离上缩小（[mipmapping]）以避免视觉伪影（即树叶）
 * `minecraft:cutout_mipped_all`
-    * Chunk render type: `RenderType#cutoutMipped()`
-    * Entity render type: `ForgeRenderTypes#ITEM_LAYERED_CUTOUT_MIPPED`
-    * Used in similar cases as `minecraft:cutout_mipped` when the item representation should also have mipmapping applied
+    * 区块渲染类型：`RenderType#cutoutMipped()`
+    * 实体渲染类型：`ForgeRenderTypes#ITEM_LAYERED_CUTOUT_MIPPED`
+    * 在类似于`minecraft:cutout_mipped`的情况下使用，此时物品表示也应应用mipmapping
 * `minecraft:translucent`
-    * Chunk render type: `RenderType#translucent()`
-    * Entity render type: `ForgeRenderTypes#ITEM_LAYERED_TRANSLUCENT`
-    * Used for blocks where any given pixel may be partially transparent (i.e. Stained Glass)
+    * 区块渲染类型：`RenderType#translucent()`
+    * 实体渲染类型：`ForgeRenderTypes#ITEM_LAYERED_TRANSLUCENT`
+    * 用于任何给定像素可能部分透明的方块（即彩色玻璃）
 * `minecraft:tripwire`
-    * Chunk render type: `RenderType#tripwire()`
-    * Entity render type: `ForgeRenderTypes#ITEM_LAYERED_TRANSLUCENT`
-    * Chunk and entity render type differ due to the tripwire render type not being feasible as an entity render type
-    * Used for blocks with the special requirement of being rendered to the weather render target (i.e. Tripwire)
+    * 区块渲染类型：`RenderType#tripwire()`
+    * 实体渲染类型：`ForgeRenderTypes#ITEM_LAYERED_TRANSLUCENT`
+    * 区块和实体渲染类型不同，因为绊线渲染类型作为实体渲染类型不可行
+    * 用于具有渲染到天气渲染目标（即绊线）的特殊要求的块
 
-Custom Values
--------------
+自定义值
+--------
 
-Custom named render types to be specified in a model can be registered in the `RegisterNamedRenderTypesEvent`. This event is fired on the mod event bus.
+要在模型中指定的自定义命名渲染类型可以在`RegisterNamedRenderTypesEvent`中注册。此事件在模组事件总线上激发。
 
-A custom named render type consists of two or three components:
+自定义命名渲染类型由两个或三个组件组成：
 
-* A chunk render type - any of the types in the list returned by `RenderType.chunkBufferLayers()` can be used
-* A render type with the `DefaultVertexFormat.NEW_ENTITY` vertex format ("entity render type")
-* A render type with the `DefaultVertexFormat.NEW_ENTITY` vertex format for use when the *Fabulous!* graphics mode is selected (optional)
+* 区块渲染类型-可以使用`RenderType.chunkBufferLayers()`返回的列表中的任何类型
+* 具有`DefaultVertexFormat.NEW_ENTITY`顶点格式的渲染类型（“实体渲染类型”）
+* 具有`DefaultVertexFormat.NEW_ENTITY`顶点格式的渲染类型，用于当*Fabulous!*图形模式被选择时（可选）
 
-The chunk render type is used when a block using this named render type is rendered as part of the chunk geometry.  
-The required entity render type is used when an item using this named render type is rendered in the Fast and Fancy graphics modes (inventory, ground, item frame, etc.).  
-The optional entity render type is used the same way as the required entity render type when the *Fabulous!* graphics mode is selected. This render type is needed in cases where the required entity render type does not work in the *Fabulous!* graphics mode (typically only applies to translucent render types).
+当使用此命名渲染类型的区块被渲染为块几何体的一部分时，将使用区块渲染类型。
+当使用此命名渲染类型的物品在Fast和Fancy图形模式（物品栏、地面、物品框架等）中渲染时，将使用需求实体渲染类型。
+选择*Fabulous!*图形模式时，可选实体渲染类型的使用方式与需求实体渲染类型相同。如果需求实体渲染类型在*Fabulous!*图形模式下不起作用（通常仅适用于半透明渲染类型），则需要使用此渲染类型。
 
 ```java
 public static void onRegisterNamedRenderTypes(RegisterNamedRenderTypesEvent event)
@@ -76,6 +75,6 @@ public static void onRegisterNamedRenderTypes(RegisterNamedRenderTypesEvent even
 }
 ```
 
-These can then be addressed in JSON as `<your_mod_id>:special_cutout` and `<your_mod_id>:special_translucent`.
+然后，这些可以在JSON中寻址为`<your_mod_id>:special_cutout`和`<your_mod_id>:special_translucent`。
 
 [mipmapping]: https://en.wikipedia.org/wiki/Mipmap

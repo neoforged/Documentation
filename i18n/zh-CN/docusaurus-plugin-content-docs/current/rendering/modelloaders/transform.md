@@ -1,37 +1,37 @@
-Transform
-==========
+变换
+====
 
-When an [`BakedModel`][bakedmodel] is being rendered as an item, it can apply special handling depending on which transform it is being rendered in. "Transform" means in what context the model is being rendered. The possible transforms are represented in code by the `ItemDisplayContext` enum. There are two systems for handling transform: the deprecated vanilla system, constituted by `BakedModel#getTransforms`, `ItemTransforms`, and `ItemTransform`, and the Forge system, embodied by the method `IForgeBakedModel#applyTransform`. The vanilla code is patched to favor using `applyTransform` over the vanilla system whenever possible.
+当[`BakedModel`][bakedmodel]被渲染为物品时，它可以根据在哪个变换中渲染它来应用特殊处理。“变换”是指在什么上下文中渲染模型。可能的转换在代码中由`ItemDisplayContext`枚举表示。有两种处理转换的系统：不推荐使用的原版系统，由`BakedModel#getTransforms`、`ItemTransforms`和`ItemTransform`构成；Forge系统，由方法`IForgeBakedModel#applyTransform`实现。原版代码被进行了修补，以便尽可能使用`applyTransform`而不是原版系统。
 
 `ItemDisplayContext`
----------------
+--------------------
 
-`NONE` - Used for the display entity by default when no context is set and by Forge when a `Block`'s `RenderShape` is set to `#ENTITYBLOCK_ANIMATED`.
+`NONE` - 默认情况下，当未设置上下文时，用于显示实体；当`Block`的`RenderShape`设置为`#ENTITYBLOCK_ANIMATED`时，被Forge使用。
 
-`THIRD_PERSON_LEFT_HAND`/`THIRD_PERSON_RIGHT_HAND`/`FIRST_PERSON_LEFT_HAND`/`FIRST_PERSON_RIGHT_HAND` - The first person values represent when the player is holding the item in their own hand. The third person values represent when another player is holding the item and the client is looking at them in the 3rd person. Hands are self-explanatory.
+`THIRD_PERSON_LEFT_HAND`/`THIRD_PERSON_RIGHT_HAND`/`FIRST_PERSON_LEFT_HAND`/`FIRST_PERSON_RIGHT_HAND` - 第一人称值表示玩家何时将物品握在自己手中。第三人称值表示当另一个玩家拿着物品，而客户端用第三人称看着它们时。手的含义是不言自明的。
 
-`HEAD` - Represents when any player is wearing the item in the helmet slot (e.g. pumpkins).
+`HEAD` - 表示当任何玩家在头盔槽中佩戴该物品时（例如南瓜）。
 
-`GUI` - Represents when the item is being rendered in a `Screen`.
+`GUI` - 表示当该物品被在一个`Screen`中渲染时。
 
-`GROUND` - Represents when the item is being rendered in the level as an `ItemEntity`.
+`GROUND` - 表示该物品在存档中作为一个`ItemEntity`被渲染时。
 
-`FIXED` - Used for item frames.
+`FIXED` - 用于物品展示框。
 
-The Vanilla Way
----------------
+原版的方式
+---------
 
-The vanilla way of handling transform is through `BakedModel#getTransforms`. This method returns an `ItemTransforms`, which is a simple object that contains various `ItemTransform`s as `public final` fields. An `ItemTransform` represents a rotation, a translation, and a scale to be applied to the model. The `ItemTransforms` is a container for these, holding one for each of the `ItemDisplayContext`s except `NONE`. In the vanilla implementation, calling `#getTransform` for `NONE` results in the default transform, `ItemTransform#NO_TRANSFORM`.
+原版处理转换的方式是通过`BakedModel#getTransforms`。此方法返回一个`ItemTransforms`，这是一个简单的对象，包含各种作为`public final`的`ItemTransform`字段。`ItemTransform`表示要应用于模型的旋转、平移和比例。`ItemTransforms`是这些的容器，除了`NONE`之外，每个`ItemDisplayContext`都有一个容器。在原版实现中，为`NONE`调用`#getTransform`会产生默认转换`ItemTransform#NO_TRANSFORM`。
 
-The entire vanilla system for handling transforms is deprecated by Forge, and most implementations of `BakedModel` should simply `return ItemTransforms#NO_TRANSFORMS` (which is the default implementation) from `BakedModel#getTransforms`. Instead, they should implement `#applyTransform`.
+Forge废弃了使用处理转换的整个原版系统，`BakedModel`的大多数实现应该简单地从`BakedModel#getTransforms`中`return ItemTransforms#NO_TRANSFORMS`（这是默认实现）。相反，他们应该实现`#applyTransform`。
 
-The Forge Way
--------------
+Forge的方式
+-----------
 
-The Forge way of handling transforms is `#applyTransform`, a method patched into `BakedModel`. It supersedes the `#getTransforms` method.
+Forge处理转换的方法是`#applyTransform`，这是一种修补到`BakedModel`中的方法。它取代了`#getTransforms`方法。
 
 #### `BakedModel#applyTransform`
 
-Given a `ItemDisplayContext`, `PoseStack`, and a boolean to determine whether to apply the transform for the left hand, this method produces an `BakedModel` to be rendered. Because the returned `BakedModel` can be a totally new model, this method is more flexible than the vanilla method (e.g. a piece of paper that looks flat in hand but crumpled on the ground).
+给定一个`ItemDisplayContext`、`PoseStack`和一个布尔值来确定是否对左手应用变换，此方法将生成一个要渲染的`BakedModel`。因为返回的`BakedModel`可以是一个全新的模型，所以这种方法比原版方法（例如，一张手里看起来很平但在地上皱巴巴的纸）更灵活。
 
 [bakedmodel]: ./bakedmodel.md

@@ -1,9 +1,9 @@
-Part Visibility
-===============
+部分可见度
+=========
 
-Adding the `visibility` entry at the top level of a model JSON allows control over the visibility of different parts of the model to decide whether they should be baked into the final [`BakedModel`][bakedmodel]. The definition of a "part" is dependent on the model loader loading this model and custom model loaders are free to ignore this entry completely. Out of the model loaders provided by Forge only the [composite model loader][composite] and the [OBJ model loader][obj] make use of this functionality. The visibility entries are specified as `"part name": boolean` entries.
+在模型JSON的顶层添加`visibility`条目可以控制模型不同部分的可见性，以决定是否应将它们烘焙到最终的[`BakedModel`][bakedmodel]中。“零件”的定义取决于加载此模型的模型加载器，自定义模型加载器可以完全忽略此条目。在Forge提供的模型加载器中，只有[复合模型加载器][composite]和[OBJ模型加载器][obj]使用了此功能。可见性条目被指定为`"part name": boolean`条目。
 
-Example of a composite model with two parts, the second of which will not be baked into the final model, and two child models overriding this visibility to have only the first part and both parts visible respectively:
+具有两个部分的复合模型的示例，其中第二个部分不会烘焙到最终模型中，并且两个子模型覆盖此可见性，分别只显示第一个部分和两个部分：
 ```js
 // mycompositemodel.json
 {
@@ -39,13 +39,13 @@ Example of a composite model with two parts, the second of which will not be bak
 }
 ```
 
-The visibility of a given part is determined by checking whether the model specifies a visibility for this part and, if not present, recursively checking the model's parent until either an entry is found or there is no further parent to check, in which case it defaults to true.
+给定部分的可见性是通过检查模型是否指定了该部分的可见性来确定的，如果不存在，则递归地检查模型的父级，直到找到条目或没有其他父级要检查，在这种情况下，它默认为true。
 
-This allows setups like the following where multiple models use different parts of a single composite model:
+这允许进行以下设置，其中多个模型使用单个复合模型的不同部分：
 
-1. A composite model specifies multiple components
-2. Multiple models specify this composite model as their parent
-3. These child models individually specify different visibilities for the parts
+1. 复合模型指定多个组件
+2. 多个模型将此复合模型指定为其父模型
+3. 这些子模型分别指定部分的不同可见性
 
 [bakedmodel]: ../modelloaders/bakedmodel.md
 [composite]: ../modelloaders/index.md/#composite-models
