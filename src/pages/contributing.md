@@ -57,6 +57,32 @@ If the pseudocode is not explanatory enough to understand the concept, then a fu
 
 If a change occurs between a minor or patch versions of NeoForge, then relevant changes in the documentation should be split into separate sections or put into tabs. This maintains the accuracy of the information depending on the version the modder is currently developing for.
 
+```md
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+<Tabs defaultValue="latest">
+<!-- Value represents the last supported version of this method. -->
+<!-- Label represents the version range to display to the reader. -->
+<TabItem value="latest" label="Latest">
+
+<!-- Markdown here -->
+
+</TabItem>
+<!-- There must be an empty line before and after the Markdown text in a tab. -->
+<TabItem value="20.2.67" label="[20.2.35,20.2.67]"> 
+
+<!-- Markdown here -->
+
+</TabItem>
+<TabItem value="20.2.34" label="[20.2.0,20.2.34]">
+
+<!-- Markdown here -->
+
+</TabItem>
+</Tabs>
+```
+
 ## Style Guide
 
 This documentation uses [Docusaurus][docusaurus], which internally uses [MDX][mdx], to generate the pages. You can find more detailed information about available features on their pages. This style guide will be more focused towards common features and formatting we use in the Markdown files.
