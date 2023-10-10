@@ -10,15 +10,15 @@ npm install
 npm run start
 ```
 
-## An Overview
+## Principles
 
 This documentation is a guide to help a modder understand and implement a given concept from Minecraft or NeoForged.
 
-This documentation is NOT meant as a tutorial, allowing a modder to copy-paste the examples. If you are looking for a tutorial, there are plenty of videos and pages, which are not linked here, that you can use and follow along with.
+This documentation is **not** meant as a tutorial, allowing a modder to copy-paste the examples. If you are looking for a tutorial, there are plenty of videos and pages, which are not linked here, that you can use and follow along with.
 
-This documentation is also NOT meant as documentation for a class. Providing a description of an element is unavoidable when writing a guide; however, if you would like to document a class, you should contribute to [Parchment for Minecraft][parchment] or [NeoForge for NeoForged][neo].
+This documentation is also **not** meant as documentation for a class. Providing a description of an element is unavoidable when writing a guide; however, if you would like to document a class, you should contribute to [Parchment for Minecraft][parchment] or [NeoForge for NeoForged][neo].
 
-Final, this documentation is NOT meant to explain Java concepts. This documentation is intended for people who already has a solid basis in Java. If a Java concept needs to be explained to better understand the concept (such as JVM Descriptors for Access Transformers), a link should be provided to the original resource. Otherwise, if you are unfamiliar with Java, there are plenty of online resources to learn from:
+Final, this documentation is **not** meant to explain Java concepts. This documentation is intended for people who already has a solid basis in Java. If a Java concept needs to be explained to better understand the concept (such as JVM Descriptors for Access Transformers), a link should be provided to the original resource. Otherwise, if you are unfamiliar with Java, there are plenty of online resources to learn from:
 
 * [JetBrains Academy][jetbrains]
 * [Codeacademy][codeacademy]
@@ -28,7 +28,7 @@ Final, this documentation is NOT meant to explain Java concepts. This documentat
 
 ## Concepts
 
-Each page should guide a modder on a particular concept. If the concept is too large in scope, the concept should be split into separate sub-concepts, each within its own page. For example, if you are writing  a cookbook, there can be a page for each recipe, rather than a single page containing all the recipes.
+Each page should guide a modder on a particular concept. If the concept is too large in scope, the concept should be split into separate sub-concepts, each within its own page. For example, if you are writing a cookbook, there can be a page for each recipe, rather than a single page containing all the recipes.
 
 When describing a concept, you should first introduce what the concept is, where it is used in Minecraft, why it should be used, and how to use it. Each section within a concept should have a header. A section can also be broken into sub-sections if necessary. For example, each recipe within a cookbook can have a sub-section for ingredients and the recipe itself.
 
@@ -36,7 +36,9 @@ If you need to refer to other concepts, the relevant page should be linked along
 
 ## Examples
 
-Code examples should generally be pseudocode-like objects meant to enhance the understanding of a modder. When implementing a method, it is usually specific to the desired goal a modder is trying to achieve. As a guide, this documentation aims to be somewhat agnostic to a modder's specific goal, instead covering the general use case.
+Code examples should generally be pseudocode-like objects meant to enhance the understanding of a modder. For this documentation, pseudocode-like refers to code blocks written in the structure and syntax of the desired language with comments used as placeholders for specific logic that the modder may choose to implement themselves. The code blocks do not necessarily need to be compilable, but each line should have valid syntax and structure of the desired language.
+
+When implementing a method, it is usually specific to the desired goal a modder is trying to achieve. As a guide, this documentation aims to be somewhat agnostic to a modder's specific goal, instead covering the general use case.
 
 Let's say we are using a method called `#applyDiscount` to take some value off the current price. Not everyone will implement the same logic within the method. So, the pseudocode can leave a comment mentioning what to do instead:
 
@@ -127,11 +129,11 @@ Titles are defined using up to six hashtags (`#`) to define each section. Titles
 
 ### Diction
 
-Spelling, grammar, and syntax should follow those in American English. Avoid using contractions in sentences; use two separate words ('is not' instead of 'isn't'). Additionally, avoid using pronouns when possible, unless you need to directly refer to the reader.
+Spelling, grammar, and syntax should follow those in American English. Avoid using contractions in sentences; use two separate words ('is not' instead of 'isn't'). Additionally, avoid using pronouns (e.g. I, me, you) when possible, unless you need to directly refer to the reader. Demonstratives (e.g. this, that, its) should be used sparingly to avoid confusing the reader. Prefer using the actual object or noun being referred to.
 
 ### Paragraphs
 
-Paragraphs should be a continuous block, separated by a newline. Paragraphs should NOT have each sentence be on a new line.
+Paragraphs should be a continuous block, separated by a newline. Paragraphs should **not** have each sentence be on a new line.
 
 ```md
 This is my first paragraph. See how the next sentence is on the same line? You can use word wrapping in your editor to stop the line from going off the screen.
@@ -148,18 +150,28 @@ When indenting lines, use four spaces instead of tabs. Most markdown features re
     * Four Spaces In
 ```
 
+### Importance
+
+Emphasizing words should be done using **bold** or _italics_. Please use two asterisks (`**`) for bold and an underscore (`_`) for italics to make the separation in Markdown more distinct.
+
+```md
+This is a **bolded** word.
+
+This is an _italicized_ word.
+```
+
 ### Code References
 
-When referencing elements outside of code blocks, they should be surrounded with backticks (`` ` ``). Classes should use their simple name. Methods and fields should specify the class name followed by a `#`. If the class name is implied, the method or field can simply be prefixed with `#`. Inner classes should specify the name of the outer class followed by a `$`.
+When referencing elements outside of code blocks, they should be surrounded with backticks (`` ` ``). Classes should use their simple name. Methods and fields should specify the class name followed by a `#`. If the class name is implied, the method or field can simply be prefixed with `#`. Inner classes should specify the name of the outer class followed by a `.`.
 
 ```md
 <!-- Classes -->
 `MyClass`
-`MyClass$InnerClass`
+`MyClass.InnerClass`
 
 <!-- Method and Fields -->
 `MyClass#foo`
-`MyClass$InnerClass#bar`
+`MyClass.InnerClass#bar`
 `#SOME_CONSTANT`
 ```
 
