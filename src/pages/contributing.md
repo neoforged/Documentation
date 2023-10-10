@@ -59,7 +59,7 @@ If the pseudocode is not explanatory enough to understand the concept, then a fu
 
 If a change occurs between a minor or patch versions of NeoForge, then relevant changes in the documentation should be split into separate sections or put into tabs. This maintains the accuracy of the information depending on the version the modder is currently developing for.
 
-```md
+````md
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
@@ -69,21 +69,74 @@ import TabItem from '@theme/TabItem';
 <TabItem value="latest" label="Latest">
 
 <!-- Markdown here -->
+```java
+public void latestMethod() {
+    // ...
+}
+```
 
 </TabItem>
 <!-- There must be an empty line before and after the Markdown text in a tab. -->
 <TabItem value="20.2.67" label="[20.2.35,20.2.67]"> 
 
 <!-- Markdown here -->
+```java
+public void previousMethod() {
+    // ...
+}
+```
 
 </TabItem>
 <TabItem value="20.2.34" label="[20.2.0,20.2.34]">
 
 <!-- Markdown here -->
+```java
+public void firstMethod() {
+    // ...
+}
+```
 
 </TabItem>
 </Tabs>
+````
+
+Output:
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+<Tabs defaultValue="latest">
+<TabItem value="latest" label="Latest">
+
+<!-- Markdown here -->
+```java
+public void latestMethod() {
+    // ...
+}
 ```
+
+</TabItem>
+<TabItem value="20.2.67" label="[20.2.35,20.2.67]"> 
+
+<!-- Markdown here -->
+```java
+public void previousMethod() {
+    // ...
+}
+```
+
+</TabItem>
+<TabItem value="20.2.34" label="[20.2.0,20.2.34]">
+
+<!-- Markdown here -->
+```java
+public void firstMethod() {
+    // ...
+}
+```
+
+</TabItem>
+</Tabs>
 
 ## Style Guide
 
