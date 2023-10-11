@@ -119,6 +119,11 @@ const config = {
             docsPluginId: "neogradle",
           },
           {
+            to: "/contributing",
+            label: "Contributing",
+            position: "right",
+          },
+          {
             href: "https://github.com/neoforged/documentation",
             label: "GitHub",
             position: "right",
@@ -139,6 +144,10 @@ const config = {
                 to: "/neogradle/docs/",
                 label: "NeoGradle Documentation",
               },
+              {
+                to: "/contributing",
+                label: "Contributing to the Documentation"
+              }
             ],
           },
           {
