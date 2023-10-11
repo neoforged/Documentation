@@ -3,7 +3,7 @@
 
 访问转换器（简称AT）允许扩大可见性并修改类、方法和字段的`final`标志。它们允许模组开发者访问和修改其控制之外的类中不可访问的成员。
 
-[规范文档][specs]可以在Minecraft Forge GitHub上查看。
+[规范文档][specs]可以在NeoForged GitHub上查看。
 
 添加AT
 ------
@@ -109,5 +109,5 @@ public net.minecraft.Util m_137477_(Ljava/lang/String;)Ljava/util/concurrent/Exe
 public net.minecraft.core.UUIDUtil m_235872_(JJ)[I #leastMostToIntArray
 ```
 
-[specs]: https://github.com/MinecraftForge/AccessTransformers/blob/master/FMLAT.md
+[specs]: https://github.com/NeoForged/AccessTransformers/blob/master/FMLAT.md
 [jvmdescriptors]: https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.3.2
