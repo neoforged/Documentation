@@ -9,6 +9,6 @@
 
 附加阅读：[资源位置][resourcelocation]
 
-[datapack]: https://minecraft.fandom.com/wiki/Data_pack
-[createdatapack]: https://minecraft.fandom.com/wiki/Tutorials/Creating_a_data_pack
+[datapack]: https://minecraft.wiki/w/Data_pack
+[createdatapack]: https://minecraft.wiki/w/Tutorials/Creating_a_data_pack
 [resourcelocation]: ../../concepts/resources.md#ResourceLocation

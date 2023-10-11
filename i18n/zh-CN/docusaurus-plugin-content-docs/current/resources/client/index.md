@@ -10,6 +10,6 @@
 
 附加阅读：[资源位置][resourcelocation]
 
-[respack]: https://minecraft.fandom.com/wiki/Resource_Pack
-[createrespack]: https://minecraft.fandom.com/wiki/Tutorials/Creating_a_resource_pack
+[respack]: https://minecraft.wiki/w/Resource_Pack
+[createrespack]: https://minecraft.wiki/w/Tutorials/Creating_a_resource_pack
 [resourcelocation]: ../../concepts/resources.md#ResourceLocation

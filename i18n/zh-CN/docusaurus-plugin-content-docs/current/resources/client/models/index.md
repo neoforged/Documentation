@@ -16,10 +16,10 @@
 
 纹理和模型一样，包含在资源包中，并被称为`ResourceLocation`。在《我的世界》中，[UV坐标][UV] (0,0)表示**左上角**。UV*总是*从0到16。如果纹理较大或较小，则会缩放坐标以进行拟合。纹理也应该是正方形的，纹理的边长应该是2的幂，否则会破坏mipmapping（例如1x1、2x2、8x8、16x16和128x128是好的。不建议使用5x5和30x30，因为它们不是2的幂。5x10和4x8会完全断裂，因为它们不是正方形的。）。只有当纹理是[动画化的][animated]时，纹理才应该不是正方形。
 
-[models]: https://minecraft.fandom.com/wiki/Tutorials/Models#File_path
+[models]: https://minecraft.wiki/w/Tutorials/Models#File_path
 [resloc]: ../../../concepts/resources.md#resourcelocation
-[statemodel]: https://minecraft.fandom.com/wiki/Tutorials/Models#Block_states
-[itemmodels]: https://minecraft.fandom.com/wiki/Tutorials/Models#Item_models
+[statemodel]: https://minecraft.wiki/w/Tutorials/Models#Block_states
+[itemmodels]: https://minecraft.wiki/w/Tutorials/Models#Item_models
 [state]: ../../../blocks/states.md
 [uv]: https://en.wikipedia.org/wiki/UV_mapping
-[animated]: https://minecraft.fandom.com/wiki/Resource_Pack?so=search#Animation
+[animated]: https://minecraft.wiki/w/Resource_Pack?so=search#Animation

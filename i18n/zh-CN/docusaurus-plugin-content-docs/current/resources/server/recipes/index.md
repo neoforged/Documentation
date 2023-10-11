@@ -95,8 +95,8 @@ Forge为配方纲要及其实现提供了一些额外的行为，以更好地控
 
 一些额外的[原料类型][ingredients]被添加，以允许配方具有检查标签数据或将多种原料组合到单个输入检查器中的输入。
 
-[datapack]: https://minecraft.fandom.com/wiki/Data_pack
-[wiki]: https://minecraft.fandom.com/wiki/Recipe
+[datapack]: https://minecraft.wiki/w/Data_pack
+[wiki]: https://minecraft.wiki/w/Recipe
 [advancement]: ../advancements.md
 [datagen]: ../../../datagen/server/recipes.md
 [cap]: ../../../datastorage/capabilities.md

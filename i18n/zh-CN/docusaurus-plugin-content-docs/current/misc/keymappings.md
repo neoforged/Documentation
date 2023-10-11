@@ -151,7 +151,7 @@ public boolean mouseClicked(double x, double y, int button) {
 :::
 
 [modbus]: ../concepts/events.md#mod-event-bus
-[controls]: https://minecraft.fandom.com/wiki/Options#Controls
+[controls]: https://minecraft.wiki/w/Options#Controls
 [tk]: ../concepts/internationalization.md#translatablecontents
 [keyinput]: https://www.glfw.org/docs/3.3/input_guide.html#input_key
 [forgebus]: ../concepts/events.md#creating-an-event-handler

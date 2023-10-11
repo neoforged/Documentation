@@ -105,7 +105,7 @@
     - **用法**: 就像`Level`中的方法一样，玩家类中的这两个重写似乎是针对在两端同时运行的代码。客户端处理向用户播放音效，而服务端处理其他所有听到音效的人，而不向原始用户重新播放。
 
 [loc]: ../concepts/resources.md#resourcelocation
-[wiki]: https://minecraft.fandom.com/wiki/Sounds.json
+[wiki]: https://minecraft.wiki/w/Sounds.json
 [datagen]: ../datagen/client/sounds.md
 [registration]: ../concepts/registries.md#methods-for-registering
 [sides]: ../concepts/sides.md

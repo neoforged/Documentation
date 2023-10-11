@@ -126,6 +126,6 @@ public Optional<ExampleRecipe> getRecipeFor(Level level, BlockPos pos) {
 所有自定义配方，无论输入或输出数据如何，都可以使用`RecipeProvider`创建到用于[数据生成][datagen]的`FinishedRecipe`中。
 
 [forge]: ../../../concepts/registries.md#methods-for-registering
-[json]: https://minecraft.fandom.com/wiki/Recipe#JSON_format
+[json]: https://minecraft.wiki/w/Recipe#JSON_format
 [manager]: ./index.md#recipe-manager
 [datagen]: ../../../datagen/server/recipes.md#custom-recipe-serializers

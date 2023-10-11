@@ -114,8 +114,8 @@ boolean isInVillagerTypeGroup = BuiltInRegistries.VILLAGER_TYPE.getHolder(villag
 原版直接支持标签。有关用法的详细信息，请参阅[配方][recipes]和[进度][advancements]的原版wiki页面。
 
 [datapack]: ./index.md
-[tags]: https://minecraft.fandom.com/wiki/Tag#JSON_format
-[taglist]: https://minecraft.fandom.com/wiki/Tag#List_of_tags
+[tags]: https://minecraft.wiki/w/Tag#JSON_format
+[taglist]: https://minecraft.wiki/w/Tag#List_of_tags
 [forgetags]: https://github.com/MinecraftForge/MinecraftForge/tree/1.19.x/src/generated/resources/data/forge/tags
-[recipes]: https://minecraft.fandom.com/wiki/Recipe#JSON_format
-[advancements]: https://minecraft.fandom.com/wiki/Advancement
+[recipes]: https://minecraft.wiki/w/Recipe#JSON_format
+[advancements]: https://minecraft.wiki/w/Advancement

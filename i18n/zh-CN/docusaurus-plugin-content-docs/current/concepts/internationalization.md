@@ -65,5 +65,5 @@ Block、Item和其他一些Minecraft类都内置了用于显示其名称的翻�
 
 - `createComponentTranslation(CommandSource, String, Object...)`根据接收者创建本地化并格式化的`MutableComponent`。如果接收者是一个原版客户端，那么本地化和格式化就很容易完成。如果没有，本地化和格式化将使用包含`TranslatableContents`的`Component`惰性地进行。只有当服务端允许原版客户端连接时，这才有用。
 
-[langs]: https://minecraft.fandom.com/wiki/Language#Languages
+[langs]: https://minecraft.wiki/w/Language#Languages
 [converter]: https://tterrag.com/lang2json/

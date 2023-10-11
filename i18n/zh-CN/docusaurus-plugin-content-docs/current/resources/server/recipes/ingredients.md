@@ -170,7 +170,7 @@ public IIngredientSerializer<? extends Ingredient> getSerializer() {
     如果使用`FMLCommonSetupEvent`注册原料序列化器，则必须通过`FMLCommonSetupEvent#enqueueWork`将其排入同步工作队列，因为`CraftingHelper#register`不是线程安全的。
 :::
 
-[recipes]: https://minecraft.fandom.com/wiki/Recipe#List_of_recipe_types
+[recipes]: https://minecraft.wiki/w/Recipe#List_of_recipe_types
 [nbt]: #strictnbtingredient
 [serializer]: #iingredientserializer
 [compound]: #compoundingredient

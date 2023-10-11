@@ -65,9 +65,9 @@ MDK的`build.gradle`中的默认配置添加了用于运行数据生成器的`ru
 * [`advancements.AdvancementProvider`][advgen] - 针对[进度]；向构造函数传递`AdvancementSubProvider`
 
 [langgen]: ./client/localization.md
-[lang]: https://minecraft.fandom.com/wiki/Language
+[lang]: https://minecraft.wiki/w/Language
 [soundgen]: ./client/sounds.md
-[sounds]: https://minecraft.fandom.com/wiki/Sounds.json
+[sounds]: https://minecraft.wiki/w/Sounds.json
 [modelgen]: ./client/modelproviders.md
 [models]: ../resources/client/models/index.md
 [itemmodelgen]: ./client/modelproviders.md#itemmodelprovider

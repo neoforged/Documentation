@@ -72,5 +72,5 @@
 
 比例必须指定为表示三维矢量的3个浮点数的数组：`[ x, y, z ]`，如果不存在，则默认为(1, 1, 1)。
 
-[blockstate]: https://minecraft.fandom.com/wiki/Tutorials/Models#Block_states
+[blockstate]: https://minecraft.wiki/w/Tutorials/Models#Block_states
 [displaytransform]: ../modelloaders/transform.md
