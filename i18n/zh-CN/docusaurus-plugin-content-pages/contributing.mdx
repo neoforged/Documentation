@@ -1,0 +1,295 @@
+# 向文档做出贡献
+
+这是一个非详尽的指南，用于为[NeoForged文档][docs]仓库做出贡献。贡献可以通过fork和clone仓库来草拟，然后通过[GitHub][docs]上的pull request（即PR）来请求。
+
+你可以使用[npm]在本地运行网站。建议使用Node版本管理器，如[nvm]（Mac、Linux）或[nvs]（Windows）来设置和安装npm和Node。从那里，你可以运行以下命令：
+
+```bash
+nvm use # 在Windows上为nvs use
+npm install
+npm run start
+```
+
+## 原则
+
+本文档是帮助模组开发者理解和实现Minecraft或NeoForged中给定概念的指南。
+
+本文档**并非**是一个允许修改者复制粘贴示例的教程。如果你正在寻找教程，有大量视频和页面（此处未链接），你可以使用并遵循。
+
+这个文档也**不**是一个类的文档。在编写指南时，提供一个元素的描述是不可避免的；然而，如果你想为一个类写文档，你应该贡献给[Parchment for Minecraft][parchment]或[NeoForge for NeoForged][neo]。
+
+最后，本文档**并非**用于解释Java的概念。本文档是为那些已经有了坚实Java基础的人准备的。如果需要解释Java概念以更好地理解该概念（例如访问转换器的JVM描述符），则应提供到原始资源的链接。否则，如果你不熟悉Java，有很多在线资源可以学习：
+
+* [JetBrains Academy][jetbrains]
+* [Codeacademy][codeacademy]
+* [University of Helsinki][helsinki]
+* [Oracle][oracle]
+* [Introduction to Programming using Java by David J. Eck][eck]
+
+## 概念
+
+每一页都应该为模组开发者提供一个特定概念的引导。如果概念的范围太大，则应将概念拆分为单独的子概念，每个子概念都在自己的页面中。例如，如果你正在写一个配方，那么每个配方都可以有一个页面，而不是一个页面包含所有配方。
+
+在描述一个概念时，你应该首先介绍这个概念是什么，它在Minecraft中的使用位置，为什么应该使用它，以及如何使用它。概念中的每个部分都应该有一个标题。如有必要，也可以将一个部分分解为多个子部分。例如，食谱中的每一个配方都可以有一个关于原料和配方本身的小节。
+
+如果你需要引用其他概念，则应将相关页面与摘要和/或一些示例一起链接，以了解其具体的应用。
+
+## 示例
+
+代码示例通常应该是类似伪代码的对象，以增强模组开发者的理解。在本文档中，类伪代码指的是用所需语言的结构和语法编写的代码块，注释用作特定逻辑的占位符，模组开发者可以选择自己实现这些逻辑。代码块不一定需要可编译，但每一行都应该具有所需语言的有效语法和结构。
+
+当实现一个方法时，它通常是特定于模组开发者试图实现的期望目标。作为指南，本文档旨在对模组开发者的特定目标进行某种程度的不可知论，而不是涵盖一般用例。
+
+比方说，我们正在使用一种名为`#applyDiscount`的方法来从当前价格中减去一些价值。并不是每个人都会在方法中实现相同的逻辑。因此，伪代码可以留下一条注释，说明要做什么：
+
+```java
+// 在某个类中
+
+public float applyDiscount(float price) {
+    float newPrice = price;
+    // 向newPrice应用折扣
+    // ...
+    return newPrice;
+}
+```
+
+:::tip
+如果伪代码的解释性不足以理解这个概念，那么可以使用完整的代码示例。完整的代码示例应该提供伪值并解释它们所代表的内容。
+:::
+
+## 次要更改和补丁更改
+
+如果在NeoForge的次要版本或补丁版本之间发生更改，则文档中的相关更改应拆分为单独的部分或放入选项卡（Tab）中。这保持了信息的准确性，这取决于模组开发者目前正在开发的版本。
+
+选项卡必须位于`.mdx`文件中，而不是`.md`文件中，才能获得正确的IDE支持。
+
+````md
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+<Tabs defaultValue="latest">
+<!-- Value表示此方法最后支持的版本。 -->
+<!-- Label表示要展示给读者的版本范围。 -->
+<TabItem value="latest" label="Latest">
+
+<!-- 此处插入Markdown -->
+```java
+public void latestMethod() {
+    // ...
+}
+```
+
+</TabItem>
+<!-- 选项卡中的Markdown文本前后必须有空行。 -->
+<TabItem value="20.2.67" label="[20.2.35,20.2.67]"> 
+
+<!-- 此处插入Markdown -->
+```java
+public void previousMethod() {
+    // ...
+}
+```
+
+</TabItem>
+<TabItem value="20.2.34" label="[20.2.0,20.2.34]">
+
+<!-- 此处插入Markdown -->
+```java
+public void firstMethod() {
+    // ...
+}
+```
+
+</TabItem>
+</Tabs>
+````
+
+输入:
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+<Tabs defaultValue="latest">
+<TabItem value="latest" label="Latest">
+
+<!-- 此处插入Markdown -->
+```java
+public void latestMethod() {
+    // ...
+}
+```
+
+</TabItem>
+<TabItem value="20.2.67" label="[20.2.35,20.2.67]"> 
+
+<!-- 此处插入Markdown -->
+```java
+public void previousMethod() {
+    // ...
+}
+```
+
+</TabItem>
+<TabItem value="20.2.34" label="[20.2.0,20.2.34]">
+
+<!-- 此处插入Markdown -->
+```java
+public void firstMethod() {
+    // ...
+}
+```
+
+</TabItem>
+</Tabs>
+
+## 样式指南
+
+本文档使用[Docusaurus][docusaurus]（内部使用[MDX][mdx]）来生成页面。你可以在他们的页面上找到有关可用功能的详细信息。本样式指南将更加关注Markdown文件中使用的常见功能和格式。
+
+### 前置内容
+
+前置内容定义了元数据字段，这些字段可以影响页面的呈现方式。其用类似于代码块的`---`表示。通常应该定义的唯一前置内容是`sidebar_position`，它决定了页面应该在边栏上的何处呈现。
+
+还有其他元数据字段，如`title`和`description`，但这些字段通常是从页面本身解析的。
+
+```md
+<!-- 边栏中的第二页 -->
+---
+sidebar_position: 2
+---
+```
+
+#### 类别
+
+类别（Categories）是文档中的文件夹。它们继承了`index.md`中的标题和位置数据。如果`index.md`不在子文件夹中，则应创建一个`_category_.json`文件，指定`label`以表示节的名称，`position`以表示节在侧边栏上的位置。
+
+```js
+{
+    // 要显示的类别名称
+    "label": "Example Title",
+
+    // 这将被渲染为当前级别的边栏上的第三个元素。
+    "position": 3
+}
+```
+
+### 标题
+
+标题使用最多六个标签（`#`）来定义每个部分。标题除了不重要的单词外，其他都应该大写。
+
+```md
+<!-- 应该只有唯一一个带有一个'#'的标题。 -->
+# 向本文档做出贡献的指南
+
+### 构建并测试你的模组
+```
+
+### 用词
+
+拼写、语法和句法应遵循美式英语。避免在句子中使用缩写；使用两个单独的单词（用'is not'代替'isn't'）。此外，尽可能避免使用代词（如I、me、you），除非你需要直接指代读者。应谨慎使用示范语（如this、that、its），以免混淆读者。优先使用所指的实际宾语或名词。
+
+### 段落
+
+段落应该是一个连续的块，用换行符分隔。段落**不**应该让每个句子都在一个新行上。
+
+```md
+这是我的第一个段落。看看下一个句子是怎么在同一行的？你可以在编辑器中使用换行来阻止该行从屏幕上消失。
+
+这是我的下一个段落。它被一个新行隔开。
+```
+
+### 缩进
+
+当要缩进行时，使用四个空格而非制表符。大多数Markdown功能都需要四个空格来识别缩进，这样它允许整个文档保持一致。
+
+```md
+* Hello World
+    * Four Spaces In
+```
+
+### Importance
+
+强调单词时应使用**粗体**或_斜体_。请用两个星号（`**`）表示粗体，用下划线（`_`）表示斜体，以使Markdown中的分隔更加明显。
+
+```md
+这些字是 **粗体** 。
+
+这些字是 _斜体_ 。
+```
+
+### 代码引用
+
+当引用代码块之外的元素时，它们应该用反引号（`` ` ``）括起来。类应该使用它们的简单名称。方法和字段应指定类名，后跟`#`。如果类名是隐含的，则方法或字段可以简单地以`#`为前缀。内部类应指定外部类的名称，后跟`.`。
+
+```md
+<!-- 类 -->
+`MyClass`
+`MyClass.InnerClass`
+
+<!-- 方法和字段 -->
+`MyClass#foo`
+`MyClass.InnerClass#bar`
+`#SOME_CONSTANT`
+```
+
+代码块应在三重反引号（`` ``` ``）后指定其语言。在编写JSON块时，应该使用JavaScript（`js`）语法高亮显示来允许注释。
+
+````md
+<!-- Java代码块 -->
+```java
+public void run() {
+    //...
+}
+```
+
+<!-- JSON代码块 -->
+```js
+{
+    // 此处是允许注释的
+    "text": "Hiya"
+}
+```
+````
+
+### 链接
+
+所有链接都应使用括号（`[]`）来引用在Markdown页面底部指定的链接。如果第一对括号之间的名称已被使用，则可以省略第二对括号。
+
+```md
+<!-- 某页中的某处 -->
+There are [two] different types of [link references][linkref].
+
+<!-- 该页的底部 -->
+[two]: https://linkrefwithoutref.donotclick
+[linkref]: https://linkref.donotclick
+```
+
+### 警告（Admonitions）
+
+可以在页面上使用三个冒号（`:::`）并指定其类型来指定警告。警告格式可以在[Docusaurus wiki][admonition]上找到。
+
+```md
+:::note
+我在一个警告之中！
+:::
+```
+
+[docs]: https://github.com/neoforged/Documentation
+
+[npm]: https://www.npmjs.com/
+[nvm]: https://github.com/nvm-sh/nvm
+[nvs]: https://github.com/jasongin/nvs
+
+[parchment]: https://github.com/ParchmentMC/Parchment
+[neo]: https://github.com/neoforged/NeoForge/
+
+[jetbrains]: https://www.jetbrains.com/academy/
+[codeacademy]: https://www.codecademy.com/learn/learn-java
+[helsinki]: https://java-programming.mooc.fi/
+[oracle]: https://docs.oracle.com/javase/tutorial/
+[eck]: http://math.hws.edu/javanotes/
+
+[docusaurus]: https://docusaurus.io/docs/markdown-features
+[mdx]: https://mdxjs.com/guides/
+
+[admonition]: https://docusaurus.io/docs/markdown-features/admonitions
