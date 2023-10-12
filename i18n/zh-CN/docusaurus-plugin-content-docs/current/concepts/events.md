@@ -93,16 +93,18 @@ public class MyStaticClientOnlyEventHandler {
 
 如果一个事件可以被取消，它将带有`@Cancelable`注释，并且方法`Event#isCancelable()`将返回`true`。可取消事件的取消状态可以通过调用`Event#setCanceled(boolean canceled)`来修改，其中传递布尔值`true`意为取消事件，传递布尔值`false`被解释为“不取消”事件。但是，如果无法取消事件（如`Event#isCancelable()`所定义），则无论传递的布尔值如何，都将抛出`UnsupportedOperationException`，因为不可取消事件事件的取消状态被认为是不可变的。
 
-!!! 重要
+:::note
 	并非所有事件都可以取消！试图取消不可取消的事件将导致抛出未经检查的`UnsupportedOperationException`，可能将导致游戏崩溃！在尝试取消某个事件之前，请始终使用`Event#isCancelable()`检查该事件是否可以取消！
+:::
 
 事件的结果
 ---------
 
 某些事件具有`Event$Result`。结果可以是以下三种情况之一：`DENY`（停止事件）、`DEFAULT`（使用默认行为）和`ALLOW`（强制执行操作，而不管最初是否执行）。事件的结果可以通过调用`#setResult`并用一个`Event$Result`来设置。并非所有事件都有结果；带有结果的事件将用`@HasResult`进行注释。
 
-!!! 重要
+:::note
     不同的事件可能以不同的方式处理结果，在使用事件的结果之前请参阅事件的JavaDoc。
+:::
 
 事件处理优先级
 -------------

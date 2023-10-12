@@ -42,13 +42,14 @@
 
 每个方法都接受一个`RecipeType`，表示使用配方的方法（合成、烧炼等），一个保存输入配置的`Container`，以及与容器一起传递给`Recipe#matches`的当前存档。
 
-!!! 重要
+:::note
     Forge提供了`RecipeWrapper`实用类，该类扩展了`Container`，用于包装`IItemHandler`，并将其传递给需要`Container`参数的方法。
 
     ```java
     // 在具有IItemHandlerModifiable处理器的某给方法中
     recipeManger.getRecipeFor(RecipeType.CRAFTING, new RecipeWrapper(handler), level);
     ```
+:::
 
 附加特性
 --------

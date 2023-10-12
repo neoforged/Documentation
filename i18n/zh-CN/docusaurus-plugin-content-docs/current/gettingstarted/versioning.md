@@ -3,8 +3,9 @@
 
 在一般项目中，语义式的版本号（格式为`MAJOR.MINOR.PATCH`）被经常使用。然而，在长期性地修改的情况下，使用格式`MCVERSION-MAJORMOD.MAJORAPI.MINOR.PATCH`可能更有利于将模组的创世性的修改与API变更性的修改区分开来。
 
-!!! 重要
+:::note
     Forge使用[Maven版本范围][cmpver]来比较版本字符串，这与Semantic Versioning 2.0.0规范不完全兼容，例如“prerelease”标签。
+:::
 
 样例
 ----

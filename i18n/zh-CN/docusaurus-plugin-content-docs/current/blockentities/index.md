@@ -47,10 +47,11 @@ BlockEntity#load(CompoundTag tag)
     每当你的数据发生改变时，你需要调用`BlockEntity#setChanged`；否则，保存存档时可能会跳过包含你的`BlockEntity`的`LevelChunk`。
 :::
 
-!!! 重要
+:::note
     调用`super`方法非常重要！
 
     标签名称`id`、`x`、`y`、`z`、`ForgeData`和`ForgeCaps`均由`super`方法保留。
+:::
 
 ## 计时的`BlockEntity`
 
@@ -88,8 +89,9 @@ IForgeBlockEntity#handleUpdateTag(CompoundTag tag)
 ```
 同样，这非常简单，第一个方法收集应该发送到客户端的数据，而第二个方法处理这些数据。如果你的`BlockEntity`不包含太多数据，你可以使用[将数据存储到你的`BlockEntity`][storing-data]小节之外的方法。
 
-!!! 重要
+:::note
     为方块实体同步过多/无用的数据可能会导致网络拥塞。你应该通过在客户端需要时仅发送客户端需要的信息来优化网络使用。例如，在更新标签中发送方块实体的物品栏通常是没有必要的，因为这可以通过其[`AbstractContainerMenu`][menu]进行同步。
+:::
 
 ### 在方块更新时同步
 

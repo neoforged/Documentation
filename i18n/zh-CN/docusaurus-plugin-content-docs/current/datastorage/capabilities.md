@@ -31,8 +31,9 @@ public static final Capability<IItemHandler> ITEM_HANDLER = CapabilityManager.ge
 
 当被调用时，`CapabilityManager#get`为你的相关类型提供一个非null的Capability。匿名的`CapabilityToken`允许Forge保持软依赖系统，同时仍然拥有获得正确Capability所需的泛型信息。
 
-!!! 重要
+:::note
     即使你在任何时候都可以使用非null的Capability，但这并不意味着该Capability本身是可用的或已注册的。这可以通过`Capability#isRegistered`进行检查。
+:::
 
 `#getCapability`方法有另一个参数，类型为`Direction`，可用于请求那一面的特定实例。如果传递`null`，则可以假设请求来自方块内，或者来自某个侧面没有意义的地方，例如不同的维度。在这种情况下，将请求一个不关侧面的一个通用的Capability实例。`#getCapability`的返回类型将对应于传递给方法的Capability中声明的类型的`LazyOptional`。对于物品处理器Capability，其为`LazyOptional<IItemHandler>`。如果该Capability不适用于特定的提供者，它将返回一个空的`LazyOptional`。
 

@@ -63,8 +63,9 @@ showAsResourcePack=false
 `properties`         | table   | `{}`          | 替换属性表。`StringSubstitutor`使用它将`${file.<key>}`替换为相应的值。该功能目前仅用于替换模组特定属性中的`version`。 | 由`${file.example}`引用的`{ "example" = "1.2.3" }`
 `issueTrackerURL`    | string  | *无*     | 指向报告与追踪模组问题的地点的URL。 | `"https://forums.minecraftforge.net/"`
 
-!!! 重要
+:::note
     `services`属性在功能上等效于在指定[在模块中的`uses`指令][uses]，该指令允许加载给定类型的服务。
+:::
 
 ### 模组特定属性
 

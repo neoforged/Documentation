@@ -22,8 +22,9 @@
 
 `global_loot_modifiers.json`表示要加载到游戏中的所有战利品修改器。此文件**必须**放在`data/forge/loot_modifiers/global_loot_modifiers.json`。
 
-!!! 重要
+:::note
     `global_loot_modifiers.json`只能在`forge`命名空间中被读取。如果该文件位于模组的命名空间下，则会被忽略。
+:::
 
 `entries`是将要加载的修改器的*有序列表*。指定的[ResourceLocation][resloc]指向其在`data/<namespace>/loot_modifiers/<path>.json`中的关联条目。这主要与数据包生成器有关，用于解决独立模组的修改器之间的冲突。
 
@@ -50,8 +51,9 @@
 
 `conditions`应该表示该修改器要激活的战利品表条件。条件应该避免被硬编码，以允许数据包作者尽可能灵活地调整标准。这也必须始终存在。
 
-!!! 重要
+:::note
     尽管`conditions`应该表示修改器激活所需的内容，但只有在使用捆绑的Forge类时才会出现这种情况。如果使用`LootModifier`作为子类，则所有条件都将用**逻辑与（AND）**相连，并检查是否应应用修改器。
+:::
 
 还可以指定由序列化器读取并由修改器定义的任何附加属性。
 

@@ -48,8 +48,9 @@ Forge入门
 
 编辑`build.gradle`文件以自定义你的模组的构建方式（如文件名称、artifact版本等等）。
 
-!!! 重要
+:::note
     除非你知道你在做什么，否则**不要**编辑`settings.gradle`。该文件指定[ForgeGradle]所上传的仓库。
+:::
 
 ### 建议的`build.gradle`自定义项目
 

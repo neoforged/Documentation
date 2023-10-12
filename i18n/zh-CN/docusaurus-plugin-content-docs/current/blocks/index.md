@@ -30,10 +30,11 @@
 
 方块必须经过[注册][registering]后才能发挥作用。
 
-!!! 重要
+:::note
     存档中的方块和物品栏中的“方块”是非常不同的东西。存档中的方块由`BlockState`表示，其行为由一个`Block`类的实例定义。同时，物品栏中的物品是由`Item`控制的`ItemStack`。作为`Block`和`Item`二者之间的桥梁，有一个`BlockItem`类。`BlockItem`是`Item`的一个子类，它有一个字段`block`，其中包含对它所代表的`Block`的引用。`BlockItem`将“方块”的一些行为定义为物品，例如右键单击如何放置方块。存在一个没有其`BlockItem`的`Block`也是可能的。（例如`minecraft:water`是一个方块，但不是一个物品。因此，不可能将其作为一个物品保存在物品栏中。）
 
     当一个方块被注册时，也*仅仅*意味着一个方块被注册了。该方块不会自动具有`BlockItem`。要为块创建基本的`BlockItem`，应该将`BlockItem`的注册表名称设置为其`Block`的注册表名称。`BlockItem`的自定义子类也可以使用。一旦为方块注册了`BlockItem`，就可以使用`Block#asItem`来获取它。如果该方块没有`BlockItem`，`Block#asItem`将返回`Items#AIR`，因此，如果你不确定你正在使用的方块是否有`BlockItem`，请检查其`Block#asItem`是否返回`Items#AIR`。
+:::
 
 #### 选择性地注册方块
 

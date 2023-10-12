@@ -173,8 +173,9 @@ public void registerSerializers(RegisterEvent event) {
 }
 ```
 
-!!! 重要
+:::note
     如果使用`FMLCommonSetupEvent`注册条件序列化器，则必须通过 `FMLCommonSetupEvent#enqueueWork`将其排入同步工作队列，因为`CraftingHelper#register`不是线程安全的。
+:::
 
 [datagen]: ../../datagen/server/recipes.md
 [serializer]: #iconditionserializer

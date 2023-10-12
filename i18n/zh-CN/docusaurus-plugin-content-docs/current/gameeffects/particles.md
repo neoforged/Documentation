@@ -27,8 +27,9 @@
 
 在大多数情况下，不需要将任何粒子数据发送到客户端。对于这些例子，更容易创建`SimpleParticleType`的新实例：一个对`ParticleType`和`ParticleOptions`的实现，除了类型之外，它不向客户端发送任何自定义数据。除了红石粉之外，对于着色和依赖方块/物品的粒子而言，大多数原版实现还使用`SimpleParticleType`。
 
-!!! 重要
+:::note
     如果仅在客户端上引用，则生成粒子时`ParticleType`非必要。但是，有必要使用`ParticleEngine`中的任何预构建逻辑，或者从服务端生成粒子。
+:::
 
 ### ParticleOptions
 
@@ -87,8 +88,9 @@
 
 必须通过订阅**模组事件总线**上的`RegisterParticleProvidersEvent`以注册`ParticleProvider`。在事件中，可以通过向方法提供工厂实例，通过`#registerSpecial`注册工厂。
 
-!!! 重要
+:::note
     `RegisterParticleProvidersEvent`应仅在客户端上调用，因此在某些客户端类中被单端化独立，并被`DistExecutor`或`@EventBusSubscriber`引用。
+:::
 
 #### ParticleDescription、SpriteSet、以及SpriteParticleRegistration
 

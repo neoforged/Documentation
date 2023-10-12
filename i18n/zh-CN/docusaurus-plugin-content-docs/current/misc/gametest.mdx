@@ -67,8 +67,9 @@ public static void exampleConfiguredTest(GameTestHelper helper) {
 `#succeedWhen`       | 所提供的`Runnable`在超时之前每tick都会进行测试，如果对其中一个tick的检查没有引发`GameTestAssertException`，则会成功。
 `#succeedOnTickWhen` | 提供的`Runnable`在指定的tick上进行测试，如果没有抛出`GameTestAssertException`，则会成功。如果`Runnable`在任何其他tick上成功，则将其标记为失败。
 
-!!! 重要
+:::note
     游戏测试每tick都会执行，直到测试被标记为成功。因此，在给定的tick上安排成功的方法必须小心，不要总是在之前的tick上失败。
+:::
 
 #### 计划操作
 

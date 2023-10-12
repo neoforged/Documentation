@@ -52,8 +52,9 @@ this.tag(EXAMPLE_TAG_2)
   .remove(EXAMPLE_OBJECT) // 从该标签中移除一个对象
 ```
 
-!!! 重要
+:::note
     如果模组的标签软依赖于另一个模组的标签（另一个模组可能在运行时存在，也可能不存在），则应使用可选方法引用其他模组的标签。
+:::
 
 ### Existing Providers
 

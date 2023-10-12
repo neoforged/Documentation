@@ -52,8 +52,9 @@ public void register(RegisterEvent event) {
 
 并非所有的注册表都由Forge封装。这些可以是静态注册表，如`LootItemConditionType`，使用起来是安全的。还有动态注册表，如`ConfiguredFeature`和其他一些世界生成注册表，它们通常以JSON表示。`DeferredRegister#create`有一个重载，允许模组开发者指定原版注册表所创建的`RegistryObject`的注册表键。注册表方法和模组事件总线的附加与其他`DeferredRegister`相同。
 
-!!! 重要
+:::note
     动态注册表对象**只能**通过数据文件（如JSON）被注册。它们**不能**在代码中被注册。
+:::
 
 ```java
 private static final DeferredRegister<LootItemConditionType> REGISTER = DeferredRegister.create(Registries.LOOT_CONDITION_TYPE, "examplemod");
@@ -161,23 +162,26 @@ class Holder {
 
 可以使用模组事件总线上的`DataPackRegistryEvent$NewRegistry`事件添加新的数据包注册表。注册表是通过`#dataPackRegistry`创建的，方法是传入表示注册表名称的`ResourceKey`和用于对JSON中的数据进行编码和解码的`Codec`。可以提供可选的`Codec`来将数据包注册表同步到客户端。
 
-!!! 重要
+:::note
     数据包注册表不能用`DeferredRegister`创建。它们只能通过这个事件创建。
+:::
 
 ### 使用DeferredRegister
 
 `DeferredRegister`方法又是上述事件的另一个包装。一旦使用`#create`重载在常量字段中创建了`DeferredRegister`（该重载接受注册表名称和mod id），就可以通过`DeferredRegistry#makeRegistry`构建注册表。该方法接受了由Supplier提供的包含任何其他配置的`RegistryBuilder`。默认情况下，该方法已调用`#setName`。由于此方法可以在任何时候返回，因此会返回由Supplier提供的`IForgeRegistry`版本。在激发NewRegistryEvent之前试图从Supplier获取自定义注册表将得到`null`值。
 
-!!! 重要
+:::note
     在通过`#register`将`DeferredRegister`添加到模组事件总线之前，必须调用`DeferredRegister#makeRegistry`。`#makeRegistry`也使用`#register`方法在`NewRegistryEvent`期间创建注册表。
+:::
 
 处理缺失的注册表条目
 ------------------
 
 在某些情况下，每当更新模组或删除模组（更可能的情况）时，某些注册表对象将不复存在。可以通过第三个注册表事件指定操作来处理丢失的映射：`MissingMappingsEvent`。在该事件中，既可以通过给定注册表项和mod id的`#getMappings`获取丢失映射的列表，也可以通过给定注册项的`#getAllMappings`获取所有映射。
 
-!!! 重要
+:::note
     `MissingMappingsEvent`在**Forge**事件总线上触发。
+:::
 
 对于每个映射（`Mapping`），可以选择四种映射类型之一来处理丢失的条目：
 

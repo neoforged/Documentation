@@ -120,8 +120,9 @@ public void trigger(ServerPlayer player, ItemStack stack) {
 
 之后，应在`FMLCommonSetupEvent`期间使用`CriteriaTriggers#register`注册实例。
 
-!!! 重要
+:::note
     `CriteriaTriggers#register`必须通过`FMLCommonSetupEvent#enqueueWork`排入同步工作队列，因为该方法不是线程安全的。
+:::
 
 ### 触发器的调用
 

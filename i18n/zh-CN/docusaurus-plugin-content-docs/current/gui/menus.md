@@ -49,8 +49,9 @@ public MyMenuExtra(int containerId, Inventory playerInv, FriendlyByteBuf extraDa
 
 所有菜单都是从`AbstractContainerMenu`继承而来的。菜单包含两个参数，即表示菜单本身类型的[`MenuType`][mt]和表示当前访问者的菜单唯一标识符的容器id。
 
-!!! 重要
+:::note
     玩家一次只能打开100个唯一的菜单。
+:::
 
 每个菜单应该包含两个构造函数：一个用于初始化服务端上的菜单，另一个用于启动客户端上的菜单。用于初始化客户端菜单的构造函数是提供给`MenuType`的构造函数。服务端菜单构造函数包含的任何字段都应该具有客户端菜单构造函数的一些默认值。
 

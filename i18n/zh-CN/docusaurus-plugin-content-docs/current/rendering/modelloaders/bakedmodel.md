@@ -19,8 +19,9 @@
 
 ### `isCustomRenderer`
 
-!!! 重要
+:::note
     除非你知道自己在做什么，否则只需`return false`然后继续其他事项。
+:::
 
 将其渲染为物品时，返回`true`将导致模型不被渲染，转而回到`BlockEntityWithoutLevelRenderer#renderByItem`。对于某些原版物品，如箱子和旗帜，此方法被硬编码为将数据从物品复制到`BlockEntity`中，然后使用`BlockEntityRenderer`来渲染BE以代替物品。对于所有其他物品，它将使用由`IClientItemExtensions#getCustomRenderer`提供的`BlockEntityWithoutLevelRenderer`实例。有关详细信息，请参阅[BlockEntityWithoutLevelRenderer][bewlr]页。
 
@@ -28,8 +29,9 @@
 
 粒子应使用的任何纹理。对于方块，它将在实体掉落在其上或其被破坏时显示。对于物品，它将在报废或被吃掉时显示。
 
-!!! 重要
+:::note
     由于模型数据可能会对特定模型的渲染方式产生影响，因此不推荐使用不带参数的原版方法，而推荐使用`#getParticleIcon(ModelData)`。
+:::
 
 ### <s>`getTransforms`</s>
 

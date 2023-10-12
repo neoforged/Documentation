@@ -22,8 +22,9 @@ public void gatherData(GatherDataEvent event) {
 
 `RecipeBuilder`是一个方便的实现，用于创建要生成的`FinishedRecipe`。它提供了解锁、分组、保存和获取配方结果的基本定义。这分别通过`#unlockedBy`、`#group`、`#save`和`#getResult`来完成。
 
-!!! 重要
+:::note
     原版配方生成器中不支持配方中的[`ItemStack`输出][stack]。对于现有的原版配方序列化器，必须以不同的方式构建`FinishedRecipe`才能生成此数据。
+:::
 
 :::danger
     正在生成的物品结果必须指定有效的`RecipeCategory`；否则，将引发`NullPointerException`。

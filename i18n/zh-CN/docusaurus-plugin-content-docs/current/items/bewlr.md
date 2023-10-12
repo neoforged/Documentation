@@ -29,7 +29,8 @@ public void initializeClient(Consumer<IClientItemExtensions> consumer) {
 }
 ```
 
-!!! 重要
+:::note
     每个模组都应该只有一个自定义BEWLR的实例。
+:::
 
 这就行了，使用BEWLR不需要额外的设置。

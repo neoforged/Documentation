@@ -11,8 +11,9 @@
 `ItemProperties#register`用于向某个物品添加属性。`Item`参数是要附加属性的物品（例如`ExampleItems#APPLE`）。`ResourceLocation`参数是所要赋予属性的名称（例如`new ResourceLocation("pull")`）。`ItemPropertyFunction`是一个函数接口，它接受`ItemStack`、它所在的`ClientLevel`（可以为null）、持有它的`LivingEntity`（可以是null）和包含持有实体的id的`int`（可能是`0`），返回属性的`float`值。对于修改后的物品属性，建议将模组的mod id用作命名空间（例如`examplemod:property`，而不仅仅是`property`，因为这实际上意味着`minecraft:property`）。这些操作应在`FMLClientSetupEvent`中完成。
 还有另一个方法`ItemProperties#registerGeneric`用于向所有物品添加属性，并且它不将`Item`作为其参数，因为所有物品都将应用此属性。
 
-!!! 重要
+:::note
     使用`FMLClientSetupEvent#enqueueWork`执行这些任务，因为`ItemProperties`中的数据结构不是线程安全的。
+:::
 
 :::caution
     Mojang反对使用`ItemPropertyFunction`而推荐使用`ClampedItemPropertyFunction`子接口，该子接口将结果夹在`0`和`1`之间。
@@ -23,8 +24,9 @@
 
 覆盖的格式可以在[wiki][format]上看到，一个很好的例子可以在`model/item/bow.json`中找到。为了参考，这里是一个具有`examplemod:power`属性的物品的假设例子。如果值不匹配，则默认为当前模型，但如果有多个匹配，则会选择列表中的最后一个匹配。
 
-!!! 重要
+:::note
     predicate适用于*大于或等于*给定值的所有值。
+:::
 
 ```js
 {
