@@ -1,20 +1,20 @@
-Networking
+네트워크 통신
 ==========
 
-Communication between servers and clients is the backbone of a successful mod implementation.
+서버와 클라이언트간의 소통은 성공적인 모드를 만들기 위해 필수적으로 들어가는 요소중 하나입니다.
 
-There are two primary goals in network communication:
+네트워크 통신을 하는데에는 두 주 목적이 있습니다:
 
-1. Making sure the client view is "in sync" with the server view
-    - The flower at coordinates (X, Y, Z) just grew
-2. Giving the client a way to tell the server that something has changed about the player
-    - the player pressed a key
+1. 클라이언트에 표시되는 내용이 서버와 "동기화" 되도록 하는 것
+   - (X, Y, Z) 에 방금 자란 꽃이 바로 클라이언트에 표시되도록 하는 것
+2. 클라이언트가 서버에게 플레이어의 상태가 변했다고 알려주는 수단이 되는 것
+   - 플레이어가 키를 눌렀을 때 서버에 알려주는 것
 
-The most common way to accomplish these goals is to pass messages between the client and the server. These messages will usually be structured, containing data in a particular arrangement, for easy sending and receiving.
+이를 구현하는 가장 일반적인 방법은 클라이언트와 서버가 서로 메세지를 주고 받는 것입니다. 일반적으로, 이 메세지들은 통신 과정을 편하게 하기 위해 여러 데이터가 순서대로 들어있는 구조를 가지고 있습니다.
 
-There are a variety of techniques provided by Forge to facilitate communication mostly built on top of [netty][].
+Forge 에서는 [netty][]를 기반으로 만든 네트워크 통신을 조금 더 간편하게 쓸 수 있는 여러가지 방법들을 제공합니다.
 
-The simplest, for a new mod, would be [SimpleImpl][channel], where most of the complexity of the netty system is abstracted away. It uses a message and handler style system.
+그중 신생 모드를 위한 가장 간단한 방법은 [SimpleImpl][channel]을 사용하는 것입니다, [netty][] 의 복잡한 시스템을 추상화 하고 메세지와 핸들러만 사용하여 통신을 구현할 수 있도록 합니다.
 
-[netty]: https://netty.io "Netty Website"
-[channel]: ./simpleimpl.md "SimpleImpl in Detail"
+[netty]: https://netty.io "Netty 공식 사이트"
+[channel]: ./simpleimpl.md "SimpleImpl 이란?"
