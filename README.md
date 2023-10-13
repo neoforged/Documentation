@@ -6,7 +6,7 @@ The documentation is built using [Docusaurus 2](https://docusaurus.io)
 
 ## Contributing
 
-*Contribution guidelines are currently pending.*
+You can read the [contribution guidelines on the docs](https://docs.neoforged.net/contributing/).
 
 If you wish to contribute to the documentation, fork and clone this repository.
 

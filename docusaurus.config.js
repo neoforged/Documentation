@@ -119,6 +119,11 @@ const config = {
             docsPluginId: "neogradle",
           },
           {
+            to: "/contributing",
+            label: "기여하기",
+            position: "right",
+          },
+          {
             href: "https://github.com/HKMOD/Neoforge-Korean-Documentation",
             label: "GitHub",
             position: "right",
@@ -139,6 +144,10 @@ const config = {
                 to: "/neogradle/docs/",
                 label: "NeoGradle 가이드",
               },
+              {
+                to: "/contributing",
+                label: "문서에 기여하기"
+              }
             ],
           },
           {
