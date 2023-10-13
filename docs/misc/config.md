@@ -1,139 +1,138 @@
-Configuration
+모드 설정 파일
 =============
 
-Configurations define settings and consumer preferences that can be applied to a mod instance. Forge uses a configuration system using [TOML][toml] files and read with [NightConfig][nightconfig].
+설정 파일은 모드를 설정할 수 있도록 하고 기본값을 정의합니다. 포지는 설정 파일로 [TOML][toml]을 사용하며, [NightConfig][nightconfig]를 사용하여 설정 파일을 읽습니다.
 
-Creating a Configuration
+설정 파일 만들기
 ------------------------
 
-A configuration can be created using a subtype of `IConfigSpec`. Forge implements the type via `ForgeConfigSpec` and enables its construction through `ForgeConfigSpec$Builder`. The builder can separate the config values into sections via `Builder#push` to create a section and `Builder#pop` to leave a section. Afterwards, the configuration can be built using one of two methods:
+설정 파일은 `IConfigSpec`을 구현하는 것으로 정의할 수 있습니다. 포지는 `ForgeConfigSpec`에서 해당 인터페이스를 구현하며, `ForgeConfigSpec$Builder`를 활용해 해당 클래스를 생성합니다. `Builder#push`를 이용해 새로운 섹션에 들어갈 수 있고, `Builder#pop`으로 나올 수 있습니다. 이후, 아래 두 메서드를 이용하여 설정을 생성하실 수 있습니다:
 
- Method     | Description
- :---       | :---
-`build`     | Creates the `ForgeConfigSpec`.
-`configure` | Creates a pair of the class holding the config values and the `ForgeConfigSpec`.
+| 메서드 이름      | 설명                                                  |
+|:------------|:----------------------------------------------------|
+| `build`     | `ForgeConfigSpec` 생성.                               |
+| `configure` | 모드 설정 값들을 지니고 있는 클래스 T와 `ForgeConfigSpec`의 Pair 생성. |
 
 :::note
-`ForgeConfigSpec$Builder#configure` is typically used with a `static` block and a class that takes in `ForgeConfigSpec$Builder` as part of its constructor to attach and hold the values:
+`ForgeConfigSpec$Builder#configure`는 일반적으로 `static`에서 사용되며, 이때 생성자 인자 중 하나로 `ForgeConfigSpec$Builder`를 받는 클래스 T를 사용합니다:
 
 ```java
-// In some config class
+// 모드 설정 클래스에서
 ExampleConfig(ForgeConfigSpec.Builder builder) {
-  // Define values here in final fields
+  // 모드 설정 값들을 builder로부터 가져와 final 필드에 지정함
 }
 
-// Somewhere the constructor is accessible
+// 모드 설정 클래스를 사용하는 곳에서
 static {
   Pair<ExampleConfig, ForgeConfigSpec> pair = new ForgeConfigSpec.Builder()
     .configure(ExampleConfig::new);
-  // Store pair values in some constant field
+  // 상수 필드에 해당 Pair를 할당함
 }
 ```
 :::
 
-Each config value can be supplied with additional context to provide additional behavior. Contexts must be defined before the config value is fully built:
+각 설정 값들은 추가 설명 또한 지정받을 수 있습니다. 이러한 추가 설명은 모드 설정을 생성하기 전에 지정해야 합니다:
 
-Method       | Description
-:---         | :---
-`comment`      | Provides a description of what the config value does. Can provide multiple strings for a multiline comment.
-`translation`  | Provides a translation key for the name of the config value.
-`worldRestart` | The world must be restarted before the config value can be changed.
+| 메서드 이름         | 설명                                     |
+|:---------------|:---------------------------------------|
+| `comment`      | 해당 설정값의 역할을 추가할 때 사용함. 한 줄 또는 여러 줄 가능. |
+| `translation`  | 해당 설정값의 번역 키값을 지정함.                    |
+| `worldRestart` | 해당 설정값을 적용하기 위해 월드를 다시시작 해야 하는지 지정함.   |
 
 ### ConfigValue
 
-Config values can be built with the provided contexts (if defined) using any of the `#define` methods.
+설정값은 `#define*` 메서드들을 활용해 정의할 수 있습니다.
 
-All config value methods take in at least two components:
+이 메서드들은 최소한 아래 두 개를 인자로 받는데:
 
-* A path representing the name of the variable: a `.` separated string representing the sections the config value is in
-* The default value when no valid configuration is present
+* 해당 설정값의 경로, `List<String>` 또는 `.`으로 구분된 `String`을 사용함. `.`으로 구분된 `String`은 `.`을 기준으로 `List<String>`으로 분할함. 이 경로는 설정값의 이름과 경로를 전부 포함함.
+* 올바른 설정 파일이 존재하지 않을 때 사용할 기본값
 
-The `ConfigValue` specific methods take in two additional components:
+`ConfigValue` 전용 머세드는 아래 두 개의 추가 구성 요소가 필요한데:
 
-* A validator to make sure the deserialized object is valid
-* A class representing the data type of the config value
+* 비직렬화된 객체가 올바른지 확인하는 검사기
+* 해당 설정값의 클래스
 
 ```java
-// For some ForgeConfigSpec$Builder builder
+// ForgeConfigSpec$Builder를 사용하는 곳 어딘가
 ConfigValue<T> value = builder.comment("Comment")
   .define("config_value_name", defaultValue);
 ```
 
-The values themselves can be obtained using `ConfigValue#get`. The values are additionally cached to prevent multiple readings from files.
+비직렬화된 설정값은 `ConfigValue#get`을 활용해 얻을 수 있습니다. 이 값들은 중간에 캐싱되어 파일을 여러 번 읽는 것을 방지합니다.
 
-#### Additional Config Value Types
+#### 유용할 만한 설정값 타입들
 
-* **Range Values**
-    * Description: Value must be between the defined bounds
-    * Class Type: `Comparable<T>`
-    * Method Name: `#defineInRange`
-    * Additional Components:
-      * The minimum and maximum the config value may be
-      * A class representing the data type of the config value
+* **범위가 지정된 값**
+    * 설명: 값은 무조건 지정된 범위 안에 있어야 함
+    * 타입: `Comparable<T>`
+    * 메서드 이름: `#defineInRange`
+    * 추가 구성 요소:
+        * 최소와 최댓값
+        * 설정값을 표현할 수 있는 클래스
 
 :::note
-`DoubleValue`s, `IntValue`s, and `LongValue`s are range values which specify the class as `Double`, `Integer`, and `Long` respectively.
+포지는 기본적으로 `DoubleValue`, `IntValue`, `LongValue`를 제공합니다.
 :::
 
-* **Whitelisted Values**
-    * Description: Value must be in supplied collection
-    * Class Type: `T`
-    * Method Name: `#defineInList`
-    * Additional Components:
-      * A collection of the allowed values the configuration can be
+* **화이트리스트 값**
+    * 설명: 설정값은 무조건 전달된 리스트 안 객체여야 함
+    * 타입: `T`
+    * 메서드 이름 Name: `#defineInList`
+    * 추가 구성 요소:
+        * 허용된 설정값들의 리스트
 
-* **List Values**
-    * Description: Value is a list of entries
-    * Class Type: `List<T>`
-    * Method Name: `#defineList`, `#defineListAllowEmpty` if list can be empty
-    * Additional Components:
-      * A validator to make sure a deserialized element from the list is valid
+* **리스트 값**
+    * 설명: 여러 요소를 포함하는 리스트를 값으로 가지는 설정
+    * 타입: `List<T>`
+    * 메서드 이름: `#defineList`, 빈 리스트를 허용한다면 `#defineListAllowEmpty`
+    * 추가 구성 요소:
+        * 리스트의 구성 요소가 올바른지 확인하는 검사기
 
-* **Enum Values**
-    * Description: An enum value in the supplied collection
-    * Class Type: `Enum<T>`
-    * Method Name: `#defineEnum`
-    * Additional Components:
-      * A getter to convert a string or integer into an enum
-      * A collection of the allowed values the configuration can be
+* **열거형 값**
+    * 설명: An enum value in the supplied collection
+    * 타입: `Enum<T>`
+    * 메서드 이름: `#defineEnum`
+    * 추가 구성 요소:
+        * 정수, 또는 문자열을 열거형 값 중 하나로 변환해 줄 함수
+        * 허용된 설정값들의 컬렉션
 
-* **Boolean Values**
-    * Description: A `boolean` value
-    * Class Type: `Boolean`
-    * Method Name: `#define`
+* **불린 값**
+    * 설명: `boolean` 값
+    * 타입: `Boolean`
+    * 이름: `#define`
 
-Registering a Configuration
+설정 등록하기
 ---------------------------
 
-Once a `ForgeConfigSpec` has been built, it must be registered to allow Forge to load, track, and sync the configuration settings as required. Configurations should be registered in the mod constructor via `ModLoadingContext#registerConfig`. A configuration can be registered with a given type representing the side the config belongs to, the `ForgeConfigSpec`, and optionally a specific file name for the configuration.
+`ForgeConfigSpec`의 인스턴스를 생성하셨다면 이를 포지에 등록해야 자동으로 불러오고, 추적하고, 동기화할 수 있습니다. 모드 생성자에서 `ModLoadingContext#registerConfig` 를 호출하여 다음과 같이 설정을 등록하실 수 있습니다, 이때 해당 설정을 사용할 사이드와, 생성하신 `ForgeConfigSpec`, 그리고 선택 사항으로 설정 파일의 이름을 인자로 전달합니다:
 
 ```java
-// In the mod constructor with a ForgeConfigSpec CONFIG
 ModLoadingContext.get().registerConfig(Type.COMMON, CONFIG);
 ```
 
-Here is a list of the available configuration types:
+설정 파일을 사용할 수 있는 사이드 목록들:
 
-Type   | Loaded           | Synced to Client | Client Location                              | Server Location                      | Default File Suffix
-:---:  | :---:            | :---:            | :---:                                        | :---:                                | :---
-CLIENT | Client Side Only | No               | `.minecraft/config`                          | N/A                                  | `-client`
-COMMON | On Both Sides    | No               | `.minecraft/config`                          | `<server_folder>/config`             | `-common`
-SERVER | Server Side Only | Yes              | `.minecraft/saves/<level_name>/serverconfig` | `<server_folder>/world/serverconfig` | `-server`
+|  사이드   | 클라이언트와 동기화 되는가? |                클라이언트에서의 파일 위치                |             서버에서의 파일 위치              | 파일 접미사    |
+|:------:|:---------------:|:--------------------------------------------:|:------------------------------------:|:----------|
+| CLIENT |       안 함       |             `.minecraft/config`              |                 N/A                  | `-client` |
+| COMMON |       안 함       |             `.minecraft/config`              |       `<server_folder>/config`       | `-common` |
+| SERVER |        함        | `.minecraft/saves/<level_name>/serverconfig` | `<server_folder>/world/serverconfig` | `-server` |
 
 :::tip
-Forge documents the [config types][type] within their codebase.
+자세한 내용은 포지의 [Javadoc][type]을 참고하세요.
 :::
 
-Configuration Events
+설정 이벤트
 --------------------
 
-Operations that occur whenever a config is loaded or reloaded can be done using the `ModConfigEvent$Loading` and `ModConfigEvent$Reloading` events. The events must be [registered][events] to the mod event bus.
+설정 파일을 처음으로 불러오거나 다시 불러올 때 이벤트 `ModConfigEvent$Loading`와 `ModConfigEvent$Reloading`가 방송됩니다. 이 이벤트들은 [모드 버스에서 방송됩니다][events].
 
 :::caution
-These events are called for all configurations for the mod; the `ModConfig` object provided should be used to denote which configuration is being loaded or reloaded.
+해당 이벤트들은 모든 모드에서 방송될 수 있습니다, 제공되는 `ModConfig`를 이용해서 어떤 모드의 설정이 변경되는지 반드시 구분하도록 하세요.
 :::
 
-[toml]: https://toml.io/
+[toml]: https://toml.io/ko/v1.0.0
 [nightconfig]: https://github.com/TheElectronWill/night-config
-[type]: https://github.com/MinecraftForge/MinecraftForge/blob/c3e0b071a268b02537f9d79ef8e7cd9b100db416/fmlcore/src/main/java/net/minecraftforge/fml/config/ModConfig.java#L108-L136
-[events]: ../concepts/events.md#creating-an-event-handler
+[type]: https://github.com/neoforged/FancyModLoader/blob/06ce743c00b161ffada3a8737bec1a0b53fb48ac/core/src/main/java/net/minecraftforge/fml/config/ModConfig.java#L94-L122
+[events]: ../concepts/events.md#이벤트-핸들러-만들기
