@@ -1,23 +1,24 @@
-# Debug Profiler
+# 디버그 프로파일러
 
-Minecraft provides a Debug Profiler that provides system data, current game settings, JVM data, level data, and sided tick information to find time consuming code. Considering things like `TickEvent`s and ticking `BlockEntities`, this can be very useful for modders and server owners that want to find a lag source.
+마인크래프트는 디버그 프로파일러를 사용하여 시스템 데이터, 현재 게임 설정, JVM 데이터, 레벨 데이터, 사이드 틱 정보 등을 활용해 특정 코드가 얼마나 시간을 소요하는지 측정할 수 있도록 합니다. `TickEvent`나 블록 엔티티 tick 처리 등에서 이를 사용하는 것이 유용할 수 있는데, 모드 개발자 또는 서버 어드민이 랙의 원인을 쉽게 파악할 수 있도록 해줍니다.
 
-## Using the Debug Profiler
+## 디버그 프로파일러 사용하기
 
-The Debug Profiler is very simple to use. It requires the debug keybind `F3 + L` to start the profiler. After 10 seconds, it will automatically stop; however, it can be stopped earlier by pressing the keybind again.
+디버그 프로파일러는 쓰기 간단합니다. `F3 + L`을 눌러 프로파일러를 시작할 수 있습니다. 프로파일링은 10초 이후 자동으로 종료되지만, 키바인드를 다시 누르는 것으로 더 빨리 중단할 수 있습니다.
 
 :::note
-Naturally, you can only profile code paths that are actually being reached. `Entities` and `BlockEntities` that you want to profile must exist in the level to show up in the results.
+당연하게도, 프로파일링을 진행할 코드를 실행해야 적절한 데이터를 얻을 수 있습니다. 엔티티나 블록 엔티티에 프로파일러를 사용하실려면 레벨에 먼저 생성하도록 하세요.
 :::
 
-After you have stopped the debugger, it will create a new zip within the `debug/profiling` subdirectory in your run directory.
-The file name will be formatted with the date and time as `yyyy-mm-dd_hh_mi_ss-WorldName-VersionNumber.zip`
+프로파일러가 종료되면 게임을 실행한 디렉토리 아래 `debug/profiling` 폴더에 새로운 zip 파일이 생성됩니다.
+파일의 이름은 현재 시간으로 다음과 같이 포매팅 됩니다: `yyyy-mm-dd_hh_mi_ss-월드이름-게임버전.zip`
 
-## Reading a Profiling result
+## 프로파일러 결과 보기
 
-Within each sided folder (`client` and `server`), you will find a `profiling.txt` file containing the result data. At the top, it first tells you how long in milliseconds it was running and how many ticks ran in that time.
+각 사이드를 대표하는 폴더(`client`랑 `server`)에는 `profiling.txt`라는 파일이 있을텐데, 이 파일은 프로파일링 결과를 담고 있습니다. 이 파일 맨 위에는 게임 버전과 프로파일링이 진행된 시간이 밀리세컨드로 표시되어 있습니다.
 
-Below that, you will find information similar to the snippet below:
+그 아래는 하위와 비슷한 형식으로 프로파일링 결과가 표시되어 있습니다.
+
 ```
 [00] levels - 96.70%/96.70%
 [01] |   Level Name - 99.76%/96.47%
@@ -29,19 +30,22 @@ Below that, you will find information similar to the snippet below:
 [05] |   |   |   |   |   minecraft:furnace - 33.35%/0.14%
 [05] |   |   |   |   |   minecraft:chest - 2.39%/0.01%
 ```
-Here is a small explanation of what each part means
 
-| [02]                     | tick                  | 99.31%       | 95.81%       |
-| :----------------------- | :---------------------- | :----------- | :----------- |
-| The Depth of the section | The Name of the Section | The percentage of time it took in relation to it's parent. For Layer 0, it is the percentage of the time a tick takes. For Layer 1, it is the percentage of the time its parent takes. | The second percentage tells you how much time it took from the entire tick.
+각 부분이 무슨 뜻을 가지는지 간략하게 설명하면 다음과 같습니다:
 
-## Profiling your own code
+| [02]   | tick   | 99.31%                                                                                    | 95.81%              |
+|:------ |:------ |:----------------------------------------------------------------------------------------- |:------------------- |
+| 부분의 깊이 | 부분의 이름 | 부모 기준으로 부분이 소요한 시간의 백분율. 깊이 0은 틱 전체에서 소요한 시간의 백분율. 깊이 1은 그 부모(깊이 0)에서 소요된 시간중 소요한 시간의 백분율 | 틱 전체에서 소요한 시간의 백분율. |
 
-The Debug Profiler has basic support for `Entity` and `BlockEntity`. If you would like to profile something else, you may need to manually create your sections like so:
+## 직접 짠 코드 프로파일링 하기
+
+디버그 프로파일러는 `Entity`와 `BlockEntity`는 프로파일링을 자동으로 해주지만 그것 이외에 다른 것에 프로파일러를 쓰고 싶다면 다음과 같이 부분을 직접 만드셔야 합니다:
+
 ```java
-ProfilerFiller#push(yourSectionName : String);
-//The code you want to profile
+ProfilerFiller#push(섹션 이름 : String);
+// 프로파일링할 코드
 ProfilerFiller#pop();
 ```
-You can obtain the `ProfilerFiller` instance from a `Level`, `MinecraftServer`, or `Minecraft` instance.
-Now you just need to search the results file for your section name.
+
+`ProfilerFiller` 인스턴스는 `Level`, `MinecraftServer` 또는 `Minecraft` 인스턴스에서 접근하실 수 있습니다.
+이제 사용하신 부분 이름을 프로파일링 결과에서 찾아보시면 됩니다.
