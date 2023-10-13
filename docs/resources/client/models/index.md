@@ -1,25 +1,25 @@
-Models
+모델
 ======
 
-The [model system][models] is Minecraft's way of giving blocks and items their shapes. Through the model system, blocks and items are mapped to their models, which define how they look. One of the main goals of the model system is to allow not only textures but the entire shape of a block/item to be changed by resource packs. Indeed, any mod that adds items or blocks also contains a mini-resource pack for their blocks and items.
+[모델 시스템][models]은 리소스팩을 통해 블록과 아이템에 모양을 추가합니다. 모델 시스템의 기능 중 하나는 블록과 아이템의 텍스쳐뿐 아니라 전체 모양까지 리소스팩으로 다루는 것이기에, 아이템 및 블록을 추가하는 모드들은 자체적으로 작은 리소스팩을 포함합니다. 
 
-Model Files
+모델 파일
 -----------
 
-Models and textures are linked through [`ResourceLocation`][resloc]s but are stored in the `ModelManager` using `ModelResourceLocation`s. Models are referenced in different locations through the block or item's registry name depending on whether they are referencing [block states][statemodel] or [item models][itemmodels]. Blocks will have their `ModelResourceLocation` represent their registry name along with a stringified version of its current [`BlockState`][state] while items will use their registry name followed by `inventory`.
+모델과 텍스쳐는 [`ResourceLocation`][resloc]으로 연결되지만, 이들을 저장하는 `ModelManager`는 `ModelResourceLocation`을 대신 사용합니다. `ModelResourceLocation`은 리소스 이름뿐 아니라 구체적인 모델의 변형(variant)도 지정하여 맥락에 따라 다른 모양을 사용합니다. 블록은 자신의 레지스트리 이름과 현재 [`BlockState`][state]를 문자열로 변환한 것을 변형으로 사용합니다. 아이템은 단순히 `inventory`를 사용합니다.
 
 :::note
-JSON models only support cuboid elements; there is no way to express a triangular wedge or anything like it. To have more complicated models, another format must be used.
+JSON 모델은 오직 직육면체만 지원합니다; 다른 모양도 사용하시려면 다른 포맷을 사용해야 합니다.
 :::
 
-### Textures
+### 텍스쳐
 
-Textures, like models, are contained within resource packs and are referred to with `ResourceLocation`s. In Minecraft, the [UV coordinates][uv] (0,0) are taken to mean the **top-left** corner. UVs are *always* from 0 to 16. If a texture is larger or smaller, the coordinates are scaled to fit. A texture should also be square, and the side length of a texture should be a power of two, as doing otherwise breaks mipmapping (e.g. 1x1, 2x2, 8x8, 16x16, and 128x128 are good. 5x5 and 30x30 are not recommended because they are not powers of 2. 5x10 and 4x8 are completely broken as they are not square.). Textures should only ever be not a square if it is [animated][animated].
+모델과 유사하게 텍스쳐도 리소스팩에 동봉되며 [`ResourceLocation`][resloc]으로 참조됩니다. 마인크래프트의 [UV 좌표][uv]의 원점(0, 0)은 **왼쪽 위** 가장자리입니다. UV의 범위는 **언제나** 0에서부터 16이며 더 크거나 작은 텍스쳐는 좌표의 크기를 조정해 맞춥니다. 밉맵이 잘못 적용될 수 있기 때문에 모든 텍스쳐는 정사각형이어야 하고, 각 변의 길이는 2의 제곱수여야 합니다. (예를 들어, 1x1, 2x2, 8x8, 16x16 등의 크기가 권장되며, 5x5, 30x30은 2의 제곱수가 아니기에 권장되지 않습니다. 5x10이나 4x8은 정사각형이 아니기에 깨질 수 있습니다.). 텍스쳐는 오직 [애니메이션][animated]을 추가할 때만 비 정사각형 형태일 수 있습니다. 
 
 [models]: https://minecraft.wiki/w/Tutorials/Models#File_path
 [resloc]: ../../../concepts/resources.md#resourcelocation
 [statemodel]: https://minecraft.wiki/w/Tutorials/Models#Block_states
 [itemmodels]: https://minecraft.wiki/w/Tutorials/Models#Item_models
 [state]: ../../../blocks/states.md
-[uv]: https://en.wikipedia.org/wiki/UV_mapping
+[uv]: https://ko.wikipedia.org/wiki/UV_%EB%A7%A4%ED%95%91
 [animated]: https://minecraft.wiki/w/Resource_Pack?so=search#Animation
