@@ -2,13 +2,13 @@
 sidebar_position: 0
 ---
 
-NeoGradle Documentation
+NeoGradle 문서
 =========================
 
 :::caution
-Please note that this documentation may not be up to date considering the recent creation of NeoForged.
+NeoForged는 최근에 설립된 단체고, 그 문서의 비공식 번역본이기에 문서가 불완전합니다.
 
-Until NeoGradle releases its first version, you should refer to ForgeGradle documentation. The ForgeGradle documentation for versions 6 and 5 has been archived here.
+NeoGradle의 최초 출시 이전까지는 영문 ForgeGradle 6&5 문서를 대신 운영합니다.
 :::
 
 This is the official documentation for [ForgeGradle], a [Gradle] plugin for developing [MinecraftForge] and mods using MinecraftForge.
