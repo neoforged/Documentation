@@ -1,4 +1,7 @@
-# Screens
+---
+sidebar_position: 2
+title: Screens
+---
 
 Screens are typically the base of all Graphical User Interfaces (GUIs) in Minecraft: taking in user input, verifying it on the server, and syncing the resulting action back to the client. They can be combined with [menus] to create an communication network for inventory-like views, or they can be standalone which modders can handle through their own [network] implementations.
 
@@ -344,11 +347,3 @@ private void clientSetup(FMLClientSetupEvent event) {
 :::danger
 `MenuScreens#register` is not thread-safe, so it needs to be called inside `#enqueueWork` provided by the parallel dispatch event.
 :::
-
-[menus]: ./menus.md
-[network]: ../networking/index.md
-[screen]: #the-screen-subtype
-[argb]: https://en.wikipedia.org/wiki/RGBA_color_model#ARGB32
-[component]: ../concepts/internationalization.md#translatablecontents
-[keymapping]: ../misc/keymappings.md#inside-a-gui
-[modbus]: ../concepts/events.md#mod-event-bus
