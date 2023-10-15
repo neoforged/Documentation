@@ -1,8 +1,9 @@
-Sounds
-======
+---
+sidebar_position: 2
+title: Sounds
+---
 
-Terminology
------------
+## Terminology
 
 | Term           | Description |
 |----------------|----------------|
@@ -10,8 +11,7 @@ Terminology
 | Sound Category | The category of the sound, for example `player`, `block` or simply `master`. The sliders in the sound settings GUI represent these categories. |
 |   Sound File   | The literal file on disk that is played: an .ogg file. |
 
-`sounds.json`
--------------
+## `sounds.json`
 
 This JSON defines sound events, and defines which sound files they play, the subtitle, etc. Sound events are identified with [`ResourceLocation`][loc]s. `sounds.json` should be located at the root of a resource namespace (`assets/<namespace>/sounds.json`), and it defines sound events in that namespace (`assets/<namespace>/sounds.json` defines sound events in the namespace `namespace`.).
 
@@ -42,8 +42,7 @@ In all cases, the path to a sound file for namespace `namespace` and path `path`
 
 A `sounds.json` can be [data generated][datagen].
 
-Creating Sound Events
----------------------
+## Creating Sound Events
 
 In order to reference sounds on the server, a `SoundEvent` holding a corresponding entry in `sounds.json` must be created. This `SoundEvent` must then be [registered][registration]. Normally, the location used to create a sound event should be set as it's registry name.
 
@@ -53,8 +52,7 @@ The `SoundEvent` acts as a reference to the sound and is passed around to play t
 As long as a sound is registered within the `sounds.json`, it can still be referenced on the logical client regardless of whether there is a referencing `SoundEvent`.
 :::
 
-Playing Sounds
---------------
+## Playing Sounds
 
 Vanilla has lots of methods for playing sounds, and it is unclear which to use at times.
 
@@ -103,9 +101,3 @@ Note that each takes a `SoundEvent`, the ones registered above. Additionally, th
     - **Client Behavior**: Just plays the Sound Event.
     - **Server Behavior**: Method is client-only.
     - **Usage**: Just like the ones in `Level`, these two overrides in the player classes seem to be for code that runs together on both sides. The client handles playing the sound to the user, while the server handles everyone else hearing it without re-playing to the original user.
-
-[loc]: ../concepts/resources.md#resourcelocation
-[wiki]: https://minecraft.fandom.com/wiki/Sounds.json
-[datagen]: ../datagen/client/sounds.md
-[registration]: ../concepts/registries.md#methods-for-registering
-[sides]: ../concepts/sides.md

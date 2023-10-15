@@ -1,10 +1,11 @@
-Particles
-=========
+---
+sidebar_position: 1
+title: Particles
+---
 
 Particles are an effect within the game used as polish to better improve immersion. Their usefulness also requires great caution because of their methods of creation and reference.
 
-Creating a Particle
--------------------
+## Creating a Particle
 
 Particles are broken up between its [**client only**][sides] implementation to display the particle and its common implementation to reference the particle or sync data from the server.
 
@@ -120,10 +121,6 @@ To register these particle textures, a `SpriteParticleRegistration` needs to be 
 If you are registering a `TextureSheetParticle` subtype which only contains one texture, then you can supply a `ParticleProvider$Sprite` instead to the `#registerSprite` method, which has essentially the same functional interface method as `ParticleProvider`.
 :::
 
-Spawning a Particle
--------------------
+## Spawning a Particle
 
 Particles can be spawned from either level instance. However, each side has a specific way to spawn a particle. If on the `ClientLevel`, `#addParticle` can be called to spawn a particle or `#addAlwaysVisibleParticle` can be called to spawn a particle that is visible from any distance. If on the `ServerLevel`, `#sendParticles` can be called to send a packet to the client to spawn the particle. Calling the two `ClientLevel` methods on the server will result in nothing.
-
-[sides]: ../concepts/sides.md
-[registration]: ../concepts/registries.md#methods-for-registering
