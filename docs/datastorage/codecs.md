@@ -1,4 +1,7 @@
-# Codecs
+---
+sidebar_position: 3
+title: Codecs
+---
 
 Codecs are a serialization tool from Mojang's [DataFixerUpper] used to describe how objects can be transformed between different formats, such as `JsonElement`s for JSON and `Tag`s for NBT.
 
@@ -432,10 +435,3 @@ public static final Codec<ExampleObject> = DISPATCH.getCodec() // Gets Codec<Cod
   "i": 0
 }
 ```
-
-[DataFixerUpper]: https://github.com/Mojang/DataFixerUpper
-[gson]: https://github.com/google/gson
-[transformer]: #transformer-codecs
-[pair]: #pair
-[records]: #records
-[field]: #fields

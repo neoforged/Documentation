@@ -1,5 +1,7 @@
-The Capability System
-=====================
+---
+sidebar_position: 1
+title: Capabilities
+---
 
 Capabilities allow exposing features in a dynamic and flexible way without having to resort to directly implementing many interfaces.
 
@@ -7,8 +9,7 @@ In general terms, each capability provides a feature in the form of an interface
 
 Forge adds capability support to BlockEntities, Entities, ItemStacks, Levels, and LevelChunks, which can be exposed either by attaching them through an event or by overriding the capability methods in your own implementations of the objects. This will be explained in more detail in the following sections.
 
-Forge-provided Capabilities
----------------------------
+## Forge-provided Capabilities
 
 Forge provides three capabilities: `IItemHandler`, `IFluidHandler` and `IEnergyStorage`
 
@@ -18,8 +19,7 @@ Forge provides three capabilities: `IItemHandler`, `IFluidHandler` and `IEnergyS
 
 `IEnergyStorage` exposes an interface for handling energy containers. It can be applied to BlockEntities, Entities, or ItemStacks. It is based on the RedstoneFlux API by TeamCoFH.
 
-Using an Existing Capability
-----------------------------
+## Using an Existing Capability
 
 As mentioned earlier, BlockEntities, Entities, and ItemStacks implement the capability provider feature through the `ICapabilityProvider` interface. This interface adds the method `#getCapability`, which can be used to query the capabilities present in the associated provider objects.
 
@@ -37,8 +37,7 @@ Even if you have a non-null capability available to you at all times, it does no
 
 The `#getCapability` method has a second parameter, of type `Direction`, which can be used to request the specific instance for that one face. If passed `null`, it can be assumed that the request comes either from within the block or from some place where the side has no meaning, such as a different dimension. In this case a general capability instance that does not care about sides will be requested instead. The return type of `#getCapability` will correspond to a `LazyOptional` of the type declared in the capability passed to the method. For the Item Handler capability, this is `LazyOptional<IItemHandler>`. If the capability is not available for a particular provider, it will return an empty `LazyOptional` instead.
 
-Exposing a Capability
----------------------
+## Exposing a Capability
 
 In order to expose a capability, you will first need an instance of the underlying capability type. Note that you should assign a separate instance to each object that keeps the capability, since the capability will most probably be tied to the containing object.
 
@@ -86,8 +85,7 @@ public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
 
 It is strongly suggested that direct checks in code are used to test for capabilities instead of attempting to rely on maps or other data structures, since capability tests can be done by many objects every tick, and they need to be as fast as possible in order to avoid slowing down the game.
 
-Attaching Capabilities
-----------------------
+## Attaching Capabilities
 
 As mentioned, attaching capabilities to existing providers, `Level`s, and `LevelChunk`s can be done using `AttachCapabilitiesEvent`. The same event is used for all objects that can provide capabilities. `AttachCapabilitiesEvent` has 5 valid generic types providing the following events:
 
@@ -103,8 +101,7 @@ In all cases, the event has a method `#addCapability` which can be used to attac
 
 For information on how to implement `ICapabilityProvider`, refer to the [Exposing a Capability][expose] section.
 
-Creating Your Own Capability
-----------------------------
+## Creating Your Own Capability
 
 A capability can be registered using one of two ways: `RegisterCapabilitiesEvent` or `@AutoRegisterCapability`.
 
@@ -130,8 +127,7 @@ public interface IExampleCapability {
 }
 ```
 
-Persisting LevelChunk and BlockEntity capabilities
---------------------------------------------
+## Persisting LevelChunk and BlockEntity capabilities
 
 Unlike Levels, Entities, and ItemStacks, LevelChunks and BlockEntities are only written to disk when they have been marked as dirty. A capability implementation with persistent state for a LevelChunk or a BlockEntity should therefore ensure that whenever its state changes, its owner is marked as dirty.
 
@@ -152,8 +148,7 @@ public class MyBlockEntity extends BlockEntity {
 }
 ```
 
-Synchronizing Data with Clients
--------------------------------
+## Synchronizing Data with Clients
 
 By default, capability data is not sent to clients. In order to change this, the mods have to manage their own synchronization code using packets.
 
@@ -165,8 +160,7 @@ There are three different situations in which you may want to send synchronizati
 
 Refer to the [Networking][network] page for more information on implementing network packets.
 
-Persisting across Player Deaths
--------------------------------
+## Persisting across Player Deaths
 
 By default, the capability data does not persist on death. In order to change this, the data has to be manually copied when the player entity is cloned during the respawn process.
 
