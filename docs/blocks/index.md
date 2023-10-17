@@ -3,17 +3,17 @@ Blocks
 
 Blocks are, obviously, essential to the Minecraft world. They make up all the terrain, structures, and machines. Chances are if you are interested in making a mod, then you will want to add some blocks. This page will guide you through the creation of blocks, and some of the things you can do with them.
 
-One block to rule them all
+One Block to Rule Them All
 --------------------------
 
 Before we get started, it is important to understand that there is only ever one of each block in the game. Even though you might see thousands of dirt blocks, or stone blocks, or crafting tables in the world, there is only ever one of those actually registered to the game. It is just displayed a lot of times.
 
 Due to this, a block should only ever be instantiated once, and that is during registration. Once the block is registered, you can then use the registered reference as needed. See the [registration] page for more information on how to register game objects, such as blocks.
 
-Creating blocks
+Creating Blocks
 ---------------
 
-### Basic blocks
+### Basic Blocks
 
 For simple blocks which need no special functionality (think cobblestone, wooden planks, etc.), the `Block` class can be used directly. To do so, during registration, instantiate `Block` with a `BlockBehaviour$Properties` parameter. This `BlockBehaviour$Properties` parameter can be created using `BlockBehaviour$Properties#of`, and it can be customized by calling its methods. For instance:
 
@@ -32,7 +32,7 @@ It is important to understand that a block in the world is not the same thing as
 A `BlockItem` must be registered separately from the block, this has the reason that not every block is intended to have a corresponding item.
 :::
 
-### More functionality
+### More Functionality
 
 Of course, the above only allows for extremely basic blocks. If you want to add functionality, like player interaction, a custom class that extends `Block` is required. The `Block` class has many methods and unfortunately, not every single one can be documented here. Please refer to other pages in this section, or to the code of `Block`, for more information.
 
@@ -44,7 +44,7 @@ If you register your block and place it in the world, you will find it to be mis
 
 To apply a simple texture to a block, you must add a blockstate JSON, a model JSON, and a texture. See the section on [resources] for more information.
 
-Using blocks
+Using Blocks
 ------------
 
 Most places where you'd expect a block actually take a `BlockState` instead. For example, `Level#setBlock` takes a `BlockState`, not a `Block`, despite the misleading name. If you have a block that does not have any blockstate properties, you just have one blockstate on that block. That one blockstate can be retrieved by calling `Block#defaultBlockState`.

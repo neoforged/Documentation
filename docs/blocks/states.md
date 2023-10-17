@@ -1,5 +1,5 @@
-Block States
-============
+Blockstates
+===========
 
 Introduction
 ------------
@@ -16,14 +16,14 @@ Immutability has its upsides as well, though. For example, `==` can and should b
 
 `BlockState` is also a final class, meaning it cannot be extended. **Any functionality goes in the corresponding Block class!**
 
-When to use blockstates
+When to Use Blockstates
 -----------------------
 
 Only the most basic properties of a block should be put into a `BlockState`, sometimes using a `BlockEntity` or multiple separate `Block`s is the better approach. Always consider if you actually need to use blockstates for your purposes.
 
 A good rule of thumb for that is: **if it has a different name, it should be a separate block**.  An example is making chair blocks: the direction of the chair should be a property, while the different types of wood should be separated into different blocks. So you'd have one chair block for each wood type, and each chair block has four blockstates (one for each rotation).
 
-Implementing blockstates
+Implementing Blockstates
 ------------------------
 
 In your block class, create or reference `static final Property<?>` constants for every property that your block has. You are free to make your own `Property<?>` implementations, but the means to do that are not covered in this article. The vanilla code provides several convenience implementations:
@@ -60,7 +60,7 @@ this.registerDefaultState(this.stateDefinition.any()
 
 If you wish to change what `BlockState` is used when placing your block, override `Block#getStateForPlacement(BlockPlaceContext)`. This can be used to, for example, set the direction of your block depending on where the player is standing or looking when they place it.
 
-Using blockstates
+Using Blockstates
 -----------------
 
 You can get the value of a property by calling `BlockState#getValue(Property<?>)`, passing it the property you want to get the value of.
