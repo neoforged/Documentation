@@ -65,5 +65,5 @@ BlockCapability.create(forge("item_handler"), IItemHandler.class, Direction.clas
 Caching and Invalidation
 ----------------------------
 
-Only BlockCapabilities can be cached, for that you can use the the BlockCapabilityCache. It tracks creation and removal of BlockCapabilities at a given pos for a given context, and the current instance for the cap can be queried with `BlockCapabilityCache#getCapability`.
-BlockCapabilityCaches have to be unregistered when not using them anymore by calling `BlockCapabilityCache#unregister`. This will mostly be done during `BlockEntity#setRemoved` in your BlockEntity, but you might have to unregister at other times too, depending on how you use it.
+Only `BlockCapabilities` can be cached, for that you can use the the `BlockCapabilityCache`. It tracks creation and removal of `BlockCapabilities` at a given pos for a given context, and the current instance for the cap can be queried with `BlockCapabilityCache#getCapability`.
+`BlockCapabilityCache`s are invalidated automatically, when the garbage collector removes it, because it's not referenced anymore.
