@@ -25,7 +25,7 @@ minecraft:lever[facing=up,powered=true]
 minecraft:lever[facing=down,powered=true]
 ```
 
-The notation `blockid[property1=value1,property2=value,...]` is the standardized way of representing a blockstate in text form, and is used in some locations in vanilla, for example in commmands.
+The notation `blockid[property1=value1,property2=value,...]` is the standardized way of representing a blockstate in text form, and is used in some locations in vanilla, for example in commands.
 
 If your block does not have any blockstate properties defined, it still has exactly one blockstate - that is the one without any properties, since there are no properties to specify. This can be denoted as `minecraft:oak_planks[]` or simply `minecraft:oak_planks`.
 
@@ -47,7 +47,7 @@ Blockstates and block entities can be used in conjunction with one another. For 
 Implementing Blockstates
 ------------------------
 
-To implement a blockstate property, in your block class, create or reference a `public static final Property<?>` constant. While you are free to make your own `Property<?>` implementations, the vanilla code provides several convenience implementations that should cover most usecases:
+To implement a blockstate property, in your block class, create or reference a `public static final Property<?>` constant. While you are free to make your own `Property<?>` implementations, the vanilla code provides several convenience implementations that should cover most use cases:
 
 * `IntegerProperty`
     * Implements `Property<Integer>`. Defines a property that holds an integer value. Note that negative values are not supported.
@@ -102,6 +102,8 @@ public class LeverBlock extends Block {
 
 Using Blockstates
 -----------------
+
+To go from `Block` to `BlockState`, call `Block#defaultBlockState()`.
 
 You can get the value of a property by calling `BlockState#getValue(Property<?>)`, passing it the property you want to get the value of. Reusing our lever example, this would look something like `Direction direction = leverBlockState.getValue(LeverBlock.FACING);`
 
