@@ -14,7 +14,7 @@ Due to this, a block should only ever be instantiated once, and that is during r
 public static final RegistryObject<Block> MY_BLOCK = BLOCKS.register("my_block", () -> new Block(...));
 ```
 
-After registering the block, all references to the new `my_block` should use this constant. For example, if you want to check if the block at a given position is a `my_block`, the code for that would look something like this:
+After registering the block, all references to the new `my_block` should use this constant. For example, if you want to check if the block at a given position is `my_block`, the code for that would look something like this:
 
 ```java
 level.getBlockState(position).is(MyBlockRegistrationClass.MY_BLOCK.get());
