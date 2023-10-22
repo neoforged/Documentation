@@ -76,6 +76,7 @@ To further illustrate this, this is what the relevant bits of the `LeverBlock` c
 
 ```java
 public class LeverBlock extends Block {
+    // Note: It is possible to directly use the values in BlockStateProperties instead of referencing them here again. However, for the sake of simplicity and readability, it is recommended to add constants like this.
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
 
@@ -89,7 +90,7 @@ public class LeverBlock extends Block {
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> pBuilder) {
-        pBuilder.add(FACING, POWERED);
+        pBuilder.add(FACING, POWERED); // this is where the properties are actually added to the state
     }
 
     @Override
@@ -103,11 +104,19 @@ public class LeverBlock extends Block {
 Using Blockstates
 -----------------
 
-To go from `Block` to `BlockState`, call `Block#defaultBlockState()`.
+To go from `Block` to `BlockState`, call `Block#defaultBlockState()`. The default blockstate can be changed through `Block#registerDefaultState`, as described above.
 
-You can get the value of a property by calling `BlockState#getValue(Property<?>)`, passing it the property you want to get the value of. Reusing our lever example, this would look something like `Direction direction = leverBlockState.getValue(LeverBlock.FACING);`
+You can get the value of a property by calling `BlockState#getValue(Property<?>)`, passing it the property you want to get the value of. Reusing our lever example, this would look something like this:
 
-If you want to get a `BlockState` with a different set of values, simply call `BlockState#setValue(Property<T>, T)` on an existing block state with the property and its value. With our lever, this goes something like `leverBlockState = leverBlockState.setValue(LeverBlock.FACING, Direction.SOUTH);`
+```java
+Direction direction = leverBlockState.getValue(LeverBlock.FACING);
+```
+
+If you want to get a `BlockState` with a different set of values, simply call `BlockState#setValue(Property<T>, T)` on an existing block state with the property and its value. With our lever, this goes something like this:
+
+```java
+leverBlockState = leverBlockState.setValue(LeverBlock.FACING, Direction.SOUTH);
+```
 
 :::note
 `BlockState`s are immutable. This means that when you call `#setValue(Property<T>, T)`, you are not actually modifying the blockstate. Instead, a lookup is performed internally, and you are given the blockstate object you requested, which is the one and only object that exists with these exact property values. This also means that just calling `state#setValue` without saving it into a variable (for example back into `state`) does nothing.
@@ -121,7 +130,7 @@ To set a `BlockState` in the level, use `Level#setBlock(BlockPos, BlockState, in
 
 The `int` parameter deserves some extra explanation, as its meaning is not immediately obvious. It denotes what is known as update flags.
 
-To help setting the update flags correctly, there are a number of `int` constants in `Block`, prefixed with `UPDATE_`. Examples include `Block.UPDATE_NEIGHBORS` or `Block.UPDATE_CLIENTS`. These constants can be added together (for example `Block.UPDATE_NEIGHBORS + Block.UPDATE_CLIENTS`) if you wish to combine them. If you're unsure which one to use, use `Block.UPDATE_ALL`.
+To help setting the update flags correctly, there are a number of `int` constants in `Block`, prefixed with `UPDATE_`. Examples include `Block.UPDATE_NEIGHBORS` or `Block.UPDATE_CLIENTS`. These constants can be bitwise-ORed together (for example `Block.UPDATE_NEIGHBORS | Block.UPDATE_CLIENTS`) if you wish to combine them. If you're unsure which one to use, use `Block.UPDATE_ALL`.
 
 [block]: index.md
 [blockentity]: ../blockentities/index.md

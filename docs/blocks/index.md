@@ -11,17 +11,21 @@ Before we get started, it is important to understand that there is only ever one
 Due to this, a block should only ever be instantiated once, and that is during registration. Once the block is registered, you can then use the registered reference as needed. Consider this example (see the [Registration][registration] page if you do not know what you are looking at):
 
 ```java
+//BLOCKS is a DeferredRegister<Block>
 public static final RegistryObject<Block> MY_BLOCK = BLOCKS.register("my_block", () -> new Block(...));
 ```
 
 After registering the block, all references to the new `my_block` should use this constant. For example, if you want to check if the block at a given position is `my_block`, the code for that would look something like this:
 
 ```java
+//level.getBlockState(position) returns the blockstate placed in the given level (world) at the given position
 level.getBlockState(position).is(MyBlockRegistrationClass.MY_BLOCK.get());
 ```
 
+This approach also has the convenient side effect that `block1 == block2` works and should be used instead of Java's `equals` method.
+
 :::danger
-As soon as you create a `new Block()` outside registration, things can and will break!
+Do not call `new Block()` outside registration! As soon as you do that, things can and will break!
 :::
 
 Creating Blocks
@@ -32,10 +36,15 @@ Creating Blocks
 For simple blocks which need no special functionality (think cobblestone, wooden planks, etc.), the `Block` class can be used directly. To do so, during registration, instantiate `Block` with a `BlockBehaviour.Properties` parameter. This `BlockBehaviour.Properties` parameter can be created using `BlockBehaviour.Properties#of`, and it can be customized by calling its methods. The most important methods for this are:
 
 - `destroyTime` - Determines the time the block needs to be destroyed.
+    - Stone has a destroy time of 1.5, dirt has 0.5, obsidian has 50, and bedrock has -1 (unbreakable).
 - `explosionResistance` - Determines the explosion resistance of the block.
+    - Stone has an explosion resistance of 6.0, dirt has 0.5, obsidian has 1200, and bedrock has 3600000.
 - `sound` - Sets the sound the block makes when it is punched, broken, or placed.
+    - The default value is `SoundType.STONE`. See the [Sounds page][sounds] for more details.
 - `lightLevel` - Sets the light emission of the block. Accepts a function with a `BlockState` parameter that returns a value between 0 and 15.
+    - For example, glowstone uses `state -> 15`, and torches use `state -> 14`.
 - `friction` - Sets the friction (slipperiness) of the block.
+    - Default value is 0.6. Ice uses 0.98.
 
 So for example, a simple implementation would look something like this:
 
@@ -47,7 +56,7 @@ public static final RegistryObject<Block> MY_BETTER_BLOCK = BLOCKS.register("my_
         .lightLevel(state -> 7)));
 ```
 
-For further documentation, see the [`BlockBehaviour.Properties` reference][propertiesreference]. For more examples, or to look at the values used by Minecraft, have a look at the `Blocks` class.
+For further documentation, see the source code of `BlockBehaviour.Properties`. For more examples, or to look at the values used by Minecraft, have a look at the `Blocks` class.
 
 :::note
 It is important to understand that a block in the world is not the same thing as in an inventory. What looks like a block in an inventory is actually a `BlockItem`, a special type of [item] that places a block when used. This also means that things like the creative tab or the max stack size are handled by the corresponding `BlockItem`.
@@ -76,7 +85,7 @@ In several situations, multiple methods of `Block` are used at different times. 
 
 ### Placing a Block
 
-Block placement logic is called from `BlockItem#useOn` (or some subclass's implementation thereof, such as in `PlaceOnWaterBlockItem`, which is used for lily pads). For more information on how the game gets there, see the [Interaction Pipeline][interactionpipeline].
+Block placement logic is called from `BlockItem#useOn` (or some subclass's implementation thereof, such as in `PlaceOnWaterBlockItem`, which is used for lily pads). For more information on how the game gets there, see the [Interaction Pipeline][interactionpipeline]. In practice, this means that as soon as a `BlockItem` is right-clicked (for example a cobblestone item), this behavior is called.
 
 - Several prerequisites are checked, for example that you are not in spectator mode, that all required feature flags for the block are enabled or that the block in question is not outside the world border. If at least one of these checks fails, the pipeline ends.
 - `Block#canBeReplaced` is called for the block currently at the position where the block is tried to place. If it returns `false`, the pipeline ends.
@@ -131,12 +140,14 @@ The following subsections further break down these stages into actual method cal
 
 - `Item#onBlockStartBreak` is called. If it returns `true`, the pipeline moves to the "finishing" stage.
 - Server-only: `IForgeBlock#canHarvestBlock` is called.
-- `Block#playerWillDestroy` is called.
-- The blockstate is removed from the level via a `Level#setBlock` call with `Blocks.AIR.defaultBlockState()` as the blockstate parameter.
-    - In that `Level#setBlock` call, `Block#onRemove` is called.
+- `Block#onDestroyedByPlayer` is called. If it returns `false`, the pipeline moves to the "finishing" stage. In that `Block#onDestroyedByPlayer` call:
+    - `Block#playerWillDestroy` is called.
+    - The blockstate is removed from the level via a `Level#setBlock` call with `Blocks.AIR.defaultBlockState()` as the blockstate parameter.
+        - In that `Level#setBlock` call, `Block#onRemove` is called.
 - `Block#destroy` is called.
 - Server-only: If the previous call to `IForgeBlock#canHarvestBlock` returned `true`, `Block#playerDestroy` is called.
-- Server-only: `Block#popExperience` is called.
+- Server-onlý: `IForgeBlock#getExpDrop` is called.
+- Server-only: `Block#popExperience` is called with the result of the previous `IForgeBlock#getExpDrop` call, if that call returned a value greater than 0.
 
 #### The "Finishing" Stage
 
@@ -162,7 +173,6 @@ Random ticking is used by a wide range of mechanics in Minecraft, such as plant 
 [events]: ../concepts/events.md
 [interactionpipeline]: ../items/interactionpipeline.md
 [item]: ../items/index.md
-[propertiesreference]: reference.md#blockbehaviourproperties
 [registration]: ../concepts/registries.md#methods-for-registering
 [resources]: ../resources/client/index.md
 [sounds]: ../gameeffects/sounds.md
