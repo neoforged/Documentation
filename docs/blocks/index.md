@@ -57,7 +57,7 @@ A `BlockItem` must be registered separately from the block. This is because a bl
 
 ### More Functionality
 
-Directly using `Block` only allows for very basic blocks. If you want to add functionality, like player interaction or a non-1x1x1 hitbox, a custom class that extends `Block` is required. The `Block` class has many methods that can be overridden to do different things; these are documented in the [`Block` reference][blockreference]. See also the Using blocks section below for some of the most common use cases for blocks.
+Directly using `Block` only allows for very basic blocks. If you want to add functionality, like player interaction or a different hitbox, a custom class that extends `Block` is required. The `Block` class has many methods that can be overridden to do different things; these are documented in the [`Block` reference][blockreference]. See also the Using blocks section below for some of the most common use cases for blocks.
 
 If you want to make a block that has different variants (think a slab that has a bottom, top, and double variant), you should use [blockstates]. And finally, if you want a block that stores additional data (think a chest that stores its inventory), a [block entity][blockentities] should be used. The rule of thumb here is that if you have a finite amount of states, use blockstates, and if you have an infinite or near-infinite amount of states, use a block entity.
 
