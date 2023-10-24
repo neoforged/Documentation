@@ -25,7 +25,11 @@ level.getBlockState(position).is(MyBlockRegistrationClass.MY_BLOCK.get());
 This approach also has the convenient side effect that `block1 == block2` works and should be used instead of Java's `equals` method.
 
 :::danger
-Do not call `new Block()` outside registration! As soon as you do that, things can and will break!
+Do not call `new Block()` outside registration! As soon as you do that, things can and will break:
+
+- Blocks must be created while registries are unfrozen. NeoForge unfreezes registries for you and freezes them later, so registration is your time window to create blocks.
+- If you try to create and/or register a block when registries are frozen again, the game will crash. On top of that, error messages are usually cryptic here, so it's best to avoid them.
+- If you still manage to have a dangling block instance, the game will not recognize it while syncing and saving, and replace it with air.
 :::
 
 Creating Blocks
@@ -38,7 +42,7 @@ For simple blocks which need no special functionality (think cobblestone, wooden
 - `destroyTime` - Determines the time the block needs to be destroyed.
     - Stone has a destroy time of 1.5, dirt has 0.5, obsidian has 50, and bedrock has -1 (unbreakable).
 - `explosionResistance` - Determines the explosion resistance of the block.
-    - Stone has an explosion resistance of 6.0, dirt has 0.5, obsidian has 1200, and bedrock has 3600000.
+    - Stone has an explosion resistance of 6.0, dirt has 0.5, obsidian has 1,200, and bedrock has 3,600,000.
 - `sound` - Sets the sound the block makes when it is punched, broken, or placed.
     - The default value is `SoundType.STONE`. See the [Sounds page][sounds] for more details.
 - `lightLevel` - Sets the light emission of the block. Accepts a function with a `BlockState` parameter that returns a value between 0 and 15.
@@ -68,7 +72,7 @@ A `BlockItem` must be registered separately from the block. This is because a bl
 
 Directly using `Block` only allows for very basic blocks. If you want to add functionality, like player interaction or a different hitbox, a custom class that extends `Block` is required. The `Block` class has many methods that can be overridden to do different things; see the classes `Block`, `BlockBehaviour` and `IForgeBlock` for more information. See also the Using blocks section below for some of the most common use cases for blocks.
 
-If you want to make a block that has different variants (think a slab that has a bottom, top, and double variant), you should use [blockstates]. And finally, if you want a block that stores additional data (think a chest that stores its inventory), a [block entity][blockentities] should be used. The rule of thumb here is that if you have a finite amount of states, use blockstates, and if you have an infinite or near-infinite amount of states, use a block entity.
+If you want to make a block that has different variants (think a slab that has a bottom, top, and double variant), you should use [blockstates]. And finally, if you want a block that stores additional data (think a chest that stores its inventory), a [block entity][blockentities] should be used. The rule of thumb here is that if you have a finite and reasonably small amount of states (= a few hundred states at most), use blockstates, and if you have an infinite or near-infinite amount of states, use a block entity.
 
 ### Resources
 

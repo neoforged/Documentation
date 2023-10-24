@@ -44,6 +44,8 @@ Here, the rule of thumb is: **if you have a finite amount of states, use a block
 
 Blockstates and block entities can be used in conjunction with one another. For example, the chest uses blockstate properties for things like the direction, whether it is opened or not, or becoming a double chest is handled by blockstate properties, while storing the inventory or interacting with hoppers is handled by a block entity.
 
+There is no definitive answer to the question "How many states are too much for a blockstate?", but the generally agreed upon answer is that if you need more than 8-9 bits of data (i.e. more than a few hundred states), use a block entity instead.
+
 Implementing Blockstates
 ------------------------
 
@@ -130,7 +132,18 @@ To set a `BlockState` in the level, use `Level#setBlock(BlockPos, BlockState, in
 
 The `int` parameter deserves some extra explanation, as its meaning is not immediately obvious. It denotes what is known as update flags.
 
-To help setting the update flags correctly, there are a number of `int` constants in `Block`, prefixed with `UPDATE_`. Examples include `Block.UPDATE_NEIGHBORS` or `Block.UPDATE_CLIENTS`. These constants can be bitwise-ORed together (for example `Block.UPDATE_NEIGHBORS | Block.UPDATE_CLIENTS`) if you wish to combine them. If you're unsure which one to use, use `Block.UPDATE_ALL`.
+To help setting the update flags correctly, there are a number of `int` constants in `Block`, prefixed with `UPDATE_`. These constants can be bitwise-ORed together (for example `Block.UPDATE_NEIGHBORS | Block.UPDATE_CLIENTS`) if you wish to combine them.
+
+- `Block.UPDATE_NEIGHBORS` sends an update to the neighboring blocks. More specifically, it calls `Block#neighborChanged`, which calls a number of methods, most of which are redstone-related in some way.
+- `Block.UPDATE_CLIENTS` syncs the block update to the client.
+- `Block.UPDATE_INVISIBLE` explicitly does not update. This also overrules `Block.UPDATE_CLIENTS`, causing the update to not be synced.
+- `Block.UPDATE_IMMEDIATE` forces the update immediately, instead of on the next tick.
+- `Block.UPDATE_KNOWN_SHAPE` stops neighbor update recursion.
+- `Block.UPDATE_SUPPRESS_DROPS` disables block drops for the old block at that position.
+- `Block.UPDATE_MOVE_BY_PISTON` is only used by piston code to signalize that the block was moved by a piston.
+- `Block.UPDATE_ALL` is an alias for `Block.UPDATE_NEIGHBORS | Block.UPDATE_CLIENTS`.
+- `Block.UPDATE_ALL_IMMEDIATE` is an alias for `Block.UPDATE_NEIGHBORS | Block.UPDATE_CLIENTS | Block.UPDATE_IMMEDIATE`.
+- `Block.NONE` is an alias for `Block.UPDATE_INVISIBLE`.
 
 [block]: index.md
 [blockentity]: ../blockentities/index.md
