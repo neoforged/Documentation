@@ -26,3 +26,10 @@ npm run build
 ```
 
 This command generates static content into the `build` directory and can be served using any static contents hosting service.
+
+
+## All Thanks To Our Contributors
+
+<a href="https://github.com/neoforged/Documentation/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=neoforged/Documentation" />
+</a>
