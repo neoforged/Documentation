@@ -1,12 +1,12 @@
 Blockstates
 ===========
 
-Introduction
-------------
-
 Often, you will find yourself in a situation where you want different states of a block. For example, a wheat crop has eight growth stages, and making a separate block for each stage feels wrong. Or you have a slab or slab-like block - one bottom state, one top state, and one state that has both.
 
 This is where blockstates come into play. Blockstates are an easy way to represent the different states a block can have, like a growth stage or a slab placement type.
+
+Blockstate Properties
+---------------------
 
 Blockstates use a system of properties. A block can have multiple properties of multiple types. For example, a lever has two properties: whether it is currently activated (`powered`, 2 options) and which direction it is placed in (`facing`, 6 options). So in total, the lever has 12 different blockstates:
 
@@ -29,7 +29,7 @@ The notation `blockid[property1=value1,property2=value,...]` is the standardized
 
 If your block does not have any blockstate properties defined, it still has exactly one blockstate - that is the one without any properties, since there are no properties to specify. This can be denoted as `minecraft:oak_planks[]` or simply `minecraft:oak_planks`.
 
-As with blocks, every `BlockState` exists exactly once in memory. This has the convenient side effect that `==` can and should be used to compare `BlockState`s. `BlockState` is also a final class, meaning it cannot be extended. **Any functionality goes in the corresponding [Block][block] class!**
+As with blocks, every `BlockState` exists exactly once in memory. This means that `==` can and should be used to compare `BlockState`s. `BlockState` is also a final class, meaning it cannot be extended. **Any functionality goes in the corresponding [Block][block] class!**
 
 When to Use Blockstates
 -----------------------
@@ -44,7 +44,7 @@ Here, the rule of thumb is: **if you have a finite amount of states, use a block
 
 Blockstates and block entities can be used in conjunction with one another. For example, the chest uses blockstate properties for things like the direction, whether it is opened or not, or becoming a double chest is handled by blockstate properties, while storing the inventory or interacting with hoppers is handled by a block entity.
 
-There is no definitive answer to the question "How many states are too much for a blockstate?", but the generally agreed upon answer is that if you need more than 8-9 bits of data (i.e. more than a few hundred states), use a block entity instead.
+There is no definitive answer to the question "How many states are too much for a blockstate?", but the authors recommend that if you need more than 8-9 bits of data (i.e. more than a few hundred states), you should use a block entity instead.
 
 Implementing Blockstates
 ------------------------
@@ -78,13 +78,16 @@ To further illustrate this, this is what the relevant bits of the `LeverBlock` c
 
 ```java
 public class LeverBlock extends Block {
-    // Note: It is possible to directly use the values in BlockStateProperties instead of referencing them here again. However, for the sake of simplicity and readability, it is recommended to add constants like this.
+    // Note: It is possible to directly use the values in BlockStateProperties instead of referencing them here again.
+    // However, for the sake of simplicity and readability, it is recommended to add constants like this.
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
 
     public LeverBlock(BlockBehaviour.Properties pProperties) {
         super(pProperties);
-        registerDefaultState(stateDefinition.any() // stateDefinition.any() returns a random BlockState from an internal set, we don't care because we're setting all values ourselves anyway
+        // stateDefinition.any() returns a random BlockState from an internal set,
+        // we don't care because we're setting all values ourselves anyway
+        registerDefaultState(stateDefinition.any()
                 .setValue(FACING, Direction.NORTH)
                 .setValue(POWERED, false)
         );
@@ -92,13 +95,15 @@ public class LeverBlock extends Block {
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> pBuilder) {
-        pBuilder.add(FACING, POWERED); // this is where the properties are actually added to the state
+        // this is where the properties are actually added to the state
+        pBuilder.add(FACING, POWERED);
     }
 
     @Override
     @Nullable
     public BlockState getStateForPlacement(BlockPlaceContext pContext) {
-        // code that determines which state will be used when placing down this block, depending on the BlockPlaceContext
+        // code that determines which state will be used when
+        // placing down this block, depending on the BlockPlaceContext
     }
 }
 ```
@@ -111,6 +116,7 @@ To go from `Block` to `BlockState`, call `Block#defaultBlockState()`. The defaul
 You can get the value of a property by calling `BlockState#getValue(Property<?>)`, passing it the property you want to get the value of. Reusing our lever example, this would look something like this:
 
 ```java
+// LeverBlock.FACING is a DirectionProperty and thus can be used to obtain a Direction from the BlockState
 Direction direction = leverBlockState.getValue(LeverBlock.FACING);
 ```
 
@@ -136,11 +142,11 @@ To help setting the update flags correctly, there are a number of `int` constant
 
 - `Block.UPDATE_NEIGHBORS` sends an update to the neighboring blocks. More specifically, it calls `Block#neighborChanged`, which calls a number of methods, most of which are redstone-related in some way.
 - `Block.UPDATE_CLIENTS` syncs the block update to the client.
-- `Block.UPDATE_INVISIBLE` explicitly does not update. This also overrules `Block.UPDATE_CLIENTS`, causing the update to not be synced.
-- `Block.UPDATE_IMMEDIATE` forces the update immediately, instead of on the next tick.
+- `Block.UPDATE_INVISIBLE` explicitly does not update on the client. This also overrules `Block.UPDATE_CLIENTS`, causing the update to not be synced. The block is always updated on the server.
+- `Block.UPDATE_IMMEDIATE` forces a re-render on the main thread.
 - `Block.UPDATE_KNOWN_SHAPE` stops neighbor update recursion.
 - `Block.UPDATE_SUPPRESS_DROPS` disables block drops for the old block at that position.
-- `Block.UPDATE_MOVE_BY_PISTON` is only used by piston code to signalize that the block was moved by a piston.
+- `Block.UPDATE_MOVE_BY_PISTON` is only used by piston code to signalize that the block was moved by a piston. This is mainly responsible for delaying light engine updates.
 - `Block.UPDATE_ALL` is an alias for `Block.UPDATE_NEIGHBORS | Block.UPDATE_CLIENTS`.
 - `Block.UPDATE_ALL_IMMEDIATE` is an alias for `Block.UPDATE_NEIGHBORS | Block.UPDATE_CLIENTS | Block.UPDATE_IMMEDIATE`.
 - `Block.NONE` is an alias for `Block.UPDATE_INVISIBLE`.

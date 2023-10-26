@@ -22,13 +22,13 @@ After registering the block, all references to the new `my_block` should use thi
 level.getBlockState(position).is(MyBlockRegistrationClass.MY_BLOCK.get());
 ```
 
-This approach also has the convenient side effect that `block1 == block2` works and should be used instead of Java's `equals` method.
+This approach also has the convenient effect that `block1 == block2` works and can be used instead of Java's `equals` method (using `equals` still works, of course, but is pointless since it compares by reference anyway).
 
 :::danger
 Do not call `new Block()` outside registration! As soon as you do that, things can and will break:
 
 - Blocks must be created while registries are unfrozen. NeoForge unfreezes registries for you and freezes them later, so registration is your time window to create blocks.
-- If you try to create and/or register a block when registries are frozen again, the game will crash. On top of that, error messages are usually cryptic here, so it's best to avoid them.
+- If you try to create and/or register a block when registries are frozen again, the game will crash and report a `null` block, which can be very confusing.
 - If you still manage to have a dangling block instance, the game will not recognize it while syncing and saving, and replace it with air.
 :::
 
@@ -53,11 +53,14 @@ For simple blocks which need no special functionality (think cobblestone, wooden
 So for example, a simple implementation would look something like this:
 
 ```java
-public static final RegistryObject<Block> MY_BETTER_BLOCK = BLOCKS.register("my_better_block", () -> new Block(BlockBehaviour.Properties.of()
-        .destroyTime(2.0f)
-        .explosionResistance(10.0f)
-        .sound(SoundType.GRAVEL)
-        .lightLevel(state -> 7)));
+public static final RegistryObject<Block> MY_BETTER_BLOCK = BLOCKS.register(
+        "my_better_block", 
+        () -> new Block(BlockBehaviour.Properties.of()
+                .destroyTime(2.0f)
+                .explosionResistance(10.0f)
+                .sound(SoundType.GRAVEL)
+                .lightLevel(state -> 7)
+        ));
 ```
 
 For further documentation, see the source code of `BlockBehaviour.Properties`. For more examples, or to look at the values used by Minecraft, have a look at the `Blocks` class.
@@ -70,7 +73,7 @@ A `BlockItem` must be registered separately from the block. This is because a bl
 
 ### More Functionality
 
-Directly using `Block` only allows for very basic blocks. If you want to add functionality, like player interaction or a different hitbox, a custom class that extends `Block` is required. The `Block` class has many methods that can be overridden to do different things; see the classes `Block`, `BlockBehaviour` and `IForgeBlock` for more information. See also the Using blocks section below for some of the most common use cases for blocks.
+Directly using `Block` only allows for very basic blocks. If you want to add functionality, like player interaction or a different hitbox, a custom class that extends `Block` is required. The `Block` class has many methods that can be overridden to do different things; see the classes `Block`, `BlockBehaviour` and `IForgeBlock` for more information. See also the [Using blocks][usingblocks] section below for some of the most common use cases for blocks.
 
 If you want to make a block that has different variants (think a slab that has a bottom, top, and double variant), you should use [blockstates]. And finally, if you want a block that stores additional data (think a chest that stores its inventory), a [block entity][blockentities] should be used. The rule of thumb here is that if you have a finite and reasonably small amount of states (= a few hundred states at most), use blockstates, and if you have an infinite or near-infinite amount of states, use a block entity.
 
@@ -127,7 +130,7 @@ The following subsections further break down these stages into actual method cal
 
 #### The "Initiating" Stage
 
-- `InputEvent.InteractionKeyMappingTriggered` is fired with the left mouse button and the main hand. If the event is canceled, the pipeline ends.
+- Client-only: `InputEvent.InteractionKeyMappingTriggered` is fired with the left mouse button and the main hand. If the event is canceled, the pipeline ends.
 - Several prerequisites are checked, for example that you are not in spectator mode, that all required feature flags for the `ItemStack` in your main hand are enabled or that the block in question is not outside the world border. If at least one of these checks fails, the pipeline ends.
 - `PlayerInteractEvent.LeftClickBlock` is fired. If the event is canceled, the pipeline ends.
 - `Block#attack` is called.
@@ -179,4 +182,5 @@ Random ticking is used by a wide range of mechanics in Minecraft, such as plant 
 [registration]: ../concepts/registries.md#methods-for-registering
 [resources]: ../resources/client/index.md
 [sounds]: ../gameeffects/sounds.md
+[usingblocks]: #using-blocks
 [usingblockstates]: states.md#using-blockstates
