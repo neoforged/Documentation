@@ -88,7 +88,7 @@ Using Blocks
 
 Blocks are very rarely directly used to do things. In fact, probably two of the most common operations in all of Minecraft - getting the block at a position, and setting a block at a position - use blockstates, not blocks. The general design approach is to have the block define behavior, but have the behavior actually run through blockstates. Due to this, `BlockState`s are often passed to methods of `Block` as a parameter. For more information on how blockstates are used, and on how to get one from a block, see [Using Blockstates][usingblockstates].
 
-In several situations, multiple methods of `Block` are used at different times. The following subsections list the most common block-related pipelines. Unless specified otherwise, all methods are called on both logical sides.
+In several situations, multiple methods of `Block` are used at different times. The following subsections list the most common block-related pipelines. Unless specified otherwise, all methods are called on both logical sides and should return the same result on both sides.
 
 ### Placing a Block
 
@@ -153,24 +153,36 @@ The following subsections further break down these stages into actual method cal
         - In that `Level#setBlock` call, `Block#onRemove` is called.
 - `Block#destroy` is called.
 - Server-only: If the previous call to `IForgeBlock#canHarvestBlock` returned `true`, `Block#playerDestroy` is called.
-- Server-onlý: `IForgeBlock#getExpDrop` is called.
+- Server-only: `IForgeBlock#getExpDrop` is called.
 - Server-only: `Block#popExperience` is called with the result of the previous `IForgeBlock#getExpDrop` call, if that call returned a value greater than 0.
 
 #### The "Finishing" Stage
 
 - The internal destroy progress counter is reset.
 
-### Ticking and Random Ticking
+### Ticking
 
-Like many other things, blocks are ticked (updated) every tick, which is 1 / 20 of a second, or 50 milliseconds.
+Ticking is a mechanism that updates (ticks) parts of the game every 1 / 20 seconds, or 50 milliseconds ("one tick"). Blocks provide different ticking methods that are called in different ways.
 
-There are two methods for ticking: `Block#tick` and `Block#animateTick`. The difference is that `Block#tick` is called only on the server, whereas `Block#animateTick` is called only on the client. For example, redstone updates are processed in `Block#tick`, while the fire particles of torches are spawned in `Block#animateTick`. Override either of them to add your server/client ticking behavior.
+#### Server Ticking and Tick Scheduling
 
-Alongside ticking, there is a separate "weather tick", if you will. The method `Block#handlePrecipitation` is called only on the server, only when it is raining in some form, with a 1 in 16 chance. This is used for example by cauldrons that fill during rain or snowfall.
+`Block#tick` is called in two occasions: either through default [random ticking][randomtick] (see below), or through scheduled ticks. Scheduled ticks can be created through `Level#scheduleTick(BlockPos, Block, int)`, where the `int` denotes a delay. This is used in various placed by vanilla, for example, the tilting mechanism of big dripleaves heavily relies on this system. Other prominent users are various redstone components.
 
-And finally, there is the random tick system. Random ticks must be enabled through the `BlockBehaviour.Properties` of the block by calling the `BlockBehaviour.Properties#randomTicks()` method. This enables the block to be part of the random ticking mechanic.
+#### Client Ticking
+
+`Block#animateTick` is called exclusively on the client, every frame. This is where client-only behavior, for example the torch particle spawning, happens.
+
+#### Weather Ticking
+
+Weather ticking is handled by `Block#handlePrecipitation` and runs independent of regular ticking. It is called only on the server, only when it is raining in some form, with a 1 in 16 chance. This is used for example by cauldrons that fill during rain or snowfall.
+
+#### Random Ticking
+
+The random tick system runs independent of regular ticking. Random ticks must be enabled through the `BlockBehaviour.Properties` of the block by calling the `BlockBehaviour.Properties#randomTicks()` method. This enables the block to be part of the random ticking mechanic.
 
 Random ticks occur every tick for a set amount of blocks in a chunk. That set amount is defined through the `randomTickSpeed` gamerule. With its default value of 3, every tick, 3 random blocks from the chunk are chosen. If these blocks have random ticking enabled, then their respective `Block#randomTick` methods are called.
+
+`Block#randomTick` by default calls `Block#tick`, which is what should normally be overridden. `Block#randomTick` should only be overridden if you specifically want different behavior for random ticking and regular (scheduled) ticking.
 
 Random ticking is used by a wide range of mechanics in Minecraft, such as plant growth, ice and snow melting, or copper oxidizing.
 
@@ -179,6 +191,7 @@ Random ticking is used by a wide range of mechanics in Minecraft, such as plant 
 [events]: ../concepts/events.md
 [interactionpipeline]: ../items/interactionpipeline.md
 [item]: ../items/index.md
+[randomtick]: #random-ticking
 [registration]: ../concepts/registries.md#methods-for-registering
 [resources]: ../resources/client/index.md
 [sounds]: ../gameeffects/sounds.md
