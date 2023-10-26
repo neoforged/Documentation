@@ -18,8 +18,9 @@ public static final RegistryObject<Block> MY_BLOCK = BLOCKS.register("my_block",
 After registering the block, all references to the new `my_block` should use this constant. For example, if you want to check if the block at a given position is `my_block`, the code for that would look something like this:
 
 ```java
-//level.getBlockState(position) returns the blockstate placed in the given level (world) at the given position
-level.getBlockState(position).is(MyBlockRegistrationClass.MY_BLOCK.get());
+level.getBlockState(position) // returns the blockstate placed in the given level (world) at the given position
+        //highlight-next-line
+        .is(MyBlockRegistrationClass.MY_BLOCK.get());
 ```
 
 This approach also has the convenient effect that `block1 == block2` works and can be used instead of Java's `equals` method (using `equals` still works, of course, but is pointless since it compares by reference anyway).
@@ -56,10 +57,12 @@ So for example, a simple implementation would look something like this:
 public static final RegistryObject<Block> MY_BETTER_BLOCK = BLOCKS.register(
         "my_better_block", 
         () -> new Block(BlockBehaviour.Properties.of()
+                //highlight-start
                 .destroyTime(2.0f)
                 .explosionResistance(10.0f)
                 .sound(SoundType.GRAVEL)
                 .lightLevel(state -> 7)
+                //highlight-end
         ));
 ```
 
