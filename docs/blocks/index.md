@@ -133,11 +133,15 @@ The following subsections further break down these stages into actual method cal
 - Client-only: `InputEvent.InteractionKeyMappingTriggered` is fired with the left mouse button and the main hand. If the event is canceled, the pipeline ends.
 - Several prerequisites are checked, for example that you are not in spectator mode, that all required feature flags for the `ItemStack` in your main hand are enabled or that the block in question is not outside the world border. If at least one of these checks fails, the pipeline ends.
 - `PlayerInteractEvent.LeftClickBlock` is fired. If the event is canceled, the pipeline ends.
+    - Note that when the event is canceled on the client, no packets are sent to the server and thus no logic runs on the server.
+    - However, canceling this event on the server will still cause client code to run, which can lead to desyncs!
 - `Block#attack` is called.
 
 #### The "Mining" Stage
 
 - `PlayerInteractEvent.LeftClickBlock` is fired. If the event is canceled, the pipeline moves to the "finishing" stage.
+  - Note that when the event is canceled on the client, no packets are sent to the server and thus no logic runs on the server.
+  - However, canceling this event on the server will still cause client code to run, which can lead to desyncs!
 - `Block#getDestroyProgress` is called and added to the internal destroy progress counter.
     - `Block#getDestroyProgress` returns a float value between 0 and 1, representing how much the destroy progress counter should be increased every tick.
 - The progress overlay (cracking texture) is updated accordingly.
