@@ -1,10 +1,11 @@
-Non-Datapack Recipes
-====================
+---
+sidebar_position: 3
+title: Non-Datapack Recipes
+---
 
 Not all recipes are simplistic enough or migrated to using data-driven recipes. Some subsystems still need to be patched within the codebase to provide support for adding new recipes.
 
-Brewing Recipes
----------------
+## Brewing Recipes
 
 Brewing is one of the few recipes that still exist in code. Brewing recipes are added as part of a bootstrap within `PotionBrewing` for their containers, container recipes, and potion mixes. To expand upon the existing system, Forge allows brewing recipes to be added by calling `BrewingRecipeRegistry#addRecipe` in `FMLCommonSetupEvent`.
 
@@ -24,8 +25,7 @@ When copying data between `ItemStack`s or `CompoundTag`s, make sure to use their
 
 There is no wrapper for adding additional potion containers or potion mixes similar to vanilla. A new `IBrewingRecipe` implementation will need to be added to replicate this behavior.
 
-Anvil Recipes
--------------
+## Anvil Recipes
 
 Anvils are responsible for taking a damaged input and given some material or a similar input, remove some of the damage on the input result. As such, its system is not easily data-driven. However, as anvil recipes are an input with some number of materials equals some output when the user has the required experience levels, it can be modified to create a pseudo-recipe system via `AnvilUpdateEvent`. This takes in the input and materials and allows the modder to specify the output, experience level cost, and number of materials to use for the output. The event can also prevent any output by [canceling][cancel] it.
 
@@ -43,8 +43,7 @@ public void updateAnvil(AnvilUpdateEvent event) {
 
 The update event must be [attached] to the Forge event bus.
 
-Loom Recipes
-------------
+## Loom Recipes
 
 Looms are responsible for applying a dye and pattern (either from the loom or from an item) to a banner. While the banner and the dye must be a `BannerItem` or `DyeItem` respectively, custom patterns can be created and applied in the loom. Banner Patterns can be created by [registering] a `BannerPattern`.
 

@@ -1,10 +1,11 @@
-Custom Recipes
-==============
+---
+sidebar_position: 1
+title: Custom Recipes
+---
 
 Every recipe definition is made up of three components: the `Recipe` implementation which holds the data and handles the execution logic with the provided inputs, the `RecipeType` which represents the category or context the recipe will be used in, and the `RecipeSerializer` which handles decoding and network communication of the recipe data. How one chooses to use the recipe is up to the implementor.
 
-Recipe
-------
+## Recipe
 
 The `Recipe` interface describes the recipe data and the execution logic. This includes matching the inputs and providing the associated result. As the recipe subsystem performs item transformations by default, the inputs are supplied through a `Container` subtype.
 
@@ -32,8 +33,7 @@ public record ExampleRecipe(Ingredient input, int data, ItemStack output) implem
 While a record is used in the above example, it is not required to do so in your own implementation.
 :::
 
-RecipeType
-----------
+## RecipeType
 
 `RecipeType` is responsible for defining the category or context the recipe will be used within. For example, if a recipe was going to be smelted in a furnace, it would have a type of `RecipeType#SMELTING`. Being blasted in a blast furnace would have a type of `RecipeType#BLASTING`.
 
@@ -50,8 +50,7 @@ public RecipeType<?> getType() {
 }
 ```
 
-RecipeSerializer
-----------------
+## RecipeSerializer
 
 A `RecipeSerializer` is responsible for decoding JSONs and communicating across the network for an associated `Recipe` subtype. Each recipe decoded by the serializer is saved as a unique instance within the `RecipeManager`. A `RecipeSerializer` must be [registered][forge].
 
@@ -78,8 +77,7 @@ public RecipeSerializer<?> getSerializer() {
 There are some useful methods to make reading and writing data for recipes easier. `Ingredient`s can use `#fromJson`, `#toNetwork`, and `#fromNetwork` while `ItemStack`s can use `CraftingHelper#getItemStack`, `FriendlyByteBuf#writeItem`, and `FriendlyByteBuf#readItem`.
 :::
 
-Building the JSON
------------------
+## Building the JSON
 
 Custom Recipe JSONs are stored in the same place as other [recipes][json]. The specified `type` should represent the registry name of the **recipe serializer**. Any additional data is specified by the serializer during decoding.
 
@@ -97,8 +95,7 @@ Custom Recipe JSONs are stored in the same place as other [recipes][json]. The s
 }
 ```
 
-Non-Item Logic
---------------
+## Non-Item Logic
 
 If items are not used as part of the input or result of a recipe, then the normal methods provided in [`RecipeManager`][manager] will not be useful. Instead, an additional method for testing a recipe's validity and/or supplying the result should be added to the custom `Recipe` instance. From there, all the recipes for that specific `RecipeType` can be obtained via `RecipeManager#getAllRecipesFor` and then checked and/or supplied the result using the newly implemented methods.
 
@@ -121,8 +118,7 @@ public Optional<ExampleRecipe> getRecipeFor(Level level, BlockPos pos) {
 }
 ```
 
-Data Generation
----------------
+## Data Generation
 
 All custom recipes, regardless of input or output data, can be created into a `FinishedRecipe` for [data generation][datagen] using the `RecipeProvider`.
 

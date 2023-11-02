@@ -1,10 +1,11 @@
-Conditionally-Loaded Data
-=========================
+---
+sidebar_position: 5
+title: Conditionally-Loaded Data
+---
 
 There are times when modders may want to include data-driven objects using information from another mod without having to explicitly make that mod a dependency. Other cases may be to swap out certain objects with other modded entries when they are present. This can be done through the conditional subsystem.
 
-Implementations
----------------
+## Implementations
 
 Currently, conditional loading is implemented for recipes and advancements. For any conditional recipe or advancement, a list of conditions to datum pair is loaded. If the conditions specified for a datum in the list is true, then that datum is returned. Otherwise, the datum is discarded.
 
@@ -39,8 +40,7 @@ Currently, conditional loading is implemented for recipes and advancements. For 
 
 Conditionally-loaded data additionally have wrappers for [data generation][datagen] through `ConditionalRecipe$Builder` and `ConditionalAdvancement$Builder`.
 
-Conditions
-----------
+## Conditions
 
 Conditions are specified by setting `type` to the name of the condition as specified by [`IConditionSerializer#getID`][serializer].
 
@@ -127,8 +127,7 @@ Boolean operator conditions consist of the condition(s) being operated upon and 
 }
 ```
 
-Creating Custom Conditions
---------------------------
+## Creating Custom Conditions
 
 Custom conditions can be created by implementing `ICondition` and its associated `IConditionSerializer`.
 

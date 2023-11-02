@@ -1,10 +1,11 @@
-Global Loot Modifiers
-===========
+---
+sidebar_position: 2
+title: Global Loot Modifiers
+---
 
 Global Loot Modifiers are a data-driven method of handling modification of harvested drops without the need to overwrite dozens to hundreds of vanilla loot tables or to handle effects that would require interactions with another mod's loot tables without knowing what mods may be loaded. Global Loot Modifiers are also stacking, rather than last-load-wins, similar to tags.
 
-Registering a Global Loot Modifier
--------------------------------
+## Registering a Global Loot Modifier
 
 You will need 4 things:
 
@@ -17,8 +18,7 @@ You will need 4 things:
 4. Finally, a codec to encode and decode your operational class.
     * This is [registered] as any other `IForgeRegistryEntry`.
 
-The `global_loot_modifiers.json`
--------------------------------
+## The `global_loot_modifiers.json`
 
 The `global_loot_modifiers.json` represents all loot modifiers to be loaded into the game. This file **MUST** be placed within `data/forge/loot_modifiers/global_loot_modifiers.json`.
 
@@ -42,8 +42,7 @@ The `global_loot_modifiers.json` represents all loot modifiers to be loaded into
 }
 ```
 
-The Serialized JSON
--------------------------------
+## The Serialized JSON
 
 This file contains all of the potential variables related to your modifier, including the conditions that must be met prior to modifying any loot. Avoid hard-coded values wherever possible so that data pack makers can adjust balance if they wish to.
 
@@ -71,8 +70,7 @@ Any additional properties read by the serializer and defined by the modifier can
 }
 ```
 
-`IGlobalLootModifier`
----------------------
+## `IGlobalLootModifier`
 
 To supply the functionality a global loot modifier specifies, a `IGlobalLootModifier` implementation must be specified. These are instances generated each time a serializer decodes the information from JSON and supplies it into this object.
 
@@ -115,8 +113,7 @@ public class ExampleModifier extends LootModifier {
 }
 ```
 
-The Loot Modifier Codec
------------------------
+## The Loot Modifier Codec
 
 The connector between the JSON and the `IGlobalLootModifier` instance is a [`Codec<T>`][codecdef], where `T` represents the type of the `IGlobalLootModifier` to use.
 
