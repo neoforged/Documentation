@@ -31,4 +31,4 @@ public void registerItemColors(RegisterColorHandlersEvent.Item event){
 }
 ```
 
-[wiki]: https://minecraft.fandom.com/wiki/Tutorials/Models#Block_models
+[wiki]: https://minecraft.wiki/w/Tutorials/Models#Block_models

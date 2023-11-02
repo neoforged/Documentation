@@ -16,7 +16,7 @@ A `Component` is a holder for text which can be formatted and chained with other
 | `score`        | it creates a component for representing the `objective`'s score of an entity specified by the [entity selector][selectors] `name`. |
 | `selector`     | it creates a component for displaying the list of names of entities selected by the [entity selector][selectors] `pattern`.        |
 
-A component's text contents are represented by `ComponentContents`. Notably, the subtype `TranslatableContents` not only supports [localization][internalization] but also [text formatting][formatting].
+A component's text contents are represented by `ComponentContents`. Notably, the subtype `TranslatableContents` not only supports [localization][internationalization] but also [text formatting][formatting].
 
 ## Applying Style
 
@@ -100,8 +100,8 @@ Text formatting is the process of inserting data as text into predefined larger 
 
 Any `Component` element within `args` will be transformed into a formatted text string.
 
-[internalization]: ../concepts/internationalization.md
-[selectors]: https://minecraft.fandom.com/wiki/Target_selectors
+[internationalization]: ../concepts/internationalization.md
+[selectors]: https://minecraft.wiki/w/Target_selectors
 [red_hello]: /img/component_red_hello.png
 [style_annotated]: /img/component_style_annotated.png
 [formatting]: #text-formatting
