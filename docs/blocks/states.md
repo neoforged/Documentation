@@ -36,7 +36,7 @@ When to Use Blockstates
 
 ### Blockstates vs. Separate Blocks
 
-A good rule of thumb is: **if it has a different name, it should be a separate block**.  An example is making chair blocks: the direction of the chair should be a property, while the different types of wood should be separated into different blocks. So you'd have one chair block for each wood type, and each chair block has four blockstates (one for each direction).
+A good rule of thumb is: **if it has a different name, it should be a separate block**. An example is making chair blocks: the direction of the chair should be a property, while the different types of wood should be separated into different blocks. So you'd have one chair block for each wood type, and each chair block has four blockstates (one for each direction).
 
 ### Blockstates vs. [Block Entities][blockentity]
 
