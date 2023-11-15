@@ -32,84 +32,40 @@ When you right-click anywhere in the world, a number of things happen, depending
 Result Types
 ------------
 
-There are two different types of results: `InteractionResult`s and `InteractionResultHolder<T>`s. Depending on the situation, one of the two is used.
+There are two different types of results: `InteractionResult`s and `InteractionResultHolder<T>`s. `InteractionResult` is used most of the time, only `Item#use` uses `InteractionResultHolder<ItemStack>`.
 
 `InteractionResult` is an enum consisting of five values: `SUCCESS`, `CONSUME`, `CONSUME_PARTIAL`, `PASS` and `FAIL`. Additionally, the method `InteractionResult#sidedSuccess` is available, which returns `SUCCESS` on the server and `CONSUME` on the client.
 
 `InteractionResultHolder<T>` is a wrapper around `InteractionResult` that adds additional context for `T`. `T` can be anything, but in 99.99 percent of cases, it is an `ItemStack`. `InteractionResultHolder<T>` provides wrapper methods for the enum values (`#success`, `#consume`, `#pass` and `#fail`), as well as `#sidedSuccess`, which calls `#success` on the server and `#consume` on the client.
 
-`Entity#interactAt`
--------------------
+Generally, the different values mean the following:
 
-The return type is `InteractionResult`.
+- `InteractionResult#sidedSuccess` (or `InteractionResultHolder#sidedSuccess` where needed) should be used if the operation should be considered successful, and you want the arm to swing. The pipeline will end.
+- `InteractionResult.SUCCESS` (or `InteractionResultHolder#success` where needed) should be used if the operation should be considered successful, and you want the arm to swing, but only on one side. Only use this if you want to return a different value on the other logical side for whatever reason. The pipeline will end.
+- `InteractionResult.CONSUME` (or `InteractionResultHolder#consume` where needed) should be used if the operation should be considered successful, but you do not want the arm to swing. The pipeline will end.
+- `InteractionResult.CONSUME_PARTIAL` is mostly identical to `InteractionResult.CONSUME`, the only difference is in its usage in [`Item#useOn`][itemuseon].
+- `InteractionResult.FAIL` (or `InteractionResultHolder#fail` where needed) should be used if the item functionality should be considered failed and no further interaction should be performed. The pipeline will end. This should only be used in `Item#useOn` and `Item#use`, all other implementations should use `InteractionResult.PASS` to allow item behavior to still be called.
+- `InteractionResult.PASS` (or `InteractionResultHolder#pass` where needed) should be used if the operation should be considered neither successful nor failed. The pipeline will continue. This is the default behavior (unless otherwise specified).
 
-- `InteractionResult#sidedSuccess` should be used if the operation should be considered successful, and you want the arm to swing.
-- `InteractionResult.SUCCESS` should be used if the operation should be considered successful, and you want the arm to swing, but only on one side. Only use this if you want to return a different value on the other logical side for whatever reason.
-- `InteractionResult.CONSUME` should be used if the operation should be considered successful, but you do not want the arm to swing.
-- `InteractionResult.FAIL` should be used if the item functionality should be considered failed and no further interaction should be performed. **In most cases, this can be replaced with `PASS`!**
-- `InteractionResult.PASS` should be used if the operation should be considered neither successful nor failed. The pipeline will continue to evaluate `Entity#interact`. This is the default behavior of this method.
-
-`Entity#interact` and `Mob#mobInteract`
----------------------------------------
-
-The return type is `InteractionResult`.
-
-- `InteractionResult#sidedSuccess` should be used if the operation should be considered successful, and you want the arm to swing.
-- `InteractionResult.SUCCESS` should be used if the operation should be considered successful, and you want the arm to swing, but only on one side. Only use this if you want to return a different value on the other logical side for whatever reason.
-- `InteractionResult.CONSUME` should be used if the operation should be considered successful, but you do not want the arm to swing.
-- `InteractionResult.FAIL` should be used if the item functionality should be considered failed and no further interaction should be performed. **In most cases, this can be replaced with `PASS`!**
-- `InteractionResult.PASS` should be used if the operation should be considered neither successful nor failed. The pipeline will continue to evaluate `Item#interactLivingEntity`. This is the default behavior of this method.
-
-`Item#interactLivingEntity`
----------------------------
-
-The return type is `InteractionResult`.
-
-- `InteractionResult#sidedSuccess` should be used if the operation should be considered successful, and you want the arm to swing.
-- `InteractionResult.SUCCESS` should be used if the operation should be considered successful, and you want the arm to swing, but only on one side. Only use this if you want to return a different value on the other logical side for whatever reason.
-- `InteractionResult.CONSUME` should be used if the operation should be considered successful, but you do not want the arm to swing.
-- `InteractionResult.FAIL` should be used if the item functionality should be considered failed and no further interaction should be performed. **In most cases, this can be replaced with `PASS`!**
-- `InteractionResult.PASS` should be used if the operation should be considered neither successful nor failed. The pipeline will continue to evaluate `Item#use`. This is the default behavior of this method.
+Some methods have special behavior or requirements, which are explained in the below chapters.
 
 `IForgeItem#onItemUseFirst`
 ---------------------------
 
-The return type is `InteractionResult`.
-
-- `InteractionResult.SUCCESS` should be used if the item functionality should be considered successful and no further interaction should be performed.
-- `InteractionResult.FAIL` should be used if the item functionality should be considered failed and no further interaction should be performed.
-- `InteractionResult.PASS` should be used if the item functionality should be considered neither successful nor failed. The pipeline will continue to evaluate `Block#use`. This is the default behavior of this method.
-
-`Block#use`
------------
-
-The return type is `InteractionResult`.
-
-- `InteractionResult#sidedSuccess` should be used if the operation should be considered successful, and you want the arm to swing.
-- `InteractionResult.SUCCESS` should be used if the operation should be considered successful, and you want the arm to swing, but only on one side. Only use this if you want to return a different value on the other logical side for whatever reason.
-- `InteractionResult.CONSUME` should be used if the operation should be considered successful, but you do not want the arm to swing.
-- `InteractionResult.FAIL` should be used if the item functionality should be considered failed and no further interaction should be performed. **In most cases, this can be replaced with `PASS`!**
-- `InteractionResult.PASS` should be used if the operation should be considered neither successful nor failed. The pipeline will continue to evaluate `Item#useOn`. This is the default behavior of this method.
+`InteractionResult#sidedSuccess` and `InteractionResult.CONSUME` don't have an effect here. Only `InteractionResult.SUCCESS`, `InteractionResult.FAIL` or `InteractionResult.PASS` should be used here.
 
 `Item#useOn`
 ------------
 
-The return type is `InteractionResult`.
-
-- `InteractionResult#sidedSuccess` should be used if the operation should be considered successful, and you want the arm to swing.
-- `InteractionResult.SUCCESS` should be used if the operation should be considered successful, and you want the arm to swing, but only on one side. Only use this if you want to return a different value on the other logical side for whatever reason.
-- `InteractionResult.CONSUME` should be used if the operation should be considered successful, but you do not want the arm to swing.
-- `InteractionResult.CONSUME_PARTIAL` should be used if the operation should be considered successful, but you do not want the arm to swing or an `ITEM_USED` stat point to be awarded.
-- `InteractionResult.FAIL` should be used if the operation should be considered failed and no further interaction should be performed.
-- `InteractionResult.PASS` should be used if the operation should be considered neither successful nor failed. The pipeline will continue to evaluate `Item#use`. This is the default behavior of this method.
+If you want the operation to be considered successful, but you do not want the arm to swing or an `ITEM_USED` stat point to be awarded, use `InteractionResult.CONSUME_PARTIAL`.
 
 `Item#use`
 ----------
 
-The return type is `InteractionResultHolder<ItemStack>`. The resulting `ItemStack` in the `InteractionResultHolder<ItemStack>` replaces the `ItemStack` the usage was initiated with, if it has changed. The default implementation of `Item#use` returns `InteractionResultHolder#consume` when the item is edible and the player can eat the item (because they are hungry, or because the item is always edible), `InteractionResultHolder#fail` when the item is edible but the player cannot eat the item, and `InteractionResultHolder#pass` if the item is not edible.
+This is the only instance where the return type is `InteractionResultHolder<ItemStack>`. The resulting `ItemStack` in the `InteractionResultHolder<ItemStack>` replaces the `ItemStack` the usage was initiated with, if it has changed.
 
-- `InteractionResultHolder#sidedSuccess` should be used if the operation should be considered successful, and you want the arm to swing.
-- `InteractionResultHolder#success` should be used if the operation should be considered successful, and you want the arm to swing, but only on one side. Only use this if you want to return a different value on the other logical side for whatever reason.
-- `InteractionResultHolder#consume` should be used if the operation should be considered successful, but you do not want the arm to swing.
-- `InteractionResultHolder#fail` should be used if the operation should be considered failed and no further interaction should be performed.
-- `InteractionResultHolder#pass` should be used if the operation should be considered neither successful nor failed. This will end the pipeline for this hand, but may run the pipeline for the other hand if applicable.
+The default implementation of `Item#use` returns `InteractionResultHolder#consume` when the item is edible and the player can eat the item (because they are hungry, or because the item is always edible), `InteractionResultHolder#fail` when the item is edible but the player cannot eat the item, and `InteractionResultHolder#pass` if the item is not edible.
+
+Returning `InteractionResultHolder#fail` here while considering the main hand will prevent offhand behavior from running. If you want offhand behavior to run (which you usually want), return `InteractionResultHolder#pass` instead.
+
+[itemuseon]: #itemuseon
