@@ -42,7 +42,7 @@ A good rule of thumb is: **if it has a different name, it should be a separate b
 
 Here, the rule of thumb is: **if you have a finite amount of states, use a blockstate, if you have an infinite or near-infinite amount of states, use a block entity.** Block entities can store arbitrary amounts of data, but are slower than blockstates.
 
-Blockstates and block entities can be used in conjunction with one another. For example, the chest uses blockstate properties for things like the direction, whether it is opened or not, or becoming a double chest is handled by blockstate properties, while storing the inventory or interacting with hoppers is handled by a block entity.
+Blockstates and block entities can be used in conjunction with one another. For example, the chest uses blockstate properties for things like the direction, whether it is opened or not, or becoming a double chest, while storing the inventory or interacting with hoppers is handled by a block entity.
 
 There is no definitive answer to the question "How many states are too much for a blockstate?", but we recommend that if you need more than 8-9 bits of data (i.e. more than a few hundred states), you should use a block entity instead.
 
