@@ -8,21 +8,17 @@ This is where blockstates come into play. Blockstates are an easy way to represe
 Blockstate Properties
 ---------------------
 
-Blockstates use a system of properties. A block can have multiple properties of multiple types. For example, a lever has two properties: whether it is currently activated (`powered`, 2 options) and which direction it is placed in (`facing`, 6 options). So in total, the lever has 12 different blockstates:
+Blockstates use a system of properties. A block can have multiple properties of multiple types. For example, an end portal frame has two properties: whether it has an eye (`eye`, 2 options) and which direction it is placed in (`facing`, 4 options). So in total, the end portal frame has 8 (2 * 4) different blockstates:
 
 ```
-minecraft:lever[facing=north,powered=false]
-minecraft:lever[facing=east,powered=false]
-minecraft:lever[facing=south,powered=false]
-minecraft:lever[facing=west,powered=false]
-minecraft:lever[facing=up,powered=false]
-minecraft:lever[facing=down,powered=false]
-minecraft:lever[facing=north,powered=true]
-minecraft:lever[facing=east,powered=true]
-minecraft:lever[facing=south,powered=true]
-minecraft:lever[facing=west,powered=true]
-minecraft:lever[facing=up,powered=true]
-minecraft:lever[facing=down,powered=true]
+minecraft:end_portal_frame[facing=north,eye=false]
+minecraft:end_portal_frame[facing=east,eye=false]
+minecraft:end_portal_frame[facing=south,eye=false]
+minecraft:end_portal_frame[facing=west,eye=false]
+minecraft:end_portal_frame[facing=north,eye=true]
+minecraft:end_portal_frame[facing=east,eye=true]
+minecraft:end_portal_frame[facing=south,eye=true]
+minecraft:end_portal_frame[facing=west,eye=true]
 ```
 
 The notation `blockid[property1=value1,property2=value,...]` is the standardized way of representing a blockstate in text form, and is used in some locations in vanilla, for example in commands.
@@ -42,7 +38,7 @@ A good rule of thumb is: **if it has a different name, it should be a separate b
 
 Here, the rule of thumb is: **if you have a finite amount of states, use a blockstate, if you have an infinite or near-infinite amount of states, use a block entity.** Block entities can store arbitrary amounts of data, but are slower than blockstates.
 
-Blockstates and block entities can be used in conjunction with one another. For example, the chest uses blockstate properties for things like the direction, whether it is opened or not, or becoming a double chest, while storing the inventory or interacting with hoppers is handled by a block entity.
+Blockstates and block entities can be used in conjunction with one another. For example, the chest uses blockstate properties for things like the direction, whether it is waterlogged or not, or becoming a double chest, while storing the inventory, whether it is currently open or not, or interacting with hoppers is handled by a block entity.
 
 There is no definitive answer to the question "How many states are too much for a blockstate?", but we recommend that if you need more than 8-9 bits of data (i.e. more than a few hundred states), you should use a block entity instead.
 
@@ -74,14 +70,14 @@ Every block will also have a default state. If nothing else is specified, the de
 
 If you wish to change which `BlockState` is used when placing your block, override `Block#getStateForPlacement(BlockPlaceContext)`. This can be used to, for example, set the direction of your block depending on where the player is standing or looking when they place it.
 
-To further illustrate this, this is what the relevant bits of the `LeverBlock` class look like:
+To further illustrate this, this is what the relevant bits of the `EndPortalFrameBlock` class look like:
 
 ```java
-public class LeverBlock extends Block {
+public class EndPortalFrameBlock extends Block {
     // Note: It is possible to directly use the values in BlockStateProperties instead of referencing them here again.
     // However, for the sake of simplicity and readability, it is recommended to add constants like this.
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
-    public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
+    public static final BooleanProperty EYE = BlockStateProperties.EYE;
 
     public LeverBlock(BlockBehaviour.Properties pProperties) {
         super(pProperties);
@@ -89,14 +85,14 @@ public class LeverBlock extends Block {
         // we don't care because we're setting all values ourselves anyway
         registerDefaultState(stateDefinition.any()
                 .setValue(FACING, Direction.NORTH)
-                .setValue(POWERED, false)
+                .setValue(EYE, false)
         );
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> pBuilder) {
         // this is where the properties are actually added to the state
-        pBuilder.add(FACING, POWERED);
+        pBuilder.add(FACING, EYE);
     }
 
     @Override
@@ -113,17 +109,17 @@ Using Blockstates
 
 To go from `Block` to `BlockState`, call `Block#defaultBlockState()`. The default blockstate can be changed through `Block#registerDefaultState`, as described above.
 
-You can get the value of a property by calling `BlockState#getValue(Property<?>)`, passing it the property you want to get the value of. Reusing our lever example, this would look something like this:
+You can get the value of a property by calling `BlockState#getValue(Property<?>)`, passing it the property you want to get the value of. Reusing our end portal frame example, this would look something like this:
 
 ```java
-// LeverBlock.FACING is a DirectionProperty and thus can be used to obtain a Direction from the BlockState
-Direction direction = leverBlockState.getValue(LeverBlock.FACING);
+// EndPortalFrameBlock.FACING is a DirectionProperty and thus can be used to obtain a Direction from the BlockState
+Direction direction = endPortalFrameBlockState.getValue(EndPortalFrameBlock.FACING);
 ```
 
 If you want to get a `BlockState` with a different set of values, simply call `BlockState#setValue(Property<T>, T)` on an existing block state with the property and its value. With our lever, this goes something like this:
 
 ```java
-leverBlockState = leverBlockState.setValue(LeverBlock.FACING, Direction.SOUTH);
+endPortalFrameBlockState = endPortalFrameBlockState.setValue(EndPortalFrameBlock.FACING, Direction.SOUTH);
 ```
 
 :::note
@@ -143,13 +139,15 @@ To help setting the update flags correctly, there are a number of `int` constant
 - `Block.UPDATE_NEIGHBORS` sends an update to the neighboring blocks. More specifically, it calls `Block#neighborChanged`, which calls a number of methods, most of which are redstone-related in some way.
 - `Block.UPDATE_CLIENTS` syncs the block update to the client.
 - `Block.UPDATE_INVISIBLE` explicitly does not update on the client. This also overrules `Block.UPDATE_CLIENTS`, causing the update to not be synced. The block is always updated on the server.
-- `Block.UPDATE_IMMEDIATE` forces a re-render on the main thread.
+- `Block.UPDATE_IMMEDIATE` forces a re-render on the client's main thread.
 - `Block.UPDATE_KNOWN_SHAPE` stops neighbor update recursion.
 - `Block.UPDATE_SUPPRESS_DROPS` disables block drops for the old block at that position.
-- `Block.UPDATE_MOVE_BY_PISTON` is only used by piston code to signalize that the block was moved by a piston. This is mainly responsible for delaying light engine updates.
+- `Block.UPDATE_MOVE_BY_PISTON` is only used by piston code to signal that the block was moved by a piston. This is mainly responsible for delaying light engine updates.
 - `Block.UPDATE_ALL` is an alias for `Block.UPDATE_NEIGHBORS | Block.UPDATE_CLIENTS`.
 - `Block.UPDATE_ALL_IMMEDIATE` is an alias for `Block.UPDATE_NEIGHBORS | Block.UPDATE_CLIENTS | Block.UPDATE_IMMEDIATE`.
 - `Block.NONE` is an alias for `Block.UPDATE_INVISIBLE`.
+
+There is also a convenience method `Level#setBlockAndUpdate(BlockPos pos, BlockState state)` that calls `setBlock(pos, state, Block.UPDATE_ALL)` internally.
 
 [block]: index.md
 [blockentity]: ../blockentities/index.md

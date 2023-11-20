@@ -23,7 +23,7 @@ When you right-click anywhere in the world, a number of things happen, depending
         - If the entity you are looking at is a `LivingEntity`, `Item#interactLivingEntity` is called on the `ItemStack` in your main hand. If it returns a definitive result, the pipeline ends.
     - If you are looking at a block that is within your reach and not outside the world border:
         - `PlayerInteractEvent.RightClickBlock` is fired. If the event is canceled, the pipeline ends. You may also specifically deny only block or item usage in this event.
-        - `IForgeItem#onItemUseFirst` is called. If it returns a definitive result, the pipeline ends.
+        - `IItemExtension#onItemUseFirst` is called. If it returns a definitive result, the pipeline ends.
         - If the player is not sneaking and the event does not deny block usage, `Block#use` is called. If it returns a definitive result, the pipeline ends.
         - If the event does not deny item usage, `Item#useOn` is called. If it returns a definitive result, the pipeline ends.
 - `Item#use` is called. If it returns a definitive result, the pipeline ends.
@@ -44,12 +44,12 @@ Generally, the different values mean the following:
 - `InteractionResult.SUCCESS` (or `InteractionResultHolder#success` where needed) should be used if the operation should be considered successful, and you want the arm to swing, but only on one side. Only use this if you want to return a different value on the other logical side for whatever reason. The pipeline will end.
 - `InteractionResult.CONSUME` (or `InteractionResultHolder#consume` where needed) should be used if the operation should be considered successful, but you do not want the arm to swing. The pipeline will end.
 - `InteractionResult.CONSUME_PARTIAL` is mostly identical to `InteractionResult.CONSUME`, the only difference is in its usage in [`Item#useOn`][itemuseon].
-- `InteractionResult.FAIL` (or `InteractionResultHolder#fail` where needed) should be used if the item functionality should be considered failed and no further interaction should be performed. The pipeline will end. This should only be used in `Item#useOn` and `Item#use`, all other implementations should use `InteractionResult.PASS` to allow item behavior to still be called.
+- `InteractionResult.FAIL` (or `InteractionResultHolder#fail` where needed) should be used if the item functionality should be considered failed and no further interaction should be performed. The pipeline will end. This can be used everywhere, but it should be used with care outside of `Item#useOn` and `Item#use`. In many cases, using `InteractionResult.PASS` makes more sense.
 - `InteractionResult.PASS` (or `InteractionResultHolder#pass` where needed) should be used if the operation should be considered neither successful nor failed. The pipeline will continue. This is the default behavior (unless otherwise specified).
 
 Some methods have special behavior or requirements, which are explained in the below chapters.
 
-`IForgeItem#onItemUseFirst`
+`IItemExtension#onItemUseFirst`
 ---------------------------
 
 `InteractionResult#sidedSuccess` and `InteractionResult.CONSUME` don't have an effect here. Only `InteractionResult.SUCCESS`, `InteractionResult.FAIL` or `InteractionResult.PASS` should be used here.

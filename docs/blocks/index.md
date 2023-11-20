@@ -76,7 +76,7 @@ A `BlockItem` must be registered separately from the block. This is because a bl
 
 ### More Functionality
 
-Directly using `Block` only allows for very basic blocks. If you want to add functionality, like player interaction or a different hitbox, a custom class that extends `Block` is required. The `Block` class has many methods that can be overridden to do different things; see the classes `Block`, `BlockBehaviour` and `IForgeBlock` for more information. See also the [Using blocks][usingblocks] section below for some of the most common use cases for blocks.
+Directly using `Block` only allows for very basic blocks. If you want to add functionality, like player interaction or a different hitbox, a custom class that extends `Block` is required. The `Block` class has many methods that can be overridden to do different things; see the classes `Block`, `BlockBehaviour` and `IBlockExtension` for more information. See also the [Using blocks][usingblocks] section below for some of the most common use cases for blocks.
 
 If you want to make a block that has different variants (think a slab that has a bottom, top, and double variant), you should use [blockstates]. And finally, if you want a block that stores additional data (think a chest that stores its inventory), a [block entity][blockentities] should be used. The rule of thumb here is that if you have a finite and reasonably small amount of states (= a few hundred states at most), use blockstates, and if you have an infinite or near-infinite amount of states, use a block entity.
 
@@ -97,9 +97,9 @@ In several situations, multiple methods of `Block` are used at different times. 
 
 Block placement logic is called from `BlockItem#useOn` (or some subclass's implementation thereof, such as in `PlaceOnWaterBlockItem`, which is used for lily pads). For more information on how the game gets there, see the [Interaction Pipeline][interactionpipeline]. In practice, this means that as soon as a `BlockItem` is right-clicked (for example a cobblestone item), this behavior is called.
 
-- Several prerequisites are checked, for example that you are not in spectator mode, that all required feature flags for the block are enabled or that the block in question is not outside the world border. If at least one of these checks fails, the pipeline ends.
-- `Block#canBeReplaced` is called for the block currently at the position where the block is tried to place. If it returns `false`, the pipeline ends.
-- `Block#getStateForPlacement` is called.
+- Several prerequisites are checked, for example that you are not in spectator mode, that all required feature flags for the block are enabled or that the target position is not outside the world border. If at least one of these checks fails, the pipeline ends.
+- `Block#canBeReplaced` is called for the block currently at the position where the block is attempted to be placed. If it returns `false`, the pipeline ends. Prominent cases that return `true` here are tall grass or snow layers.
+- `Block#getStateForPlacement` is called. This is where, depending on the context (which includes information like the position, the rotation and the side the block is placed on), different block states can be returned. This is useful for example for blocks that can be placed in different directions.
 - `Block#canSurvive` is called with the blockstate obtained in the previous step. If it returns `false`, the pipeline ends.
 - The blockstate is set into the level via a `Level#setBlock` call.
   - In that `Level#setBlock` call, `Block#onPlace` is called.
@@ -152,16 +152,16 @@ The following subsections further break down these stages into actual method cal
 
 #### The "Actually Breaking" Stage
 
-- `Item#onBlockStartBreak` is called. If it returns `true`, the pipeline moves to the "finishing" stage.
-- Server-only: `IForgeBlock#canHarvestBlock` is called.
+- `Item#onBlockStartBreak` is called. If it returns `true` (determining that the block should not be broken), the pipeline moves to the "finishing" stage.
+- Server-only: `IBlockExtension#canHarvestBlock` is called. This determines whether the block can be harvested, i.e. broken with drops.
 - `Block#onDestroyedByPlayer` is called. If it returns `false`, the pipeline moves to the "finishing" stage. In that `Block#onDestroyedByPlayer` call:
     - `Block#playerWillDestroy` is called.
     - The blockstate is removed from the level via a `Level#setBlock` call with `Blocks.AIR.defaultBlockState()` as the blockstate parameter.
         - In that `Level#setBlock` call, `Block#onRemove` is called.
 - `Block#destroy` is called.
-- Server-only: If the previous call to `IForgeBlock#canHarvestBlock` returned `true`, `Block#playerDestroy` is called.
-- Server-only: `IForgeBlock#getExpDrop` is called.
-- Server-only: `Block#popExperience` is called with the result of the previous `IForgeBlock#getExpDrop` call, if that call returned a value greater than 0.
+- Server-only: If the previous call to `IBlockExtension#canHarvestBlock` returned `true`, `Block#playerDestroy` is called.
+- Server-only: `IBlockExtension#getExpDrop` is called.
+- Server-only: `Block#popExperience` is called with the result of the previous `IBlockExtension#getExpDrop` call, if that call returned a value greater than 0.
 
 #### The "Finishing" Stage
 
@@ -173,7 +173,7 @@ Ticking is a mechanism that updates (ticks) parts of the game every 1 / 20 secon
 
 #### Server Ticking and Tick Scheduling
 
-`Block#tick` is called in two occasions: either through default [random ticking][randomtick] (see below), or through scheduled ticks. Scheduled ticks can be created through `Level#scheduleTick(BlockPos, Block, int)`, where the `int` denotes a delay. This is used in various placed by vanilla, for example, the tilting mechanism of big dripleaves heavily relies on this system. Other prominent users are various redstone components.
+`Block#tick` is called in two occasions: either through default [random ticking][randomtick] (see below), or through scheduled ticks. Scheduled ticks can be created through `Level#scheduleTick(BlockPos, Block, int)`, where the `int` denotes a delay. This is used in various places by vanilla, for example, the tilting mechanism of big dripleaves heavily relies on this system. Other prominent users are various redstone components.
 
 #### Client Ticking
 
