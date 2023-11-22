@@ -11,8 +11,8 @@ Before we get started, it is important to understand that there is only ever one
 Due to this, a block should only ever be instantiated once, and that is during registration. Once the block is registered, you can then use the registered reference as needed. Consider this example (see the [Registration][registration] page if you do not know what you are looking at):
 
 ```java
-//BLOCKS is a DeferredRegister<Block>
-public static final RegistryObject<Block> MY_BLOCK = BLOCKS.register("my_block", () -> new Block(...));
+//BLOCKS is a DeferredRegister.Blocks
+public static final Supplier<Block> MY_BLOCK = BLOCKS.register("my_block", () -> new Block(...));
 ```
 
 After registering the block, all references to the new `my_block` should use this constant. For example, if you want to check if the block at a given position is `my_block`, the code for that would look something like this:
@@ -54,7 +54,7 @@ For simple blocks which need no special functionality (think cobblestone, wooden
 So for example, a simple implementation would look something like this:
 
 ```java
-public static final RegistryObject<Block> MY_BETTER_BLOCK = BLOCKS.register(
+  public static final Supplier<Block> MY_BETTER_BLOCK = BLOCKS.register(
         "my_better_block", 
         () -> new Block(BlockBehaviour.Properties.of()
                 //highlight-start
