@@ -79,7 +79,7 @@ public class EndPortalFrameBlock extends Block {
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
     public static final BooleanProperty EYE = BlockStateProperties.EYE;
 
-    public LeverBlock(BlockBehaviour.Properties pProperties) {
+    public EndPortalFrameBlock(BlockBehaviour.Properties pProperties) {
         super(pProperties);
         // stateDefinition.any() returns a random BlockState from an internal set,
         // we don't care because we're setting all values ourselves anyway
