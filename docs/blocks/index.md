@@ -107,12 +107,11 @@ Block placement logic is called from `BlockItem#useOn` (or some subclass's imple
 
 ### Breaking a Block
 
-Breaking a block is a bit more complex, as it requires time. The process can be roughly divided into four stages: "initiating", "mining", "actually breaking" and "finishing".
+Breaking a block is a bit more complex, as it requires time. The process can be roughly divided into three stages: "initiating", "mining" and "actually breaking".
 
 - When the left mouse button is clicked, the "initiating" stage is entered. 
 - Now, the left mouse button needs to be held down, entering the "mining" stage. **This stage's methods are called every tick.**
 - If the "continuing" stage is not interrupted (by releasing the left mouse button) and the block is broken, the "actually breaking" stage is entered.
-- Under all circumstances, no matter if the block was actually broken or not, the "finishing" stage is entered.
 
 Or for those who prefer pseudocode:
 
@@ -126,7 +125,6 @@ while (leftClickIsBeingHeld()) {
         break;
     }
 }
-finishingStage();
 ```
 
 The following subsections further break down these stages into actual method calls.
@@ -143,8 +141,8 @@ The following subsections further break down these stages into actual method cal
 #### The "Mining" Stage
 
 - `PlayerInteractEvent.LeftClickBlock` is fired. If the event is canceled, the pipeline moves to the "finishing" stage.
-  - Note that when the event is canceled on the client, no packets are sent to the server and thus no logic runs on the server.
-  - However, canceling this event on the server will still cause client code to run, which can lead to desyncs!
+    - Note that when the event is canceled on the client, no packets are sent to the server and thus no logic runs on the server.
+    - However, canceling this event on the server will still cause client code to run, which can lead to desyncs!
 - `Block#getDestroyProgress` is called and added to the internal destroy progress counter.
     - `Block#getDestroyProgress` returns a float value between 0 and 1, representing how much the destroy progress counter should be increased every tick.
 - The progress overlay (cracking texture) is updated accordingly.
@@ -162,10 +160,6 @@ The following subsections further break down these stages into actual method cal
 - Server-only: If the previous call to `IBlockExtension#canHarvestBlock` returned `true`, `Block#playerDestroy` is called.
 - Server-only: `IBlockExtension#getExpDrop` is called.
 - Server-only: `Block#popExperience` is called with the result of the previous `IBlockExtension#getExpDrop` call, if that call returned a value greater than 0.
-
-#### The "Finishing" Stage
-
-- The internal destroy progress counter is reset.
 
 ### Ticking
 
