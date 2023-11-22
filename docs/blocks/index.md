@@ -54,7 +54,7 @@ For simple blocks which need no special functionality (think cobblestone, wooden
 So for example, a simple implementation would look something like this:
 
 ```java
-  public static final Supplier<Block> MY_BETTER_BLOCK = BLOCKS.register(
+  public static final DeferredBlock<Block> MY_BETTER_BLOCK = BLOCKS.register(
         "my_better_block", 
         () -> new Block(BlockBehaviour.Properties.of()
                 //highlight-start
