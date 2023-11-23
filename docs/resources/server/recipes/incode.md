@@ -1,7 +1,4 @@
----
-sidebar_position: 3
-title: Non-Datapack Recipes
----
+# Non-Datapack Recipes
 
 Not all recipes are simplistic enough or migrated to using data-driven recipes. Some subsystems still need to be patched within the codebase to provide support for adding new recipes.
 

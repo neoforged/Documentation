@@ -1,7 +1,4 @@
----
-sidebar_position: 5
-title: Conditionally-Loaded Data
----
+# Conditionally-Loaded Data
 
 There are times when modders may want to include data-driven objects using information from another mod without having to explicitly make that mod a dependency. Other cases may be to swap out certain objects with other modded entries when they are present. This can be done through the conditional subsystem.
 
