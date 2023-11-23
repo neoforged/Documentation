@@ -1,6 +1,4 @@
----
-title: Data Generators
----
+# Data Generators
 
 Data generators are a way to programmatically generate the assets and data of mods. It allows the definition of the contents of these files in the code and their automatic generation, without worrying about the specifics.
 

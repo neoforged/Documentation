@@ -1,6 +1,4 @@
----
-title: Recipes
----
+# Recipes
 
 Recipes are a way to transform some number of objects into other objects within a Minecraft world. Although the vanilla system deals purely with item transformations, the system as a whole can be expanded to use any object the programmer creates.
 

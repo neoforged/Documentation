@@ -1,6 +1,4 @@
----
-title: Resource Packs
----
+# Resource Packs
 
 [Resource Packs][respack] allow for the customization of client resources through the `assets` directory. This includes textures, models, sounds, localizations, and others. Your mod (as well as Forge itself) can also have resource packs. Any user can therefore modify all the textures, models, and other assets defined within this directory.
 

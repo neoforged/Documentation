@@ -1,6 +1,4 @@
----
-title: Block Entities
----
+# Block Entities
 
 `BlockEntities` are like simplified `Entities` that are bound to a Block.
 They are used to store dynamic data, execute tick based tasks, and dynamic rendering.
