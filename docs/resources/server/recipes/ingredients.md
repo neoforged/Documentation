@@ -1,7 +1,8 @@
 ---
 sidebar_position: 2
-title: Ingredients
 ---
+
+# Ingredients
 
 `Ingredient`s are predicate handlers for item-based inputs which check whether a certain `ItemStack` meets the condition to be a valid input in a recipe. All [vanilla recipes][recipes] that take inputs use an `Ingredient` or a list of `Ingredient`s, which is then merged into a single `Ingredient`.
 

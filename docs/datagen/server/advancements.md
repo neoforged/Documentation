@@ -1,7 +1,8 @@
 ---
 sidebar_position: 4
-title: Advancement Generation
 ---
+
+# Advancement Generation
 
 [Advancements] can be generated for a mod by constructing a new `AdvancementProvider` and providing `AdvancementSubProvider`s. Advancements can either be created and supplied manually or, for convenience, created using `Advancement$Builder`. The provider must be [added][datagen] to the `DataGenerator`.
 

@@ -1,7 +1,8 @@
 ---
 sidebar_position: 1
-title: Model Generation
 ---
+
+# Model Generation
 
 [Models] can be generated for models or block states by default. Each provides a method of generating the necessary JSONs (`ModelBuilder#toJson` for models and `IGeneratedBlockState#toJson` for block states). After implementation, the [associated providers][provider] must be [added][datagen] to the `DataGenerator`.
 

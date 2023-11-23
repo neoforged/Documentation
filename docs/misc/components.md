@@ -1,7 +1,8 @@
 ---
 sidebar_position: 6
-title: Text Components
 ---
+
+# Text Components
 
 A `Component` is a holder for text which can be formatted and chained with other components via its subtype `MutableComponent`. A component can be created using one of the available static helpers:
 

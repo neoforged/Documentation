@@ -1,7 +1,8 @@
 ---
 sidebar_position: 1
-title: BlockEntityRenderer
 ---
+
+# BlockEntityRenderer
 
 A `BlockEntityRenderer` or `BER` is used to render blocks in a way that cannot be represented with a static baked model (JSON, OBJ, B3D, others). A block entity renderer requires the block to have a `BlockEntity`.
 

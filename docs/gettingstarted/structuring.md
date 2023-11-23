@@ -1,7 +1,8 @@
 ---
 sidebar_position: 2
-title: Structuring Your Mod
 ---
+
+# Structuring Your Mod
 
 Structured mods are beneficial for maintenance, making contributions, and providing a clearer understanding of the underlying codebase. Some of the recommendations from Java, Minecraft, and Forge are listed below.
 

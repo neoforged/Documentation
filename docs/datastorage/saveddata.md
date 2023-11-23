@@ -1,7 +1,8 @@
 ---
 sidebar_position: 2
-title: Saved Data
 ---
+
+# Saved Data
 
 The Saved Data (SD) system is an alternative to level capabilities that can attach data per level.
 

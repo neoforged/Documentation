@@ -1,7 +1,8 @@
 ---
 sidebar_position: 3
-title: Codecs
 ---
+
+# Codecs
 
 Codecs are a serialization tool from Mojang's [DataFixerUpper] used to describe how objects can be transformed between different formats, such as `JsonElement`s for JSON and `Tag`s for NBT.
 

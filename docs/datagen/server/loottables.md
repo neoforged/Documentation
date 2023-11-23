@@ -1,7 +1,8 @@
 ---
 sidebar_position: 2
-title: Loot Table Generation
 ---
+
+# Loot Table Generation
 
 [Loot tables][loottable] can be generated for a mod by constructing a new `LootTableProvider` and providing `LootTableProvider$SubProviderEntry`s. The provider must be [added][datagen] to the `DataGenerator`.
 

@@ -1,7 +1,8 @@
 ---
 sidebar_position: 2
-title: Screens
 ---
+
+# Screens
 
 Screens are typically the base of all Graphical User Interfaces (GUIs) in Minecraft: taking in user input, verifying it on the server, and syncing the resulting action back to the client. They can be combined with [menus] to create an communication network for inventory-like views, or they can be standalone which modders can handle through their own [network] implementations.
 

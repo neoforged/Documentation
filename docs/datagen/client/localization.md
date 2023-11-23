@@ -1,7 +1,8 @@
 ---
 sidebar_position: 2
-title: Language Generation
 ---
+
+# Language Generation
 
 [Language files][lang] can be generated for a mod by subclassing `LanguageProvider` and implementing `#addTranslations`. Each `LanguageProvider` subclass created represents a separate [locale] (`en_us` represents American English, `es_es` represents Spanish, etc.). After implementation, the provider must be [added][datagen] to the `DataGenerator`.
 

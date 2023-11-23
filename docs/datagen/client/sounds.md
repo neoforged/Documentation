@@ -1,7 +1,8 @@
 ---
 sidebar_position: 3
-title: Sound Definition Generation
 ---
+
+# Sound Definition Generation
 
 The `sounds.json` file can be generated for a mod by subclassing `SoundDefinitionsProvider` and implementing `#registerSounds`. After implementation, the provider must be [added][datagen] to the `DataGenerator`.
 

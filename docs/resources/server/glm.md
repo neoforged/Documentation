@@ -1,7 +1,8 @@
 ---
 sidebar_position: 2
-title: Global Loot Modifiers
 ---
+
+# Global Loot Modifiers
 
 Global Loot Modifiers are a data-driven method of handling modification of harvested drops without the need to overwrite dozens to hundreds of vanilla loot tables or to handle effects that would require interactions with another mod's loot tables without knowing what mods may be loaded. Global Loot Modifiers are also stacking, rather than last-load-wins, similar to tags.
 

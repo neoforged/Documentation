@@ -1,7 +1,8 @@
 ---
 sidebar_position: 3
-title: Events
 ---
+
+# Events
 
 Forge uses an event bus that allows mods to intercept events from various Vanilla and mod behaviors.
 

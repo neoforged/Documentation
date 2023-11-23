@@ -1,7 +1,8 @@
 ---
 sidebar_position: 6
-title: Internationalization
 ---
+
+# Internationalization
 
 # Internationalization and Localization
 

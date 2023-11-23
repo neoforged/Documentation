@@ -1,7 +1,8 @@
 ---
 sidebar_position: 3
-title: Tags
 ---
+
+# Tags
 
 Tags are generalized sets of objects in the game used for grouping related things together and providing fast membership checks.
 

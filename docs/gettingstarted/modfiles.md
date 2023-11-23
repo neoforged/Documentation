@@ -1,7 +1,8 @@
 ---
 sidebar_position: 1
-title: Mod Files
 ---
+
+# Mod Files
 
 The mod files are responsible for determining what mods are packaged into your JAR, what information to display within the 'Mods' menu, and how your mod should be loaded in the game.
 

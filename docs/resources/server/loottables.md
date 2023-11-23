@@ -1,7 +1,8 @@
 ---
 sidebar_position: 1
-title: Loot Tables
 ---
+
+# Loot Tables
 
 Loot tables are logic files which dictate what should happen when various actions or scenarios occur. Although the vanilla system deals purely with item generation, the system can be expanded to perform any number of defined actions.
 

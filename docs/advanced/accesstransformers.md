@@ -1,7 +1,8 @@
 ---
 sidebar_position: 1
-title: Access Transformers
 ---
+
+# Access Transformers
 
 Access Transformers (ATs for short) allow for widening the visibility and modifying the `final` flags of classes, methods, and fields. They allow modders to access and modify otherwise inaccessible members in classes outside their control.
 

@@ -1,7 +1,8 @@
 ---
 sidebar_position: 2
-title: Sides
 ---
+
+# Sides
 
 # Sides in Minecraft
 

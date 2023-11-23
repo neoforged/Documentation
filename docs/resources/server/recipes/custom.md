@@ -1,7 +1,8 @@
 ---
 sidebar_position: 1
-title: Custom Recipes
 ---
+
+# Custom Recipes
 
 Every recipe definition is made up of three components: the `Recipe` implementation which holds the data and handles the execution logic with the provided inputs, the `RecipeType` which represents the category or context the recipe will be used in, and the `RecipeSerializer` which handles decoding and network communication of the recipe data. How one chooses to use the recipe is up to the implementor.
 

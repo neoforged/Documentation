@@ -1,7 +1,8 @@
 ---
 sidebar_position: 1
-title: Particles
 ---
+
+# Particles
 
 Particles are an effect within the game used as polish to better improve immersion. Their usefulness also requires great caution because of their methods of creation and reference.
 

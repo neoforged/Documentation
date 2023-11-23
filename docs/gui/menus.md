@@ -1,7 +1,8 @@
 ---
 sidebar_position: 1
-title: Menus
 ---
+
+# Menus
 
 Menus are one type of backend for Graphical User Interfaces, or GUIs; they handle the logic involved in interacting with some represented data holder. Menus themselves are not data holders. They are views which allow to user to indirectly modify the internal data holder state. As such, a data holder should not be directly coupled to any menu, instead passing in the data references to invoke and modify.
 

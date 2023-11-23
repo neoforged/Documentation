@@ -1,7 +1,8 @@
 ---
 sidebar_position: 1
-title: Registries
 ---
+
+# Registries
 
 Registration is the process of taking the objects of a mod (such as items, blocks, sounds, etc.) and making them known to the game. Registering things is important, as without registration the game will simply not know about these objects, which will cause unexplainable behaviors and crashes. 
 

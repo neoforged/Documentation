@@ -1,7 +1,8 @@
 ---
 sidebar_position: 1
-title: Configuration
 ---
+
+# Configuration
 
 Configurations define settings and consumer preferences that can be applied to a mod instance. Forge uses a configuration system using [TOML][toml] files and read with [NightConfig][nightconfig].
 

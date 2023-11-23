@@ -1,7 +1,8 @@
 ---
 sidebar_position: 3
-title: Tag Generation
 ---
+
+# Tag Generation
 
 [Tags] can be generated for a mod by subclassing `TagsProvider` and implementing `#addTags`. After implementation, the provider must be [added][datagen] to the `DataGenerator`.
 

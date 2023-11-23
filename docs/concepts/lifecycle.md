@@ -1,7 +1,8 @@
 ---
 sidebar_position: 4
-title: Mod Lifecycle
 ---
+
+# Mod Lifecycle
 
 During the mod loading process, the various lifecycle events are fired on the mod-specific event bus. Many actions are performed during these events, such as [registering objects][registering], preparing for [data generation][datagen], or [communicating with other mods][imc].
 

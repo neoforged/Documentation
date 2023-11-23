@@ -1,7 +1,8 @@
 ---
 sidebar_position: 5
-title: Resources
 ---
+
+# Resources
 
 A resource is extra data used by the game, and is stored in a data file, instead of being in the code. 
 Minecraft has two primary resource systems active: one on the logical client used for visuals such as models, textures, and localization called `assets`, and one on the logical server used for gameplay such as recipes and loot tables called `data`.

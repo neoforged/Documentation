@@ -1,7 +1,8 @@
 ---
 sidebar_position: 4
-title: Advancements
 ---
+
+# Advancements
 
 Advancements are tasks that can be achieved by the player which may advance the progress of the game. Advancements can trigger based on any action the player may be directly involved in.
 

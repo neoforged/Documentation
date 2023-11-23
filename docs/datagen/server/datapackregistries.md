@@ -1,7 +1,8 @@
 ---
 sidebar_position: 6
-title: Datapack Registry Object Generation
 ---
+
+# Datapack Registry Object Generation
 
 Datapack registry objects can be generated for a mod by constructing a new `DatapackBuiltinEntriesProvider` and providing a `RegistrySetBuilder` with the new objects to register. The provider must be [added][datagen] to the `DataGenerator`.
 
