@@ -1,10 +1,8 @@
-Items
-=====
+# Items
 
 Along with blocks, items are a key component of most mods. While blocks make up the level around you, items exist within inventories.
 
-Creating an Item
-----------------
+## Creating an Item
 
 ### Basic Items
 
@@ -63,8 +61,7 @@ public static final RegistryObject<CreativeModeTab> EXAMPLE_TAB = REGISTRAR.regi
 );
 ```
 
-Registering an Item
--------------------
+## Registering an Item
 
 Items must be [registered][registering] to function.
 

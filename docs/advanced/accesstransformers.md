@@ -1,12 +1,14 @@
-Access Transformers
-===================
+---
+sidebar_position: 1
+---
+
+# Access Transformers
 
 Access Transformers (ATs for short) allow for widening the visibility and modifying the `final` flags of classes, methods, and fields. They allow modders to access and modify otherwise inaccessible members in classes outside their control.
 
 The [specification document][specs] can be viewed on the NeoForged GitHub.
 
-Adding ATs
-----------
+## Adding ATs
 
 Adding an Access Transformer to your mod project is as simple as adding a single line into your `build.gradle`:
 
@@ -21,13 +23,11 @@ After adding or modifying the Access Transformer, the gradle project must be ref
 
 During development, the AT file can be anywhere specified by the line above. However, when loading in a non-development environment, Forge will only search for the exact path of `META-INF/accesstransformer.cfg` in your JAR file.
 
-Comments
---------
+## Comments
 
 All text after a `#` until the end of the line will be treated as a comment and will not be parsed.
 
-Access Modifiers
-----------------
+## Access Modifiers
 
 Access modifiers specify to what new member visibility the given target will be transformed to. In decreasing order of visibility:
 
@@ -44,8 +44,7 @@ Directives only modify the method they directly reference; any overriding method
 Examples of methods that can be safely transformed are `private` methods, `final` methods (or methods in `final` classes), and `static` methods.
 :::
 
-Targets and Directives
-----------------------
+## Targets and Directives
 
 :::caution
 When using Access Transformers on Minecraft classes, the SRG name must be used for fields and methods.
