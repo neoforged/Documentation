@@ -1,86 +1,61 @@
-# Getting Started with Forge
+# Getting Started with NeoForge
 
-:::caution
-Please note that this documentation may not be up to date considering the recent creation of NeoForged.
-
-Until NeoForged releases its first version, you should refer to Forge documentation. The Forge documentation for 1.20 has been archived here.
-:::
-
-If you have never made a Forge mod before, this section will provide the minimum amount of information needed to setup a Forge development environment. The rest of the documentation is about where to go from here.
+This section includes information about how to set up a NeoForge workspace, and how to run and test your mod.
 
 ## Prerequisites
 
-- An installation of the Java 17 Development Kit (JDK) and 64-bit Java Virtual Machine (JVM). Forge recommends and officially supports [Eclipse Temurin][jdk].
+- Familiarity with the Java programming language, specifically its object-oriented, polymorphic, generic, and functional features.
+- An installation of the Java 17 Development Kit (JDK) and 64-bit Java Virtual Machine (JVM). NeoForge recommends and officially supports the [Microsoft builds of OpenJDK][jdk], but any other JDK should work as well.
 
 :::caution
-
-Make sure you are using a 64-bit JVM. One way of checking is to run `java -version` in a terminal. Using a 32-bit JVM will cause some problems when using [ForgeGradle].
-
+Make sure you are using a 64-bit JVM. One way of checking is to run `java -version` in a terminal. Issues may arise when using a 32-bit JVM, due to 32-bit JVMs running out of support for a lot of things.
 :::
 
-- Familiarity with an Integrated Development Environment (IDE).
-  - It is recommended to use an IDE with Gradle integration.
+- Familiarity with an Integrated Development Environment (IDE) of your choice.
+   - NeoForge officially supports [IntelliJ IDEA][intellij] and [Eclipse][eclipse], both of which have integrated Gradle support. However, any IDE can be used, ranging from Netbeans or Visual Studio Code to Vim or Emacs.
+- Familiarity with [Git][git] and [GitHub][github]. This is technically not required, but it will make your life a lot easier.
 
-## From Zero to Modding
+## Setting Up the Workspace
 
-1. Download the Mod Developer Kit (MDK) from the [Forge file site][files] by clicking 'Mdk' followed by the 'Skip' button in the top right after waiting for a period of time. It is recommended to download the latest version of Forge whenever possible.
-2. Extract the downloaded MDK into an empty directory. This will be your mod's directory, which should now contain some gradle files and a `src` subdirectory containing the example mod.
-
-:::info
-
-A number of files can be reused across different mods. These files are:
-
-- the `gradle` subdirectory
-- `build.gradle`
-- `gradlew`
-- `gradlew.bat`
-- `settings.gradle`
-
-The `src` subdirectory does not need to be copied across workspaces; however, you may need to refresh the Gradle project if the java (`src/main/java`) and resource (`src/main/resources`) are created later.
-:::
-
-3. Open your selected IDE:
-   - Forge only explicitly supports development on Eclipse and IntelliJ IDEA, but there are additional run configurations for Visual Studio Code. Regardless, any environment, from Apache NetBeans to Vim / Emacs, can be used.
-   - Eclipse and IntelliJ IDEA's Gradle integration, both installed and enabled by default, will handle the rest of the initial workspace setup on import or open. This includes downloading the necessary packages from Mojang, MinecraftForge, etc. The 'Gradle for Java' plugin is needed for Visual Studio Code to do the same.
-   - Gradle will need to be invoked to re-evaluate the project for almost all changes to its associated files (e.g., `build.gradle`, `settings.gradle`, etc.). Some IDEs come with 'Refresh' buttons to do this; however, it can be done through the terminal via `gradlew`.
-4. Generate run configurations for your selected IDE:
-   - **Eclipse**: Run the `genEclipseRuns` task.
-   - **IntelliJ IDEA**: Run the `genIntellijRuns` task. If a "module not specified" error occurs, set the [`ideaModule` property][config] to your 'main' module (typically `${project.name}.main`).
-   - **Visual Studio Code**: Run the `getVSCodeRuns` task.
-   - **Other IDEs**: You can run the configurations directly using `gradle run*` (e.g., `runClient`, `runServer`, `runData`, `runGameTestServer`). These can also be used with the supported IDEs.
+- Open the [Mod Developer Kit (MDK)][mdk] GitHub repository, click "Use this template" and clone the newly-created repository to your local machine.
+   - If you do not want to use Git, you can also download the ZIP of the repository (under Code -> Download ZIP) and extract it.
+- Open your IDE and import the Gradle project. Eclipse and IntelliJ IDEA will do this automatically for you. If you have an IDE that does not do this, you can also do it via the `gradlew` terminal command.
+   - When doing this for the first time, Gradle will download all dependencies of NeoForge, including Minecraft itself, and decompile them. This can take a fair amount of time (up to an hour, depending on your hardware and network strength).
+   - Whenever you make a change to the Gradle files, Gradle will need to be reloaded through the same method.
 
 ## Customizing Your Mod Information
 
-Edit the `build.gradle` file to customize how your mod is built (e.g., file name, artifact version, etc.).
+Edit the `gradle.properties` file to customize how your mod is built (e.g. mod id, mod version, etc.).
 
-:::danger
-Do **not** edit the `settings.gradle` unless you know what you are doing. The file specifies the repository that [ForgeGradle] is uploaded to.
+:::warning
+Only edit the `build.gradle` and `settings.gradle` files if you know what you are doing. All basic properties can be set via `gradle.properties`.
 :::
 
-### Recommended `build.gradle` Customizations
+All properties are explained as comments inside the `gradle.properties`, the most important ones will be listed here as well:
 
-#### Mod Id Replacement
+- `minecraft_version` and `neo_version` specify the Minecraft and NeoForge version used by your project, respectively. Change these appropriately if you want to update Minecraft or NeoForge.
+- `minecraft_version_range` and `neo_version_range` specify the accompanying version ranges your mod uses. This is done using [Maven Versioning Ranges][mvr].
+   - Generally, these should be the Minecraft and NeoForge version your project is on, with the next Minecraft version as the upper bound.
+   - For example, on Minecraft 1.20.1 and NeoForge 20.2.59-beta, the bounds should be `[1.20.2,1.20.3)` (read: anything between Minecraft `1.20.2` (inclusive) and Minecraft `1.20.3` (exclusive)) and `[20.2.59,20.3)` (read: anything between NeoForge `20.2.59` (inclusive) and NeoForge `20.3.*` (exclusive)).
+   - See [the page on Versioning][versioning] for more elaborate information on how Minecraft's and NeoForge's versioning systems work.
+- `mod_id` is the mod id of your mod. This shows up in a lot of places, for example as the namespace for all your registered things, or as the namespace for your resource and data packs.
+- `mod_name` is the display name of your mod. By default, this can only be seen in the mod list, however, mods such as [JEI][jei] prominently display mod names in item tooltips as well.
+- `mod_version` is the version of your mod. See [the page on Versioning][versioning] for more information.
 
-Replace all occurrences of `examplemod`, including [`mods.toml` and the main mod file][modfiles] with the mod id of your mod. This also includes changing the name of the file you build by setting `base.archivesName` (this is typically set to your mod id).
+### The Group ID
 
-```gradle
-// In some build.gradle
-base.archivesName = 'mymod'
-```
+The `mod_group_id` property is only necessary if you plan to publish your mod to a maven. However, it is considered good practice to always properly set this.
 
-#### Group Id
+The group id should be set to your [top-level package][packaging], which should either match a domain you own or your email address:
 
-The `group` property should be set to your [top-level package][packaging], which should either be a domain you own or your email address:
-
-|   Type    |       Value       | Top-Level Package   |
-| :-------: | :---------------: | :------------------ |
-|  Domain   |    example.com    | `com.example`       |
+|   Type    |       Value       |  Top-Level Package  |
+|:---------:|:-----------------:|:-------------------:|
+|  Domain   |    example.com    |    `com.example`    |
 | Subdomain | example.github.io | `io.github.example` |
 |   Email   | example@gmail.com | `com.gmail.example` |
 
-```gradle
-// In some build.gradle
-group = 'com.example'
+```text
+mod_group_id=com.example
 ```
 
 The packages within your java source (`src/main/java`) should also now conform to this structure, with an inner package representing the mod id:
@@ -92,36 +67,32 @@ com
     - MyMod.java (renamed ExampleMod.java)
 ```
 
-#### Version
+### Additional Configuration
 
-Set the `version` property to the current version of your mod. We recommend using a [variation of Maven versioning][mvnver].
-
-```gradle
-// In some build.gradle
-version = '1.20-1.0.0.0'
-```
-
-### Additional Configurations
-
-Additional configurations can be found on the [ForgeGradle] docs.
+There are several other configuration options available. A few of these are explained via comments in the `build.gradle` files. For full documentation, see the [NeoGradle documentation][neogradle].
 
 ## Building and Testing Your Mod
 
-1. To build your mod, run `gradlew build`. This will output a file in `build/libs` with the name `[archivesBaseName]-[version].jar`, by default. This file can be placed in the `mods` folder of a Forge-enabled Minecraft setup or distributed.
-1. To run your mod in a test environment, you can either use the generated run configurations or use the associated tasks (e.g. `gradlew runClient`). This will launch Minecraft from the run directory (default 'run') along with any source sets specified. The default MDK includes the `main` source set, so any code written in `src/main/java` will be applied.
-1. If you are running a dedicated server, whether through the run configuration or `gradlew runServer`, the server will initially shut down immediately. You will need to accept the Minecraft EULA by editing the `eula.txt` file in the run directory. Once accepted, the server will load, which can then be accessed via a direct connect to `localhost`.
+To build your mod, run `gradlew build`. This will output a file in `build/libs` with the name `<archivesBaseName>-<version>.jar`, by default. This file can be placed in the `mods` folder of a NeoForge-enabled Minecraft setup, or uploaded to a mod distribution platform.
+
+To run your mod in a test environment, you can either use the generated run configurations or use the associated tasks (e.g. `gradlew runClient`). This will launch Minecraft from the corresponding runs directory (e.g. `runs/client` or `runs/server`), along with any source sets specified. The default MDK includes the `main` source set, so any code written in `src/main/java` will be applied.
+
+If you are running a dedicated server, whether through the run configuration or `gradlew runServer`, the server will initially shut down immediately. You will need to accept the Minecraft EULA by editing the `eula.txt` file in the run directory. Once accepted, the server will load, which can then be accessed via a direct connect to `localhost` (or `127.0.0.1`).
 
 :::tip
-
-You should always test your mod in a dedicated server environment. This includes [client-only mods][client] as they should not do anything when loaded on the server.
-
+You should always test your mod in a dedicated server environment. This includes [client-only mods][client], these should not do anything when loaded on the server.
 :::
 
-[jdk]: https://adoptium.net/temurin/releases?version=17 "Eclipse Temurin 17 Prebuilt Binaries"
-[ForgeGradle]: https://docs.neoforged.net/neogradle/docs/
-[files]: https://files.minecraftforge.net "Forge Files distribution site"
-[config]: https://docs.neoforged.net/neogradle/docs/configuration/runs
-[modfiles]: ./modfiles.md
-[packaging]: ./structuring.md#packaging
-[mvnver]: ./versioning.md
 [client]: ../concepts/sides.md#writing-one-sided-mods
+[config]: https://docs.neoforged.net/neogradle/docs/configuration/runs
+[eclipse]: https://www.eclipse.org/downloads/
+[git]: https://www.git-scm.com/
+[github]: https://github.com/
+[intellij]: https://www.jetbrains.com/idea/
+[jdk]: https://learn.microsoft.com/en-us/java/openjdk/download
+[jei]: https://www.curseforge.com/minecraft/mc-mods/jei
+[mdk]: https://github.com/neoforged/MDK
+[mvr]: https://maven.apache.org/enforcer/enforcer-rules/versionRanges.html
+[neogradle]: https://docs.neoforged.net/neogradle/docs/
+[packaging]: ./structuring.md#packaging
+[versioning]: ./versioning.md
