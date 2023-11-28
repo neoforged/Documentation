@@ -53,6 +53,9 @@ const config = {
               banner: "unreleased",
             },
           },
+          editUrl: ({ docPath }) => {
+            return `https://holocron.so/github/pr/neoforged/Documentation/main/editor/docs/${docPath}`
+          },
         },
         theme: {
           customCss: require.resolve("./src/css/custom.css"),
@@ -80,6 +83,7 @@ const config = {
             path: "5.x",
           },
         },
+        
       },
     ],
   ],
