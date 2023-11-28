@@ -23,7 +23,7 @@ Similarly, when the pre-release cycle completes, Mojang releases Release Candida
 
 ## NeoForge
 
-NeoForge uses an adapted semver system: The major version is Minecraft's minor version, the minor version is Minecraft's patch version, and the patch version is the "actual" NeoForge version. So for example, NeoForge 20.2.59 is the 60th version (we start at 0) for Minecraft 1.20.2. The `1` at the beginning is omitted because it is very unlikely that it will ever, see [above][minecraft] for why that is the case.
+NeoForge uses an adapted semver system: The major version is Minecraft's minor version, the minor version is Minecraft's patch version, and the patch version is the "actual" NeoForge version. So for example, NeoForge 20.2.59 is the 60th version (we start at 0) for Minecraft 1.20.2. The `1` at the beginning is omitted because it is very unlikely that it will ever change, see [above][minecraft] for why that is the case.
 
 A few places in NeoForge also use [Maven version ranges][mvr], for example the Minecraft and NeoForge version ranges in the [`mods.toml`][modstoml] file. These are mostly, but not fully compatible with semver (the `pre`-tag is not considered by it, for example).
 
@@ -77,7 +77,7 @@ Usually, this is done by including the mod loader somewhere in the name. `jei-ne
 
 ### A Note on Maven
 
-Maven, the system used for dependency hosting, uses a versioning system that differs from semver in some details (though the general `major.minor.patch` pattern remains the same). The related [Maven Versioning Range (MVR)][mvr] system is used in some places in NeoForge (see [above][neoforge]). When choosing your versioning scheme, it is a good idea to make sure it is compatible with MVR.
+Maven, the system used for dependency hosting, uses a versioning system that differs from semver in some details (though the general `major.minor.patch` pattern remains the same). The related [Maven Versioning Range (MVR)][mvr] system is used in some places in NeoForge (see [above][neoforge]). When choosing your versioning scheme, you should make sure it is compatible with MVR, as otherwise, mods will not be able to depend on specific versions of your mod!
 
 [create]: https://www.curseforge.com/minecraft/mc-mods/create
 [infinite]: https://minecraft.wiki/w/Java_Edition_20w14∞

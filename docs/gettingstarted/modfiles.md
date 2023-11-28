@@ -21,7 +21,7 @@ Non-mod-specific properties are properties associated with the JAR itself, indic
 | Property             |  Type   |    Default    |                                                                                                                                                                    Description                                                                                                                                                                     | Example                                                                        |
 |:---------------------|:-------:|:-------------:|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------|
 | `modLoader`          | string  | **mandatory** | The language loader used by the mod(s). Can be used to support alternative language structures, such as Kotlin objects for the main file, or different methods of determining the entrypoint, such as an interface or method. NeoForge provides the Java loader [`"javafml"`][javafml] and the lowcode/nocode loader [`"lowcodefml"`][lowcodefml]. | `modLoader="javafml"`                                                          |
-| `loaderVersion`      | string  | **mandatory** |                                                                             The acceptable version range of the language loader, expressed as a [Maven Version Range][mvr]. For `javafml` and `lowcodefml`, the version is the major version of the NeoForge version.                                                                              | `loaderVersion="[46,)"`                                                        |
+| `loaderVersion`      | string  | **mandatory** |                                                                                           The acceptable version range of the language loader, expressed as a [Maven Version Range][mvr]. For `javafml` and `lowcodefml`, this is currently version `1`.                                                                                           | `loaderVersion="[1,)"`                                                         |
 | `license`            | string  | **mandatory** |                                               The license the mod(s) in this JAR are provided under. It is suggested that this is set to the [SPDX identifier][spdx] you are using and/or a link to the license. You can visit https://choosealicense.com/ to help pick the license you want to use.                                               | `license="MIT"`                                                                |
 | `showAsResourcePack` | boolean |    `false`    |                                                                                     When `true`, the mod(s)'s resources will be displayed as a separate resource pack on the 'Resource Packs' menu, rather than being combined with the 'Mod resources' pack.                                                                                      | `showAsResourcePack=true`                                                      |
 | `services`           |  array  |     `[]`      |                                                                                         An array of services your mod uses. This is consumed as part of the created module for the mod from NeoForge's implementation of the Java Platform Module System.                                                                                          | `services=["net.minecraftforge.forgespi.language.IModLanguageProvider"]`       |
@@ -30,6 +30,8 @@ Non-mod-specific properties are properties associated with the JAR itself, indic
 
 :::note
 The `services` property is functionally equivalent to specifying the [`uses` directive in a module][uses], which allows [loading a service of a given type][serviceload].
+
+Alternatively, it can be defined in a service file inside the `src/main/resources/META-INF/services` folder, where the file name is the fully-qualified name of the service, and the file content is the name of the service to load (see also [this example from the AtlasViewer mod][atlasviewer]).
 :::
 
 ### Mod-Specific Properties
@@ -54,7 +56,7 @@ modId = "examplemod2"
 | `displayName`   | string  |      value of `modId`       |                                                                                    The display name of the mod. Used when representing the mod on a screen (e.g., mod list, mod mismatch).                                                                                     | `displayName"Example Mod"`                                      |
 | `description`   | string  | `'''MISSING DESCRIPTION'''` |                                                                           The description of the mod shown in the mod list screen. It is recommended to use a [multiline literal string][multiline].                                                                           | `description='''This is an example.'''`                         |
 | `logoFile`      | string  |          *nothing*          |                                  The name and extension of an image file used on the mods list screen. The logo must be in the root of the JAR or directly in the root of the source set (e.g. `src/main/resources` for the main source set).                                  | `logoFile="example_logo.png"`                                   |
-| `logoBlur`      | boolean |           `true`            |                                                                                             Whether to use `GL_LINEAR*` (true) or `GL_NEAREST*` (false) to render the `logoFile`.                                                                                              | `logoBlur=false`                                                |
+| `logoBlur`      | boolean |           `true`            |                                          Whether to use `GL_LINEAR*` (true) or `GL_NEAREST*` (false) to render the `logoFile`. In simpler terms, this means whether the logo should be blurred or not when trying to scale the logo.                                           | `logoBlur=false`                                                |
 | `updateJSONURL` | string  |          *nothing*          |                                                                                A URL to a JSON used by the [update checker][update] to make sure the mod you are playing is the latest version.                                                                                | `updateJSONURL="https://example.github.io/update_checker.json"` |
 | `features`      |  table  |            `{}`             |                                                                                                                                See [features].                                                                                                                                 | `features={java_version="17"}`                                  |
 | `modproperties` |  table  |            `{}`             |                                                                                       A table of key/values associated with this mod. Unused by NeoForge, but is mainly for use by mods.                                                                                       | `modproperties={example="value"}`                               |
@@ -74,7 +76,7 @@ The features system allows mods to demand that certain settings, software, or ha
 
 ### Dependency Configurations
 
-Mods can specify their dependencies, which are checked by NeoForge before loading the mods. These configurations are created using the [array of tables][array] `[[dependencies.<modid>]]`, where `modid` is the identifier of the mod the dependency is for.
+Mods can specify their dependencies, which are checked by NeoForge before loading the mods. These configurations are created using the [array of tables][array] `[[dependencies.<modid>]]`, where `modid` is the identifier of the mod that consumes the dependency.
 
 | Property       |  Type   |    Default    |                                                               Description                                                               | Example                                      |
 |:---------------|:-------:|:-------------:|:---------------------------------------------------------------------------------------------------------------------------------------:|:---------------------------------------------|
@@ -107,11 +109,16 @@ public class Example {
 }
 ```
 
+:::note
+There must be a 1-to-1 matching of mods in the `mods.toml` file and `@Mod` entrypoints. This means that for every mod defined, there must be exactly one `@Mod` annotation with that mod's id.
+:::
+
 ### `lowcodefml`
 
 `lowcodefml` is a language loader used as a way to distribute datapacks and resource packs as mods without the need of an in-code entrypoint. It is specified as `lowcodefml` rather than `nocodefml` for minor additions in the future that might require minimal coding.
 
 [array]: https://toml.io/en/v1.0.0#array-of-tables
+[atlasviewer]: https://github.com/XFactHD/AtlasViewer/blob/1.20.2/neoforge/src/main/resources/META-INF/services/xfacthd.atlasviewer.platform.services.IPlatformHelper
 [dist]: ../concepts/sides.md#different-kinds-of-sides
 [events]: ../concepts/events.md
 [features]: #features

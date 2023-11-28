@@ -18,10 +18,10 @@ Make sure you are using a 64-bit JVM. One way of checking is to run `java -versi
 ## Setting Up the Workspace
 
 - Open the [Mod Developer Kit (MDK)][mdk] GitHub repository, click "Use this template" and clone the newly-created repository to your local machine.
-   - If you do not want to use Git, you can also download the ZIP of the repository (under Code -> Download ZIP) and extract it.
+   - If you do not want to use GitHub, or if you want to get the template for an older commit or a non-default branch (which would be the case e.g. for older versions), you can also download the ZIP of the repository (under Code -> Download ZIP) and extract it.
 - Open your IDE and import the Gradle project. Eclipse and IntelliJ IDEA will do this automatically for you. If you have an IDE that does not do this, you can also do it via the `gradlew` terminal command.
    - When doing this for the first time, Gradle will download all dependencies of NeoForge, including Minecraft itself, and decompile them. This can take a fair amount of time (up to an hour, depending on your hardware and network strength).
-   - Whenever you make a change to the Gradle files, Gradle will need to be reloaded through the same method.
+   - Whenever you make a change to the Gradle files, the Gradle changes will need to be reloaded, either through the "Reload Gradle" button in your IDE, or again through the `gradlew` terminal command.
 
 ## Customizing Your Mod Information
 
@@ -36,7 +36,7 @@ All properties are explained as comments inside the `gradle.properties`, the mos
 - `minecraft_version` and `neo_version` specify the Minecraft and NeoForge version used by your project, respectively. Change these appropriately if you want to update Minecraft or NeoForge.
 - `minecraft_version_range` and `neo_version_range` specify the accompanying version ranges your mod uses. This is done using [Maven Versioning Ranges][mvr].
    - Generally, these should be the Minecraft and NeoForge version your project is on, with the next Minecraft version as the upper bound.
-   - For example, on Minecraft 1.20.1 and NeoForge 20.2.59-beta, the bounds should be `[1.20.2,1.20.3)` (read: anything between Minecraft `1.20.2` (inclusive) and Minecraft `1.20.3` (exclusive)) and `[20.2.59,20.3)` (read: anything between NeoForge `20.2.59` (inclusive) and NeoForge `20.3.*` (exclusive)).
+   - For example, on Minecraft 1.20.2 and NeoForge 20.2.59-beta, the bounds should be `[1.20.2,1.20.3)` (read: anything between Minecraft `1.20.2` (inclusive) and Minecraft `1.20.3` (exclusive)) and `[20.2.59,20.3)` (read: anything between NeoForge `20.2.59` (inclusive) and NeoForge `20.3.*` (exclusive)).
    - See [the page on Versioning][versioning] for more elaborate information on how Minecraft's and NeoForge's versioning systems work.
 - `mod_id` is the mod id of your mod. This shows up in a lot of places, for example as the namespace for all your registered things, or as the namespace for your resource and data packs.
 - `mod_name` is the display name of your mod. By default, this can only be seen in the mod list, however, mods such as [JEI][jei] prominently display mod names in item tooltips as well.
@@ -77,7 +77,11 @@ To build your mod, run `gradlew build`. This will output a file in `build/libs` 
 
 To run your mod in a test environment, you can either use the generated run configurations or use the associated tasks (e.g. `gradlew runClient`). This will launch Minecraft from the corresponding runs directory (e.g. `runs/client` or `runs/server`), along with any source sets specified. The default MDK includes the `main` source set, so any code written in `src/main/java` will be applied.
 
-If you are running a dedicated server, whether through the run configuration or `gradlew runServer`, the server will initially shut down immediately. You will need to accept the Minecraft EULA by editing the `eula.txt` file in the run directory. Once accepted, the server will load, which can then be accessed via a direct connect to `localhost` (or `127.0.0.1`).
+### Server Testing
+
+If you are running a dedicated server, whether through the run configuration or `gradlew runServer`, the server will shut down immediately. You will need to accept the Minecraft EULA by editing the `eula.txt` file in the run directory.
+
+Once accepted, the server will load and become available under `localhost` (or `127.0.0.1`). However, you will still not able to join, because the server will be put into online mode by default, which requires authentication (which the Dev player does not have). To fix this, stop your server again and set the `online-mode` property in the `server.properties` file to `false`. Now, start your server, and you should be able to connect.
 
 :::tip
 You should always test your mod in a dedicated server environment. This includes [client-only mods][client], these should not do anything when loaded on the server.
