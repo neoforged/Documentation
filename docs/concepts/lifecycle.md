@@ -38,15 +38,15 @@
 InterModComms
 -------------
 
-이 단계에서는 모드끼리 메세지를 보내 통신하여 서로 연동할 수 있도록 합니다. 이때 방송되는 이벤트는 `InterModEnqueueEvent`와 `InterModProcessEvent`가 있습니다.
+이 단계에서는 모드끼리 메시지를 보내 통신하여 서로 연동할 수 있도록 합니다. 이때 방송되는 이벤트는 `InterModEnqueueEvent`와 `InterModProcessEvent`가 있습니다.
 
-메세지는 `IMCMessage`로 표현되는데, 이는 메세지의 송신자와 수신자의 모드 아이디, 메세지의 데이터, 마지막으로 데이터의 키를 담고 있습니다.
+메시지는 `IMCMessage`로 표현되는데, 이는 메시지의 송신자와 수신자의 모드 아이디, 메시지의 데이터, 마지막으로 데이터의 키를 담고 있습니다.
 
-`InterModEnqueueEvent`는 메세지를 보내는 이벤트로, `InterModComms#sendTo`를 사용해 다른 모드에 메세지를 전송할 수 있습니다. 이 메서드는 메세지를 받을 모드의 아이디, 메세지들을 구분하기 위한 키, 메세지의 데이터를 공급하는 `Supplier`를 인자로 받습니다. 추가적으로 메세지 송신자를 지정할 수도 있으나, 기본값으로는 메세지를 보내는 모드의 아이디 입니다.
+`InterModEnqueueEvent`는 메시지를 보내는 이벤트로, `InterModComms#sendTo`를 사용해 다른 모드에 메시지를 전송할 수 있습니다. 이 메서드는 메시지를 받을 모드의 아이디, 메시지들을 구분하기 위한 키, 메시지의 데이터를 공급하는 `Supplier`를 인자로 받습니다. 추가적으로 메시지 송신자를 지정할 수도 있으나, 기본값으로는 메시지를 보내는 모드의 아이디 입니다.
 
-`InterModProcessEvent`는 메세지를 받고 처리하는 이벤트로, `InterModComms#getMessages`를 사용해 모든 메세지들을 받을 수 있습니다. 이 메서드는 모드 아이디를 인자로 받는데 현재 모드의 아이디를 넘기시면 됩니다. 추가적으로 `Predicate`를 전달하여 몇몇 메세지만 필터링 할 수도 있습니다.
+`InterModProcessEvent`는 메시지를 받고 처리하는 이벤트로, `InterModComms#getMessages`를 사용해 모든 메시지들을 받을 수 있습니다. 이 메서드는 모드 아이디를 인자로 받는데 현재 모드의 아이디를 넘기시면 됩니다. 추가적으로 `Predicate`를 전달하여 몇몇 메시지만 필터링 할 수도 있습니다.
 
-이때 보내진 메세지들은 `InterModComms`가 `ConcurrentMap`에 저장하는데, 메인 스레드 외 다른 스레드에서 사용하셔도 경쟁 상태를 유발하지 않아 안전합니다.
+이때 보내진 메시지들은 `InterModComms`가 `ConcurrentMap`에 저장하는데, 메인 스레드 외 다른 스레드에서 사용하셔도 경쟁 상태를 유발하지 않아 안전합니다.
 
 :::tip
 그외에도 모드 메인 클래스 초기화 직후 레지스트리 이벤트보다 먼저 방송되는 `FMLConstructModEvent`, 그리고 `InterModComms` 이후 모드를 완전히 불러왔음을 알리는 `FMLLoadCompleteEvent` 생명주기 이벤트가 있습니다.

@@ -34,9 +34,9 @@ public static final SimpleChannel INSTANCE = NetworkRegistry.newSimpleChannel(
 패킷 등록하기
 -------------------
 
-그 다음으로 주고 받을 메세지들을 정의해야 합니다. 이는 `INSTANCE#registerMessage`를 이용해 할 수 있는데, 이 메서드는 5개의 인자를 받습니다:
+그 다음으로 주고 받을 메시지들을 정의해야 합니다. 이는 `INSTANCE#registerMessage`를 이용해 할 수 있는데, 이 메서드는 5개의 인자를 받습니다:
 
-- 첫번째 인자는 패킷을 판별할 때 사용할 판별자 입니다. ID 라고 부르기도 합니다. 이 판별자는 같은 채널에서는 고유하여야 합니다, 다른 채널끼리는 판별자가 같아도 문제가 발생하지 않습니다. 판별자로는 어떤 값을 사용하셔도 고유하기만 한다면 상관 없으니 지역 변수를 사용하여 메세지 하나 등록할 때 마다 `id++`를 하여 늘 고유한 값이 나오도록 하세요.
+- 첫번째 인자는 패킷을 판별할 때 사용할 판별자 입니다. ID 라고 부르기도 합니다. 이 판별자는 같은 채널에서는 고유하여야 합니다, 다른 채널끼리는 판별자가 같아도 문제가 발생하지 않습니다. 판별자로는 어떤 값을 사용하셔도 고유하기만 한다면 상관 없으니 지역 변수를 사용하여 메시지 하나 등록할 때 마다 `id++`를 하여 늘 고유한 값이 나오도록 하세요.
 - 두번째 인자는 패킷 클래스 `MSG` 입니다.
 - 세번째 인자는 `BiConsumer<MSG, FriendlyByteBuf>` 입니다, 패킷 클래스를 `FriendlyByteBuf` 에 작성하는 역할을 합니다.
 - 네번째 인자는 `Function<FriendlyByteBuf, MSG>` 입니다, `FriendlyByteBuf` 로 부터 패킷 클래스를 읽어들이는 역할을 합니다.
@@ -47,7 +47,7 @@ public static final SimpleChannel INSTANCE = NetworkRegistry.newSimpleChannel(
 패킷 핸들링 하기
 ----------------
 
-패킷 핸들러에는 몇가지 강조할 사항이 있습니다: 패킷 핸들러는 메세지 클래스 뿐만 아니라, 네트워크 콘텍스트도 같이 반습니다. 이 콘텍스트를 사용해서, (서버에서 패킷을 받았다면) 패킷을 보낸 플레이어에 접근할 수 있고 스레드 안전성을 준수해야만 하는 작업들을 요청할 수 있습니다.
+패킷 핸들러에는 몇가지 강조할 사항이 있습니다: 패킷 핸들러는 메시지 클래스 뿐만 아니라, 네트워크 콘텍스트도 같이 반습니다. 이 콘텍스트를 사용해서, (서버에서 패킷을 받았다면) 패킷을 보낸 플레이어에 접근할 수 있고 스레드 안전성을 준수해야만 하는 작업들을 요청할 수 있습니다.
 
 ```java
 public static void handle(MyMessage msg, Supplier<NetworkEvent.Context> ctx) {
@@ -99,7 +99,7 @@ public static void handlePacket(MyClientMessage msg, Supplier<NetworkEvent.Conte
 
 ### 서버에 보내기
 
-서버로 패킷을 보내는 방법은 하나밖에 없습니다. 왜냐하면 클라이언트는 한번에 *하나의* 서버에만 접속할 수 있기 때문입니다. 패킷을 보내기 위해서는 이전에 정의한 `SimpleChannel`을 다시 사용할 것인데, 단순히 `INSTANCE.sendToServer(new MyMessage())`를 호출하세요. 이 메세지는 패킷에 알맞는 핸들러로 (만약 있다면)보내집니다.
+서버로 패킷을 보내는 방법은 하나밖에 없습니다. 왜냐하면 클라이언트는 한번에 *하나의* 서버에만 접속할 수 있기 때문입니다. 패킷을 보내기 위해서는 이전에 정의한 `SimpleChannel`을 다시 사용할 것인데, 단순히 `INSTANCE.sendToServer(new MyMessage())`를 호출하세요. 이 메시지는 패킷에 알맞는 핸들러로 (만약 있다면)보내집니다.
 
 ### 클라이언트(들)에 보내기
 

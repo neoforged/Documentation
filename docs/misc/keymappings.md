@@ -1,72 +1,71 @@
-# Key Mappings
+# 키 매핑
 
-A key mapping, or key binding, defines a particular action that should be tied to an input: mouse click, key press, etc. Each action defined by a key mapping can be checked whenever the client can take an input. Furthermore, each key mapping can be assigned to any input through the [Controls option menu][controls].
+키 매핑(또는 키 바인딩)은 입력에 따라 특정 동작을 수행하는 것을 뜻합니다. 각 동작은 클라이언트가 입력을 처리할 때 수행되며 [조작 메뉴][controls]에서 아무 키에나 할당될 수 있습니다.
 
-## Registering a `KeyMapping`
+## 등록하기 `KeyMapping`
 
-A `KeyMapping` can be registered by listening to the `RegisterKeyMappingsEvent` on the [**mod event bus**][modbus] only on the physical client and calling `#register`.
+`KeyMapping`은 물리 클라이언트 [**모드 이벤트 버스**][modbus]에 `RegisterKeyMappingsEvent` 방송시 `#register`를 호출해 등록할 수 있습니다.
 
 ```java
-// In some physical client only class
+// 물리 클라이언트 전용 클래스라 가정
 
-// Key mapping is lazily initialized so it doesn't exist until it is registered
+// 키 매핑은 필요할 때 까지 초기화가 지연됨
 public static final Lazy<KeyMapping> EXAMPLE_MAPPING = Lazy.of(() -> /*...*/);
 
-// Event is on the mod event bus only on the physical client
+// 아래 이벤트는 물리 클라이언트에서 모드 이벤트 버스에 방송됨
 @SubscribeEvent
 public void registerBindings(RegisterKeyMappingsEvent event) {
   event.register(EXAMPLE_MAPPING.get());
 }
 ```
 
-## Creating a `KeyMapping`
+## `KeyMapping` 만들기
 
-A `KeyMapping` can be created using it's constructor. The `KeyMapping` takes in a [translation key][tk] defining the name of the mapping, the default input of the mapping, and the [translation key][tk] defining the category the mapping will be put within in the [Controls option menu][controls].
+`KeyMapping`의 생성자는 키 매핑의 이름의 [번역 키][tk], 기본 입력 키, 그리고 [설정][controls]에서 키 매핑을 분류할 카테고리 이름의 [번역 키][tk]를 인자로 받습니다.
 
 :::tip
-A `KeyMapping` can be added to a custom category by providing a category [translation key][tk] not provided by vanilla. Custom category translation keys should contain the mod id (e.g. `key.categories.examplemod.examplecategory`).
+기본 카테고리 이외의 카테고리 [번역 키][tk]를 사용해 새 카테고리를 만들 수 있습니다. 이때 번역 키는 모드 아이디를 포함하는 것이 좋습니다(예: `key.categories.examplemod.examplecategory`).
 :::
 
-### Default Inputs
+### 기본 입력키
 
-Each key mapping has a default input associated with it. This is provided through `InputConstants$Key`. Each input consists of an `InputConstants$Type`, which defines what device is providing the input, and an integer, which defines the associated identifier of the input on the device.
-
-Vanilla provides three types of inputs: `KEYSYM`, which defines a keyboard through the provided `GLFW` key tokens, `SCANCODE`, which defines a keyboard through the platform-specific scancode, and `MOUSE`, which defines a mouse.
+키 매핑은 기본 입력 키를 설정해야 합니다. 입력 키는 `InputConstants$Key`로 표현되고, 입력 기기의 종류를 식별하는 `InputConstants$Type`과 입력 코드를 대표하는 정수로 이루어져 있습니다.
+바닐라 마인크래프트는 세 종류의 입력 기기를 지원하는데: `GLFW`를 통해 키보드 토큰을 전달 받는 `KEYSYM`, 플랫폼 전용 스캔 코드를 사용하는 `SCANCODE`, 마지막으로 마우스를 대표하는 `MOUSE` 입니다.
 
 :::note
-It is highly recommended to use `KEYSYM` over `SCANCODE` for keyboards as `GLFW` key tokens are not tied to any particular system. You can read more on the [GLFW docs][keyinput].
+`GLFW` 키보드 토큰은 특정 플랫폼에 종속되지 않기 때문에 `SCANCODE`대신 `KEYSYM`을 사용하는 것을 강력히 권장드립니다. 자세한 내용은 [GLFW 문서][keyinput]에서 찾아보실 수 있습니다.
 :::
 
-The integer is dependent on the type provided. All input codes are defined in `GLFW`: `KEYSYM` tokens are prefixed with `GLFW_KEY_*` while `MOUSE` codes are prefixed with `GLFW_MOUSE_*`.
+입력 코드는 무슨 입력이냐에 따라 다른 것을 사용해야 합니다. `KEYSYM`의 `GLFW` 키보드 토큰은 `GLFW_KEY_*` 접미사가 붙으나 `MOUSE` 코드들은 `GLFW_MOUSE_*`를 사용합니다.
 
 ```java
 new KeyMapping(
-  "key.examplemod.example1", // Will be localized using this translation key
-  InputConstants.Type.KEYSYM, // Default mapping is on the keyboard
-  GLFW.GLFW_KEY_P, // Default key is P
-  "key.categories.misc" // Mapping will be in the misc category
+  "key.examplemod.example1", // 키 이름 번역을 위한 키
+  InputConstants.Type.KEYSYM, // 입력 기기 종류
+  GLFW.GLFW_KEY_P, // 기본 입력 키
+  "key.categories.misc" // 이 키 매핑은 기타 카테고리에 들어감
 )
 ```
 
 :::note
-If the key mapping should not be mapped to a default, the input should be set to `InputConstants#UNKNOWN`. The vanilla constructor will require you to extract the input code via `InputConstants$Key#getValue` while the Forge constructor can be supplied the raw input field.
+만약 기본 입력 키를 설정하지 않으려면 `InputConstants#UNKNOWN`을 대신 사용하세요. 기본 생성자는 입력 코드를 `InputConstants.UNKNOWN.getValue()`로 제공해야 하나 포지에서 추가한 생성자는 바로 전달해도 됩니다.
 :::
 
 ### `IKeyConflictContext`
 
-Not all mappings are used in every context. Some mappings are only used in a GUI, while others are only used purely in game. To avoid mappings of the same key used in different contexts conflicting with each other, an `IKeyConflictContext` can be assigned.
+모든 키 매핑이 언제나 쓰이는 것은 아닙니다. 몇몇 매핑은 GUI에서만 쓰이기도 하고, 어떤 것은 인 게임에서만 쓰입니다. 매핑이 사용되는 상황의 차이가 있음에도 불구하고 서로 겹치는 것을 막기 위해, 매핑의 맥락을 정의하는 `IKeyConflictContext`를 사용할 수 있습니다.
 
-Each conflict context contains two methods: `#isActive`, which defines if the mapping can be used in the current game state, and `#conflicts`, which defines whether the mapping conflicts with a key in the same or different conflict context.
+각 맥락은 두 개의 메소드를 정의합니다: 키 매핑이 현재 사용 가능한지 반환하는 `#isActive`, 그리고 다른 `IKeyConflictContext`와 충돌하는지를 반환하는 `#conflicts` 입니다.
 
-Currently, Forge defines three basic contexts through `KeyConflictContext`: `UNIVERSAL`, which is the default meaning the key can be used in every context, `GUI`, which means the mapping can only be used when a `Screen` is open, and `IN_GAME`, which means the mapping can only be used if a `Screen` is not open. New conflict contexts can be created by implementing `IKeyConflictContext`.
+현재 포지는 세 개의 맥락을 `KeyConflictContext`에 정의합니다: 키 매핑이 언제나 활성화 되는 `UNIVERSAL`, `Screen`이 열려 있어야만 작동하는 `GUI`, 마지막으로 `Screen`이 없을 때만 작동하는 `IN_GAME`이 있습니다. 새 맥락은 `IKeyConflictContext`를 구현해 만들 수 있습니다.
 
 ```java
 new KeyMapping(
   "key.examplemod.example2",
-  KeyConflictContext.GUI, // Mapping can only be used when a screen is open
-  InputConstants.Type.MOUSE, // Default mapping is on the mouse
-  GLFW.GLFW_MOUSE_BUTTON_LEFT, // Default mouse input is the left mouse button
-  "key.categories.examplemod.examplecategory" // Mapping will be in the new example category
+  KeyConflictContext.GUI, // GUI가 열려 있을 때만 매핑 활성화
+  InputConstants.Type.MOUSE, // 마우스로 부터 입력 받음
+  GLFW.GLFW_MOUSE_BUTTON_LEFT, // 왼쪽 클릭을 입력 받음
+  "key.categories.examplemod.examplecategory" // 매핑은 새로운 example 카테고리에 분류함
 )
 ```
 

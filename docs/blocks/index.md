@@ -3,33 +3,80 @@
 
 블록은 마인크래프트의 핵심 효소로 레벨의 필수적 구성 요소입니다. 지형과 구조물, 그리고 기계들 전부 블록들로 이루어져 있습니다. 이번장에서는 블록 제작의 기초에 대해 다루겠습니다.
 
+하나만 있어도 충분한 블록
+-------------------
+시작하기 전에, 먼저 게임엔 블록이 하나씩만 존재한다는 사실을 알아두셔야 합니다. 레벨에 존재하는 수천개의 블록은 전부 하나의 블록을 참조합니다, 다시 말해서 같은 블록이 월드에 여러번 등장하는 것입니다.
+
+그렇기 때문에 블록의 인스턴스는 오직 하나만, 그것도 레지스트리 초기화 중에 생성되어야 합니다. 그 이후에는 등록된 블록의 참조를 사용하세요. 예를 들자면(이해가 안된다면 [레지스트리][registration]을 참고하세요): 
+
+```java
+//BLOCKS는 DeferredRegister.Blocks
+public static final DeferredBlock<Block> MY_BLOCK = BLOCKS.register("my_block", () -> new Block(...));
+```
+
+블록을 등록한 이후, `my_block`에 대한 참조는 위 상수를 사용해야 합니다. 예를 들어 어떤 좌표에 존재하는 블록이 `my_block`인지 확인하고 싶다면, 다음과 같이 구현할 수 있습니다:
+
+```java
+level.getBlockState(position) // 해당 좌표에 존재하는 블록 상태를 가져옴 the given position
+        //highlight-next-line
+        .is(MyBlockRegistrationClass.MY_BLOCK.get());
+```
+
+추가적으로, 이 방식은 Java의 `equals` 대신 `block1 == block2`를 사용할 수 있습니다. (`equals`도 작동하긴 하나 레퍼런스 자체가 동일하기 때문에 필요 없습니다.)
+
+:::danger
+객체 등록중 이외에 `new Block()`을 호출하지 마세요! 아래와 같은 문제가 발생할 수 있습니다:
+Do not call `new Block()` outside registration! As soon as you do that, things can and will break:
+
+- 블록은 무조건 레지스트리가 동결되기 이전에 생성되어야 합니다. 네오포지는 일시적으로 레지스트리를 해동하기에 이때만 등록할 수 있습니다.
+- 만약 레지스트리가 이미 동결된 이후 등록하려고 한다면, 나중에 해당 블록을 참조할 시 `null`이 대신 반환됩니다.
+- 어떻게든 등록이 잘못된 블록을 사용하시면 블록에 대한 허상 참조가 발생하여 나중에 월드를 불러오면 공기로 대체됩니다.
+:::
+
 블록 만들기
 ----------------
 
-블록은 `Block` 클래스로 표현되며 생성자는 인자로 `BlockBehaviour$Properties`를 받습니다. `BlockBehaviour$Properties`는 블록의 속성을 저장하는 객체로 아래 메서드들을 통해 블록의 특성을 원하시는 대로 바꾸실 수 있습니다.
+### 단순한 블록
+특별한 기능이 없는 블록들은(조약돌이나 나무판자 등) `Block`의 새 인스턴스를 만드는 것으로 충분합니다. 블록들이 등록될 때, 새로운 `Block`의 인스턴스를 `BlockBehaviour$Properties`를 인자로 넘겨 생성하세요. `BlockBehaviour$Properties`는 블록의 속성을 저장하는 객체로 `#of`로 생성하고 아래 메서드들을 통해 블록의 특성을 원하시는 대로 바꾸실 수 있습니다.
 
-| 속성                                                       | 설명                                                                                                                                                                                |
-|----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `strength(float destroyTime, float explosionResistence)` | `destroyTime`은 블록이 부서지는 데 걸리는 시간을 결정합니다. 돌은 1.5, 흙은 0.5입니다. 기반암과 같이 부술 수 없는 블록은 `destroyTime` 값으로 -1을 사용합니다. `explosionResistence`는 블록의 폭발 저항력을 결정합니다. 돌은 6.0을, 흙은 0.5를 가지고 있습니다. |
-| `sound(SoundType soundType)`                             | 블록이 부서지고, 깨지고, 설치되었을 때 내는 소리를 결정합니다. [소리]에서 자세한 내용을 확인하세요.                                                                                                                        |
-| `lightLevel(ToIntFunction<BlockState> lightEmission)`    | 블록이 방출하는 빛의 양을 조절합니다. 주어진 `BlockState`에 따라 0~15를 변환하는 함수를 인자로 받습니다.                                                                                                               |
-| `friction(float friction)`                               | 얼마나 블록이 미끄러운지를 결정합니다. 얼음은 0.98의 미끄러움을 가지고 있습니다.                                                                                                                                   |
+- `destroyTime` - 블록을 파괴하는데 걸리는 시간을 지정함.
+    - 돌은 1.5, 흙은 0.5, 흑요석은 50, 기반암은 -1(부술 수 없음).
+- `explosionResistance` - 블록의 폭발 저항력을 지정함.
+    - 돌은 6.0, 흙은 0.5, 흑요석은 1,200, 기반암은 3,600,000.
+- `sound` - 블록을 주먹으로 치거나, 캐거나, 설치시 나는 소리를 지정함.
+    - 이 설정의 기본값은 `SoundType.STONE`. 자세한 사항은 [소리][sounds] 참고.
+- `lightLevel` - 블록의 밝기를 지정. `BlockState`를 0~15 범위의 정수로 바꾸는 함수를 값으로 받음.
+    - 발광석은 `state -> 15`, 횟불은 `state -> 14`를 사용함.
+- `friction` - 블록의 마찰력, 또는 미끄러운 정도를 지정함.
+    - 기본값은 0.6, 얼음은 0.98.
 
-위 메서드들은 자신을 반환하기 때문에 *연쇄적으로* 호출 가능합니다.
+그리고 위 메서드들은 아래처럼 사용하실 수 있습니다:
+```java
+  public static final DeferredBlock<Block> MY_BETTER_BLOCK = BLOCKS.register(
+        "my_better_block", 
+        () -> new Block(BlockBehaviour.Properties.of()
+                //highlight-start
+                .destroyTime(2.0f)
+                .explosionResistance(10.0f)
+                .sound(SoundType.GRAVEL)
+                .lightLevel(state -> 7)
+                //highlight-end
+        ));
+```
 
-특별한 기능이 없는 블록들은(조약돌이나 나무판자 등) `Block`의 새 인스턴스를 만드는 것으로 충분합니다. 하지만 상호작용과 같은 기능을 추가하려면 하위 클래스를 만들어 `Block#use`와 같은 메서드들을 재정의 해야 합니다.
+자세한 사항은 `BlockBehaviour#Properties` 소스코드 또는 `Blocks`의 예시들을 참고하세요.
 
 :::note
-블록 자체에는 `CreativeModeTab`을 지정할 수 없습니다, 만약 블록에 해당하는 아이템(예: [`BlockItem`][blockitem])이 존재한다면 [`BuildCreativeModeTabContentsEvent`][creativetabs]를 이용해 그 아이템이 소속되는 탭을 지정하실 수 있습니다. 계다가 블록의 번역 키 또한 `Block#getDescriptionId`가 레지스트리 이름으로부터 생성하기 때문에 직접 지정하실 수 없습니다.
+인벤토리에 들어있는 블록과 레벨에 설치된 블록은 다른 객체입니다. 인벤토리에 있는 블록은 사실 `BlockItem` 입니다. `BlockItem`은 `Item`의 하위 클래스로, 우클릭 시 레벨에 표현하는 블록을 설치하는 등의 상호작용 기능들을 구현합니다. 또한, `BlockItem`은 최대 아이템 갯수나 지정될 크리에이티브 탭 등의 아이템 속성 또한 지정합니다.
+
+`BlockItem`도 따로 [등록]해 주어야 하며, 이는 블록의 아이템이 존재하지 않을 수 있기 때문입니다(그 예로 불이 있습니다).
 :::
 
-블록은 무조건 [등록] 되어야만 사용 가능합니다. 이때 *오직* 블록만 등록되며, [`BlockItem`][blockitem]은 직접 만들고 아이템 레지스트리에 등록하셔야 합니다.
+### 기능 추가
+`Block` 클래스는 매우 기초적인 블록에만 바로 사용할 수 있습니다. 블록에 상호작용 등의 기능을 추가하시려면 `Block`의 하위 클래스를 직접 만드셔야 합니다. `Block`은 재정의할 수 있는 여러 메서드들을 제공하여 다양한 기능을 추가할 수 있습니다. 자세한 사항은 `Block`, `BlockBehaviour`, `IBlockExtension`을 참고하세요. 아래 [블록 써보기][usingblocks]도 확인해 블록의 주 사용처를 확인하세요.
 
-#### `BlockItem`
-
-`BlockItem`은 인게임에서 볼 수 있는 "흙 블록", "철 블록" 등 블록을 대표하는 아이템을 말합니다. `BlockItem`은 `Item`의 하위 클래스로, 우클릭 시 레벨에 표현하는 블록을 설치하는 등의 상호작용 기능들을 구현합니다. 레벨에 있는 블록은 `BlockState`로 표현되고, 인벤토리에 있는 블록은 `BlockItem`을 타입으로 가지는 `ItemStack`입니다. `BlockItem`의 생성은 선택 사항으로, 물과 같이 블록만 있고 아이템은 없어도 됩니다.
-
-`BlockItem`또한 [등록]되어야 하며, 그 레지스트리 이름은 표현하는 블록과 동일해야 합니다. 아이템 레지스트리 등록 이후, `Block#asItem`을 호출하여 해당 아이템에 접근할 수 있습니다. `Block#asItem`은 블록에 해당하는 아이템이 없다면 `Items#AIR`를 반환하니 이를 이용해 블록의 아이템이 존재하는지 확인할 수 있습니다.
+만약 여러 종류가 있는 블록을 추가하려면 (예를 들어 아래, 위, 또는 두겹으로 배치될 수 있는 반 블록), [블록 상태][blockstates]를 사용하실 수 있습니다. 또한, 추가 데이터를 저장할 수 있는 블록을 추가하려면 (예를 들어 인벤토리가 있는 상자), 
+If you want to make a block that has different variants (think a slab that has a bottom, top, and double variant), you should use [blockstates]. And finally, if you want a block that stores additional data (think a chest that stores its inventory), a [block entity][blockentities] should be used. The rule of thumb here is that if you have a finite and reasonably small amount of states (= a few hundred states at most), use blockstates, and if you have an infinite or near-infinite amount of states, use a block entity.
 
 #### 선택적으로 블록 등록하기
 

@@ -52,9 +52,9 @@ JsonElement convertedJson = NbtOps.INSTANCE.convertTo(JsonOps.INSTANCE, exampleT
 
 ### DataResult
 
-`#encodeStart`와 `#parse`는 데이터 또는 객체가 올바르지 않으면 실패할 수 있기 때문에 결과 또는 오류를 담는 `DataResult`를 반환합니다. 데이터 변환이 성공적이었다면 `#result`가 반환한 `Optional`이 결과를 담을 것이고, 실패한다면 `#error`가 반환한 `Optional`이 오류 메세지를 담는 `PartialResult`를 담을 것입니다. `PartialResult`는 코덱에 따라서 미완성된 결과를 담고 있을 수도 있습니다. 
+`#encodeStart`와 `#parse`는 데이터 또는 객체가 올바르지 않으면 실패할 수 있기 때문에 결과 또는 오류를 담는 `DataResult`를 반환합니다. 데이터 변환이 성공적이었다면 `#result`가 반환한 `Optional`이 결과를 담을 것이고, 실패한다면 `#error`가 반환한 `Optional`이 오류 메시지를 담는 `PartialResult`를 담을 것입니다. `PartialResult`는 코덱에 따라서 미완성된 결과를 담고 있을 수도 있습니다. 
 
-`DataResult`의 다른 메서드들은 결과 또는 오류를 원하시는 포맷으로 변환하는데 사용됩니다. 그 예로, `#resultOrPartial`는 성공 시 결과를, 실패 시 미완성된 결과를 담는 `Optional`을 반환합니다, 이 메서드는 인자로 `Consumer<String>`을 받는데, 오류 발생 시 오류 메세지로 무엇을 할 것인지를 정합니다.
+`DataResult`의 다른 메서드들은 결과 또는 오류를 원하시는 포맷으로 변환하는데 사용됩니다. 그 예로, `#resultOrPartial`는 성공 시 결과를, 실패 시 미완성된 결과를 담는 `Optional`을 반환합니다, 이 메서드는 인자로 `Consumer<String>`을 받는데, 오류 발생 시 오류 메시지로 무엇을 할 것인지를 정합니다.
 
 ```java
 // exampleCodec의 타입은 Codec<ExampleJavaObject>
@@ -64,8 +64,8 @@ JsonElement convertedJson = NbtOps.INSTANCE.convertTo(JsonOps.INSTANCE, exampleT
 DataResult<ExampleJavaObject> result = exampleCodec.parse(JsonOps.INSTANCE, exampleJson);
 
 result
-  // 성공하면 결과, 실패하면 오류 메세지 보고하고 미완성된 결과 받아오기
-  .resultOrPartial(errorMessage -> /* 오류 메세지 처리 */)
+  // 성공하면 결과, 실패하면 오류 메시지 보고하고 미완성된 결과 받아오기
+  .resultOrPartial(errorMessage -> /* 오류 메시지 처리 */)
   // 분석 결과가 미완성이든 성공이든 존재한다면 처리하기
   .ifPresent(decodedObject -> /* 불러온 객체 처리 */);
 ```

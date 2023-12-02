@@ -81,7 +81,7 @@ public static void tick(Level level, BlockPos pos, BlockState state, MyBlockEnti
 
 ## 클라이언트와 데이터 동기화하기
 
-클라이언트와 데이터를 동기화시킬 방법은 총 3가지가 있는데: 청크를 불러올 때 동기화 하기, 블록 업데이트시 동기화 하기, 그리고 커스텀 네트워크 메세지 보내기 입니다.
+클라이언트와 데이터를 동기화시킬 방법은 총 3가지가 있는데: 청크를 불러올 때 동기화하기, 블록 업데이트시 동기화 하기, 그리고 커스텀 네트워크 메시지 보내기 입니다.
 
 ### `LevelChunk` 불러올 때 동기화하기
 
@@ -146,13 +146,12 @@ Level#sendBlockUpdated(BlockPos pos, BlockState oldState, BlockState newState, i
 `oldState` 랑 `newState` 는 해당 위치의 `BlockState`를 전달하시면 됩니다.
 `flags` 는 비트 마스크들로, `2`를 포함하고 있어야 합니다. 그래야 서버가 클라이언트들에 업데이트 패킷을 전송합니다. `Block` 클래스를 참고하여 다른 플래그들의 역할 또한 볼 수 있습니다. `2` 는 `Block#UPDATE_CLIENTS` 와 동일합니다.
 
-### 커스텀 네트워크 메세지로 동기화하기
+### 커스텀 네트워크 메시지로 동기화하기
 
-이 방법은 가장 복잡하지만, 그러면서도 가장 많은 최적화를 적용할 수 있습니다.
-동기화를 해야 하는 정보들만 실제로 동기화가 되도록 세밀하게 조절할 수 있기 때문입니다.
-이 방법을 시도해보기 전에 [네트워킹][네트워크-통신] 에 대해 미리 알아보시고 오세요, 특히 [`SimpleImpl`][simple_impl] 에 대해 잘 알고 계셔야 합니다.
-커스텀 네트워크 메세지를 정의하셨다면, 해당 `BlockEntity`를 추적하고 있는 모든 클라이언트에 커스텀 메세지를 `SimpleChannel#send(PacketDistributor$PacketTarget, MSG)`를 통해 보낼 수 있습니다.
-이때 사용하는 `PacketDistributor` 는 `TRACKING_ENTITY` 입니다.
+이 방법은 가장 복잡하지만, 그러기에 동기화를 해야 하는 정보들만 실제로 동기화가 되도록 세밀하게 조절할 수 있습니다. 먼저 [네트워킹][네트워크-통신]에 대해 미리 숙지하시는걸 권장드립니다, 특히 [`SimpleImpl`][simple_impl]에 대해 잘 알고 계셔야 합니다.
+
+커스텀 메시지는 해당 블록 엔티티를 추적하고 있는 모든 클라이언트에 `SimpleChannel#send(PacketDistributor$PacketTarget, MSG)`를 통해 단번에 보낼 수 있습니다.
+이때 사용하는 `PacketDistributor`는 `TRACKING_ENTITY` 입니다.
 
 :::caution
 플레이어에게 패킷이 전달되었을 때는 해당 `BlockEntity` 가 부서지거나 다른 블록으로 대체되어 레벨에 존재하지 않을 수도 있습니다. 그렇기 때문에 블록이 진짜 존재하는지 무조건 확인하셔야 합니다! 또한 해당 `BlockEntity` 가 들어있는 청크가 불러와졌는지도 확인하셔야 합니다! (`Level#hasChunkAt(BlockPos)`).
