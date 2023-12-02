@@ -84,7 +84,7 @@ If you are running a dedicated server, whether through the run configuration or 
 Once accepted, the server will load and become available under `localhost` (or `127.0.0.1`). However, you will still not able to join, because the server will be put into online mode by default, which requires authentication (which the Dev player does not have). To fix this, stop your server again and set the `online-mode` property in the `server.properties` file to `false`. Now, start your server, and you should be able to connect.
 
 :::tip
-You should always test your mod in a dedicated server environment. This includes [client-only mods][client], these should not do anything when loaded on the server.
+You should always test your mod in a dedicated server environment. This includes [client-only mods][client], as these should not do anything when loaded on the server.
 :::
 
 [client]: ../concepts/sides.md#writing-one-sided-mods
