@@ -29,6 +29,6 @@ public void initializeClient(Consumer<IClientItemExtensions> consumer) {
 }
 ```
 
-:::catuion
+:::caution
 각 모드는 하나의 BEWLR 만 사용하실 수 있습니다.
 :::
