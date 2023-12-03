@@ -313,7 +313,7 @@ public InteractionResult use(BlockState state, Level level, BlockPos pos, Player
 ```
 
 :::note
-위는 가장 단순한 방법으로 메뉴 기능을 구현하는 방법입니다. 메뉴를 여는데 특정 조건을 적용하려면 먼저 필요한 데이터를 클라이언트와 동기화해야 하고, 클라이언트에서 조건 실패 시 `InteractionResult#PASS` 또는 `#FAIL`을 반환해야 합니다.
+메뉴를 여는데 특정 조건을 적용하려면 먼저 필요한 데이터를 클라이언트와 동기화해야 하고, 클라이언트에서 조건 실패 시 `InteractionResult#PASS` 또는 `#FAIL`을 반환해야 합니다.
 :::
 
 #### 몹에 적용하기
@@ -333,10 +333,6 @@ public class MyMob extends Mob implements MenuProvider {
   }
 }
 ```
-
-:::note
-다시 말하지만, 위보다 더 복잡하게 만드셔도 됩니다.
-:::
 
 [registered]: ../concepts/registries.md#객체-등록하기
 [acm]: #abstractcontainermenu
