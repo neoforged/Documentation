@@ -1,58 +1,55 @@
-Blocks
+블록
 ======
 
-Blocks are essential to the Minecraft world. They make up all the terrain, structures, and machines. Chances are if you are interested in making a mod, then you will want to add some blocks. This page will guide you through the creation of blocks, and some of the things you can do with them.
+블록은 마인크래프트의 핵심 효소로 레벨의 필수적 구성 요소입니다. 지형과 구조물, 그리고 기계들 전부 블록들로 이루어져 있습니다. 이번장에서는 블록 제작의 핵심과 응용 방안들에 대해 다루겠습니다.
 
-One Block to Rule Them All
---------------------------
+하나만 있어도 충분한 블록
+-------------------
+시작하기 전에, 먼저 게임 속 블록은 하나씩만 존재한다는 사실을 염두하셔야 합니다. 레벨에 존재하는 수천 개의 블록은 전부 하나의 블록을 참조합니다, 다시 말해서 같은 블록이 월드에 여러 번 등장하는 것입니다.
 
-Before we get started, it is important to understand that there is only ever one of each block in the game. A world consists of thousands of references to that one block in different locations. In other words, the same block is just displayed a lot of times.
-
-Due to this, a block should only ever be instantiated once, and that is during registration. Once the block is registered, you can then use the registered reference as needed. Consider this example (see the [Registration][registration] page if you do not know what you are looking at):
+그렇기 때문에 블록의 인스턴스는 오직 하나만, 그것도 레지스트리 초기화 중에 생성되어야 합니다. 그 이후에는 등록된 블록의 참조를 사용하세요. 아래 예를 들자면(이해가 안된다면 [레지스트리][registration]을 참고하세요): 
 
 ```java
-//BLOCKS is a DeferredRegister.Blocks
+//BLOCKS는 DeferredRegister.Blocks
 public static final DeferredBlock<Block> MY_BLOCK = BLOCKS.register("my_block", () -> new Block(...));
 ```
 
-After registering the block, all references to the new `my_block` should use this constant. For example, if you want to check if the block at a given position is `my_block`, the code for that would look something like this:
+블록을 등록한 이후, `my_block`에 대한 참조는 위 상수를 사용해야 합니다. 예를 들어 어떤 좌표에 존재하는 블록이 `my_block`인지 확인하고 싶다면, 다음과 같이 구현할 수 있습니다:
 
 ```java
-level.getBlockState(position) // returns the blockstate placed in the given level (world) at the given position
+level.getBlockState(position) // 해당 좌표에 존재하는 블록 상태를 가져옴 the given position
         //highlight-next-line
         .is(MyBlockRegistrationClass.MY_BLOCK.get());
 ```
 
-This approach also has the convenient effect that `block1 == block2` works and can be used instead of Java's `equals` method (using `equals` still works, of course, but is pointless since it compares by reference anyway).
+추가적으로, 이 방식은 Java의 `equals` 대신 `block1 == block2`를 사용할 수 있습니다. (`equals`도 작동하긴 하나 레퍼런스 자체가 동일하기 때문에 필요 없습니다.)
 
 :::danger
-Do not call `new Block()` outside registration! As soon as you do that, things can and will break:
+객체 등록 중 이외에 `new Block()`을 호출하지 마세요! 아래와 같은 문제가 발생할 수 있습니다:
 
-- Blocks must be created while registries are unfrozen. NeoForge unfreezes registries for you and freezes them later, so registration is your time window to create blocks.
-- If you try to create and/or register a block when registries are frozen again, the game will crash and report a `null` block, which can be very confusing.
-- If you still manage to have a dangling block instance, the game will not recognize it while syncing and saving, and replace it with air.
+- 블록은 무조건 레지스트리가 동결되기 이전에 생성되어야 합니다. 네오포지는 일시적으로 레지스트리를 해동하기에 이때만 등록할 수 있습니다.
+- 만약 레지스트리가 이미 동결된 이후 등록하려고 한다면, 나중에 해당 블록을 참조할 시 `null`이 대신 반환됩니다.
+- 어떻게든 등록이 잘못된 블록을 사용하시면 블록에 대한 허상 참조가 발생하여 나중에 월드를 불러오면 공기로 대체됩니다.
 :::
 
-Creating Blocks
----------------
+블록 만들기
+----------------
 
-### Basic Blocks
+### 단순한 블록
+특별한 기능이 없는 블록들은(조약돌이나 나무판자 등) `Block`의 새 인스턴스를 만드는 것으로 충분합니다. 블록들이 등록될 때, 새로운 `Block`의 인스턴스를 `BlockBehaviour$Properties`를 인자로 넘겨 생성하세요. `BlockBehaviour$Properties`는 블록의 속성을 저장하는 객체로 `#of`로 생성하고 아래 메서드들을 통해 블록의 특성을 원하시는 대로 바꾸실 수 있습니다.
 
-For simple blocks which need no special functionality (think cobblestone, wooden planks, etc.), the `Block` class can be used directly. To do so, during registration, instantiate `Block` with a `BlockBehaviour.Properties` parameter. This `BlockBehaviour.Properties` parameter can be created using `BlockBehaviour.Properties#of`, and it can be customized by calling its methods. The most important methods for this are:
+- `destroyTime` - 블록을 파괴하는 데 걸리는 시간을 지정함.
+    - 돌은 1.5, 흙은 0.5, 흑요석은 50, 기반암은 -1(부술 수 없음).
+- `explosionResistance` - 블록의 폭발 저항력을 지정함.
+    - 돌은 6.0, 흙은 0.5, 흑요석은 1,200, 기반암은 3,600,000.
+- `sound` - 블록을 주먹으로 치거나, 캐거나, 설치 시 나는 소리를 지정함.
+    - 이 설정의 기본값은 `SoundType.STONE`. 자세한 사항은 [소리][sounds] 참고.
+- `lightLevel` - 블록의 밝기를 지정. `BlockState`를 0~15 범위의 정수로 바꾸는 함수를 값으로 받음.
+    - 발광석은 `state -> 15`, 횃불은 `state -> 14`를 사용함.
+- `friction` - 블록의 마찰력, 또는 미끄러운 정도를 지정함.
+    - 기본값은 0.6, 얼음은 0.98.
 
-- `destroyTime` - Determines the time the block needs to be destroyed.
-    - Stone has a destroy time of 1.5, dirt has 0.5, obsidian has 50, and bedrock has -1 (unbreakable).
-- `explosionResistance` - Determines the explosion resistance of the block.
-    - Stone has an explosion resistance of 6.0, dirt has 0.5, obsidian has 1,200, and bedrock has 3,600,000.
-- `sound` - Sets the sound the block makes when it is punched, broken, or placed.
-    - The default value is `SoundType.STONE`. See the [Sounds page][sounds] for more details.
-- `lightLevel` - Sets the light emission of the block. Accepts a function with a `BlockState` parameter that returns a value between 0 and 15.
-    - For example, glowstone uses `state -> 15`, and torches use `state -> 14`.
-- `friction` - Sets the friction (slipperiness) of the block.
-    - Default value is 0.6. Ice uses 0.98.
-
-So for example, a simple implementation would look something like this:
-
+그리고 위 메서드들은 아래처럼 사용하실 수 있습니다:
 ```java
   public static final DeferredBlock<Block> MY_BETTER_BLOCK = BLOCKS.register(
         "my_better_block", 
@@ -66,54 +63,53 @@ So for example, a simple implementation would look something like this:
         ));
 ```
 
-For further documentation, see the source code of `BlockBehaviour.Properties`. For more examples, or to look at the values used by Minecraft, have a look at the `Blocks` class.
+자세한 사항은 `BlockBehaviour#Properties` 소스코드 또는 `Blocks`의 예시들을 참고하세요.
 
 :::note
-It is important to understand that a block in the world is not the same thing as in an inventory. What looks like a block in an inventory is actually a `BlockItem`, a special type of [item] that places a block when used. This also means that things like the creative tab or the max stack size are handled by the corresponding `BlockItem`.
+인벤토리에 들어있는 블록과 레벨에 설치된 블록은 다른 객체입니다. 인벤토리에 있는 블록은 사실 `BlockItem`입니다. `BlockItem`은 `Item`의 하위 클래스로, 우클릭 시 레벨에 표현하는 블록을 설치하는 등의 상호작용 기능들을 구현합니다. 또한, `BlockItem`은 최대 아이템 개수나 지정될 크리에이티브 탭 등의 아이템 속성 또한 지정합니다.
 
-A `BlockItem` must be registered separately from the block. This is because a block does not necessarily need an item, for example if it is not meant to be collected (as is the case with fire, for example).
+`BlockItem`도 따로 [등록]해 주어야 하며, 이는 블록의 아이템이 존재하지 않을 수 있기 때문입니다(그 예로 불이 있습니다).
 :::
 
-### More Functionality
+### 기능 추가
+`Block` 클래스는 매우 기초적인 블록에만 바로 사용할 수 있습니다. 블록에 상호작용 등의 기능을 추가하시려면 `Block`의 하위 클래스를 직접 만드셔야 합니다. `Block`은 재정의할 수 있는 여러 메서드들을 제공하여 다양한 기능을 추가할 수 있습니다. 자세한 사항은 `Block`, `BlockBehaviour`, `IBlockExtension`을 참고하세요. 아래 [블록 써보기][usingblocks]도 확인해 블록의 주 사용처를 확인하세요.
 
-Directly using `Block` only allows for very basic blocks. If you want to add functionality, like player interaction or a different hitbox, a custom class that extends `Block` is required. The `Block` class has many methods that can be overridden to do different things; see the classes `Block`, `BlockBehaviour` and `IBlockExtension` for more information. See also the [Using blocks][usingblocks] section below for some of the most common use cases for blocks.
+만약 여러 종류가 있는 블록을 추가하려면 (예를 들어 아래, 위, 또는 두 겹으로 배치될 수 있는 반 블록), [블록 상태][blockstates]를 사용하실 수 있습니다. 또한, 추가 데이터를 저장할 수 있는 블록을 추가하려면 (예를 들어 인벤토리가 있는 상자), [블록 엔티티][blockentities]를 대신 사용하세요. 이 둘 중 무엇을 사용하느냐는 대개 블록이 표현할 수 있는 경우의 수가 소수로 제한되어 있다면 블록 상태를(기껏 해봐야 몇백 개), 경우의 수가 무한이 많다면 블록 엔티티를 사용하세요(인벤토리는 모든 아이템의, 모든 개수의 모든 배치를, 다른 모드까지 고려해야 하기에 블록 엔티티가 적합합니다).
 
-If you want to make a block that has different variants (think a slab that has a bottom, top, and double variant), you should use [blockstates]. And finally, if you want a block that stores additional data (think a chest that stores its inventory), a [block entity][blockentities] should be used. The rule of thumb here is that if you have a finite and reasonably small amount of states (= a few hundred states at most), use blockstates, and if you have an infinite or near-infinite amount of states, use a block entity.
+### 에셋
 
-### Resources
+위에서 제시한 대로 블록을 추가하고 레벨에 배치하면 텍스쳐가 없을 것입니다. 왜냐하면 텍스쳐, 모델 등은 마인크래프트의 자원 시스템이 관리하기 때문입니다. 
 
-If you register your block and place it in the world, you will find it to be missing things like a texture. This is because textures, among others, are handled by Minecraft's resource system.
+블록에 텍스쳐를 적용하려면, 블록 상태 JSON, 모델 JSON, 그리고 텍스쳐 PNG 파일을 제공해야 합니다. 추가 정보는 [리소스 팩][resources]을 참고하세요.
 
-To apply a simple texture to a block, you must add a blockstate JSON, a model JSON, and a texture PNG. See the section on [resources] for more information.
-
-Using Blocks
+블록 응용하기
 ------------
 
-Blocks are very rarely directly used to do things. In fact, probably two of the most common operations in all of Minecraft - getting the block at a position, and setting a block at a position - use blockstates, not blocks. The general design approach is to have the block define behavior, but have the behavior actually run through blockstates. Due to this, `BlockState`s are often passed to methods of `Block` as a parameter. For more information on how blockstates are used, and on how to get one from a block, see [Using Blockstates][usingblockstates].
+블록 자체는 게임 로직에서 많이 사용하지 않습니다. 마인크래프트에서 가장 빈번히 수행하는 작업인, 좌표에 있는 블록 알아내기와 좌표에 블록 설치하기 이 두 가지는 블록이 아니라 블록 상태를 대신 이용합니다. 디자인상, 블록은 각 블록 상태의 기능을 정의하고, 게임은 블록 상태를 통해 그 기능을 실행합니다. 그렇기에 `Block`의 여러 메서드들은 `BlockState`를 인자로 받습니다. 이들의 응용 방법은 [블록 상태 사용하기][usingblockstates]를 참고하세요.
 
-In several situations, multiple methods of `Block` are used at different times. The following subsections list the most common block-related pipelines. Unless specified otherwise, all methods are called on both logical sides and should return the same result on both sides.
+아래는 블록의 공통적인 기능들의 파이프라인에 다룹니다. 따로 명시하지 않는다면, 아래 언급된 메서드들은 양 논리 사이드에서 호출되며 같은 결과를 반환해야 합니다.
 
-### Placing a Block
+### 블록 설치
 
-Block placement logic is called from `BlockItem#useOn` (or some subclass's implementation thereof, such as in `PlaceOnWaterBlockItem`, which is used for lily pads). For more information on how the game gets there, see the [Interaction Pipeline][interactionpipeline]. In practice, this means that as soon as a `BlockItem` is right-clicked (for example a cobblestone item), this behavior is called.
+블록을 설치는 대개 `BlockItem#useOn` (또는 연꽃잎이 응용하는 `PlaceOnWaterBlockItem`과 같은 자식 클래스)에서 이루어집니다. 자세한 상호작용 과정은 [이곳][interactionpipeline]을 참고하세요. 조약돌 아이템과 같은 `BlockItem`을 들고 우클릭하면 이 메서드가 호출됩니다.
 
-- Several prerequisites are checked, for example that you are not in spectator mode, that all required feature flags for the block are enabled or that the target position is not outside the world border. If at least one of these checks fails, the pipeline ends.
-- `Block#canBeReplaced` is called for the block currently at the position where the block is attempted to be placed. If it returns `false`, the pipeline ends. Prominent cases that return `true` here are tall grass or snow layers.
-- `Block#getStateForPlacement` is called. This is where, depending on the context (which includes information like the position, the rotation and the side the block is placed on), different block states can be returned. This is useful for example for blocks that can be placed in different directions.
-- `Block#canSurvive` is called with the blockstate obtained in the previous step. If it returns `false`, the pipeline ends.
-- The blockstate is set into the level via a `Level#setBlock` call.
-  - In that `Level#setBlock` call, `Block#onPlace` is called.
-- `Block#setPlacedBy` is called.
+- 먼저 여러 사전 검사가 수행됩니다. 관전자 모드가 아닌지, 필요한 Feature Flag가 활성화됐는지, 블록을 설치할 위치가 월드 밖은 아닌지를 확인합니다. 만약 이 중 하나라도 실패하면 파이프라인은 중단됩니다.
+- `Block#canBeReplaced`를 기존에 배치된 블록에 대해 호출합니다. 만약 `false`가 반환되면 파이프라인은 중단됩니다. 잔디나 눈은 `true`를 반환해 다른 블록이 스스로를 대체하도록 합니다.
+- `Block#getStateForPlacement`를 호출해 구체적으로 배치할 블록 상태를 결정합니다. 문이나 계단처럼 블록을 배치하는 플레이어의 위치, 카메라 각도 등에 따라 다른 상태를 배치해야 할 때 유용합니다.
+- `Block#canSurvive`를 호출해 방금 결정한 블록 상태가 해당 위치에 설치될 수 있는지 검사합니다. 만약 `false`가 반환된다면 파이프라인은 중단됩니다.
+- `Level#setBlock`을 호출해 블록을 레벨에 배치합니다.
+  - `Level#setBlock`은 내부적으로 `Block#onPlace`를 호출합니다.
+- `Block#setPlacedBy`를 호출합니다.
 
-### Breaking a Block
+### 블록 파괴
 
-Breaking a block is a bit more complex, as it requires time. The process can be roughly divided into three stages: "initiating", "mining" and "actually breaking".
+블록은 시간에 따라 파괴되기 때문에 더 복잡합니다. 파괴 과정은 세 단계로 이루어지는데: "시작", "채굴", "파괴"입니다.
 
-- When the left mouse button is clicked, the "initiating" stage is entered. 
-- Now, the left mouse button needs to be held down, entering the "mining" stage. **This stage's methods are called every tick.**
-- If the "continuing" stage is not interrupted (by releasing the left mouse button) and the block is broken, the "actually breaking" stage is entered.
+- 블록이 최초로 왼 클릭 됐을 때, "시작" 단계에 들어섭니다.
+- 왼쪽 마우스 버튼이 계속 눌러지고 있다면 "채굴" 단계에 들어섭니다. **이 단계의 메서드들은 매 틱마다 실행됩니다.**
+- 블록이 완전히 파괴될 때까지 누루고 있었다면 "파괴" 단계에 들어섭니다.
 
-Or for those who prefer pseudocode:
+간단히 코드처럼 표현을 하자면:
 
 ```java
 leftClick();
@@ -127,74 +123,74 @@ while (leftClickIsBeingHeld()) {
 }
 ```
 
-The following subsections further break down these stages into actual method calls.
+아래 섹션들은 위 단계들을 구체적인 메서드 이름과 함께 자세히 다룹니다.
 
-#### The "Initiating" Stage
+#### 시작 단계
 
-- Client-only: `InputEvent.InteractionKeyMappingTriggered` is fired with the left mouse button and the main hand. If the event is canceled, the pipeline ends.
-- Several prerequisites are checked, for example that you are not in spectator mode, that all required feature flags for the `ItemStack` in your main hand are enabled or that the block in question is not outside the world border. If at least one of these checks fails, the pipeline ends.
-- `PlayerInteractEvent.LeftClickBlock` is fired. If the event is canceled, the pipeline ends.
-    - Note that when the event is canceled on the client, no packets are sent to the server and thus no logic runs on the server.
-    - However, canceling this event on the server will still cause client code to run, which can lead to desyncs!
-- `Block#attack` is called.
+- 클라이언트 전용: `InputEvent.InteractionKeyMappingTriggered`에 왼쪽 마우스 버튼, 그리고 주로 사용하는 손을 전달해 이벤트를 방송합니다. 만약 이 이벤트가 취소되면, 파이프라인은 중단됩니다.
+- 이후 여러 사전 검사가 수행됩니다. 관전자 모드가 아닌지, 필요한 Feature Flag가 전부 활성화되었는지, 파괴할 블록이 월드 밖은 아닌지를 확인합니다. 만약 이 중 하나라도 실패하면 파이프라인은 중단됩니다.
+- `PlayerInteractEvent.LeftClickBlock` 이벤트가 방송됩니다. 만약 이 이벤트가 취소되면, 파이프라인은 중단됩니다.
+  - 클라이언트에서만 이 이벤트를 취소하면, 서버로 아무런 패킷도 전달하지 않기 때문에 서버는 아무 동작도 하지 않아 문제가 발생하지 않습니다.
+  - 하지만 서버에서만 이 이벤트를 취소한다면 클라이언트는 아래 단계를 계속 수행할 것이기에 동기화가 깨질 수 있습니다!
+- `Block#attack`이 호출됩니다.
 
-#### The "Mining" Stage
+#### 채굴 단계
 
-- `PlayerInteractEvent.LeftClickBlock` is fired. If the event is canceled, the pipeline moves to the "finishing" stage.
-    - Note that when the event is canceled on the client, no packets are sent to the server and thus no logic runs on the server.
-    - However, canceling this event on the server will still cause client code to run, which can lead to desyncs!
-- `Block#getDestroyProgress` is called and added to the internal destroy progress counter.
-    - `Block#getDestroyProgress` returns a float value between 0 and 1, representing how much the destroy progress counter should be increased every tick.
-- The progress overlay (cracking texture) is updated accordingly.
-- If the destroy progress is greater than 1.0 (i.e. completed, i.e. the block should be broken), the "mining" stage is exited and the "actually breaking" stage is entered.
+- `PlayerInteractEvent.LeftClickBlock` 이벤트가 방송됩니다. 만약 이 이벤트가 취소되면, 파이프라인은 "종결" 단계로 건너뜁니다.
+  - 클라이언트에서만 이 이벤트를 취소하면, 서버로 아무런 패킷도 전달하지 않기 때문에 서버는 아무 동작도 하지 않아 문제가 발생하지 않습니다.
+  - 하지만 서버에서만 이 이벤트를 취소한다면 클라이언트는 아래 단계를 계속 수행할 것이기에 동기화가 깨질 수 있습니다!
+- `Block#getDestroyProgress`를 호출해 채굴 진행도를 증가시킵니다.
+  - `Block#getDestroyProgress`는 각 틱마다 채굴 진행도를 얼마나 증가시킬지를 0~1 사이의 부동 소수점 값으로 반환합니다.
+- 채굴 진행도 오버레이(균열 텍스쳐)가 갱신됩니다.
+- 채굴 진행도가 1.0 이상이면, 채굴이 완료된 것으로 간주하고 파괴 단계에 들어섭니다.
 
-#### The "Actually Breaking" Stage
+#### 파괴 단계
 
-- `Item#onBlockStartBreak` is called. If it returns `true` (determining that the block should not be broken), the pipeline moves to the "finishing" stage.
-- Server-only: `IBlockExtension#canHarvestBlock` is called. This determines whether the block can be harvested, i.e. broken with drops.
-- `Block#onDestroyedByPlayer` is called. If it returns `false`, the pipeline moves to the "finishing" stage. In that `Block#onDestroyedByPlayer` call:
-    - `Block#playerWillDestroy` is called.
-    - The blockstate is removed from the level via a `Level#setBlock` call with `Blocks.AIR.defaultBlockState()` as the blockstate parameter.
-        - In that `Level#setBlock` call, `Block#onRemove` is called.
-- `Block#destroy` is called.
-- Server-only: If the previous call to `IBlockExtension#canHarvestBlock` returned `true`, `Block#playerDestroy` is called.
-- Server-only: `IBlockExtension#getExpDrop` is called.
-- Server-only: `Block#popExperience` is called with the result of the previous `IBlockExtension#getExpDrop` call, if that call returned a value greater than 0.
+- `Item#onBlockStartBreak`이 호출됩니다. `true`가 반환될 경우 블록을 파괴하지 않고 "종결" 단계로 건너뜁니다.
+- 서버 전용: `IBlockExtension#canHarvestBlock`이 호출되어 블록 파괴 시 아이템 회수 가능 여부를 판단합니다.
+- `Block#onDestroyedByPlayer`가 호출됩니다. `false`가 반환될 경우 블록을 파괴하지 않고 "종결" 단계로 건너뜁니다. 이 메서드는 내부적으로:
+  - `Block#playerWillDestroy`를 호출합니다.
+  - `Level#setBlock`을 `Blocks.AIR.defaultBlockState()`를 인자로 호출해 블록을 제거합니다.
+    - `Level#setBlock`은 내부적으로 `Block#onRemove`를 호출합니다.
+- `Block#destroy`가 호출됩니다.
+- 서버 전용: 이전에 `IBlockExtension#canHarvestBlock`에서 `true`가 반환될 경우, `Block#playerDestroy`가 호출됩니다.
+- 서버 전용: `IBlockExtension#getExpDrop`이 호출됩니다.
+- 서버 전용: 이전에 호출한 `#getExpDrop`의 결과가 0보다 크다면 `Block#popExperience`에 그 결과를 인자로 사용해 호출합니다.
 
-### Ticking
+### 틱
 
-Ticking is a mechanism that updates (ticks) parts of the game every 1 / 20 seconds, or 50 milliseconds ("one tick"). Blocks provide different ticking methods that are called in different ways.
+틱은 게임을 1 / 20초(또는 50ms)에 한 번씩 업데이트하는 메커니즘으로, 이 시간을 틱을 단위로 사용해 "1 틱"이라 부르기도 합니다. 블록은 틱에 따라 작업을 수행하는 여러 메서드를 제공합니다.
 
-#### Server Ticking and Tick Scheduling
+#### 서버 틱 연산
 
-`Block#tick` is called in two occasions: either through default [random ticking][randomtick] (see below), or through scheduled ticks. Scheduled ticks can be created through `Level#scheduleTick(BlockPos, Block, int)`, where the `int` denotes a delay. This is used in various places by vanilla, for example, the tilting mechanism of big dripleaves heavily relies on this system. Other prominent users are various redstone components.
+`Block#tick`은 두 가지 상황에서 호출됩니다: 기본 ["무작위 블록 틱"][randomtick] (아래 참고), 또는 "계획된 틱"입니다. 계획된 틱은 사전에 정해진 일정 틱 뒤에 `Block#tick`을 호출하도록 요청하는 것으로, `Level#scheduleTick(BlockPos, Block, int)`으로 요청할 수 있는데, 여기서 `int`는 지연 시간입니다. 이 메커니즘은 게임 속에서 다양하게 이용되는데, 예를 들어 흘림잎의 기울어짐은 계획된 틱을 깊이 응용합니다. 또 다른 사용 사례로는 레드스톤 소자가 있습니다.
 
-#### Client Ticking
+#### 클라이언트 틱 연산
 
-`Block#animateTick` is called exclusively on the client, every frame. This is where client-only behavior, for example the torch particle spawning, happens.
+`Block#animateTick`은 매 프레임마다, 클라이언트에서만 호출됩니다. 이는 횃불 불꽃 파티클을 소환하는 등의 용도로 사용합니다.
 
-#### Weather Ticking
+#### 날씨 틱 연산
 
-Weather ticking is handled by `Block#handlePrecipitation` and runs independent of regular ticking. It is called only on the server, only when it is raining in some form, with a 1 in 16 chance. This is used for example by cauldrons that fill during rain or snowfall.
+날씨 틱 연산은 `Block#handlePrecipitation`에서 처리하며 일반 틱 연산과 따로 실행됩니다. 오직 서버에서만, 비가 올 때만 수행되며, 1 / 16의 확률로 실행됩니다. 가마솥에 눈이나 물을 채울 때 사용합니다.
 
-#### Random Ticking
+#### 무작위 블록 틱
 
-The random tick system runs independent of regular ticking. Random ticks must be enabled through the `BlockBehaviour.Properties` of the block by calling the `BlockBehaviour.Properties#randomTicks()` method. This enables the block to be part of the random ticking mechanic.
+무작위 블록 틱 또한 일반 틱 연산과 따로 실행됩니다. 무작위 블록 틱은 무조건 `BlockBehaviour$Properties#randomTicks()`를 호출해 활성화되어야만 합니다.
 
-Random ticks occur every tick for a set amount of blocks in a chunk. That set amount is defined through the `randomTickSpeed` gamerule. With its default value of 3, every tick, 3 random blocks from the chunk are chosen. If these blocks have random ticking enabled, then their respective `Block#randomTick` methods are called.
+무작위 블록 틱은 매 틱당 한 청크 내 일정량의 블록에 대해 수행됩니다. 이 일정량은 `randomTickSpeed` 게임 규칙에서 지정합니다. 예를 들어 기본값 3을 사용한다면, 매 틱마다, 각 청크에서 세 개의 블록을 무작위로 고릅니다. 이 블록들의 무작위 블록 틱이 활성화되어 있다면 `Block#randomTick`이 각각 호출됩니다.
 
-`Block#randomTick` by default calls `Block#tick`, which is what should normally be overridden. `Block#randomTick` should only be overridden if you specifically want different behavior for random ticking and regular (scheduled) ticking.
+`Block#randomTick`은 기본적으로 `Block#tick`을 호출합니다. 무작위 블록 틱과 계획된 틱이 다른 작업을 수행하도록 만들려면 `Block#randomTick`을 재정의 하세요.
 
-Random ticking is used by a wide range of mechanics in Minecraft, such as plant growth, ice and snow melting, or copper oxidizing.
+무작위 블록 틱은 식물의 성장, 얼음과 눈의 해동, 구리의 산화 등 많은 블록이 응용합니다.
 
 [blockentities]: ../blockentities/index.md
 [blockstates]: states.md
 [events]: ../concepts/events.md
 [interactionpipeline]: ../items/interactionpipeline.md
 [item]: ../items/index.md
-[randomtick]: #random-ticking
-[registration]: ../concepts/registries.md#methods-for-registering
+[randomtick]: #무작위-블록-틱
+[registration]: ../concepts/registries.md#객체-등록하기
 [resources]: ../resources/client/index.md
 [sounds]: ../gameeffects/sounds.md
-[usingblocks]: #using-blocks
-[usingblockstates]: states.md#using-blockstates
+[usingblocks]: #블록-응용하기
+[usingblockstates]: states.md#블록-상태-사용법
