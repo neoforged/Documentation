@@ -13,7 +13,7 @@ Minecraft has used `1` as the major version since 2011, when Minecraft 1.0 was i
 
 Snapshots deviate from the standard semver scheme. They are labeled as `YYwWWa`, where `YY` represents the last two digits of the year (e.g. `23`) and `WW` represents the week of that year (e.g. `01`). So for example, snapshot `23w01a` is the snapshot released in the first week of 2023.
 
-The `a` suffix exists for occasions where two snapshots get released in the same week (where the second snapshot would then be named something like `23w01b`). Mojang has occasionally used this in the past. The alternative suffix has also been used for snapshots like `20w14infinite`, [2020's infinite dimensions April Fool's joke][infinite].
+The `a` suffix exists for occasions where two snapshots get released in the same week (where the second snapshot would then be named something like `23w01b`). Mojang has occasionally used this in the past. The alternative suffix has also been used for snapshots like `20w14infinite`, which was the [2020 infinite dimensions April Fool's joke][infinite].
 
 ### Pre-releases and release candidates
 

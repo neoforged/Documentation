@@ -27,10 +27,6 @@ Make sure you are using a 64-bit JVM. One way of checking is to run `java -versi
 
 Edit the `gradle.properties` file to customize how your mod is built (e.g. mod id, mod version, etc.).
 
-:::warning
-Only edit the `build.gradle` and `settings.gradle` files if you know what you are doing. All basic properties can be set via `gradle.properties`.
-:::
-
 All properties are explained as comments inside the `gradle.properties`, the most important ones will be listed here as well:
 
 - `minecraft_version` and `neo_version` specify the Minecraft and NeoForge version used by your project, respectively. Change these appropriately if you want to update Minecraft or NeoForge.
@@ -55,6 +51,7 @@ The group id should be set to your [top-level package][packaging], which should 
 |   Email   | example@gmail.com | `com.gmail.example` |
 
 ```text
+// In your gradle.properties file
 mod_group_id=com.example
 ```
 
@@ -71,6 +68,10 @@ com
 
 There are several other configuration options available. A few of these are explained via comments in the `build.gradle` files. For full documentation, see the [NeoGradle documentation][neogradle].
 
+:::warning
+Only edit the `build.gradle` and `settings.gradle` files if you know what you are doing. All basic properties can be set via `gradle.properties`.
+:::
+
 ## Building and Testing Your Mod
 
 To build your mod, run `gradlew build`. This will output a file in `build/libs` with the name `<archivesBaseName>-<version>.jar`, by default. This file can be placed in the `mods` folder of a NeoForge-enabled Minecraft setup, or uploaded to a mod distribution platform.
@@ -81,7 +82,7 @@ To run your mod in a test environment, you can either use the generated run conf
 
 If you are running a dedicated server, whether through the run configuration or `gradlew runServer`, the server will shut down immediately. You will need to accept the Minecraft EULA by editing the `eula.txt` file in the run directory.
 
-Once accepted, the server will load and become available under `localhost` (or `127.0.0.1`). However, you will still not able to join, because the server will be put into online mode by default, which requires authentication (which the Dev player does not have). To fix this, stop your server again and set the `online-mode` property in the `server.properties` file to `false`. Now, start your server, and you should be able to connect.
+Once accepted, the server will load and become available under `localhost` (or `127.0.0.1` by default). However, you will still not able to join, because the server will be put into online mode by default, which requires authentication (which the Dev player does not have). To fix this, stop your server again and set the `online-mode` property in the `server.properties` file to `false`. Now, start your server, and you should be able to connect.
 
 :::tip
 You should always test your mod in a dedicated server environment. This includes [client-only mods][client], as these should not do anything when loaded on the server.
@@ -93,7 +94,7 @@ You should always test your mod in a dedicated server environment. This includes
 [git]: https://www.git-scm.com/
 [github]: https://github.com/
 [intellij]: https://www.jetbrains.com/idea/
-[jdk]: https://learn.microsoft.com/en-us/java/openjdk/download
+[jdk]: https://learn.microsoft.com/en-us/java/openjdk/download#openjdk-17
 [jei]: https://www.curseforge.com/minecraft/mc-mods/jei
 [mdk]: https://github.com/neoforged/MDK
 [mvr]: https://maven.apache.org/enforcer/enforcer-rules/versionRanges.html
