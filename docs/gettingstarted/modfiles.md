@@ -1,10 +1,8 @@
-Mod Files
-=========
+# Mod Files
 
 The mod files are responsible for determining what mods are packaged into your JAR, what information to display within the 'Mods' menu, and how your mod should be loaded in the game.
 
-mods.toml
----------
+## mods.toml
 
 The `mods.toml` file defines the metadata of your mod(s). It also contains additional information on how your mod(s) should be loaded into the game, as well as display information that is displayed within the 'Mods' menu.
 
@@ -92,8 +90,7 @@ Mods can specify their dependencies, which are checked by NeoForge before loadin
 The `ordering` of two mods may cause a crash due to a cyclic dependency, for example if mod A must load `"BEFORE"` mod B and at the same time, mod B must load `"BEFORE"` mod A.
 :::
 
-Mod Entrypoints
----------------
+## Mod Entrypoints
 
 Now that the `mods.toml` is filled out, we need to provide an entrypoint for the mod. Entrypoints are essentially the starting point for executing the mod. The entrypoint itself is determined by the language loader used in the `mods.toml`.
 

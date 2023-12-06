@@ -1,5 +1,4 @@
-Versioning
-==========
+# Versioning
 
 This article will break down how versioning works in Minecraft and NeoForge, and will give some recommendations for mod versioning as well.
 
@@ -15,7 +14,7 @@ Snapshots deviate from the standard semver scheme. They are labeled as `YYwWWa`,
 
 The `a` suffix exists for occasions where two snapshots get released in the same week (where the second snapshot would then be named something like `23w01b`). Mojang has occasionally used this in the past. The alternative suffix has also been used for snapshots like `20w14infinite`, which was the [2020 infinite dimensions April Fool's joke][infinite].
 
-### Pre-releases and release candidates
+### Pre-releases and Release Candidates
 
 When a snapshot cycle is coming completion, Mojang starts releasing so-called pre-releases. Pre-releases are deemed feature-complete for a version and focus solely on bugfixes. They use the semver notation for the version it is for, suffixed by `-preX`. So for example, the first pre-release for 1.20.2 was named `1.20.2-pre1`. There can be and usually are multiple pre-releases, which are accordingly suffixed with `-pre2`, `-pre3`, etc.
 

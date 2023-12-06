@@ -1,5 +1,4 @@
-Structuring Your Mod
-====================
+# Structuring Your Mod
 
 Structured mods are beneficial for maintenance, making contributions, and providing a clearer understanding of the underlying codebase. Some of the recommendations from Java, Minecraft, and NeoForge are listed below.
 
@@ -7,8 +6,7 @@ Structured mods are beneficial for maintenance, making contributions, and provid
 You do not have to follow the advice below; you can structure your mod any way you see fit. However, it is still highly recommended to do so.
 :::
 
-Packaging
----------
+## Packaging
 
 When structuring your mod, pick a unique, top-level package structure. Many programmers will use the same name for different classes, interfaces, etc. Java allows classes to have the same name as long as they are in different packages. As such, if two classes have the same package with the same name, only one would be loaded, most likely causing the game to crash.
 
@@ -58,8 +56,7 @@ In general, code only for a given side or runtime should be isolated from the ot
 
 It is highly recommended that [client-only code][sides] should be isolated in a `client` subpackage. This is because dedicated servers have no access to any of the client-only packages in Minecraft and will crash if your mod tries to access them anyway. As such, having a dedicated package provides a decent sanity check to verify you are not reaching across sides within your mod.
 
-Class Naming Schemes
---------------------
+## Class Naming Schemes
 
 A common class naming scheme makes it easier to decipher the purpose of the class or to easily locate specific classes.
 
@@ -73,8 +70,7 @@ Classes are commonly suffixed with its type, for example:
 Mojang typically follows a similar structure for all classes except entities. Those are represented by just their names (e.g. `Pig`, `Zombie`, etc.).
 :::
 
-Choose One Method from Many
----------------------------
+## Choose One Method from Many
 
 There are many methods for performing a certain task: registering an object, listening for events, etc. It's generally recommended to be consistent by using a single method to accomplish a given task. This improves readability and avoids weird interactions or redundancies that may occur (e.g. your event listener running twice).
 
