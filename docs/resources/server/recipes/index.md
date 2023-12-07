@@ -100,6 +100,5 @@ A few additional [ingredient types][ingredients] are added to allow recipes to h
 [wiki]: https://minecraft.wiki/w/Recipe
 [advancement]: ../advancements.md
 [datagen]: ../../../datagen/server/recipes.md
-[cap]: ../../../datastorage/capabilities.md
 [conditional]: ../conditional.md#implementations
 [ingredients]: ./ingredients.md#forge-types

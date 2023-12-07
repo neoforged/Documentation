@@ -47,7 +47,9 @@ If the game is setup to run [data generators][datagen], then the `GatherDataEven
 Common Setup
 ------------
 
-`FMLCommonSetupEvent` is for actions that are common to both physical client and server, such as registering [capabilities][capabilities].
+`FMLCommonSetupEvent` is for actions that are common to both physical client and server.
+This event is fired for multiple mods in parallel, so be careful.
+You can use `event.enqueueWork(() -> /* do something */)` to run code that is not thread-safe.
 
 Sided Setup
 -----------
@@ -70,7 +72,6 @@ There are two other lifecycle events: `FMLConstructModEvent`, fired directly aft
 :::
 
 [registering]: ./registries.md#methods-for-registering
-[capabilities]: ../datastorage/capabilities.md
 [datagen]: ../datagen/index.md
 [imc]: ./lifecycle.md#intermodcomms
 [sides]: ./sides.md

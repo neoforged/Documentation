@@ -27,13 +27,13 @@ private void modEventHandler(RegisterEvent event) {
 }
 
 // This event is on the forge bus
-private static void forgeEventHandler(AttachCapabilitiesEvent<Entity> event) {
+private static void forgeEventHandler(ExplosionEvent.Detonate event) {
 	// ...
 }
 
 // In the mod constructor
 modEventBus.addListener(this::modEventHandler);
-forgeEventBus.addGenericListener(Entity.class, ExampleMod::forgeEventHandler);
+forgeEventBus.addListener(ExampleMod::forgeEventHandler);
 ```
 
 ### Instance Annotated Event Handlers
