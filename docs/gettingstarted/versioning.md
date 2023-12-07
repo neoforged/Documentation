@@ -48,14 +48,16 @@ Depending on how often a mod is updated, these numbers can be smaller or larger.
 
 ### "Reduced" and "Expanded" Semver
 
-Sometimes, semver can be seen with only two numbers. This is a sort of "reduced" semver. Their version numbers only have a `major.minor` scheme. This is commonly used by small mods that only add a few simple objects and thus rarely need updates (except Minecraft version updates), often staying at version `1.0` forever.
+Sometimes, semver can be seen with only two numbers. This is a sort of "reduced" semver, or "2-part" semver. Their version numbers only have a `major.minor` scheme. This is commonly used by small mods that only add a few simple objects and thus rarely need updates (except Minecraft version updates), often staying at version `1.0` forever.
 
-"Expanded" semver has four numbers (so something like `1.0.0.0`). It splits up the `major` version into an actual `major` (feature) bit and into an `api` bit, so the scheme is `major.api.minor.patch`. This way, API breaks (which correspond to bumps of the `api` number) and feature changes are kept separate. This is commonly used by mods that expose an API for other modders to use. For example, [Mekanism][mekanism] is currently on version 10.4.5.19 (at the time of writing).
+"Expanded" semver, or "4-part" semver, has four numbers (so something like `1.0.0.0`). Depending on the mod, the format can be `major.api.minor.patch`, or `major.minor.patch.hotfix`, or something different entirely - there is no standard way to do it.
 
-An alternate approach to this is to denote the patch as a letter instead. For example, the [Create][create] mod is at version 0.5.1f (at the time of writing).
+For `major.api.minor.patch`, the `major` version is decoupled from the `api` version. This means that the `major` (feature) bit and the `api` bit can be bumped independently. This is commonly used by mods that expose an API for other modders to use. For example, [Mekanism][mekanism] is currently on version 10.4.5.19 (at the time of writing).
+
+For `major.minor.patch.hotfix`, the patch level is split into two. This is the approach used by the [Create][create] mod, which is currently on version 0.5.1f (at the time of writing). Note that Create denotes the hotfix as a letter instead of a fourth number, in order to stay compatible with regular semver.
 
 :::info
-Reduced and expanded semver are not official terms in any way.
+Reduced semver, expanded semver, 2-part semver and 4-part semver are not official terms or standardized formats in any way.
 :::
 
 ### Alpha, Beta, Release
