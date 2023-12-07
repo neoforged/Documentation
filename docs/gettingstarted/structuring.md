@@ -31,7 +31,7 @@ module B
     - class T
 ```
 
-As such, your top level package should be something that you own: a domain, email address, a subdomain of where your website, etc. It can even be your name or username as long as you can guarantee that it will be uniquely identifiable within the expected target. Furthermore, the top-level package should also match your [group id][group].
+As such, your top level package should be something that you own: a domain, email address, a (subdomain of a) website, etc. It can even be your name or username as long as you can guarantee that it will be uniquely identifiable within the expected target. Furthermore, the top-level package should also match your [group id][group].
 
 |   Type    |       Value       | Top-Level Package   |
 |:---------:|:-----------------:|:--------------------|
