@@ -12,9 +12,10 @@ The attachment type contains:
 - an optional serializer if the attachment should be persisted;
 - additional configuration options for the attachment, for example the `copyOnDeath` flag.
 
-:::danger
+:::warning
 If you don't provide a serializer, the attachment will not be saved to disk.
-If your data attachment disappears when you reload the world, you probably forgot to provide a serializer.
+(This can be intended).
+If your data attachment disappears when you reload the world but you want it to persist, you probably forgot to provide a serializer.
 :::
 
 There are a few ways to provide an attachment serializer: directly implementing `IAttachmentSerializer`, implementing `INBTSerializable` and using the static `AttachmentSerializer.serializable()` method to create the builder, or providing a codec to the builder. (This latter option is not recommended for item stacks due to relatively slowness).
