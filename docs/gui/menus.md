@@ -62,7 +62,7 @@ public MyMenu(int containerId, Inventory playerInventory) {
 }
 
 // Server menu constructor
-public MyMenu(int containerId, Inventory playerInventory) {
+public MyMenu(int containerId, Inventory playerInventory, ContainerLevelAccess access) {
   // ...
 }
 ```
