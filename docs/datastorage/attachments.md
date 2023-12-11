@@ -7,23 +7,26 @@ _To store additional level data, you can use [SavedData](saveddata)._
 ## Creating an attachment type
 
 To use the system, you need to register an `AttachmentType`.
-The attachment type contains:
-- a default value supplier to create the instance when the data is first accessed, or to compare stacks that have the data and stacks that don't have it;
-- an optional serializer if the attachment should be persisted;
-- additional configuration options for the attachment, for example the `copyOnDeath` flag.
+The attachment type contains the following configuration:
+- A default value supplier to create the instance when the data is first accessed. Also used to compare stacks that have the data with stacks that don't have it.
+- An optional serializer if the attachment should be persisted.
+- (If a serializer was configured) The `copyOnDeath` flag to automatically copy entity data on death (see below).
+- (Advanced) (If a serializer was configured) A custom `comparator` to use when checking if the data is the same for two item stacks.
 
-:::warning
-If you don't provide a serializer, the attachment will not be saved to disk.
-(This can be intended).
-If your data attachment disappears when you reload the world but you want it to persist, you probably forgot to provide a serializer.
+:::tip
+If you don't want your attachment to persist, do not provide a serializer.
 :::
 
-There are a few ways to provide an attachment serializer: directly implementing `IAttachmentSerializer`, implementing `INBTSerializable` and using the static `AttachmentSerializer.serializable()` method to create the builder, or providing a codec to the builder. (This latter option is not recommended for item stacks due to relatively slowness).
+There are a few ways to provide an attachment serializer: directly implementing `IAttachmentSerializer`, implementing `INBTSerializable` and using the static `AttachmentSerializer.serializable()` method to create the builder, or providing a codec to the builder.
 
-In any case, we recommend using a `DeferredRegister` for registration:
+:::warning
+Avoid serialization with codecs for item stack attachments, as it is comparatively slow.
+:::
+
+In any case, the attachment **must be registered** to the `NeoForgeRegistries.ATTACHMENT_TYPES` registry. Here is an example:
 ```java
 // Create the DeferredRegister for attachment types
-private static final DeferredRegister<AttachmentType<?>> ATTACHMENT_TYPES = DeferredRegister.create(NeoForgeRegistries.Keys.ATTACHMENT_TYPES, MOD_ID);
+private static final DeferredRegister<AttachmentType<?>> ATTACHMENT_TYPES = DeferredRegister.create(NeoForgeRegistries.ATTACHMENT_TYPES, MOD_ID);
 
 // Serialization via INBTSerializable
 private static final Supplier<AttachmentType<ItemStackHandler>> HANDLER = ATTACHMENT_TYPES.register(
@@ -36,7 +39,7 @@ private static final Supplier<AttachmentType<SomeCache>> SOME_CACHE = ATTACHMENT
         "some_cache", () -> AttachmentType.builder(() -> new SomeCache()).build()
 );
 
-// Don't forget to register the DeferredRegister to your mod bus:
+// In your mod constructor, don't forget to register the DeferredRegister to your mod bus:
 ATTACHMENT_TYPES.register(modBus);
 ```
 
@@ -68,6 +71,7 @@ The data can also be updated with `setData`:
 player.setData(MANA, player.getData(MANA) + 10);
 ```
 
+:::important
 Usually, block entities and chunks need to be marked as dirty when they are modified (with `setChanged` and `setUnsaved(true)`). This is done automatically for calls to `setData`:
 ```java
 chunk.setData(MANA, chunk.getData(MANA) + 10); // will call setUnsaved automatically
@@ -78,12 +82,13 @@ var mana = chunk.getData(MUTABLE_MANA);
 mana.set(10);
 chunk.setUnsaved(true); // must be done manually because we did not use setData
 ```
+:::
 
 ## Sharing data with the client
-Currently, only serializable item stack attachments are synced with the client.
+Currently, only serializable item stack attachments are synced between the client and the server.
 This is done automatically.
 
-To sync block entity, chunk, or entity attachments, you need to [send a packet to the client][network] yourself.
+To sync block entity, chunk, or entity attachments to a client, you need to [send a packet to the client][network] yourself.
 
 ## Copying data on player death
 By default, entity data attachments are not copied on player death.

@@ -224,13 +224,13 @@ level.invalidateCapabilities(pos);
 NeoForge already handles common cases such as chunk load/unloads and block entity creation/removal,
 but other cases need to be handled explicitly by modders.
 For example, modders must invalidate capabilities in the following cases:
-- If the configuration of a capability-providing block entity changes.
+- If a previously returned capability is no longer valid.
 - If a capability-providing block (without a block entity) is placed or changes state, by overriding `onPlace`.
 - If a capability-providing block (without a block entity) is removed, by overriding `onRemove`.
 
 For a plain block example, refer to the `ComposterBlock.java` file.
 
-For more information, refer to the javadoc of `IBlockCapabilityProvider`.
+For more information, refer to the javadoc of [`IBlockCapabilityProvider`][block-cap-provider].
 
 ## Registering capabilities
 A capability _provider_ is what ultimately supplies a capability.
@@ -290,7 +290,7 @@ event.registerItem(
 If for some reason you need to register a provider for all blocks, entities, or items,
 you will need to iterate the corresponding registry and register the provider for each object.
 
-For example, NeoForge uses this system to register a fluid handler capability for all buckets:
+For example, NeoForge uses this system to register a fluid handler capability for all `BucketItem`s (excluding subclasses):
 ```java
 // For reference, you can find this code in the `CapabilityHooks` class.
 for (Item item : BuiltInRegistries.ITEM) {
@@ -313,6 +313,8 @@ modBus.addListener(RegisterCapabilitiesEvent.class, event -> {
         MY_CUSTOM_BUCKET);
 }, EventPriority.HIGH); // use HIGH priority to register before NeoForge!
 ```
-See `CapabilityHooks` for a list of the providers registered by NeoForge itself.
+See [`CapabilityHooks`][capability-hooks] for a list of the providers registered by NeoForge itself.
 
+[block-cap-provider]: https://github.com/neoforged/NeoForge/blob/1.20.x/src/main/java/net/neoforged/neoforge/capabilities/IBlockCapabilityProvider.java
+[capability-hooks]: https://github.com/neoforged/NeoForge/blob/1.20.x/src/main/java/net/neoforged/neoforge/capabilities/CapabilityHooks.java
 [invalidation]: #block-capability-invalidation
