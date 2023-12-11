@@ -212,7 +212,7 @@ this.capCache = BlockCapabilityCache.create(
 
 ## Block capability invalidation
 :::info
-Invalidation is exclusive to block capabilities. Entity and item stack capabilities do not need to be invalidated.
+Invalidation is exclusive to block capabilities. Entity and item stack capabilities cannot be cached and do not need to be invalidated.
 :::
 
 To make sure that caches can correctly update their stored capability, **modders must call `level.invalidateCapabilities(pos)` whenever a capability changes, appears, or disappears**.

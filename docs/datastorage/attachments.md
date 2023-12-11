@@ -96,4 +96,13 @@ To automatically copy an attachment on player death, set `.copyOnDeath()` in the
 
 More complex handling can be implemented via `PlayerEvent.Clone` by reading the data from the original entity and assigning it to the new entity. In this event, the `#isWasDeath` method can be used to distinguish between respawning after death and returning from the End. This is important because the data will already exist when returning from the End, so care has to be taken to not duplicate values in this case.
 
+For example:
+```java
+NeoForge.EVENT_BUS.register(PlayerEvent.Clone.class, event -> {
+    if (event.isWasDeath() && event.getOriginal().hasData(MY_DATA)) {
+        event.getEntity().getData(MY_DATA).fieldToCopy = event.getOriginal().getData(MY_DATA).fieldToCopy;
+    }
+});
+```
+
 [network]: ../networking/index.md
