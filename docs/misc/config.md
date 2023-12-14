@@ -1,30 +1,30 @@
 Configuration
 =============
 
-Configurations define settings and consumer preferences that can be applied to a mod instance. Forge uses a configuration system using [TOML][toml] files and read with [NightConfig][nightconfig].
+Configurations define settings and consumer preferences that can be applied to a mod instance. NeoForge uses a configuration system using [TOML][toml] files and read with [NightConfig][nightconfig].
 
 Creating a Configuration
 ------------------------
 
-A configuration can be created using a subtype of `IConfigSpec`. Forge implements the type via `ForgeConfigSpec` and enables its construction through `ForgeConfigSpec$Builder`. The builder can separate the config values into sections via `Builder#push` to create a section and `Builder#pop` to leave a section. Afterwards, the configuration can be built using one of two methods:
+A configuration can be created using a subtype of `IConfigSpec`. NeoForge implements the type via `ModConfigSpec` and enables its construction through `ModConfigSpec.Builder`. The builder can separate the config values into sections via `Builder#push` to create a section and `Builder#pop` to leave a section. Afterwards, the configuration can be built using one of two methods:
 
  Method     | Description
  :---       | :---
-`build`     | Creates the `ForgeConfigSpec`.
-`configure` | Creates a pair of the class holding the config values and the `ForgeConfigSpec`.
+`build`     | Creates the `ModConfigSpec`.
+`configure` | Creates a pair of the class holding the config values and the `ModConfigSpec`.
 
 :::note
-`ForgeConfigSpec$Builder#configure` is typically used with a `static` block and a class that takes in `ForgeConfigSpec$Builder` as part of its constructor to attach and hold the values:
+`ModConfigSpec.Builder#configure` is typically used with a `static` block and a class that takes in `ModConfigSpec.Builder` as part of its constructor to attach and hold the values:
 
 ```java
 // In some config class
-ExampleConfig(ForgeConfigSpec.Builder builder) {
+ExampleConfig(ModConfigSpec.Builder builder) {
   // Define values here in final fields
 }
 
 // Somewhere the constructor is accessible
 static {
-  Pair<ExampleConfig, ForgeConfigSpec> pair = new ForgeConfigSpec.Builder()
+  Pair<ExampleConfig, ModConfigSpec> pair = new ModConfigSpec.Builder()
     .configure(ExampleConfig::new);
   // Store pair values in some constant field
 }
@@ -33,11 +33,11 @@ static {
 
 Each config value can be supplied with additional context to provide additional behavior. Contexts must be defined before the config value is fully built:
 
-Method       | Description
-:---         | :---
-`comment`      | Provides a description of what the config value does. Can provide multiple strings for a multiline comment.
-`translation`  | Provides a translation key for the name of the config value.
-`worldRestart` | The world must be restarted before the config value can be changed.
+| Method         | Description                                                                                                 |
+|:---------------|:------------------------------------------------------------------------------------------------------------|
+| `comment`      | Provides a description of what the config value does. Can provide multiple strings for a multiline comment. |
+| `translation`  | Provides a translation key for the name of the config value.                                                |
+| `worldRestart` | The world must be restarted before the config value can be changed.                                         |
 
 ### ConfigValue
 
@@ -54,7 +54,7 @@ The `ConfigValue` specific methods take in two additional components:
 * A class representing the data type of the config value
 
 ```java
-// For some ForgeConfigSpec$Builder builder
+// For some ModConfigSpec.Builder builder
 ConfigValue<T> value = builder.comment("Comment")
   .define("config_value_name", defaultValue);
 ```
@@ -105,23 +105,23 @@ The values themselves can be obtained using `ConfigValue#get`. The values are ad
 Registering a Configuration
 ---------------------------
 
-Once a `ForgeConfigSpec` has been built, it must be registered to allow Forge to load, track, and sync the configuration settings as required. Configurations should be registered in the mod constructor via `ModLoadingContext#registerConfig`. A configuration can be registered with a given type representing the side the config belongs to, the `ForgeConfigSpec`, and optionally a specific file name for the configuration.
+Once a `ModConfigSpec` has been built, it must be registered to allow NeoForge to load, track, and sync the configuration settings as required. Configurations should be registered in the mod constructor via `ModLoadingContext#registerConfig`. A configuration can be registered with a given type representing the side the config belongs to, the `ModConfigSpec`, and optionally a specific file name for the configuration.
 
 ```java
-// In the mod constructor with a ForgeConfigSpec CONFIG
+// In the mod constructor with a ModConfigSpec CONFIG
 ModLoadingContext.get().registerConfig(Type.COMMON, CONFIG);
 ```
 
 Here is a list of the available configuration types:
 
-Type   | Loaded           | Synced to Client | Client Location                              | Server Location                      | Default File Suffix
-:---:  | :---:            | :---:            | :---:                                        | :---:                                | :---
-CLIENT | Client Side Only | No               | `.minecraft/config`                          | N/A                                  | `-client`
-COMMON | On Both Sides    | No               | `.minecraft/config`                          | `<server_folder>/config`             | `-common`
-SERVER | Server Side Only | Yes              | `.minecraft/saves/<level_name>/serverconfig` | `<server_folder>/world/serverconfig` | `-server`
+|  Type  |      Loaded      | Synced to Client |               Client Location                |           Server Location            | Default File Suffix |
+|:------:|:----------------:|:----------------:|:--------------------------------------------:|:------------------------------------:|:--------------------|
+| CLIENT | Client Side Only |        No        |             `.minecraft/config`              |                 N/A                  | `-client`           |
+| COMMON |  On Both Sides   |        No        |             `.minecraft/config`              |       `<server_folder>/config`       | `-common`           |
+| SERVER | Server Side Only |       Yes        | `.minecraft/saves/<level_name>/serverconfig` | `<server_folder>/world/serverconfig` | `-server`           |
 
 :::tip
-Forge documents the [config types][type] within their codebase.
+NeoForge documents the [config types][type] within their codebase.
 :::
 
 Configuration Events
@@ -135,5 +135,5 @@ These events are called for all configurations for the mod; the `ModConfig` obje
 
 [toml]: https://toml.io/
 [nightconfig]: https://github.com/TheElectronWill/night-config
-[type]: https://github.com/MinecraftForge/MinecraftForge/blob/c3e0b071a268b02537f9d79ef8e7cd9b100db416/fmlcore/src/main/java/net/minecraftforge/fml/config/ModConfig.java#L108-L136
+[type]: https://github.com/neoforged/FancyModLoader/blob/19d6326b810233e683f1beb3d28e41372e1e89d1/core/src/main/java/net/neoforged/fml/config/ModConfig.java#L83-L111
 [events]: ../concepts/events.md#creating-an-event-handler

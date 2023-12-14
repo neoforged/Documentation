@@ -10,7 +10,7 @@ public void gatherData(GatherDataEvent event) {
     event.getGenerator().addProvider(
         // Tell generator to run only when server data are generating
         event.includeServer(),
-        // Extends net.minecraftforge.common.data.BlockTagsProvider
+        // Extends net.neoforged.neoforge.common.data.BlockTagsProvider
         output -> new MyBlockTagsProvider(
           output,
           event.getLookupProvider(),

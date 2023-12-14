@@ -116,6 +116,6 @@ Tags are directly supported by Vanilla. See the respective Vanilla wiki pages fo
 [datapack]: ./index.md
 [tags]: https://minecraft.wiki/w/Tag#JSON_format
 [taglist]: https://minecraft.wiki/w/Tag#List_of_tags
-[forgetags]: https://github.com/MinecraftForge/MinecraftForge/tree/1.19.x/src/generated/resources/data/forge/tags
+[forgetags]: https://github.com/neoforged/NeoForge/tree/1.20.x/src/generated/resources/data/forge/tags
 [recipes]: https://minecraft.wiki/w/Recipe#JSON_format
 [advancements]: https://minecraft.wiki/w/Advancement
