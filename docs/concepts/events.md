@@ -119,7 +119,7 @@ Many events have different variations of themselves. These can be different but 
 Mod Event Bus
 -------------
 
-To get access to the mod event bus for your own mod, declare a constructor parameter of type `IModEventBus` in your [mod entryoint][ctor-injection].
+To get access to the mod event bus for your own mod, declare a constructor parameter of type `IModEventBus` in your [mod entrypoint][ctor-injection].
 
 The mod event bus is primarily used for listening to lifecycle events in which mods should initialize. Each event on the mod bus is required to implement `IModBusEvent`. Many of these events are also ran in parallel so mods can be initialized at the same time. This does mean you can't directly execute code from other mods in these events. Use the `InterModComms` system for that.
 
@@ -145,4 +145,4 @@ Next to the lifecycle events, there are a few miscellaneous events that are fire
 
 A good rule of thumb: events are fired on the mod event bus when they should be handled during initialization of a mod.
 
-[ctor-injection]: ../gettingstarted/modfiles#javafml-and-mod 
+[ctor-injection]: ../../gettingstarted/modfiles#javafml-and-mod 
