@@ -145,4 +145,4 @@ Next to the lifecycle events, there are a few miscellaneous events that are fire
 
 A good rule of thumb: events are fired on the mod event bus when they should be handled during initialization of a mod.
 
-[ctor-injection]: ../gettingstarted/modfiles.md#javafml-and-mod 
+[ctor-injection]: ../gettingstarted/modfiles.md#javafml-and-mod
