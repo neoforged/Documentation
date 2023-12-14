@@ -5,7 +5,7 @@ Forge uses an event bus that allows mods to intercept events from various Vanill
 
 Example: An event can be used to perform an action when a Vanilla stick is right-clicked.
 
-The main event bus used for most events is located at `NeoForge#EVENT_BUS`. There is another event bus for mod specific events that you should only use in specific cases. More information about this bus can be found below.
+The main event bus used for most events is located at `NeoForge#EVENT_BUS`. There is another event bus for mod specific events that you should only use in specific cases. More information about this bus can be [found below](#mod-event-bus).
 
 Every event is fired on one of these busses: most events are fired on the main forge event bus, but some are fired on the mod specific event buses.
 
