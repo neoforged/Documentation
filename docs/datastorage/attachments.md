@@ -89,6 +89,7 @@ Currently, only serializable item stack attachments are synced between the clien
 This is done automatically.
 
 To sync block entity, chunk, or entity attachments to a client, you need to [send a packet to the client][network] yourself.
+For chunks, you can use `ChunkWatchEvent.Sent` to know when to send chunk data to a player.
 
 ## Copying data on player death
 By default, entity data attachments are not copied on player death.
