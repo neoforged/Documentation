@@ -30,7 +30,7 @@ minecraft {
 ```toml
 # In mods.toml:
 [[accessTransformers]]
-file="META-INF/accesstransformer.at"
+file="META-INF/accesstransformer.cfg"
 ```
 
 AT files can be anywhere specified by the lines above, though NeoForge will default to searching for `META-INF/accesstransformer.cfg` if no other file is specified.
@@ -50,10 +50,10 @@ minecraft {
 ```toml
 # In mods.toml
 [[accessTransformers]]
-file="accesstransformer_main.at"
+file="accesstransformer_main.cfg"
 
 [[accessTransformers]]
-file="accesstransformer_additions.at"
+file="accesstransformer_additions.cfg"
 ```
 
 After adding or modifying any Access Transformer, the Gradle project must be refreshed for the transformations to take effect.
