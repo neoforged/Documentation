@@ -1,3 +1,6 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 ForgeGradle Configurations
 ==========================
 
@@ -6,7 +9,42 @@ ForgeGradle has numerous configurations that can change how the development envi
 Enabling Access Transformers
 ----------------------------
 
-[Access Transformers][at] can widen the visibility or modify the `final` flag of Minecraft classes, methods, and fields. To enable access transformers in the production environment, you can set `accessTransformer` to configuration file in question:
+
+[Access Transformers][at] can widen the visibility or modify the `final` flag of Minecraft classes, methods, and fields.
+
+<Tabs defaultValue="latest">
+<TabItem value="latest" label="Latest">
+To enable Access Transformers in the production environment, you can set `accessTransformers` to the configuration file in question:
+
+```gradle
+minecraft {
+    // ...
+
+    // Add an Access Transformer file relative to the project's directory
+    accessTransformers {
+        file('src/main/resources/META-INF/accesstransformer.cfg')
+
+        // Multiple files can be specified and are applied in order
+        file('src/main/resources/accesstransformer_extras.cfg')
+    }
+}
+```
+
+In production, NeoForge will search for Access Transformer files as specified in `mods.toml`, or at `META-INF/accesstransformer.cfg` if none are specified:
+
+```toml
+[[accessTransformers]]
+file="META-INF/accesstransformer.at"
+
+[[accessTransformers]]
+file="accesstransformer_extras.at"
+```
+
+</TabItem>
+
+
+<TabItem value="7.0.40" label="7.0.40 and older">
+To enable Access Transformers in the production environment, you can set `accessTransformer` to the configuration file in question:
 
 ```gradle
 minecraft {
@@ -18,8 +56,10 @@ minecraft {
 ```
 
 :::caution
-While the access transformer in the development environment can be read from anywhere the user specifies, in production, the file will only be read from `META-INF/accesstransformer.cfg`.
+While the Access Transformer in the development environment can be read from anywhere the user specifies, in production, the file will only be read from `META-INF/accesstransformer.cfg`.
 :::
+</TabItem>
+</Tabs>
 
 Human-Readable Mappings
 -----------------------

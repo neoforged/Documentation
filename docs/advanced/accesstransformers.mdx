@@ -1,3 +1,6 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 Access Transformers
 ===================
 
@@ -10,16 +13,56 @@ Adding ATs
 
 Adding an Access Transformer to your mod project is as simple as adding a single line into your `build.gradle`:
 
+<Tabs defaultValue="latest">
+<TabItem value="latest" label="Latest">
+Access Transformers need to be declared in both `build.gradle` and `mods.toml`:
+
 ```groovy
+// In build.gradle:
 // This block is where your mappings version is also specified
 minecraft {
-  accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+  accessTransformers {
+    file('src/main/resources/META-INF/accesstransformer.cfg')
+  }
 }
 ```
 
-After adding or modifying the Access Transformer, the gradle project must be refreshed for the transformations to take effect.
+```toml
+# In mods.toml:
+[[accessTransformers]]
+file="META-INF/accesstransformer.at"
+```
 
-During development, the AT file can be anywhere specified by the line above. However, when loading in a non-development environment, Forge will only search for the exact path of `META-INF/accesstransformer.cfg` in your JAR file.
+AT files can be anywhere specified by the lines above, though NeoForge will default to searching for `META-INF/accesstransformer.cfg` if no other file is specified.
+
+Additionally, multiple AT files can be specified and will be applied in order. This can be useful for larger mods with multiple packages.
+
+```groovy
+// In build.gradle:
+minecraft {
+  accessTransformers {
+    file('src/main/resources/accesstransformer_main.cfg')
+    file('src/additions/resources/accesstransformer_additions.cfg')
+  }
+}
+```
+
+```toml
+# In mods.toml
+[[accessTransformers]]
+file="accesstransformer_main.at"
+
+[[accessTransformers]]
+file="accesstransformer_additions.at"
+```
+
+After adding or modifying any Access Transformer, the Gradle project must be refreshed for the transformations to take effect.
+</TabItem>
+
+<TabItem value="1.20.1" label="1.20.1-47.1 and older">
+
+</TabItem>
+</Tabs>
 
 Comments
 --------
