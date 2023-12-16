@@ -60,7 +60,18 @@ After adding or modifying any Access Transformer, the Gradle project must be ref
 </TabItem>
 
 <TabItem value="1.20.1" label="1.20.1-47.1 and older">
+Adding an Access Transformer to your mod project is as simple as adding a single line into your `build.gradle`:
 
+```groovy
+// This block is where your mappings version is also specified
+minecraft {
+  accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+}
+```
+
+During development, the AT file can be anywhere specified by the line above. However, when loading in a non-development environment, Forge will only search for the exact path of `META-INF/accesstransformer.cfg` in your JAR file.
+
+After adding or modifying the Access Transformer, the Gradle project must be refreshed for the transformations to take effect.
 </TabItem>
 </Tabs>
 
