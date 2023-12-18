@@ -101,7 +101,7 @@ This method is for adding your items to Minecraft's tabs, or to other mods' tabs
 `CreativeModeTab`s are a registry, meaning custom `CreativeModeTab`s must be [registered][registering]. Creating a creative tab uses a builder system, the builder is obtainable through `CreativeModeTab#builder`. The builder provides options to set the title, icon, default items, and a number of other properties. In addition, NeoForge provides additional methods to customize the tab's image, label and slot colors, where the tab should be ordered, etc.
 
 ```java
-//Assume we have a DeferredRegister<CreativeModeTab> called CREATIVE_MODE_TABS
+//CREATIVE_MODE_TABS is a DeferredRegister<CreativeModeTab>
 public static final Supplier<CreativeModeTab> EXAMPLE_TAB = CREATIVE_MODE_TABS.register("example", () -> CreativeModeTab.builder()
     //Set the title of the tab. Don't forget to add a translation!
     .title(Component.translatable("itemGroup." + MOD_ID + ".example"))
