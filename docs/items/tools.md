@@ -224,7 +224,7 @@ And then, we use that armor material in item registration.
 
 ```java
 //ITEMS is a DeferredRegister<Item>
-public static final Supplier<Item> COPPER_HELMET = ITEMS.register("copper_helmet", () -> new ArmorItem(
+public static final Supplier<ArmorItem> COPPER_HELMET = ITEMS.register("copper_helmet", () -> new ArmorItem(
         // The armor material to use.
         COPPER_ARMOR_MATERIAL,
         // The armor type to use.
@@ -232,9 +232,9 @@ public static final Supplier<Item> COPPER_HELMET = ITEMS.register("copper_helmet
         // The item properties. We don't need to set the durability here because ArmorItem handles that for us.
         new Item.Properties()
 ));
-public static final Supplier<Item> COPPER_CHESTPLATE = ITEMS.register("copper_chestplate", () -> new ArmorItem(...));
-public static final Supplier<Item> COPPER_LEGGINGS = ITEMS.register("copper_leggings", () -> new ArmorItem(...));
-public static final Supplier<Item> COPPER_BOOTS = ITEMS.register("copper_boots", () -> new ArmorItem(...));
+public static final Supplier<ArmorItem> COPPER_CHESTPLATE = ITEMS.register("copper_chestplate", () -> new ArmorItem(...));
+public static final Supplier<ArmorItem> COPPER_LEGGINGS = ITEMS.register("copper_leggings", () -> new ArmorItem(...));
+public static final Supplier<ArmorItem> COPPER_BOOTS = ITEMS.register("copper_boots", () -> new ArmorItem(...));
 ```
 
 Besides the usual resources, armors also need a worn armor texture that will be rendered over the player model when the armor is equipped. This texture must be located at `src/main/resources/assets/<mod_id>/textures/models/armor/<material>_layer_1.png` for the helmet, chestplate and boots textures, and in the same directory at `<material>_layer_2.png` for the leggings.
