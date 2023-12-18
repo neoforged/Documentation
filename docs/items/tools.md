@@ -1,4 +1,4 @@
-# Tools
+# Tools & Armor
 
 Tools are [items][item] whose primary use is to break [blocks][block]. Many mods add new tool sets (for example copper tools) or new tool types (for example hammers).
 
@@ -139,6 +139,107 @@ One thing worth noting is the parameters of `DiggerItem`. The first four paramet
 To create your own `ToolAction`s, use `ToolAction#get` - it will create a new `ToolAction` if needed. Then, in a custom tool type, override `IItemExtension#canPerformAction` as needed.
 
 To query if an `ItemStack` can perform a certain `ToolAction`, call `IItemStackExtension#canPerformAction`. Note that this works on any `Item`, not just tools.
+
+## Armor
+
+Similar to tools, armor uses a tier system (although a different one). What is called `Tier` for tools is called `ArmorMaterial` for armors. Like above, this example shows how to add copper armor; this can be adapted as needed. For the vanilla values, see the `ArmorMaterials` enum.
+
+```java
+// We place copper somewhere between chainmail and iron.
+public static final ArmorMaterial COPPER_ARMOR_MATERIAL = new ArmorMaterial() {
+    // The name of the armor material. Mainly determines where the armor texture is.
+    @Override
+    public String getName() {
+        return "copper";
+    }
+
+    // Override for StringRepresentable. Should generally return the same as getName().
+    @Override
+    public String getSerializedName() {
+        return "copper";
+    }
+
+    // Determines the durability of this armor material, depending on what armor piece it is.
+    // ArmorItem.Type is an enum of four values: HELMET, CHESTPLATE, LEGGINGS and BOOTS.
+    // Vanilla armor materials determine this by using a base value and multiplying it with a type-specific constant.
+    // The constants are 13 for BOOTS, 15 for LEGGINGS, 16 for CHESTPLATE and 11 for HELMET.
+    // Both chainmail and iron use 15 as the base value, so we'll use it as well.
+    @Override
+    public int getDurabilityForType(ArmorItem.Type type) {
+        return switch (type) {
+            case HELMET -> 11 * 15;
+            case CHESTPLATE -> 16 * 15;
+            case LEGGINGS -> 15 * 15;
+            case BOOTS -> 13 * 15;
+        };
+    }
+
+    // Determines the defense value of this armor material, depending on what armor piece it is.
+    @Override
+    public int getDurabilityForType(ArmorItem.Type type) {
+        return switch (type) {
+            case HELMET -> 2;
+            case CHESTPLATE -> 4;
+            case LEGGINGS -> 6;
+            case BOOTS -> 2;
+        };
+    }
+
+    // Returns the toughness value of the armor.
+    // Only diamond and netherite have values greater than 0 here, so we just return 0.
+    @Override
+    public float getToughness() {
+        return 0;
+    }
+
+    // Returns the knockback resistance value of the armor.
+    // Only netherite has values greater than 0 here, so we just return 0.
+    @Override
+    public float getKnockbackResistance() {
+        return 0;
+    }
+
+    // Determines the enchantability of the tier. This represents how good the enchantments on this armor will be.
+    // Gold uses 25, we put copper slightly below that.
+    @Override
+    public int getEnchantmentValue(ArmorItem.Type type) {
+        return 20;
+    }
+
+    // Determines the sound played when equipping this armor.
+    @Override
+    public SoundEvent getEquipSound() {
+        return SoundEvents.ARMOR_EQUIP_GENERIC;
+    }
+
+    // Determines the repair item for this armor.
+    @Override
+    public Ingredient getRepairIngredient() {
+        return Ingredient.of(Tags.Items.INGOTS_COPPER);
+    }
+}
+```
+
+And then, we use that armor material in item registration.
+
+```java
+//ITEMS is a DeferredRegister<Item>
+public static final Supplier<Item> COPPER_HELMET = ITEMS.register("copper_helmet", () -> new ArmorItem(
+        // The armor material to use.
+        COPPER_ARMOR_MATERIAL,
+        // The armor type to use.
+        ArmorItem.Type.HELMET,
+        // The item properties. We don't need to set the durability here because ArmorItem handles that for us.
+        new Item.Properties()
+));
+public static final Supplier<Item> COPPER_CHESTPLATE = ITEMS.register("copper_chestplate", () -> new ArmorItem(...));
+public static final Supplier<Item> COPPER_LEGGINGS = ITEMS.register("copper_leggings", () -> new ArmorItem(...));
+public static final Supplier<Item> COPPER_BOOTS = ITEMS.register("copper_boots", () -> new ArmorItem(...));
+```
+
+Besides the usual resources, armors also need a worn armor texture that will be rendered over the player model when the armor is equipped. This texture must be located at `src/main/resources/assets/<mod_id>/textures/models/armor/<material>_layer_1.png` for the helmet, chestplate and boots textures, and in the same directory at `<material>_layer_2.png` for the leggings.
+
+When creating your armor texture, it is a good idea to work on top of the vanilla armor texture to see which part goes where.
 
 [block]: ../blocks/index.md
 [farmersdelight]: https://www.curseforge.com/minecraft/mc-mods/farmers-delight
