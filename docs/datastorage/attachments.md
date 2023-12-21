@@ -76,7 +76,7 @@ Usually, block entities and chunks need to be marked as dirty when they are modi
 ```java
 chunk.setData(MANA, chunk.getData(MANA) + 10); // will call setUnsaved automatically
 ```
-but if you modify some data that you obtained from `getData` then you must mark block entities and chunks as dirty explicitly:
+but if you modify some data that you obtained from `getData` (including a newly created default instance) then you must mark block entities and chunks as dirty explicitly:
 ```java
 var mana = chunk.getData(MUTABLE_MANA);
 mana.set(10);

@@ -38,6 +38,7 @@ NeoForge provides capabilities for the following three interfaces: `IItemHandler
 - `Capabilities.FluidHandler.BLOCK`: automation-accessible fluid inventory of a block.
 - `Capabilities.FluidHandler.ENTITY`: fluid inventory of an entity.
 - `Capabilities.FluidHandler.ITEM`: fluid inventory of an item stack.
+This capability is of the special `IFluidHandlerItem` type due to the way buckets hold fluids.
 
 `IEnergyStorage` exposes an interface for handling energy containers. It is based on the RedstoneFlux API by TeamCoFH. The capabilities of type `IEnergyStorage` are:
 - `Capabilities.EnergyStorage.BLOCK`: energy contained inside a block.
@@ -123,8 +124,8 @@ if (object != null) {
 }
 ```
 
-Block capabilities are used a bit differently.
-The query is performed on a `level`, with the `pos`ition that we are looking for as an additional parameter:
+Block capabilities are used a bit differently because blocks without a block entity can have capabilities as well.
+The query is now performed on a `level`, with the `pos`ition that we are looking for as an additional parameter:
 ```java
 var object = level.getCapability(CAP, pos, context);
 if (object != null) {
