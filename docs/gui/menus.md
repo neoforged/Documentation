@@ -100,7 +100,7 @@ Some data needs to be present on both the server and the client to display to th
 Minecraft supports two forms of data synchronization by default: `ItemStack`s via `Slot`s and integers via `DataSlot`s. `Slot`s and `DataSlot`s are views which hold references to data storages that can be be modified by the player in a screen, assuming the action is valid. These can be added to a menu within the constructor through `#addSlot` and `#addDataSlot`.
 
 :::note
-Since `Container`s used by `Slot`s are deprecated by Forge in favor of using the [`IItemHandler` capability][cap], the rest of the explanation will revolve around using the capability variant: `SlotItemHandler`.
+Since `Container`s used by `Slot`s are deprecated by NeoForge in favor of using the [`IItemHandler` capability][cap], the rest of the explanation will revolve around using the capability variant: `SlotItemHandler`.
 :::
 
 A `SlotItemHandler` contains four parameters: the `IItemHandler` representing the inventory the stacks are within, the index of the stack this slot is specifically representing, and the x and y position of where the top-left position of the slot will render on the screen relative to `AbstractContainerScreen#leftPos` and `#topPos`. The client menu constructor should always supply an empty instance of an inventory of the same size.
@@ -342,6 +342,6 @@ Once again, this is the simplest way to implement the logic, not the only way.
 [acm]: #abstractcontainermenu
 [mt]: #menutype
 [qms]: #quickmovestack
-[cap]: ../datastorage/capabilities.md#forge-provided-capabilities
+[cap]: ../datastorage/capabilities.md#neoforge-provided-capabilities
 [screen]: ./screens.md
 [icf]: #icontainerfactory
