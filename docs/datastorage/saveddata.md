@@ -1,7 +1,9 @@
 Saved Data
 ==========
 
-The Saved Data (SD) system is an alternative to level capabilities that can attach data per level.
+The Saved Data (SD) system can be used to save additional data on levels.
+
+_If the data is specific to some block entities, chunks, or entities, consider using a [data attachment](attachments) instead._
 
 Declaration
 -----------

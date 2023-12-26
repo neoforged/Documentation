@@ -43,19 +43,19 @@ Data providers are the classes that actually define what data will be generated 
 The `GatherDataEvent` is fired on the mod event bus when the data generator is being created, and the `DataGenerator` can be obtained from the event. Create and register data providers using `DataGenerator#addProvider`.
 
 ### Client Assets
-* [`net.minecraftforge.common.data.LanguageProvider`][langgen] - for [language strings][lang]; implement `#addTranslations`
-* [`net.minecraftforge.common.data.SoundDefinitionsProvider`][soundgen] - for [`sounds.json`][sounds]; implement `#registerSounds`
-* [`net.minecraftforge.client.model.generators.ModelProvider<?>`][modelgen] - for [models]; implement `#registerModels`
+* [`net.neoforged.neoforge.common.data.LanguageProvider`][langgen] - for [language strings][lang]; implement `#addTranslations`
+* [`net.neoforged.neoforge.common.data.SoundDefinitionsProvider`][soundgen] - for [`sounds.json`][sounds]; implement `#registerSounds`
+* [`net.neoforged.neoforge.client.model.generators.ModelProvider<?>`][modelgen] - for [models]; implement `#registerModels`
     * [`ItemModelProvider`][itemmodelgen] - for item models
     * [`BlockModelProvider`][blockmodelgen] - for block models
-* [`net.minecraftforge.client.model.generators.BlockStateProvider`][blockstategen] - for blockstate JSONs and their block and item models; implement `#registerStatesAndModels`
+* [`net.neoforged.neoforge.client.model.generators.BlockStateProvider`][blockstategen] - for blockstate JSONs and their block and item models; implement `#registerStatesAndModels`
 
 ### Server Data
 
-**These classes are under the `net.minecraftforge.common.data` package**:
+**These classes are under the `net.neoforged.neoforge.common.data` package**:
 
 * [`GlobalLootModifierProvider`][glmgen] - for [global loot modifiers][glm]; implement `#start`
-* [`DatapackBuiltinEntriesProvider`][datapackregistriesgen] for datapack registry objects; pass in `RegistrySetBuilder` to the constructor
+* [`DatapackBuiltinEntriesProvider`][datapackregistriesgen] for datapack registry objects (i.e. world generation features, biomes, and more); pass in `RegistrySetBuilder` to the constructor
 
 **These classes are under the `net.minecraft.data` package**:
 
