@@ -1,85 +1,96 @@
-버전 관리
-==========
+# Versioning
 
-In general projects, [semantic versioning][semver] is often used (which has the format `MAJOR.MINOR.PATCH`). However, in
-the case of modding it may be more beneficial to use the format `MCVERSION-MAJORMOD.MAJORAPI.MINOR.PATCH` to be able to
-differentiate between world-breaking and API-breaking changes of a mod.
+This article will break down how versioning works in Minecraft and NeoForge, and will give some recommendations for mod versioning as well.
 
-일반적인 프로젝트에서는 [시멘틱 버전 관리][semver]를 많이 사용합니다('MAJOR.MINOR.PATCH' 형식).
-그러나 모드의 경우 'MCVERSION-MAJORMOD.MAJORAPI.MINOR.PATCH' 형식을 사용하는 것이 유리할 수 있습니다.
-(세계가 깨지거나 API가 작동하지 않는 등 마인크래프트에서 발생하는 주요 문제를 구분하기 위해)
+## Minecraft
 
-:::caution
-Forge는 [Maven 버전 범위][cmpver]를 사용하여 버전 문자열을 비교하는데, 이는 'prerelease' 태그와 같은 Semantic Versioning 2.0.0 과 완전히 호환되지 않습니다.
+Minecraft uses [semantic versioning][semver]. Semantic versioning, or "semver" for short, has the format `major.minor.patch`. So for example, Minecraft 1.20.2 has the major version 1, the minor version 20 and the patch version 2.
+
+Minecraft has used `1` as the major version since 2011, when Minecraft 1.0 was introduced. Before that, the versioning scheme changed often, and there were versions like `a1.1` (Alpha 1.1), `b1.7.3` (Beta 1.7.3) or even the `infdev` versions, which didn't follow a clear versioning scheme at all. Due to the `1` major version holding up for over a decade now, and due to the in-joke that is Minecraft 2, it is generally considered unlikely that this is ever going to change.
+
+### Snapshots
+
+Snapshots deviate from the standard semver scheme. They are labeled as `YYwWWa`, where `YY` represents the last two digits of the year (e.g. `23`) and `WW` represents the week of that year (e.g. `01`). So for example, snapshot `23w01a` is the snapshot released in the first week of 2023.
+
+The `a` suffix exists for occasions where two snapshots get released in the same week (where the second snapshot would then be named something like `23w01b`). Mojang has occasionally used this in the past. The alternative suffix has also been used for snapshots like `20w14infinite`, which was the [2020 infinite dimensions April Fool's joke][infinite].
+
+### Pre-releases and Release Candidates
+
+When a snapshot cycle is coming completion, Mojang starts releasing so-called pre-releases. Pre-releases are deemed feature-complete for a version and focus solely on bugfixes. They use the semver notation for the version it is for, suffixed by `-preX`. So for example, the first pre-release for 1.20.2 was named `1.20.2-pre1`. There can be and usually are multiple pre-releases, which are accordingly suffixed with `-pre2`, `-pre3`, etc.
+
+Similarly, when the pre-release cycle completes, Mojang releases Release Candidate 1 (suffixing the version with `-rc1`, for example `1.20.2-rc1`). Mojang aims to have one release candidate that they can release if no further bugs occur. However, if an unexpected bug occurs, then there can also be an `-rc2`, `-rc3`, etc. version, similar to pre-releases.
+
+## NeoForge
+
+NeoForge uses an adapted semver system: The major version is Minecraft's minor version, the minor version is Minecraft's patch version, and the patch version is the "actual" NeoForge version. So for example, NeoForge 20.2.59 is the 60th version (we start at 0) for Minecraft 1.20.2. The `1` at the beginning is omitted because it is very unlikely that it will ever change, see [above][minecraft] for why that is the case.
+
+A few places in NeoForge also use [Maven version ranges][mvr], for example the Minecraft and NeoForge version ranges in the [`mods.toml`][modstoml] file. These are mostly, but not fully compatible with semver (the `pre`-tag is not considered by it, for example).
+
+## Mods
+
+There is no definitive best versioning system. Different styles of development, scopes of projects, etc. all influence the decision of what versioning system to use. Sometimes, versioning system can also be combined. This section attempts to give an overview over some commonly used versioning systems, with real-life examples.
+
+Usually, a mod's file name looks like `modid-<version>.jar`. So if our mod id is `examplemod` and our version is `1.2.3`, our mod file would be named `examplemod-1.2.3.jar`.
+
+:::note
+Versioning systems are suggestions, rather than strictly enforced rules. This is especially true with regard to when the version is changed ("bumped"), and in what way. If you want to use a different versioning system, nobody is going to stop you.
 :::
 
-예시들
---------
+### Semantic Versioning
 
-다음은 버전의 변수와 변경시킬 수 있는 요인입니다.
+Semantic versioning ("semver") consists of three parts: `major.minor.patch`. The major version is bumped when major changes are made to the codebase, which usually correlates with major new features and bugfixes. The minor version is bumped when minor features are introduced, and patch bumps happen when an update only includes bugs.
 
-* `MCVERSION`
-    * 항상 모드가 필요로 하는 마인크래프트 버전과 일치해야 합니다.
-* `MAJORMOD`
-    * 아이템, 블록, 블록 엔터티 등을 제거합니다.
-    * 이전에 존재한 로직을 변경하거나 제거합니다.
-    * 새로운 마인크래프트 버전으로 업데이트합니다.
-* `MAJORAPI`
-    * 이넘(enum)의 순서나 변수를 변경합니다.
-    * 메서드의 반환 타입을 변경합니다.
-    * 특정 메서드를 완전히 제거합니다.
-* `MINOR`
-    * 아이템, 블록, 블록 엔터티 등을 추가합니다.
-    * 새로운 로직 추가합니다.
-    * 공개 메서드를 폐기합니다. (이것은 API를 깨뜨리지 않기 때문에 `MAJORAPI` 증가가 아닙니다.)
-* `PATCH`
-    * 버그 수정입니다.
+It is generally agreed upon that any version `0.x.x` is a development version, and with the first (full) release, the version should be bumped to `1.0.0`.
 
-어떤 변수를 증가시킬 때, 그보다 낮은 변수들은 모두 `0`으로 재설정되어야 합니다.
-예를 들어, `MINOR`가 증가하면 `PATCH`는 `0`이 됩니다.
-만약 `MAJORMOD`가 증가하면 다른 모든 변수들은 `0`이 됩니다.
+The "minor for features, patch for bugfixes" rule is often disregarded in practice. A popular example for this is Minecraft itself, which does major features through the minor version number, minor features through the patch number, and bugfixes in snapshots (see above).
 
-### 진행 중인 작업
+Depending on how often a mod is updated, these numbers can be smaller or larger. For example, [Supplementaries][supplementaries] is on version `2.6.31` (at the time of writing). Triple- or even quadruple-digit numbers, especially in the `patch`, are absolutely possible.
 
-모드의 초기 개발 단계에서 (공식 릴리스 이전에), `MAJORMOD`와 `MAJORAPI`는 항상 `0`으로 유지되어야 합니다.
-빌드할 때마다 `MINOR`과 `PATCH`만 업데이트되어야 합니다. 공식 릴리스를 빌드하면 (`MAJORAPI`가 안정된 상태로 대부분 시간이 소요됩니다),
-`MAJORMOD`를 버전 `1.0.0.0`으로 증가시키는 것이 좋습니다. 추가 개발 단계에서는 이 문서의 [사전 릴리스][pre] 및 [릴리스 후보][rc]
-섹션을 참조하십시오.
+### "Reduced" and "Expanded" Semver
 
-### 여러 마인크래프트 버전
+Sometimes, semver can be seen with only two numbers. This is a sort of "reduced" semver, or "2-part" semver. Their version numbers only have a `major.minor` scheme. This is commonly used by small mods that only add a few simple objects and thus rarely need updates (except Minecraft version updates), often staying at version `1.0` forever.
 
-모드가 새로운 마인크래프트 버전으로 업그레이드되고 이전 버전은 버그 수정만 받을 경우, `PATCH` 변수는 업그레이드 전 버전을 기반으로 업데이트되어야 합니다.
-만약 모드가 이전 버전과 새로운 버전의 마인크래프트에서 모두 활발히 개발 중이라면, **둘 다** 빌드 번호에 버전을 추가하는 것이 좋습니다.
-예를 들어, 모드가 마인크래프트 버전 변경으로 인해 `3.0.0.0`으로 업그레이드된다면, 이전 모드도 `3.0.0.0`으로 업데이트해야 합니다.
-이전 버전은 예를 들어 `1.7.10-3.0.0.0` 버전이 되며, 새로운 버전은 `1.8-3.0.0.0` 버전이 됩니다.
-더 이상의 변경 사항이 없는 경우, 새로운 마인크래프트 버전을 위해 빌드할 때 Minecraft 버전을 제외한 모든 변수는 동일하게 유지되어야 합니다.
+"Expanded" semver, or "4-part" semver, has four numbers (so something like `1.0.0.0`). Depending on the mod, the format can be `major.api.minor.patch`, or `major.minor.patch.hotfix`, or something different entirely - there is no standard way to do it.
 
-### 최종 릴리스
+For `major.api.minor.patch`, the `major` version is decoupled from the `api` version. This means that the `major` (feature) bit and the `api` bit can be bumped independently. This is commonly used by mods that expose an API for other modders to use. For example, [Mekanism][mekanism] is currently on version 10.4.5.19 (at the time of writing).
 
-특정 마인크래프트 버전의 지원을 중단하는 경우, 해당 버전의 마지막 빌드에는 `-final` 접미사가 추가되어야 합니다.
-이는 해당 `MCVERSION`에 대한 모드 지원이 더 이상 되지 않을 것임을 나타내며, 플레이어들은 업데이트와 버그 수정을 계속받기 위해
-새로운 버전의 모드로 업그레이드해야 한다는 것을 의미합니다.
+For `major.minor.patch.hotfix`, the patch level is split into two. This is the approach used by the [Create][create] mod, which is currently on version 0.5.1f (at the time of writing). Note that Create denotes the hotfix as a letter instead of a fourth number, in order to stay compatible with regular semver.
 
-### 사전 릴리스
+:::info
+Reduced semver, expanded semver, 2-part semver and 4-part semver are not official terms or standardized formats in any way.
+:::
 
-아직 완전하지 않은 새로운 기능들을 릴리스하는 사전 릴리스도 가능합니다. 이는 어떤 의미에서 "베타"로 볼 수 있습니다.
-이러한 버전은 `-betaX`와 같은 형식으로 버전 번호에 추가되어야 합니다. 여기서 `X`는 사전 릴리스의 번호입니다.
-(본 안내서는 `-pre` 대신 `-beta`를 사용하지 않습니다. 현재 작성 시점에서는 `-pre`는 `-beta`의 유효한 별칭이 아닙니다.)
-이미 릴리스된 버전과 초기 릴리스 이전의 버전은 사전 릴리스로 들어갈 수 없습니다. 사전 릴리스를 추가하기 전에 변수들 (`MINOR` 주로, `MAJORAPI`와 `MAJORMOD`도 가능)
-를 적절하게 업데이트해야 합니다. 초기 릴리스 이전의 버전은 단순히 진행 중인 작업 빌드입니다.
+### Alpha, Beta, Release
 
-### 릴리스 후보
+Like Minecraft itself, modding is often done in the classical `alpha`/`beta`/`release` stages known from software engineering, where `alpha` denotes an unstable/experimental version (sometimes also called `experimental` or `snapshot`), `beta` denotes a semi-stable version, and `release` denotes a stable version (sometimes called `stable` instead of `release`).
 
-릴리스 후보는 실제 버전 변경 전의 사전 릴리스 역할을 합니다. 이러한 버전은 `-rcX`와 같은 형식으로 버전 번호에 추가되어야 합니다.
-여기서 `X`는 릴리스 후보의 번호이며, 이론적으로 버그 수정만을 위해 증가시켜야 합니다.
-이미 릴리스된 버전은 릴리스 후보를 받을 수 없습니다. 릴리스 후보를 추가하기 전에 변수들 (`MINOR` 주로, `MAJORAPI`와 `MAJORMOD`도 가능)
-를 적절하게 업데이트해야 합니다. 릴리스 후보를 안정 버전 빌드로 릴리스할 때, 마지막 릴리스 후보와 완전히 동일하게 또는 몇 가지 더 많은 버그 수정이 포함될 수 있습니다.
+Some mods use their major version to denote a Minecraft version bump. An example of this is [JEI][jei], which uses `13.x.x.x` for Minecraft 1.19.2, `14.x.x.x` for 1.19.4, and `15.x.x.x` for 1.20.1 (there are no versions for 1.19.3 and 1.20.0). Others append the tag to the mod name, for example the [Minecolonies][minecolonies] mod, which is on `1.1.328-BETA` at the time of writing.
 
+### Including the Minecraft Version
 
-[semver]: https://semver.org/
+It is common to include the Minecraft version a mod is for in the filename. This makes it easier for end users to easily find out what Minecraft version a mod is for. A common place for this is either before or after the mod version, with the former being more widespread than the latter. For example, JEI version `16.0.0.28` (latest at the time of writing) for 1.20.2 would become `jei-1.20.2-16.0.0.28` or `jei-16.0.0.28-1.20.2`.
 
-[cmpver]: https://maven.apache.org/ref/3.5.2/maven-artifact/apidocs/org/apache/maven/artifact/versioning/ComparableVersion.html
+### Including the Mod Loader
 
+As you probably know, NeoForge is not the only mod loader out there, and many mod developers develop on multiple platforms. As a result, a way to distinguish between two files of the same mod of the same version, but for different mod loaders is needed.
+
+Usually, this is done by including the mod loader somewhere in the name. `jei-neoforge-1.20.2-16.0.0.28`, `jei-1.20.2-neoforge-16.0.0.28` or `jei-1.20.2-16.0.0.28-neoforge` are all valid ways to do it. For other mod loaders, the `neoforge` bit would be replaced with `forge`, `fabric`, `quilt` or whatever different mod loader you might be developing on alongside NeoForge.
+
+### A Note on Maven
+
+Maven, the system used for dependency hosting, uses a versioning system that differs from semver in some details (though the general `major.minor.patch` pattern remains the same). The related [Maven Versioning Range (MVR)][mvr] system is used in some places in NeoForge (see [above][neoforge]). When choosing your versioning scheme, you should make sure it is compatible with MVR, as otherwise, mods will not be able to depend on specific versions of your mod!
+
+[create]: https://www.curseforge.com/minecraft/mc-mods/create
+[infinite]: https://minecraft.wiki/w/Java_Edition_20w14∞
+[jei]: https://www.curseforge.com/minecraft/mc-mods/jei
+[mekanism]: https://www.curseforge.com/minecraft/mc-mods/mekanism
+[minecolonies]: https://www.curseforge.com/minecraft/mc-mods/minecolonies
+[minecraft]: #minecraft
+[modstoml]: modfiles.md#modstoml
+[mvr]: https://maven.apache.org/enforcer/enforcer-rules/versionRanges.html
+[mvr]: https://maven.apache.org/ref/3.5.2/maven-artifact/apidocs/org/apache/maven/artifact/versioning/ComparableVersion.html
+[neoforge]: #neoforge
 [pre]: #pre-releases
-
 [rc]: #release-candidates
+[semver]: https://semver.org/
+[supplementaries]: https://www.curseforge.com/minecraft/mc-mods/supplementaries
