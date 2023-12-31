@@ -6,17 +6,14 @@ In addition to regular network messages, there are various other systems provide
 Spawn Data
 ----------
 
-In general, the spawning of modded entities is handled separately, by Forge.
-
-:::note
-This means that simply extending a vanilla entity class may not inherit all its behavior. You may need to implement certain vanilla behaviors yourself.
-:::
+Since 1.20.2 Mojang introduced the concept of Bundle packets, which are used to send entity spawn packets together.
+This allows for more data to be sent with the spawn packet, and for that data to be sent more efficiently.
 
 You can add extra data to the spawn packet Forge sends by implementing the following interface.
 
-### IEntityAdditionalSpawnData
-
+### IEntityWithComplexSpawn
 If your entity has data that is needed on the client, but does not change over time, then it can be added to the entity spawn packet using this interface. `#writeSpawnData` and `#readSpawnData` control how the data should be encoded to/decoded from the network buffer.
+Alternatively you can override the method `sendPairingData(...)` which is called when the entity is paired with a client. This method is called on the server, and can be used to send additional payloads to the client within the same bundle as the spawn packet.
 
 Dynamic Data
 ------------
