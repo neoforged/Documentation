@@ -1,5 +1,4 @@
-Networking
-==========
+# Networking
 
 Communication between servers and clients is the backbone of a successful mod implementation.
 
@@ -12,7 +11,7 @@ There are two primary goals in network communication:
 
 The most common way to accomplish these goals is to pass messages between the client and the server. These messages will usually be structured, containing data in a particular arrangement, for easy sending and receiving.
 
-There is a technique provided by Forge to facilitate communication mostly built on top of [netty][].
+There is a technique provided by NeoForge to facilitate communication mostly built on top of [netty][].
 This technique can be used by listening for the `RegisterPayloadHandlerEvent` event, and then registering a specific type of [payloads][], its reader, and its handler function to the registrar.
 
 [netty]: https://netty.io "Netty Website"

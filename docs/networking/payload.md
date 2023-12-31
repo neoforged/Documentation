@@ -1,5 +1,4 @@
-Registering Payloads
-====================
+# Registering Payloads
 
 Payloads are a way to send arbitrary data between the client and the server. They are registered using the `IPayloadRegistrar` that can be retrieved for a given namespace from the `RegisterPayloadHandlerEvent` event.
 ```java
