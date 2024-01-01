@@ -43,7 +43,7 @@ Finally, we can register this payload with the registrar:
 @SubscribeEvent
 public static void register(final RegisterPacketHandlerEvent event) {
     final IPayloadRegistrar registrar = event.registrar("mymod");
-    registar.play(MyData.ID, MyData::new, handler -> handler
+    registrar.play(MyData.ID, MyData::new, handler -> handler
             .client(ClientPayloadHandler.getInstance()::handleData)
             .server(ServerPayloadHandler.getInstance()::handleData));
 }
