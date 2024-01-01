@@ -3,7 +3,7 @@
 Payloads are a way to send arbitrary data between the client and the server. They are registered using the `IPayloadRegistrar` that can be retrieved for a given namespace from the `RegisterPayloadHandlerEvent` event.
 ```java
 @SubscribeEvent
-public static void register(final RegisterPacketHandlerEvent event) {
+public static void register(final RegisterPayloadHandlerEvent event) {
     final IPayloadRegistrar registrar = event.registrar("mymod");
 }
 ```
