@@ -1,0 +1,14 @@
+{
+  "version.label": {
+    "message": "FG6",
+    "description": "The label for version current"
+  },
+  "sidebar.ngSidebar.category.ForgeGradle Configurations": {
+    "message": "ForgeGradle 配置选项",
+    "description": "The label for category ForgeGradle Configurations in sidebar ngSidebar"
+  },
+  "sidebar.ngSidebar.category.Dependencies": {
+    "message": "依赖",
+    "description": "The label for category Dependencies in sidebar ngSidebar"
+  }
+}
