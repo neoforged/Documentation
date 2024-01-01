@@ -41,7 +41,7 @@ We then also need a reader to register this later on, here we can use a custom c
 Finally, we can register this payload with the registrar:
 ```java
 @SubscribeEvent
-public static void register(final RegisterPacketHandlerEvent event) {
+public static void register(final RegisterPayloadHandlerEvent event) {
     final IPayloadRegistrar registrar = event.registrar("mymod");
     registrar.play(MyData.ID, MyData::new, handler -> handler
             .client(ClientPayloadHandler.getInstance()::handleData)
