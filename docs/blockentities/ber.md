@@ -8,7 +8,7 @@ BER 만들기
 
 BER을 만들기 위해서는 `BlockEntityRenderer` 의 자식 클래스를 만드세요. 이때 사용하는 제너릭 인자는 렌더링할 `BlockEntity` 클래스 입니다. 이는 BER 의 `render` 메서드에 전달되는 인자로 사용됩니다.
 
-`BlockEntityType` 하나당 하나의 BER 만이 존재합니다; 다수의 `BlockEntity` 인스턴스에 하나의 BER 만 사용하게 됩니다. 그러다보니, 각 `BlockEntity` 마다 다르게 렌더링해야 한다면, 이에 대한 정보는 BER 에 저장하지 말고 `BlockEntity` 에다가 저장해야 합니다. 예를 들어, `render` 함수가 호출될 때 마다 증가하는 정수를 BER 에다가 만든다면, 매 프레임마다, 해당 타입의 모든 `BlockEntity` 들 하나하나마다 증가하게 됩니다.
+`BlockEntityType` 하나당 하나의 BER 만이 존재합니다; 다수의 `BlockEntity` 인스턴스에 하나의 BER 만 사용하게 됩니다. 그러다보니, 각 `BlockEntity` 마다 다르게 렌더링해야 한다면, 이에 대한 정보는 BER 에 저장하지 말고 `BlockEntity` 에다가 저장해야 합니다. 예를 들어, `render` 함수가 호출될 때마다 증가하는 정수를 BER 에다가 만든다면, 매 프레임마다, 해당 타입의 모든 `BlockEntity` 들 하나하나마다 증가하게 됩니다.
 
 ### `render`
 

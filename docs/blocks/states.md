@@ -1,7 +1,7 @@
 블록의 상태
 =========
 
-점진적으로 자라는 식물, 다양한 배치가 가능한 반블록 등, 하나의 블록에 여러가지의 "상태"를 부여해야 할 떄가 있습니다. 마인크래프트는 Blockstate를 통해 하나의 블록에 여러 상태를 부여합니다.
+점진적으로 자라는 식물, 다양한 배치가 가능한 반블록 등, 하나의 블록에 여러 가지의 "상태"를 부여해야 할 떄가 있습니다. 마인크래프트는 Blockstate를 통해 하나의 블록에 여러 상태를 부여합니다.
 
 BlockState 속성
 ---------------
@@ -80,7 +80,7 @@ public class EndPortalFrameBlock extends Block {
   public EndPortalFrameBlock(BlockBehaviour.Properties pProperties) {
     super(pProperties);
     // stateDefinition.any()는 무작위 블록 상태를 만들어 반환합니다,
-    // 모든 속성을 다시 지정하니 무작위 상태를 사용해도 상관 없습니다.
+    // 모든 속성을 다시 지정하니 무작위 상태를 사용해도 상관없습니다.
     registerDefaultState(stateDefinition.any()
             .setValue(FACING, Direction.NORTH)
             .setValue(EYE, false)

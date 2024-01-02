@@ -37,4 +37,4 @@ public ExampleSavedData load(CompoundTag tag) {
 netherDataStorage.computeIfAbsent(this::load, this::create, "example");
 ```
 
-SD를 레벨 상관 없이 어디에서나 사용하시려면, 단순히 오버월드에 추가하시면 됩니다, `MinecraftServer#overworld`로 오버월드의 인스턴스를 얻을 수 있습니다. 오버월드는 유일하게 완전히 언로드되는 일이 없는 레벨로, 언제든지 안전하게 접근할 수 있습니다.
+SD를 레벨 상관없이 어디에서나 사용하시려면, 단순히 오버월드에 추가하시면 됩니다, `MinecraftServer#overworld`로 오버월드의 인스턴스를 얻을 수 있습니다. 오버월드는 유일하게 완전히 언로드되는 일이 없는 레벨로, 언제든지 안전하게 접근할 수 있습니다.

@@ -92,7 +92,7 @@ minecraft {
 * `[` - 배열의 차원 1개를 표시함
   * 예: `[[S` 는 `short[][]`
 * `L<class name>;` - 참조 타입, 모든 클래스가 해당됨
-  * 예: `Ljava/lang/String;`는 참조 타입 `java.lang.String`를 가리킴 _(빗금 대신 마침표로 패캐지 구분)_
+  * 예: `Ljava/lang/String;`는 참조 타입 `java.lang.String`를 가리킴 _(빗금 대신 마침표로 패키지 구분)_
 * `(` - 메서드 디스크립터, 메서드의 인자들은 괄호 안에 적음, 반환 타입은 괄호 뒤에 적음
   * 예: `<method>(I)Z`는 `int`를 받고 `boolean`을 반환하는 메서드
 * `V` - 메서드 반환 타입이 `void`일 때 사용
