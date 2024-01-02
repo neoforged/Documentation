@@ -1,3 +1,6 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 접근 제어자 변형하기
 ===================
 
@@ -8,18 +11,67 @@
 AT 추가하기
 ----------
 
-접근 변환자를 사용하시려면 접근 변환자 설정 파일을 아래와 같이 `build.gradle`에 추가하세요:
+<Tabs defaultValue="latest">
+<TabItem value="latest" label="Latest">
+접근 변환자는 `build.gradle`과 `mods.toml` 두 곳에서 정의합니다:
 
 ```groovy
-// minecraft 블록은 매핑 채널과 버전도 지정합니다.
+// build.gradle에서:
+// 아래 블록은 매핑 채널과 버전도 지정하는 곳입니다.
 minecraft {
-    accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+    accessTransformers {
+        file('src/main/resources/META-INF/accesstransformer.cfg')
+    }
 }
 ```
 
+```toml
+# mods.toml에서:
+[[accessTransformers]]
+file="META-INF/accesstransformer.cfg"
+```
+
+AT 파일은 아무 곳에나 위치해도 되지만 따로 지정하지 않는다면 기본값으로 `META-INF/accesstransformer.cfg`를 사용합니다.
+
+추가적으로, 여러 AT 파일을 지정하면 순서대로 적용됩니다. 모드가 거대해 여러 패키지로 나눌 때 용이합니다.
+
+```groovy
+// build.gradle에서:
+minecraft {
+    accessTransformers {
+        file('src/main/resources/accesstransformer_main.cfg')
+        file('src/additions/resources/accesstransformer_additions.cfg')
+    }
+}
+```
+
+```toml
+# mods.toml에서:
+[[accessTransformers]]
+file="accesstransformer_main.cfg"
+
+[[accessTransformers]]
+file="accesstransformer_additions.cfg"
+```
+
 접근 변환자가 추가됐거나 수정됐다면 Gradle 프로젝트를 새로고침 하셔야 적용됩니다.
+</TabItem>
+
+<TabItem value="1.20.1" label="1.20.1-47.1 and older">
+접근 변환자를 사용하시려면 접근 변환자 설정 파일을 아래와 같이 `build.gradle`에 추가하세요:
+
+```groovy
+// 아래 블록은 매핑 채널과 버전도 지정하는 곳입니다.
+    minecraft {
+        accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+    }
+```
 
 개발 환경에선 해당 파일이 프로젝트 어디에나 위치하여도 상관없으나, 실제 클라이언트에서 불러오려면 모드 JAR의 `META-INF/accesstransformer.cfg`에 위치하여야만 정상적으로 불러올 수 있습니다.
+
+접근 변환자가 추가됐거나 수정됐다면 Gradle 프로젝트를 새로고침 하셔야 적용됩니다.
+</TabItem>
+</Tabs>
 
 주석
 --------
