@@ -70,7 +70,7 @@ public static final Supplier<HoeItem> COPPER_HOE = ITEMS.register("copper_hoe", 
 
 ### Tags
 
-When creating a `Tier`, it is assigned a block tag containing blocks that need this tool (or a better one) to be broken. For example, the `minecraft:needs_iron_tool` tag contains Diamond Ores (among others), and the `minecraft:needs_diamond_tool` tag contains blocks like Obsidian and Ancient Debris.
+When creating a `Tier`, it is assigned a block [tag][tags] containing blocks that need this tool (or a better one) to be broken. For example, the `minecraft:needs_iron_tool` tag contains Diamond Ores (among others), and the `minecraft:needs_diamond_tool` tag contains blocks like Obsidian and Ancient Debris.
 
 You can reuse one of these tags for your tool if you're fine with that. For example, if we wanted our copper tools to just be more durable stone tools, we'd pass in `BlockTags.NEEDS_STONE_TOOL`.
 
@@ -119,13 +119,37 @@ static {
 }
 ```
 
-If you want to check if a tier is applicable for a block state, you can call `TierSortingRegistry#isCorrectTierForDrops`.
+Instead of or in addition to a `Tier`, you can also pass in other tiers' ids into these lists. For example, say we want to make our material be considered weaker than both iron and the Osmium tools from [Mekanism Tools][mektools], we could do that like so:
+
+```java
+public static final Tier COPPER_TIER = new SimpleTier(...);
+
+static {
+    TierSortingRegistry.registerTier(
+            COPPER_TIER,
+            new ResourceLocation("minecraft", "copper"),
+            List.of(Tiers.STONE),
+            //We can mix and match Tiers and ResourceLocations here.
+            List.of(Tiers.IRON, new ResourceLocation("mekanism", "osmium"))
+    );
+}
+```
+
+This works for both the lower and higher tiers. If multiple options are available, the system will choose the strictest bounds available.
+
+:::caution
+Be aware that circular dependencies may occur if this is set up incorrectly, so make sure that your bounds actually make sense and don't all cross-reference one another.
+:::
+
+If you want to check if a tier is applicable for a block state, call `TierSortingRegistry#isCorrectTierForDrops`.
 
 ## Custom Tool Types
 
 Custom tool types can be created by extending `DiggerItem` (or `TieredItem` if you are making custom weapon types). They don't need too big of a setup, it is an item class like any other, with all implications that has.
 
 One thing worth noting is the parameters of `DiggerItem`. The first four parameters are the same as for its subclasses (see the explanation for `SwordItem` above), while the fifth parameter is the `mineable` tag for the tool type. Generally, the format here is `<mod_id>:mineable/<tool_type>`, though `forge` can be used as the namespace too if you expect other mods to add similar tools. For example, [Farmer's Delight][farmersdelight] uses a `forge:mineable/knives` tag.
+
+If you plan on making a multitool-like item (i.e. an item that combines two or more tools into one, e.g. an axe and a pickaxe as one item), it is best to extend `AxeItem` if applicable. This is because enchantment checks for things like Sharpness or Knockback are hardcoded to `instanceof AxeItem`.
 
 ## `ToolAction`s
 
@@ -147,16 +171,18 @@ Similar to tools, armor uses a tier system (although a different one). What is c
 ```java
 // We place copper somewhere between chainmail and iron.
 public static final ArmorMaterial COPPER_ARMOR_MATERIAL = new ArmorMaterial() {
-    // The name of the armor material. Mainly determines where the armor texture is.
+    // The name of the armor material. Mainly determines where the armor texture is. Should contain
+    // a leading mod id to guarantee uniqueness, otherwise there may be issues when two mods
+    // try to add the same armor material. (If the mod id is omitted, the "minecraft" namespace will be used.)
     @Override
     public String getName() {
-        return "copper";
+        return "modid:copper";
     }
 
     // Override for StringRepresentable. Should generally return the same as getName().
     @Override
     public String getSerializedName() {
-        return "copper";
+        return getName();
     }
 
     // Determines the durability of this armor material, depending on what armor piece it is.
@@ -185,14 +211,18 @@ public static final ArmorMaterial COPPER_ARMOR_MATERIAL = new ArmorMaterial() {
         };
     }
 
-    // Returns the toughness value of the armor.
+    // Returns the toughness value of the armor. The toughness value is an additional value included in
+    // damage calculation, for more information, refer to the Minecraft Wiki's article on armor mechanics:
+    // https://minecraft.wiki/w/Armor#Armor_toughness
     // Only diamond and netherite have values greater than 0 here, so we just return 0.
     @Override
     public float getToughness() {
         return 0;
     }
 
-    // Returns the knockback resistance value of the armor.
+    // Returns the knockback resistance value of the armor. While wearing this armor, the player is
+    // immune to knockback to some degree. If the player has a total knockback resistance value of 1 or greater
+    // from all armor pieces combined, they will not take any knockback at all.
     // Only netherite has values greater than 0 here, so we just return 0.
     @Override
     public float getKnockbackResistance() {
@@ -217,6 +247,10 @@ public static final ArmorMaterial COPPER_ARMOR_MATERIAL = new ArmorMaterial() {
     public Ingredient getRepairIngredient() {
         return Ingredient.of(Tags.Items.INGOTS_COPPER);
     }
+    
+    // Optionally, you can also override #getArmorTexture here. This method returns a ResourceLocation
+    // that determines where the armor location is stored, in case you want to store it in a non-default location.
+    // See the default implementation in Tier for an example.
 }
 ```
 
@@ -244,3 +278,5 @@ When creating your armor texture, it is a good idea to work on top of the vanill
 [block]: ../blocks/index.md
 [farmersdelight]: https://www.curseforge.com/minecraft/mc-mods/farmers-delight
 [item]: index.md
+[mektools]: https://www.curseforge.com/minecraft/mc-mods/mekanism-tools
+[tags]: ../resources/server/tags.md

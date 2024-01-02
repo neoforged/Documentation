@@ -7,9 +7,11 @@ Along with blocks, items are a key component of Minecraft. While blocks make up 
 Before we get further into creating items, it is important to understand what an item actually is, and what distinguishes it from, say, a [block][block]. Let's illustrate this using an example:
 
 - In the world, you encounter a dirt block and want to mine it. This is a **block**, because it is placed in the world. (Actually, it is not a block, but a blockstate. See the [Blockstates article][blockstates] for more detailed information.)
-- Once you have mined the block, it is removed (= replaced with an air block) and the dirt drops. The dropped dirt is an item **entity**. This means that like other entities (pigs, zombies, arrows, etc.), it can inherently be moved by things like water pushing on it, or burned by fire and lava.
+  - Not all blocks drop themselves when breaking (e.g. leaves), see the article on [loot tables][loottables] for more information.
+- Once you have [mined the block][breaking], it is removed (= replaced with an air block) and the dirt drops. The dropped dirt is an item **entity**. This means that like other entities (pigs, zombies, arrows, etc.), it can inherently be moved by things like water pushing on it, or burned by fire and lava.
 - Once you pick up the dirt item entity, it becomes an **item stack** in your inventory. An item stack is, simply put, an instance of an item with some extra information, such as the stack size.
-- Item stacks are backed by their corresponding **item** (which is what we're creating). Items hold information that is the same across all items (for example, every iron sword has a max durability of 250), while item stacks hold information that can be different between two similar items (for example, one iron sword has 100 uses left, while another iron sword has 200 uses left).
+- Item stacks are backed by their corresponding **item** (which is what we're creating). Items hold information that is the same across all items (for example, every iron sword has a max durability of 250), while item stacks hold information that can be different between two similar items (for example, one iron sword has 100 uses left, while another iron sword has 200 uses left). For more information on what is done through items and what is done through item stacks, read on.
+  - The relationship between items and item stacks is roughly the same as between [blocks][block] and [blockstates][blockstates], in that a blockstate is always backed by a block. It's not a really accurate comparison (item stacks aren't singletons, for example), but it gives a good basic idea about what the concept is here.
 
 ## Creating an Item
 
@@ -44,15 +46,17 @@ The `Item` class provides default functionality for food items, meaning you don'
 
 For examples, or to look at the various values used by Minecraft, have a look at the `Foods` class.
 
+To get the `FoodProperties` for an item, call `Item#getFoodProperties(ItemStack, LivingEntity)`. This may return null, since not every item is edible. To determine whether an item is edible, call `Item#isEdible()` or null-check the result of the `getFoodProperties` call.
+
 ### More Functionality
 
-Directly using `Item` only allows for very basic items. If you want to add functionality, for example right-click interactions, a custom class that extends `Item` is required. The `Item` class has many methods that can be overridden to do different things; see the classes `Item` and `IItemExtension` for more information. See also the [Interaction Pipeline][interactionpipeline] for where to begin for right-click behavior.
+Directly using `Item` only allows for very basic items. If you want to add functionality, for example right-click interactions, a custom class that extends `Item` is required. The `Item` class has many methods that can be overridden to do different things; see the classes `Item` and `IItemExtension` for more information. See also [below][using] for the most common use cases.
 
 ### Resources
 
 If you register your item and get your item (via `/give` or through a [creative tab][creativetabs]), you will find it to be missing a proper model and texture. This is because textures and models  are handled by Minecraft's resource system.
 
-To apply a simple texture to an item, you must add an item model JSON and a texture PNG. See the section on [resources] for more information.
+To apply a simple texture to an item, you must add an item model JSON and a texture PNG. See the section on [resources][resources] for more information.
 
 ## `ItemStack`s
 
@@ -63,10 +67,23 @@ An `ItemStack` consists of three major parts:
 - The `Item` it represents, obtainable through `itemstack.getItem()`.
 - The stack size, typically between 1 and 64, obtainable through `itemstack.getCount()` and changeable through `itemstack.setCount(int)` or `itemstack.shrink(int)`.
 - The extra NBT data, where stack-specific data is stored. Obtainable through `itemstack.getTag()`, or alternatively through `itemstack.getOrCreateTag()` which accounts for no tag existing yet. A variety of other NBT-related methods exist as well, the most important being `hasTag()` and `setTag()`.
+  - It is worth nothing that `ItemStack`s with empty NBT are not the same as `ItemStack`s with no NBT at all. This means that they will not stack, despite being functionally equivalent to one another.
 
 To create a new `ItemStack`, call `new ItemStack(Item)`, passing in the backing item. By default, this uses a count of 1 and no NBT data; there are constructor overloads that accept a count and NBT data as well if needed.
 
+To clone an existing `ItemStack`, call `itemstack.copy()`.
+
 If you want to represent that a stack has no item, use `ItemStack.EMPTY`. If you want to check whether an `ItemStack` is empty, call `itemstack.isEmpty()`.
+
+### Mutability of `ItemStack`s
+
+`ItemStack`s are mutable objects. This means that if you call for example `setCount`, `setTag` or `getOrCreateTag`, the `ItemStack` itself will be modified. Vanilla uses the mutability of `ItemStack`s extensively, and several methods rely on it. For example, `itemstack.split(int)` splits the given amount off the stack it is called on, both modifying the caller and returning a new `ItemStack` in the process.
+
+However, this can sometimes lead to issues when dealing with multiple `ItemStack`s at once. The most common instance where this arises is when handling inventory slots, since you have to consider both the `ItemStack` currently selected by the cursor, as well as the `ItemStack` you are trying to insert to/extract from.
+
+:::tip
+When in doubt, better be safe than sorry and `#copy()` the stack.
+:::
 
 ## Creative Tabs
 
@@ -75,6 +92,10 @@ By default, your item will only be available through `/give` and not appear in t
 The way you get your item into the creative menu depends on what tab you want to add it to.
 
 ### Existing Creative Tabs
+
+:::note
+This method is for adding your items to Minecraft's tabs, or to other mods' tabs. To add items to your own tabs, see below.
+:::
 
 An item can be added to an existing `CreativeModeTab` via the `BuildCreativeModeTabContentsEvent`, which is fired on the [mod event bus][modbus], only on the [logical client][sides]. Add items by calling `event#accept`.
 
@@ -85,16 +106,13 @@ public static void buildContents(BuildCreativeModeTabContentsEvent event) {
     // Is this the tab we want to add to?
     if (event.getTabKey() == CreativeModeTabs.INGREDIENTS) {
         event.accept(MyItemsClass.MY_ITEM);
-        event.accept(MyBlocksClass.MY_BLOCK); // Accepts an ItemLike. This assumes that MY_BLOCK has a corresponding item.
+        // Accepts an ItemLike. This assumes that MY_BLOCK has a corresponding item.
+        event.accept(MyBlocksClass.MY_BLOCK);
     }
 }
 ```
 
 The event also provides some extra information, such as `getFlags()` to get the list of enabled feature flags, or `hasPermissions()` to check if the player has permissions to view the operator items tab.
-
-:::note
-This method is for adding your items to Minecraft's tabs, or to other mods' tabs. To add items to your own tabs, see below.
-:::
 
 ### Custom Creative Tabs
 
@@ -110,18 +128,33 @@ public static final Supplier<CreativeModeTab> EXAMPLE_TAB = CREATIVE_MODE_TABS.r
     //Add your items to the tab.
     .displayItems((params, output) -> {
         output.accept(MyItemsClass.MY_ITEM);
-        output.accept(MyBlocksClass.MY_BLOCK); // Accepts an ItemLike. This assumes that MY_BLOCK has a corresponding item.
+        // Accepts an ItemLike. This assumes that MY_BLOCK has a corresponding item.
+        output.accept(MyBlocksClass.MY_BLOCK);
     })
     .build()
 );
 ```
 
+## Using Items
+
+### Left-Click
+
+See [Breaking a Block][breaking] and Attacking an Entity (WIP).
+
+### Right-Click
+
+See [The Interaction Pipeline][interactionpipeline].
+
 [block]: ../blocks/index.md
 [blockstates]: ../blocks/states.md
+[breaking]: ../blocks/index.md#breaking-a-block
 [creativetabs]: #creative-tabs
 [food]: #food
 [hunger]: https://minecraft.wiki/w/Hunger#Mechanics
 [interactionpipeline]: interactionpipeline.md
+[loottables]: ../resources/server/loottables.md
 [modbus]: ../concepts/events.md#mod-event-bus
 [registering]: ../concepts/registries.md#methods-for-registering
+[resources]: ../resources/client/index.md
 [sides]: ../concepts/sides.md
+[using]: #using-items
