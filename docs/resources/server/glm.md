@@ -142,7 +142,7 @@ public static final RegistryObject<Codec<ExampleModifier>> = REGISTRAR.register(
 [tags]: ./tags.md
 [resloc]: ../../concepts/resources.md#ResourceLocation
 [codec]: #the-loot-modifier-codec
-[registered]: ../../concepts/registries.md#methods-for-registering
+[registered]: ../../concepts/registries.md#객체-등록하기
 [codecdef]: ../../datastorage/codecs.md
 [datagen]: ../../datagen/server/glm.md
 [examples]: https://github.com/neoforged/NeoForge/blob/1.20.x/tests/src/main/java/net/neoforged/neoforge/debug/loot/GlobalLootModifiersTest.java

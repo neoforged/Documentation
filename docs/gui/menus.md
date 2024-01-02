@@ -338,6 +338,6 @@ public class MyMob extends Mob implements MenuProvider {
 [acm]: #abstractcontainermenu
 [mt]: #menutype
 [qms]: #quickmovestack
-[cap]: ../datastorage/capabilities.md#네오-포지에서-제공하는-캐패빌리티
+[cap]: ../datastorage/capabilities.md#네오-포지가-제공하는-캐패빌리티
 [screen]: ./screens.md
 [icf]: #icontainerfactory

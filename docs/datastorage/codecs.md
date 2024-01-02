@@ -199,12 +199,12 @@ public static final Codec<ClassB> B_CODEC = A_CODEC.xmap(ClassA::toB, ClassB::to
 
 만약 두 타입이 동등하지 않다면, 예를 들어 타입간 변환에 특별한 규칙이 적용되어 실패할 수도 있다면, `DataResult`를 반환하는 메서드를 대신 사용하실 수 있습니다.
 
-B로 언제나 변환 가능한가? | A로 언제나 변환 가능한가? | Transform Method
-:---:                      |:---------------:| :---
-네                        |        네        | `#xmap`
-네                        |       아니오       | `#flatComapMap`
-아니오                         |        네        | `#comapFlatMap`
-아니오                         |       아니오       | `#flatXMap`
+| B로 언제나 변환 가능한가? | A로 언제나 변환 가능한가? | Transform Method |
+|:---------------:|:---------------:|:-----------------|
+|        네        |        네        | `#xmap`          |
+|        네        |       아니오       | `#flatComapMap`  |
+|       아니오       |        네        | `#comapFlatMap`  |
+|       아니오       |       아니오       | `#flatXMap`      |
 
 ```java
 // 문자열 코덱을 정수 코덱으로 변환

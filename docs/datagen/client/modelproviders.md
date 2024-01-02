@@ -413,8 +413,8 @@ public CompletableFuture<?> run(CachedOutput cache) {
 
 [provider]: #model-providers
 [models]: ../../resources/client/models/index.md
-[datagen]: ../index.md#data-providers
-[efh]: ../index.md#existing-files
+[datagen]: ../index.md#dataprovider
+[efh]: ../index.md#외부-에셋-참조하기
 [loader]: #custom-model-loader-builders
 [color]: ../../resources/client/models/tinting.md#blockcoloritemcolor
 [overrides]: ../../resources/client/models/itemproperties.md
@@ -422,6 +422,6 @@ public CompletableFuture<?> run(CachedOutput cache) {
 [blockstate]: https://minecraft.wiki/w/Tutorials/Models#Block_states
 [blockmodels]: #blockmodelprovider
 [itemmodels]: #itemmodelprovider
-[properties]: ../../blocks/states.md#implementing-block-states
+[properties]: ../../blocks/states.md#블록에-상태-추가하기
 [transform]: ../../rendering/modelloaders/transform.md
 [obj]: ../../rendering/modelloaders/index.md#wavefront-obj-models

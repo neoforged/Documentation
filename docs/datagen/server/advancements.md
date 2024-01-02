@@ -63,5 +63,5 @@ Advancement example = Advancement.Builder.advancement()
 ```
 
 [advancements]: ../../resources/server/advancements.md
-[datagen]: ../index.md#data-providers
+[datagen]: ../index.md#dataprovider
 [conditional]: ../../resources/server/conditional.md

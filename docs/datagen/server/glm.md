@@ -27,4 +27,4 @@ this.add("example_modifier", new ExampleModifier(
 
 [glm]: ../../resources/server/glm.md
 [instance]: ../../resources/server/glm.md#igloballootmodifier
-[datagen]: ../index.md#data-providers
+[datagen]: ../index.md#dataprovider

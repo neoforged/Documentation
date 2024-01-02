@@ -125,4 +125,4 @@ new RegistrySetBuilder()
   });
 ```
 
-[datagen]: ../index.md#data-providers
+[datagen]: ../index.md#dataprovider

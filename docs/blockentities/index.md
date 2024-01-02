@@ -153,7 +153,7 @@ Level#sendBlockUpdated(BlockPos pos, BlockState oldState, BlockState newState, i
 :::
 
 [등록]: ../concepts/registries.md#객체-등록하기
-[데이터-저장하기]: #blockentity-를-활용한-데이터-저장
+[데이터-저장하기]: #블록-엔티티에-데이터-담기
 [네트워크-통신]: ../networking/index.md
 [simple_impl]: ../networking/simpleimpl.md
 [blockstate]: ../blocks/states.md

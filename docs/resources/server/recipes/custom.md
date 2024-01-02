@@ -126,7 +126,7 @@ Data Generation
 
 All custom recipes, regardless of input or output data, can be created into a `FinishedRecipe` for [data generation][datagen] using the `RecipeProvider`.
 
-[forge]: ../../../concepts/registries.md#methods-for-registering
+[forge]: ../../../concepts/registries.md#객체-등록하기
 [json]: https://minecraft.wiki/w/Recipe#JSON_format
 [manager]: ./index.md#recipe-manager
 [datagen]: ../../../datagen/server/recipes.md#custom-recipe-serializers

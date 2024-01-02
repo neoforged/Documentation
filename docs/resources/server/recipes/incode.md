@@ -60,6 +60,6 @@ public static final BannerPattern EXAMPLE_PATTERN = REGISTER.register("example_p
 ```
 
 [recipe]: ./custom.md#recipe
-[cancel]: ../../../concepts/events.md#canceling
-[attached]: ../../../concepts/events.md#creating-an-event-handler
-[registering]: ../../../concepts/registries.md#registries-that-arent-forge-registries
+[cancel]: ../../../concepts/events.md#이벤트-취소하기
+[attached]: ../../../concepts/events.md#이벤트-핸들러-만들기
+[registering]: ../../../concepts/registries.md#포지가-확장하지-않는-레지스트리들

@@ -126,4 +126,4 @@ Spawning a Particle
 Particles can be spawned from either level instance. However, each side has a specific way to spawn a particle. If on the `ClientLevel`, `#addParticle` can be called to spawn a particle or `#addAlwaysVisibleParticle` can be called to spawn a particle that is visible from any distance. If on the `ServerLevel`, `#sendParticles` can be called to send a packet to the client to spawn the particle. Calling the two `ClientLevel` methods on the server will result in nothing.
 
 [sides]: ../concepts/sides.md
-[registration]: ../concepts/registries.md#methods-for-registering
+[registration]: ../concepts/registries.md#객체-등록하기

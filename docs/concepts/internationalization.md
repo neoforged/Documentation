@@ -67,5 +67,5 @@
 
 [langs]: https://minecraft.wiki/w/Language#Languages
 [converter]: https://tterrag.com/lang2json/
-[formatting]: ../misc/components.md#text-formatting
+[formatting]: ../misc/components.md#서식-지정하기
 [components]: ../misc/components.md

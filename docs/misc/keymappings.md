@@ -149,8 +149,8 @@ public boolean mouseClicked(double x, double y, int button) {
 If you do not own the screen which you are trying to check a **mouse** for, you can listen to the `Pre` or `Post` events of `ScreenEvent$MouseButtonPressed` on the [**Forge event bus**][forgebus] instead.
 :::
 
-[modbus]: ../concepts/events.md#mod-event-bus
+[modbus]: ../concepts/events.md#모드-이벤트-버스
 [controls]: https://minecraft.wiki/w/Options#Controls
 [tk]: ../concepts/internationalization.md#translatablecontents
 [keyinput]: https://www.glfw.org/docs/3.3/input_guide.html#input_key
-[forgebus]: ../concepts/events.md#creating-an-event-handler
+[forgebus]: ../concepts/events.md#이벤트-핸들러-만들기

@@ -80,5 +80,5 @@ this.add(EXAMPLE_SOUND_EVENT_2, definition()
 );
 ```
 
-[datagen]: ../index.md#data-providers
-[soundevent]: ../../gameeffects/sounds.md#creating-sound-events
+[datagen]: ../index.md#dataprovider
+[soundevent]: ../../gameeffects/sounds.md#효과음-이벤트-정의하기

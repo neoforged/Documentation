@@ -12,7 +12,7 @@
 객체 등록하기
 ------------------
 
-객체를 올바르게 등록하는 방법에는 2가지가 있는데, `DeferredRegister`와 `RegistryEvent` 입니다.
+객체를 등록하는 방법에는 2가지가 있는데, `DeferredRegister`와 `RegistryEvent` 입니다.
 
 ### DeferredRegister
 
