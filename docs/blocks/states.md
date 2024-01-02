@@ -114,7 +114,7 @@ public class EndPortalFrameBlock extends Block {
 Direction direction = endPortalFrameBlockState.getValue(EndPortalFrameBlock.FACING);
 ```
 
-만약 속성값이 다른 `BlockState`에 접근하시려면, 사전에 받아온 `BlockState`에 #setValue(Property<T>, T)`를 호출해 원하시는 속성값을 지정하세요. 예를 들어 남쪽을 바라보는 엔드 차원문 틀의 상태에 접근한다면:
+만약 속성값이 다른 `BlockState`에 접근하시려면, 사전에 받아온 `BlockState`에 `#setValue(Property<T>, T)`를 호출해 원하시는 속성값을 지정하세요. 예를 들어 남쪽을 바라보는 엔드 차원문 틀의 상태에 접근한다면:
 
 ```java
 endPortalFrameBlockState = endPortalFrameBlockState.setValue(EndPortalFrameBlock.FACING, Direction.SOUTH);
