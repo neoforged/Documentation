@@ -100,7 +100,7 @@ public boolean stillValid(Player player) {
 마인크래프트는 두 가지의 데이터 동기화를 제공하는데: `Slot`을 통한 `ItemStack` 동기화, 그리고 `DataSlot`을 통한 정수 동기화입니다. `Slot`과 `DataSlot`은 플레이어가 간접적으로 데이터에 접근하고 수정할 수 있는 통로를 제공합니다. `#addSlot`과 `#addDataSlot`을 호출해 메뉴에 추가할 수 있습니다.
 
 :::note
-`Slot`의 `Container`는 포지의 [`IItemHandler` 캐패빌리티][cap]로 대체되었기 때문에, 이 문서는 `SlotItemHandler`를 사용한 동기화를 대신 다룹니다.
+`Slot`의 `Container`는 네오 포지의 [`IItemHandler` 캐패빌리티][cap]로 대체되었기 때문에, 이 문서는 `SlotItemHandler`를 사용한 동기화를 대신 다룹니다.
 :::
 
 `SlotItemHandler`는 네 가지 인자를 받는데: `Slot`을 담는 인벤토리를 대표하는 `IItemHandler`, 슬롯의 인덱스, 그리고 `AbstractContainerScreen#leftPos`랑 `#topPos` 기준 왼쪽 위 가장자리로부터 슬롯을 렌더링할 x, y 좌표입니다. 이때 클라이언트에선 크기가 동일한 빈 `IItemHandler`를 사용해야 합니다.
@@ -338,6 +338,6 @@ public class MyMob extends Mob implements MenuProvider {
 [acm]: #abstractcontainermenu
 [mt]: #menutype
 [qms]: #quickmovestack
-[cap]: ../datastorage/capabilities.md#포지에서-제공하는-캐패빌리티
+[cap]: ../datastorage/capabilities.md#네오-포지에서-제공하는-캐패빌리티
 [screen]: ./screens.md
 [icf]: #icontainerfactory

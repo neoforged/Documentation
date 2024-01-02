@@ -1,181 +1,321 @@
-캐패빌리티
-=====================
+# Capabilities
 
-캐패빌리티 시스템은 클래스 참조로 인한 강제 종속성을 피하면서도 선택적으로 기능을 제공할 수 있습니다.
+Capabilities allow exposing features in a dynamic and flexible way without having to resort to directly implementing many interfaces.
 
-이렇게 제공되는 동작 또는 기능을 캐패빌리티라고 하며, 이를 인터페이스 형태로 제공합니다.
+In general terms, each capability provides a feature in the form of an interface.
 
-포지는 `BlockEntity`, `Entity`, `ItemStack`, `Level`, 그리고 `LevelChunk`에 캐패빌리티 지원을 추가합니다, 이 객체들에는 캐패빌리티를 이벤트 핸들러 사용 또는 관련 메서드를 재정의하여 추가할 수 있습니다. 이에 대해서는 아래 더 자세히 다루도록 하겠습니다.
+NeoForge adds capability support to blocks, entities, and item stacks.
+This will be explained in more detail in the following sections.
 
-포지에서 제공하는 캐패빌리티
----------------------------
+## Why use capabilities
 
-포지에서는 기본적으로 세가지 캐패빌리티가 있습니다: `IItemHandler`, `IFluidHandler` `IEnergyStorage`
-`IItemHandler`는 인벤토리를 관리하는 인터페이스를 제공합니다. BlockEntity, Entity, 또는 ItemStack 에 사용할 수 있습니다. `Container`, `WorldlyContainer` 대신 사용하세요.
+Capabilities are designed to separate **what** a block, entity or item stack can do from **how** it does it.
+If you are wondering whether capabilities are the right tool for a job, ask yourself the following questions:
+1. Do I only care about **what** a block, entity or item stack can do, but not about **how** it does it?
+2. Is the **what**, the behavior, only available for some blocks, entities, or item stacks, but not all of them?
+3. Is the **how**, the implementation of that behavior, dependent on the specific block, entity or item stack?
 
-`IFluidHandler`는 액체를 저장하는 인터페이스를 제공합니다. BlockEntity, Entity, 또는 ItemStack 에 적용할 수 있습니다.
+Here are a few examples of good capability usage:
+- *"I want my fluid container to be compatible with fluid containers from other mods, but I don't know the specifics of each fluid container."* - Yes, use the `IFluidHandler` capability.
+- *"I want to count how many items are in some entity, but I do not know how the entity might store them."* - Yes, use the `IItemHandler` capability.
+- *"I want to fill some item stack with power, but I do not know how the item stack might store it."* - Yes, use the `IEnergyStorage` capability.
+- *"I want to apply some color to whatever block a player is currently targeting, but I do not know how the block will be transformed."* - Yes. NeoForge does not provide a capability to color blocks, but you can implement one yourself.
 
-`IEnergyStorage`는 에너지를 저장하는 인터페이스를 제공합니다. BlockEntity, Entity, 또는 ItemStack 에 적용할 수 있습니다. TeamCoFH 의 RedstoneFlux API를 기반으로 하여 만들어 졌습니다.
+Here is an example of discouraged capability usage:
+- *"I want to check if an entity is within the range of my machine."* - No, use a helper method instead.
 
-캐패빌리티 사용하기
-----------------------------
+## NeoForge-provided capabilities
 
-각 캐패빌리티는 `Capability`라는 고유한 인스턴스로 구분합니다.
+NeoForge provides capabilities for the following three interfaces: `IItemHandler`, `IFluidHandler` and `IEnergyStorage`.
 
-각 `Capability` 인스턴스들은 포지에서 생성하고 관리합니다. 이들을 참조하려면 `CapabilityManager#get`을 사용하세요. 
+`IItemHandler` exposes an interface for handling inventory slots. The capabilities of type `IItemHandler` are:
+- `Capabilities.ItemHandler.BLOCK`: automation-accessible inventory of a block (for chests, machines, etc).
+- `Capabilities.ItemHandler.ENTITY`: inventory contents of an entity (extra player slots, mob/creature inventories/bags).
+- `Capabilities.ItemHandler.ENTITY_AUTOMATION`: automation-accessible inventory of an entity (boats, minecarts, etc).
+- `Capabilities.ItemHandler.ITEM`: contents of an item stack (portable backpacks and such).
 
-::tip
-위에서 언급한 세가지 캐패빌리티들은 `ForgeCapabilities`를 통해서도 `Capability`를 참조하실 수 있습니다.
+`IFluidHandler` exposes an interface for handling fluid inventories. The capabilities of type `IFluidHandler` are:
+- `Capabilities.FluidHandler.BLOCK`: automation-accessible fluid inventory of a block.
+- `Capabilities.FluidHandler.ENTITY`: fluid inventory of an entity.
+- `Capabilities.FluidHandler.ITEM`: fluid inventory of an item stack.
+This capability is of the special `IFluidHandlerItem` type due to the way buckets hold fluids.
+
+`IEnergyStorage` exposes an interface for handling energy containers. It is based on the RedstoneFlux API by TeamCoFH. The capabilities of type `IEnergyStorage` are:
+- `Capabilities.EnergyStorage.BLOCK`: energy contained inside a block.
+- `Capabilities.EnergyStorage.ENTITY`: energy containing inside an entity.
+- `Capabilities.EnergyStorage.ITEM`: energy contained inside an item stack.
+
+## Creating a capability
+
+NeoForge supports capabilities for blocks, entities, and item stacks.
+
+Capabilities allow looking up implementations of some APIs with some dispatching logic. The following kinds of capabilities are implemented in NeoForge:
+- `BlockCapability`: capabilities for blocks and block entities; behavior depends on the specific `Block`.
+- `EntityCapability`: capabilities for entities: behavior dependends on the specific `EntityType`.
+- `ItemCapability`: capabilities for item stacks: behavior depends on the specific `Item`.
+
+:::tip
+For compatibility with other mods,
+we recommend using the capabilities provided by NeoForge in the `Capabilities` class if possible.
+Otherwise, you can create your own as described in this section.
 :::
 
-```java
-static Capability<IItemHandler> ITEM_HANDLER_CAPABILITY = CapabilityManager.get(new CapabilityToken<IItemHandler>(){});
+Creating a capability is a single function call, and the resulting object should be stored in a `static final` field.
+The following parameters must be provided:
+- The name of the capability.
+Creating a capability with the same name multiple times will always return the same object.
+Capabilities with different names are **completely independent**, and can be used for different purposes.
+- The behavior type that is being queried. This is the `T` type parameter.
+- The type for additional context in the query. This is the `C` type parameter.
 
-static Capability<IItemHandler> STATIC_REFERENCE = ForgeCapabilities#ITEM_HANDLER;
-// 위 두가지 다 동일한 캐패빌리티의 인스턴스를 참조합니다
+For example, here is how a capability for side-aware block `IItemHandler`s might be declared:
+
+```java
+public static final BlockCapability<IItemHandler, @Nullable Direction> ITEM_HANDLER_BLOCK =
+    BlockCapability.create(
+        // Provide a name to uniquely identify the capability.
+        new ResourceLocation("mymod", "item_handler"),
+        // Provide the queried type. Here, we want to look up `IItemHandler` instances.
+        IItemHandler.class,
+        // Provide the context type. We will allow the query to receive an extra `Direction side` parameter.
+        Direction.class);
 ```
 
-`CapabilityManager#get`은 언제나 `null`이 아닌 요청된 `Capability`를 반환합니다.
-여기서 `CapabilityToken`의 제너릭 타입 인자는 `Capability`가 제공하는 인스턴스를 사용합니다.
+A `@Nullable Direction` is so common for blocks that there is a dedicated helper:
+```java
+public static final BlockCapability<IItemHandler, @Nullable Direction> ITEM_HANDLER_BLOCK =
+    BlockCapability.createSided(
+        // Provide a name to uniquely identify the capability.
+        new ResourceLocation("mymod", "item_handler"),
+        // Provide the queried type. Here, we want to look up `IItemHandler` instances.
+        IItemHandler.class);
+```
+
+If no context is required, `Void` should be used.
+There is also a dedicated helper for context-less capabilities:
+```java
+public static final BlockCapability<IItemHandler, Void> ITEM_HANDLER_NO_CONTEXT =
+    BlockCapability.createVoid(
+        // Provide a name to uniquely identify the capability.
+        new ResourceLocation("mymod", "item_handler_no_context"),
+        // Provide the queried type. Here, we want to look up `IItemHandler` instances.
+        IItemHandler.class);
+```
+
+For entities and item stacks, similar methods exist in `EntityCapability` and `ItemCapability` respectively.
+
+## Querying capabilities
+Once we have our `BlockCapability`, `EntityCapability`, or `ItemCapability` object in a static field, we can query a capability.
+
+For entities and item stacks, we can try to find implementations of a capability with `getCapability`.
+If the result is `null`, there no implementation is available.
+
+For example:
+```java
+var object = entity.getCapability(CAP, context);
+if (object != null) {
+    // Use object
+}
+```
+```java
+var object = stack.getCapability(CAP, context);
+if (object != null) {
+    // Use object
+}
+```
+
+Block capabilities are used a bit differently because blocks without a block entity can have capabilities as well.
+The query is now performed on a `level`, with the `pos`ition that we are looking for as an additional parameter:
+```java
+var object = level.getCapability(CAP, pos, context);
+if (object != null) {
+    // Use object
+}
+```
+
+If the block entity and/or the block state is known, they can be passed to save on query time:
+```java
+var object = level.getCapability(CAP, pos, blockState, blockEntity, context);
+if (object != null) {
+    // Use object
+}
+```
+
+To give a more concrete example, here is how one might query an `IItemHandler` capability for a block, from the `Direction.NORTH` side:
+```java
+IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, pos, Direction.NORTH);
+if (handler != null) {
+    // Use the handler for some item-related operation.
+}
+```
+
+## Block capability caching
+When a capability is looked up, the system will perform the following steps under the hood:
+1. Fetch block entity and block state if they were not supplied.
+2. Fetch registered capability providers. (More on this below).
+3. Iterate the providers and ask them if they can provide the capability.
+4. One of the providers will return a capability instance, potentially allocating a new object.
+
+The implementation is rather efficient, but for queries that are performed frequently,
+for example every game tick, these steps can take a significant amount of server time.
+The `BlockCapabilityCache` system provides a dramatic speedup for capabilities that are frequently queried at a given position.
+
+:::tip
+Generally, a `BlockCapabilityCache` will be created once and then stored in a field of the object performing frequent capability queries.
+When and where exactly you store the cache is up to you.
+:::
+
+To create a cache, call `BlockCapabilityCache.create` with the capability to query, the level, the position, and the query context.
+
+```java
+// Declare the field:
+private BlockCapabilityCache<IItemHandler, @Nullable Direction> capCache;
+
+// Later, for example in `onLoad` for a block entity:
+this.capCache = BlockCapabilityCache.create(
+        Capabilities.ItemHandler.BLOCK, // capability to cache
+        level, // level
+        pos, // target position
+        Direction.NORTH // context
+);
+```
+
+Querying the cache is then done with `getCapability()`:
+```java
+IItemHandler handler = this.capCache.getCapability();
+if (handler != null) {
+    // Use the handler for some item-related operation.
+}
+```
+
+**The cache is automatically cleared by the garbage collector, there is no need to unregister it.**
+
+It is also possible to receive notifications when the capability object changes!
+This includes capabilities changing (`oldHandler != newHandler`), becoming unavailable (`null`) or becoming available again (not `null` anymore).
+
+The cache then needs to be created with two additional parameters:
+- A validity check, that is used to determine if the cache is still valid.
+In the simplest usage as a block entity field, `() -> !this.isRemoved()` will do.
+- An invalidation listener, that is called when the capability changes.
+This is where you can react to capability changes, removals, or appearances.
+
+```java
+// With optional invalidation listener:
+this.capCache = BlockCapabilityCache.create(
+        Capabilities.ItemHandler.BLOCK, // capability to cache
+        level, // level
+        pos, // target position
+        Direction.NORTH, // context
+        () -> !this.isRemoved(), // validity check (because the cache might outlive the object it belongs to)
+        () -> onCapInvalidate() // invalidation listener
+);
+```
+
+## Block capability invalidation
+:::info
+Invalidation is exclusive to block capabilities. Entity and item stack capabilities cannot be cached and do not need to be invalidated.
+:::
+
+To make sure that caches can correctly update their stored capability, **modders must call `level.invalidateCapabilities(pos)` whenever a capability changes, appears, or disappears**.
+```java
+// whenever a capability changes, appears, or disappears:
+level.invalidateCapabilities(pos);
+```
+
+NeoForge already handles common cases such as chunk load/unloads and block entity creation/removal,
+but other cases need to be handled explicitly by modders.
+For example, modders must invalidate capabilities in the following cases:
+- If a previously returned capability is no longer valid.
+- If a capability-providing block (without a block entity) is placed or changes state, by overriding `onPlace`.
+- If a capability-providing block (without a block entity) is removed, by overriding `onRemove`.
+
+For a plain block example, refer to the `ComposterBlock.java` file.
+
+For more information, refer to the javadoc of [`IBlockCapabilityProvider`][block-cap-provider].
+
+## Registering capabilities
+A capability _provider_ is what ultimately supplies a capability.
+A capability provider is function that can either return a capability instance, or `null` if it cannot provide the capability.
+Providers are specific to:
+- the given capability that they are providing for, and
+- the block instance, block entity type, entity type, or item instance that they are providing for.
+
+They need to be registered in the `RegisterCapabilitiesEvent`.
+
+Block providers are registered with `registerBlock`. For example:
+```java
+private static void registerCapabilities(RegisterCapabilitiesEvent event) {
+    event.registerBlock(
+        Capabilities.ItemHandler.BLOCK, // capability to register for
+        (level, pos, state, be, side) -> <return the IItemHandler>,
+        // blocks to register for
+        MY_ITEM_HANDLER_BLOCK,
+        MY_OTHER_ITEM_HANDLER_BLOCK);
+}
+```
+
+In general, registration will be specific to some block entity types, so the `registerBlockEntity` helper method is provided as well:
+```java
+    event.registerBlockEntity(
+        Capabilities.ItemHandler.BLOCK, // capability to register for
+        MY_BLOCK_ENTITY_TYPE, // block entity type to register for
+        (myBlockEntity, side) -> <return the IItemHandler for myBlockEntity and side>);
+```
 
 :::danger
-`CapabilityManager#get`이 `null`이 값을 반환하였어도 해당 캐패빌리티가 존재하지 않을 수 있습니다. 캐패빌리티가 사용가능한지 확인하려면 `Capability#isRegistered`를 사용하세요.
+If the capability previously returned by a block or block entity provider is no longer valid,
+**you must invalidate the caches** by calling `level.invalidateCapabilities(pos)`.
+Refer to the [invalidation section][invalidation] above for more information.
 :::
 
-BlockEntity, Entity, 그리고 ItemStack은 `ICapabilityProvider`를 구현하여 캐패빌리티 시스템을 지원합니다. `ICapabilityProvider#getCapability`에 `Capability`를 인자로 넘겨 원하시는 캐패빌리티를 요청하실 수 있습니다.
-
-여기서 "요청"이라고 했는데, 객체가 요청받은 캐패빌리티를 지원하지 않을 수 있기 때문입니다. 만약 객체가 요청받은 캐패빌리티를 지원하지 않는다면 `LazyOptional.empty()`가 반환되고, 지원한다면 캐패빌리티가 제공하는 인터페이스의 인스턴스가 반환됩니다.
-
-`#getCapability` 메서드는 `Direction`를 두번째 인자로 받는데, 이는 방향(또는 면)에 따라 다른 캐패빌리티를 사용할 수 있도록 해줍니다. 이때 방향이 필요 없는 상황이라면 `null`을 전달하실 수도 있습니다.
-
-캐패빌리티 지원하기
----------------------
-
-`ICapabilityProvider`를 지원하는 객체에서 새로운 캐패빌리티를 지원하기 위해서는 먼저 지원할 캐패빌리티가 존재하는지 먼저 확인해야 합니다. 캐패빌리티는 다른 모드에서도 추가할 수 있습니다. 근데 해당 모드가 설치되어 있지 않다면 오류가 발생할 수 있습니다. 이는 위처럼 `Capability#isRegistered`를 사용하여 확인하실 수 있습니다.
-
-이후 지원할 캐패빌리티가 제공하는 인터페이스의 인스턴스가 필요합니다. 직접 구현해서 만드셔도 되고, `IItemHandler`를 구현하는 `ItemStackHandler`처럼 이미 존재하시는걸 쓰셔도 됩니다. 이제 이 인스턴스를 `LazyOptional#of`로 감싸주세요.
-
-이제 `ICapabilityProvider#getCapability`에서 지원할 캐패빌리티의 `Capability`가 전달되면 감싼 `LazyOptional`을 반환하시면 됩니다. 방향에 따라 다른 캐패빌리티를 반환한다면 `side` 인자를 사용하실 수 있습니다. 마지막으로, `super` 메서드 호출을 하는 것을 잊지 마세요, 그렇지 않으면 기존에 이미 지원되던 캐패빌리티가 오작동 합니다.
-
-객체가 게임에서 제거되거나, 특정 캐패빌리티를 중간에 비활성화 하신다면 위에서 만든 `LazyOptional`을 `#invalidate`를 호출해 무효화 해야 합니다, 이는 `#getCapability`에서 반환한 `LazyOptional`을 다른 곳에서 저장할 수 있기 때문입니다. 엔티티와 블록 엔티티의 경우 월드에서 제거될 때 자동으로 호출되는 `#invalidateCaps`에서 무효화 하실 수 있습니다.
-
+Entity registration is similar, using `registerEntity`:
 ```java
-// 아래 코드가 블록 엔티티의 일부라고 할 때:
-LazyOptional<IItemHandler> inventoryHandlerLazyOptional;
-
-// inventoryHandlerSupplier는 IItemHandler의 인스턴스를 반환하는 Supplier 입니다 (예: () -> inventoryHandler).
-inventoryHandlerLazyOptional = LazyOptional.of(inventoryHandlerSupplier);
-
-@Override
-public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
-  if (cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
-    return inventoryHandlerLazyOptional.cast();
-  }
-  return super.getCapability(cap, side);
-}
-
-@Override
-public void invalidateCaps() {
-  super.invalidateCaps();
-  inventoryHandlerLazyOptional.invalidate();
-}
+event.registerEntity(
+    Capabilities.ItemHandler.ENTITY, // capability to register for
+    MY_ENTITY_TYPE, // entity type to register for
+    (myEntity, context) -> <return the IItemHandler for myEntity>);
 ```
 
-`Item`은 방식이 조금 다른데, `ItemStack`의 캐패빌리티 지원을 `Item#initCapabilities`에서 추가하기 때문입니다. 여기선 위처럼 `#getCapability`를 구현하는 `ICapabilityProvider`를 반환하여, `ItemStack`에 캐패빌리티 지원을 ["부착"][부착]합니다.
-
-캐패빌리티 요청은 매 틱마다, 수십번씩 발생할 수 있으니, `#getCapability` 함수는 매우 빨라야만 합니다. 외부 자료구조 말고 위처럼 직접 코드로 확인해 주세요.
-
-캐패빌리티 부착하기
-----------------------
-
-캐패빌리티 시스템을 지원하는 `Entity`, `Level`과 같은 객체에는 새로운 캐패빌리티 지원을 추가할 수 있습니다. 이 과정을 "부착"이라고 하며, `AttachCapabilitiesEvent`가 방송될 때 또 다른 `ICapabilityProvider`의 인스턴스를 부착하시면 됩니다.
-게임속 여러 객체들은 초기화 도중 이 이벤트를 방송하여 다른 캐패빌리티가 부착될 수 있도록 합니다:
-
-* `AttachCapabilitiesEvent<Entity>`: 엔티티 초기화시 방송됨.
-* `AttachCapabilitiesEvent<BlockEntity>`: 블록 엔티티 초기화시 방송됨.
-* `AttachCapabilitiesEvent<ItemStack>`: 아이템 스택 초기화시 방송됨.
-* `AttachCapabilitiesEvent<Level>`: 레벨 초기화시 방송됨.
-* `AttachCapabilitiesEvent<LevelChunk>`: 청크 초기화시 방송됨.
-
-이때 이벤트의 제너릭 타입은 위에 나열된 것만 쓰세요, 예를 들어, `Player`에 캐패빌리티를 부착한다면 `AttachCapabilitiesEvent<Entity>`를 구독하고, 객체가 `Player`인지 확인하여야 합니다.
-
-캐패빌리티를 부착하려면 해당 이벤트의 `#addCapability`를 호출하시면 됩니다. 이때 부착할 캐패빌리티의 데이터를 저장할 필요가 없다면 `ICapabilityProvider`만 구현해도 되지만, 데이터를 저장해야 할 경우, `ICapabilitySerializable<T extends Tag>`를 대신 구현하세요, 이 인터페이스는 NBT를 저장하고 불러오는 메서드도 가지고 있습니다.
-
-부착하시는 캐패빌리티는 `LazyOptional`을 무효화시킬 람다 함수를 `#addListener`에 전달해야 하셔야 합니다.
-
-`ICapabilityProvider` 구현에 관해서는 [캐패빌리티 지원하기][지원]를 참고하세요.
-
-캐패빌리티 직접 만들기
-----------------------------
-
-캐패빌리티는 `RegisterCapabilitiesEvent` 또는 `@AutoRegisterCapability`로 등록합니다.
-
-### RegisterCapabilitiesEvent
-
-캐피빌리티가 제공할 인터페이스를 `RegisterCapabilitiesEvent#register`에 전달하는 것으로 등록합니다. 이 이벤트는 [모드 버스에 방송됩니다][handled].
-
+Item registration is similar too. Note that the provider receives the stack:
 ```java
-@SubscribeEvent
-public void registerCaps(RegisterCapabilitiesEvent event) {
-  event.register(IExampleCapability.class);
-}
+event.registerItem(
+    Capabilities.ItemHandler.ITEM, // capability to register for
+    (itemStack, context) -> <return the IItemHandler for the itemStack>,
+    // items to register for
+    MY_ITEM,
+    MY_OTHER_ITEM);
 ```
 
-### @AutoRegisterCapability
+## Registering capabilities for all objects
 
-캐패빌리티가 제공할 인터페이스를 `@AutoRegisterCapability`로 표시하면 포지가 알아서 등록해 줍니다.
+If for some reason you need to register a provider for all blocks, entities, or items,
+you will need to iterate the corresponding registry and register the provider for each object.
 
+For example, NeoForge uses this system to register a fluid handler capability for all `BucketItem`s (excluding subclasses):
 ```java
-@AutoRegisterCapability
-public interface IExampleCapability {
-    // ...
-}
-```
-
-LevelChunk 와 BlockEntity 캐패빌리티 데이터 유지시키지
---------------------------------------------
-
-`LevelChunk`와 `BlockEntity`는 데이터가 수정되었다고 표기되었을 경우에만 디스크에 저장됩니다. 이들의 캐패빌리티의 데이터를 올바르게 유지시키지 위해서는 데이터가 변경되었을 때 수정되었다고 표기하여야만 합니다. `LevelChunk`는 `#setUnsaved`로, `BlockEntity`는 `#setChanged`로 데이터 변경을 표시할 수 있습니다.
-
-블록 엔티티에서 많이 쓰이는 `ItemStackHandler`는 `void onContentsChanged(int slot)`에서 데이터가 수정되었다고 표기합니다.
-
-```java
-public class MyBlockEntity extends BlockEntity {
-
-  private final IItemHandler inventory = new ItemStackHandler(...) {
-    @Override
-    protected void onContentsChanged(int slot) {
-      super.onContentsChanged(slot);
-      setChanged(); // BlockEntity에서 데이터 수정 표시
+// For reference, you can find this code in the `CapabilityHooks` class.
+for (Item item : BuiltInRegistries.ITEM) {
+    if (item.getClass() == BucketItem.class) {
+        event.registerItem(Capabilities.FluidHandler.ITEM, (stack, ctx) -> new FluidBucketWrapper(stack), item);
     }
-  }
-
-  // ...
 }
 ```
 
-클라이언트와 데이터 동기화 하기
--------------------------------
+Providers are asked for a capability in the order that they are registered.
+Should you want to run before a provider that NeoForge already registers for one of your objects,
+register your `RegisterCapabilitiesEvent` handler with a higher priority.
+For example:
+```java
+modBus.addListener(RegisterCapabilitiesEvent.class, event -> {
+    event.registerItem(
+        Capabilities.FluidHandler.ITEM,
+        (stack, ctx) -> new MyCustomFluidBucketWrapper(stack),
+        // blocks to register for
+        MY_CUSTOM_BUCKET);
+}, EventPriority.HIGH); // use HIGH priority to register before NeoForge!
+```
+See [`CapabilityHooks`][capability-hooks] for a list of the providers registered by NeoForge itself.
 
-캐패빌리티의 데이터는 클라이언트에게 전송되지 않습니다. 모드를 만드실 때 직접 패킷을 사용해서 데이터를 동기화 하여야 합니다.
-
-데이터를 동기화 할만한 크게 아래 3가지가 있습니다:
-
-1. 엔티티가 레벨에 스폰될때나, 블록이 설치되는 경우. 이럴땐 클라이언트들에 초기 값을 보내볼 수 있습니다.
-2. 저장된 데이터가 수정되는 경우, 이경우 데이터가 필요한 클라이언트들에 데이터를 보내볼 수 있습니다.
-3. 클라이언트가 특정 엔티티나 블록을 처다보기 시작할 때, 이 경우 이미 존재하는 데이터를 보내볼 수 있습니다.
-
-[네트워킹][network]을 참고하여 네트워크 패킷을 구현하는 방법에 대해 자세히 알아보세요.
-
-플레이어가 죽어도 데이터 유지시키기
--------------------------------
-
-캐패빌리티의 데이터는 엔티티가 사망하면 다 사라집니다. 플레이어 사망시 캐패빌리티의 데이터를 리스폰 과정에서 직접 복사하여야만 합니다.
-
-`PlayerEvent$Clone`을 통해 이를 구현할 수 있는데, 죽기 전 플레이어 엔티티의 데이터를 새로운 플레이어 엔티티에 데이터로 복사하는 것입니다.
-이 이벤트는 플레이어가 엔드에서 돌아올 때도 방송됩니다. 이때는 데이터가 유지되기 때문에 복사하면 안되는데, `#isWasDead`로 플레이어가 진짜 죽은 것인지, 아니면 엔드에서 돌아오는 것인지 구분할 수 있습니다.
-
-[지원]: #캐패빌리티-지원하기
-[handled]: ../concepts/events.md#creating-an-event-handler
-[network]: ../networking/index.md
-[부착]: #캐패빌리티-부착하기
+[block-cap-provider]: https://github.com/neoforged/NeoForge/blob/1.20.x/src/main/java/net/neoforged/neoforge/capabilities/IBlockCapabilityProvider.java
+[capability-hooks]: https://github.com/neoforged/NeoForge/blob/1.20.x/src/main/java/net/neoforged/neoforge/capabilities/CapabilityHooks.java
+[invalidation]: #block-capability-invalidation

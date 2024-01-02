@@ -25,13 +25,13 @@ private void modEventHandler(RegisterEvent event) {
 }
 
 // 이 이벤트는 포지 버스에서 방송됩니다
-private static void forgeEventHandler(AttachCapabilitiesEvent<Entity> event) {
+private static void forgeEventHandler(ExplosionEvent.Detonate event) {
     // ...
 }
 
 // 모드의 생성자
 modEventBus.addListener(this::modEventHandler);
-forgeEventBus.addGenericListener(Entity.class, ExampleMod::forgeEventHandler);
+forgeEventBus.addListener(ExampleMod::forgeEventHandler);
 ```
 
 ### 어노테이션을 활용한 이벤트 핸들러
