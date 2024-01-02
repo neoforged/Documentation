@@ -42,16 +42,16 @@ MDK의 `build.gradle`은 기본적으로 `runData` 실행 구성을 추가하여
 
 ### 클라이언트 에셋
 
-* [`net.minecraftforge.common.data.LanguageProvider`][langgen] - [언어 파일 생성용][lang]; `#addTranslations` 구현
-* [`net.minecraftforge.common.data.SoundDefinitionsProvider`][soundgen] - [`sounds.json` 생성용][sounds]; `#registerSounds` 구현
-* [`net.minecraftforge.client.model.generators.ModelProvider<?>`][modelgen] - [모델 생성용][models]; `#registerModels` 구현
+* [`net.neoforged.neoforge.common.data.LanguageProvider`][langgen] - [언어 파일 생성용][lang]; `#addTranslations` 구현
+* [`net.neoforged.neoforge.common.data.SoundDefinitionsProvider`][soundgen] - [`sounds.json` 생성용][sounds]; `#registerSounds` 구현
+* [`net.neoforged.neoforge.client.model.generators.ModelProvider<?>`][modelgen] - [모델 생성용][models]; `#registerModels` 구현
   * [`ItemModelProvider`][itemmodelgen] - 아이템 모델 생성용
   * [`BlockModelProvider`][blockmodelgen] - 블록 모델 생성용
-* [`net.minecraftforge.client.model.generators.BlockStateProvider`][blockstategen] - 블록 상태, 블록 모델, 아이템 모델 생성용; `#registerStatesAndModels` 구현
+* [`net.neoforged.neoforge.client.model.generators.BlockStateProvider`][blockstategen] - 블록 상태, 블록 모델, 아이템 모델 생성용; `#registerStatesAndModels` 구현
 
 ### 서버 데이터
 
-**아래 항목은 `net.minecraftforge.common.data` 패키지에 있음**:
+**아래 항목은 `net.neoforged.neoforge.common.data` 패키지에 있음**:
 
 * [`GlobalLootModifierProvider`][glmgen] - [노획물 수정 파일 생성용][glm]; `#start` 구현
 * [`DatapackBuiltinEntriesProvider`][datapackregistriesgen] - 데이터 팩 레지스트리 객체 생성용; 생성자에 `RegistrySetBuilder` 전달

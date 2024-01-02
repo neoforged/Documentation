@@ -1,30 +1,30 @@
 모드 설정 파일
 =============
 
-설정 파일은 모드를 설정할 수 있도록 하고 기본값을 정의합니다. 포지는 설정 파일로 [TOML][toml]을 사용하며, [NightConfig][nightconfig]를 사용하여 설정 파일을 읽습니다.
+설정 파일은 모드를 설정할 수 있도록 하고 기본값을 정의합니다. 네오 포지는 설정 파일로 [TOML][toml]을 사용하며, [NightConfig][nightconfig]를 사용하여 설정 파일을 읽습니다.
 
 설정 파일 만들기
 ------------------------
 
-설정 파일은 `IConfigSpec`을 구현하는 것으로 정의할 수 있습니다. 포지는 `ForgeConfigSpec`에서 해당 인터페이스를 구현하며, `ForgeConfigSpec$Builder`를 활용해 해당 클래스를 생성합니다. `Builder#push`를 이용해 새로운 섹션에 들어갈 수 있고, `Builder#pop`으로 나올 수 있습니다. 이후, 아래 두 메서드를 이용하여 설정을 생성하실 수 있습니다:
+설정 파일은 `IConfigSpec`을 구현하는 것으로 정의할 수 있습니다. 네오 포지의 `ModConfigSpec`은 해당 인터페이스를 구현하며, `ModConfigSpec$Builder`를 활용해 해당 클래스를 생성합니다. `Builder#push`를 이용해 새로운 섹션에 들어갈 수 있고, `Builder#pop`으로 나올 수 있습니다. 이후, 아래 두 메서드를 이용하여 설정을 생성하실 수 있습니다:
 
-| 메서드 이름      | 설명                                                  |
-|:------------|:----------------------------------------------------|
-| `build`     | `ForgeConfigSpec` 생성.                               |
-| `configure` | 모드 설정 값들을 지니고 있는 클래스 T와 `ForgeConfigSpec`의 Pair 생성. |
+| 메서드 이름      | 설명                                               |
+|:------------|:-------------------------------------------------|
+| `build`     | `ModConfigSpec` 생성.                              |
+| `configure` | 모드 설정 값들을 지니고 있는 타입 T와 `ModConfigSpec`의 Pair 생성. |
 
 :::note
-`ForgeConfigSpec$Builder#configure`는 일반적으로 `static`에서 사용되며, 이때 생성자 인자 중 하나로 `ForgeConfigSpec$Builder`를 받는 클래스 T를 사용합니다:
+`ModConfigSpec$Builder#configure`는 일반적으로 `static`에서 사용되며, 이때 생성자 인자 중 하나로 `ModConfigSpec$Builder`를 받는 타입 T를 사용합니다:
 
 ```java
 // 모드 설정 클래스에서
-ExampleConfig(ForgeConfigSpec.Builder builder) {
+ExampleConfig(ModConfigSpec.Builder builder) {
   // 모드 설정 값들을 builder로부터 가져와 final 필드에 지정함
 }
 
 // 모드 설정 클래스를 사용하는 곳에서
 static {
-  Pair<ExampleConfig, ForgeConfigSpec> pair = new ForgeConfigSpec.Builder()
+  Pair<ExampleConfig, ModConfigSpec> pair = new ModConfigSpec.Builder()
     .configure(ExampleConfig::new);
   // 상수 필드에 해당 Pair를 할당함
 }
@@ -54,7 +54,7 @@ static {
 * 해당 설정값의 클래스
 
 ```java
-// ForgeConfigSpec$Builder를 사용하는 곳 어딘가
+// ModConfigSpec$Builder를 사용하는 곳 어딘가
 ConfigValue<T> value = builder.comment("Comment")
   .define("config_value_name", defaultValue);
 ```
@@ -105,22 +105,23 @@ ConfigValue<T> value = builder.comment("Comment")
 설정 등록하기
 ---------------------------
 
-`ForgeConfigSpec`의 인스턴스를 생성하셨다면 이를 포지에 등록해야 자동으로 불러오고, 추적하고, 동기화할 수 있습니다. 모드 생성자에서 `ModLoadingContext#registerConfig` 를 호출하여 다음과 같이 설정을 등록하실 수 있습니다, 이때 해당 설정을 사용할 사이드와, 생성하신 `ForgeConfigSpec`, 그리고 선택 사항으로 설정 파일의 이름을 인자로 전달합니다:
+`ModConfigSpec`의 인스턴스를 생성하셨다면 이를 네오 포지에 등록해야 자동으로 불러오고, 추적하고, 동기화할 수 있습니다. 모드 생성자에서 `ModLoadingContext#registerConfig` 를 호출하여 다음과 같이 설정을 등록하실 수 있습니다, 이때 해당 설정을 사용할 사이드와, 생성하신 `ModConfigSpec`, 그리고 선택 사항으로 설정 파일의 이름을 인자로 전달합니다:
 
 ```java
+// 모드 메인 클래스의 생성자에서 CONFIG라는 ModConfigSpec이 있다고 할 때
 ModLoadingContext.get().registerConfig(Type.COMMON, CONFIG);
 ```
 
 설정 파일을 사용할 수 있는 사이드 목록들:
 
-|  사이드   | 클라이언트와 동기화 되는가? |                클라이언트에서의 파일 위치                |             서버에서의 파일 위치              | 파일 접미사    |
-|:------:|:---------------:|:--------------------------------------------:|:------------------------------------:|:----------|
-| CLIENT |       안 함       |             `.minecraft/config`              |                 N/A                  | `-client` |
-| COMMON |       안 함       |             `.minecraft/config`              |       `<server_folder>/config`       | `-common` |
-| SERVER |        함        | `.minecraft/saves/<level_name>/serverconfig` | `<server_folder>/world/serverconfig` | `-server` |
+|  사이드   |  불러옴 여부  | 클라이언트와 동기화 되는가? |                클라이언트에서의 파일 위치                |             서버에서의 파일 위치              | 파일 접미사    |
+|:------:|:--------:|:---------------:|:--------------------------------------------:|:------------------------------------:|:----------|
+| CLIENT |  클라이언트만  |       안 함       |             `.minecraft/config`              |                 N/A                  | `-client` |
+| COMMON | 양측 사이드 다 |       안 함       |             `.minecraft/config`              |       `<server_folder>/config`       | `-common` |
+| SERVER |  서버에서만   |        함        | `.minecraft/saves/<level_name>/serverconfig` | `<server_folder>/world/serverconfig` | `-server` |
 
 :::tip
-자세한 내용은 포지의 [Javadoc][type]을 참고하세요.
+자세한 내용은 네오 포지의 [Javadoc][type]을 참고하세요.
 :::
 
 설정 이벤트
@@ -134,5 +135,5 @@ ModLoadingContext.get().registerConfig(Type.COMMON, CONFIG);
 
 [toml]: https://toml.io/ko/v1.0.0
 [nightconfig]: https://github.com/TheElectronWill/night-config
-[type]: https://github.com/neoforged/FancyModLoader/blob/06ce743c00b161ffada3a8737bec1a0b53fb48ac/core/src/main/java/net/minecraftforge/fml/config/ModConfig.java#L94-L122
+[type]: https://github.com/neoforged/FancyModLoader/blob/19d6326b810233e683f1beb3d28e41372e1e89d1/core/src/main/java/net/neoforged/fml/config/ModConfig.java#L83-L111
 [events]: ../concepts/events.md#이벤트-핸들러-만들기

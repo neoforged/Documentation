@@ -5,7 +5,7 @@
 
 예를 들어, 막대기를 우클릭 하였을때 이벤트가 방송되고 모드는 이에 반응하여 어떠한 동작을 수행할 수 있습니다.
 
-대부분의 게임속 이벤트들은 메인 이벤트 버스인 `MinecraftForge#EVENT_BUS`에 방송됩니다. 이 버스는 모든 모드가 공유합니다. 가끔 모드 각각에 방송되어야는 이벤트도 있는데, 이땐 각 모드별로 포지가 생성하는 [모드 이벤트 버스] `FMLJavaModLoadingContext#getModEventBus`를 사용합니다.
+대부분의 게임속 이벤트들은 메인 이벤트 버스인 `NeoForge#EVENT_BUS`에 방송됩니다. 이 버스는 모든 모드가 공유합니다. 가끔 모드 각각에 방송되어야는 이벤트도 있는데, 이땐 각 모드별로 네오 포지가 생성하는 [모드 이벤트 버스](#모드-이벤트-버스)를 사용합니다.
 
 이벤트 핸들러는 버스에 등록되어, 특정 이벤트에 반응하는 메서드 입니다.
 
@@ -47,7 +47,7 @@ public class MyForgeEventHandler {
 }
 ```
 
-이 이벤트 핸들러를 등록하기 위해서는 `MinecraftForge.EVENT_BUS.register(...)`를 사용하세요. 그리고 이 메서드에 이벤트 핸들러 메서드가 있는 클래스의 인스턴스를 매개변수로 전달하세요. 만약 핸들러를 모드별 버스에 등록하고 싶다면 `FMLJavaModLoadingContext.get().getModEventBus().register(...)`를 대신 사용하세요.
+이 이벤트 핸들러를 등록하기 위해서는 `NeoForge.EVENT_BUS.register(...)`를 사용하세요. 그리고 이 메서드에 이벤트 핸들러 메서드가 있는 클래스의 인스턴스를 매개변수로 전달하세요. 만약 핸들러를 모드별 버스에 등록하고 싶다면 `FMLJavaModLoadingContext.get().getModEventBus().register(...)`를 대신 사용하세요.
 
 ### 어노테이션을 활용한 정적 이벤트 핸들러
 
@@ -62,11 +62,11 @@ public class MyStaticForgeEventHandler {
 }
 ```
 
-이는 `MinecraftForge.EVENT_BUS.register(MyStaticForgeEventHandler.class)`를 통해 등록합니다.
+이는 `NeoForge.EVENT_BUS.register(MyStaticForgeEventHandler.class)`를 통해 등록합니다.
 
 ### 자동으로 정적 이벤트 핸들러 등록하기
 
-`@Mod$EventBusSubscriber` 어노테이션은 클래스에 사용할 수 있습니다. 만약 이를 사용할 시, 그 클래스는 자동으로 `MinecraftForge#EVENT_BUS` 에 `@Mod` 클래스가 초기화될 때 등록됩니다. 이는 `MinecraftForge.EVENT_BUS.register(AnnotatedClass.class)` 구문을 `@Mod` 클래스의 생성자에서 사용하는 것과 동일합니다.
+`@Mod$EventBusSubscriber` 어노테이션은 클래스에 사용할 수 있습니다. 만약 이를 사용할 시, 그 클래스는 자동으로 `NeoForge#EVENT_BUS` 에 `@Mod` 클래스가 초기화될 때 등록됩니다. 이는 `NeoForge.EVENT_BUS.register(AnnotatedClass.class)` 구문을 `@Mod` 클래스의 생성자에서 사용하는 것과 동일합니다.
 
 `@Mod$EventBusSubscriber` 는 아무 버스나 사용할 수 있습니다. 이를 사용할 때 모드의 아이디를 전달하는 것이 권장되는데, 이는 어노테이션만으로는 무슨 모드의 이벤트 핸들러인지 구별할 수 없기 때문입니다. 또, 이벤트를 들을 버스를 전달하는 것 또한 권장되는데, 무슨 버스의 이벤트를 듣는지 표시하기 때문입니다. 또, `Dist` 값을 지정하여 어떤 물리 사이드에서 이벤트 핸들러가 동작할 것인지를 설정하실 수 있습니다. 이를 통해 특정 물리 사이드에서는 아예 이벤트 핸들러가 등록되지 않도록 할 수 있습니다.
 
@@ -117,7 +117,9 @@ public class MyStaticClientOnlyEventHandler {
 모드 이벤트 버스
 -------------
 
-모드 이벤트 버스는 각 모드 전용으로 생성됩니다. 무슨 모드가 언제 이벤트에 반응할 지 조절하거나 병렬적으로 처리되는 이벤트를 방송할 때 사용됩니다. 모드 버스에 방송되는 이벤트들은 `IModBusEvent` 인터페이스를 구현합니다. 그중 병렬적으로 처리되는 이벤트들은 `ParallelDispatchEvent`를 상속합니다.
+귀하의 모드의 모드별 버스를 사용하시려면, [메인 클래스 생성자][ctor-injection]에 `IModEventBus`를 추가하세요.
+
+모드 이벤트 버스는 주로 초기화를 위한 생명주기 이벤트를 방송할 때 사용합니다. 모드 버스에 방송되는 이벤트들은 전부 `IModBusEvent`를 구현합니다. 이 이벤트들은 대개 병렬적으로 방송되기에 다른 모드의 코드를 직접적으로 호출할 순 없으며, `InterModComms`을 대신 사용하세요.
 
 모드 이벤트 버스에는 대표적으로 아래 [생명주기] 이벤트들이 방송됩니다.
 
@@ -127,10 +129,19 @@ public class MyStaticClientOnlyEventHandler {
 * `InterModProcessEvent`
 
 :::note
-`FMLClientSetupEvent` 와 `FMLDedicatedServerSetupEvent` 는 올바른 배포판에서만 방송됩니다!
+`FMLClientSetupEvent` 와 `FMLDedicatedServerSetupEvent` 는 올바른 물리 사이드에서만 방송됩니다!
 :::
 
-위 생명주기 이벤트들은 모두 병렬적으로 처리됩니다. 이러한 이벤트들은 여러 스레드에서 처리되어 경쟁 상태를 유발할 수 있는데, 이럴땐 메인 스레드에서 코드를 실행하는 `#enqueueWork`를 사용하세요.
+위 생명주기 이벤트들은 모두 병렬적으로 처리되며, `ParallelDispatchEvent`의 하위 클래스 입니다. 위 이벤트 도중 메인 스레드에서 코드를 실행하려면 `#enqueueWork`를 사용하세요.
 
-[모드 이벤트 버스]: #모드-이벤트-버스
+생명주기 이벤트 이외에도, 모드별 버스에서 방송되는 기타 객체 등록 및 초기화를 위한 이벤트도 있습니다. 이 이벤트들은 위와 다르게 병렬적으로 방송되지 않으며 대표적으로 아래 네 개가 있습니다:
+
+* `RegisterColorHandlersEvent`
+* `ModelEvent$BakingCompleted`
+* `TextureStitchEvent`
+* `RegisterEvent`
+
+일반적으로, 모드의 초기화에 사용되는 이벤트는 모드별 버스에 방송됩니다.
+
 [생명주기]: ./lifecycle.md
+[ctor-injection]: ../gettingstarted/modfiles.md#javafml과-mod

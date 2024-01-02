@@ -15,7 +15,7 @@
 * 논리 서버 - *논리 서버*는 게임의 논리 연산을 수행하는 것입니다: 몬스터 생성, 날씨 조절, 인벤토리 갱신, 채력 관리, 몬스터의 행동 등이 있습니다. 논리 서버는 물리 서버에 존재하나, 물리 클라이언트에 논리 클라이언트와 같이 존재할 수도 있습니다. 싱글 플레이 월드에는 `Server Thread`에 논리 서버가 언제나 실행됩니다.
 * 논리 클라이언트 - *논리 클라이언트*는 플레이어의 입력을 받고 논리 서버로 전달하는 것입니다. 또, 논리 서버로 부터 정보를 받아 플레이어에게 그래픽을 활용해 표시하기도 합니다. 논리 클라이언트는 `Render Thread`에서 실행됩니다만, 오디오나 청크 배칭 등과 같은 작업들을 처리하기 위해 추가적인 스레드가 더 실행됩니다.
 
-포지에서는 물리 사이드를 `Dist` 열거형으로, 논리 사이드는 `LogicalSide` 열거형으로 표현합니다.
+네오 포지에서는 물리 사이드를 `Dist` 열거형으로, 논리 사이드는 `LogicalSide` 열거형으로 표현합니다.
 
 사이드별 연산 수행하기
 -----------------------------------
@@ -47,14 +47,16 @@
 ```java
 // 클라이언트 전용 클래스: ExampleClass
 public static void unsafeRunMethodExample(Object param1, Object param2) {
-// ...
+        // ...
 }
+
 public static Object safeCallMethodExample() {
-// ...
+        // ...
 }
 
 // 공용 클래스
 DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> ExampleClass.unsafeRunMethodExample(var1, var2));
+
 DistExecutor.safeCallWhenOn(Dist.CLIENT, () -> ExampleClass::safeCallMethodExample);
 ```
 
@@ -89,8 +91,11 @@ Java 9 이상 버전은 `invokedynamic` 명령이 변경되어 `DistExecutor#saf
 모드가 서버, 클라이언트 중 어디에 설치 되었든 작동은 해야 합니다. 한쪽 사이드 전용 모드를 만드신다면 잘못된 사이드에 설치되었을 시 아무런 동작도 하지 않도록 만들 수 있습니다. 이벤트 핸들러를 `DistExecutor#safeRunWhenOn` 또는 `DistExecutor#unsafeRunWhenOn`를 통해 등록하면 잘못된 사이드에선 아무런 동작도 하지 않습니다. 이러한 모드들은 블록, 아이템 등과 같이 사이드 양측에 존재해야 하는 객체를 등록하면 안됩니다.
 
 또한, 한쪽 사이드 전용 모드들의 설치 여부와 관계 없이 서버에 접속할 수 있어야 합니다. 포지에선 버전 호환성 검사를 자동으로 진행하여 모드가 없거나, 버전이 호환되지 않는다면 멀티 플레이 화면에서 X 표시를 띄워 접속을 차단하는데, [mods.toml][structuring]의 `displayTest` 값을 변경해 해당 검사를 설정할 수 있습니다.
+
 ```toml
 [[mods]]
+  # ...
+
   # MATCH_VERSION: 서버와 클라이언트의 모드 버전이 다르면 붉은 X 표시.
   # IGNORE_SERVER_VERSION: 클라이언트 설치 여부 무시. 서버 전용 모드 개발시 권장됨.
   # IGNORE_ALL_VERSION: 양측 설치 여부 무시. 서버 관련 요소가 없을 때만 사용.
