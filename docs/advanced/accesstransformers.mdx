@@ -62,9 +62,9 @@ file="accesstransformer_additions.cfg"
 
 ```groovy
 // 아래 블록은 매핑 채널과 버전도 지정하는 곳입니다.
-    minecraft {
-        accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
-    }
+minecraft {
+    accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+}
 ```
 
 개발 환경에선 해당 파일이 프로젝트 어디에나 위치하여도 상관없으나, 실제 클라이언트에서 불러오려면 모드 JAR의 `META-INF/accesstransformer.cfg`에 위치하여야만 정상적으로 불러올 수 있습니다.
