@@ -5,9 +5,10 @@ Status effects, sometimes known as potion effects and referred to in-code as `Mo
 ## Terminology
 
 - A `MobEffect` affects an entity every tick. Like [blocks][block] or [items][item], `MobEffect`s are registry objects, meaning they must be [registered][registration] and are singletons.
+  - An **instant mob effect** is a special kind of mob effect that is designed to be applied for one tick. Vanilla has two instant effects, Instant Health and Instant Harming.
 - A `MobEffectInstance` is an instance of a `MobEffect`, with a duration, amplifier and some other properties set (see below). `MobEffectInstance`s are to `MobEffect`s what [`ItemStack`s][itemstack] are to `Item`s.
 - A `Potion` is a collection of `MobEffectInstance`s. Vanilla mainly uses potions for the four potion items (read on), however, they can be applied to any item at will. It is up to the item if and how the item then uses the potion set on it.
-- A **potion item** is an item that is meant to have a potion set on it. This is an informal term, the vanilla `PotionItem` class has nothing to do with this (it refers to the "normal" potion item). Minecraft currently has four potion items: potions, splash potions, lingering potions, and tipped arrows.
+- A **potion item** is an item that is meant to have a potion set on it. This is an informal term, the vanilla `PotionItem` class has nothing to do with this (it refers to the "normal" potion item). Minecraft currently has four potion items: potions, splash potions, lingering potions, and tipped arrows; however more may be added by mods.
 
 ## `MobEffect`s
 
@@ -15,7 +16,7 @@ To create your own `MobEffect`, extend the `MobEffect` class:
 
 ```java
 public class MyMobEffect extends MobEffect {
-    public MobEffect(MobEffectCategory category, int color) {
+    public MyMobEffect(MobEffectCategory category, int color) {
         super(category, color);
     }
     
@@ -24,20 +25,6 @@ public class MyMobEffect extends MobEffect {
         // Apply your effect logic here.
     }
     
-    @Override
-    public void applyInstantaneousEffect(
-            @Nullable Entity directSource, // The entity causing the effect, for example a splash potion.
-            @Nullable Entity source, // The "source" entity, for example the player that threw the splash potion.
-            LivingEntity target, // The target entity.
-            int amplifier, // The amplifier of the effect.
-            double strength // The "strength" of the effect. If the potion is applied through drinking,
-                            // this is 1.0. If it is a lingering potion, this is 0.5. If it is a
-                            // splash potion, this depends on where the splash potion lands.
-    ) {
-        // Apply your instant effect logic here.
-        // Note: This calls applyEffectTick by default.
-    }
-
     // Whether the effect should apply this tick. Used e.g. by the Regeneration effect that only applies
     // once every x ticks, depending on the tick count and amplifier.
     @Override
@@ -45,15 +32,9 @@ public class MyMobEffect extends MobEffect {
         return tickCount % 2 == 0; // replace this with whatever check you want
     }
     
-    // Called when the effect is first added to the entity.
+    // Utility method that is called when the effect is first added to the entity.
     @Override
     public void onEffectStarted(LivingEntity entity, int amplifier) {
-    }
-    
-    // Returns whether the effect is instantaneous or not.
-    @Override
-    public boolean isInstantenous() {
-        return false;
     }
 }
 ```
@@ -80,6 +61,29 @@ public static final Supplier<MyMobEffect> MY_MOB_EFFECT = MOB_EFFECTS.register("
         .addAttributeModifier(Attribute.ATTACK_DAMAGE, MY_MOB_EFFECT_UUID, 2.0, AttributeModifier.Operation.ADD)
 );
 ```
+
+:::note
+The UUID used must be a valid and unique UUIDv4, as for some reason, Mojang decided to use UUIDs here instead of some text-based identifier. A UUID is best obtained through an online generator, for example [uuidgenerator.net][uuidgen].
+:::
+
+### `InstantenousMobEffect`
+
+If you want to create an instant effect, you can use the helper class `InstantenousMobEffect` instead of the regular `MobEffect` class, like so:
+
+```java
+public class MyMobEffect extends InstantenousMobEffect {
+    public MyMobEffect(MobEffectCategory category, int color) {
+        super(category, color);
+    }
+
+    @Override
+    public void applyEffectTick(LivingEntity entity, int amplifier) {
+        // Apply your effect logic here.
+    }
+}
+```
+
+Then, register your effect like normal.
 
 ### Events
 
@@ -114,6 +118,10 @@ MobEffectInstance instance = new MobEffectInstance(
 ```
 
 Several constructor overloads are available, omitting the last 1-5 parameters, respectively.
+
+:::info
+`MobEffectInstance`s are mutable. If you need a copy, call `new MobEffectInstance(oldInstance)`.
+:::
 
 ### Using `MobEffectInstance`s
 
@@ -190,3 +198,4 @@ This should be called some time during setup, for example during [`FMLCommonSetu
 [item]: index.md
 [itemstack]: index.md#itemstacks
 [registration]: ../concepts/registries.md
+[uuidgen]: https://www.uuidgenerator.net/version4

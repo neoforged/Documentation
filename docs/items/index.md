@@ -41,7 +41,7 @@ The `Item` class provides default functionality for food items, meaning you don'
 - `meat` - Whether this item should be considered meat or not. Used e.g. for determining if healing dogs with this food is possible.
 - `alwaysEat` - Whether this item can always be eaten, even if the hunger bar is full. `false` by default, `true` for golden apples and other items that provide bonuses beyond just filling the hunger bar.
 - `fast` - Whether fast eating should be enabled for this food. `false` by default, `true` for dried kelp in vanilla.
-- `effect` - Adds a `MobEffectInstance` to apply when eating this item. The second parameter denotes the probability of the effect being applied; for example, Rotten Flesh has an 80% chance of applying the Hunger effect when eaten. This method comes in two variants, one that takes in a supplier (for your own effects) and one that directly takes a `MobEffectInstance` (for vanilla effects).
+- `effect` - Adds a `MobEffectInstance` to apply when eating this item. The second parameter denotes the probability of the effect being applied; for example, Rotten Flesh has an 80% chance of applying the Hunger effect when eaten. This method comes in two variants; you should use the one that takes in a supplier (the other one directly takes a mob effect instance and is deprecated by NeoForge due to classloading issues).
 - `build` - Once you've set everything you want to set, call `build` to get a `FoodProperties` object for further use.
 
 For examples, or to look at the various values used by Minecraft, have a look at the `Foods` class.
@@ -50,7 +50,9 @@ To get the `FoodProperties` for an item, call `Item#getFoodProperties(ItemStack,
 
 ### More Functionality
 
-Directly using `Item` only allows for very basic items. If you want to add functionality, for example right-click interactions, a custom class that extends `Item` is required. The `Item` class has many methods that can be overridden to do different things; see the classes `Item` and `IItemExtension` for more information. See also [below][using] for the most common use cases.
+Directly using `Item` only allows for very basic items. If you want to add functionality, for example right-click interactions, a custom class that extends `Item` is required. The `Item` class has many methods that can be overridden to do different things; see the classes `Item` and `IItemExtension` for more information.
+
+The two most common use cases for items are left-clicking and right-clicking. For left-clicking, see [Breaking a Block][breaking] and Attacking an Entity (WIP). For right-clicking, see [The Interaction Pipeline][interactionpipeline].
 
 ### Resources
 
@@ -71,7 +73,7 @@ An `ItemStack` consists of three major parts:
 
 To create a new `ItemStack`, call `new ItemStack(Item)`, passing in the backing item. By default, this uses a count of 1 and no NBT data; there are constructor overloads that accept a count and NBT data as well if needed.
 
-To clone an existing `ItemStack`, call `itemstack.copy()`.
+`ItemStack`s are mutable objects (see below), however it is sometimes required to treat them as immutables. If you need to modify an `ItemStack` that is to be treated immutable, you can clone the stack using `itemstack.copy()`.
 
 If you want to represent that a stack has no item, use `ItemStack.EMPTY`. If you want to check whether an `ItemStack` is empty, call `itemstack.isEmpty()`.
 
@@ -135,16 +137,6 @@ public static final Supplier<CreativeModeTab> EXAMPLE_TAB = CREATIVE_MODE_TABS.r
 );
 ```
 
-## Using Items
-
-### Left-Click
-
-See [Breaking a Block][breaking] and Attacking an Entity (WIP).
-
-### Right-Click
-
-See [The Interaction Pipeline][interactionpipeline].
-
 [block]: ../blocks/index.md
 [blockstates]: ../blocks/states.md
 [breaking]: ../blocks/index.md#breaking-a-block
@@ -157,4 +149,3 @@ See [The Interaction Pipeline][interactionpipeline].
 [registering]: ../concepts/registries.md#methods-for-registering
 [resources]: ../resources/client/index.md
 [sides]: ../concepts/sides.md
-[using]: #using-items
