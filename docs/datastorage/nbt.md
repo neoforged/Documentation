@@ -8,9 +8,9 @@ The NBT spec is similar to the JSON spec, with a few differences:
 
 - Distinct types for bytes, shorts, longs and floats exist, suffixed by `b`, `s`, `l` and `f`, respectively, similar to how they would be represented in Java code.
   - Doubles may also be suffixed with `d`, but this is not required, similar to Java code. The optional `i` suffix available in Java for integers is not permitted.
-  - All of these suffixes may also be capital letters. So for example, `64b` is the same as `64B`, and `0.5F` is the same as `0.5f`.
+  - The suffixes are not case-sensitive. So for example, `64b` is the same as `64B`, and `0.5F` is the same as `0.5f`.
 - Booleans do not exist, they are instead represented by bytes. `true` becomes `1b`, `false` becomes `0b`.
-  - While not explicitly specified anywhere, the current implementation treats all non-zero values as `true`.
+  - The current implementation treats all non-zero values as `true`, so `2b` would be treated as `true` as well.
 - There is no `null` equivalent in NBT.
 - Quotes around keys are optional. So a JSON property `"duration": 20` can become both `duration: 20` and `"duration": 20` in NBT.
 - What is known in JSON as a sub-object is known in NBT as a **compound tag** (or just compound).
@@ -74,7 +74,7 @@ ListTag list = tag.getList("SomeListHere", Tag.TAG_STRING);
 Similarly, when creating a `ListTag`, you must also specify the list type during creation:
 
 ```java
-ListTag list = new ListTag(List.of(), Tag.TAG_STRING);
+ListTag list = new ListTag(List.of("Value1", "Value2"), Tag.TAG_STRING);
 ```
 
 Finally, working with `CompoundTag`s inside other `CompoundTag`s directly utilizes `CompoundTag#get` and `#put`:
