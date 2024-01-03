@@ -68,7 +68,7 @@ An `ItemStack` consists of three major parts:
 
 - The `Item` it represents, obtainable through `itemstack.getItem()`.
 - The stack size, typically between 1 and 64, obtainable through `itemstack.getCount()` and changeable through `itemstack.setCount(int)` or `itemstack.shrink(int)`.
-- The extra NBT data, where stack-specific data is stored. Obtainable through `itemstack.getTag()`, or alternatively through `itemstack.getOrCreateTag()` which accounts for no tag existing yet. A variety of other NBT-related methods exist as well, the most important being `hasTag()` and `setTag()`.
+- The extra [NBT][nbt] data, where stack-specific data is stored. Obtainable through `itemstack.getTag()`, or alternatively through `itemstack.getOrCreateTag()` which accounts for no tag existing yet. A variety of other NBT-related methods exist as well, the most important being `hasTag()` and `setTag()`.
   - It is worth nothing that `ItemStack`s with empty NBT are not the same as `ItemStack`s with no NBT at all. This means that they will not stack, despite being functionally equivalent to one another.
 
 To create a new `ItemStack`, call `new ItemStack(Item)`, passing in the backing item. By default, this uses a count of 1 and no NBT data; there are constructor overloads that accept a count and NBT data as well if needed.
@@ -146,6 +146,7 @@ public static final Supplier<CreativeModeTab> EXAMPLE_TAB = CREATIVE_MODE_TABS.r
 [interactionpipeline]: interactionpipeline.md
 [loottables]: ../resources/server/loottables.md
 [modbus]: ../concepts/events.md#mod-event-bus
+[nbt]: ../datastorage/nbt.md
 [registering]: ../concepts/registries.md#methods-for-registering
 [resources]: ../resources/client/index.md
 [sides]: ../concepts/sides.md

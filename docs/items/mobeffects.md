@@ -1,4 +1,4 @@
-# Mob Effects and Potions
+# Mob Effects & Potions
 
 Status effects, sometimes known as potion effects and referred to in-code as `MobEffect`s, are effects that influence an entity every tick. This article explains how to use them, what the difference between an effect and a potion is, and how to add your own.
 
