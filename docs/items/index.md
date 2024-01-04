@@ -41,7 +41,7 @@ The `Item` class provides default functionality for food items, meaning you don'
 - `meat` - Whether this item should be considered meat or not. Used e.g. for determining if healing dogs with this food is possible.
 - `alwaysEat` - Whether this item can always be eaten, even if the hunger bar is full. `false` by default, `true` for golden apples and other items that provide bonuses beyond just filling the hunger bar.
 - `fast` - Whether fast eating should be enabled for this food. `false` by default, `true` for dried kelp in vanilla.
-- `effect` - Adds a `MobEffectInstance` to apply when eating this item. The second parameter denotes the probability of the effect being applied; for example, Rotten Flesh has an 80% chance of applying the Hunger effect when eaten. This method comes in two variants; you should use the one that takes in a supplier (the other one directly takes a mob effect instance and is deprecated by NeoForge due to classloading issues).
+- `effect` - Adds a [`MobEffectInstance`][mobeffectinstance] to apply when eating this item. The second parameter denotes the probability of the effect being applied; for example, Rotten Flesh has an 80% chance (= 0.8) of applying the Hunger effect when eaten. This method comes in two variants; you should use the one that takes in a supplier (the other one directly takes a mob effect instance and is deprecated by NeoForge due to classloading issues).
 - `build` - Once you've set everything you want to set, call `build` to get a `FoodProperties` object for further use.
 
 For examples, or to look at the various values used by Minecraft, have a look at the `Foods` class.
@@ -145,6 +145,7 @@ public static final Supplier<CreativeModeTab> EXAMPLE_TAB = CREATIVE_MODE_TABS.r
 [hunger]: https://minecraft.wiki/w/Hunger#Mechanics
 [interactionpipeline]: interactionpipeline.md
 [loottables]: ../resources/server/loottables.md
+[mobeffectinstance]: mobeffects.md#mobeffectinstances
 [modbus]: ../concepts/events.md#mod-event-bus
 [nbt]: ../datastorage/nbt.md
 [registering]: ../concepts/registries.md#methods-for-registering
