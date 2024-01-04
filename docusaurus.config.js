@@ -49,9 +49,6 @@ const config = {
             current: {
               label: "1.20.x",
             },
-            "1.19.x": {
-              banner: "unreleased",
-            },
           },
         },
         theme: {
