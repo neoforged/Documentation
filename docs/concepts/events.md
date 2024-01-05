@@ -7,7 +7,7 @@ Example: An event can be used to perform an action when a Vanilla stick is right
 
 The main event bus used for most events is located at `NeoForge#EVENT_BUS`. There is another event bus for mod specific events that you should only use in specific cases. More information about this bus can be [found below](#mod-event-bus).
 
-Every event is fired on one of these busses: most events are fired on the main forge event bus, but some are fired on the mod specific event buses.
+Every Forge event is fired on one of those buses: most events are fired on the main forge event bus, but some are fired on the mod specific event buses (generally registration events are fired on the mod bus).
 
 An event handler is some method that has been registered to an event bus.
 
