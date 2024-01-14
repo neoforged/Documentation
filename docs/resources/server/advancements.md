@@ -3,7 +3,7 @@ Advancements
 
 Advancements are tasks that can be achieved by the player which may advance the progress of the game. Advancements can trigger based on any action the player may be directly involved in.
 
-All advancement implementations within vanilla are data driven via JSON. This means that a mod is not necessary to create a new advancement, only a [data pack][datapack]. A full list on how to create and put these advancements within the mod's `resources` can be found on the [Minecraft Wiki][wiki]. Additionally, advancements can be [loaded conditionally and defaulted][conditional] depending on what information is present (mod loaded, item exists, etc.).
+All advancement implementations within vanilla are data driven via JSON. This means that a mod is not necessary to create a new advancement, only a [data pack][datapack]. A full list on how to create and put these advancements within the mod's `resources` can be found on the [Minecraft Wiki][wiki]. Additionally, advancements can be [loaded conditionally and defaulted][conditional] depending on what information is present (mod loaded, item exists, etc.). As with other data driven features, advancements can be generated via [data generators][datagen].
 
 Advancement Criteria
 --------------------
@@ -43,41 +43,38 @@ A list of criteria triggers defined by vanilla can be found in `CriteriaTriggers
 
 ### Custom Criteria Triggers
 
-Custom criteria triggers can be created by implementing `SimpleCriterionTrigger` for the created `AbstractCriterionTriggerInstance` subclass.
+Custom criteria triggers can be created by creating a class which implements `SimpleCriterionTrigger<T>` for a class `T` which implements `SimpleCriterionTrigger.SimpleInstance`. Typically, the `SimpleInstance` implementor is a subclass of the class which implements `SimpleCriterionTrigger`.
 
-### AbstractCriterionTriggerInstance Subclass
+### SimpleCriterionTrigger.SimpleInstance Subclass
 
-The `AbstractCriterionTriggerInstance` represents a single criteria defined in the `criteria` object. Trigger instances are responsible for holding the defined conditions, returning whether the inputs match the condition, and writing the instance to JSON for data generation.
+The `SimpleCriterionTrigger.SimpleInstance` represents a single criteria defined in the `criteria` object. Trigger instances are responsible for holding the defined conditions, and returning whether the inputs match the condition.
 
-Conditions are usually passed in through the constructor. The `AbstractCriterionTriggerInstance` super constructor requires the instance to define the registry name of the trigger and the conditions the player must meet as an `ContextAwarePredicate`. The registry name of the trigger should be supplied to the super directly while the conditions of the player should be a constructor parameter.
+Conditions are usually passed in through the constructor. The `SimpleCriterionTrigger.SimpleInstance` interface requires only one function, called `player()`, which returns the conditions the player must meet as an `Optional<ContextAwarePredicate>`. If the subclass is a Java record, the automatically generated `player()` method will suffice.
 
 ```java
-// Where ID is the registry name of the trigger
-public ExampleTriggerInstance(ContextAwarePredicate player, ItemPredicate item) {
-  super(ID, player);
-  // Store the item condition that must be met
+public record ExampleTriggerInstance(Optional<ContextAwarePredicate> player, ItemPredicate item) implements SimpleCriterionTrigger.SimpleInstance {
+  // extra methods here
 }
 ```
 
 :::note
-Typically, trigger instances have a static constructor which allow these instances to be easily created for data generation. These static factory methods can also be statically imported instead of the class itself.
+Typically, trigger instances have static helper methods which construct the full `Criterion<T>` object from the arguments to the instance. This allows these instances to be easily created during data generation, but are optional.
 
 ```java
-public static ExampleTriggerInstance instance(ContextAwarePredicate player, ItemPredicate item) {
-  return new ExampleTriggerInstance(player, item);
+public static Criterion<ExampleTriggerInstance> instance(ContextAwarePredicate player, ItemPredicate item) {
+  return EXAMPLE_TRIGGER.get().createCriterion(new ExampleTriggerInstance(Optional.of(player), item));
 }
 ```
 :::
 
-Additionally, the `#serializeToJson` method should be overridden. The method should add the conditions of the instance to the other JSON data.
+While it could be defined elsewhere, it is also typical to define a [`Codec`][codec] which can serialize this class as a constant in the class.
+A codec which can serialize this class must be defined somewhere, as it is required to implement `SimpleCriterionTrigger#codec` and is used to serialize criteria to JSON during data generation and deserialize them during loading.
 
 ```java
-@Override
-public JsonObject serializeToJson(SerializationContext context) {
-  JsonObject obj = super.serializeToJson(context);
-  // Write conditions to json
-  return obj;
-}
+public static final Codec<ExampleTriggerInstance> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+  ContextAwarePredicate.CODEC.optionalFieldOf("player").forGetter(ExampleTriggerInstance::player),
+  ItemPredicate.CODEC.fieldOf("item").forGetter(ExampleTriggerInstance::item)
+).apply(instance, ExampleTriggerInstance::new));
 ```
 
 Finally, a method should be added which takes in the current data state and returns whether the user has met the necessary conditions. The conditions of the player are already checked through `SimpleCriterionTrigger#trigger(ServerPlayer, Predicate)`. Most trigger instances call this method `#matches`.
@@ -92,37 +89,31 @@ public boolean matches(ItemStack stack) {
 
 ### SimpleCriterionTrigger
 
-The `SimpleCriterionTrigger<T>` subclass, where `T` is the type of the trigger instance, is responsible for specifying the registry name of the trigger, creating a trigger instance, and a method to check trigger instances and run attached listeners on success.
+The `SimpleCriterionTrigger<T>` subclass, where `T` is the type of the trigger instance, is responsible for specifying a codec to serialize `T`s, and supplying a method to check trigger instances and run attached listeners on success.
 
-The registry name of the trigger is supplied to `#getId`. This should match the registry name supplied to the trigger instance.
-
-A trigger instance is created via `#createInstance`. This method reads a criteria from JSON.
+The codec is typically defined as a constant of the inner `SimpleCriterionTrigger.SimpleInstance` class, and simply returned by the trigger's `codec()` method.
 
 ```java
+// in ExampleTrigger
 @Override
-public ExampleTriggerInstance createInstance(JsonObject json, ContextAwarePredicate player, DeserializationContext context) {
-  // Read conditions from JSON: item
-  return new ExampleTriggerInstance(player, item);
+public Codec<ExampleTriggerInstance> codec() {
+  return ExampleTriggerInstance.CODEC;
 }
 ```
 
-Finally, a method is defined to check all trigger instances and run the listeners if their condition is met. This method takes in the `ServerPlayer` and whatever other data defined by the matching method in the `AbstractCriterionTriggerInstance` subclass. This method should internally call `SimpleCriterionTrigger#trigger` to properly handle checking all listeners. Most trigger instances call this method `#trigger`.
+Finally, a method is defined to check all trigger instances and run the listeners if their condition is met. This method takes in the `ServerPlayer` and whatever other data defined by the matching method in the `SimpleCriterionTrigger.SimpleInstance` subclass. This method should internally call `SimpleCriterionTrigger#trigger` to properly handle checking all listeners. Most trigger instances call this method `#trigger`.
 
 ```java
-// This method is unique for each trigger and is as such not overridden
+// This method is unique for each trigger and is as such not an override
 public void trigger(ServerPlayer player, ItemStack stack) {
   this.trigger(player,
-    // The condition checker method within the AbstractCriterionTriggerInstance subclass
+    // The condition checker method within the SimpleCriterionTrigger.SimpleInstance subclass
     triggerInstance -> triggerInstance.matches(stack)
   );
 }
 ```
 
-Afterwards, an instance should be registered using `CriteriaTriggers#register` during `FMLCommonSetupEvent`.
-
-:::danger
-`CriteriaTriggers#register` must be enqueued to the synchronous work queue via `FMLCommonSetupEvent#enqueueWork` as the method is not thread-safe.
-:::
+Instances must be registered on the `Registries.TRIGGER_TYPE` registry. Techniques for doing so can be found under [Registries][registration].
 
 ### Calling the Trigger
 
@@ -130,10 +121,10 @@ Whenever the action being checked is performed, the `#trigger` method defined by
 
 ```java
 // In some piece of code where the action is being performed
-// Where EXAMPLE_CRITERIA_TRIGGER is the custom criteria trigger
+// Where EXAMPLE_TRIGGER is a supplier for the registered instance of the custom criteria trigger
 public void performExampleAction(ServerPlayer player, ItemStack stack) {
   // Run code to perform action
-  EXAMPLE_CRITERIA_TRIGGER.trigger(player, stack);
+  EXAMPLE_TRIGGER.get().trigger(player, stack);
 }
 ```
 
@@ -165,3 +156,6 @@ When an advancement is completed, rewards may be given out. These can be a combi
 [conditional]: ./conditional.md#implementations
 [function]: https://minecraft.wiki/w/Function_(Java_Edition)
 [triggers]: https://minecraft.wiki/w/Advancement/JSON_format#List_of_triggers
+[datagen]: ../../datagen/server/advancements.md#advancement-generation
+[codec]: ../../datastorage/codecs.md
+[registration]: ../../concepts/registries.md#methods-for-registering
