@@ -1,12 +1,10 @@
-Advancements
-============
+# Advancements
 
 Advancements are tasks that can be achieved by the player which may advance the progress of the game. Advancements can trigger based on any action the player may be directly involved in.
 
 All advancement implementations within vanilla are data driven via JSON. This means that a mod is not necessary to create a new advancement, only a [data pack][datapack]. A full list on how to create and put these advancements within the mod's `resources` can be found on the [Minecraft Wiki][wiki]. Additionally, advancements can be [loaded conditionally and defaulted][conditional] depending on what information is present (mod loaded, item exists, etc.). As with other data driven features, advancements can be generated via [data generators][datagen].
 
-Advancement Criteria
---------------------
+## Advancement Criteria
 
 To unlock an advancement, the specified criteria must be met. Criteria are tracked through triggers which execute when a certain action is performed: killing an entity, changing an inventory, breading animals, etc. Any time an advancement is loaded into the game, the criteria defined are read and added as listeners to the trigger. Afterwards a trigger function is called (usually named `#trigger`) which checks all listeners as to whether the current state meets the conditions of the advancement criteria. The criteria listeners for the advancement are only removed once the advancement has been obtained by completing all requirements.
 
@@ -82,7 +80,7 @@ public boolean matches(ItemStack stack) {
 
 The `SimpleCriterionTrigger<T>` subclass is responsible for specifying a codec to [serialize] the trigger instance `T` and supplying a method to check trigger instances and run attached listeners on success.
 
-The later is done by defining a method to check all trigger instances and run the listeners if their condition is met. This method takes in the `ServerPlayer` and whatever other data defined by the matching method in the `SimpleCriterionTrigger.SimpleInstance` subclass. This method should internally call `SimpleCriterionTrigger#trigger` to properly handle checking all listeners. Most trigger instances call this method `#trigger`.
+The latter is done by defining a method to check all trigger instances and run the listeners if their condition is met. This method takes in the `ServerPlayer` and whatever other data defined by the matching method in the `SimpleCriterionTrigger.SimpleInstance` subclass. This method should internally call `SimpleCriterionTrigger#trigger` to properly handle checking all listeners. Most trigger instances call this method `#trigger`.
 
 ```java
 // This method is unique for each trigger and is as such not a method to override
@@ -98,25 +96,31 @@ Finally, instances must be registered on the `Registries.TRIGGER_TYPE` registry.
 
 ### Serialization
 
-A [codec] must be defined to serialize and deserialize the trigger instance. Vanilla typically creates this codec as a constant within the instance implementation.
+A [codec] must be defined to serialize and deserialize the trigger instance. Vanilla typically creates this codec as a constant within the instance implementation that is then returned by the trigger's `#codec` method.
+
 
 ```java
-// in ExampleTriggerInstance
-public static final Codec<ExampleTriggerInstance> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+class ExampleTrigger extends SimpleCriterionTrigger<ExampleTrigger.ExampleTriggerInstance> {
+  @Override
+  public Codec<ExampleTriggerInstance> codec() {
+    return ExampleTriggerInstance.CODEC;
+  }
+  // ...
+  public class ExampleTriggerInstance implements SimpleCriterionTrigger.SimpleInstance {
+    public static final Codec<ExampleTriggerInstance> CODEC = ...;
+    // ...
+  }
+}
+```
+
+For the earlier example of a record with a `ContextAwarePredicate` and an `ItemPredicate`, the codec could be:
+
+```java
+RecordCodecBuilder.create(instance -> instance.group(
   ExtraCodecs.strictOptionalField(EntityPredicate.ADVANCEMENT_CODEC, "player").forGetter(ExampleTriggerInstance::player),
   ItemPredicate.CODEC.fieldOf("item").forGetter(ExampleTriggerInstance::item)
 ).apply(instance, ExampleTriggerInstance::new));
-```
-
-This is then returned by the trigger's `#codec` method.
-
-```java
-// in ExampleTrigger
-@Override
-public Codec<ExampleTriggerInstance> codec() {
-  return ExampleTriggerInstance.CODEC;
-}
-```
+``````
 
 ### Calling the Trigger
 
@@ -131,8 +135,7 @@ public void performExampleAction(ServerPlayer player, ItemStack stack) {
 }
 ```
 
-Advancement Rewards
--------------------
+## Advancement Rewards
 
 When an advancement is completed, rewards may be given out. These can be a combination of experience points, loot tables, recipes for the recipe book, or a [function] executed as a creative player.
 
