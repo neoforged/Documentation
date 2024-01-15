@@ -43,13 +43,13 @@ A list of criteria triggers defined by vanilla can be found in `CriteriaTriggers
 
 ### Custom Criteria Triggers
 
-Custom criteria triggers can be created by creating a class which implements `SimpleCriterionTrigger<T>` for a class `T` which implements `SimpleCriterionTrigger.SimpleInstance`. Typically, the `SimpleInstance` implementor is a subclass of the class which implements `SimpleCriterionTrigger`.
+Custom criteria triggers are made up of two parts: the trigger, which is activated in code at some point you specify by calling `#trigger`, and the instance which defines the conditions under which the trigger should award the criterion. The trigger extends `SimpleCriterionTrigger<T>` while the instance implements `SimpleCriterionTrigger.SimpleInstance`. The generic value `T` represents the trigger instance type.
 
-### SimpleCriterionTrigger.SimpleInstance Subclass
+### The SimpleCriterionTrigger.SimpleInstance Implementation
 
 The `SimpleCriterionTrigger.SimpleInstance` represents a single criteria defined in the `criteria` object. Trigger instances are responsible for holding the defined conditions, and returning whether the inputs match the condition.
 
-Conditions are usually passed in through the constructor. The `SimpleCriterionTrigger.SimpleInstance` interface requires only one function, called `player()`, which returns the conditions the player must meet as an `Optional<ContextAwarePredicate>`. If the subclass is a Java record, the automatically generated `player()` method will suffice.
+Conditions are usually passed in through the constructor. The `SimpleCriterionTrigger.SimpleInstance` interface requires only one function, called `#player`, which returns the conditions the player must meet as an `Optional<ContextAwarePredicate>`. If the subclass is a Java record with a `player` parameter of this type (as below), the automatically generated `#player` method will suffice.
 
 ```java
 public record ExampleTriggerInstance(Optional<ContextAwarePredicate> player, ItemPredicate item) implements SimpleCriterionTrigger.SimpleInstance {
@@ -61,21 +61,12 @@ public record ExampleTriggerInstance(Optional<ContextAwarePredicate> player, Ite
 Typically, trigger instances have static helper methods which construct the full `Criterion<T>` object from the arguments to the instance. This allows these instances to be easily created during data generation, but are optional.
 
 ```java
+// In this example, EXAMPLE_TRIGGER is a DeferredHolder<CriterionTrigger<?>>
 public static Criterion<ExampleTriggerInstance> instance(ContextAwarePredicate player, ItemPredicate item) {
   return EXAMPLE_TRIGGER.get().createCriterion(new ExampleTriggerInstance(Optional.of(player), item));
 }
 ```
 :::
-
-While it could be defined elsewhere, it is also typical to define a [`Codec`][codec] which can serialize this class as a constant in the class.
-A codec which can serialize this class must be defined somewhere, as it is required to implement `SimpleCriterionTrigger#codec` and is used to serialize criteria to JSON during data generation and deserialize them during loading.
-
-```java
-public static final Codec<ExampleTriggerInstance> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-  ContextAwarePredicate.CODEC.optionalFieldOf("player").forGetter(ExampleTriggerInstance::player),
-  ItemPredicate.CODEC.fieldOf("item").forGetter(ExampleTriggerInstance::item)
-).apply(instance, ExampleTriggerInstance::new));
-```
 
 Finally, a method should be added which takes in the current data state and returns whether the user has met the necessary conditions. The conditions of the player are already checked through `SimpleCriterionTrigger#trigger(ServerPlayer, Predicate)`. Most trigger instances call this method `#matches`.
 
@@ -89,9 +80,35 @@ public boolean matches(ItemStack stack) {
 
 ### SimpleCriterionTrigger
 
-The `SimpleCriterionTrigger<T>` subclass, where `T` is the type of the trigger instance, is responsible for specifying a codec to serialize `T`s, and supplying a method to check trigger instances and run attached listeners on success.
+The `SimpleCriterionTrigger<T>` subclass is responsible for specifying a codec to [serialize] the trigger instance `T` and supplying a method to check trigger instances and run attached listeners on success.
 
-The codec is typically defined as a constant of the inner `SimpleCriterionTrigger.SimpleInstance` class, and simply returned by the trigger's `codec()` method.
+The later is done by defining a method to check all trigger instances and run the listeners if their condition is met. This method takes in the `ServerPlayer` and whatever other data defined by the matching method in the `SimpleCriterionTrigger.SimpleInstance` subclass. This method should internally call `SimpleCriterionTrigger#trigger` to properly handle checking all listeners. Most trigger instances call this method `#trigger`.
+
+```java
+// This method is unique for each trigger and is as such not a method to override
+public void trigger(ServerPlayer player, ItemStack stack) {
+  this.trigger(player,
+    // The condition checker method within the SimpleCriterionTrigger.SimpleInstance subclass
+    triggerInstance -> triggerInstance.matches(stack)
+  );
+}
+```
+
+Finally, instances must be registered on the `Registries.TRIGGER_TYPE` registry. Techniques for doing so can be found under [Registries][registration].
+
+### Serialization
+
+A [codec] must be defined to serialize and deserialize the trigger instance. Vanilla typically creates this codec as a constant within the instance implementation.
+
+```java
+// in ExampleTriggerInstance
+public static final Codec<ExampleTriggerInstance> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+  ExtraCodecs.strictOptionalField(EntityPredicate.ADVANCEMENT_CODEC, "player").forGetter(ExampleTriggerInstance::player),
+  ItemPredicate.CODEC.fieldOf("item").forGetter(ExampleTriggerInstance::item)
+).apply(instance, ExampleTriggerInstance::new));
+```
+
+This is then returned by the trigger's `#codec` method.
 
 ```java
 // in ExampleTrigger
@@ -101,27 +118,13 @@ public Codec<ExampleTriggerInstance> codec() {
 }
 ```
 
-Finally, a method is defined to check all trigger instances and run the listeners if their condition is met. This method takes in the `ServerPlayer` and whatever other data defined by the matching method in the `SimpleCriterionTrigger.SimpleInstance` subclass. This method should internally call `SimpleCriterionTrigger#trigger` to properly handle checking all listeners. Most trigger instances call this method `#trigger`.
-
-```java
-// This method is unique for each trigger and is as such not an override
-public void trigger(ServerPlayer player, ItemStack stack) {
-  this.trigger(player,
-    // The condition checker method within the SimpleCriterionTrigger.SimpleInstance subclass
-    triggerInstance -> triggerInstance.matches(stack)
-  );
-}
-```
-
-Instances must be registered on the `Registries.TRIGGER_TYPE` registry. Techniques for doing so can be found under [Registries][registration].
-
 ### Calling the Trigger
 
 Whenever the action being checked is performed, the `#trigger` method defined by the `SimpleCriterionTrigger` subclass should be called.
 
 ```java
 // In some piece of code where the action is being performed
-// Where EXAMPLE_TRIGGER is a supplier for the registered instance of the custom criteria trigger
+// Again, EXAMPLE_TRIGGER is a supplier for the registered instance of the custom criteria trigger
 public void performExampleAction(ServerPlayer player, ItemStack stack) {
   // Run code to perform action
   EXAMPLE_TRIGGER.get().trigger(player, stack);
@@ -159,3 +162,4 @@ When an advancement is completed, rewards may be given out. These can be a combi
 [datagen]: ../../datagen/server/advancements.md#advancement-generation
 [codec]: ../../datastorage/codecs.md
 [registration]: ../../concepts/registries.md#methods-for-registering
+[serialize]: #serialization
