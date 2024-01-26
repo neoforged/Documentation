@@ -48,6 +48,7 @@ The above structure will invoke mergers in the case of [advanced data maps](./in
     "values": {
         // Overwrite the value of the carrot item
         "minecraft:carrot": {
+            // highlight-next-line
             "replace": true,
             // The new value will be under a value sub-object
             "value": {
