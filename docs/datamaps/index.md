@@ -14,7 +14,7 @@ A data map type should be statically created and then registered to the `Registe
 
 The builder provides a `syced` method which can be used to mark a data map as synced and have it sent to clients.  
 
-A simple `DataMapType` has two generic arguments: `T` (the values that are being attached) and `R` (the type of the registry the data map is for). A data map of `SomeObject`s that are attached to `Item`s can, as such, be represented as `DataMapType<SomeObject, Item>`.  
+A simple `DataMapType` has two generic arguments: `R` (the type of the registry the data map is for) and `T` (the values that are being attached). A data map of `SomeObject`s that are attached to `Item`s can, as such, be represented as `DataMapType<Item, SomeObject>`.  
 
 Data maps are serialized and deserialized using [Codecs](../datastorage/codecs.md).
 
@@ -37,7 +37,7 @@ The value (`T`) should be an *immutable* object, as otherwise weird behaviour ca
 For the purposes of this example, we will use this data map to heal players when they drop an item.  
 The `DataMapType` can be created as such:
 ```java
-public static final DataMapType<DropHealing, Item> DROP_HEALING = DataMapType.builder(
+public static final DataMapType<Item, DropHealing> DROP_HEALING = DataMapType.builder(
         new ResourceLocation("mymod:drop_healing"), Registries.ITEM, DropHealing.CODEC
 ).build();
 ```
@@ -80,7 +80,7 @@ public static void onItemDrop(final ItemTossEvent event) {
 ## Advanced data maps
 Advanced data maps are data maps which have added functionality. Namely, the ability of merging values and selectively removing them, through a remover. Implementing some form of merging and removers is highly recommended for data maps whose values are collection-likes (like `Map`s or `List`s).
 
-`AdvancedDataMapType` have one more generic besides `T` and `R`: `VR extends DataMapValueRemover<T, R>`. This additional generic allows you to datagen remove objects with increased type safety.
+`AdvancedDataMapType` have one more generic besides `T` and `R`: `VR extends DataMapValueRemover<R, T>`. This additional generic allows you to datagen remove objects with increased type safety.
 
 ### Creation
 You create an `AdvancedDataMapType` using `AdvancedDataMapType#builder`. Unlike the normal builder, the builder returned by that method will have two more methods (`merger` and `remover`), and it will return an `AdvancedDataMapType`.  
@@ -105,7 +105,7 @@ Alternatively, an empty `Optional` will lead to the value being completely remov
 
 An example of a remover that will remove a value with a specific key from a `Map`-based data map:
 ```java
-public record MapRemover(String key) implements DataMapValueRemover<Map<String, String>, Item> {
+public record MapRemover(String key) implements DataMapValueRemover<Item, Map<String, String>> {
     public static final Codec<MapRemover> CODEC = Codec.STRING.xmap(MapRemover::new, MapRemover::key);
     
     @Override
