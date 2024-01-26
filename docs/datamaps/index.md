@@ -94,7 +94,7 @@ Generally, mergers should simply merge the values, and should not perform "hard"
 
 We provide some default mergers for merging lists, sets and maps in `DataMapValueMerger`.  
 
-The default merger (`DataMapValueMerger#defaultMerger`) has the typical first come last serverd priority-based overwriting behaviour that you'd expect from normal data packs, where the newest value always wins.
+The default merger (`DataMapValueMerger#defaultMerger`) has the typical behaviour you'd expect from normal data packs, where the newest value (which comes from the highest datapack) always wins.
 
 ### Removers
 An advanced data map can provide a `DataMapValueRemover` through `AdvancedDataMapType#remover`. The remover will allow selective removals of data map values, effectively decomposition.  
