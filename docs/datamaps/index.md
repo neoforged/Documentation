@@ -100,7 +100,8 @@ The default merger (`DataMapValueMerger#defaultMerger`) has the typical behaviou
 An advanced data map can provide a `DataMapValueRemover` through `AdvancedDataMapType#remover`. The remover will allow selective removals of data map values, effectively decomposition.  
 While by default a datapack can only remove the whole object attached to a registry entry, with a remover it can remove just speciffic values from the attached object (i.e. just the entry with a given key in the case of a map, or the entry with a specific property in the case of a list).  
 
-The codec that is passed to the builder will decode removers that will then be given the value currently attached and its source, and is expected to create a new object that will have the properties requested by the `remove` object removed. Alternatively, an empty `Optional` will lead to the value being completely removed.  
+The codec that is passed to the builder will decode remover instances. These removers will then be given the value currently attached and its source, and are expected to create a new object to replace the old value.  
+Alternatively, an empty `Optional` will lead to the value being completely removed.  
 
 An example of a remover that will remove a value with a specific key from a `Map`-based data map:
 ```java
