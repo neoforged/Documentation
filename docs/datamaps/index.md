@@ -5,10 +5,14 @@ This system allows more easily data-driving game behaviour, as they provide func
 
 You can think of tags as entry->boolean maps, while data maps are more flexible entry->object maps.
 
-A data map can be attached to both static, built-in, registries and dynamic data-driven datapack registries.
+A data map can be attached to both static, built-in, registries and dynamic data-driven datapack registries.  
+
+Data maps support reloading through the use of the `/reload` command or any other means that reload server resources.
 
 ## Registration
 A data map type should be statically created and then registered to the `RegisterDataMapTypesEvent` (which is fired on the mod event bus). The `DataMapType` can be created using a `DataMapType$Builder`, through `DataMapType#builder`.  
+
+The builder provides a `syced` method which can be used to mark a data map as synced and have it sent to clients.  
 
 A simple `DataMapType` has two generic arguments: `T` (the values that are being attached) and `R` (the type of the registry the data map is for). A data map of `SomeObject`s that are attached to `Item`s can, as such, be represented as `DataMapType<SomeObject, Item>`.  
 
@@ -27,7 +31,7 @@ public record DropHealing(
 ```
 
 :::warning
-The value should be an *immutable* object, as otherwise weird behaviour can be caused if the object is attached to all values within a tag (since no copy is created).
+The value (`T`) should be an *immutable* object, as otherwise weird behaviour can be caused if the object is attached to all entries within a tag (since no copy is created).
 :::
 
 For the purposes of this example, we will use this data map to heal players when they drop an item.  
@@ -53,7 +57,7 @@ As data maps can be used on any registry, they can be queried through `Holder`s,
 You can query a data map value using `Holder#getData(DataMapType)`. If that object doesn't have a value attached, the method will return `null`.
 
 :::note
-Only reference holders will return a value in that method. `Named` holders will **not**.  Generally, you will only encounter reference holders (which are returned by methods such as `Registry#wrapAsHolder`, `Registry#getHolder` or the different `builtInRegistryHolder` methods).
+Only reference holders will return a value in that method. `Direct` holders will **not**.  Generally, you will only encounter reference holders (which are returned by methods such as `Registry#wrapAsHolder`, `Registry#getHolder` or the different `builtInRegistryHolder` methods).
 :::
 
 To continue the example above, we can implement our intended behaviour as follows:
@@ -86,7 +90,7 @@ Registration methods remain the same.
 ### Mergers
 An advanced data map can provide a `DataMapValueMerger` through `AdvancedDataMapType#merger`. This merger will be used to handle conflicts between data packs that attempt to attach a value to the same object.  
 The merger will be given the two conflicting values, and their sources (as an `Either<TagKey<R>, ResourceKey<R>>` since values can be attached to all entries within a tag, not just individual entries), and is expected to return the value that will actually be attached.  
-Generally, mergers should simply merge the values, and should not perform "hard" overwrites unless necessary (i.e. if merging isn't possible). A value can be overwritten by specifying the object-level `replace` field, which will bypass the merger.
+Generally, mergers should simply merge the values, and should not perform "hard" overwrites unless necessary (i.e. if merging isn't possible). If a pack wants to bypass the merger, it can do so by specifying the object-level `replace` field.
 
 We provide some default mergers for merging lists, sets and maps in `DataMapValueMerger`.  
 
