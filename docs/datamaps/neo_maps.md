@@ -1,6 +1,6 @@
 # Built-in Data Maps
 NeoForge provides a few data maps that mostly replace hardcoded in-code vanilla maps.  
-These dats maps can be found in `NeoForgeDataMaps`.
+These dats maps can be found in `NeoForgeDataMaps`, and are always *optional* to ensure compatibility with vanilla clients.
 
 ## `neoforge:compostables`
 NeoForge provides a data map that allows configuring composter values, as a replacement for `ComposterBlock#COMPOSTABLES` (which is now ignored).  

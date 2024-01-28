@@ -10,7 +10,7 @@ A data map can be attached to both static, built-in, registries and dynamic data
 Data maps support reloading through the use of the `/reload` command or any other means that reload server resources.
 
 ## Registration
-A data map type should be statically created and then registered to the `RegisterDataMapTypesEvent` (which is fired on the mod event bus). The `DataMapType` can be created using a `DataMapType$Builder`, through `DataMapType#builder`.  
+A data map type should be statically created and then registered to the `RegisterDataMapTypesEvent` (which is fired on the [mod event bus](../concepts/events)). The `DataMapType` can be created using a `DataMapType$Builder`, through `DataMapType#builder`.  
 
 The builder provides a `synced` method which can be used to mark a data map as synced and have it sent to clients.  
 
@@ -53,7 +53,7 @@ A separate network codec allows for packet sizes to be smaller, as you can choos
 :::
 
 ## JSON Structure and location
-Data maps are loaded from a JSON file located at `:mapNamespace/data_maps/:registryNamespace/:registryPath/:mapPath.json`, where:
+Data maps are loaded from a JSON file located at `mapNamespace/data_maps/registryNamespace/registryPath/mapPath.json`, where:
 - `mapNamespace` is the namespace of the ID of the data map
 - `mapPath` is the path of the ID of the data map
 - `registryNamespace` is the namespace of the ID of the registry
@@ -113,7 +113,7 @@ The above merger will merge the values if two datapacks attach to the same objec
 
 We provide some default mergers for merging lists, sets and maps in `DataMapValueMerger`.  
 
-The default merger (`DataMapValueMerger#defaultMerger`) has the typical behaviour you'd expect from normal data packs, where the newest value (which comes from the highest datapack) always wins.
+The default merger (`DataMapValueMerger#defaultMerger`) has the typical behaviour you'd expect from normal data packs, where the newest value (which comes from the highest datapack) overwrites the previous value.
 
 ### Removers
 An advanced data map can provide a `DataMapValueRemover` through `AdvancedDataMapType#remover`. The remover will allow selective removals of data map values, effectively decomposition.  
@@ -162,7 +162,7 @@ That file will attach the map `[somekey1=value1, somekey2=value2]` to the `minec
 After the second datapack is read and applied, the new value attached to the `minecraft:carrot` item will be `[somekey2=value2]`.
 
 ## Datagen
-Data maps can be generated through `DataMapProvider`.  
+Data maps can be [generated](../datagen) through `DataMapProvider`.  
 You should extend that class, and then override the `generate` method to create your entries, similar to tag generation.
 
 Considering the drop healing example from the start, we could generate some values as follows:

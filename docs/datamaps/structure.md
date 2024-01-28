@@ -2,7 +2,7 @@
 For the purposes of this page, we will use a data map which is an object with two float keys: `amount` and `chance` as an example. The codec for that object can be found [here](./index.md#registration).
 
 ## Location
-Data maps are loaded from a JSON file located at `:mapNamespace/data_maps/:registryNamespace/:registryPath/:mapPath.json`, where:
+Data maps are loaded from a JSON file located at `mapNamespace/data_maps/registryNamespace/registryPath/mapPath.json`, where:
 - `mapNamespace` is the namespace of the ID of the data map
 - `mapPath` is the path of the ID of the data map
 - `registryNamespace` is the namespace of the ID of the registry
