@@ -3,7 +3,7 @@
 A registry data map contains data-driven, reloadable objects that can be attached to a registry object.  
 This system allows more easily data-driving game behaviour, as they provide functionality such as syncing or conflict resolution, leading to a better and more configurable user experience.  
 
-You can think of tags as entry->boolean maps, while data maps are more flexible entry->object maps.
+You can think of tags as registry object ➜ boolean maps, while data maps are more flexible registry object ➜ object maps.
 
 A data map can be attached to both static, built-in, registries and dynamic data-driven datapack registries.  
 
@@ -12,7 +12,7 @@ Data maps support reloading through the use of the `/reload` command or any othe
 ## Registration
 A data map type should be statically created and then registered to the `RegisterDataMapTypesEvent` (which is fired on the mod event bus). The `DataMapType` can be created using a `DataMapType$Builder`, through `DataMapType#builder`.  
 
-The builder provides a `syced` method which can be used to mark a data map as synced and have it sent to clients.  
+The builder provides a `synced` method which can be used to mark a data map as synced and have it sent to clients.  
 
 A simple `DataMapType` has two generic arguments: `R` (the type of the registry the data map is for) and `T` (the values that are being attached). A data map of `SomeObject`s that are attached to `Item`s can, as such, be represented as `DataMapType<Item, SomeObject>`.  
 
@@ -48,8 +48,17 @@ A synced data map will have its values synced to clients. A data map can be mark
 The values of the data map will then be synced using the `networkCodec`.  
 If the `mandatory` flag is set to `true`, clients that do not support the data map (including Vanilla clients) will not be able to connect to the server, nor vice-versa. A non-mandatory data map is, on the other side, optional, so it will not prevent any clients from joining.
 
+:::tip
+A separate network codec allows for packet sizes to be smaller, as you can choose what data to send, and in what format. Otherwise the default codec can be used.
+:::
+
 ## JSON Structure and location
-Data maps are loaded from a JSON file located at `:mapNamespace/data_maps/:registryNamespace/:registryPath/:mapPath.json`.  
+Data maps are loaded from a JSON file located at `:mapNamespace/data_maps/:registryNamespace/:registryPath/:mapPath.json`, where:
+- `mapNamespace` is the namespace of the ID of the data map
+- `mapPath` is the path of the ID of the data map
+- `registryNamespace` is the namespace of the ID of the registry
+- `registryPath` is the path of the ID of the registry
+
 For more information, please [check out the dedicated page](./structure.md).
 
 ## Usage
@@ -83,14 +92,24 @@ Advanced data maps are data maps which have added functionality. Namely, the abi
 `AdvancedDataMapType` have one more generic besides `T` and `R`: `VR extends DataMapValueRemover<R, T>`. This additional generic allows you to datagen remove objects with increased type safety.
 
 ### Creation
-You create an `AdvancedDataMapType` using `AdvancedDataMapType#builder`. Unlike the normal builder, the builder returned by that method will have two more methods (`merger` and `remover`), and it will return an `AdvancedDataMapType`.  
-
-Registration methods remain the same.
+You create an `AdvancedDataMapType` using `AdvancedDataMapType#builder`. Unlike the normal builder, the builder returned by that method will have two more methods (`merger` and `remover`), and it will return an `AdvancedDataMapType`. Registration methods remain the same.
 
 ### Mergers
 An advanced data map can provide a `DataMapValueMerger` through `AdvancedDataMapType#merger`. This merger will be used to handle conflicts between data packs that attempt to attach a value to the same object.  
 The merger will be given the two conflicting values, and their sources (as an `Either<TagKey<R>, ResourceKey<R>>` since values can be attached to all entries within a tag, not just individual entries), and is expected to return the value that will actually be attached.  
-Generally, mergers should simply merge the values, and should not perform "hard" overwrites unless necessary (i.e. if merging isn't possible). If a pack wants to bypass the merger, it can do so by specifying the object-level `replace` field.
+Generally, mergers should simply merge the values, and should not perform "hard" overwrites unless necessary (i.e. if merging isn't possible). If a pack wants to bypass the merger, it can do so by specifying the object-level `replace` field.  
+
+Let's imagine a scenario where we have a data map that attaches integers to items:
+```java
+public class IntMerger implements DataMapValueMerger<Item, Integer> {
+    @Override
+    public Integer merge(Registry<Item> registry, Either<TagKey<Item>, ResourceKey<Item>> first, Integer firstValue, Either<TagKey<Item>, ResourceKey<Item>> second, Integer secondValue) {
+        //highlight-next-line
+        return firstValue + secondValue;
+    }
+}
+```
+The above merger will merge the values if two datapacks attach to the same object. So if the first pack attaches the value `12` to `minecraft:carrot`, and the second pack attaches the value `15` to `minecraft:carrot`, the final value will be `27`. However, if the second pack specifies the object-level `replace` field, the final value will be `15` as the merger won't be invoked.
 
 We provide some default mergers for merging lists, sets and maps in `DataMapValueMerger`.  
 
@@ -167,3 +186,7 @@ public class DropHealingGen extends DataMapProvider {
     }
 }
 ```
+
+:::tip
+There are `add` overloads that accept raw `ResourceLocation`s if you want to attach values to objects added by optional dependencies. In that case you should also provide [a loading condition](../resources/server/conditional) through the var-args parameter to avoid crashes.
+:::

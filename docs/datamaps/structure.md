@@ -20,6 +20,9 @@ Examples:
 ## Global `replace` field
 The JSON file has an optional, global `replace` field, which is similar to tags, and when `true` will remove all previously attached values of that data map. This is useful for datapacks that want to completely change the entire data map.
 
+## Loading conditions
+Data map files support [loading conditions](../resources/server/conditional) both at root-level and at entry-level through a `neoforge:conditions` array.
+
 ## Adding values
 Values can be attached to objects using the `values` map. Each key will represent either the ID of an individual registry entry to attach the value to, or a tag key, preceeded by `#`. If it is a tag, the same value will be attached to all entries in that tag.  
 The key will be the object to attach.
