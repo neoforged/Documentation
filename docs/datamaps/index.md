@@ -46,7 +46,7 @@ and then registered to the `RegisterDataMapTypesEvent` using `RegisterDataMapTyp
 ## Syncing
 A synced data map will have its values synced to clients. A data map can be marked as synced using `DataMapType$Builder#synced(Codec<T> networkCodec, boolean mandatory)`.   
 The values of the data map will then be synced using the `networkCodec`.  
-If the `mandatory` flag is set to `true`, clients that do not support the data map (including Vanilla clients) will not be able to connect to the server, nor vice-versa. A non-mandatory data map is, on the other side, optional, so it will not prevent any clients from joining.
+If the `mandatory` flag is set to `true`, clients that do not support the data map (including Vanilla clients) will not be able to connect to the server, nor vice-versa. A non-mandatory data map on the other hand is optional, so it will not prevent any clients from joining.
 
 :::tip
 A separate network codec allows for packet sizes to be smaller, as you can choose what data to send, and in what format. Otherwise the default codec can be used.
