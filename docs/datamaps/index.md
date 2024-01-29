@@ -87,7 +87,7 @@ public static void onItemDrop(final ItemTossEvent event) {
 ```
 
 ## Advanced data maps
-Advanced data maps are data maps which have added functionality. Namely, the ability of merging values and selectively removing them, through a remover. Implementing some form of merging and removers is highly recommended for data maps whose values are collection-likes (like `Map`s or `List`s).
+Advanced data maps are data maps which have additional functionality. Namely, the ability of merging values and selectively removing them, through a remover. Implementing some form of merging and removers is highly recommended for data maps whose values are collection-likes (like `Map`s or `List`s).
 
 `AdvancedDataMapType` have one more generic besides `T` and `R`: `VR extends DataMapValueRemover<R, T>`. This additional generic allows you to datagen remove objects with increased type safety.
 
