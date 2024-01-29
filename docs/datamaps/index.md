@@ -56,7 +56,7 @@ A separate network codec allows for packet sizes to be smaller, as you can choos
 Data maps are loaded from a JSON file located at `mapNamespace/data_maps/registryNamespace/registryPath/mapPath.json`, where:
 - `mapNamespace` is the namespace of the ID of the data map
 - `mapPath` is the path of the ID of the data map
-- `registryNamespace` is the namespace of the ID of the registry
+- `registryNamespace` is the namespace of the ID of the registry; if the namespace is `minecraft`, this value will be omitted
 - `registryPath` is the path of the ID of the registry
 
 For more information, please [check out the dedicated page](./structure.md).
