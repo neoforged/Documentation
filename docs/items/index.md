@@ -193,7 +193,7 @@ public static final Supplier<CreativeModeTab> EXAMPLE_TAB = CREATIVE_MODE_TABS.r
 [interactionpipeline]: interactionpipeline.md
 [loottables]: ../resources/server/loottables.md
 [mobeffectinstance]: mobeffects.md#mobeffectinstances
-[modbus]: ../concepts/events.md#mod-event-bus
+[modbus]: ../concepts/events.md#event-buses
 [nbt]: ../datastorage/nbt.md
 [registering]: ../concepts/registries.md#methods-for-registering
 [resources]: ../resources/client/index.md

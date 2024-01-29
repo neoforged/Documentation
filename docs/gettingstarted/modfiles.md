@@ -129,7 +129,7 @@ Mods can specify their dependencies, which are checked by NeoForge before loadin
 | `reason`       | string |   *nothing*   | An optional user-facing message to describe why this dependency is required, or why it is incompatible.                                                                                                                                                                                                                                                                                                                                                                    |
 | `versionRange` | string |     `""`      | The acceptable version range of the language loader, expressed as a [Maven Version Range][mvr]. An empty string matches any version.                                                                                                                                                                                                                                                                                                                                       | `versionRange="[1, 2)"`                      |
 | `ordering`     | string |   `"NONE"`    | Defines if the mod must load before (`"BEFORE"`) or after (`"AFTER"`) this dependency. If the ordering does not matter, return `"NONE"`                                                                                                                                                                                                                                                                                                                                    | `ordering="AFTER"`                           |
-| `side`         | string |   `"BOTH"`    | The [physical side][dist] the dependency must be present on: `"CLIENT"`, `"SERVER"`, or `"BOTH"`.                                                                                                                                                                                                                                                                                                                                                                          | `side="CLIENT"`                              |
+| `side`         | string |   `"BOTH"`    | The [physical side][sides] the dependency must be present on: `"CLIENT"`, `"SERVER"`, or `"BOTH"`.                                                                                                                                                                                                                                                                                                                                                                         | `side="CLIENT"`                              |
 | `referralUrl`  | string |   *nothing*   | A URL to the download page of the dependency. Currently unused.                                                                                                                                                                                                                                                                                                                                                                                                            | `referralUrl="https://library.example.com/"` |
 
 :::danger
@@ -163,7 +163,6 @@ There must be a 1-to-1 matching of mods in the `mods.toml` file and `@Mod` entry
 
 [array]: https://toml.io/en/v1.0.0#array-of-tables
 [atlasviewer]: https://github.com/XFactHD/AtlasViewer/blob/1.20.2/neoforge/src/main/resources/META-INF/services/xfacthd.atlasviewer.platform.services.IPlatformHelper
-[dist]: ../concepts/sides.md#different-kinds-of-sides
 [events]: ../concepts/events.md
 [features]: #features
 [group]: #the-group-id
@@ -181,7 +180,7 @@ There must be a 1-to-1 matching of mods in the `mods.toml` file and `@Mod` entry
 [packaging]: ./structuring.md#packaging
 [registration]: ../concepts/registries.md#deferredregister
 [serviceload]: https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/ServiceLoader.html#load(java.lang.Class)
-[sides]: ../concepts/sides.md#writing-one-sided-mods
+[sides]: ../concepts/sides.md
 [spdx]: https://spdx.org/licenses/
 [toml]: https://toml.io/
 [update]: ../misc/updatechecker.md

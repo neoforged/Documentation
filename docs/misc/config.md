@@ -136,4 +136,4 @@ These events are called for all configurations for the mod; the `ModConfig` obje
 [toml]: https://toml.io/
 [nightconfig]: https://github.com/TheElectronWill/night-config
 [type]: https://github.com/neoforged/FancyModLoader/blob/19d6326b810233e683f1beb3d28e41372e1e89d1/core/src/main/java/net/neoforged/fml/config/ModConfig.java#L83-L111
-[events]: ../concepts/events.md#creating-an-event-handler
+[events]: ../concepts/events.md#registering-an-event-handler

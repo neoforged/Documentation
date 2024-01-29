@@ -49,7 +49,7 @@ Once accepted, the server will load and become available under `localhost` (or `
 You should always test your mod in a dedicated server environment. This includes [client-only mods][client], as these should not do anything when loaded on the server.
 :::
 
-[client]: ../concepts/sides.md#writing-one-sided-mods
+[client]: ../concepts/sides.md
 [eclipse]: https://www.eclipse.org/downloads/
 [git]: https://www.git-scm.com/
 [github]: https://github.com/
