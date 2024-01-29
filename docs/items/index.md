@@ -54,6 +54,53 @@ Directly using `Item` only allows for very basic items. If you want to add funct
 
 The two most common use cases for items are left-clicking and right-clicking. For left-clicking, see [Breaking a Block][breaking] and Attacking an Entity (WIP). For right-clicking, see [The Interaction Pipeline][interactionpipeline].
 
+### `DeferredRegister.Items`
+
+All registries use `DeferredRegister` to register their contents, and items are no exceptions. However, due to the fact that adding new items is such an essential feature of an overwhelming amount of mods, NeoForge provides the `DeferredRegister.Items` helper class that extends `DeferredRegister<Item>` and provides some item-specific helpers:
+
+```java
+public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(ExampleMod.MOD_ID);
+
+public static final Supplier<Item> EXAMPLE_ITEM = ITEMS.registerItem(
+        "example_item",
+        Item::new, // The factory that the properties will be passed into.
+        new Item.Properties() // The properties to use.
+);
+```
+
+Internally, this will simply call `ITEMS.register("example_item", () -> new Item(new Item.Properties()))` by applying the properties parameter to the provided item factory (which is commonly the constructor).
+
+If you want to use `Item::new`, you can leave out the factory entirely:
+
+```java
+public static final Supplier<Item> EXAMPLE_ITEM = ITEMS.registerItem(
+        "example_item",
+        new ItemBehaviour.Properties() // The properties to use.
+);
+```
+
+This does the exact same as the previous example, but is slightly shorter. Of course, if you want to use a subclass of `Item` and not `Item` itself, you will have to use the previous method instead.
+
+Both of these methods also have `simple` counterparts that omit the `new Item.Properties()` parameter:
+
+```java
+public static final Supplier<Item> EXAMPLE_ITEM = ITEMS.registerSimpleItem("example_item", Item::new);
+// Variant that also omits the Item::new parameter
+public static final Supplier<Item> EXAMPLE_ITEM = ITEMS.registerSimpleItem("example_item");
+```
+
+Finally, there's also shortcuts for block items:
+
+```java
+public static final Supplier<BlockItem> EXAMPLE_BLOCK_ITEM = ITEMS.registerSimpleBlockItem("example_block", ExampleBlocksClass.EXAMPLE_BLOCK, new Item.Properties());
+// Variant that omits the properties parameter:
+public static final Supplier<BlockItem> EXAMPLE_BLOCK_ITEM = ITEMS.registerSimpleBlockItem("example_block", ExampleBlocksClass.EXAMPLE_BLOCK);
+// Variant that omits the name parameter, instead using the block's registry name:
+public static final Supplier<BlockItem> EXAMPLE_BLOCK_ITEM = ITEMS.registerSimpleBlockItem(ExampleBlocksClass.EXAMPLE_BLOCK, new Item.Properties());
+// Variant that omits both the name and the properties:
+public static final Supplier<BlockItem> EXAMPLE_BLOCK_ITEM = ITEMS.registerSimpleBlockItem(ExampleBlocksClass.EXAMPLE_BLOCK);
+```
+
 ### Resources
 
 If you register your item and get your item (via `/give` or through a [creative tab][creativetabs]), you will find it to be missing a proper model and texture. This is because textures and models  are handled by Minecraft's resource system.

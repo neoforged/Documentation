@@ -8,10 +8,10 @@ One Block to Rule Them All
 
 Before we get started, it is important to understand that there is only ever one of each block in the game. A world consists of thousands of references to that one block in different locations. In other words, the same block is just displayed a lot of times.
 
-Due to this, a block should only ever be instantiated once, and that is during registration. Once the block is registered, you can then use the registered reference as needed. Consider this example (see the [Registration][registration] page if you do not know what you are looking at):
+Due to this, a block should only ever be instantiated once, and that is during [registration]. Once the block is registered, you can then use the registered reference as needed. Consider this example:
 
 ```java
-//BLOCKS is a DeferredRegister.Blocks
+//BLOCKS is a DeferredRegister<Block>
 public static final DeferredBlock<Block> MY_BLOCK = BLOCKS.register("my_block", () -> new Block(...));
 ```
 
@@ -79,6 +79,33 @@ A `BlockItem` must be registered separately from the block. This is because a bl
 Directly using `Block` only allows for very basic blocks. If you want to add functionality, like player interaction or a different hitbox, a custom class that extends `Block` is required. The `Block` class has many methods that can be overridden to do different things; see the classes `Block`, `BlockBehaviour` and `IBlockExtension` for more information. See also the [Using blocks][usingblocks] section below for some of the most common use cases for blocks.
 
 If you want to make a block that has different variants (think a slab that has a bottom, top, and double variant), you should use [blockstates]. And finally, if you want a block that stores additional data (think a chest that stores its inventory), a [block entity][blockentities] should be used. The rule of thumb here is that if you have a finite and reasonably small amount of states (= a few hundred states at most), use blockstates, and if you have an infinite or near-infinite amount of states, use a block entity.
+
+### `DeferredRegister.Blocks`
+
+All registries use `DeferredRegister` to register their contents, and blocks are no exceptions. However, due to the fact that adding new blocks is such an essential feature of an overwhelming amount of mods, NeoForge provides the `DeferredRegister.Blocks` helper class that extends `DeferredRegister<Block>` and provides some block-specific helpers:
+
+```java
+public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(ExampleMod.MOD_ID);
+
+public static final Supplier<Block> EXAMPLE_BLOCK = BLOCKS.registerBlock(
+        "example_block",
+        Block::new, // The factory that the properties will be passed into.
+        new BlockBehaviour.Properties() // The properties to use.
+);
+```
+
+Internally, this will simply call `BLOCKS.register("example_block", () -> new Block(new BlockBehaviour.Properties()))` by applying the properties parameter to the provided block factory (which is commonly the constructor).
+
+If you want to use `Block::new`, you can leave out the factory entirely:
+
+```java
+public static final Supplier<Block> EXAMPLE_BLOCK = BLOCKS.registerSimpleBlock(
+        "example_block",
+        new BlockBehaviour.Properties() // The properties to use.
+);
+```
+
+This does the exact same as the previous example, but is slightly shorter. Of course, if you want to use a subclass of `Block` and not `Block` itself, you will have to use the previous method instead.
 
 ### Resources
 
