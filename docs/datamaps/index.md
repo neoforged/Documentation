@@ -111,7 +111,7 @@ public class IntMerger implements DataMapValueMerger<Item, Integer> {
 ```
 The above merger will merge the values if two datapacks attach to the same object. So if the first pack attaches the value `12` to `minecraft:carrot`, and the second pack attaches the value `15` to `minecraft:carrot`, the final value will be `27`. However, if the second pack specifies the object-level `replace` field, the final value will be `15` as the merger won't be invoked.
 
-We provide some default mergers for merging lists, sets and maps in `DataMapValueMerger`.  
+NeoForge provides some default mergers for merging lists, sets and maps in `DataMapValueMerger`.  
 
 The default merger (`DataMapValueMerger#defaultMerger`) has the typical behaviour you'd expect from normal data packs, where the newest value (which comes from the highest datapack) overwrites the previous value.
 
