@@ -21,7 +21,11 @@ public class YourMod {
 
     // Heals an entity by half a heart every time they jump.
     private static void onLivingJump(LivingJumpEvent event) {
-        event.getEntity().heal(1);
+        Entity entity = event.getEntity();
+        // Only heal on the server side
+        if (!entity.level().isClientSide()) {
+            entity.heal(1);
+        }
     }
 }
 ```
@@ -34,7 +38,10 @@ Alternatively, event handlers can be annotation-driven by creating an event hand
 public class EventHandler {
 	@SubscribeEvent
     public void onLivingJump(LivingJumpEvent event) {
-        event.getEntity().heal(1);
+        Entity entity = event.getEntity();
+        if (!entity.level().isClientSide()) {
+            entity.heal(1);
+        }
     }
 }
 
@@ -52,7 +59,10 @@ You can also do it statically. Simply make all event handlers static, and instea
 public class EventHandler {
 	@SubscribeEvent
     public static void onLivingJump(LivingJumpEvent event) {
-        event.getEntity().heal(1);
+        Entity entity = event.getEntity();
+        if (!entity.level().isClientSide()) {
+            entity.heal(1);
+        }
     }
 }
 
@@ -63,10 +73,6 @@ public class YourMod {
     }
 }
 ```
-
-:::info
-`@SubscribeEvent` annotated methods must not be `private`. Any out of `package-private`, `protected` and `public` will work.
-:::
 
 ### `@Mod.EventBusSubscriber`
 
@@ -79,7 +85,10 @@ While not required, it is highly recommended to specify the `modid` parameter in
 public class EventHandler {
     @SubscribeEvent
     public static void onLivingJump(LivingJumpEvent event) {
-        event.getEntity().heal(1);
+        Entity entity = event.getEntity();
+        if (!entity.level().isClientSide()) {
+            entity.heal(1);
+        }
     }
 }
 ```
