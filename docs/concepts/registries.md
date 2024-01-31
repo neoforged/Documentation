@@ -222,7 +222,7 @@ static void registerDatapackRegistries(DataPackRegistryEvent.NewRegistry event) 
 [codec]: ../datastorage/codecs.md
 [datagen]: ../datagen/index.md
 [datapack]: ../resources/server/index.md
-[defregblocks]: ../blocks/index.md#deferredregisterblocks
+[defregblocks]: ../blocks/index.md#deferredregisterblocks-helpers
 [defregitems]: ../items/index.md#deferredregisteritems
 [dynamicops]: ../datastorage/codecs.md#dynamicops
 [event]: ./events.md
