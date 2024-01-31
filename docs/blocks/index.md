@@ -94,7 +94,7 @@ If you want to make a block that has different variants (think a slab that has a
 
 ### `DeferredRegister.Blocks` helpers
 
-We already discussed how to create a `DeferredRegister.Blocks`, and that it returns `DeferredBlock`s. Now, let's have a look at what other utilities the specialized `DeferredRegister` has to offer. Let's start with `#registerBlock`:
+We already discussed how to create a `DeferredRegister.Blocks` [above], as well as that it returns `DeferredBlock`s. Now, let's have a look at what other utilities the specialized `DeferredRegister` has to offer. Let's start with `#registerBlock`:
 
 ```java
 public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks("yourmodid");

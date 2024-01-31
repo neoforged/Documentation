@@ -66,6 +66,7 @@ Finally, since the entire system is a wrapper around registry events, we need to
 ```java
 //This is our mod constructor
 public ExampleMod(IModEventBus bus) {
+    //highlight-next-line
     ExampleBlocksClass.BLOCKS.register(bus);
     //Other stuff here
 }
@@ -109,7 +110,7 @@ public static final ResourceKey<Registry<Spell>> SPELL_REGISTRY_KEY = ResourceKe
 public static final Registry<YourRegistryContents> SPELL_REGISTRY = new RegistryBuilder<>(SPELL_REGISTRY_KEY)
         // If you want the registry to sync its values.
         .sync(true)
-        // The default key. Similar to minecraft:air for blocks.
+        // The default key. Similar to minecraft:air for blocks. This is optional.
         .defaultKey(new ResourceLocation("yourmodid", "empty"))
         // Effectively limits the max count. Generally discouraged, but may make sense in settings such as networking.
         .maxId(256)
