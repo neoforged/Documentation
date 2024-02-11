@@ -22,6 +22,7 @@ Example:
         }
     }
 }
+```
 
 ## `neoforge:furnace_fuels`
 NeoForge provides a data map that allows configuring item burn times.  
@@ -30,6 +31,18 @@ This data map is located at `neoforge/data_maps/item/furnace_fuels.json` and its
 {
     // A positive integer representing the item's burn time, in ticks
     "burn_time": 1000
+}
+```
+
+Example:
+```js
+{
+    "values": {
+        // Give anvils a 2 seconds burn time
+        "minecraft:anvil": {
+            "burn_time": 40
+        }
+    }
 }
 ```
 
@@ -52,6 +65,18 @@ This data map is located at `neoforge/data_maps/entity_type/parrot_imitations.js
 }
 ```
 
+Example:
+```js
+{
+    "values": {
+        // Make parrots produce the ambient cave sound when imitating allays
+        "minecraft:allay": {
+            "sound": "minecraft:ambient.cave"
+        }
+    }
+}
+```
+
 ## `neoforge:vibration_frequencies`
 NeoForge provides a data map that allows configuring the shulker vibration frequencies emmited by game events, as a replacement for `VibrationSystem#VIBRATION_FREQUENCY_FOR_EVENT` (which is now ignored).  
 This data map is located at `neoforge/data_maps/game_event/vibration_frequencies.json` and its objects have the following structure:
@@ -59,5 +84,17 @@ This data map is located at `neoforge/data_maps/game_event/vibration_frequencies
 {
     // An integer between 1 and 15 (inclusive) that indicates the vibration frequency of the event
     "frequency": 2
+}
+```
+
+Example:
+```js
+{
+    "values": {
+        // Make the splash in water game event vibrate on the second frequency
+        "minecraft:splash": {
+            "frequency": 2
+        }
+    }
 }
 ```
