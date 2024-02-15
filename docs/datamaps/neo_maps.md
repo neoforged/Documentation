@@ -51,12 +51,12 @@ Other in-code methods like `IItemExtension#getBurnTime` will take priority over 
 :::
 
 :::warning
-Vanilla adds a burn time to logs and planks in the `minecraft:logs` and `minecraft:planks` tag. However, that tag also contains Nether wood, so a removal for elements in `#minecraft:non_flammable_wood` is added.  
+Vanilla adds a burn time to logs and planks in the `minecraft:logs` and `minecraft:planks` tag. However, those tags also contain Nether wood, so a removal for elements in `#minecraft:non_flammable_wood` is added.  
 However, the removal does not affect any values added by other packs or mods, so if you want to change the values for the wood tags you will need to add a removal for the non flammable tag yourself.
 :::
 
 ## `neoforge:parrot_imitations`
-NeoForge provides a data map that allows configuring the sounds produced by parrot when they want to imitate a mob, as a replacement for `Parrot#MOB_SOUND_MAP` (which is now ignored).  
+NeoForge provides a data map that allows configuring the sounds produced by parrots when they want to imitate a mob, as a replacement for `Parrot#MOB_SOUND_MAP` (which is now ignored).  
 This data map is located at `neoforge/data_maps/entity_type/parrot_imitations.json` and its objects have the following structure:
 ```js
 {
@@ -78,7 +78,7 @@ Example:
 ```
 
 ## `neoforge:vibration_frequencies`
-NeoForge provides a data map that allows configuring the shulker vibration frequencies emmited by game events, as a replacement for `VibrationSystem#VIBRATION_FREQUENCY_FOR_EVENT` (which is now ignored).  
+NeoForge provides a data map that allows configuring the shulker vibration frequencies emitted by game events, as a replacement for `VibrationSystem#VIBRATION_FREQUENCY_FOR_EVENT` (which is now ignored).  
 This data map is located at `neoforge/data_maps/game_event/vibration_frequencies.json` and its objects have the following structure:
 ```js
 {
