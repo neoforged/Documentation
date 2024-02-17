@@ -328,22 +328,14 @@ When rendering the label, you do **not** need to specify the `leftPos` and `topP
 
 ## Registering an AbstractContainerScreen
 
-To use an `AbstractContainerScreen` with a menu, it needs to be registered. This can be done by calling `MenuScreens#register` within the `FMLClientSetupEvent` on the [**mod event bus**][modbus].
+To use an `AbstractContainerScreen` with a menu, it needs to be registered. This can be done by calling `register` within the `RegisterMenuScreensEvent` on the [**mod event bus**][modbus].
 
 ```java
 // Event is listened to on the mod event bus
-private void clientSetup(FMLClientSetupEvent event) {
-    event.enqueueWork(
-        // Assume RegistryObject<MenuType<MyMenu>> MY_MENU
-        // Assume MyContainerScreen<MyMenu> which takes in three parameters
-        () -> MenuScreens.register(MY_MENU.get(), MyContainerScreen::new)
-    );
+private void registerScreens(RegisterMenuScreensEvent event) {
+    event.register(MY_MENU.get(), MyContainerScreen::new);
 }
 ```
-
-:::danger
-`MenuScreens#register` is not thread-safe, so it needs to be called inside `#enqueueWork` provided by the parallel dispatch event.
-:::
 
 [menus]: ./menus.md
 [network]: ../networking/index.md
