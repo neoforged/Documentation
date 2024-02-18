@@ -77,6 +77,21 @@ Example:
 }
 ```
 
+## `neoforge:raid_hero_gifts`
+NeoForge provides a data map that allows configuring the gift that a villager with a certain `VillagerProfession` may gift you if you stop the raid, as a replacement for `GiveGiftToHero#GIFTS` (which is now ignored)
+This data map is located at `neoforge/data_maps/villager_profession/raid_hero_gifts.json` and its objects have the following structure:
+
+```js
+{
+    "values": {
+         "minecraft:armorer": {
+            // Make armorers give the raid hero the armorer gift loot table
+            "loot_table": "minecraft:gameplay/hero_of_the_village/armorer_gift"
+        },
+    }
+}
+```
+
 ## `neoforge:vibration_frequencies`
 NeoForge provides a data map that allows configuring the shulker vibration frequencies emitted by game events, as a replacement for `VibrationSystem#VIBRATION_FREQUENCY_FOR_EVENT` (which is now ignored).  
 This data map is located at `neoforge/data_maps/game_event/vibration_frequencies.json` and its objects have the following structure:
