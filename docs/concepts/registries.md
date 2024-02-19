@@ -5,7 +5,7 @@ Registration is the process of taking the objects of a mod (such as items, block
 
 Most things that require registration in the game are handled by the Forge registries. A registry is an object similar to a map that assigns values to keys. Forge uses registries with [`ResourceLocation`][ResourceLocation] keys to register objects. This allows the `ResourceLocation` to act as the "registry name" for objects.
 
-Every type of registrable object has its own registry. To see all registries wrapped by Forge, see the `ForgeRegistries` class. All registry names within a registry must be unique. However, names in different registries will not collide. For example, there's a `Block` registry, and an `Item` registry. A `Block` and an `Item` may be registered with the same name `example:thing` without colliding; however, if two different `Block`s or `Item`s were registered with the same exact name, the second object will override the first.
+Every type of registrable object has its own registry. To see all registries wrapped by NeoForge, see the `NeoForgeRegistries` class. All registry names within a registry must be unique. However, names in different registries will not collide. For example, there's a `Block` registry, and an `Item` registry. A `Block` and an `Item` may be registered with the same name `example:thing` without colliding; however, if two different `Block`s or `Item`s were registered with the same exact name, the second object will override the first.
 
 Methods for Registering
 ------------------
@@ -19,7 +19,7 @@ There are two proper ways to register objects: the `DeferredRegister` class, and
 An example of a mod registering a custom block:
 
 ```java
-private static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, MODID);
+private static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(NeoForgeRegistries.BLOCKS, MODID);
 
 public static final RegistryObject<Block> ROCK_BLOCK = BLOCKS.register("rock", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.STONE)));
 
@@ -37,7 +37,7 @@ Here is an example: (the event handler is registered on the *mod event bus*)
 ```java
 @SubscribeEvent
 public void register(RegisterEvent event) {
-  event.register(ForgeRegistries.Keys.BLOCKS,
+  event.register(NeoForgeRegistries.Keys.BLOCKS,
     helper -> {
       helper.register(new ResourceLocation(MODID, "example_block_1"), new Block(...));
       helper.register(new ResourceLocation(MODID, "example_block_2"), new Block(...));
@@ -89,7 +89,7 @@ To get a `RegistryObject`, call `RegistryObject#create` with a `ResourceLocation
 An example of using `RegistryObject`:
 
 ```java
-public static final RegistryObject<Item> BOW = RegistryObject.create(new ResourceLocation("minecraft:bow"), ForgeRegistries.ITEMS);
+public static final RegistryObject<Item> BOW = RegistryObject.create(new ResourceLocation("minecraft:bow"), NeoForgeRegistries.ITEMS);
 
 // assume that 'neomagicae:mana_type' is a valid registry, and 'neomagicae:coffeinum' is a valid object within that registry
 public static final RegistryObject<ManaType> COFFEINUM = RegistryObject.create(new ResourceLocation("neomagicae", "coffeinum"), new ResourceLocation("neomagicae", "mana_type"), "neomagicae"); 
