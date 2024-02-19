@@ -55,6 +55,20 @@ html[data-theme="dark"] {
   text-decoration: none;
 }
 
+a.no-underline {
+  color: inherit;
+  text-decoration: inherit;
+}
+
+.link-card:hover {
+  transform: scale(1.05);
+  border: 1px solid var(--ifm-color-primary-light);
+}
+
+.link-card {
+  transition: transform 450ms ease-in-out;
+}
+
 h2 {
   margin: 48px 0 16px;
   padding-top: 24px;

@@ -87,7 +87,7 @@ const config = {
       // Replace with your project's social card
       //image: 'img/docusaurus-social-card.jpg',
       navbar: {
-        title: "NeoForged documentation",
+        title: "Homepage",
         logo: {
           alt: "NeoForged Logo",
           src: "img/logo.svg",
@@ -97,7 +97,7 @@ const config = {
             type: "docSidebar",
             sidebarId: "mainSidebar",
             position: "left",
-            label: "Getting Started",
+            label: "NeoForge Documentation",
           },
           {
             type: "docSidebar",
