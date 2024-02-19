@@ -38,8 +38,7 @@ Currently, conditions are supported by the following Vanilla objects:
 Loot tables that do not meet their loading conditions will not be ignored, but rather replaced with an empty loot table.
 :::
 
-An example recipe that will only be loaded if the `examplemod` mod is loaded:
-```js
+```js title="Example recipe that will only be loaded if the examplemod mod is loaded"
 {
   // highlight-start
   "neoforge:conditions": [
