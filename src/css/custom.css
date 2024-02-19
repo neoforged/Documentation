@@ -18,6 +18,7 @@
   --context-divier: #e2e2e3;
 
   --ifm-color-warning-contrast-background: rgb(254, 243, 213);
+  --ifm-code-border-radius: 0.55rem;
 
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.125);
 }
@@ -39,6 +40,7 @@ html[data-theme="dark"] {
   --ifm-color-warning-contrast-background: rgba(77, 56, 0, 0.55);
   
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.45);
+  --ifm-code-background: rgba(255, 255, 255, 0.08);
 
   --content-divier: #2e2e32;
 }
