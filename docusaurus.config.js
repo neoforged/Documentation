@@ -2,7 +2,7 @@
 // Note: type annotations allow type checking and IDEs autocompletion
 const {themes} = require('prism-react-renderer');
 const lightTheme = themes.github;
-const darkTheme = themes.dracula;
+const darkTheme = themes.jettwaveDark;
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
@@ -70,11 +70,7 @@ const config = {
         includeCurrentVersion: true,
         versions: {
           current: {
-            label: "FG6",
-          },
-          "5.x": {
-            label: "FG5",
-            path: "5.x",
+            label: "NG7",
           },
         },
       },
@@ -170,7 +166,7 @@ const config = {
       prism: {
         theme: lightTheme,
         darkTheme: darkTheme,
-        additionalLanguages: ["java", "gradle", "toml", "groovy", "kotlin", "javascript", "json", "json5"],
+        additionalLanguages: ["java", "gradle", "toml", "groovy", "kotlin", "javascript", "json", "json5", "properties"],
       },
       algolia: {
         // The application ID provided by Algolia
