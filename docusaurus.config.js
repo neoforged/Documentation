@@ -1,8 +1,8 @@
 // @ts-check
 // Note: type annotations allow type checking and IDEs autocompletion
 const {themes} = require('prism-react-renderer');
-const lightTheme = themes.github;
-const darkTheme = themes.dracula;
+const lightTheme = themes.oneLight;
+const darkTheme = themes.vsDark;
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
@@ -84,10 +84,14 @@ const config = {
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
+      colorMode: {
+        respectPrefersColorScheme: true
+      },
+
       // Replace with your project's social card
       //image: 'img/docusaurus-social-card.jpg',
       navbar: {
-        title: "NeoForged documentation",
+        title: "Homepage",
         logo: {
           alt: "NeoForged Logo",
           src: "img/logo.svg",
@@ -97,7 +101,7 @@ const config = {
             type: "docSidebar",
             sidebarId: "mainSidebar",
             position: "left",
-            label: "Getting Started",
+            label: "NeoForge Documentation",
           },
           {
             type: "docSidebar",
