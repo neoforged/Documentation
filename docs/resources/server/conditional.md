@@ -1,10 +1,8 @@
-Conditionally-Loaded Data
-=========================
+# Conditionally-Loaded Data
 
 There are times when modders may want to include data-driven objects using information from another mod without having to explicitly make that mod a dependency. Other cases may be to swap out certain objects with other modded entries when they are present. This can be done through the conditional subsystem.
 
-Implementations
----------------
+## Implementations
 
 Conditions are loaded from a top-level `neoforge:conditions` array of objects that represent the conditions to check. If all conditions specified are met, the JSON file will be loaded, otherwise it will be discarded.
 
@@ -68,8 +66,7 @@ Loot tables that do not meet their loading conditions will not be ignored, but r
 }
 ```
 
-Conditions
-----------
+## Conditions
 
 ### True and False
 
@@ -154,8 +151,7 @@ Boolean operator conditions consist of the condition(s) being operated upon and 
 }
 ```
 
-Creating Custom Conditions
---------------------------
+## Creating Custom Conditions
 
 Custom conditions can be created by implementing `ICondition` and creating a [Codec] for it.
 
