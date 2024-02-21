@@ -97,6 +97,47 @@ public void register(RegisterEvent event) {
 }
 ```
 
+## Querying Registries
+
+Sometimes, you will find yourself in situations where you want to get a registered object by a given id. Or, you want to get the id of a certain registered object. Since registries are basically maps of ids (`ResourceLocation`s) to distinct objects, i.e. a reversible map, both of these operations work:
+
+```java
+Registries.BLOCKS.get(new ResourceLocation("minecraft", "dirt")); // returns the dirt block
+Registries.BLOCKS.getKey(Blocks.DIRT); // returns the resource location "minecraft:dirt"
+
+// Assume that ExampleBlocksClass.EXAMPLE_BLOCK.get() is a Supplier<Block> with the id "yourmodid:example_block"
+Registries.BLOCKS.get(new ResourceLocation("yourmodid", "example_block")); // returns the example block
+Registries.BLOCKS.getKey(ExampleBlocksClass.EXAMPLE_BLOCK.get()); // returns the resource location "yourmodid:example_block"
+```
+
+If you just want to check for the presence of an object, this is also possible, though only with keys:
+
+```java
+Registries.BLOCKS.containsKey(new ResourceLocation("minecraft", "dirt")); // true
+Registries.BLOCKS.containsKey(new ResourceLocation("create", "brass_ingot")); // true only if Create is installed
+```
+
+As the last example shows, this is possible with any mod id, and thus a perfect way to check if a certain item from another mod exists.
+
+Finally, we can also iterate over all entries in a registry, either over the keys or over the entries (entries use the Java `Map.Entry` type):
+
+```java
+for (ResourceLocation id : Registries.BLOCKS.keySet()) {
+    // ...
+}
+for (Map.Entry<ResourceLocation, Block> entry : Registries.BLOCKS.entrySet()) {
+    // ...
+}
+```
+
+:::note
+Query operations should always use vanilla `Registry`s, not `DeferredRegister`s. This is because `DeferredRegister`s are merely registration utilities and effectively do not exist after registration has finished.
+:::
+
+:::danger
+Query operations are only safe to use after registration has finished. **DO NOT QUERY REGISTRIES WHILE REGISTRATION IS STILL ONGOING!**
+:::
+
 ## Custom Registries
 
 Custom registries allow you to specify additional systems that addon mods for your mod may want to plug into. For example, if your mod were to add spells, you could make the spells a registry and thus allow other mods to add spells to your mod, without you having to do anything else. It also allows you to do some things, such as syncing the entries, automatically.
@@ -142,7 +183,7 @@ public static void register(RegisterEvent event) {
 
 ## Datapack Registries
 
-A datapack registry (also known as a dynamic registry or, after its main use case, worldgen registry) is a special kind of registry that loads data from [datapack][datapack] JSONs (hence the name) at world load, instead of loading them when the game starts. Default datapack registries include most worldgen registries, as well as any custom registry (see below) that is marked as a datapack registry.
+A datapack registry (also known as a dynamic registry or, after its main use case, worldgen registry) is a special kind of registry that loads data from [datapack][datapack] JSONs (hence the name) at world load, instead of loading them when the game starts. Default datapack registries most notably include most worldgen registries, among a few others.
 
 Datapack registries allow their contents to be specified in JSON files. This means that no code (other than [datagen][datagen] if you don't want to write the JSON files yourself) is necessary. Every datapack registry has a [`Codec`][codec] associated with it, which is used for serialization, and each registry's id determines its datapack path:
 
@@ -175,7 +216,7 @@ static void registerDatapackRegistries(DataPackRegistryEvent.NewRegistry event) 
 
 ### Data Generation for Datapack Registries
 
-Since writing all the JSON files by hand would be tedious and error-prone, NeoForge provides a [data provider][datagenindex] to generate the JSON files for you. This works for both built-in and your own datapack registries.
+Since writing all the JSON files by hand is both tedious and error-prone, NeoForge provides a [data provider][datagenindex] to generate the JSON files for you. This works for both built-in and your own datapack registries.
 
 First, we create a `RegistrySetBuilder` and add our entries to it (one `RegistrySetBuilder` can hold entries for multiple registries):
 
