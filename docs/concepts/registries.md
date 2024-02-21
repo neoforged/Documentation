@@ -108,8 +108,6 @@ Let's start by creating the [registry key][resourcekey] and the registry itself:
 // Of course, all mentions of spells can and should be replaced with whatever your registry actually is.
 public static final ResourceKey<Registry<Spell>> SPELL_REGISTRY_KEY = ResourceKey.createRegistryKey(new ResourceLocation("yourmodid", "spells"));
 public static final Registry<YourRegistryContents> SPELL_REGISTRY = new RegistryBuilder<>(SPELL_REGISTRY_KEY)
-        // If you want the registry to sync its values.
-        .sync(true)
         // The default key. Similar to minecraft:air for blocks. This is optional.
         .defaultKey(new ResourceLocation("yourmodid", "empty"))
         // Effectively limits the max count. Generally discouraged, but may make sense in settings such as networking.
