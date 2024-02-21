@@ -149,50 +149,7 @@ Datapack registries allow their contents to be specified in JSON files. This mea
 - Minecraft's datapack registries use the format `data/yourmodid/registrypath` (for example `data/yourmodid/worldgen/biomes`, where `worldgen/biomes` is the registry path).
 - All other datapack registries (NeoForge or modded) use the format `data/yourmodid/registrynamespace/registrypath` (for example `data/yourmodid/neoforge/loot_modifiers`, where `neoforge` is the registry namespace and `loot_modifiers` is the registry path).
 
-Datapack registries can be obtained from a `RegistryAccess`. This `RegistryAccess` can be retrieved by calling `ServerLevel#registryAccess()` if on the server, by calling `Minecraft.getInstance().connection#registryAccess()` if on the client, or from a `RegistryOps`.
-
-### `RegistryOps`
-
-`RegistryOps` is a special [`DynamicOps`][dynamicops] made specifically for (de)serializing datapack registries. It provides additional registry context and enables the use of special codecs that can only be used with `RegistryOps`. Data generation of datapack registry elements must always be done through `RegistryOps` to convert elements to `JsonElement`s.
-
-A `RegistryOps` can be created via `RegistryOps.create(JsonElement.INSTANCE, RegistryAccess.builtinCopy())`. `RegistryAccess.builtinCopy()` creates a set of writable datapack registries, which is necessary for datagenning unregistered objects. All data generation done in a `GatherDataEvent` handler must use the same `RegistryAccess` and `RegistryOps` instances, otherwise obscure errors will occur.
-
-### `Holder`s
-
-As mentioned before, (normal) registries rely on `DeferredHolder`s, which are a special kind of `Holder`. A `Holder` vaguely resembles a `Pair<K, V>` that either starts with a key and has a value bound later, or starts with a value and may have a key bound later. Datapack registries extensively rely on (non-deferred) `Holder`s to reference registry elements of other registries. For example, `Biome`s refer to `Holder<PlacedFeature>`s, and `PlacedFeature`s refer to `Holder<ConfiguredFeature>`s.
-
-During data generation, we can use `RegistryOps#registry` to get a registry, and `Registry#getOrCreateHolderOrThrow()` to produce key-only reference holders (we only need the key in this case, since holder codecs only encode keys when using a `RegistryOps` in order to prevent circular dependencies).
-
-### `JsonCodecProvider`
-
-NeoForge provides a data provider for datapack registry elements that, given a registry key and a map of objects to generate, generates all JSON files for the objects in the map.
-
-```java
-@SubscribeEvent
-static void onGatherData(GatherDataEvent event) {
-    DataGenerator generator = event.getDataGenerator();
-    ExistingFileHelper existingFileHelper = event.getExistingFileHelper();
-    RegistryOps<JsonElement> registryOps = RegistryOps.create(JsonElement.INSTANCE, RegistryAccess.builtinCopy());
-    
-    Map<ResourceLocation, PlacedFeature> map = Map.of(
-        // Whatever entries you want. For example:
-        new ResourceLocation("yourmodid", "sponge_everywhere"), new PlacedFeature(...)
-    );
-    
-    JsonCodecProvider provider = JsonCodecProvider.forDatapackRegistry(
-            generator,
-            existingFileHelper,
-            "yourmodid",
-            registryOps,
-            // The registry you want to generate in.
-            Registry.PLACED_FEATURE_REGISTRY,
-            // The elements to generate.
-            map
-    );
-    
-    generator.addProvider(event.includeServer(), provider);
-}
-```
+Datapack registries can be obtained from a `RegistryAccess`. This `RegistryAccess` can be retrieved by calling `ServerLevel#registryAccess()` if on the server, or `Minecraft.getInstance().connection#registryAccess()` if on the client (the latter only works if you are actually connected to a world, as otherwise the connection will be null). The result of these calls can then be used like any other registry to get specific elements, or to iterate over the contents.
 
 ### Custom Datapack Registries
 
@@ -216,14 +173,99 @@ static void registerDatapackRegistries(DataPackRegistryEvent.NewRegistry event) 
 }
 ```
 
+### Data Generation for Datapack Registries
+
+Since writing all the JSON files by hand would be tedious and error-prone, NeoForge provides a [data provider][datagenindex] to generate the JSON files for you. This works for both built-in and your own datapack registries.
+
+First, we create a `RegistrySetBuilder` and add our entries to it (one `RegistrySetBuilder` can hold entries for multiple registries):
+
+```java
+new RegistrySetBuilder()
+    .add(Registries.CONFIGURED_FEATURE, bootstrap -> {
+    // Register configured features through the bootstrap context (see below)
+    })
+    .add(Registries.PLACED_FEATURE, bootstrap -> {
+    // Register placed features through the bootstrap context (see below)
+    });
+```
+
+The `bootstrap` lambda parameter is what we actually use to register our objects. It has the type `BootstrapContext`. To register an object, we call `#register` on it, like so:
+
+```java
+// The resource key of our object.
+public static final ResourceKey<ConfiguredFeature<?, ?>> EXAMPLE_CONFIGURED_FEATURE = ResourceKey.create(
+    Registries.CONFIGURED_FEATURE,
+    new ResourceLocation(MOD_ID, "example_configured_feature")
+);
+
+new RegistrySetBuilder()
+    .add(Registries.CONFIGURED_FEATURE, bootstrap -> {
+        bootstrap.register(
+            // The resource key of our configured feature.
+            EXAMPLE_CONFIGURED_FEATURE,
+            // The actual configured feature.
+            new ConfiguredFeature<>(Feature.ORE, new OreConfiguration(...))
+        );
+    })
+    .add(Registries.PLACED_FEATURE, bootstrap -> {
+    // ...
+    });
+```
+
+The `BootstrapContext` can also be used to lookup entries from another registry if needed:
+
+```java
+public static final ResourceKey<ConfiguredFeature<?, ?>> EXAMPLE_CONFIGURED_FEATURE = ResourceKey.create(
+    Registries.CONFIGURED_FEATURE,
+    new ResourceLocation(MOD_ID, "example_configured_feature")
+);
+public static final ResourceKey<PlacedFeature> EXAMPLE_PLACED_FEATURE = ResourceKey.create(
+    Registries.PLACED_FEATURE,
+    new ResourceLocation(MOD_ID, "example_placed_feature")
+);
+
+new RegistrySetBuilder()
+    .add(Registries.CONFIGURED_FEATURE, bootstrap -> {
+        bootstrap.register(EXAMPLE_CONFIGURED_FEATURE, ...);
+    })
+    .add(Registries.PLACED_FEATURE, bootstrap -> {
+        HolderGetter<ConfiguredFeature<?, ?>> otherRegistry = bootstrap.lookup(Registries.CONFIGURED_FEATURE);
+        bootstrap.register(EXAMPLE_PLACED_FEATURE, new PlacedFeature(
+            otherRegistry.getOrThrow(EXAMPLE_CONFIGURED_FEATURE), // Get the configured feature
+            List.of() // No-op when placement happens - replace with whatever your placement parameters are
+        ));
+    });
+```
+
+Finally, we use our `RegistrySetBuilder` in an actual data provider, and register that data provider to the event:
+
+```java
+@SubscribeEvent
+static void onGatherData(GatherDataEvent event) {
+    event.getGenerator().addProvider(
+        // Only run datapack generation when server data is being generated
+        event.includeServer(),
+        // Create the provider
+        output -> new DatapackBuiltinEntriesProvider(
+            output,
+            event.getLookupProvider(),
+            // Our registry set builder to generate the data from.
+            new RegistrySetBuilder().add(...),
+            // A set of mod ids we are generating. Usually only your own mod id.
+            Set.of("yourmodid")
+        )
+    );
+}
+```
+
 [block]: ../blocks/index.md
 [blockentity]: ../blockentities/index.md
 [codec]: ../datastorage/codecs.md
-[datagen]: ../datagen/index.md
+[datagen]: #data-generation-for-datapack-registries
+[datagenindex]: ../datagen/index.md
 [datapack]: ../resources/server/index.md
 [defregblocks]: ../blocks/index.md#deferredregisterblocks-helpers
 [defregitems]: ../items/index.md#deferredregisteritems
-[dynamicops]: ../datastorage/codecs.md#dynamicops
 [event]: ./events.md
 [item]: ../items/index.md
 [resloc]: ../misc/resourcelocation.md
