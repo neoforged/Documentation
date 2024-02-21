@@ -150,7 +150,7 @@ Let's start by creating the [registry key][resourcekey] and the registry itself:
 public static final ResourceKey<Registry<Spell>> SPELL_REGISTRY_KEY = ResourceKey.createRegistryKey(new ResourceLocation("yourmodid", "spells"));
 public static final Registry<YourRegistryContents> SPELL_REGISTRY = new RegistryBuilder<>(SPELL_REGISTRY_KEY)
         // If you want to enable integer id syncing, for networking.
-        // Never use integer ids yourself, even if this is enabled! This is purely intended to reduce bandwidth.
+        // These should only be used in networking contexts, for example in packets or purely networking-related NBT data.
         .sync(true)
         // The default key. Similar to minecraft:air for blocks. This is optional.
         .defaultKey(new ResourceLocation("yourmodid", "empty"))
