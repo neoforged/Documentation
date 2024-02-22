@@ -2,7 +2,7 @@
 
 One of NeoForge's main features is the event system. Events are fired for various things that happen in the game. For example, there are events for when the player right clicks, when a player or another entity jumps, when blocks are rendered, when the game is loaded, etc. A modder can subscribe event handlers to each of these events, and then perform their desired behavior inside these event handlers.
 
-Events are fired on their respective event bus. The most important bus is `NeoForge.EVENT_BUS`. Besides that, during startup, a mod bus is spawned for each loaded mod and passed into the mod's constructor; mod bus event handlers can run in parallel, dramatically increasing startup speed. See [below][modbus] for more information.
+Events are fired on their respective event bus. The most important bus is `NeoForge.EVENT_BUS`. Besides that, during startup, a mod bus is spawned for each loaded mod and passed into the mod's constructor. Many mod bus events are fired in parallel (as opposed to main bus events that always run on the same thread), dramatically increasing startup speed. See [below][modbus] for more information.
 
 ## Registering an Event Handler
 
@@ -36,7 +36,7 @@ Alternatively, event handlers can be annotation-driven by creating an event hand
 
 ```java
 public class EventHandler {
-	@SubscribeEvent
+    @SubscribeEvent
     public void onLivingJump(LivingJumpEvent event) {
         Entity entity = event.getEntity();
         if (!entity.level().isClientSide()) {
@@ -97,14 +97,14 @@ public class EventHandler {
 
 ### Fields and Methods
 
-Probably the most obvious part. Most events contain context for the event handler to use, such as an entity causing the event or a level the event occurs in.
+Fields and methods are probably the most obvious part of an event. Most events contain context for the event handler to use, such as an entity causing the event or a level the event occurs in.
 
 ### Hierarchy
 
 In order to use the advantages of inheritance, some events do not directly extend `Event`, but one of its subclasses, for example `BlockEvent` (which contains block context for block-related events) or `EntityEvent` (which similarly contains entity context) and its subclasses `LivingEvent` (for `LivingEntity`-specific context) and `PlayerEvent` (for `Player`-specific context). These context-providing super events are `abstract` and cannot be listened to.
 
 :::danger
-If you listen to an `abstract` event, your game will crash, as this is not what you want. Listen to one of its sub events instead.
+If you listen to an `abstract` event, your game will crash, as this is never what you want. You always want to listen to one of the subevents instead.
 :::
 
 ### Cancellable Events
@@ -125,7 +125,7 @@ Results are deprecated and will be replaced by more specific per-event results s
 
 Event handlers can optionally get assigned a priority. The `EventPriority` enum contains five values: `HIGHEST`, `HIGH`, `NORMAL` (default), `LOW` and `LOWEST`. Events are executed from highest to lowest priority, with undefined order for two events of the same priority.
 
-Priorities can be defined by setting the `priority` parameter in `IEventBus#addListener` or `@SubscribeEvent`, depending on how you attach event handlers.
+Priorities can be defined by setting the `priority` parameter in `IEventBus#addListener` or `@SubscribeEvent`, depending on how you attach event handlers. Note that priorities are ignored for events that are fired in parallel.
 
 ### Sided Events
 
@@ -173,7 +173,7 @@ Next to the lifecycle events, there are a few miscellaneous events that are fire
 - `TextureStitchEvent`
 
 :::warning
-Most of these events will be moved to `NeoForge.EVENT_BUS` eventually.
+Most of these events are planned to be moved to the main event bus in a future version.
 :::
 
 [modbus]: #event-buses

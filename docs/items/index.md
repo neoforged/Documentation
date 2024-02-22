@@ -75,7 +75,7 @@ If you want to use `Item::new`, you can leave out the factory entirely:
 ```java
 public static final Supplier<Item> EXAMPLE_ITEM = ITEMS.registerItem(
         "example_item",
-        new ItemBehaviour.Properties() // The properties to use.
+        new Item.Properties() // The properties to use.
 );
 ```
 
@@ -100,6 +100,10 @@ public static final Supplier<BlockItem> EXAMPLE_BLOCK_ITEM = ITEMS.registerSimpl
 // Variant that omits both the name and the properties:
 public static final Supplier<BlockItem> EXAMPLE_BLOCK_ITEM = ITEMS.registerSimpleBlockItem(ExampleBlocksClass.EXAMPLE_BLOCK);
 ```
+
+:::note
+If you keep your blocks in a separate class, you should classload your blocks class before your items class.
+:::
 
 ### Resources
 

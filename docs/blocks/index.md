@@ -102,7 +102,7 @@ public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBloc
 public static final DeferredBlock<Block> EXAMPLE_BLOCK = BLOCKS.registerBlock(
         "example_block",
         Block::new, // The factory that the properties will be passed into.
-        new BlockBehaviour.Properties() // The properties to use.
+        BlockBehaviour.Properties.of() // The properties to use.
 );
 ```
 
@@ -113,7 +113,7 @@ If you want to use `Block::new`, you can leave out the factory entirely:
 ```java
 public static final DeferredBlock<Block> EXAMPLE_BLOCK = BLOCKS.registerSimpleBlock(
         "example_block",
-        new BlockBehaviour.Properties() // The properties to use.
+        BlockBehaviour.Properties.of() // The properties to use.
 );
 ```
 
