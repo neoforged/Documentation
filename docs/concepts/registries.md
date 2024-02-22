@@ -59,7 +59,7 @@ public static final Supplier<Block> EXAMPLE_BLOCK = BLOCKS.register(
 );
 ```
 
-Be aware that a few places explicitly require a `DeferredHolder` and will not just accept any `Supplier`. If you need a `DeferredHolder`, it is best to change the type of your `Supplier` back to `DeferredHolder`.
+Be aware that a few places explicitly require a `Holder` or `DeferredHolder` and will not just accept any `Supplier`. If you need either of those two, it is best to change the type of your `Supplier` back to `Holder` or `DeferredHolder` as necessary.
 
 Finally, since the entire system is a wrapper around registry events, we need to tell the `DeferredRegister` to attach itself to the registry events as needed:
 
