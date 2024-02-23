@@ -102,7 +102,7 @@ public static final Supplier<BlockItem> EXAMPLE_BLOCK_ITEM = ITEMS.registerSimpl
 ```
 
 :::note
-If you keep your blocks in a separate class, you should classload your blocks class before your items class.
+If you keep your registered blocks in a separate class, you should classload your blocks class before your items class.
 :::
 
 ### Resources
