@@ -110,8 +110,8 @@ BuiltInRegistries.BLOCKS.getKey(ExampleBlocksClass.EXAMPLE_BLOCK.get()); // retu
 If you just want to check for the presence of an object, this is also possible, though only with keys:
 
 ```java
-Registries.BLOCKS.containsKey(new ResourceLocation("minecraft", "dirt")); // true
-Registries.BLOCKS.containsKey(new ResourceLocation("create", "brass_ingot")); // true only if Create is installed
+BuiltInRegistries.BLOCKS.containsKey(new ResourceLocation("minecraft", "dirt")); // true
+BuiltInRegistries.BLOCKS.containsKey(new ResourceLocation("create", "brass_ingot")); // true only if Create is installed
 ```
 
 As the last example shows, this is possible with any mod id, and thus a perfect way to check if a certain item from another mod exists.
