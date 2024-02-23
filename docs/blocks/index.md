@@ -106,7 +106,7 @@ public static final DeferredBlock<Block> EXAMPLE_BLOCK = BLOCKS.registerBlock(
 );
 ```
 
-Internally, this will simply call `BLOCKS.register("example_block", () -> new Block(new BlockBehaviour.Properties()))` by applying the properties parameter to the provided block factory (which is commonly the constructor).
+Internally, this will simply call `BLOCKS.register("example_block", () -> new Block(BlockBehaviour.Properties.of()))` by applying the properties parameter to the provided block factory (which is commonly the constructor).
 
 If you want to use `Block::new`, you can leave out the factory entirely:
 
