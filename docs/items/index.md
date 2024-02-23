@@ -70,10 +70,10 @@ public static final Supplier<Item> EXAMPLE_ITEM = ITEMS.registerItem(
 
 Internally, this will simply call `ITEMS.register("example_item", () -> new Item(new Item.Properties()))` by applying the properties parameter to the provided item factory (which is commonly the constructor).
 
-If you want to use `Item::new`, you can leave out the factory entirely:
+If you want to use `Item::new`, you can leave out the factory entirely and use the `simple` method variant:
 
 ```java
-public static final Supplier<Item> EXAMPLE_ITEM = ITEMS.registerItem(
+public static final Supplier<Item> EXAMPLE_ITEM = ITEMS.registerSimpleItem(
         "example_item",
         new Item.Properties() // The properties to use.
 );
@@ -81,10 +81,10 @@ public static final Supplier<Item> EXAMPLE_ITEM = ITEMS.registerItem(
 
 This does the exact same as the previous example, but is slightly shorter. Of course, if you want to use a subclass of `Item` and not `Item` itself, you will have to use the previous method instead.
 
-Both of these methods also have `simple` counterparts that omit the `new Item.Properties()` parameter:
+Both of these methods also have overloads that omit the `new Item.Properties()` parameter:
 
 ```java
-public static final Supplier<Item> EXAMPLE_ITEM = ITEMS.registerSimpleItem("example_item", Item::new);
+public static final Supplier<Item> EXAMPLE_ITEM = ITEMS.registerItem("example_item", Item::new);
 // Variant that also omits the Item::new parameter
 public static final Supplier<Item> EXAMPLE_ITEM = ITEMS.registerSimpleItem("example_item");
 ```

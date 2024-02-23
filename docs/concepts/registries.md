@@ -18,7 +18,7 @@ The main reason all of this works is that `Blocks` is classloaded early enough b
 
 ## Methods for Registering
 
-NeoForge offers two ways to register objects: the `DeferredRegister` class, and the `RegisterEvent`. Note that the former is a wrapper around the latter, and is thus recommended in order to prevent mistakes.
+NeoForge offers two ways to register objects: the `DeferredRegister` class, and the `RegisterEvent`. Note that the former is a wrapper around the latter, and is recommended in order to prevent mistakes.
 
 ### `DeferredRegister`
 
@@ -85,8 +85,9 @@ There are specialized variants of `DeferredRegister`s for blocks and items that 
 public void register(RegisterEvent event) {
     event.register(
             // This is the registry key of the registry.
-            // Get these from Registries for vanilla registries, or from NeoForgeRegistries.Keys for NeoForge registries.
-            Registries.BLOCKS,
+            // Get these from BuiltInRegistries for vanilla registries,
+            // or from NeoForgeRegistries.Keys for NeoForge registries.
+            BuiltInRegistries.BLOCKS,
             // Register your objects here.
             registry -> {
                 registry.register(new ResourceLocation(MODID, "example_block_1"), new Block(...));
@@ -102,12 +103,12 @@ public void register(RegisterEvent event) {
 Sometimes, you will find yourself in situations where you want to get a registered object by a given id. Or, you want to get the id of a certain registered object. Since registries are basically maps of ids (`ResourceLocation`s) to distinct objects, i.e. a reversible map, both of these operations work:
 
 ```java
-Registries.BLOCKS.get(new ResourceLocation("minecraft", "dirt")); // returns the dirt block
-Registries.BLOCKS.getKey(Blocks.DIRT); // returns the resource location "minecraft:dirt"
+BuiltInRegistries.BLOCKS.get(new ResourceLocation("minecraft", "dirt")); // returns the dirt block
+BuiltInRegistries.BLOCKS.getKey(Blocks.DIRT); // returns the resource location "minecraft:dirt"
 
 // Assume that ExampleBlocksClass.EXAMPLE_BLOCK.get() is a Supplier<Block> with the id "yourmodid:example_block"
-Registries.BLOCKS.get(new ResourceLocation("yourmodid", "example_block")); // returns the example block
-Registries.BLOCKS.getKey(ExampleBlocksClass.EXAMPLE_BLOCK.get()); // returns the resource location "yourmodid:example_block"
+BuiltInRegistries.BLOCKS.get(new ResourceLocation("yourmodid", "example_block")); // returns the example block
+BuiltInRegistries.BLOCKS.getKey(ExampleBlocksClass.EXAMPLE_BLOCK.get()); // returns the resource location "yourmodid:example_block"
 ```
 
 If you just want to check for the presence of an object, this is also possible, though only with keys:
@@ -131,7 +132,7 @@ for (Map.Entry<ResourceLocation, Block> entry : Registries.BLOCKS.entrySet()) {
 ```
 
 :::note
-Query operations should always use vanilla `Registry`s, not `DeferredRegister`s. This is because `DeferredRegister`s are merely registration utilities and effectively do not exist after registration has finished.
+Query operations always use vanilla `Registry`s, not `DeferredRegister`s. This is because `DeferredRegister`s are merely registration utilities.
 :::
 
 :::danger
