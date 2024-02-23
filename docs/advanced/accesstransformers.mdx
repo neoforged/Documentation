@@ -101,10 +101,6 @@ Examples of methods that can be safely transformed are `private` methods, `final
 Targets and Directives
 ----------------------
 
-:::caution
-When using Access Transformers on Minecraft classes, the SRG name must be used for fields and methods.
-:::
-
 ### Classes
 To target classes:
 ```
@@ -153,15 +149,15 @@ Examples
 public net.minecraft.util.Crypt$ByteArrayToKeyFunction
 
 # Makes protected and removes the final modifier from 'random' in MinecraftServer
-protected-f net.minecraft.server.MinecraftServer f_129758_ #random
+protected-f net.minecraft.server.MinecraftServer random
 
 # Makes public the 'makeExecutor' method in Util,
 # accepting a String and returns an ExecutorService
-public net.minecraft.Util m_137477_(Ljava/lang/String;)Ljava/util/concurrent/ExecutorService; #makeExecutor
+public net.minecraft.Util makeExecutor(Ljava/lang/String;)Ljava/util/concurrent/ExecutorService;
 
 # Makes public the 'leastMostToIntArray' method in UUIDUtil,
 # accepting two longs and returning an int[]
-public net.minecraft.core.UUIDUtil m_235872_(JJ)[I #leastMostToIntArray
+public net.minecraft.core.UUIDUtil leastMostToIntArray(JJ)[I
 ```
 
 [specs]: https://github.com/NeoForged/AccessTransformers/blob/main/FMLAT.md
