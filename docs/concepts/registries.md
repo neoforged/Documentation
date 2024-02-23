@@ -198,12 +198,14 @@ Datapack registries can be obtained from a `RegistryAccess`. This `RegistryAcces
 
 ### Custom Datapack Registries
 
-Custom datapack registries are created through `RegistryBuilder` like all other registries, but are registered to `DataPackRegistryEvent.NewRegistry` instead of `NewRegistryEvent`. Reiterating the spells example from before, registering our spell registry as a datapack registry looks something like this:
+Custom datapack registries do not require a `Registry` to be constructed. Instead, they just need a registry key and at least one [`Codec`][codec] to (de-)serialize its contents. Reiterating on the spells example from before, registering our spell registry as a datapack registry looks something like this:
 
 ```java
+public static final ResourceKey<Registry<Spell>> SPELL_REGISTRY_KEY = ResourceKey.createRegistryKey(new ResourceLocation("yourmodid", "spells"));
+
 @SubscribeEvent
-static void registerDatapackRegistries(DataPackRegistryEvent.NewRegistry event) {
-    event.register(
+public static void registerDatapackRegistries(DataPackRegistryEvent.NewRegistry event) {
+    event.dataPackRegistry(
             // The registry key.
             SPELL_REGISTRY_KEY,
             // The codec of the registry contents.
