@@ -255,7 +255,7 @@ new RegistrySetBuilder()
     });
 ```
 
-The `BootstrapContext` can also be used to lookup entries from another registry if needed:
+The `BootstrapContext` (name is typoed as `BootstapContext` in 1.20.4 and below) can also be used to lookup entries from another registry if needed:
 
 ```java
 public static final ResourceKey<ConfiguredFeature<?, ?>> EXAMPLE_CONFIGURED_FEATURE = ResourceKey.create(
