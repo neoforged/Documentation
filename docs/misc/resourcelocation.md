@@ -34,7 +34,7 @@ Whether the `ResourceLocation` expects a file suffix, or what exactly the resour
 
 The variant is appended to the regular resource location, along with a `#`. For example, the full name of the diamond sword's item model is `minecraft:diamond_sword#inventory`. However, in most contexts, the `inventory` variant can be omitted.
 
-`ModelResourceLocation` is a [client only][sides] class. This means that servers referencing this class will crash with a `NoClassDefError`.
+`ModelResourceLocation` is a [client only][sides] class. This means that servers referencing this class will crash with a `NoClassDefFoundError`.
 
 ## `ResourceKey`s
 
