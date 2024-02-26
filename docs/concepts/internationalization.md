@@ -37,6 +37,29 @@ By default, `#getDescriptionId` will return `block.` or `item.` prepended to the
 The only purpose of a translation key is internationalization. Do not use them for logic. Use registry names instead.
 :::
 
+Mod metadata
+------------
+
+Historically, A mod's name and description have been defined in [`mods.toml` files][modinfo] without translation support. Starting with Neoforge v20.4.179, translation files can override mod info using the following keys:
+
+| Translation Key | Overrides | Example |
+|:---------------:|:---------:|:--------|
+| `fml.menu.mods.info.displayname.[modid]` | `[[mods]]` -> `displayName` | `fml.menu.mods.info.displayname.examplemod` |
+| `fml.menu.mods.info.description.[modid]` | `[[mods]]` -> `description` | `fml.menu.mods.info.description.examplemod` |
+
+For example, a mod with the id `mymod` could localize its name and description by adding the following lines to a language file:
+
+```js
+{
+  "fml.menu.mods.info.displayname.mymod": "My Mod",
+  "fml.menu.mods.info.description.mymod": "My Mod is super cool and localized!"
+}
+```
+
+:::warning
+It is still recommended to define `displayName` and `description` in your [`mods.toml` file][modinfo], because the localization keys are not guaranteed to be supported everywhere. This is especially true for third-party tools.
+:::
+
 Localization methods
 --------------------
 
@@ -67,5 +90,6 @@ Read [components] for more details.
 
 [langs]: https://minecraft.wiki/w/Language#Languages
 [converter]: https://tterrag.com/lang2json/
+[modinfo]: ../gettingstarted/modfiles.md#mod-specific-properties
 [formatting]: ../misc/components.md#text-formatting
 [components]: ../misc/components.md
