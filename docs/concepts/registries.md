@@ -119,10 +119,10 @@ As the last example shows, this is possible with any mod id, and thus a perfect 
 Finally, we can also iterate over all entries in a registry, either over the keys or over the entries (entries use the Java `Map.Entry` type):
 
 ```java
-for (ResourceLocation id : Registries.BLOCKS.keySet()) {
+for (ResourceLocation id : BuiltInRegistries.BLOCKS.keySet()) {
     // ...
 }
-for (Map.Entry<ResourceLocation, Block> entry : Registries.BLOCKS.entrySet()) {
+for (Map.Entry<ResourceLocation, Block> entry : BuiltInRegistries.BLOCKS.entrySet()) {
     // ...
 }
 ```
