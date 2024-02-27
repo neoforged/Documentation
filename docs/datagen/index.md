@@ -55,7 +55,7 @@ The `GatherDataEvent` is fired on the mod event bus when the data generator is b
 **These classes are under the `net.neoforged.neoforge.common.data` package**:
 
 * [`GlobalLootModifierProvider`][glmgen] - for [global loot modifiers][glm]; implement `#start`
-* [`DatapackBuiltinEntriesProvider`][datapackregistriesgen] for datapack registry objects (i.e. world generation features, biomes, and more); pass in `RegistrySetBuilder` to the constructor
+* [`DatapackBuiltinEntriesProvider`][datapackregistriesgen] - for datapack registry objects; see the linked article
 
 **These classes are under the `net.minecraft.data` package**:
 
@@ -75,7 +75,7 @@ The `GatherDataEvent` is fired on the mod event bus when the data generator is b
 [blockstategen]: ./client/modelproviders.md#block-state-provider
 [glmgen]: ./server/glm.md
 [glm]: ../resources/server/glm.md
-[datapackregistriesgen]: ./server/datapackregistries.md
+[datapackregistriesgen]: ../concepts/registries.md#data-generation-for-datapack-registries
 [loottablegen]: ./server/loottables.md
 [loottable]: ../resources/server/loottables.md
 [recipegen]: ./server/recipes.md

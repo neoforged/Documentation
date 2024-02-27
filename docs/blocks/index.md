@@ -1,14 +1,20 @@
-Blocks
-======
+# Blocks
 
 Blocks are essential to the Minecraft world. They make up all the terrain, structures, and machines. Chances are if you are interested in making a mod, then you will want to add some blocks. This page will guide you through the creation of blocks, and some of the things you can do with them.
 
-One Block to Rule Them All
---------------------------
+## One Block to Rule Them All
 
 Before we get started, it is important to understand that there is only ever one of each block in the game. A world consists of thousands of references to that one block in different locations. In other words, the same block is just displayed a lot of times.
 
-Due to this, a block should only ever be instantiated once, and that is during registration. Once the block is registered, you can then use the registered reference as needed. Consider this example (see the [Registration][registration] page if you do not know what you are looking at):
+Due to this, a block should only ever be instantiated once, and that is during [registration]. Once the block is registered, you can then use the registered reference as needed.
+
+Unlike most other registries, blocks can use a specialized version of `DeferredRegister`, called `DeferredRegister.Blocks`. `DeferredRegister.Blocks` acts basically like a `DeferredRegister<Block>`, but with some minor differences:
+
+- They are created via `DeferredRegister.createBlocks("yourmodid")` instead of the regular `DeferredRegister.create(...)` method.
+- `#register` returns a `DeferredBlock<T extends Block>`, which extends `DeferredHolder<Block, T>`. `T` is the type of the class of the block we are registering.
+- There are a few helper methods for registering block. See [below] for more details.
+
+So now, let's register our blocks:
 
 ```java
 //BLOCKS is a DeferredRegister.Blocks
@@ -33,8 +39,13 @@ Do not call `new Block()` outside registration! As soon as you do that, things c
 - If you still manage to have a dangling block instance, the game will not recognize it while syncing and saving, and replace it with air.
 :::
 
-Creating Blocks
----------------
+## Creating Blocks
+
+As discussed before, we start by creating our `DeferredRegister.Blocks`:
+
+```java
+public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks("yourmodid");
+```
 
 ### Basic Blocks
 
@@ -54,7 +65,8 @@ For simple blocks which need no special functionality (think cobblestone, wooden
 So for example, a simple implementation would look something like this:
 
 ```java
-  public static final DeferredBlock<Block> MY_BETTER_BLOCK = BLOCKS.register(
+//BLOCKS is a DeferredRegister.Blocks
+public static final DeferredBlock<Block> MY_BETTER_BLOCK = BLOCKS.register(
         "my_better_block", 
         () -> new Block(BlockBehaviour.Properties.of()
                 //highlight-start
@@ -80,14 +92,40 @@ Directly using `Block` only allows for very basic blocks. If you want to add fun
 
 If you want to make a block that has different variants (think a slab that has a bottom, top, and double variant), you should use [blockstates]. And finally, if you want a block that stores additional data (think a chest that stores its inventory), a [block entity][blockentities] should be used. The rule of thumb here is that if you have a finite and reasonably small amount of states (= a few hundred states at most), use blockstates, and if you have an infinite or near-infinite amount of states, use a block entity.
 
+### `DeferredRegister.Blocks` helpers
+
+We already discussed how to create a `DeferredRegister.Blocks` [above], as well as that it returns `DeferredBlock`s. Now, let's have a look at what other utilities the specialized `DeferredRegister` has to offer. Let's start with `#registerBlock`:
+
+```java
+public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks("yourmodid");
+
+public static final DeferredBlock<Block> EXAMPLE_BLOCK = BLOCKS.registerBlock(
+        "example_block",
+        Block::new, // The factory that the properties will be passed into.
+        BlockBehaviour.Properties.of() // The properties to use.
+);
+```
+
+Internally, this will simply call `BLOCKS.register("example_block", () -> new Block(BlockBehaviour.Properties.of()))` by applying the properties parameter to the provided block factory (which is commonly the constructor).
+
+If you want to use `Block::new`, you can leave out the factory entirely:
+
+```java
+public static final DeferredBlock<Block> EXAMPLE_BLOCK = BLOCKS.registerSimpleBlock(
+        "example_block",
+        BlockBehaviour.Properties.of() // The properties to use.
+);
+```
+
+This does the exact same as the previous example, but is slightly shorter. Of course, if you want to use a subclass of `Block` and not `Block` itself, you will have to use the previous method instead.
+
 ### Resources
 
 If you register your block and place it in the world, you will find it to be missing things like a texture. This is because textures, among others, are handled by Minecraft's resource system.
 
 To apply a simple texture to a block, you must add a blockstate JSON, a model JSON, and a texture PNG. See the section on [resources] for more information.
 
-Using Blocks
-------------
+## Using Blocks
 
 Blocks are very rarely directly used to do things. In fact, probably two of the most common operations in all of Minecraft - getting the block at a position, and setting a block at a position - use blockstates, not blocks. The general design approach is to have the block define behavior, but have the behavior actually run through blockstates. Due to this, `BlockState`s are often passed to methods of `Block` as a parameter. For more information on how blockstates are used, and on how to get one from a block, see [Using Blockstates][usingblockstates].
 
@@ -187,6 +225,8 @@ Random ticks occur every tick for a set amount of blocks in a chunk. That set am
 
 Random ticking is used by a wide range of mechanics in Minecraft, such as plant growth, ice and snow melting, or copper oxidizing.
 
+[above]: #one-block-to-rule-them-all
+[below]: #deferredregisterblocks-helpers
 [blockentities]: ../blockentities/index.md
 [blockstates]: states.md
 [events]: ../concepts/events.md

@@ -17,7 +17,7 @@ JSON models only support cuboid elements; there is no way to express a triangula
 Textures, like models, are contained within resource packs and are referred to with `ResourceLocation`s. In Minecraft, the [UV coordinates][uv] (0,0) are taken to mean the **top-left** corner. UVs are *always* from 0 to 16. If a texture is larger or smaller, the coordinates are scaled to fit. A texture should also be square, and the side length of a texture should be a power of two, as doing otherwise breaks mipmapping (e.g. 1x1, 2x2, 8x8, 16x16, and 128x128 are good. 5x5 and 30x30 are not recommended because they are not powers of 2. 5x10 and 4x8 are completely broken as they are not square.). Textures should only ever be not a square if it is [animated][animated].
 
 [models]: https://minecraft.wiki/w/Tutorials/Models#File_path
-[resloc]: ../../../concepts/resources.md#resourcelocation
+[resloc]: ../../../misc/resourcelocation.md
 [statemodel]: https://minecraft.wiki/w/Tutorials/Models#Block_states
 [itemmodels]: https://minecraft.wiki/w/Tutorials/Models#Item_models
 [state]: ../../../blocks/states.md

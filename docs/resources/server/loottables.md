@@ -107,5 +107,5 @@ Forge adds an additional `LootItemCondition` which checks whether the given `Loo
 
 [datapack]: https://minecraft.wiki/w/Data_pack
 [wiki]: https://minecraft.wiki/w/Loot_table
-[event]: ../../concepts/events.md#creating-an-event-handler
+[event]: ../../concepts/events.md#registering-an-event-handler
 [glm]: ./glm.md

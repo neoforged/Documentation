@@ -192,7 +192,7 @@ BrewingRecipeRegistry.addRecipe(
 This should be called some time during setup, for example during [`FMLCommonSetupEvent`][commonsetup]. Make sure to wrap this into an `event.enqueueWork()` call, as the brewing recipe registry is not thread-safe.
 
 [block]: ../blocks/index.md
-[commonsetup]: ../concepts/events.md#mod-event-bus
+[commonsetup]: ../concepts/events.md#event-buses
 [datapack]: ../resources/server/index.md
 [events]: ../concepts/events.md
 [item]: index.md

@@ -1,200 +1,316 @@
-Registries
-==========
+# Registries
 
-Registration is the process of taking the objects of a mod (such as items, blocks, sounds, etc.) and making them known to the game. Registering things is important, as without registration the game will simply not know about these objects, which will cause unexplainable behaviors and crashes. 
+Registration is the process of taking the objects of a mod (such as [items][item], [blocks][block], entities, etc.) and making them known to the game. Registering things is important, as without registration the game will simply not know about these objects, which will cause unexplainable behaviors and crashes.
 
-Most things that require registration in the game are handled by the Forge registries. A registry is an object similar to a map that assigns values to keys. Forge uses registries with [`ResourceLocation`][ResourceLocation] keys to register objects. This allows the `ResourceLocation` to act as the "registry name" for objects.
+A registry is, simply put, a wrapper around a map that maps registry names (read on) to registered objects, often called registry entries. Registry names must be unique within the same registry, but the same registry name may be present in multiple registries. The most common example for this are blocks (in the `BLOCKS` registry) that have an item form with the same registry name (in the `ITEMS` registry).
 
-Every type of registrable object has its own registry. To see all registries wrapped by Forge, see the `ForgeRegistries` class. All registry names within a registry must be unique. However, names in different registries will not collide. For example, there's a `Block` registry, and an `Item` registry. A `Block` and an `Item` may be registered with the same name `example:thing` without colliding; however, if two different `Block`s or `Item`s were registered with the same exact name, the second object will override the first.
+Every registered object has a unique name, called its registry name. The name is represented as a [`ResourceLocation`][resloc]. For example, the registry name of the dirt block is `minecraft:dirt`, and the registry name of the zombie is `minecraft:zombie`. Modded objects will of course not use the `minecraft` namespace; their mod id will be used instead.
 
-Methods for Registering
-------------------
+## Vanilla vs. Modded
 
-There are two proper ways to register objects: the `DeferredRegister` class, and the `RegisterEvent` lifecycle event.
+To understand some of the design decisions that were made in NeoForge's registry system, we will first look at how Minecraft does this. We will use the block registry as an example, as most other registries work the same way.
 
-### DeferredRegister
+Registries generally register [singletons][singleton]. This means that all registry entries exist exactly once. For example, all stone blocks you see throughout the game are actually the same stone block, displayed many times. If you need the stone block, you can get it by referencing the registered block instance.
 
-`DeferredRegister` is the recommended way to register objects. It allows the use and convenience of static initializers while avoiding the issues associated with it. It simply maintains a list of suppliers for entries and registers the objects from those suppliers during `RegisterEvent`.
+Minecraft registers all blocks in the `Blocks` class. Through the `register` method, `Registry#register()` is called, with the block registry at `BuiltInRegistries.BLOCK` being the first parameter. After all blocks are registered, Minecraft performs various checks based on the list of blocks, for example the self check that verifies that all blocks have a model loaded.
 
-An example of a mod registering a custom block:
+The main reason all of this works is that `Blocks` is classloaded early enough by Minecraft. Mods are not automatically classloaded by Minecraft, and thus workarounds are needed.
+
+## Methods for Registering
+
+NeoForge offers two ways to register objects: the `DeferredRegister` class, and the `RegisterEvent`. Note that the former is a wrapper around the latter, and is recommended in order to prevent mistakes.
+
+### `DeferredRegister`
+
+We begin by creating our `DeferredRegister`:
 
 ```java
-private static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, MODID);
+public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(
+        // The registry we want to use.
+        // Minecraft's registries can be found in BuiltInRegistries, NeoForge's registries can be found in NeoForgeRegistries.
+        // Mods may also add their own registries, refer to the individual mod's documentation or source code for where to find them.
+        BuiltInRegistries.BLOCKS,
+        // Our mod id.
+        ExampleMod.MOD_ID
+);
+```
 
-public static final RegistryObject<Block> ROCK_BLOCK = BLOCKS.register("rock", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.STONE)));
+We can then add our registry entries as static final fields (see [the article on Blocks][block] for what parameters to add in `new Block()`):
 
-public ExampleMod() {
-  BLOCKS.register(FMLJavaModLoadingContext.get().getModEventBus());
+```java
+public static final DeferredHolder<Block, Block> EXAMPLE_BLOCK = BLOCKS.register(
+        "example_block" // Our registry name.
+        () -> new Block(...) // A supplier of the object we want to register.
+);
+```
+
+The class `DeferredHolder<R, T extends R>` holds our object. The type parameter `R` is the type of the registry we are registering to (in our case `Block`). The type parameter `T` is the type of our supplier. Since we directly register a `Block` in this example, we provide `Block` as the second parameter. If we were to register an object of a subclass of `Block`, for example `SlabBlock`, we would provide `SlabBlock` here instead.
+
+`DeferredHolder<R, T extends R>` is a subclass of `Supplier<T>`. To get our registered object when we need it, we can call `DeferredHolder#get()`. The fact that `DeferredHolder` extends `Supplier` also allows us to use `Supplier` as the type of our field. That way, the above code block becomes the following:
+
+```java
+public static final Supplier<Block> EXAMPLE_BLOCK = BLOCKS.register(
+        "example_block" // Our registry name.
+        () -> new Block(...) // A supplier of the object we want to register.
+);
+```
+
+Be aware that a few places explicitly require a `Holder` or `DeferredHolder` and will not just accept any `Supplier`. If you need either of those two, it is best to change the type of your `Supplier` back to `Holder` or `DeferredHolder` as necessary.
+
+Finally, since the entire system is a wrapper around registry events, we need to tell the `DeferredRegister` to attach itself to the registry events as needed:
+
+```java
+//This is our mod constructor
+public ExampleMod(IModEventBus bus) {
+    //highlight-next-line
+    ExampleBlocksClass.BLOCKS.register(bus);
+    //Other stuff here
 }
 ```
 
+:::info
+There are specialized variants of `DeferredRegister`s for blocks and items that provide helper methods, called [`DeferredRegister.Blocks`][defregblocks] and [`DeferredRegister.Items`][defregitems], respectively.
+:::
+
 ### `RegisterEvent`
 
-`RegisterEvent` is the second way to register objects. This [event] is fired for each registry after the mod constructors and before the loading of configs. Objects are registered using `#register` by passing in the registry key, the name of the registry object, and the object itself. There is an additional `#register` overload which takes in a consumed helper to register an object with a given name. It is recommended to use this method to avoid unnecessary object creation.
-
-Here is an example: (the event handler is registered on the *mod event bus*)
+`RegisterEvent` is the second way to register objects. This [event][event] is fired for each registry, after the mod constructors (since those are where `DeferredRegister`s register their internal event handlers) and before the loading of configs. `RegisterEvent` is fired on the mod event bus.
 
 ```java
 @SubscribeEvent
 public void register(RegisterEvent event) {
-  event.register(ForgeRegistries.Keys.BLOCKS,
-    helper -> {
-      helper.register(new ResourceLocation(MODID, "example_block_1"), new Block(...));
-      helper.register(new ResourceLocation(MODID, "example_block_2"), new Block(...));
-      helper.register(new ResourceLocation(MODID, "example_block_3"), new Block(...));
-      // ...
-    }
-  );
+    event.register(
+            // This is the registry key of the registry.
+            // Get these from BuiltInRegistries for vanilla registries,
+            // or from NeoForgeRegistries.Keys for NeoForge registries.
+            BuiltInRegistries.BLOCKS,
+            // Register your objects here.
+            registry -> {
+                registry.register(new ResourceLocation(MODID, "example_block_1"), new Block(...));
+                registry.register(new ResourceLocation(MODID, "example_block_2"), new Block(...));
+                registry.register(new ResourceLocation(MODID, "example_block_3"), new Block(...));
+            }
+    );
 }
 ```
 
-### Registries that aren't Forge Registries
+## Querying Registries
 
-Not all registries are wrapped by Forge. These can be static registries, like `LootItemConditionType`, which are safe to use. There are also dynamic registries, like `ConfiguredFeature` and some other worldgen registries, which are typically represented in JSON. `DeferredRegister#create` has an overload which allows modders to specify the registry key of which vanilla registry to create a `RegistryObject` for. The registry method and attaching to the mod event bus is the same as other `DeferredRegister`s.
+Sometimes, you will find yourself in situations where you want to get a registered object by a given id. Or, you want to get the id of a certain registered object. Since registries are basically maps of ids (`ResourceLocation`s) to distinct objects, i.e. a reversible map, both of these operations work:
+
+```java
+BuiltInRegistries.BLOCKS.get(new ResourceLocation("minecraft", "dirt")); // returns the dirt block
+BuiltInRegistries.BLOCKS.getKey(Blocks.DIRT); // returns the resource location "minecraft:dirt"
+
+// Assume that ExampleBlocksClass.EXAMPLE_BLOCK.get() is a Supplier<Block> with the id "yourmodid:example_block"
+BuiltInRegistries.BLOCKS.get(new ResourceLocation("yourmodid", "example_block")); // returns the example block
+BuiltInRegistries.BLOCKS.getKey(ExampleBlocksClass.EXAMPLE_BLOCK.get()); // returns the resource location "yourmodid:example_block"
+```
+
+If you just want to check for the presence of an object, this is also possible, though only with keys:
+
+```java
+BuiltInRegistries.BLOCKS.containsKey(new ResourceLocation("minecraft", "dirt")); // true
+BuiltInRegistries.BLOCKS.containsKey(new ResourceLocation("create", "brass_ingot")); // true only if Create is installed
+```
+
+As the last example shows, this is possible with any mod id, and thus a perfect way to check if a certain item from another mod exists.
+
+Finally, we can also iterate over all entries in a registry, either over the keys or over the entries (entries use the Java `Map.Entry` type):
+
+```java
+for (ResourceLocation id : BuiltInRegistries.BLOCKS.keySet()) {
+    // ...
+}
+for (Map.Entry<ResourceLocation, Block> entry : BuiltInRegistries.BLOCKS.entrySet()) {
+    // ...
+}
+```
+
+:::note
+Query operations always use vanilla `Registry`s, not `DeferredRegister`s. This is because `DeferredRegister`s are merely registration utilities.
+:::
 
 :::danger
-Dynamic registry objects can **only** be registered through data files (e.g. JSON). They **cannot** be registered in-code.
+Query operations are only safe to use after registration has finished. **DO NOT QUERY REGISTRIES WHILE REGISTRATION IS STILL ONGOING!**
 :::
 
-```java
-private static final DeferredRegister<LootItemConditionType> REGISTER = DeferredRegister.create(Registries.LOOT_CONDITION_TYPE, "examplemod");
+## Custom Registries
 
-public static final RegistryObject<LootItemConditionType> EXAMPLE_LOOT_ITEM_CONDITION_TYPE = REGISTER.register("example_loot_item_condition_type", () -> new LootItemConditionType(...));
+Custom registries allow you to specify additional systems that addon mods for your mod may want to plug into. For example, if your mod were to add spells, you could make the spells a registry and thus allow other mods to add spells to your mod, without you having to do anything else. It also allows you to do some things, such as syncing the entries, automatically.
+
+Let's start by creating the [registry key][resourcekey] and the registry itself:
+
+```java
+// We use spells as an example for the registry here, without any details about what a spell actually is (as it doesn't matter).
+// Of course, all mentions of spells can and should be replaced with whatever your registry actually is.
+public static final ResourceKey<Registry<Spell>> SPELL_REGISTRY_KEY = ResourceKey.createRegistryKey(new ResourceLocation("yourmodid", "spells"));
+public static final Registry<YourRegistryContents> SPELL_REGISTRY = new RegistryBuilder<>(SPELL_REGISTRY_KEY)
+        // If you want to enable integer id syncing, for networking.
+        // These should only be used in networking contexts, for example in packets or purely networking-related NBT data.
+        .sync(true)
+        // The default key. Similar to minecraft:air for blocks. This is optional.
+        .defaultKey(new ResourceLocation("yourmodid", "empty"))
+        // Effectively limits the max count. Generally discouraged, but may make sense in settings such as networking.
+        .maxId(256)
+        // Build the registry.
+        .create();
 ```
 
-:::note
-Some classes cannot by themselves be registered. Instead, `*Type` classes are registered, and used in the formers' constructors. For example, [`BlockEntity`][blockentity] has `BlockEntityType`, and `Entity` has `EntityType`. These `*Type` classes are factories that simply create the containing type on demand. 
-
-These factories are created through the use of their `*Type$Builder` classes. An example: (`REGISTER` refers to a `DeferredRegister<BlockEntityType>`)
-```java
-public static final RegistryObject<BlockEntityType<ExampleBlockEntity>> EXAMPLE_BLOCK_ENTITY = REGISTER.register(
-  "example_block_entity", () -> BlockEntityType.Builder.of(ExampleBlockEntity::new, EXAMPLE_BLOCK.get()).build(null)
-);
-```
-:::
-
-Referencing Registered Objects
-------------------------------
-
-Registered objects should not be stored in fields when they are created and registered. They are to be always newly created and registered whenever `RegisterEvent` is fired for that registry. This is to allow dynamic loading and unloading of mods in a future version of Forge.
-
-Registered objects must always be referenced through a `RegistryObject` or a field with `@ObjectHolder`.
-
-### Using RegistryObjects
-
-`RegistryObject`s can be used to retrieve references to registered objects once they are available. These are used by `DeferredRegister` to return a reference to the registered objects. Their references are updated after `RegisterEvent` is called for their registry, along with the `@ObjectHolder` annotations.
-
-To get a `RegistryObject`, call `RegistryObject#create` with a `ResourceLocation` and the `IForgeRegistry` of the registrable object. Custom registries can also be used by supplying the registry name instead. Store the `RegistryObject` in a `public static final` field, and call `#get` whenever you need the registered object.
-
-An example of using `RegistryObject`:
+Then, tell the game that the registry exists by registering them to the root registry in `NewRegistryEvent`:
 
 ```java
-public static final RegistryObject<Item> BOW = RegistryObject.create(new ResourceLocation("minecraft:bow"), ForgeRegistries.ITEMS);
-
-// assume that 'neomagicae:mana_type' is a valid registry, and 'neomagicae:coffeinum' is a valid object within that registry
-public static final RegistryObject<ManaType> COFFEINUM = RegistryObject.create(new ResourceLocation("neomagicae", "coffeinum"), new ResourceLocation("neomagicae", "mana_type"), "neomagicae"); 
-```
-
-### Using @ObjectHolder
-
-Registered objects from registries can be injected into the `public static` fields by annotating classes or fields with `@ObjectHolder` and supplying enough information to construct a `ResourceLocation` to identify a specific object in a specific registry.
-
-The rules for `@ObjectHolder` are as follows:
-
-* If the class is annotated with `@ObjectHolder`, its value will be the default namespace for all fields within if not explicitly defined
-* If the class is annotated with `@Mod`, the modid will be the default namespace for all annotated fields within if not explicitly defined
-* A field is considered for injection if:
-  * it has at least the modifiers `public static`;
-  * the **field** is annotated with `@ObjectHolder`, and:
-    * the name value is explicitly defined; and
-    * the registry name value is explicitly defined
-  * _A compile-time exception is thrown if a field does not have a corresponding registry or name._
-* _An exception is thrown if the resulting `ResourceLocation` is incomplete or invalid (non-valid characters in path)_
-* If no other errors or exceptions occur, the field will be injected
-* If all of the above rules do not apply, no action will be taken (and a message may be logged)
-
-`@ObjectHolder`-annotated fields are injected with their values after `RegisterEvent` is fired for their registry, along with the `RegistryObject`s.
-
-:::note
-If the object does not exist in the registry when it is to be injected, a debug message will be logged and no value will be injected.
-:::
-
-As these rules are rather complicated, here are some examples:
-
-```java
-class Holder {
-  @ObjectHolder(registryName = "minecraft:enchantment", value = "minecraft:flame")
-  public static final Enchantment flame = null;     // Annotation present. [public static] is required. [final] is optional.
-                                                    // Registry name is explicitly defined: "minecraft:enchantment"
-                                                    // Resource location is explicitly defined: "minecraft:flame"
-                                                    // To inject: "minecraft:flame" from the [Enchantment] registry
-
-  public static final Biome ice_flat = null;        // No annotation on the field.
-                                                    // Therefore, the field is ignored.
-
-  @ObjectHolder("minecraft:creeper")
-  public static Entity creeper = null;              // Annotation present. [public static] is required.
-                                                    // The registry has not been specified on the field.
-                                                    // Therefore, THIS WILL PRODUCE A COMPILE-TIME EXCEPTION.
-
-  @ObjectHolder(registryName = "potion")
-  public static final Potion levitation = null;     // Annotation present. [public static] is required. [final] is optional.
-                                                    // Registry name is explicitly defined: "minecraft:potion"
-                                                    // Resource location is not specified on the field
-                                                    // Therefore, THIS WILL PRODUCE A COMPILE-TIME EXCEPTION.
+@SubscribeEvent
+static void registerRegistries(NewRegistryEvent event) {
+    event.register(SPELL_REGISTRY);
 }
 ```
 
-Creating Custom Forge Registries
---------------------------------
+You can now register new registry contents like with any other registry, through both `DeferredRegister` and `RegisterEvent`:
 
-Custom registries can usually just be a simple map of key to value. This is a common style; however, it forces a hard dependency on the registry being present. It also requires that any data that needs to be synced between sides must be done manually. Custom Forge Registries provide a simple alternative for creating soft dependents along with better management and automatic syncing between sides (unless told otherwise). Since the objects also use a Forge registry, registration becomes standardized in the same way.
+```java
+public static final DeferredRegister<Spell> SPELLS = DeferredRegister.create("yourmodid", SPELL_REGISTRY);
+public static final Supplier<Spell> EXAMPLE_SPELL = SPELLS.register("example_spell", () -> new Spell(...));
 
-Custom Forge Registries are created with the help of a `RegistryBuilder`, through either `NewRegistryEvent` or the `DeferredRegister`. The `RegistryBuilder` class takes various parameters (such as the registry's name, id range, and various callbacks for different events happening on the registry). New registries are registered to the `RegistryManager` after `NewRegistryEvent` finishes firing.
+// Alternatively:
+@SubscribeEvent
+public static void register(RegisterEvent event) {
+    event.register(SPELL_REGISTRY, registry -> {
+        registry.register(new ResourceLocation("yourmodid", "example_spell"), () -> new Spell(...));
+    });
+}
+```
 
-Any newly created registry should use its associated [registration method][registration] to register the associated objects.
+## Datapack Registries
 
-### Using NewRegistryEvent
+A datapack registry (also known as a dynamic registry or, after its main use case, worldgen registry) is a special kind of registry that loads data from [datapack][datapack] JSONs (hence the name) at world load, instead of loading them when the game starts. Default datapack registries most notably include most worldgen registries, among a few others.
 
-When using `NewRegistryEvent`, calling `#create` with a `RegistryBuilder` will return a supplier-wrapped registry. The supplied registry can be accessed after `NewRegistryEvent` has finished posting to the mod event bus. Getting the custom registry from the supplier before `NewRegistryEvent` finishes firing will result in a `null` value.
+Datapack registries allow their contents to be specified in JSON files. This means that no code (other than [datagen][datagen] if you don't want to write the JSON files yourself) is necessary. Every datapack registry has a [`Codec`][codec] associated with it, which is used for serialization, and each registry's id determines its datapack path:
 
-#### New Datapack Registries
+- Minecraft's datapack registries use the format `data/yourmodid/registrypath` (for example `data/yourmodid/worldgen/biomes`, where `worldgen/biomes` is the registry path).
+- All other datapack registries (NeoForge or modded) use the format `data/yourmodid/registrynamespace/registrypath` (for example `data/yourmodid/neoforge/loot_modifiers`, where `neoforge` is the registry namespace and `loot_modifiers` is the registry path).
 
-New datapack registries can be added using the `DataPackRegistryEvent$NewRegistry` event on the mod event bus. The registry is created via `#dataPackRegistry` by passing in the `ResourceKey` representing the registry name and the `Codec` used to encode and decode the data from JSON. An optional `Codec` can be provided to sync the datapack registry to the client.
+Datapack registries can be obtained from a `RegistryAccess`. This `RegistryAccess` can be retrieved by calling `ServerLevel#registryAccess()` if on the server, or `Minecraft.getInstance().connection#registryAccess()` if on the client (the latter only works if you are actually connected to a world, as otherwise the connection will be null). The result of these calls can then be used like any other registry to get specific elements, or to iterate over the contents.
 
-:::note
-Datapack Registries cannot be created with `DeferredRegister`. They can only be created through the event.
-:::
+### Custom Datapack Registries
 
-### With DeferredRegister
+Custom datapack registries do not require a `Registry` to be constructed. Instead, they just need a registry key and at least one [`Codec`][codec] to (de-)serialize its contents. Reiterating on the spells example from before, registering our spell registry as a datapack registry looks something like this:
 
-The `DeferredRegister` method is once again another wrapper around the above event. Once a `DeferredRegister` is created in a constant field using the `#create` overload which takes in the registry name and the mod id, the registry can be constructed via `DeferredRegister#makeRegistry`. This takes in  a supplied `RegistryBuilder` containing any additional configurations. The method already populates `#setName` by default. Since this method can be returned at any time, a supplied version of an `IForgeRegistry` is returned instead. Getting the custom registry from the supplier before `NewRegistryEvent` is fired will result in a `null` value.
+```java
+public static final ResourceKey<Registry<Spell>> SPELL_REGISTRY_KEY = ResourceKey.createRegistryKey(new ResourceLocation("yourmodid", "spells"));
 
-:::caution
-`DeferredRegister#makeRegistry` must be called before the `DeferredRegister` is added to the mod event bus via `#register`. `#makeRegistry` also uses the `#register` method to create the registry during `NewRegistryEvent`.
-:::
+@SubscribeEvent
+public static void registerDatapackRegistries(DataPackRegistryEvent.NewRegistry event) {
+    event.dataPackRegistry(
+            // The registry key.
+            SPELL_REGISTRY_KEY,
+            // The codec of the registry contents.
+            Spell.CODEC,
+            // The network codec of the registry contents. Often identical to the normal codec.
+            // May be a reduced variant of the normal codec that omits data that is not needed on the client.
+            // May be null. If null, registry entries will not be synced to the client at all.
+            // May be omitted, which is functionally identical to passing null (a method overload
+            // with two parameters is called that passes null to the normal three parameter method).
+            Spell.CODEC
+    );
+}
+```
 
-Handling Missing Entries
-------------------------
+### Data Generation for Datapack Registries
 
-There are cases where certain registry objects will cease to exist whenever a mod is updated or, more likely, removed. It is possible to specify actions to handle the missing mapping through the third of the registry events: `MissingMappingsEvent`. Within this event, a list of missing mappings can be obtained either by `#getMappings` given a registry key and mod id or all mappings via `#getAllMappings` given a registry key.
+Since writing all the JSON files by hand is both tedious and error-prone, NeoForge provides a [data provider][datagenindex] to generate the JSON files for you. This works for both built-in and your own datapack registries.
 
-:::caution
-`MissingMappingsEvent` is fired on the **Forge** event bus.
-:::
+First, we create a `RegistrySetBuilder` and add our entries to it (one `RegistrySetBuilder` can hold entries for multiple registries):
 
-For each `Mapping`, one of four mapping types can be selected to handle the missing entry:
+```java
+new RegistrySetBuilder()
+    .add(Registries.CONFIGURED_FEATURE, bootstrap -> {
+    // Register configured features through the bootstrap context (see below)
+    })
+    .add(Registries.PLACED_FEATURE, bootstrap -> {
+    // Register placed features through the bootstrap context (see below)
+    });
+```
 
-| Action | Description |
-| :---:  |     :---    |
-| IGNORE | Ignores the missing entry and abandons the mapping. |
-|  WARN  | Generates a warning in the log. |
-|  FAIL  | Prevents the world from loading. |
-| REMAP  | Remaps the entry to an already registered, non-null object. |
+The `bootstrap` lambda parameter is what we actually use to register our objects. It has the type `BootstrapContext`. To register an object, we call `#register` on it, like so:
 
-If no action is specified, then the default action will occur by notifying the user about the missing entry and whether they still would like to load the world. All actions besides remapping will prevent any other registry object from taking the place of the existing id in case the associated entry ever gets added back into the game.
+```java
+// The resource key of our object.
+public static final ResourceKey<ConfiguredFeature<?, ?>> EXAMPLE_CONFIGURED_FEATURE = ResourceKey.create(
+    Registries.CONFIGURED_FEATURE,
+    new ResourceLocation(MOD_ID, "example_configured_feature")
+);
 
-[ResourceLocation]: ./resources.md#resourcelocation
-[registration]: #methods-for-registering
-[event]: ./events.md
+new RegistrySetBuilder()
+    .add(Registries.CONFIGURED_FEATURE, bootstrap -> {
+        bootstrap.register(
+            // The resource key of our configured feature.
+            EXAMPLE_CONFIGURED_FEATURE,
+            // The actual configured feature.
+            new ConfiguredFeature<>(Feature.ORE, new OreConfiguration(...))
+        );
+    })
+    .add(Registries.PLACED_FEATURE, bootstrap -> {
+    // ...
+    });
+```
+
+The `BootstrapContext` (name is typoed as `BootstapContext` in 1.20.4 and below) can also be used to lookup entries from another registry if needed:
+
+```java
+public static final ResourceKey<ConfiguredFeature<?, ?>> EXAMPLE_CONFIGURED_FEATURE = ResourceKey.create(
+    Registries.CONFIGURED_FEATURE,
+    new ResourceLocation(MOD_ID, "example_configured_feature")
+);
+public static final ResourceKey<PlacedFeature> EXAMPLE_PLACED_FEATURE = ResourceKey.create(
+    Registries.PLACED_FEATURE,
+    new ResourceLocation(MOD_ID, "example_placed_feature")
+);
+
+new RegistrySetBuilder()
+    .add(Registries.CONFIGURED_FEATURE, bootstrap -> {
+        bootstrap.register(EXAMPLE_CONFIGURED_FEATURE, ...);
+    })
+    .add(Registries.PLACED_FEATURE, bootstrap -> {
+        HolderGetter<ConfiguredFeature<?, ?>> otherRegistry = bootstrap.lookup(Registries.CONFIGURED_FEATURE);
+        bootstrap.register(EXAMPLE_PLACED_FEATURE, new PlacedFeature(
+            otherRegistry.getOrThrow(EXAMPLE_CONFIGURED_FEATURE), // Get the configured feature
+            List.of() // No-op when placement happens - replace with whatever your placement parameters are
+        ));
+    });
+```
+
+Finally, we use our `RegistrySetBuilder` in an actual data provider, and register that data provider to the event:
+
+```java
+@SubscribeEvent
+static void onGatherData(GatherDataEvent event) {
+    event.getGenerator().addProvider(
+        // Only run datapack generation when server data is being generated
+        event.includeServer(),
+        // Create the provider
+        output -> new DatapackBuiltinEntriesProvider(
+            output,
+            event.getLookupProvider(),
+            // Our registry set builder to generate the data from.
+            new RegistrySetBuilder().add(...),
+            // A set of mod ids we are generating. Usually only your own mod id.
+            Set.of("yourmodid")
+        )
+    );
+}
+```
+
+[block]: ../blocks/index.md
 [blockentity]: ../blockentities/index.md
+[codec]: ../datastorage/codecs.md
+[datagen]: #data-generation-for-datapack-registries
+[datagenindex]: ../datagen/index.md
+[datapack]: ../resources/server/index.md
+[defregblocks]: ../blocks/index.md#deferredregisterblocks-helpers
+[defregitems]: ../items/index.md#deferredregisteritems
+[event]: ./events.md
+[item]: ../items/index.md
+[resloc]: ../misc/resourcelocation.md
+[resourcekey]: ../misc/resourcelocation.md#resourcekeys
+[singleton]: https://en.wikipedia.org/wiki/Singleton_pattern
