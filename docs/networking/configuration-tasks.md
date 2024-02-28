@@ -1,52 +1,49 @@
-# Using Configuration Tasks
+# 사전 설정
 
-The networking protocol for the client and server has a specific phase where the server can configure the client before the player actually joins the game.
-This phase is called the configuration phase, and is for example used by the vanilla server to send the resource pack information to the client.
+마인크래프트는 플레이어가 서버에 접속하기 전, 서버가 클라이언트를 설정하는 단계가 있습니다. 이 단계는 사전 설정 단계라 불리며, 바닐라에선 리소스팩 정보를 클라이언트에 보낼 때 사용합니다.
 
-This phase can also be used by mods to configure the client before the player joins the game.
+모드들도 이 단계에 패킷을 전송하여 추가 설정 정보를 보낼 수 있습니다.
 
-## Registering a configuration task
-The first step to using the configuration phase is to register a configuration task.
-This can be done by registering a new configuration task in the `OnGameConfigurationEvent` event.
+## 사전 설정 추가하기
+설정 단계에 패킷을 보내시려면 먼저 `OnGameConfigurationEvent`를 통해 사전 설정을 등록하셔야 합니다.
 ```java
 @SubscribeEvent
 public static void register(final OnGameConfigurationEvent event) {
     event.register(new MyConfigurationTask());
 }
 ```
-The `OnGameConfigurationEvent` event is fired on the mod bus, and exposes the current listener used by the server to configure the relevant client.
-A modder can use the exposed listener to figure out if the client is running the mod, and if so, register a configuration task.
+`OnGameConfigurationEvent`는 모드별 버스에 방송되며, 새로 접속하는 클라이언트와 통신하는 패킷 리스너를 제공합니다. 이 리스너를 활용해 클라이언트에 귀하의 모드가 있는지 확인하고, 이에 맞는 사전 설정을 추가하실 수 있습니다.
 
-## Implementing a configuration task
-A configuration task is a simple interface: `ICustomConfigurationTask`.
-This interface has two methods: `void run(Consumer<CustomPacketPayload> sender);`, and `ConfigurationTask.Type type();` which returns the type of the configuration task.
-The type is used to identify the configuration task.
-An example of a configuration task is shown below:
+## 사전 설정 구현하기
+사전 설정은 `ICustomConfigurationTask`로 표현되며, 두 개의 메서드 `void run(Consumer<CustomPacketPayload> sender);`, `ConfigurationTask.Type type();`로 구성되어 있습니다.
+* `#run`은 사전 설정이 수행되면 호출되는 메서드입니다. 인자 `sender`를 통해 클라이언트에 패킷을 보낼 수 있습니다.
+* `#type`은 각 사전 설정을 구분하기 위한 `$Type`을 반환합니다. 
+예시로 만든 사전 설정은 다음과 같습니다:
 ```java
+// 사전 설정 MyConfigurationTask
 public record MyConfigurationTask implements ICustomConfigurationTask {
     public static final ConfigurationTask.Type TYPE = new ConfigurationTask.Type(new ResourceLocation("mymod:my_task"));
     
     @Override
     public void run(final Consumer<CustomPacketPayload> sender) {
         final MyData payload = new MyData();
-        sender.accept(payload);
+        sender.accept(payload); // 클라이언트에 사전 설정 패킷 MyData 전송
     }
 
     @Override
     public ConfigurationTask.Type type() {
-        return TYPE;
+        return TYPE; // 다른 사전 설정과 구분하기 위한 Type
     }
 }
 ```
 
-## Acknowledging a configuration task
-Your configuration is executed on the server, and the server needs to know when the next configuration task can be executed.
-This is done by acknowledging the execution of said configuration task.
+## 사전 설정 승인하기
+서버는 각 사전 설정을 하나씩 수행합니다, 설정이 완료되었다고 승인되어야 다음 설정으로 넘어갑니다. 
 
-There are two primary ways of achieving this:
+사전 설정을 승인하는 데는 두 가지 방법이 있습니다: 
 
-### Capturing the listener
-When the client does not need to acknowledge the configuration task, then the listener can be captured, and the configuration task can be acknowledged directly on the server side.
+### 리스너 재사용하기
+사전 설정에 있어 클라이언트의 응답이 필요 없을 경우 단순히 클라이언트의 리스너를 통해 서버에서 완료로 승인하면 됩니다.
 ```java
 public record MyConfigurationTask(ServerConfigurationListener listener) implements ICustomConfigurationTask {
     public static final ConfigurationTask.Type TYPE = new ConfigurationTask.Type(new ResourceLocation("mymod:my_task"));
@@ -55,7 +52,7 @@ public record MyConfigurationTask(ServerConfigurationListener listener) implemen
     public void run(final Consumer<CustomPacketPayload> sender) {
         final MyData payload = new MyData();
         sender.accept(payload);
-        listener.finishCurrentTask(type());
+        listener.finishCurrentTask(type()); // 현재 사전 설정이 완료되었다고 표시함
     }
 
     @Override
@@ -64,25 +61,24 @@ public record MyConfigurationTask(ServerConfigurationListener listener) implemen
     }
 }
 ```
-To use such a configuration task, the listener needs to be captured in the `OnGameConfigurationEvent` event.
+클라이언트의 리스너는 아래와 같이 `OnGameConfigurationEvent`에서 받아올 수 있습니다.
 ```java
 @SubscribeEvent
 public static void register(final OnGameConfigurationEvent event) {
     event.register(new MyConfigurationTask(event.listener()));
 }
 ```
-Then the next configuration task will be executed immediately after the current configuration task has completed, and the client does not need to acknowledge the configuration task.
-Additionally, the server will not wait for the client to properly process the send payloads.
+이러면 다음 사전 설정이 바로 수행되며 클라이언트의 응답은 필요 없습니다, 다시 말해서 클라이언트가 사전 설정을 완료하기까지 기다리지 않습니다.
 
-### Acknowledging the configuration task
-When the client needs to acknowledge the configuration task, then you will need to send your own payload to the client:
+### 클라이언트에서 사전 설정 승인하기
+만약 클라이언트에서도 사전 설정이 성공했다고 승인해야 한다면, 아래와 같이 클라이언트가 설정 성공시 대답할 때 사용할 패킷을 정의하세요:
 ```java
 public record AckPayload() implements CustomPacketPayload {
     public static final ResourceLocation ID = new ResourceLocation("mymod:ack");
     
     @Override
     public void write(final FriendlyByteBuf buffer) {
-        // No data to write
+        // 전송할 데이터 없음
     }
 
     @Override
@@ -91,32 +87,31 @@ public record AckPayload() implements CustomPacketPayload {
     }
 }
 ```
-When a payload from a server side configuration task is properly processed you can send this payload to the server to acknowledge the configuration task.
+클라이언트는 서버에서 보낸 사전 설정 패킷을 완전히 처리한 이후, 위 패킷을 서버에 전송하여 설정이 완료되었음을 알릴 수 있습니다.
 ```java
 public void onMyData(MyData data, ConfigurationPayloadContext context) {
     context.submitAsync(() -> {
         blah(data.name());
     })
     .exceptionally(e -> {
-        // Handle exception
+        // 예외 처리
         context.packetHandler().disconnect(Component.translatable("my_mod.configuration.failed", e.getMessage()));
         return null;
     })
     .thenAccept(v -> {
-        context.replyHandler().send(new AckPayload());
+        context.replyHandler().send(new AckPayload()); // 패킷 처리 이후 AckPayload로 대답하기
     });     
 }
 ```
-Where `onMyData` is the handler for the payload that was sent by the server side configuration task.
+여기서 `onMyData`는 서버가 사전 설정 도중 보낸 패킷을 처리하는 함수입니다.
 
-When the server receives this payload it will acknowledge the configuration task, and the next configuration task will be executed:
+서버는 클라이언트의 대답을 받으면 사전 설정이 완료되었다고 승인하고, 이제 다음 설정 작업으로 넘어갑니다: 
 ```java
 public void onAck(AckPayload payload, ConfigurationPayloadContext context) {
     context.taskCompletedHandler().onTaskCompleted(MyConfigurationTask.TYPE);
 }
 ```
-Where `onAck` is the handler for the payload that was sent by the client.
+여기서 `onAck`는 클라이언트가 보낸 승인 패킷을 처리하는 함수입니다.
 
-## Stalling the login process
-When the configuration is not acknowledged, then the server will wait forever, and the client will never join the game.
-So it is important to always acknowledge the configuration task, unless the configuration task failed, then you can disconnect the client.
+## 로그인 지연
+사전 설정이 승인되지 않는다면 서버는 계속 기다리고, 클라이언트는 게임에 접속하지 못합니다. 그러기에 설정 성공 시 무조건 완료로 표시되어야 하고, 실패 시 바로 클라이언트와의 연결을 끊어야 합니다.

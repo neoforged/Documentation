@@ -1,6 +1,6 @@
-# Registering Payloads
+# 새로운 패킷 등록하기
 
-Payloads are a way to send arbitrary data between the client and the server. They are registered using the `IPayloadRegistrar` that can be retrieved for a given namespace from the `RegisterPayloadHandlerEvent` event.
+패킷은 임의의 데이터를 클라이언트와 서버가 서로 주고받을 때 사용합니다. 각 패킷은 한 네임 스페이스 아래 `IPayloadRegistrar`(패킷 집합)에 등록하며, 이는 `RegisterPayloadHandlerEvent`를 통해 받을 수 있습니다.  
 ```java
 @SubscribeEvent
 public static void register(final RegisterPacketHandlerEvent event) {
@@ -8,12 +8,12 @@ public static void register(final RegisterPacketHandlerEvent event) {
 }
 ```
 
-Assuming we want to send the following data:
+예를 들어 아래 데이터를 전송한다고 할 때:
 ```java
 public record MyData(String name, int age) {}
 ```
 
-Then we can implement the `CustomPacketPayload` interface to create a payload that can be used to send and receive this data.
+`CustomPacketPayload`인터페이스를 구현하여 네트워크로 전송될 수 있도록 만드세요.
 ```java
 public record MyData(String name, int age) implements CustomPacketPayload {
     
@@ -35,10 +35,9 @@ public record MyData(String name, int age) implements CustomPacketPayload {
     }
 }
 ```
-As you can see from the example above the `CustomPacketPayload` interface requires us to implement the `write` and `id` methods. The `write` method is responsible for writing the data to the buffer, and the `id` method is responsible for returning a unique identifier for this payload.
-We then also need a reader to register this later on, here we can use a custom constructor to read the data from the buffer.
+위 예시에 나온 것처럼 `CustomPacketPayload`는 `write`, `id` 메서드가 필요합니다. `write`는 버퍼에 데이터를 작성할 때 사용하고, `id`는 각 패킷을 구분할 때 사용합니다. 이뿐만 아니라 버퍼에서 데이터를 읽어 패킷을 복호화하는 메서드도 필요합니다. 위 예제에선 생성자를 통해 버퍼를 읽습니다.
 
-Finally, we can register this payload with the registrar:
+마지막으로, 위 패킷 집합에 등록하세요:
 ```java
 @SubscribeEvent
 public static void register(final RegisterPacketHandlerEvent event) {
@@ -48,17 +47,16 @@ public static void register(final RegisterPacketHandlerEvent event) {
             .server(ServerPayloadHandler.getInstance()::handleData));
 }
 ```
-Dissecting the code above we can notice a couple of things:
-- The registrar has a `play` method, that can be used for registering payloads which are send during the play phase of the game.
-  - Not visible in this code are the methods `configuration` and `common`, however they can also be used to register payloads for the configuration phase. The `common` method can be used to register payloads for both the configuration and play phase simultaneously.
-- The constructor of `MyData` is used as a method reference to create a reader for the payload.
-- The third argument for the registration method is a callback that can be used to register the handlers for when the payload arrives at either the client or server side.
-  - The `client` method is used to register a handler for when the payload arrives at the client side.
-  - The `server` method is used to register a handler for when the payload arrives at the server side.
-  - There is additionally a secondary registration method `play` on the registrar itself that accepts a handler for both the client and server side, this can be used to register a handler for both sides at once.
+위 코드를 들여다보면 몇 가지 중요 사항을 발견할 수 있습니다:
+- 패킷 집합엔 `play` 메서드가 있습니다, 이는 게임 플레이 중 전송될 패킷을 등록할 때 사용합니다.
+  - `play` 말고도 로그인 이전 사전 설정에 사용하는 `configuration`도 있으며, 게임 플레이와 사전 설정 단계에서 동시에 사용할 패킷을 등록하는 `common`도 있습니다.
+- `MyData`를 버퍼에서 읽는 메서드로 생성자를 사용했습니다.
+- 위 메서드의 세 번째 인자는 패킷이 클라이언트, 또는 서버에 도착했을 때 실행할 동작을 지정합니다.
+  - `client` 메서드는 패킷이 클라이언트에 도착했을 때 실행할 동작을 지정합니다.
+  - `server` 메서드는 패킷이 서버에 도착했을 때 실행할 동작을 지정합니다.
+  - 또한, `play`는 한 번에 클라이언트와 서버에서 동일한 동작을 지정해 주는 동명 메서드가 있습니다.
 
-Now that we have registered the payload we need to implement a handler.
-For this example we will specifically take a look at the client side handler, however the server side handler is very similar.
+이제 새로운 패킷을 등록했으니 수신 시 수행할 동작을 구현하겠습니다. 간결함을 위해 클라이언트 수신시 동작만 다루겠지만, 서버도 이와 동일합니다.
 ```java
 public class ClientPayloadHandler {
     
@@ -69,30 +67,29 @@ public class ClientPayloadHandler {
     }
     
     public void handleData(final MyData data, final PlayPayloadContext context) {
-        // Do something with the data, on the network thread
+        // 네트워크 스레드에서 패킷 데이터 사용
         blah(data.name());
         
-        // Do something with the data, on the main thread
+        // 메인 스레드에서 데이터 사용
         context.workHandler().submitAsync(() -> {
             blah(data.age());
         })
         .exceptionally(e -> {
-            // Handle exception
+            // 예외 처리
             context.packetHandler().disconnect(Component.translatable("my_mod.networking.failed", e.getMessage()));
             return null;
         });
     }
 }
 ```
-Here a couple of things are of note: 
-- The handling method here gets the payload, and a contextual object. The contextual object is different for the play and configuration phase, and if you register a common packet, then it will need to accept the super type of both contexts.
-- The handler of the payload method is invoked on the networking thread, so it is important to do all the heavy work here, instead of blocking the main game thread.
-- If you want to run code on the main game thread you can use the `workHandler` of the context to submit a task to the main thread.
-  - The `workHandler` will return a `CompletableFuture` that will be completed on the main thread, and can be used to submit tasks to the main thread.
-  - Notice: A `CompletableFuture` is returned, this means that you can chain multiple tasks together, and handle exceptions in a single place.
-  - If you do not handle the exception in the `CompletableFuture` then it will be swallowed, **and you will not be notified of it**.
+위 예시에서 주목하실 점은:
+- 패킷 처리 함수는 패킷만 받는 게 아니라, 패킷을 누가 수신했는지, 보낸 사람은 누군지 등을 내포하는 맥락(context)도 전달받습니다. `#play`로 등록한 패킷과 `#configuration`으로 등록한 패킷은 전달받는 맥락의 타입이 다르기 때문에(`PlayPayloadContext` vs `ConfigurationPayloadContext`), 패킷 집합에 `#common`을 통해 등록하셨다면 `IPayloadContext`를 대신 인자로 받으셔야 합니다.
+- 패킷 처리 함수는 네트워크 스레드에서 호출됩니다. 본 게임과 병렬적으로 실행되기 때문에 부하가 큰 작업은 여기서 수행하세요.
+- 만약 메인 스레드에서 코드를 실행해야 한다면 `workHandler`를 통해 메인 스레드에 작업을 전송하실 수 있습니다.
+  - `workHandler`는 메인 스레드에 작업을 전송할 `ISynchronizedWorkHandler`를 반환합니다.
+  - `submitAsync`는 `CompletableFuture`를 반환합니다. 한번에 다른 `Future`와 엮고 예외처리를 하실 수 있습니다.
+  - `CompletableFuture`의 예외를 처리하지 않으시면 무시되어 **오류가 났는지도 모를 수 있습니다**.
 
-Now that you know how you can facilitate the communication between the client and the server for your mod, you can start implementing your own payloads.
-With your own payloads you can then use those to configure the client and server using [Configuration Tasks][]
+이제 클라이언트와 서버 간 통신하는 법을 알았으니 새로운 패킷을 만들어 보세요. 직접 만든 패킷을 사전 설정 단계에서 사용하시려면 [여기][Configuration Tasks]를 참고하세요. 
 
 [Configuration Tasks]: ./configuration-tasks.md
