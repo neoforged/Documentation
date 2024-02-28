@@ -3,7 +3,7 @@
 패킷은 임의의 데이터를 클라이언트와 서버가 서로 주고받을 때 사용합니다. 각 패킷은 한 네임 스페이스 아래 `IPayloadRegistrar`(패킷 집합)에 등록하며, 이는 `RegisterPayloadHandlerEvent`를 통해 받을 수 있습니다.  
 ```java
 @SubscribeEvent
-public static void register(final RegisterPacketHandlerEvent event) {
+public static void register(final RegisterPayloadHandlerEvent event) {
     final IPayloadRegistrar registrar = event.registrar("mymod");
 }
 ```
@@ -40,9 +40,9 @@ public record MyData(String name, int age) implements CustomPacketPayload {
 마지막으로, 위 패킷 집합에 등록하세요:
 ```java
 @SubscribeEvent
-public static void register(final RegisterPacketHandlerEvent event) {
+public static void register(final RegisterPayloadHandlerEvent event) {
     final IPayloadRegistrar registrar = event.registrar("mymod");
-    registar.play(MyData.ID, MyData::new, handler -> handler
+    registrar.play(MyData.ID, MyData::new, handler -> handler
             .client(ClientPayloadHandler.getInstance()::handleData)
             .server(ServerPayloadHandler.getInstance()::handleData));
 }
