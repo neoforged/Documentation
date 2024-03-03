@@ -109,6 +109,10 @@ modId = "examplemod2"
 | `displayURL`    | string  |          *nothing*          |                                                                                                       A URL to the display page of the mod shown on the mod list screen.                                                                                                       | `displayURL="https://neoforged.net/"`                           |
 | `displayTest`   | string  |      `"MATCH_VERSION"`      |                                                                                                                                  See [sides].                                                                                                                                  | `displayTest="NONE"`                                            |
 
+:::note
+Some properties (`displayName` and `description`) can also be localized using language files. See [Internationalization and Localization][i18n] for more detail.
+:::
+
 #### Features
 
 The features system allows mods to demand that certain settings, software, or hardware are available when loading the system. When a feature is not satisfied, mod loading will fail, informing the user about the requirement. Currently, NeoForge provides the following features:
@@ -166,6 +170,7 @@ There must be a 1-to-1 matching of mods in the `mods.toml` file and `@Mod` entry
 [events]: ../concepts/events.md
 [features]: #features
 [group]: #the-group-id
+[i18n]: ../concepts/internationalization.md#mod-metadata
 [javafml]: #javafml-and-mod
 [jei]: https://www.curseforge.com/minecraft/mc-mods/jei
 [lowcodefml]: #lowcodefml
