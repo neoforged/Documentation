@@ -200,5 +200,5 @@ public static final Supplier<CreativeModeTab> EXAMPLE_TAB = CREATIVE_MODE_TABS.r
 [modbus]: ../concepts/events.md#event-buses
 [nbt]: ../datastorage/nbt.md
 [registering]: ../concepts/registries.md#methods-for-registering
-[resources]: ../resources/client/index.md
+[resources]: ../resources/index.md#assets
 [sides]: ../concepts/sides.md

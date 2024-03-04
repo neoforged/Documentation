@@ -152,6 +152,6 @@ If you do not own the screen which you are trying to check a **mouse** for, you 
 
 [modbus]: ../concepts/events.md#event-buses
 [controls]: https://minecraft.wiki/w/Options#Controls
-[tk]: ../concepts/internationalization.md#translatablecontents
+[tk]: ../resources/client/i18n.md#components
 [keyinput]: https://www.glfw.org/docs/3.3/input_guide.html#input_key
 [forgebus]: ../concepts/events.md#registering-an-event-handler
