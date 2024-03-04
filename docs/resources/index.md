@@ -1,0 +1,171 @@
+# Resources
+
+Resources are external files that are used by the game, but are not code. The most prominent kinds of resources are textures, however, many other types of resources exist in the Minecraft ecosystem.
+
+Minecraft generally has two kinds of resources: client-side resources, known as assets, and server-side resources, known as data. Assets are mostly display-only information, for example textures, display models, translations, or sounds, while data includes various things that affect gameplay, such as loot tables, recipes, or worldgen information. They are loaded from resource packs and data packs, respectively. NeoForge generates a built-in resource and data pack for every mod.
+
+Both resource and data packs normally require a [`pack.mcmeta` file][packmcmeta], this was also the case in past Forge versions. However, NeoForge generates these at runtime for you, so you don't need to worry about it anymore.
+
+## Assets
+
+_See also: [Resource Packs][mcwikiresourcepacks] on the [Minecraft Wiki][mcwiki]_
+
+Assets, or client-side resources, are all resources that are only relevant on the [client][sides]. They are loaded from resource packs, sometimes also known by the old term texture packs (stemming from old versions when they could only affect textures). A resource pack is basically an `assets` folder. The `assets` folder contains subfolders for the various namespaces the resource pack includes; every namespace is one subfolder. For example, a resource pack for a mod with the id `coolmod` will probably contain a `coolmod` namespace, but may additionally include other namespaces, such as `minecraft`.
+
+NeoForge automatically collects all mod resource packs into the `Mod resources` pack, which sits at the bottom of the Selected Packs side in the resource packs menu. It is currently not possible to disable the `Mod resources` pack. However, resource packs that sit above the `Mod resources` pack override resources defined in a resource pack below them. This mechanic allows resource pack makers to override your mod's resources, and also allows mod developers to override Minecraft resources if needed.
+
+Resource packs can contain textures, sounds and translation files, along with block models, item models, and blockstate model definitions. (TODO add links)
+
+## Data
+
+_See also: [Data Packs][mcwikidatapacks] on the [Minecraft Wiki][mcwiki]_
+
+In contrast to assets, data is the term for all [server][sides] resources. Similar to resource packs, data is loaded through data packs (or datapacks). Like a resource pack, a data pack consists of a [`pack.mcmeta` file][packmcmeta] and a root folder, named `data`. Then, again like with resource packs, that `data` folder contains subfolders for the various namespaces the resource pack includes; every namespace is one subfolder. For example, a data pack for a mod with the id `coolmod` will probably contain a `coolmod` namespace, but may additionally include other namespaces, such as `minecraft`.
+
+NeoForge automatically applies all mod data packs to a new world upon creation. It is currently not possible to disable mod data packs. However, most data files can be overridden (and thus be removed by replacing them with an empty file) by a data pack with a higher priority. Additional data packs can be enabled or disabled by placing them in a world's `datapacks` subfolder and then enabling or disabling them through the [`/datapack`][datapackcmd] command.
+
+:::info
+There is currently no built-in way to apply a set of custom data packs to every world. However, there are a number of mods that achieve this.
+:::
+
+Data packs may contain folders with files affecting the following things (TODO add links):
+
+| Folder name                               | Contents       |
+|-------------------------------------------|----------------|
+| `advancements`                            | Advancements   |
+| `damage_type`                             | Damage types   |
+| `loot_tables`                             | Loot tables    |
+| `recipes`                                 | Recipes        |
+| `structures`                              | Structures     |
+| `tags`                                    | Tags           |
+| `dimension`, `dimension_type`, `worldgen` | Worldgen files |
+
+Additionally, they may also contain subfolders for some systems that integrate with commands. These systems are rarely used in conjunction with mods, but worth mentioning regardless:
+
+| Folder name      | Contents                       |
+|------------------|--------------------------------|
+| `chat_type`      | [Chat types][chattype]         |
+| `functions`      | [Functions][function]          |
+| `item_modifiers` | [Item modifiers][itemmodifier] |
+| `predicates`     | [Predicates][predicate]        |
+
+## `pack.mcmeta`
+
+_See also: [`pack.mcmeta` (Resource Pack)][packmcmetaresourcepack] and [`pack.mcmeta` (Data Pack)][packmcmetadatapack] on the [Minecraft Wiki][mcwiki]_
+
+`pack.mcmeta` files hold the metadata of a resource or data pack. For mods, NeoForge makes this file obsolete, as the `pack.mcmeta` is generated synthetically. In case you still need a `pack.mcmeta` file, the full specification can be found in the linked Minecraft Wiki articles.
+
+## Data Generation
+
+Data generation, colloquially known as datagen, is a way to programmatically generate JSON resource files, in order to avoid the tedious and error-prone process of writing them by hand. The name is a bit misleading, as it works for assets as well as data.
+
+Datagen is run through the Data run configuration, which is generated for you alongside the Client and Server run configurations. The data run configuration follows the [mod lifecycle][lifecycle] until after the registry events are fired. It then fires the [`GatherDataEvent`][event], in which you can register your to-be-generated objects in the form of data providers, writes said objects to disk, and ends the process.
+
+All data providers extend the `DataProvider` interface and usually require one method to be overridden. The following is a list of all data generators Minecraft and NeoForge offer (the linked articles add further information, such as helper methods, TODO add links):
+
+| Class                                | Method                           | Generates                                  | Side   | Notes                                                                                                                                                                                                                         |
+|--------------------------------------|----------------------------------|--------------------------------------------|--------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `BlockStateProvider`                 | `registerStatesAndModels()`      | Blockstate model definitions, block models | Client |                                                                                                                                                                                                                               |
+| `ItemModelProvider`                  | `registerModels()`               | Item models                                | Client |                                                                                                                                                                                                                               |
+| `LanguageProvider`                   | `addTranslations()`              | Translations                               | Client | Also requires passing the language in the constructor.                                                                                                                                                                        |
+| `ParticleDescriptionProvider`        | `addDescriptions()`              | Particle definitions                       | Client |                                                                                                                                                                                                                               |
+| `SoundDefinitionsProvider`           | `registerSounds()`               | Sound definitions                          | Client |                                                                                                                                                                                                                               |
+| `AdvancementProvider`                | `generate()`                     | Advancements                               | Server | Make sure to use the NeoForge variant, not the Minecraft one.                                                                                                                                                                 |
+| `LootTableProvider`                  | `generate()`                     | Loot tables                                | Server | Requires extra methods and classes to work properly, see linked article for details.                                                                                                                                          |
+| `RecipeProvider`                     | `buildRecipes(RecipeOutput)`     | Recipes                                    | Server |                                                                                                                                                                                                                               |
+| Various subclasses of `TagsProvider` | `addTags(HolderLookup.Provider)` | Tags                                       | Server | Several specialized subclasses exist, for example `BlockTagsProvider`. If the one you need doesn't exist, extend `TagsProvider` (or `IntrinsicHolderTagsProvider` if applicable) with your tag type as the generic parameter. |
+| `DatapackBuiltinEntriesProvider`     | N/A                              | Datapack builtin entries, e.g. worldgen    | Server | See linked article for details.                                                                                                                                                                                               |
+| `DataMapProvider`                    | `gather()`                       | Data map entries                           | Server |                                                                                                                                                                                                                               |
+| `GlobalLootModifierProvider`         | `start()`                        | Global loot modifiers                      | Server |                                                                                                                                                                                                                               |
+
+All of these providers follow the same pattern. First, you create a subclass and add your own resources to be generated. Then, you add the provider to the event in an [event handler][eventhandler]. An example using a `RecipeProvider`:
+
+```java
+public class MyRecipeProvider extends RecipeProvider {
+    public MyRecipeProvider(PackOutput output) {
+        super(output);
+    }
+    
+    @Override
+    protected void buildRecipes(RecipeOutput output) {
+        // Register your recipes here.
+    }
+}
+
+@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD, modid = "examplemod")
+public class MyDatagenHandler {
+    @SubscribeEvent
+    public static void gatherData(GatherDataEvent event) {
+        // Data generators may require some of these as constructor parameters.
+        // See below for more details on each of these.
+        DataGenerator generator = event.getGenerator();
+        PackOutput output = generator.getPackOutput();
+        ExistingFileHelper existingFileHelper = event.getExistingFileHelper();
+        CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
+        
+        // Register the provider.
+        generator.addProvider(
+                // A boolean that determines whether the data should actually be generated.
+                // The event provides methods that determine this:
+                // event.includeClient(), event.includeServer(),
+                // event.includeDev() and event.includeReports().
+                // Since recipes are server data, we only run them in a server datagen.
+                event.includeServer(),
+                // Our provider.
+                new MyRecipeProvider(output)
+        );
+        // Other data providers here.
+    }
+}
+```
+
+The event offers some context for you to use:
+
+- `event.getGenerator()` returns the `DataGenerator` that you register the providers to.
+- `event.getPackOutput()` returns a `PackOutput` that is used by some providers to determine their file output location.
+- `event.getExistingFileHelper()` returns an `ExistingFileHelper` that is used by providers for things that can reference other files (for example block models, which can specify a parent file).
+- `event.getLookupProvider()` returns a `CompletableFuture<HolderLookup.Provider>` that is mainly used by tags and datagen registries to reference other, potentially not yet existing elements.
+- `event.includeClient()`, `event.includeServer()`, `event.includeDev()` and `event.includeReports()` are `boolean` methods that allow you to check whether specific command line arguments (see below) are enabled.
+
+### Command Line Arguments
+
+The data generator can accept several command line arguments:
+
+- `--mod examplemod`: Tells the data generator to run datagen for this mod. Automatically added by NeoGradle for the owning mod id, add this if you e.g. have multiple mods in one project.
+- `--output path/to/folder`: Tells the data generator to output into the given folder. It is recommended to use Gradle's `file(...).getAbsolutePath()` to generate an absolute path for you (with a path relative to the project root directory). Defaults to `file('src/generated/resources').getAbsolutePath()`.
+- `--existing path/to/folder`: Tells the data generator to consider the given folder when checking for existing files. Like with the output, it is recommended to use Gradle's `file(...).getAbsolutePath()`.
+- `--existing-mod examplemod`: Tells the data generator to consider the resources in the given mod's JAR file when checking for existing files.
+- Generator modes (all of these are boolean arguments and do not need any additional arguments):
+  - `--includeClient`: Whether to generate client resources (assets). Check at runtime with `GatherDataEvent#includeClient()`.
+  - `--includeServer`: Whether to generate server resources (data). Check at runtime with `GatherDataEvent#includeServer()`.
+  - `--includeDev`: Whether to run dev tools. Generally shouldn't be used by mods. Check at runtime with `GatherDataEvent#includeDev()`.
+  - `--includeReports`: Whether to dump a list of registered objects. Check at runtime with `GatherDataEvent#includeReports()`.
+  - `--all`: Enable all generator modes.
+
+All arguments can be added to the run configurations by adding the following to your `build.gradle`:
+
+```groovy
+runs {
+    // other run configurations here
+    
+    data {
+        programArguments.addAll '--arg1', 'value1', '--arg2', 'value2', '--all' // boolean args have no value
+    }
+}
+```
+
+[chattype]: https://minecraft.wiki/w/Chat_type
+[datapackcmd]: https://minecraft.wiki/w/Commands/datapack
+[event]: ../concepts/events.md
+[eventhandler]: ../concepts/events.md#registering-an-event-handler
+[function]: https://minecraft.wiki/w/Function_(Java_Edition)
+[itemmodifier]: https://minecraft.wiki/w/Item_modifier
+[lifecycle]: ../concepts/events.md#the-mod-lifecycle
+[mcwiki]: https://minecraft.wiki
+[mcwikidatapacks]: https://minecraft.wiki/w/Data_pack
+[mcwikiresourcepacks]: https://minecraft.wiki/w/Resource_pack
+[packmcmeta]: #packmcmeta
+[packmcmetadatapack]: https://minecraft.wiki/w/Data_pack#pack.mcmeta
+[packmcmetaresourcepack]: https://minecraft.wiki/w/Resource_pack#Contents
+[predicate]: https://minecraft.wiki/w/Predicate
+[sides]: ../concepts/sides.md
