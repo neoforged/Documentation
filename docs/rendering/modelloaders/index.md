@@ -1,25 +1,26 @@
-Custom Model Loaders
-====================
+모델 로더
+=============
 
-A "model" is simply a shape. It can be a simple cube, it can be several cubes, it can be a truncated icosidodecahedron, or anything in between. Most models you'll see will be in the vanilla JSON format. Models in other formats are loaded into `IUnbakedGeometry`s by an `IGeometryLoader` at runtime. Forge provides default implementations for WaveFront OBJ files, buckets, composite models, models in different render layers, and a reimplementation of Vanilla's `builtin/generated` item model. Most things do not care about what loaded the model or what format it's in as they are all eventually represented by an `BakedModel` in code.
+"모델"은 무언가의 생김새를 표현합니다. 단순한 정육면체 일 수도 있고, 다수의 정육면체 일 수도 있고, 아니면 십이이십면체일 수도 있습니다. 대다수의 마인크래프트 모델들은 JSON 형식으로 표현됩니다. 그 외 형식의 모델들은 `IGeometryLoader`를 통해 `IUnbakedGeometry`로 불러와 집니다. 포지는 WaveFront OBJ 파일, 양동이, 합성 모델(여러 모델을 합친 것), 다른 렌더 계층을 사용하는 모델을 지원하며, 기본 아이템 모델의 `builtin/generated`를 개선합니다. 모든 모델은 결국엔 `BakedModel`로 변환되기에 코드에선 무엇이, 어떤 형식의 모델을 어떻게 불러왔는지는 중요하지 않습니다.
 
 :::caution
-Specifying a custom model loader through the top-level `loader` entry in a model JSON will cause the `elements` entry to be ignored unless it is consumed by the custom loader. All other vanilla entries will still be loaded and available in the unbaked `BlockModel` representation and may be consumed outside of the custom loader.
+모델 JSON 파일의 로더를 `loader` 항목으로 변경할 경우, 로더에 따라 `elements` 항목이 무시될 수도 있습니다. 그 외 다른 항목들은 모델 로더 이외에서도 사용되기 때문에 `BlockModel`에 불러와집니다.
 :::
 
-WaveFront OBJ Models
+WaveFront OBJ 모델 파일
 --------------------
 
-Forge adds a loader for the `.obj` file format. To use these models, the JSON must reference the `forge:obj` loader. This loader accepts any model location that is in a registered namespace and whose path ends in `.obj`. The `.mtl` file should be placed in the same location with the same name as the `.obj` to be used automatically. The `.mtl` file will probably have to be manually edited to change the paths pointing to textures defined within the JSON. Additionally, the V axis for textures may be flipped depending on the external program that created the model (i.e. V = 0 may be the bottom edge, not the top). This may be rectified in the modelling program itself or done in the model JSON like so:
+포지는 `.obj` 모델 로더를 추가합니다. `.obj` 모델을 사용하려면, 모델 JSON에서 `forge:obj` 로더를 사용해야 합니다. 이 모델 로더는 같은 네임 스페이스 아래 `.obj`로 끝나는 아무 모델이나 불러올 수 있습니다. 재질 파일 `.mtl`을 자동으로 불러오려면 `.obj`와 같은 경로에, 같은 이름을 가져야 합니다. 이때 모델 JSON에서 지정한 텍스쳐를 재질에 사용하려면 `.mtl`의 재질 텍스쳐 경로를 수정하여야 합니다. 추가적으로, 모델링 프로그램에 따라 V축의 방향을 다르게 사용하기 때문에 텍스쳐의 V 축을 모델링 프로그램에서, 또는 아래와 같이 모델 파일에서 뒤집을 수 있습니다:
 
 ```js
 {
-  // Add the following line on the same level as a 'model' declaration
+  // 아래 항목을 model 항목과 같은 층에 추가할 것
   "loader": "forge:obj",
+  // V 축 뒤집기
   "flip_v": true,
   "model": "examplemod:models/block/model.obj",
   "textures": {
-    // Can refer to in .mtl using #texture0
+    // .mtl 파일에서 #texture0을 텍스쳐 경로로 사용하면 자동으로 아래 텍스쳐를 사용함
     "texture0": "minecraft:block/dirt",
     "particle": "minecraft:block/dirt"
   }

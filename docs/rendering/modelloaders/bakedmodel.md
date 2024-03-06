@@ -1,56 +1,62 @@
 `BakedModel`
 =============
 
-`BakedModel` is the result of calling `UnbakedModel#bake` for the vanilla model loader or `IUnbakedGeometry#bake` for custom model loaders. Unlike `UnbakedModel` or `IUnbakedGeometry`, which purely represents a shape without any concept of items or blocks, `BakedModel` is not as abstract. It represents geometry that has been optimized and reduced to a form where it is (almost) ready to go to the GPU. It can also process the state of an item or block to change the model.
+`BakedModel`은 바닐라 모델 로더의 `UnbakedModel#bake`, 또는 모드가 추가한 모델 로더의 `IUnbakedGeometry#bake`를 호출하면 생성되는 것으로, 아이템/블록 등의 개념 없이 추상적인 모양만 정의하는 `UnbakedModel` 또는 `IUnbakedGeometry`와 다르게, `BakedModel`은 GPU로 보낼 준비가 (거의) 다 된 구체적이고 최적화된 모델을 표현합니다. 또한 아이템 및 블록의 상태에 따라 생김새를 바꿀 수도 있습니다.
 
-In a majority of cases, it is not really necessary to implement this interface manually. One can instead use one of the existing implementations.
+`BakedModel` 인터페이스를 구현해야 하는 경우는 거의 없습니다. 해당 인터페이스를 구현하는 다른 클래스를 사용하는 것이 권장됩니다.
 
 ### `getOverrides`
 
-Returns the [`ItemOverrides`][overrides] to use for this model. This is only used if this model is being rendered as an item.
+해당 모델의 [`ItemOverrides`][overrides]를 반환합니다. 모델을 아이템처럼 그려낼 때만 사용됩니다.
 
 ### `useAmbientOcclusion`
 
-If the model is rendered as a block in the level, the block in question does not emit any light, and ambient occlusion is enabled. This causes the model to be rendered with [ambient occlusion](ambocc).
+모델이 레벨의 블록으로 그려지고, 해당 블록은 빛을 발산하지 않고, 마지막으로 주변광 차폐(Ambient Occulusion)를 사용한다면 `true`를 반환합니다.
 
 ### `isGui3d`
 
-If the model is rendered as an item in an inventory, on the ground as an entity, on an item frame, etc., this makes the model look "flat." In GUIs, this also disables the lighting.
+아이템의 모델을 3D로 그려야 하는지를 반환합니다. 땅에 떨어진 아이템 엔티티, 액자에 걸린 아이템, 인벤토리의 블록 아이템 등은 `true`를 반환합니다.  
+
+### `usesBlockLight`
+
+아이템의 모델에 블록과 유사한 조명 효과를 적용할지를 반환합니다. 인벤토리의 블록 아이템의 각 면의 밝기를 다르게 만듭니다.
+
 
 ### `isCustomRenderer`
 
 :::caution
-Unless you know what you're doing, just `return false` from this and continue on.
+무엇을 만드시는지 잘 모른다면 `false`를 반환하세요.
 :::
 
-When rendering this as an item, returning `true` causes the model to not be rendered, instead falling back to `BlockEntityWithoutLevelRenderer#renderByItem`. For certain vanilla items such as chests and banners, this method is hardcoded to copy data from the item into a `BlockEntity`, before using a `BlockEntityRenderer` to render that BE in place of the item. For all other items, it will use the `BlockEntityWithoutLevelRenderer` instance provided by `IClientItemExtensions#getCustomRenderer`. Refer to [BlockEntityWithoutLevelRenderer][bewlr] page for more information.
+`true` 반환 시 아이템을 그릴 때 해당 모델을 무시합니다, 그 대신 `BlockEntityWithoutLevelRenderer#renderByItem`를 사용해 그립니다. 상자, 엔더 상자, 셜커와 현수막 등은 `true`를 반환하며, 그려질 때 아이템의 데이터를 `BlockEntity`에 복사하고 그 자리에 `BlockEntityRenderer`를 사용해 블록 엔티티를 대신 그립니다. 자세한 사항은 [BlockEntityWithoutLevelRenderer][bewlr]를 참고하세요.
 
 ### `getParticleIcon`
 
-Whatever texture should be used for the particles. For blocks, this shows when an entity falls on it, when it breaks, etc. For items, this shows when it breaks or when it's eaten.
+모델의 파티클로 무슨 텍스쳐를 쓸지를 반환합니다. 블록의 경우 엔티티가 위에 낙하할 때 또는 블록이 파괴될 때 파티클을 표시하며, 아이템의 경우 플레이어가 섭취하거나 파괴될 때 표시됩니다.
 
-!!! important
-    The vanilla method with no parameters has been deprecated in favor of `#getParticleIcon(ModelData)` since model data can have an effect on how a particular model might be rendered.
+:::important
+아무런 인자도 받지 않는 마인크래프트 바닐라 메서드는 더 이상 사용되지 않습니다. 그 대신 모델 데이터를 전달할 수 있는 `#getParticleIcon(ModelData)`를 사용하세요.
+:::
 
 ### <s>`getTransforms`</s>
 
-Deprecated in favor of implementing `#applyTransform`. The default implementation is fine if `#applyTransform` is implemented. See [Transform][transform].
+`#applyTransform`으로 대체되어 더 이상 필요하지 않습니다. `#applyTransform`이 구현되어 있다면 재정의할 필요될 없습니다. 자세한 사항은 [모델 변환][transform]을 참고하세요.
 
 ### `applyTransform`
 
-See [Transform][transform].
+[모델 변환][transform]을 참고하세요.
 
 ### `getQuads`
 
-This is the main method of `BakedModel`. It returns a list of `BakedQuad`s: objects which contain the low-level vertex data that will be used to render the model. If the model is being rendered as a block, then the `BlockState` passed in is non-null. If the model is being rendered as an item, the `ItemOverrides` returned from `#getOverrides` is responsible for handling the state of the item, and the `BlockState` parameter will be `null`.
+이 메서드는 `BakedModel`의 핵심입니다. 다수의 `BakedQuad`들을 반환하는데, 이는 모델을 그릴때 필요한 저수준 꼭짓점 데이터를 담고 있습니다. 만약 모델을 블록으로 그린다면 null이 아닌 `BlockState` 값이 전달됩니다. 모델을 아이템으로 그린다면 `#getOverrides`가 반환한 `ItemOverrides`가 아이템의 데이터를 대신 전달하고, `BlockState`는 null이 전달됩니다.
 
-The `Direction` passed in is used for face culling. If the block against the given side of another block being rendered is opaque, then the faces associated with that side are not rendered. If that parameter is `null`, all faces not associated with a side are returned (that will never be culled).
+`Direction` 인자는 모델의 면중 특정 방향을 바라보는 면만 반환해야 할 때 사용됩니다. 주로 보이지 않는 면을 잘라내기 위해 사용됩니다. 만약 블록의 면이 다른 불투명한 블록의 면과 맞닿아 있어 보이지 않는다면 해당 면은 잘려 그려지지 않습니다. 만약 방향으로 `null`이 전달되었을 경우, 특정 방향과 관련 없는 면들을 반환합니다. 이때 이 면들은 잘리지 않습니다.
 
-The `rand` parameter is an instance of Random.
+`rand`는 모델에 다양성을 부여하기 위한 `Random` 객체입니다.
 
-It also takes in a non null `ModelData` instance. This can be used to define extra data when rendering the specific model via `ModelProperty`s. For example, one such property is `CompositeModel$Data`, which is used to store any additional submodel data for a model using the `forge:composite` model loader.
+`ModelData`인자는 `ModelProperty`를 통해 모델의 속성을 전달해 필요에 따라 다른 모델로 교체할 때 사용됩니다.
 
-Note that this method is called very often: once for every combination of non-culled face and supported block render layer (anywhere between 0 to 28 times) *per block in a level*. This method should be as fast as possible, and should probably cache heavily.
+`getQuads` 메서드는 매우 자주 호출됩니다: *레벨의 각 블록마다*, 블록의 각 렌더 계층과 잘리지 않는 면의 모든 조합마다 한 번씩 호출되기 가능한 한 최적화되어야 합니다.
 
 [overrides]: ./itemoverrides.md
 [ambocc]: https://en.wikipedia.org/wiki/Ambient_occlusion

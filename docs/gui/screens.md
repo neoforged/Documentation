@@ -1,44 +1,41 @@
-# Screens
+# 스크린
 
-Screens are typically the base of all Graphical User Interfaces (GUIs) in Minecraft: taking in user input, verifying it on the server, and syncing the resulting action back to the client. They can be combined with [menus] to create an communication network for inventory-like views, or they can be standalone which modders can handle through their own [network] implementations.
+스크린(Screen)은 마인크래프트의 모든 GUI의 기반이 됩니다: 사용자의 입력을 받고, 서버에서 검증한 다음, 그 결과를 다시 클라이언트에 전송합니다. 이들은 [메뉴][menus]와 결합하여 인벤토리를 통한 통신 기능을 구현할 수 있고, 아니면 직접 [패킷][network]을 만들 수도 있습니다.
 
-Screens are made up of numerous parts, making it difficult to fully understand what a 'screen' actually is in Minecraft. As such, this document will go over each of the screen's components and how it is applied before discussing the screen itself.
+스크린은 여러가지로 구성되어 있어 하나로 정리하기 어렵기에, 이 문서에선 각 부분을 상세히 다루고 나서 스크린을 만들도록 하겠습니다. 
 
-## Relative Coordinates
+## 상대 좌표
 
-Whenever anything is rendered, there needs to be some identifier which specifies where it will appear. With numerous abstractions, most of Minecraft's rendering calls takes in an x, y, and z value in a coordinate plane. X values increase from left to right, y from top to bottom, and z from far to near. However, the coordinates are not fixed to a specified range. They can change depending on the size of the screen and the scale at which is specified within the options. As such, extra care must be taken to make sure the values of the coordinates while rendering scale properly to the changeable screen size.
+화면에 무언가를 띄우기 위해선 UI의 위치를 지정해야 합니다. 마인크래프트는 x, y, z를 사용해 위치를 지정합니다. x는 왼쪽에서 오른쪽, y는 위에서 아래,, z는 멀리서 가까이 올 수록 값이 증가합니다. 하지만 이 좌표들의 범위는 고정되어 있지 않고 화면의 크기나 설정의 GUI 비율에 따라 달라질 수 있습니다. 그렇기에 화면의 크기에 따라 좌표값의 규모를 맞추는 것이 중요합니다.
 
-Information on how to relativize your coordinates will be within the [screen] section.
+좌표를 화면 크기에 상대적으로 맞추는 법은 [스크린][screen] 섹션에서 다룹니다.
 
 :::caution
-If you choose to use fixed coordinates or incorrectly scale the screen, the rendered objects may look strange or misplaced. An easy way to check if you relativized your coordinates correctly is to click the 'Gui Scale' button in your video settings. This value is used as the divisor to the width and height of your display when determining the scale at which a GUI should render.
+만약 고정 좌표를 사용하거나 화면의 규모에 좌표를 맞추지 못한다면 표시되는 요소들이 잘못된 곳에 배치될 수 있습니다. 비디오 설정의 `GUI 비율`을 바꿔가며 확인하시길 권장드립니다. 이 설정값은 UI의 가로/세로 길이를 나눌 때 사용됩니다. 
 :::
 
 ## Gui Graphics
 
-Any GUI rendered by Minecraft is typically done using `GuiGraphics`. `GuiGraphics` is the first parameter to almost all rendering methods; it contains basic methods to render commonly used objects. These fall into five categories: colored rectangles, strings, and textures, items, and tooltips. There is also an additional method for rendering a snippet of a component (`#enableScissor` / `#disableScissor`). `GuiGraphics` also exposes the `PoseStack` which applies the transformations necessary to properly render where the component should be rendered. Additionally, colors are in the [ARGB][argb] format.
+마인크래프트가 띄우는 모든 GUI는 `GuiGraphics`를 사용합니다. `GuiGraphics`는 마인크래프트의 모든 렌더링 함수의 첫번째 인자로, GUI에 많이 사용되는 요소를 띄우기 위해 필요한 기본 메서드들을 제공합니다. 이들은 대개 다음으로 나눌 수 있는데: 색칠된 직사각형, 문자열, 텍스쳐, 아이템, 그리고 툴팁입니다. 추가로 컴포넨트의 일부만 렌더링하는 함수도 있습니다(`#enableScissor` / `#disableScissor`). `GuiGraphics`은 UI 요소 이동에 필요한 `PoseStack`도 제공합니다. 또한, [ARGB][argb] 포맷을 사용합니다.
 
-### Colored Rectangles
+### 색칠된 직사각형
 
-Colored rectangles are drawn through a position color shader. There are three types of colored rectangles that can be drawn.
+색칠된 직사각형은 위치&색상 쉐이더를 사용해 그려집니다. 마인크래프트는 세 종류의 직사각형을 그릴 수 있는데:
+1. 픽셀 두깨의 수평/수직선. `#hLine`로 수평선, `#vLine`로 수직선을 구릴 수 있음. `#hLine`은 왼쪽 끝, 오른쪽 끝 픽셀의 x 좌표, 선이 놓여질 y 좌표, 그리고 색상을 인자로 받음. `#vLine`은 선이 놓여질 x 좌표, 맨 위 픽셀과 맨 아래 픽셀의 y 좌표, 그리고 색상을 인자로 받음.
+2. 직사각형을 그리는 `#fill` 함수, 위 `#hLine`과 `#vLine`은 내부적으로 `#fill`을 호출함. 왼쪽 위 픽셀의 x, y 좌표, 그리고 오른쪽 아래 픽셀의 x, y 좌표, 그리고 색상을 인자로 받음.
+3. 그라데이션을 적용하는 `#fillGradient` 함수, 그라데이션은 수직 방향으로 적용됨. 오른쪽 아래 픽셀의 x, y 좌표, 왼쪽 위 픽셀의 x, y 좌표, z 좌표, 그리고 아래, 위 색상을 인자로 받음.
 
-First, there is a colored horizontal and vertical one-pixel wide line, `#hLine` and `#vLine` respectively. `#hLine` takes in two x coordinates defining the left and right (inclusively), the top y coordinate, and the color. `#vLine` takes in the left x coordinate, two y coordinates defining the top and bottom (inclusively), and the color.
+### 문자열
 
-Second, there is the `#fill` method, which draws a rectangle to the screen. The line methods internally call this method. This takes in the left x coordinate, the top y coordinate, the right x coordinate, the bottom y coordinate, and the color.
-
-Finally, there is the `#fillGradient` method, which draws a rectangle with a vertical gradient. This takes in the right x coordinate, the bottom y coordinate, the left x coordinate, the top y coordinate, the z coordinate, and the bottom and top colors.
-
-### Strings
-
-Strings are drawn through its `Font`, typically consisting of their own shaders for normal, see through, and offset mode. There are two alignment of strings that can be rendered, each with a back shadow: a left-aligned string (`#drawString`) and a center-aligned string (`#drawCenteredString`). These both take in the font the string will be rendered in, the string to draw, the x coordinate representing the left or center of the string respectively, the top y coordinate, and the color.
+문자열은 `Font`를 사용해 그립니다, `Font`는 대개 투명도, 오프셋, 법선 등을 위해 자체적인 쉐이더를 사용합니다. 문자열은 왼쪽(`#drawString`), 또는 가운데(`#drawCenteredString`)에 정렬될 수 있고, 두 메서드 모두 사용할 폰트, 그릴 문자열, 문자열의 왼쪽 또는 중앙의 x 좌표, y좌표, 색상, 그리고 선택적으로 그림자 여부를 인자로 받습니다. 
 
 :::note
-Strings should typically be passed in as [`Component`s][component] as they handle a variety of usecases, including the two other overloads of the method.
+문자열은 일반적으로 기능이 많은 [컴포넌트][component]로 다룹니다. 위 두 메서드는 `String` 말고 `Component`도 받습니다.
 :::
 
-### Textures
+### 텍스쳐 (TODO, ChampionAsh한테 고치라고 하기)
 
-Textures are drawn through blitting, hence the method name `#blit`, which, for this purpose, copies the bits of an image and draws them directly to the screen. These are drawn through a position texture shader. While there are many different `#blit` overloads, we will only discuss two static `#blit`s.
+텍스쳐는 비트 블록 전송(blit)을 통해 그립니다. `#blit` 메서드는 이미지를 복사해 바로 화면에 그립니다. 이때 위치&텍스쳐 쉐이더를 사용합니다. `#blit`은 오버로드가 매우 많지만, 아래에선 정수를 인자로 받는 `#blit` 메서드만 다루겠습니다.
 
 The first static `#blit` takes in six integers and assumes the texture being rendered is on a 256 x 256 PNG file. It takes in the left x and top y screen coordinate, the left x and top y coordinate within the PNG, and the width and height of the image to render.
 
@@ -48,12 +45,12 @@ The size of the PNG file must be specified so that the coordinates can be normal
 
 The static `#blit` which the first calls expands this to nine integers, only assuming the image is on a PNG file. It takes in the left x and top y screen coordinate, the z coordinate (referred to as the blit offset), the left x and top y coordinate within the PNG, the width and height of the image to render, and the width and height of the PNG file.
 
-#### Blit Offset
+#### 비트 블록 전송 오프셋
 
-The z coordinate when rendering a texture is typically set to the blit offset. The offset is responsible for properly layering renders when viewing a screen. Renders with a smaller z coordinate are rendered in the background and vice versa where renders with a larger z coordinate are rendered in the foreground. The z offset can be set directly on the `PoseStack` itself via `#translate`. Some basic offset logic is applied internally in some methods of `GuiGraphics` (e.g. item rendering).
+텍스쳐의 z 좌표에 오프셋을 더할 수 있습니다. 이때 오프셋과 z값의 합이 낮은 순서대로 먼저 그려지고 합이 높은 텍스쳐는 그 위에 덧씌워 집니다. `PoseStack`의 `#translate`로 오프셋을 지정할 수 있습니다.
 
 :::caution
-When setting the blit offset, you must reset it after rendering your object. Otherwise, other objects within the screen may be rendered in an incorrect layer causing graphical issues. It is recommended to push the current pose before translating and then popping after all rendering at the offset is completed.
+오프셋을 변경하고 나면 무조건 원래 값으로 복원해야 합니다, 그렇지 않으면 텍스쳐를 그리는 순서가 꼬일 수 있습니다. 일반적으로 현재 행렬을 `PoseStack#push`로 저장한 다음 렌더링이 끝나면 `#pop`으로 복원합니다.
 :::
 
 ## Renderable
