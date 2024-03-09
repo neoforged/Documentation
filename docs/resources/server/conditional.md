@@ -1,71 +1,95 @@
-Conditionally-Loaded Data
-=========================
+# Conditionally-Loaded Data
 
 There are times when modders may want to include data-driven objects using information from another mod without having to explicitly make that mod a dependency. Other cases may be to swap out certain objects with other modded entries when they are present. This can be done through the conditional subsystem.
 
-Implementations
----------------
+## Implementations
 
-Currently, conditional loading is implemented for recipes and advancements. For any conditional recipe or advancement, a list of conditions to datum pair is loaded. If the conditions specified for a datum in the list is true, then that datum is returned. Otherwise, the datum is discarded.
+Conditions are loaded from a top-level `neoforge:conditions` array of objects that represent the conditions to check. If all conditions specified are met, the JSON file will be loaded, otherwise it will be discarded.
 
 ```js
 {
-  // The type needs to be specified for recipes as they can have custom serializers
-  // Advancements do not need this type
-  "type": "forge:conditional",
-  
-  "recipes": [ // Or 'advancements' for Advancements
+  "neoforge:conditions": [
+    // Condition 1
     {
-      // The conditions to check
-      "conditions": [
-        // Conditions in the list are ANDed together
-        {
-          // Condition 1
-        },
-        {
-          // Condition 2
-        }
-      ],
-      "recipe": { // Or 'advancement' for Advancements
-        // The recipe to use if all conditions succeed
-      }
+    
     },
+    // Condition 2
     {
-      // Next condition to check if the previous fails
-    },
-  ]
+
+    }
+  ],
+
+  // The rest of the object
+  ...
 }
 ```
 
-Conditionally-loaded data additionally have wrappers for [data generation][datagen] through `ConditionalRecipe$Builder` and `ConditionalAdvancement$Builder`.
+Conditionally-loaded recipes additionally have wrappers for [data generation][datagen] through `RecipeOutput#withConditions`. Other generators (like the data map one) will usually have a vararg `ICondition...` array in their methods for adding conditions to objects.
 
-Conditions
-----------
+Currently, conditions are supported by the following Vanilla objects:
+- recipes
+- advancements
+- dynamic registries (i.e. biomes)
+- loot tables - individual pools can also have their own conditions
 
-Conditions are specified by setting `type` to the name of the condition as specified by [`IConditionSerializer#getID`][serializer].
+:::note
+Loot tables that do not meet their loading conditions will not be ignored, but rather replaced with an empty loot table.
+:::
+
+```js title="Example recipe that will only be loaded if the examplemod mod is loaded"
+{
+  // highlight-start
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "examplemod"
+    }
+  ],
+  // highlight-end
+
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "#": {
+      "item": "examplemod:example_planks"
+    }
+  },
+  "pattern": [
+    "##",
+    "##",
+    "##"
+  ],
+  "result": {
+    "count": 3,
+    "item": "mymod:compat_door"
+  }
+}
+```
+
+## Conditions
 
 ### True and False
 
-Boolean conditions consist of no data and return the expected value of the condition. They are represented by `forge:true` and `forge:false`.
+Boolean conditions consist of no data and return the expected value of the condition. They are represented by `neoforge:true` and `neoforge:false`.
 
 ```js
 // For some condition
 {
-  // Will always return true (or false for 'forge:false')
-  "type": "forge:true"
+  // Will always return true (or false for 'neoforge:false')
+  "type": "neoforge:true"
 }
 ```
 
 ### Not, And, and Or
 
-Boolean operator conditions consist of the condition(s) being operated upon and apply the following logic. They are represented by `forge:not`, `forge:and`, and `forge:or`.
+Boolean operator conditions consist of the condition(s) being operated upon and apply the following logic. They are represented by `neoforge:not`, `neoforge:and`, and `neoforge:or`.
 
 
 ```js
 // For some condition
 {
   // Inverts the result of the stored condition
-  "type": "forge:not",
+  "type": "neoforge:not",
   "value": {
     // A condition
   }
@@ -75,14 +99,14 @@ Boolean operator conditions consist of the condition(s) being operated upon and 
 ```js
 // For some condition
 {
-  // ANDs the stored conditions together (or ORs for 'forge:or')
-  "type": "forge:and",
+  // ANDs the stored conditions together (or ORs for 'neoforge:or')
+  "type": "neoforge:and",
   "values": [
     {
       // First condition
     },
     {
-      // Second condition to be ANDed (or ORed for 'forge:or')
+      // Second condition to be ANDed (or ORed for 'neoforge:or')
     }
   ]
 }
@@ -90,12 +114,12 @@ Boolean operator conditions consist of the condition(s) being operated upon and 
 
 ### Mod Loaded
 
-`ModLoadedCondition` returns true whenever the specified mod with the given id is loaded in the current application. This is represented by `forge:mod_loaded`.
+`ModLoadedCondition` returns true whenever the specified mod with the given id is loaded in the current application. This is represented by `neoforge:mod_loaded`.
 
 ```js
 // For some condition
 {
-  "type": "forge:mod_loaded",
+  "type": "neoforge:mod_loaded",
    // Returns true if 'examplemod' is loaded
   "modid": "examplemod"
 }
@@ -103,12 +127,12 @@ Boolean operator conditions consist of the condition(s) being operated upon and 
 
 ### Item Exists
 
-`ItemExistsCondition` returns true whenever the given item has been registered in the current application. This is represented by `forge:item_exists`.
+`ItemExistsCondition` returns true whenever the given item has been registered in the current application. This is represented by `neoforge:item_exists`.
 
 ```js
 // For some condition
 {
-  "type": "forge:item_exists",
+  "type": "neoforge:item_exists",
    // Returns true if 'examplemod:example_item' has been registered
   "item": "examplemod:example_item"
 }
@@ -116,67 +140,37 @@ Boolean operator conditions consist of the condition(s) being operated upon and 
 
 ### Tag Empty
 
-`TagEmptyCondition` returns true whenever the given item tag has no items within it. This is represented by `forge:tag_empty`.
+`TagEmptyCondition` returns true whenever the given item tag has no items within it. This is represented by `neoforge:tag_empty`.
 
 ```js
 // For some condition
 {
-  "type": "forge:tag_empty",
+  "type": "neoforge:tag_empty",
    // Returns true if 'examplemod:example_tag' is an item tag with no entries
   "tag": "examplemod:example_tag"
 }
 ```
 
-Creating Custom Conditions
---------------------------
+## Creating Custom Conditions
 
-Custom conditions can be created by implementing `ICondition` and its associated `IConditionSerializer`.
+Custom conditions can be created by implementing `ICondition` and creating a [Codec] for it.
 
 ### ICondition
 
-Any condition only need to implement two methods:
-
-Method | Description
-:---:  | :---
-getID  | The registry name of the condition. Must be equivalent to [`IConditionSerializer#getID`][serializer]. Used only for [data generation][datagen].
-test   | Returns true if the condition has been satisfied.
+A condition needs to implement the `ICondition#test(IContext)` method. This method will return `true` if the object should be loaded, and `false` otherwise.
 
 :::note
-Every `#test` has access to some `IContext` representing the state of the game. Currently, only tags can be obtained from a registry.
+Every `#test` has access to some `IContext` representing the state of the game. Currently, this only allows obtaining tags from a registry.
 :::
 
-### IConditionSerializer
-
-Serializers need to implement three methods:
-
-Method | Description
-:---:  | :---
-getID  | The registry name of the condition. Must be equivalent to [`ICondition#getID`][condition].
-read   | Reads the condition data from JSON.
-write  | Writes the given condition data to JSON.
-
-:::note
-Condition serializers are not responsible for writing or reading the type of the serializer, similar to other serializer implementations in Minecraft.
+:::info
+Some objects may be loaded earlier than tags. In those cases, the condition context will be `IContext.EMPTY`.
 :::
 
-Afterwards, a static instance should be declared to hold the initialized serializer and then registered using `CraftingHelper#register` either during the `RegisterEvent` for `RecipeSerializer`s or during `FMLCommonSetupEvent`.
+The `ICondition#codec` method should return the codec used to encode and decode the condition. This codec **must** be [registered] to the `NeoForgeRegistries#CONDITION_SERIALIZERS` registry. The name the codec is registered under will be the name used to refer to that condition in the `type` field.
 
-```java
-// In some serializer class
-public static final ExampleConditionSerializer INSTANCE = new ExampleConditionSerializer();
-
-// In some handler class
-public void registerSerializers(RegisterEvent event) {
-  event.register(ForgeRegistries.Keys.RECIPE_SERIALIZERS,
-    helper -> CraftingHelper.register(INSTANCE)
-  );
-}
-```
-
-:::danger
-If using `FMLCommonSetupEvent` to register a condition serializer, it must be enqueued to the synchronous work queue via `FMLCommonSetupEvent#enqueueWork` as `CraftingHelper#register` is not thread-safe.
-:::
 
 [datagen]: ../../datagen/server/recipes.md
-[serializer]: #iconditionserializer
 [condition]: #icondition
+[Codec]: ../../datastorage/codecs
+[registered]: ../../concepts/registries
