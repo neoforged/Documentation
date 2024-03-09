@@ -54,7 +54,7 @@ MDK의 `build.gradle`은 기본적으로 `runData` 실행 구성을 추가하여
 **아래 항목은 `net.neoforged.neoforge.common.data` 패키지에 있음**:
 
 * [`GlobalLootModifierProvider`][glmgen] - [노획물 수정 파일 생성용][glm]; `#start` 구현
-* [`DatapackBuiltinEntriesProvider`][datapackregistriesgen] - 데이터 팩 레지스트리 객체 생성용; 생성자에 `RegistrySetBuilder` 전달
+* [`DatapackBuiltinEntriesProvider`][datapackregistriesgen] - 데이터 팩 레지스트리 객체 생성용; 연결된 문서 참고
 
 **아래 항목은 `net.minecraft.data` 패키지에 있음**:
 
@@ -74,7 +74,7 @@ MDK의 `build.gradle`은 기본적으로 `runData` 실행 구성을 추가하여
 [blockstategen]: ./client/modelproviders.md#block-state-provider
 [glmgen]: ./server/glm.md
 [glm]: ../resources/server/glm.md
-[datapackregistriesgen]: ./server/datapackregistries.md
+[datapackregistriesgen]: ../concepts/registries.md#data-generation-for-datapack-registries
 [loottablegen]: ./server/loottables.md
 [loottable]: ../resources/server/loottables.md
 [recipegen]: ./server/recipes.md

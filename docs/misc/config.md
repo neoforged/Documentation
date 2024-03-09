@@ -136,4 +136,4 @@ ModLoadingContext.get().registerConfig(Type.COMMON, CONFIG);
 [toml]: https://toml.io/ko/v1.0.0
 [nightconfig]: https://github.com/TheElectronWill/night-config
 [type]: https://github.com/neoforged/FancyModLoader/blob/19d6326b810233e683f1beb3d28e41372e1e89d1/core/src/main/java/net/neoforged/fml/config/ModConfig.java#L83-L111
-[events]: ../concepts/events.md#이벤트-핸들러-만들기
+[events]: ../concepts/events.md#이벤트-핸들러-등록하기

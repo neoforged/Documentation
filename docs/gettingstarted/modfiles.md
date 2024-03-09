@@ -109,6 +109,10 @@ modId = "examplemod2"
 | `displayURL`    | string  |            *없음*             |                                                                       모드 목록에 표시할 모드 소개 페이지의 URL을 지정합니다.                                                                        | `displayURL="https://neoforged.net/"`                           |
 | `displayTest`   | string  |      `"MATCH_VERSION"`      |                                                                              [사이드][sides]를 참고하세요.                                                                              | `displayTest="NONE"`                                            |
 
+:::note
+일부 속성(`displayName`, `description`)은 언어 파일을 통해 다국어를 지원합니다. 자세한 사항은 [다국어 지원][i18n]을 참고하세요.
+:::
+
 #### 필요 기능
 
 기능 시스템은 모드가 특정 설정, 소프트웨어, 또는 하드웨어 요구 사항을 지정할 때 사용합니다. 필요 기능은 충족되지 않으면 모드를 불러올 수 없고, 사용자에게 표시됩니다. 현재, 지원되는 필요 기능들은 다음과 같습니다:
@@ -129,7 +133,7 @@ modId = "examplemod2"
 | `reason`       | string |  *nothing*   |                                                                                                                                                    종속성 검사가 실패할 경우 사용자에게 띄울 메세지를 지정합니다.                                                                                                                                                    |
 | `versionRange` | string |     `""`     |                                                                                                                                   사용 가능한 종속성의 버전을 [Maven 버전 범위][mvr] 형식으로 지정합니다. 비워놓으면 버전이 상관없음을 의미합니다.                                                                                                                                   | `versionRange="[1, 2)"`                      |
 | `ordering`     | string |   `"NONE"`   |                                                                                                                     해당 종속성을 모드보다 먼저 불러와야 하는지 (`"BEFORE"`), 또는 나중에 불러와야 하는지 (`"AFTER"`), 아니면 상관없는지 (`"NONE"`)를 지정합니다.                                                                                                                      | `ordering="AFTER"`                           |
-| `side`         | string |   `"BOTH"`   |                                                                                                                          해당 종속성이 필요한 [물리 사이드][dist]를 지정합니다. `"CLIENT"`, `"SERVER"`, 또는 `"BOTH"` 세 값 중 하나를 사용하세요.                                                                                                                          | `side="CLIENT"`                              |
+| `side`         | string |   `"BOTH"`   |                                                                                                                          해당 종속성이 필요한 [물리 사이드][side]를 지정합니다. `"CLIENT"`, `"SERVER"`, 또는 `"BOTH"` 세 값 중 하나를 사용하세요.                                                                                                                          | `side="CLIENT"`                              |
 | `referralUrl`  | string |  *nothing*   |                                                                                                                                                  종속성의 다운로드 페이지 URL을 지정합니다. 현재 사용하지 않습니다.                                                                                                                                                  | `referralUrl="https://library.example.com/"` |
 
 :::danger
@@ -163,10 +167,10 @@ public class Example {
 
 [array]: https://toml.io/ko/v1.0.0#%ED%85%8C%EC%9D%B4%EB%B8%94%EC%9D%98-%EB%B0%B0%EC%97%B4
 [atlasviewer]: https://github.com/XFactHD/AtlasViewer/blob/1.20.2/neoforge/src/main/resources/META-INF/services/xfacthd.atlasviewer.platform.services.IPlatformHelper
-[dist]: ../concepts/sides.md#사이드의-종류들
 [events]: ../concepts/events.md
 [features]: #필요-기능
 [group]: #그룹-아이디
+[i18n]: ../concepts/internationalization.md#모드-속성
 [javafml]: #javafml과-mod
 [jei]: https://www.curseforge.com/minecraft/mc-mods/jei
 [lowcodefml]: #lowcodefml
@@ -181,7 +185,7 @@ public class Example {
 [packaging]: ./structuring.md#패키징
 [registration]: ../concepts/registries.md#deferredregister
 [serviceload]: https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/ServiceLoader.html#load(java.lang.Class)
-[sides]: ../concepts/sides.md#한쪽-사이드-전용-모드-만들기
+[sides]: ../concepts/sides.md
 [spdx]: https://spdx.org/licenses/
 [toml]: https://toml.io/ko
 [update]: ../misc/updatechecker.md

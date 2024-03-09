@@ -52,6 +52,58 @@
 
 가장 대표적인 아이템의 추가 기능은 왼 클릭, 그리고 우 클릭입니다. 왼 클릭은 [블록 파괴][breaking] 및 엔티티 공격하기 문서(작업 중)를, 우 클릭은 [상호작용 파이프라인][interactionpipeline]을 참고하세요.
 
+### `DeferredRegister.Items`
+// TODO
+
+All registries use `DeferredRegister` to register their contents, and items are no exceptions. However, due to the fact that adding new items is such an essential feature of an overwhelming amount of mods, NeoForge provides the `DeferredRegister.Items` helper class that extends `DeferredRegister<Item>` and provides some item-specific helpers:
+
+```java
+public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(ExampleMod.MOD_ID);
+
+public static final Supplier<Item> EXAMPLE_ITEM = ITEMS.registerItem(
+        "example_item",
+        Item::new, // The factory that the properties will be passed into.
+        new Item.Properties() // The properties to use.
+);
+```
+
+Internally, this will simply call `ITEMS.register("example_item", () -> new Item(new Item.Properties()))` by applying the properties parameter to the provided item factory (which is commonly the constructor).
+
+If you want to use `Item::new`, you can leave out the factory entirely and use the `simple` method variant:
+
+```java
+public static final Supplier<Item> EXAMPLE_ITEM = ITEMS.registerSimpleItem(
+        "example_item",
+        new Item.Properties() // The properties to use.
+);
+```
+
+This does the exact same as the previous example, but is slightly shorter. Of course, if you want to use a subclass of `Item` and not `Item` itself, you will have to use the previous method instead.
+
+Both of these methods also have overloads that omit the `new Item.Properties()` parameter:
+
+```java
+public static final Supplier<Item> EXAMPLE_ITEM = ITEMS.registerItem("example_item", Item::new);
+// Variant that also omits the Item::new parameter
+public static final Supplier<Item> EXAMPLE_ITEM = ITEMS.registerSimpleItem("example_item");
+```
+
+Finally, there's also shortcuts for block items:
+
+```java
+public static final Supplier<BlockItem> EXAMPLE_BLOCK_ITEM = ITEMS.registerSimpleBlockItem("example_block", ExampleBlocksClass.EXAMPLE_BLOCK, new Item.Properties());
+// Variant that omits the properties parameter:
+public static final Supplier<BlockItem> EXAMPLE_BLOCK_ITEM = ITEMS.registerSimpleBlockItem("example_block", ExampleBlocksClass.EXAMPLE_BLOCK);
+// Variant that omits the name parameter, instead using the block's registry name:
+public static final Supplier<BlockItem> EXAMPLE_BLOCK_ITEM = ITEMS.registerSimpleBlockItem(ExampleBlocksClass.EXAMPLE_BLOCK, new Item.Properties());
+// Variant that omits both the name and the properties:
+public static final Supplier<BlockItem> EXAMPLE_BLOCK_ITEM = ITEMS.registerSimpleBlockItem(ExampleBlocksClass.EXAMPLE_BLOCK);
+```
+
+:::note
+If you keep your registered blocks in a separate class, you should classload your blocks class before your items class.
+:::
+
 ### 리소스 제공하기
 
 위에서 만드신 아이템은 아직 모델과 텍스쳐를 가지고 있지 않아 `/give` 또는 [크리에이티브 탭][creativetabs]에서 꺼내시면 생김새가 깨집니다.
@@ -144,7 +196,7 @@ public static final RegistryObject<CreativeModeTab> EXAMPLE_TAB = REGISTER.regis
 [interactionpipeline]: interactionpipeline.md
 [loottables]: ../resources/server/loottables.md
 [mobeffectinstance]: mobeffects.md#mobeffectinstances
-[modbus]: ../concepts/events.md#모드-이벤트-버스
+[modbus]: ../concepts/events.md#event-buses
 [nbt]: ../datastorage/nbt.md
 [registering]: ../concepts/registries.md#객체-등록하기
 [resources]: ../resources/client/index.md

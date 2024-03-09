@@ -1,13 +1,21 @@
-블록
-======
+# 블록
 
 블록은 마인크래프트의 핵심 효소로 레벨의 필수적 구성 요소입니다. 지형과 구조물, 그리고 기계들 전부 블록들로 이루어져 있습니다. 이번장에서는 블록 제작의 핵심과 응용 방안들에 대해 다루겠습니다.
 
-하나만 있어도 충분한 블록
--------------------
+## 하나의 블록으로 모든 것을
+
 시작하기 전에, 먼저 게임 속 블록은 하나씩만 존재한다는 사실을 염두하셔야 합니다. 레벨에 존재하는 수천 개의 블록은 전부 하나의 블록을 참조합니다, 다시 말해서 같은 블록이 월드에 여러 번 등장하는 것입니다.
 
-그렇기 때문에 블록의 인스턴스는 오직 하나만, 그것도 레지스트리 초기화 중에 생성되어야 합니다. 그 이후에는 등록된 블록의 참조를 사용하세요. 아래 예를 들자면(이해가 안된다면 [레지스트리][registration]을 참고하세요): 
+그렇기 때문에 각 블록은 한번만, 그것도 [레지스트리][registration] 초기화 중에 생성되어야 합니다. 그 이후에는 등록된 블록을 참조하세요. 아래 예를 들자면:
+Due to this, a block should only ever be instantiated once, and that is during [registration]. Once the block is registered, you can then use the registered reference as needed.
+
+다른 레지스트리들과 다르게 블록은 블록 전용으로 확장된 `DeferredRegister.Block`을 사용할 수 있습니다. `DeferredRegister<Block>`과의 차이점은:
+
+- `DeferredRegister.create(...)` 대신 `DeferredRegister.createBlocks("yourmodid")`으로 생성함.
+- `#register`는 `DeferredBlock<T extends Block>`을 대신 반환함, 이는 `DeferredHolder<Block, T>`의 하위 타입임. 여기서 `T`는 등록할 블록의 타입.
+- 블록 등록을 간소화 시켜줄 여러 유틸리티 메서드가 있음. 자세한 사항은 [아래][below] 참고.
+
+이제 블록을 직접 만들어 보겠습니다:
 
 ```java
 //BLOCKS는 DeferredRegister.Blocks
@@ -32,8 +40,13 @@ level.getBlockState(position) // 해당 좌표에 존재하는 블록의 상태�
 - 어떻게든 등록이 잘못된 블록을 사용하시면 블록에 대한 허상 참조가 발생하여 나중에 월드를 불러오면 공기로 대체됩니다.
 :::
 
-블록 만들기
-----------------
+## 블록 만들기
+
+위에서 말했듯이 먼저 `DeferredRegister.Blocks`를 만드세요.
+
+```java
+public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks("yourmodid");
+```
 
 ### 단순한 블록
 특별한 기능이 없는 블록들은(조약돌이나 나무판자 등) `Block`의 새 인스턴스를 만드는 것으로 충분합니다. 블록들이 등록될 때, 새로운 `Block`의 인스턴스를 `BlockBehaviour$Properties`를 인자로 넘겨 생성하세요. `BlockBehaviour$Properties`는 블록의 속성을 저장하는 객체로 `#of`로 생성하고 아래 메서드들을 통해 블록의 특성을 원하시는 대로 바꾸실 수 있습니다.
@@ -51,7 +64,8 @@ level.getBlockState(position) // 해당 좌표에 존재하는 블록의 상태�
 
 그리고 위 메서드들은 아래처럼 사용하실 수 있습니다:
 ```java
-  public static final DeferredBlock<Block> MY_BETTER_BLOCK = BLOCKS.register(
+//BLOCKS is a DeferredRegister.Blocks
+public static final DeferredBlock<Block> MY_BETTER_BLOCK = BLOCKS.register(
         "my_better_block", 
         () -> new Block(BlockBehaviour.Properties.of()
                 //highlight-start
@@ -76,14 +90,40 @@ level.getBlockState(position) // 해당 좌표에 존재하는 블록의 상태�
 
 만약 여러 종류가 있는 블록을 추가하려면 (예를 들어 아래, 위, 또는 두 겹으로 배치될 수 있는 반 블록), [블록의 상태][blockstates]를 사용하실 수 있습니다. 또한, 추가 데이터를 저장할 수 있는 블록을 추가하려면 (예를 들어 인벤토리가 있는 상자), [블록 엔티티][blockentities]를 대신 사용하세요. 이 둘 중 무엇을 사용하느냐는 대개 블록이 표현할 수 있는 경우의 수가 소수로 제한되어 있다면 블록의 상태를(기껏 해봐야 몇백 개), 경우의 수가 무한이 많다면 블록 엔티티를 사용하세요(인벤토리는 모든 아이템의, 모든 개수의 모든 배치를, 다른 모드까지 고려해야 하기에 블록 엔티티가 적합합니다).
 
+### `DeferredRegister.Blocks` 응용하기
+
+[위]에서 `DeferredRegister.Blocks`를 만드는 방법과, `DeferredBlock`에 대해 배웠습니다. 이제 다른 추가 기능도 살펴보겠습니다, 먼저 `#registerBlock`이 있습니다:
+
+```java
+public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks("yourmodid");
+
+public static final DeferredBlock<Block> EXAMPLE_BLOCK = BLOCKS.registerBlock(
+        "example_block",
+        Block::new, // 아래 속성값을 받아 블록을 생성할 메서드.
+        BlockBehaviour.Properties.of() // 블록의 속성값.
+);
+```
+
+내부적으로, 위는 `BLOCKS.register("example_block", () -> new Block(BlockBehaviour.Properties.of()))`를 호출합니다, 이때 전달된 메서드에 속성값을 인자로 사용해 블록을 생성합니다.
+
+만약 위처럼 `Block::new`를 쓰신다면 아래처럼 메서드를 빼도 됩니다:
+
+```java
+public static final DeferredBlock<Block> EXAMPLE_BLOCK = BLOCKS.registerSimpleBlock(
+        "example_block",
+        BlockBehaviour.Properties.of() // The properties to use.
+);
+```
+
+위는 이전 예시랑 완전히 동일한 기능을 합니다, 하지만 `Block`의 하위 클래스는 사용할 수 없어 복잡한 블록을 등록하신다면 첫번째 예시를 대신 사용하세요.   
+
 ### 에셋
 
-위에서 제시한 대로 블록을 추가하고 레벨에 배치하면 텍스쳐가 없을 것입니다. 왜냐하면 텍스쳐, 모델 등은 마인크래프트의 자원 시스템이 관리하기 때문입니다. 
+위에서 제시한 대로 블록을 추가하고 레벨에 배치하면 텍스쳐가 없을 것입니다. 왜냐하면 텍스쳐, 모델 등은 마인크래프트의 자원 시스템이 관리하기 때문입니다.
 
 블록에 텍스쳐를 적용하려면, 상태 JSON, 모델 JSON, 그리고 텍스쳐 PNG 파일을 제공해야 합니다. 추가 정보는 [리소스 팩][resources]을 참고하세요.
 
-블록 응용하기
-------------
+## 블록 응용하기
 
 블록 자체는 게임 로직에서 많이 사용하지 않습니다. 마인크래프트에서 가장 빈번히 수행하는 작업인, 좌표에 있는 블록 알아내기와 좌표에 블록 설치하기 이 두 가지는 블록이 아니라 블록의 상태를 대신 이용합니다. 디자인상, `Block`은 블록의 기능을 정의하고, 레벨에는 `BlockState`를 배치합니다. `Block`의 여러 메서드들은 `BlockState`를 인자로 받습니다. 이들의 응용 방법은 [블록의 상태 사용하기][usingblockstates]를 참고하세요.
 
@@ -183,6 +223,8 @@ while (leftClickIsBeingHeld()) {
 
 무작위 블록 틱은 식물의 성장, 얼음과 눈의 해동, 구리의 산화 등 많은 블록이 응용합니다.
 
+[above]: #하나의-블록으로-모든-것을
+[below]: #deferredregisterblocks-helpers
 [blockentities]: ../blockentities/index.md
 [blockstates]: states.md
 [events]: ../concepts/events.md

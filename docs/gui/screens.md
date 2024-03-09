@@ -340,4 +340,4 @@ private void registerScreens(RegisterMenuScreensEvent event) {
 [argb]: https://en.wikipedia.org/wiki/RGBA_color_model#ARGB32
 [component]: ../concepts/internationalization.md#translatablecontents
 [keymapping]: ../misc/keymappings.md#inside-a-gui
-[modbus]: ../concepts/events.md#모드-이벤트-버스
+[modbus]: ../concepts/events.md#event-buses

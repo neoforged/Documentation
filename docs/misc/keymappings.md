@@ -153,4 +153,4 @@ If you do not own the screen which you are trying to check a **mouse** for, you 
 [controls]: https://minecraft.wiki/w/Options#Controls
 [tk]: ../concepts/internationalization.md#translatablecontents
 [keyinput]: https://www.glfw.org/docs/3.3/input_guide.html#input_key
-[forgebus]: ../concepts/events.md#이벤트-핸들러-만들기
+[forgebus]: ../concepts/events.md#이벤트-핸들러-등록하기

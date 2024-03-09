@@ -17,7 +17,7 @@ JSON 모델은 오직 직육면체만 지원합니다; 다른 모양도 사용�
 모델과 유사하게 텍스쳐도 리소스팩에 동봉되며 [`ResourceLocation`][resloc]으로 참조됩니다. 마인크래프트의 [UV 좌표][uv]의 원점(0, 0)은 **왼쪽 위** 가장자리입니다. UV의 범위는 **언제나** 0에서부터 16이며 더 크거나 작은 텍스쳐는 좌표의 크기를 조정해 맞춥니다. 밉맵이 잘못 적용될 수 있기 때문에 모든 텍스쳐는 정사각형이어야 하고, 각 변의 길이는 2의 제곱수여야 합니다. (예를 들어, 1x1, 2x2, 8x8, 16x16 등의 크기가 권장되며, 5x5, 30x30은 2의 제곱수가 아니기에 권장되지 않습니다. 5x10이나 4x8은 정사각형이 아니기에 깨질 수 있습니다.). 텍스쳐는 오직 [애니메이션][animated]을 추가할 때만 비 정사각형 형태일 수 있습니다. 
 
 [models]: https://minecraft.wiki/w/Tutorials/Models#File_path
-[resloc]: ../../../concepts/resources.md#resourcelocation
+[resloc]: ../../../misc/resourcelocation.md
 [statemodel]: https://minecraft.wiki/w/Tutorials/Models#Block_states
 [itemmodels]: https://minecraft.wiki/w/Tutorials/Models#Item_models
 [state]: ../../../blocks/states.md

@@ -113,7 +113,7 @@
    - **Usage**: `Level`과 유사하게, 양쪽 [사이드][sides]에서 실행되는 코드가 효과음을 재생할 때 사용합니다, 클라이언트는 알아서 자기 자신에게 효과음을 재생하고, 서버는 이미 효과음을 재생하고 있는 해당 클라이언트를 제외한 주변 사람들에게 효과음 패킷을 보냅니다.
 
 
-[loc]: ../concepts/resources.md#resourcelocation
+[loc]: ../misc/resourcelocation.md
 [wiki]: https://minecraft.wiki/w/Sounds.json
 [datagen]: ../datagen/client/sounds.md
 [registration]: ../concepts/registries.md#객체-등록하기

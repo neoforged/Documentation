@@ -141,4 +141,4 @@ Scoreboard providers are a special type of number providers defined by `Scoreboa
 
 [loottable]: ../../resources/server/loottables.md
 [datagen]: ../index.md#dataprovider
-[registered]: ../../concepts/registries.md#포지가-확장하지-않는-레지스트리들
+[registered]: ../../concepts/registries.md

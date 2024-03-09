@@ -118,3 +118,4 @@ public AttributeTagsProvider(PackOutput output, CompletableFuture<HolderLookup.P
 
 [tags]: ../../resources/server/tags.md
 [datagen]: ../index.md#dataprovider
+[custom]: ../../concepts/registries.md#새로운-레지스트리-정의하기

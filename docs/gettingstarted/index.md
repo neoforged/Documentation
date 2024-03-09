@@ -1,55 +1,55 @@
-# 네오 포지 시작하기
+# Getting Started with NeoForge
 
-이 섹션은 네오 포지를 통한 모드 개발 환경 구성과 모드 실행 및 테스트 방법에 대해 다룹니다.
+This section includes information about how to set up a NeoForge workspace, and how to run and test your mod.
 
-## 사전 준비
+## Prerequisites
 
-- 자바 프로그래밍 언어, 특히 객체 지향, 다형성, 제너릭, 그리고 함수형 기능들에 친숙해야 함.
-- 자바 17 개발 키트 (JDK) 및 64비트 자바 가상 머신 (JVM). 네오 포지는 [마이크로소프트의 OpenJDK][jdk]를 공식적으로 지원하고 권장하지만, 다른 JDK를 쓰셔도 무관합니다.
-
-:::caution
-64비트 JVM을 사용하고 있는지 확인하세요. 터미널에서 `java -version` 명령을 사용하여 확인할 수 있습니다. 32비트 JVM은 오래되어 문제가 발생할 수 있습니다.
-:::
-
-- IDE를 통한 개발에 친숙해야 함.
-  - 네오 포지는 공식적으로 Gradle과 연동되는 [IntelliJ IDEA][intellij]와 [Eclipse][eclipse]를 지원하지만, 필요하다면 Netbeans, Visual Studio Code, Emacs와 같은 아무 IDE나 사용하셔도 됩니다.
-- [Git][git]과 [GitHub][github]에 친숙해야 함. 요구 사항은 아니지만 개발에 큰 도움이 됩니다.
-
-## 개발 환경 구성하기
-
-- 깃헙에서 [모드 개발 키트 (MDK)][mdk] 리포지토리를 열고, "Use this template"을 클릭한 다음 새로 만든 리포지토리를 개발할 컴퓨터에 클론 하세요.
-   - 깃헙을 쓰고 싶지 않거나 구버전, 또는 다른 브랜치의 코드를 대신 받고 싶다면 ZIP으로 대신 다운로드하셔도 됩니다.
-- IDE에서 MDK를 Gradle 프로젝트로 여세요. Eclipse와 Intellij IDEA는 자동으로 Gradle 연동을 수행하지만, 사용하시는 IDE에 이 기능이 없다면 터미널에서 `gradlew`를 실행하세요.
-   - 처음으로 개발 환경을 구성될 땐 네오 포지의 모든 종속성을 내려받습니다. 이때 마인크래프트 또한 내려받아 디컴파일 합니다. 이 작업은 인터넷과 컴퓨터 사양에 따라 최대 한 시간 정도 소요될 수 있습니다.
-   - Gradle은 구성 파일이 수정될 때마다 갱신해야 합니다. IDE 자체 기능으로 갱신하시거나 터미널에서 `gradlew` 명령을 실행하세요.
-
-## 모드 정보 바꾸기
-
-모드의 대부분 속성들은 `gradle.properties`에서 바꿀 수 있습니다. 이 파일은 모드의 이름, 버전 등의 기본적인 속성 값들을 정의합니다. 자세한 정보는 `gradle.properties`의 주석 또는 [해당 파일의 문서][properties]를 참고하세요.
-
-모드의 빌드 과정을 바꾸시려면 `build.gradle` 파일을 수정하세요. 네오 포지의 Gradle 플러그인인 NeoGradle은 여러 속성 값으로 설정할 수 있으며, 이중 일부는 동봉된 `build.gradle`에서 다룹니다. 자세한 정보는 [NeoGradle 문서][neogradle]를 참고하세요.
+- Familiarity with the Java programming language, specifically its object-oriented, polymorphic, generic, and functional features.
+- An installation of the Java 17 Development Kit (JDK) and 64-bit Java Virtual Machine (JVM). NeoForge recommends and officially supports the [Microsoft builds of OpenJDK][jdk], but any other JDK should work as well.
 
 :::caution
-`build.gradle`과 `settings.gradle`은 정확히 무엇을 어떻게 바꾸는지 아실 때에만 수정하세요. 대부분의 기본 속성들은 `gradle.properties`에서 바꿀 수 있습니다.
+Make sure you are using a 64-bit JVM. One way of checking is to run `java -version` in a terminal. Issues may arise when using a 32-bit JVM, due to 32-bit JVMs running out of support for a lot of things.
 :::
 
-## 모드 빌드 및 테스트
+- Familiarity with an Integrated Development Environment (IDE) of your choice.
+   - NeoForge officially supports [IntelliJ IDEA][intellij] and [Eclipse][eclipse], both of which have integrated Gradle support. However, any IDE can be used, ranging from Netbeans or Visual Studio Code to Vim or Emacs.
+- Familiarity with [Git][git] and [GitHub][github]. This is technically not required, but it will make your life a lot easier.
 
-모드를 빌드하려면 `gradlew build`를 실행하세요. 출력 파일은 `build/libs`에 `<archivesBaseName>-<version>.jar` 형식의 이름으로 저장됩니다. `<archivesBaseName>`과 `<version>`은 `build.gradle`이 지정하는 속성이며 기본값으로 각각 `gradle.properties`가 정의하는 `mod_id`와 `mod_version`을 사용합니다. 이 출력 파일은 네오 포지가 설치된 마인크래프트의 `mods` 폴더에 넣거나 모드 배포 플랫폼에 업로드할 수 있습니다.
+## Setting Up the Workspace
 
-모드를 테스트 환경에서 실행하려면 생성된 실행 구성을 사용하거나 Gradle 작업을 실행하세요.(예: `gradlew runClient`) 마인크래프트가 구성에서 지정한 폴더(예: `runs/client` 또는 `runs/server`)에서 추가한 소스 셋과 함께 실행됩니다. MDK는 기본적으로 `main` 소스 셋을 포함하기에, `src/main/java`에 포함된 모든 코드가 실행할 때 추가됩니다.
+- Open the [Mod Developer Kit (MDK)][mdk] GitHub repository, click "Use this template" and clone the newly-created repository to your local machine.
+   - If you do not want to use GitHub, or if you want to get the template for an older commit or a non-default branch (which would be the case e.g. for older versions), you can also download the ZIP of the repository (under Code -> Download ZIP) and extract it.
+- Open your IDE and import the Gradle project. Eclipse and IntelliJ IDEA will do this automatically for you. If you have an IDE that does not do this, you can also do it via the `gradlew` terminal command.
+   - When doing this for the first time, Gradle will download all dependencies of NeoForge, including Minecraft itself, and decompile them. This can take a fair amount of time (up to an hour, depending on your hardware and network strength).
+   - Whenever you make a change to the Gradle files, the Gradle changes will need to be reloaded, either through the "Reload Gradle" button in your IDE, or again through the `gradlew` terminal command.
 
-### 서버에서 테스트하기
+## Customizing Your Mod Information
 
-실행 구성 또는 `gradlew runServer`를 통해 전용 서버를 실행하시면 바로 종료될 텐데, 서버를 실행하기 위해선 마인크래프트 EULA에 동의하셔야 합니다. 실행 폴더의 `eula.txt`를 수정하세요.
+Many of the basic properties of your mod can be changed in the `gradle.properties` file. This includes basic things like the mod name or the mod version. For more information, see the comments in the `gradle.properties` file, or see [the documentation of the `gradle.properties` file][properties].
 
-이후, 서버가 실행될 것이며 `localhost`(또는 `127.0.0.1`) 주소로 열립니다. 그러나 온라인 모드가 활성화되어 있어 공식 모장 계정만 접속할 수 있습니다. 기본 개발자 계정은 인증이 불가능하기에, 서버를 종료하고, `server.properties`에서 `online-mode`를 `false`로 설정하세요. 이젠 서버에 정상적으로 접속하실 수 있을 겁니다.
+If you want to modify the build process beyond that, you can edit the `build.gradle` file. NeoGradle, the Gradle plugin for NeoForge, provides several configuration options, a few of which are explained by comments in the `build.gradle` files. For full documentation, see the [NeoGradle documentation][neogradle].
+
+:::caution
+Only edit the `build.gradle` and `settings.gradle` files if you know what you are doing. All basic properties can be set via `gradle.properties`.
+:::
+
+## Building and Testing Your Mod
+
+To build your mod, run `gradlew build`. This will output a file in `build/libs` with the name `<archivesBaseName>-<version>.jar`. `<archivesBaseName>` and `<version>` are properties set by the `build.gradle` and default to the `mod_id` and `mod_version` values in the `gradle.properties` file, respectively; this can be changed in the `build.gradle` if desired. The resulting JAR file can then be placed in the `mods` folder of a NeoForge-enabled Minecraft setup, or uploaded to a mod distribution platform.
+
+To run your mod in a test environment, you can either use the generated run configurations or use the associated tasks (e.g. `gradlew runClient`). This will launch Minecraft from the corresponding runs directory (e.g. `runs/client` or `runs/server`), along with any source sets specified. The default MDK includes the `main` source set, so any code written in `src/main/java` will be applied.
+
+### Server Testing
+
+If you are running a dedicated server, whether through the run configuration or `gradlew runServer`, the server will shut down immediately. You will need to accept the Minecraft EULA by editing the `eula.txt` file in the run directory.
+
+Once accepted, the server will load and become available under `localhost` (or `127.0.0.1` by default). However, you will still not able to join, because the server will be put into online mode by default, which requires authentication (that the Dev player does not have). To fix this, stop your server again and set the `online-mode` property in the `server.properties` file to `false`. Now, start your server, and you should be able to connect.
 
 :::tip
-모드는 전용 서버에서 테스트하시는걸 권장드립니다. 모드가 [클라이언트 전용][client]이라고 해도 서버에서 테스트해 아무런 동작도 하지 않는지 확인해야 합니다.
+You should always test your mod in a dedicated server environment. This includes [client-only mods][client], as these should not do anything when loaded on the server.
 :::
 
-[client]: ../concepts/sides.md#한쪽-사이드-전용-모드-만들기
+[client]: ../concepts/sides.md
 [eclipse]: https://www.eclipse.org/downloads/
 [git]: https://www.git-scm.com/
 [github]: https://github.com/

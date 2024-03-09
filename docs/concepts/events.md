@@ -1,147 +1,183 @@
-이벤트
-======
+# Events
 
-포지는 이벤트 버스를 이용하여 여러 모드들이 바닐라 마인크래프트의 여러 이벤트에 반응할 수 있도록 해줍니다.
+One of NeoForge's main features is the event system. Events are fired for various things that happen in the game. For example, there are events for when the player right clicks, when a player or another entity jumps, when blocks are rendered, when the game is loaded, etc. A modder can subscribe event handlers to each of these events, and then perform their desired behavior inside these event handlers.
 
-예를 들어, 막대기를 우클릭 하였을때 이벤트가 방송되고 모드는 이에 반응하여 어떠한 동작을 수행할 수 있습니다.
+Events are fired on their respective event bus. The most important bus is `NeoForge.EVENT_BUS`. Besides that, during startup, a mod bus is spawned for each loaded mod and passed into the mod's constructor. Many mod bus events are fired in parallel (as opposed to main bus events that always run on the same thread), dramatically increasing startup speed. See [below][modbus] for more information.
 
-대부분의 게임속 이벤트들은 메인 이벤트 버스인 `NeoForge#EVENT_BUS`에 방송됩니다. 이 버스는 모든 모드가 공유합니다. 가끔 모드 각각에 방송되어야는 이벤트도 있는데, 이땐 각 모드별로 네오 포지가 생성하는 [모드 이벤트 버스](#모드-이벤트-버스)를 사용합니다.
+## Registering an Event Handler
 
-이벤트 핸들러는 버스에 등록되어, 특정 이벤트에 반응하는 메서드 입니다.
+There are multiple ways to register event handlers. Common for all of those ways is that every event handler is a method with a single event parameter and no result (i.e. return type `void`).
 
-이벤트 핸들러 만들기
--------------------------
+### `IEventBus#addListener`
 
-이벤트 핸들러 메서드들은 결과를 반환하지 않고 인자가 하나만 있습니다. 이 메서드들은 정적이어도 되고 아니어도 됩니다.
-
-이벤트 핸들러들은 `IEventBus#addListener`를 사용하여 바로 등록하실 수 있습니다. 만약 이벤트가 제너릭 클래스이고, `GenericEvent<T>` 의 자식 클래스일 경우 `IEventBus#addGenericListener`를 대신 사용하실 수 있습니다, 둘 다 전달될 메서드를 표현하는 `Consumer`를 인자로 받습니다. 제너릭 이벤트에 반응할 핸들러들은 타입 인자또한 전달하여야 합니다. 이벤트 핸들러들은 무조건 모드의 메인 클래스의 생성자에서 등록되어야 합니다.
+The simplest way to register method handlers is by registering their method reference, like so:
 
 ```java
-// ExampleMod라는 모드 메인 클래스
+@Mod("yourmodid")
+public class YourMod {
+    public YourMod(IEventBus modBus) {
+        NeoForge.EVENT_BUS.addListener(YourMod::onLivingJump);
+    }
 
-// 이 이벤트는 모드 버스에서 방송됩니다
-private void modEventHandler(RegisterEvent event) {
-    // Do things here
-}
-
-// 이 이벤트는 포지 버스에서 방송됩니다
-private static void forgeEventHandler(ExplosionEvent.Detonate event) {
-    // ...
-}
-
-// 모드의 생성자
-modEventBus.addListener(this::modEventHandler);
-forgeEventBus.addListener(ExampleMod::forgeEventHandler);
-```
-
-### 어노테이션을 활용한 이벤트 핸들러
-
-이 이벤트 핸들러는 `EntityItemPickupEvent` 에 반응합니다, 이름에서 알 수 있다싶이, `Entity` 가 아이템을 주울 때 모드 버스에 방송됩니다.
-
-```java
-public class MyForgeEventHandler {
-    @SubscribeEvent
-    public void pickupItem(EntityItemPickupEvent event) {
-        System.out.println("아이템을 주웠습니다!!");
+    // Heals an entity by half a heart every time they jump.
+    private static void onLivingJump(LivingJumpEvent event) {
+        Entity entity = event.getEntity();
+        // Only heal on the server side
+        if (!entity.level().isClientSide()) {
+            entity.heal(1);
+        }
     }
 }
 ```
 
-이 이벤트 핸들러를 등록하기 위해서는 `NeoForge.EVENT_BUS.register(...)`를 사용하세요. 그리고 이 메서드에 이벤트 핸들러 메서드가 있는 클래스의 인스턴스를 매개변수로 전달하세요. 만약 핸들러를 모드별 버스에 등록하고 싶다면 `FMLJavaModLoadingContext.get().getModEventBus().register(...)`를 대신 사용하세요.
+### `@SubscribeEvent`
 
-### 어노테이션을 활용한 정적 이벤트 핸들러
-
-이벤트 핸들러를 정적으로 만들 수도 있습니다. 이 메서드에도 `@SubscribeEvent` 어노테이션이 있습니다. 위에서 사용한 인스턴스를 통한 이벤트 핸들러와의 차이점은 메서드가 정적이라는 것입니다. 정적 이벤트 핸들러를 등록하기 위해서는 클래스의 인스턴스가 아니고, 클래스 그 자체가 전달되어야 합니다. 그 예로:
+Alternatively, event handlers can be annotation-driven by creating an event handler method and annotating it with `@SubscribeEvent`. Then, you can pass an instance of the encompassing class to the event bus, registering all `@SubscribeEvent`-annotated event handlers of that instance:
 
 ```java
-public class MyStaticForgeEventHandler {
+public class EventHandler {
     @SubscribeEvent
-    public static void arrowNocked(ArrowNockEvent event) {
-        System.out.println("화살 당겨짐!");
+    public void onLivingJump(LivingJumpEvent event) {
+        Entity entity = event.getEntity();
+        if (!entity.level().isClientSide()) {
+            entity.heal(1);
+        }
+    }
+}
+
+@Mod("yourmodid")
+public class YourMod {
+    public YourMod(IEventBus modBus) {
+        NeoForge.EVENT_BUS.addListener(new EventHandler());
     }
 }
 ```
 
-이는 `NeoForge.EVENT_BUS.register(MyStaticForgeEventHandler.class)`를 통해 등록합니다.
-
-### 자동으로 정적 이벤트 핸들러 등록하기
-
-`@Mod$EventBusSubscriber` 어노테이션은 클래스에 사용할 수 있습니다. 만약 이를 사용할 시, 그 클래스는 자동으로 `NeoForge#EVENT_BUS` 에 `@Mod` 클래스가 초기화될 때 등록됩니다. 이는 `NeoForge.EVENT_BUS.register(AnnotatedClass.class)` 구문을 `@Mod` 클래스의 생성자에서 사용하는 것과 동일합니다.
-
-`@Mod$EventBusSubscriber` 는 아무 버스나 사용할 수 있습니다. 이를 사용할 때 모드의 아이디를 전달하는 것이 권장되는데, 이는 어노테이션만으로는 무슨 모드의 이벤트 핸들러인지 구별할 수 없기 때문입니다. 또, 이벤트를 들을 버스를 전달하는 것 또한 권장되는데, 무슨 버스의 이벤트를 듣는지 표시하기 때문입니다. 또, `Dist` 값을 지정하여 어떤 물리 사이드에서 이벤트 핸들러가 동작할 것인지를 설정하실 수 있습니다. 이를 통해 특정 물리 사이드에서는 아예 이벤트 핸들러가 등록되지 않도록 할 수 있습니다.
-
-이를 이용한, `RenderLevelStageEvent` 이벤트에 반응하는, 클라이언트에만 존재하는 정적 이벤트 핸들러 입니다.
+You can also do it statically. Simply make all event handlers static, and instead of a class instance, pass in the class itself:
 
 ```java
-@Mod.EventBusSubscriber(modid = "mymod", bus = Bus.FORGE, value = Dist.CLIENT)
-public class MyStaticClientOnlyEventHandler {
-    @SubscribeEvent
-    public static void drawLast(RenderLevelStageEvent event) {
-        System.out.println("월드 그리는중!");
+public class EventHandler {
+	@SubscribeEvent
+    public static void onLivingJump(LivingJumpEvent event) {
+        Entity entity = event.getEntity();
+        if (!entity.level().isClientSide()) {
+            entity.heal(1);
+        }
+    }
+}
+
+@Mod("yourmodid")
+public class YourMod {
+    public YourMod(IEventBus modBus) {
+        NeoForge.EVENT_BUS.addListener(EventHandler.class);
     }
 }
 ```
 
-:::note
-이를 이용하면 클래스의 인스턴스가 아닌 클래스 그 자체가 등록됩니다. 그렇기에 등록되는 모든 이벤트 핸들러는 정적이어야 제대로 동작합니다!
-:::
+### `@Mod.EventBusSubscriber`
 
-이벤트 취소하기
----------
+We can go one step further and also annotate the event handler class with `@Mod.EventBusSubscriber`. This annotation is discovered automatically by NeoForge, allowing you to remove all event-related code from the mod constructor. In essence, it is equivalent to calling `NeoForge.EVENT_BUS.register(EventHandler.class)` at the end of the mod constructor. This means that all handlers must be static, too.
 
-취소할 수 있는 이벤트는 클래스 정의에 `@Cancelable`로 표시되어 있습니다. 이러한 이벤트들은 포지에서 `Event#isCancelable`의 함수 본문에 `return true`를 주입하여 언제나 `true`를 반환하도록 합니다. 이벤트는 `Event#setCanceled(boolean canceled)`를 통해 취소할 수 있으며, `false`를 인자로 전달하는 것으로 "취소를 취소"하실 수 있습니다.
+While not required, it is highly recommended to specify the `modid` parameter in the annotation, in order to make debugging easier (especially when it comes to mod conflicts).
+
+```java
+@Mod.EventBusSubscriber(modid = "yourmodid")
+public class EventHandler {
+    @SubscribeEvent
+    public static void onLivingJump(LivingJumpEvent event) {
+        Entity entity = event.getEntity();
+        if (!entity.level().isClientSide()) {
+            entity.heal(1);
+        }
+    }
+}
+```
+
+## Event Options
+
+### Fields and Methods
+
+Fields and methods are probably the most obvious part of an event. Most events contain context for the event handler to use, such as an entity causing the event or a level the event occurs in.
+
+### Hierarchy
+
+In order to use the advantages of inheritance, some events do not directly extend `Event`, but one of its subclasses, for example `BlockEvent` (which contains block context for block-related events) or `EntityEvent` (which similarly contains entity context) and its subclasses `LivingEvent` (for `LivingEntity`-specific context) and `PlayerEvent` (for `Player`-specific context). These context-providing super events are `abstract` and cannot be listened to.
 
 :::danger
-`@Cancelable`이 없는 이벤트를 취소하려고 하면 `UnsuppoortedOperationException`가 발생해 게임이 충돌하게 됩니다!
+If you listen to an `abstract` event, your game will crash, as this is never what you want. You always want to listen to one of the subevents instead.
 :::
 
-결과
--------
+### Cancellable Events
 
-몇몇 이벤트들은 취소 여부 확인만으론 충분한 흐름 제어를 할 수 없어 `DENY`, `DEFAULT`, `ALLOW` 이 세가지 결과를 표현할 수 있는 `Event$Result`를 사용합니다. 이러한 이벤트들은 `@HasResult`로 표시되어 있습니다. `DENY`는 처리 중단, `DEFAULT`는 기본 바닐라 로직 실행, `ALLOW`는 강제 동작 실행을 의미합니다. 결과는 `Event#setResult`를 사용해 지정할 수 있습니다.
+Some events implement the `ICancellableEvent` interface. These events can be cancelled using `#setCanceled(boolean canceled)`, and the cancellation status can be checked using `#isCanceled()`. If an event is cancelled, other event handlers for this event will not run, and some kind of behavior that is associated with "cancelling" is enabled. For example, cancelling `LivingJumpEvent` will prevent the jump.
+
+Event handlers can opt to explicitly receive cancelled events. This is done by setting the `receiveCanceled` parameter in `IEventBus#addListener` (or `@SubscribeEvent`, depending on your way of attaching the event handlers) to true.
+
+### Results
+
+Some events have a `Result`. A `Result` can be one of three things: `DENY` which stops the event, `ALLOW` which force-runs the event, and `DEFAULT` which uses the Vanilla behavior. The result of an event can be set by calling `Event#setResult`. Not all events have results; an event with a result will be annotated with `@HasResult`.
 
 :::caution
-각 이벤트들이 결과를 응용하는 방식은 다르기 때문에 이벤트의 Javadoc을 충분히 숙지하도록 하세요!
+Results are deprecated and will be replaced by more specific per-event results soon.
 :::
 
-우선순위
---------
+### Priority
 
-이벤트 핸들러의 실행 순서에는 우선순위가 있습니다. `@SubscribeEvent`와 `IEventBus#addListener`는 우선순위를 지정하기 위한 `priority`를 선택 인자로 받습니다. 우선순위는 `EventPriority` 열거형으로 정의되는데, (`HIGHEST`, `HIGH`, `NORMAL`, `LOW`, `LOWEST`)가 있습니다. `HIGHEST`의 우선순위가 가장 높고 `LOWEST`가 가장 낮습니다.
+Event handlers can optionally get assigned a priority. The `EventPriority` enum contains five values: `HIGHEST`, `HIGH`, `NORMAL` (default), `LOW` and `LOWEST`. Event handlers are executed from highest to lowest priority. If they have the same priority, they fire in registration order on the main bus, which is roughly related to mod load order, and in exact mod load order on the mod bus (see below).
 
-이벤트 상속
-----------
+Priorities can be defined by setting the `priority` parameter in `IEventBus#addListener` or `@SubscribeEvent`, depending on how you attach event handlers. Note that priorities are ignored for events that are fired in parallel.
 
-일부 이벤트들은 역할을 세부적으로 나누거나 하나의 범주로 묶기 위해 상속을 사용하기도 합니다. 이벤트 핸들러는 반응할 이벤트의 모든 자식클래스에도 반응합니다.
+### Sided Events
 
-모드 이벤트 버스
--------------
+Some events are only fired on one [side][side]. Common examples include the various render events, which are only fired on the client. Since client-only events generally need to access other client-only parts of the Minecraft codebase, they need to be registered accordingly.
 
-귀하의 모드의 모드별 버스를 사용하시려면, [메인 클래스 생성자][ctor-injection]에 `IModEventBus`를 추가하세요.
+Event handlers that use `IEventBus#addListener()` should use a `FMLEnvironment.dist` check and a separate client-only class, as outlined in the article on sides.
 
-모드 이벤트 버스는 주로 초기화를 위한 생명주기 이벤트를 방송할 때 사용합니다. 모드 버스에 방송되는 이벤트들은 전부 `IModBusEvent`를 구현합니다. 이 이벤트들은 대개 병렬적으로 방송되기에 다른 모드의 코드를 직접적으로 호출할 순 없으며, `InterModComms`을 대신 사용하세요.
+Event handlers that use `@Mod.EventBusSubscriber` can specify the side as the `value` parameter of the annotation, for example `@Mod.EventBusSubscriber(value = Dist.CLIENT, modid = "yourmodid")`.
 
-모드 이벤트 버스에는 대표적으로 아래 [생명주기] 이벤트들이 방송됩니다.
+## Event Buses
 
-* `FMLCommonSetupEvent`
-* `FMLClientSetupEvent`/`FMLDedicatedServerSetupEvent`
-* `InterModEnqueueEvent`
-* `InterModProcessEvent`
+While most events are posted on the `NeoForge.EVENT_BUS`, some events are posted on the mod event bus instead. These are generally called mod bus events. Mod bus events can be distinguished from regular events by their superinterface `IModBusEvent`.
 
-:::note
-`FMLClientSetupEvent` 와 `FMLDedicatedServerSetupEvent` 는 올바른 물리 사이드에서만 방송됩니다!
+The mod event bus is passed to you as a parameter in the mod constructor, and you can then subscribe mod bus events to it. If you use `@Mod.EventBusSubscriber`, you can also set the bus as an annotation parameter, like so: `@Mod.EventBusSubscriber(bus = Bus.MOD, modid = "yourmodid")`. The default bus is `Bus.FORGE`.
+
+### The Mod Lifecycle
+
+Most mod bus events are what is known as lifecycle events. Lifecycle events run once in every mod's lifecycle during startup. Many of them are fired in parallel; if you want to run code from one of these events on the main thread, enqueue them using `#enqueueWork(Runnable runnable)`.
+
+The lifecycle generally follows the following order:
+
+- The mod constructor is called. Register your event handlers here, or in the next step.
+- All `@Mod.EventBusSubscriber`s are called.
+- `FMLConstructModEvent` is fired.
+- The registry events are fired, these include [`NewRegistryEvent`][newregistry], [`DataPackRegistryEvent.NewRegistry`][newdatapackregistry] and, for each registry, [`RegisterEvent`][registerevent].
+- `FMLCommonSetupEvent` is fired. This is where various miscellaneous setup happens.
+- The [sided][side] setup is fired: `FMLClientSetupEvent` if on a physical client, and `FMLDedicatedServerSetupEvent` if on a physical server.
+- `InterModComms` are handled (see below).
+- `FMLLoadCompleteEvent` is fired.
+
+#### `InterModComms`
+
+`InterModComms` is a system that allows modders to send messages to other mods for compatibility features. The class holds the messages for mods, all methods are thread-safe to call. The system is mainly driven by two events: `InterModEnqueueEvent` and `InterModProcessEvent`.
+
+During `InterModEnqueueEvent`, you can use `InterModComms#sendTo` to send messages to other mods. These methods accept the id of the mod to send the message to, the key associated with the message data (to distinguish between different messages), and a `Supplier` holding the message data. The sender can be optionally specified as well.
+
+Then, during `InterModProcessEvent`, you can use `InterModComms#getMessages` to get a stream of all received messages as `IMCMessage` objects. These hold the sender of the data, the intended receiver of the data, the data key, and the supplier for the actual data.
+
+### Other Mod Bus Events
+
+Next to the lifecycle events, there are a few miscellaneous events that are fired on the mod event bus, mostly for legacy reasons. These are generally events where you can register, set up, or initialize various things. Most of these events are not ran in parallel in contrast to the lifecycle events. A few examples:
+
+- `RegisterColorHandlersEvent`
+- `ModelEvent.BakingCompleted`
+- `TextureStitchEvent`
+
+:::warning
+Most of these events are planned to be moved to the main event bus in a future version.
 :::
 
-위 생명주기 이벤트들은 모두 병렬적으로 처리되며, `ParallelDispatchEvent`의 하위 클래스 입니다. 위 이벤트 도중 메인 스레드에서 코드를 실행하려면 `#enqueueWork`를 사용하세요.
-
-생명주기 이벤트 이외에도, 모드별 버스에서 방송되는 기타 객체 등록 및 초기화를 위한 이벤트도 있습니다. 이 이벤트들은 위와 다르게 병렬적으로 방송되지 않으며 대표적으로 아래 네 개가 있습니다:
-
-* `RegisterColorHandlersEvent`
-* `ModelEvent$BakingCompleted`
-* `TextureStitchEvent`
-* `RegisterEvent`
-
-일반적으로, 모드의 초기화에 사용되는 이벤트는 모드별 버스에 방송됩니다.
-
-[생명주기]: ./lifecycle.md
-[ctor-injection]: ../gettingstarted/modfiles.md#javafml과-mod
+[modbus]: #event-buses
+[newdatapackregistry]: registries.md#custom-datapack-registries
+[newregistry]: registries.md#custom-registries
+[registerevent]: registries.md#registerevent
+[side]: sides.md

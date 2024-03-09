@@ -232,7 +232,7 @@ public class ExampleGameTests {
 
 게임 세트는 빌드 스크립트(`build.gradle` 파일)에서도 설정하실 수 있습니다.
 
-### 다른 게임 테스트 네임 스페이스 활성화하기
+### 다른 네임 스페이스 활성화하기
 
 만약 [빌드스크립트 기본 설정][buildscript]을 사용하신다면, 현재 모드 아이디의 게임 테스트만 활성화될 것입니다. 다른 네임 스페이스도 활성화하기 위해선 속성 `forge.enabledGameTestNamespaces`의 값을 `,`로 구분된 활성화할 네임 스페이스들의 목록인 문자열로 지정하셔야 합니다.
 
@@ -277,6 +277,6 @@ property 'forge.enableGameTest', 'true'
 ```
 
 [test]: #게임-테스트-수행하기
-[namespaces]: #다른-게임-테스트-네임-스페이스-활성화하기
-[event]: ../concepts/events.md#이벤트-핸들러-만들기
+[namespaces]: #다른-네임-스페이스-활성화하기
+[event]: ../concepts/events.md#이벤트-핸들러-등록하기
 [buildscript]: ../gettingstarted/index.md#간단한-buildgradle-설정
