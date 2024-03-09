@@ -122,7 +122,7 @@ if (object != null) {
 }
 ```
 
-만약 레벨의 해당 위치에 존재하는 블록 상태나 블록 엔티티를 이미 알고 있다면 검색 시간 단축을 위해 다음처럼 추가적으로 제공할 수도 있습니다:
+만약 레벨의 해당 위치에 존재하는 블록의 상태나 블록 엔티티를 이미 알고 있다면 검색 시간 단축을 위해 다음처럼 추가적으로 제공할 수도 있습니다:
 ```java
 var object = level.getCapability(CAP, pos, blockState, blockEntity, context);
 if (object != null) {

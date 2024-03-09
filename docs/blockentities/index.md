@@ -53,7 +53,7 @@ BlockEntity#load(CompoundTag tag) // 전달된 tag에서 데이터를 불러오�
 
 ## 블록 엔티티 틱 처리
 
-아이템을 굽는 화로처럼, 1 틱마다 수행되는 작업을 블록 엔티티에 구현하기 위해선 `EntityBlock#getTicker(Level, BlockState, BlockEntityType)`를 재정의 하세요. 이때 논리 사이드에 따라 다른 ticker를 반환하셔도 됩니다. 이 메서드는 레벨, 블록 위치, [블록 상태][blockstate], 그리고 블록 엔티티를 인자로 받는 함수를 반환하며, 여기서 반환한 함수는 매 틱마다 실행됩니다.
+아이템을 굽는 화로처럼, 1 틱마다 수행되는 작업을 블록 엔티티에 구현하기 위해선 `EntityBlock#getTicker(Level, BlockState, BlockEntityType)`를 재정의 하세요. 이때 논리 사이드에 따라 다른 ticker를 반환하셔도 됩니다. 이 메서드는 레벨, 블록 위치, [블록의 상태][blockstate], 그리고 블록 엔티티를 인자로 받는 함수를 반환하며, 여기서 반환한 함수는 매 틱마다 실행됩니다.
 
 ```java
 // Block의 자식 클래스 내부
@@ -138,12 +138,12 @@ Level#sendBlockUpdated(BlockPos pos, BlockState oldState, BlockState newState, i
 ```
 
 `pos`는 업데이트할 블록 엔티티의 위치입니다.
-`oldState`랑 `newState`는 해당 위치의 [블록 상태][blockstate]를 전달하시면 됩니다.
+`oldState`랑 `newState`는 해당 위치의 [블록의 상태][blockstate]를 전달하시면 됩니다.
 `flags`는 무슨 정보를 보내고 업데이트할지 설정하는 비트 마스크들로, `2`(LSB 두 번째 비트), 또는 `Block#UPDATE_CLIENTS`를 포함하고 있어야 합니다. 그래야 서버가 클라이언트들에 업데이트 패킷을 전송합니다. `Block` 클래스를 참고하여 다른 플래그들의 역할 또한 볼 수 있습니다.
 
 ### 커스텀 네트워크 메시지로 동기화하기
 
-이 방법은 가장 복잡하지만, 그러기에 동기화를 해야 하는 정보들만 실제로 동기화가 되도록 세밀하게 조절할 수 있습니다. 먼저 [네트워킹][네트워크-통신]에 대해 미리 숙지하시는 걸 권장드립니다, 특히 [`SimpleImpl`][simple_impl]에 대해 잘 알고 계셔야 합니다.
+이 방법은 가장 복잡하지만, 그러기에 동기화를 해야 하는 정보들만 실제로 동기화가 되도록 세밀하게 조절할 수 있습니다. 먼저 [네트워킹][네트워크-통신]에 대해 미리 숙지하시는 걸 권장드립니다, 특히 [`CustomPacketPayload`][custom_payload]에 대해 잘 알고 계셔야 합니다.
 
 커스텀 메시지는 해당 블록 엔티티를 추적하고 있는 모든 클라이언트에 `SimpleChannel#send(PacketDistributor$PacketTarget, MSG)`를 통해 단번에 보낼 수 있습니다.
 이때 사용하는 `PacketDistributor`는 `TRACKING_ENTITY`입니다.
@@ -155,6 +155,6 @@ Level#sendBlockUpdated(BlockPos pos, BlockState oldState, BlockState newState, i
 [등록]: ../concepts/registries.md#객체-등록하기
 [데이터-저장하기]: #블록-엔티티에-데이터-담기
 [네트워크-통신]: ../networking/index.md
-[simple_impl]: ../networking/simpleimpl.md
+[custom_payload]: ../networking/payload.md
 [blockstate]: ../blocks/states.md
 [menu]: ../gui/menus.md

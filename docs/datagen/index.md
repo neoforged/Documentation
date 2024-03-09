@@ -47,7 +47,7 @@ MDK의 `build.gradle`은 기본적으로 `runData` 실행 구성을 추가하여
 * [`net.neoforged.neoforge.client.model.generators.ModelProvider<?>`][modelgen] - [모델 생성용][models]; `#registerModels` 구현
   * [`ItemModelProvider`][itemmodelgen] - 아이템 모델 생성용
   * [`BlockModelProvider`][blockmodelgen] - 블록 모델 생성용
-* [`net.neoforged.neoforge.client.model.generators.BlockStateProvider`][blockstategen] - 블록 상태, 블록 모델, 아이템 모델 생성용; `#registerStatesAndModels` 구현
+* [`net.neoforged.neoforge.client.model.generators.BlockStateProvider`][blockstategen] - 블록의 상태, 블록 모델, 아이템 모델 생성용; `#registerStatesAndModels` 구현
 
 ### 서버 데이터
 
