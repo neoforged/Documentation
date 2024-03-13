@@ -29,8 +29,9 @@ When rendering this as an item, returning `true` causes the model to not be rend
 
 Whatever texture should be used for the particles. For blocks, this shows when an entity falls on it, when it breaks, etc. For items, this shows when it breaks or when it's eaten.
 
-!!! important
-    The vanilla method with no parameters has been deprecated in favor of `#getParticleIcon(ModelData)` since model data can have an effect on how a particular model might be rendered.
+:::caution
+The vanilla method with no parameters has been deprecated in favor of `#getParticleIcon(ModelData)` since model data can have an effect on how a particular model might be rendered.
+:::
 
 ### <s>`getTransforms`</s>
 
