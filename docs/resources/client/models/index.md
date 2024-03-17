@@ -65,6 +65,11 @@ An element is a JSON representation of a cuboid object. It has the following pro
 
 - `from`: The coordinate of the start corner of the cuboid, specified as `[x, y, z]`. Specified in 1/16 block units. For example, `[0, 0, 0]` would be the "bottom left" corner, `[8, 8, 8]` would be the center, and `[16, 16, 16]` would be the "top right" corner of the block.
 - `to`: The coordinate of the start corner of the cuboid, specified as `[x, y, z]`. Like `from`, this is specified in 1/16 block units.
+
+:::tip
+Values in `from` and `to` are limited by Minecraft to the range `[-16, 32]`. However, it is highly discouraged to exceed `[0, 16]`, as that will lead to lighting and/or culling issues.
+:::
+
 - `neoforge_data`: See [Extra Face Data][extrafacedata].
 - `faces`: An object containing data for of up to 6 faces, named `north`, `south`, `east`, `west`, `up` and `down`, respectively. Every face has the following data:
   - `uv`: The uv of the face, specified as `[u1, v1, u2, v2]`, where `u1, v1` is the top left uv coordinates and `u2, v2` is the bottom right uv coordinates.
