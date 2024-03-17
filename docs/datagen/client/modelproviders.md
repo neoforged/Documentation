@@ -416,8 +416,8 @@ public CompletableFuture<?> run(CachedOutput cache) {
 [datagen]: ../index.md#data-providers
 [efh]: ../index.md#existing-files
 [loader]: #custom-model-loader-builders
-[color]: ../../resources/client/models/tinting.md#blockcoloritemcolor
-[overrides]: ../../resources/client/models/itemproperties.md
+[color]: ../../resources/client/models/index.md#tinting
+[overrides]: ../../resources/client/models/index.md#overrides
 [blockstateprovider]: #block-state-provider
 [blockstate]: https://minecraft.wiki/w/Tutorials/Models#Block_states
 [blockmodels]: #blockmodelprovider

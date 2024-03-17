@@ -6,6 +6,8 @@ Minecraft generally has two kinds of resources: client-side resources, known as 
 
 Both resource and data packs normally require a [`pack.mcmeta` file][packmcmeta], this was also the case in past Forge versions. However, NeoForge generates these at runtime for you, so you don't need to worry about it anymore.
 
+If you are confused about the format of something, an easy way to change that is to have a look at the vanilla resources. Your NeoForge development environment not only contains vanilla code, but also vanilla resources. They can be found in the External Resources section (IntelliJ)/Project Libraries section (Eclipse), under the name `ng_dummy_ng.net.minecraft:client:client-extra:<version>` (for Minecraft resources) or `ng_dummy_ng.net.neoforged:neoforge:<version>` (for NeoForge resources).
+
 ## Assets
 
 _See also: [Resource Packs][mcwikiresourcepacks] on the [Minecraft Wiki][mcwiki]_
@@ -14,7 +16,7 @@ Assets, or client-side resources, are all resources that are only relevant on th
 
 NeoForge automatically collects all mod resource packs into the `Mod resources` pack, which sits at the bottom of the Selected Packs side in the resource packs menu. It is currently not possible to disable the `Mod resources` pack. However, resource packs that sit above the `Mod resources` pack override resources defined in a resource pack below them. This mechanic allows resource pack makers to override your mod's resources, and also allows mod developers to override Minecraft resources if needed.
 
-Resource packs can contain textures, sounds and translation files, along with block models, item models, and blockstate model definitions. (TODO add links)
+Resource packs can contain [models][models], [blockstate files][bsfile], [textures][textures], [sounds][sounds], [particle definitions][particles] and [translation files][translations].
 
 ## Data
 
@@ -63,20 +65,20 @@ Datagen is run through the Data run configuration, which is generated for you al
 
 All data providers extend the `DataProvider` interface and usually require one method to be overridden. The following is a list of all data generators Minecraft and NeoForge offer (the linked articles add further information, such as helper methods, TODO add links):
 
-| Class                                | Method                           | Generates                                  | Side   | Notes                                                                                                                                                                                                                         |
-|--------------------------------------|----------------------------------|--------------------------------------------|--------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `BlockStateProvider`                 | `registerStatesAndModels()`      | Blockstate model definitions, block models | Client |                                                                                                                                                                                                                               |
-| `ItemModelProvider`                  | `registerModels()`               | Item models                                | Client |                                                                                                                                                                                                                               |
-| `LanguageProvider`                   | `addTranslations()`              | Translations                               | Client | Also requires passing the language in the constructor.                                                                                                                                                                        |
-| `ParticleDescriptionProvider`        | `addDescriptions()`              | Particle definitions                       | Client |                                                                                                                                                                                                                               |
-| `SoundDefinitionsProvider`           | `registerSounds()`               | Sound definitions                          | Client |                                                                                                                                                                                                                               |
-| `AdvancementProvider`                | `generate()`                     | Advancements                               | Server | Make sure to use the NeoForge variant, not the Minecraft one.                                                                                                                                                                 |
-| `LootTableProvider`                  | `generate()`                     | Loot tables                                | Server | Requires extra methods and classes to work properly, see linked article for details.                                                                                                                                          |
-| `RecipeProvider`                     | `buildRecipes(RecipeOutput)`     | Recipes                                    | Server |                                                                                                                                                                                                                               |
-| Various subclasses of `TagsProvider` | `addTags(HolderLookup.Provider)` | Tags                                       | Server | Several specialized subclasses exist, for example `BlockTagsProvider`. If the one you need doesn't exist, extend `TagsProvider` (or `IntrinsicHolderTagsProvider` if applicable) with your tag type as the generic parameter. |
-| `DatapackBuiltinEntriesProvider`     | N/A                              | Datapack builtin entries, e.g. worldgen    | Server | See linked article for details.                                                                                                                                                                                               |
-| `DataMapProvider`                    | `gather()`                       | Data map entries                           | Server |                                                                                                                                                                                                                               |
-| `GlobalLootModifierProvider`         | `start()`                        | Global loot modifiers                      | Server |                                                                                                                                                                                                                               |
+| Class                                | Method                           | Generates                               | Side   | Notes                                                                                                                                                                                                                         |
+|--------------------------------------|----------------------------------|-----------------------------------------|--------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `BlockStateProvider`                 | `registerStatesAndModels()`      | Blockstate files, block models          | Client |                                                                                                                                                                                                                               |
+| `ItemModelProvider`                  | `registerModels()`               | Item models                             | Client |                                                                                                                                                                                                                               |
+| `LanguageProvider`                   | `addTranslations()`              | Translations                            | Client | Also requires passing the language in the constructor.                                                                                                                                                                        |
+| `ParticleDescriptionProvider`        | `addDescriptions()`              | Particle definitions                    | Client |                                                                                                                                                                                                                               |
+| `SoundDefinitionsProvider`           | `registerSounds()`               | Sound definitions                       | Client |                                                                                                                                                                                                                               |
+| `AdvancementProvider`                | `generate()`                     | Advancements                            | Server | Make sure to use the NeoForge variant, not the Minecraft one.                                                                                                                                                                 |
+| `LootTableProvider`                  | `generate()`                     | Loot tables                             | Server | Requires extra methods and classes to work properly, see linked article for details.                                                                                                                                          |
+| `RecipeProvider`                     | `buildRecipes(RecipeOutput)`     | Recipes                                 | Server |                                                                                                                                                                                                                               |
+| Various subclasses of `TagsProvider` | `addTags(HolderLookup.Provider)` | Tags                                    | Server | Several specialized subclasses exist, for example `BlockTagsProvider`. If the one you need doesn't exist, extend `TagsProvider` (or `IntrinsicHolderTagsProvider` if applicable) with your tag type as the generic parameter. |
+| `DatapackBuiltinEntriesProvider`     | N/A                              | Datapack builtin entries, e.g. worldgen | Server | See linked article for details.                                                                                                                                                                                               |
+| `DataMapProvider`                    | `gather()`                       | Data map entries                        | Server |                                                                                                                                                                                                                               |
+| `GlobalLootModifierProvider`         | `start()`                        | Global loot modifiers                   | Server |                                                                                                                                                                                                                               |
 
 All of these providers follow the same pattern. First, you create a subclass and add your own resources to be generated. Then, you add the provider to the event in an [event handler][eventhandler]. An example using a `RecipeProvider`:
 
@@ -154,6 +156,7 @@ runs {
 }
 ```
 
+[bsfile]: client/models/index.md#blockstate-files
 [chattype]: https://minecraft.wiki/w/Chat_type
 [datapackcmd]: https://minecraft.wiki/w/Commands/datapack
 [event]: ../concepts/events.md
@@ -164,8 +167,13 @@ runs {
 [mcwiki]: https://minecraft.wiki
 [mcwikidatapacks]: https://minecraft.wiki/w/Data_pack
 [mcwikiresourcepacks]: https://minecraft.wiki/w/Resource_pack
+[models]: client/models/index.md
 [packmcmeta]: #packmcmeta
 [packmcmetadatapack]: https://minecraft.wiki/w/Data_pack#pack.mcmeta
 [packmcmetaresourcepack]: https://minecraft.wiki/w/Resource_pack#Contents
+[particles]: ../gameeffects/particles.md
 [predicate]: https://minecraft.wiki/w/Predicate
 [sides]: ../concepts/sides.md
+[sounds]: ../gameeffects/sounds.md
+[textures]: client/textures.md
+[translations]: client/i18n.md#language-files
