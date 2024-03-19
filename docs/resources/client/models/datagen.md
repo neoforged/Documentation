@@ -72,7 +72,7 @@ public class MyBlockStateProvider extends BlockStateProvider {
         simpleBlockWithItem(block, exampleModel);
         
         // Adds a log block model. Requires two textures at assets/<namespace>/textures/block/<path>.png and
-        // assets/<namespace>/textures/block/<path>_top.png, representing the side and top of the log, respectively.
+        // assets/<namespace>/textures/block/<path>_top.png, referencing the side and top texture, respectively.
         // Note that the block input here is limited to RotatedPillarBlock, which is the class vanilla logs use.
         logBlock(block);
         // Like #logBlock, but the textures are named <path>_side.png and <path>_end.png instead of
@@ -96,10 +96,10 @@ public class MyBlockStateProvider extends BlockStateProvider {
         // allowing for different rotations to use different models. Used e.g. by the crafting table.
         horizontalBlock(block, exampleModel);
         // Specifies a horizontally-rotatable block model that is attached to a face, e.g. for buttons or levers.
-        // Accounts for the fact that these can also be placed on the ground and the ceiling, and rotates them accordingly.
+        // Accounts for placing the block on the ground and on the ceiling, and rotates them accordingly.
         // Like #horizontalBlock, has an overload that accepts a Function<BlockState, ModelFile> instead.
         horizontalFaceBlock(block, exampleModel);
-        // Similar to #horizontalBlock, but for blocks that are rotatable in all six directions, including up and down.
+        // Similar to #horizontalBlock, but for blocks that are rotatable in all directions, including up and down.
         // Again, has an overload that accepts a Function<BlockState, ModelFile> instead.
         directionalBlock(block, exampleModel);
     }
@@ -175,7 +175,8 @@ ConfiguredModel.Builder<?> builder = ConfiguredModel.builder()
         .uvlock(true)
         // Set a weight.
         .weight(5);
-// Build the configured model. The return type is an array to account for multiple possible models in the same blockstate.
+// Build the configured model. The return type is an array
+// to account for multiple possible models in the same blockstate.
 ConfiguredModel[] model = builder.build();
 
 // Get a variant block state builder.
@@ -275,6 +276,6 @@ public static void gatherData(GatherDataEvent event) {
 ```
 
 [blockbench]: https://www.blockbench.net
-[custommodelloader]: ../../../rendering/modelloaders/index.md
+[custommodelloader]: modelloaders.md#datagen
 [datagen]: ../../index.md#data-generation
 [elements]: index.md#elements
