@@ -256,9 +256,22 @@ public static void registerItemColorHandlers(RegisterColorHandlersEvent.Item eve
 
 Be aware that the `item/generated` model specifies tint indices for its various layers - `layer0` has tint index 0, `layer1` has tint index 1, etc. Also, remember that block items are items, not blocks, and require an item color handler to be colored.
 
+## Registering Additional Models
+
+Models that are not associated with a block or item in some way, but are still required in other contexts (e.g. [block entity renderers][ber]), can be registered through `ModelEvent.RegisterAdditional`:
+
+```java
+// Client-side mod bus event handler
+@SubscribeEvent
+public static void registerAdditional(ModelEvent.RegisterAdditional event) {
+    event.register(new ResourceLocation("examplemod", "block/example_unused_model"));
+}
+```
+
 [ao]: https://en.wikipedia.org/wiki/Ambient_occlusion
+[ber]: ../../../blockentities/ber.md
 [bsfile]: #blockstate-files
-[custommodelloader]: ../../../rendering/modelloaders/index.md
+[custommodelloader]: modelloaders.md
 [elements]: #elements
 [event]: ../../../concepts/events.md
 [eventhandler]: ../../../concepts/events.md#registering-an-event-handler

@@ -6,19 +6,172 @@ The entry point for a block model remains the model JSON file. However, you can 
 
 ## Builtin Model Loaders
 
-Besides the default model loader, NeoForge offers a total of six builtin loaders, each serving a different purpose.
+Besides the default model loader, NeoForge offers a total of seven builtin loaders, each serving a different purpose.
 
 ### Composite Model
 
-### Dynamic Bucket Model
+A composite model can be used to specify different model parts in the parent and only apply some of them in a child. This is best illustrated by an example. Consider the following parent model at `examplemod:example_composite_model`:
+
+```json5
+{
+  "loader": "neoforge:composite",
+  // Specify model parts.
+  "children": {
+    "part_1": {
+      "parent": "examplemod:some_model_1"
+    },
+    "part_2": {
+      "parent": "examplemod:some_model_2"
+    }
+  },
+  "visibility": {
+    // Disable part 2 by default.
+    "part_2": false
+  }
+}
+```
+
+Then, we can disable and enable individual parts in a child model of `examplemod:example_composite_model`:
+
+```json5
+{
+  "parent": "examplemod:example_composite_model",
+  // Override visibility. If a part is missing, it will use the parent model's visibility value.
+  "visibility": {
+    "part_1": false,
+    "part_2": true
+  }
+}
+```
+
+To [datagen][modeldatagen] this model, use the custom loader class `CompositeModelBuilder`.
+
+### Dynamic Fluid Container Model
+
+The dynamic fluid container model, also called dynamic bucket model after its most common use case, is used for items that represent a fluid container (such as a bucket or a tank) and want to show the fluid within the model. This only works if there is a fixed amount of fluids (e.g. only lava and powder snow) that can be used, use a [block entity renderer][ber] instead if the fluid is arbitrary.
+
+```json5
+{
+  "loader": "neoforge:fluid_container",
+  // Required. Must be a valid fluid id.
+  "fluid": "minecraft:water",
+  // Optional, defaults to false. Whether to flip the model upside down, for gaseous fluids.
+  "flip_gas": true,
+  // Optional, defaults to true. Whether to have the cover act as the mask.
+  "cover_is_mask": false,
+  // Optional, defaults to true. Whether to apply the fluid's luminosity to the item model.
+  "apply_fluid_luminosity": false
+}
+```
+
+To [datagen][modeldatagen] this model, use the custom loader class `DynamicFluidContainerModelBuilder`. Be aware that for legacy support reasons, this class also provides a method to set the `apply_tint` property, which is no longer used.
 
 ### Elements Model
 
+An elements model consists of block model [elements][elements] and an optional [root transform][transform]. Intended mainly for usage outside regular model rendering, for example within a [BER][ber].
+
+```json5
+{
+  "loader": "neoforge:elements",
+  "elements": [...],
+  "transform": {...}
+}
+```
+
+### Empty Model
+
+An empty model just renders nothing at all.
+
+```json5
+{
+  "loader": "neoforge:empty"
+}
+```
+
 ### Item Layer Model
+
+Item layer models are a variant of the standard `item/generated` model that offer the following additional features:
+
+- Unlimited amount of layers (instead of the default 5)
+- Per-layer [render types][rendertype]
+
+```json5
+{
+  "loader": "neoforge:item_layers",
+  "textures": {
+    "layer0": "...",
+    "layer1": "...",
+    "layer2": "...",
+    "layer3": "...",
+    "layer4": "...",
+    "layer5": "...",
+  },
+  "render_types": {
+    // Map render types to layer numbers. For example, layers 0, 2 and 4 will use cutout.
+    "minecraft:cutout": [0, 2, 4],
+    "minecraft:cutout_mipped": [1, 3],
+    "minecraft:translucent": [5]
+  },
+  // other stuff the default loader allows here
+}
+```
+
+To [datagen][modeldatagen] this model, use the custom loader class `ItemLayerModelBuilder`.
 
 ### OBJ Model
 
+The OBJ model loader allows you to use Wavefront `.obj` 3D models in the game, allowing for arbitrary shapes (including triangles, circles, etc.) to be included in a model. The `.obj` model must be placed in the `models` folder (or a subfolder thereof), and a `.mtl` file with the same name must be provided (or set manually), so for example, an OBJ model at `models/block/example.obj` must have a corresponding MTL file at `models/block/example.mtl`.
+
+```json5
+{
+  "loader": "neoforge:obj",
+  // Required. Reference to the model file. Note that this is relative to the namespace root, not the model folder.
+  "model": "examplemod:models/example.obj",
+  // Normally, .mtl files must be put into the same location as the .obj file, with only the file ending differing.
+  // This will cause the loader to automatically pick them up. However, you can also set the location
+  // of the .mtl file manually if needed.
+  "mtl_override": "examplemod:models/example_other_name.mtl",
+  // These textures can be referenced in the .mtl file as #texture0, #particle, etc.
+  // This usually requires manual editing of the .mtl file.
+  "textures": {
+    "texture0": "minecraft:block/cobblestone",
+    "particle": "minecraft:block/stone"
+  },
+  // Enable or disable automatic culling of the model. Optional, defaults to true.
+  "automatic_culling": false,
+  // Whether to shade the model or not. Optional, defaults to true.
+  "shade_quads": false,
+  // Some modeling programs will assume V=0 to be bottom instead of the top. This property flips the Vs upside-down.
+  // Optional, defaults to false.
+  "flip_v": true,
+  // Whether to enable emissivity or not. Optional, defaults to true.
+  "emissive_ambient": false
+}
+```
+
+To [datagen][modeldatagen] this model, use the custom loader class `ObjModelBuilder`.
+
 ### Separate Transforms Model
+
+A separate transforms model can be used to switch between different models based on the perspective. The perspectives are the same as for the `display` block in a [normal model][model]. This works by specifying a base model (as a fallback) and then specifying per-perspective override models. Note that each of these can be fully-fledged models if you so desire, but it is usually easiest to just refer to another model by using a child model of that model, like so:
+
+```json5
+{
+  "loader": "neoforge:separate_transforms",
+  // Use the cobblestone model normally.
+  "base": {
+    "parent": "minecraft:block/cobblestone"
+  },
+  // Use the stone model only when dropped.
+  "perspectives": {
+    "ground": {
+      "parent": "minecraft:block/stone"
+    }
+  }
+}
+```
+
+To [datagen][modeldatagen] this model, use the custom loader class `SeparateTransformsModelBuilder`.
 
 ## Creating Custom Model Loaders
 
@@ -81,13 +234,14 @@ public class MyDynamicModel implements IDynamicBakedModel {
     private static final TextureAtlasSprite MISSING_TEXTURE = 
             new Material(TextureAtlas.LOCATION_BLOCKS, MissingTextureAtlasSprite.getLocation()).sprite();
 
-    // Whether to use ambient occlusion when rendering. Provided by the geometry baking context.
+    // Whether to use ambient occlusion when rendering. Provided by the geometry baking context. Irrelevant on item models.
     private final boolean useAmbientOcclusion;
-    // Whether to use 3d rendering in a GUI. Provided by the geometry baking context.
+    // Whether to use 3d rendering in a GUI, or use a flat 2d renderer instead. Provided by the geometry baking context.
     private final boolean isGui3d;
     // Whether to use block light. Provided by the geometry baking context.
     private final boolean usesBlockLight;
-    // The particle sprite to use when breaking, falling on, or walking over a block. Irrelevant on item models.
+    // The particle sprite to use when breaking, falling on, or walking over a block,
+    // or when an item is eaten or broken.
     private final TextureAtlasSprite particle;
     // The item overrides to use. Irrelevant on block models.
     private final ItemOverrides overrides;
@@ -131,24 +285,37 @@ public class MyDynamicModel implements IDynamicBakedModel {
         return overrides;
     }
 
-    // Override this to true if you also want to use a custom renderer instead of the builtin render engine.
+    // Override this to true if you also want to use a custom block entity renderer instead of the default renderer.
+    // See the page on block entity renderers for more information.
     @Override
     public boolean isCustomRenderer() {
         return false;
     }
 
     // This is where the magic happens. Return a list of the quads to render here. Parameters are:
-    // - The blockstate being rendered.
-    // - The side being rendered.
+    // - The blockstate being rendered. May be null if rendering an item.
+    // - The side being culled against. May be null, which means no culling should occur.
     // - A client-bound random source you can use for randomizing stuff.
     // - The extra face data to use.
     // - The render type of the model.
+    // NOTE: This is called very often, usually several times per block and frame.
+    // This should be as fast as possible and use caching wherever applicable.
     @Override
     public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, RandomSource rand, ModelData extraData, @Nullable RenderType renderType) {
         List<BakedQuad> quads = new ArrayList<>();
         // add elements to the quads list as needed here
         return quads;
     }
+}
+```
+
+When all is done, don't forget to actually register your loader, otherwise all the work will have been for nothing:
+
+```java
+// Client-side mod bus event handler
+@SubscribeEvent
+public static void registerGeometryLoaders(ModelEvent.RegisterGeometryLoaders event) {
+    event.register(MyGeometryLoader.ID, MyGeometryLoader.INSTANCE);
 }
 ```
 
@@ -195,6 +362,10 @@ MyLoaderBuilder loaderBuilder = models().getBuilder("my_cool_block").customLoade
 ```
 
 Then, call your field setters on the `loaderBuilder`.
+
+#### Visibility
+
+The default implementation of `CustomLoaderBuilder` holds methods for applying visibility. You may choose to use or ignore the `visibility` property in your model loader. Currently, only the [composite model loader][composite] makes use of this property.
 
 ### Reusing the Default Model Loader
 
@@ -266,7 +437,13 @@ public class MyDynamicModel implements IDynamicBakedModel {
 }
 ```
 
+[ber]: ../../../blockentities/ber.md
+[composite]: #composite-model
 [datagen]: ../../index.md#data-generation
+[elements]: index.md#elements
 [event]: ../../../concepts/events.md#registering-an-event-handler
+[model]: index.md#specification
 [modeldatagen]: datagen.md
+[rendertype]: index.md#render-types
 [sides]: ../../../concepts/sides.md
+[transform]: index.md#root-transforms
