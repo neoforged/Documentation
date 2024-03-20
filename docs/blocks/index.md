@@ -235,6 +235,6 @@ Random ticking is used by a wide range of mechanics in Minecraft, such as plant 
 [randomtick]: #random-ticking
 [registration]: ../concepts/registries.md#methods-for-registering
 [resources]: ../resources/index.md#assets
-[sounds]: ../gameeffects/sounds.md
+[sounds]: ../resources/client/sounds.md
 [usingblocks]: #using-blocks
 [usingblockstates]: states.md#using-blockstates

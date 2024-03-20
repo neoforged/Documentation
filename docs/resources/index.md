@@ -174,6 +174,6 @@ runs {
 [particles]: ../gameeffects/particles.md
 [predicate]: https://minecraft.wiki/w/Predicate
 [sides]: ../concepts/sides.md
-[sounds]: ../gameeffects/sounds.md
+[sounds]: client/sounds.md
 [textures]: client/textures.md
 [translations]: client/i18n.md#language-files
