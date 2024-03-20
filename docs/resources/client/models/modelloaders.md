@@ -179,16 +179,16 @@ To create your own model loader, you need three classes, plus an event handler:
 
 - A geometry loader class
 - A geometry class
-- A dynamic model class
+- A dynamic [baked model][bakedmodel] class
 - A [client-side][sides] [event handler][event] for `ModelEvent.RegisterGeometryLoaders` that registers the geometry loader
 
 To illustrate how these classes are connected, we will follow a model being loaded:
 
 - During model loading, a model JSON with the `loader` property set to your loader is passed to your geometry loader. The geometry loader then reads the model JSON and returns a geometry object using the model JSON's properties.
-- During model baking, the geometry is baked, returning a dynamic model.
-- During model rendering, the dynamic model is used for rendering.
+- During model baking, the geometry is baked, returning a dynamic baked model.
+- During model rendering, the dynamic baked model is used for rendering.
 
-Let's illustrate this further through a basic class setup. The geometry loader class is named `MyGeometryLoader`, the geometry class is named `MyGeometry`, and the dynamic model class is named `MyDynamicModel`:
+Let's illustrate this further through a basic class setup. The geometry loader class is named `MyGeometryLoader`, the geometry class is named `MyGeometry`, and the dynamic baked model class is named `MyDynamicModel`:
 
 ```java
 public class MyGeometryLoader implements IGeometryLoader<MyGeometry> {
@@ -234,22 +234,16 @@ public class MyDynamicModel implements IDynamicBakedModel {
     private static final TextureAtlasSprite MISSING_TEXTURE = 
             new Material(TextureAtlas.LOCATION_BLOCKS, MissingTextureAtlasSprite.getLocation()).sprite();
 
-    // Whether to use ambient occlusion when rendering. Provided by the geometry baking context. Irrelevant on item models.
+    // Attributes for use in the methods below. Optional, the methods may also use constant values if applicable.
     private final boolean useAmbientOcclusion;
-    // Whether to use 3d rendering in a GUI, or use a flat 2d renderer instead. Provided by the geometry baking context.
     private final boolean isGui3d;
-    // Whether to use block light. Provided by the geometry baking context.
     private final boolean usesBlockLight;
-    // The particle sprite to use when breaking, falling on, or walking over a block,
-    // or when an item is eaten or broken.
     private final TextureAtlasSprite particle;
-    // The item overrides to use. Irrelevant on block models.
     private final ItemOverrides overrides;
 
     // The constructor does not require any parameters other than the ones for instantiating the final fields.
     // It may specify any additional parameters to store in fields you deem necessary for your model to work.
-    public MyDynamicModel(boolean useAmbientOcclusion, boolean isGui3d, boolean usesBlockLight,
-            TextureAtlasSprite particle, ItemOverrides overrides) {
+    public MyDynamicModel(boolean useAmbientOcclusion, boolean isGui3d, boolean usesBlockLight, TextureAtlasSprite particle, ItemOverrides overrides) {
         this.useAmbientOcclusion = useAmbientOcclusion;
         this.isGui3d = isGui3d;
         this.usesBlockLight = usesBlockLight;
@@ -257,7 +251,7 @@ public class MyDynamicModel implements IDynamicBakedModel {
         this.overrides = overrides;
     }
 
-    // Use our attributes.
+    // Use our attributes. Refer to the article on baked models for more information on the method's effects.
     @Override
     public boolean useAmbientOcclusion() {
         return useAmbientOcclusion;
@@ -437,6 +431,7 @@ public class MyDynamicModel implements IDynamicBakedModel {
 }
 ```
 
+[bakedmodel]: bakedmodel.md
 [ber]: ../../../blockentities/ber.md
 [composite]: #composite-model
 [datagen]: ../../index.md#data-generation

@@ -29,7 +29,7 @@ A model is a JSON file with the following optional properties in the root tag:
   - Item models can also use layer textures, named `layer0`, `layer1`, etc., where layers with a higher index are rendered above those with a lower index (e.g. `layer1` would be rendered above `layer0`). Only works if the parent is `item/generated`, and only works for up to 5 layers (`layer0` through `layer4`).
 - `elements`: A list of cuboid [elements].
 - `overrides`: A list of [override models][overrides]. Only effective on item models.
-- `display`: A sub-object that holds the different display options for different perspectives. Only effective on item models, but often specified in block models so that item models can inherit the display options. Possible perspectives include `thirdperson_righthand`, `thirdperson_lefthand`, `firstperson_righthand`, `firstperson_lefthand`, `gui`, `head`, `ground`, and `fixed` (for item frames and similar modded display blocks). Every perspective is an optional sub-object that may contain the following options:
+- `display`: A sub-object that holds the different display options for different [perspectives], see linked article for possible keys. Only effective on item models, but often specified in block models so that item models can inherit the display options. Every perspective is an optional sub-object that may contain the following options:
   - `rotation`: The rotation of the model, specified as `[x, y, z]`. Rotations are handled after translations and before scaling.
   - `translation`: The translation of the model, specified as `[x, y, z]`. Translations are handled before rotations and scaling.
   - `scale`: The scale of the model, specified as `[x, y, z]`. Scaling is handled after translations and rotations.
@@ -282,6 +282,7 @@ public static void registerAdditional(ModelEvent.RegisterAdditional event) {
 [mipmapping]: https://en.wikipedia.org/wiki/Mipmap
 [modbus]: ../../../concepts/events.md#event-buses
 [overrides]: #overrides
+[perspectives]: bakedmodel.md#perspectives
 [rendertype]: #render-types
 [roottransforms]: #root-transforms
 [rl]: ../../../misc/resourcelocation.md
