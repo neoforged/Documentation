@@ -54,6 +54,8 @@ And voilà, you have a sound event!
 
 ## `sounds.json`
 
+_See also: [sounds.json][mcwikisounds] on the [Minecraft Wiki][mcwiki]_
+
 Now, to connect your sound event to actual sound files, we need to create sound definitions. All sound definitions for a namespace are stored in a single file named `sounds.json`, also known as the sound definitions file, directly in the namespace's root. Every sound definition is a mapping of sound event id (e.g. `my_sound`) to a JSON sound object. Note that the sound event ids do not specify a namespace, as that is already determined by the namespace the sound definitions file is in. An example `sounds.json` would look something like this:
 
 ```json5
@@ -301,6 +303,8 @@ public static void gatherData(GatherDataEvent event) {
 
 [bug]: https://bugs.mojang.com/browse/MC-146721
 [datagen]: ../index.md#data-generation
+[mcwiki]: https://minecraft.wiki
+[mcwikisounds]: https://minecraft.wiki/w/Sounds.json
 [modbus]: ../../concepts/events.md#event-buses
 [modctor]: ../../gettingstarted/modfiles.md#javafml-and-mod
 [registration]: ../../concepts/registries.md
