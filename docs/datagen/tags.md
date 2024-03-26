@@ -26,8 +26,9 @@ public void gatherData(GatherDataEvent event) {
 
 The tags provider has two methods used for generating tags: creating a tag with objects and other tags via `#tag`, or using tags from other object types to generate the tag data via `#getOrCreateRawBuilder`.
 
-!!! note
-    Typically, a provider will not call `#getOrCreateRawBuilder` directly unless a registry contains a representation of objects from a different registry (blocks have item representations to obtain the blocks in the inventory).
+:::note
+Typically, a provider will not call `#getOrCreateRawBuilder` directly unless a registry contains a representation of objects from a different registry (blocks have item representations to obtain the blocks in the inventory).
+:::
 
 When `#tag` is called, a `TagAppender` is created which acts as a chainable consumer of elements to add to the tag:
 
@@ -51,8 +52,9 @@ this.tag(EXAMPLE_TAG_2)
   .remove(EXAMPLE_OBJECT) // Removes an object from this tag
 ```
 
-!!! important
-    If the mod's tags softly depends on another mod's tags (the other mod may or may not be present at runtime), the other mods' tags should be referenced using the optional methods.
+:::important
+If the mod's tags softly depends on another mod's tags (the other mod may or may not be present at runtime), the other mods' tags should be referenced using the optional methods.
+:::
 
 ### Existing Providers
 

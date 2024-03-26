@@ -75,19 +75,20 @@ public MyEntityLootSubProvider() {
 
 To use them, all registered objects must be supplied to either `BlockLootSubProvider#getKnownBlocks` and `EntityLootSubProvider#getKnownEntityTypes` respectively. These methods are to make sure all objects within the iterable has a loot table.
 
-!!! tip
-    If `DeferredRegister` is being used to register a mod's objects, then the `#getKnown*` methods can be supplied the entries via `DeferredRegister#getEntries`:
+:::tip
+If `DeferredRegister` is being used to register a mod's objects, then the `#getKnown*` methods can be supplied the entries via `DeferredRegister#getEntries`:
 
-    ```java
-    // In some BlockLootSubProvider subclass for some DeferredRegister BLOCK_REGISTRAR
-    @Override
-    protected Iterable<Block> getKnownBlocks() {
-      return BLOCK_REGISTRAR.getEntries() // Get all registered entries
-        .stream() // Stream the wrapped objects
-        .flatMap(RegistryObject::stream) // Get the object if available
-        ::iterator; // Create the iterable
-    }
-    ```
+```java
+// In some BlockLootSubProvider subclass for some DeferredRegister BLOCK_REGISTRAR
+@Override
+protected Iterable<Block> getKnownBlocks() {
+  return BLOCK_REGISTRAR.getEntries() // Get all registered entries
+    .stream() // Stream the wrapped objects
+    .flatMap(RegistryObject::stream) // Get the object if available
+    ::iterator; // Create the iterable
+}
+```
+:::
 
 The loot tables themselves can be added by implementing the `#generate` method.
 
@@ -104,8 +105,9 @@ Loot Table Builders
 
 To generate loot tables, they are accepted by the `LootTableSubProvider` as a `LootTable$Builder`. Afterwards, the specified `LootContextParamSet` is set in the `LootTableProvider$SubProviderEntry` and then built via `#build`. Before being built, the builder can specify entries, conditions, and modifiers which affect how the loot table functions.
 
-!!! note
-    The functionality of loot tables is so expansive that it will not be covered by this documentation in its entirety. Instead, a brief description of each component will be mentioned. The specific subtypes of each component can be found using an IDE. Their implementations will be left as an exercise to the reader.
+:::note
+The functionality of loot tables is so expansive that it will not be covered by this documentation in its entirety. Instead, a brief description of each component will be mentioned. The specific subtypes of each component can be found using an IDE. Their implementations will be left as an exercise to the reader.
+:::
 
 ### LootTable
 

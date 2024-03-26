@@ -3,8 +3,9 @@ Advancement Generation
 
 [Advancements] can be generated for a mod by constructing a new `AdvancementProvider` and providing `AdvancementSubProvider`s. Advancements can either be created and supplied manually or, for convenience, created using `Advancement$Builder`. The provider must be [added][datagen] to the `DataGenerator`.
 
-!!! note
-    Forge provides an extension for the `AdvancementProvider` called `ForgeAdvancementProvider` which integrates better for generating advancements. So, this documentation will use `ForgeAdvancementProvider` along with the sub provider interface `ForgeAdvancementProvider$AdvancementGenerator`.
+:::note
+Forge provides an extension for the `AdvancementProvider` called `ForgeAdvancementProvider` which integrates better for generating advancements. So, this documentation will use `ForgeAdvancementProvider` along with the sub provider interface `ForgeAdvancementProvider$AdvancementGenerator`.
+:::
 
 ```java
 // On the MOD event bus
