@@ -70,7 +70,7 @@ All data providers extend the `DataProvider` interface and usually require one m
 | [`BlockStateProvider`][blockstateprovider]           | `registerStatesAndModels()`      | Blockstate files, block models          | Client |                                                                                                                                                                                                                               |
 | [`ItemModelProvider`][itemmodelprovider]             | `registerModels()`               | Item models                             | Client |                                                                                                                                                                                                                               |
 | [`LanguageProvider`][langprovider]                   | `addTranslations()`              | Translations                            | Client | Also requires passing the language in the constructor.                                                                                                                                                                        |
-| `ParticleDescriptionProvider`                        | `addDescriptions()`              | Particle definitions                    | Client |                                                                                                                                                                                                                               |
+| [`ParticleDescriptionProvider`][particleprovider]    | `addDescriptions()`              | Particle definitions                    | Client |                                                                                                                                                                                                                               |
 | [`SoundDefinitionsProvider`][soundprovider]          | `registerSounds()`               | Sound definitions                       | Client |                                                                                                                                                                                                                               |
 | `AdvancementProvider`                                | `generate()`                     | Advancements                            | Server | Make sure to use the NeoForge variant, not the Minecraft one.                                                                                                                                                                 |
 | `LootTableProvider`                                  | `generate()`                     | Loot tables                             | Server | Requires extra methods and classes to work properly, see linked article for details.                                                                                                                                          |
@@ -175,7 +175,8 @@ runs {
 [packmcmeta]: #packmcmeta
 [packmcmetadatapack]: https://minecraft.wiki/w/Data_pack#pack.mcmeta
 [packmcmetaresourcepack]: https://minecraft.wiki/w/Resource_pack#Contents
-[particles]: ../gameeffects/particles.md
+[particles]: client/particles.md
+[particleprovider]: client/particles.md#datagen
 [predicate]: https://minecraft.wiki/w/Predicate
 [sides]: ../concepts/sides.md
 [soundprovider]: client/sounds.md#datagen
