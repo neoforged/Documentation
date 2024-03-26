@@ -15,7 +15,7 @@ Forge adds a loader for the `.obj` file format. To use these models, the JSON mu
 ```js
 {
   // Add the following line on the same level as a 'model' declaration
-  "loader": "forge:obj",
+  "loader": "neoforge:obj",
   "flip_v": true,
   "model": "examplemod:models/block/model.obj",
   "textures": {
