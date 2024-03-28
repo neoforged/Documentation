@@ -29,10 +29,10 @@ A model is a JSON file with the following optional properties in the root tag:
   - Item models can also use layer textures, named `layer0`, `layer1`, etc., where layers with a higher index are rendered above those with a lower index (e.g. `layer1` would be rendered above `layer0`). Only works if the parent is `item/generated`, and only works for up to 5 layers (`layer0` through `layer4`).
 - `elements`: A list of cuboid [elements].
 - `overrides`: A list of [override models][overrides]. Only effective on item models.
-- `display`: A sub-object that holds the different display options for different [perspectives], see linked article for possible keys. Only effective on item models, but often specified in block models so that item models can inherit the display options. Every perspective is an optional sub-object that may contain the following options:
-  - `rotation`: The rotation of the model, specified as `[x, y, z]`. Rotations are handled after translations and before scaling.
-  - `translation`: The translation of the model, specified as `[x, y, z]`. Translations are handled before rotations and scaling.
-  - `scale`: The scale of the model, specified as `[x, y, z]`. Scaling is handled after translations and rotations.
+- `display`: A sub-object that holds the different display options for different [perspectives], see linked article for possible keys. Only effective on item models, but often specified in block models so that item models can inherit the display options. Every perspective is an optional sub-object that may contain the following options, which are applied in that order:
+  - `translation`: The translation of the model, specified as `[x, y, z]`.
+  - `rotation`: The rotation of the model, specified as `[x, y, z]`.
+  - `scale`: The scale of the model, specified as `[x, y, z]`.
 - `transform`: See [Root Transforms][roottransforms].
 
 :::tip
@@ -106,7 +106,7 @@ Using the custom `neoforge:item_layers` loader, you can also specify extra face 
     "layer0": "minecraft:item/stick",
     "layer1": "minecraft:item/glowstone_dust"
   },
-  "forge_data": {
+  "neoforge_data": {
     "1": {
       "color": "0xFFFF0000",
       "block_light": 15,
@@ -121,7 +121,7 @@ Using the custom `neoforge:item_layers` loader, you can also specify extra face 
 
 Item overrides can assign a different model to an item based on a float value, called the override value. For example, bows and crossbows use this to change the texture depending on how long they have been drawn. Overrides have both a model and a code side to them.
 
-The model can specify one or multiple override models that should be used when the override value is equal to or greater than the given threshold value. For example, the bow uses two different properties `pulling` and `pull`. `pulling` is treated as a boolean value, with 1 being interpreted as pulling and 0 as not pulling, while `pull` represents how much the bow is currently pulled. It then uses these properties to specify usage of three alternative models when charged to below 65% (`pulling` 1, no `pull` value), 65% (`pulling` 1, `pull` 0.65) and 90% (`pulling` 1, `pull` 0.9). If multiple models apply (because the value keeps on becoming bigger), the one closest to the actual value is used. The overrides look as follows:
+The model can specify one or multiple override models that should be used when the override value is equal to or greater than the given threshold value. For example, the bow uses two different properties `pulling` and `pull`. `pulling` is treated as a boolean value, with 1 being interpreted as pulling and 0 as not pulling, while `pull` represents how much the bow is currently pulled. It then uses these properties to specify usage of three alternative models when charged to below 65% (`pulling` 1, no `pull` value), 65% (`pulling` 1, `pull` 0.65) and 90% (`pulling` 1, `pull` 0.9). If multiple models apply (because the value keeps on becoming bigger), the first in the list matches, so make sure your order is correct. The overrides look as follows:
 
 ```json5
 {
@@ -173,6 +173,10 @@ public static void onClientSetup(FMLClientSetupEvent event) {
     });
 }
 ```
+
+:::info
+Vanilla Minecraft only allows for float values between 0 and 1. NeoForge patches this to allow arbitrary float values.
+:::
 
 ### Root Transforms
 

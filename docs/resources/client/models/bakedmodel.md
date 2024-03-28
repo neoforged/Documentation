@@ -12,7 +12,7 @@ The most important method of a baked model is `getQuads`. This method is respons
 - A `Direction`: The direction of the face being culled against. May be null, indicating that no culling should occur. Will always be null for items.
 - A `RandomSource`: A client-bound random source you can use for randomization.
 - A `ModelData`: The extra model data to use. This may contain additional data from the block entity needed for rendering.
-- A `RenderType`: The [render type][rendertype] to use for rendering the block. May be null, indicating that the default render type should be used.
+- A `RenderType`: The [render type][rendertype] to use for rendering the block. May be null, indicating that the default render type should be used. The default render type is looked up in `ItemBlockRenderTypes`, and if no render type is found there either, `minecraft:solid` is used. Do never call on `ItemBlockRenderTypes` yourself!
 
 Be aware that this method is called very often (several times per model and frame), and as such should cache as much as possible.
 

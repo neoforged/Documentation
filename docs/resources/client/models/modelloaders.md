@@ -55,12 +55,31 @@ The dynamic fluid container model, also called dynamic bucket model after its mo
   "loader": "neoforge:fluid_container",
   // Required. Must be a valid fluid id.
   "fluid": "minecraft:water",
+  // The loader generally expects two textures: base and fluid.
+  "textures": {
+    // The base container texture, i.e. the equivalent of an empty bucket.
+    "base": "examplemod:item/custom_container",
+    // The fluid texture, i.e. the equivalent of water in a bucket.
+    "fluid": "examplemod:item/custom_container_fluid"
+  },
   // Optional, defaults to false. Whether to flip the model upside down, for gaseous fluids.
   "flip_gas": true,
   // Optional, defaults to true. Whether to have the cover act as the mask.
   "cover_is_mask": false,
   // Optional, defaults to true. Whether to apply the fluid's luminosity to the item model.
-  "apply_fluid_luminosity": false
+  "apply_fluid_luminosity": false,
+}
+```
+
+Very often, dynamic fluid container models will directly use the bucket model. This is done by specifying the `neoforge:item_bucket` parent model, like so:
+
+```json5
+{
+  "loader": "neoforge:fluid_container",
+  "parent": "neoforge:item/bucket",
+  // Replace with your own fluid.
+  "fluid": "minecraft:water"
+  // Optional properties here. Note that the textures are handled by the parent.
 }
 ```
 
