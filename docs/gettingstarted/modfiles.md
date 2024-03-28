@@ -110,7 +110,7 @@ modId = "examplemod2"
 | `displayTest`   | string  |      `"MATCH_VERSION"`      |                                                                                                                                  See [sides].                                                                                                                                  | `displayTest="NONE"`                                            |
 
 :::note
-Some properties (`displayName` and `description`) can also be localized using language files. See [Internationalization and Localization][i18n] for more detail.
+Some properties (`displayName` and `description`) can also be localized using language files. See [Translating Mod Metadata][i18n] for more detail.
 :::
 
 #### Features
@@ -170,7 +170,7 @@ There must be a 1-to-1 matching of mods in the `mods.toml` file and `@Mod` entry
 [events]: ../concepts/events.md
 [features]: #features
 [group]: #the-group-id
-[i18n]: ../concepts/internationalization.md#mod-metadata
+[i18n]: ../resources/client/i18n.md#translating-mod-metadata
 [javafml]: #javafml-and-mod
 [jei]: https://www.curseforge.com/minecraft/mc-mods/jei
 [lowcodefml]: #lowcodefml

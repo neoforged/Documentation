@@ -76,5 +76,5 @@ There are many methods for performing a certain task: registering an object, lis
 
 [group]: index.md#the-group-id
 [naming]: https://docs.oracle.com/javase/tutorial/java/package/namingpkgs.html
-[datagen]: ../datagen/index.md
+[datagen]: ../resources/index.md#data-generation
 [sides]: ../concepts/sides.md
