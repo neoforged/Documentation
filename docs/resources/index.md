@@ -30,7 +30,7 @@ NeoForge automatically applies all mod data packs to a new world upon creation. 
 There is currently no built-in way to apply a set of custom data packs to every world. However, there are a number of mods that achieve this.
 :::
 
-Data packs may contain folders with files affecting the following things (TODO add links):
+Data packs may contain folders with files affecting the following things:
 
 | Folder name                                                           | Contents                     |
 |-----------------------------------------------------------------------|------------------------------|
@@ -64,7 +64,7 @@ Data generation, colloquially known as datagen, is a way to programmatically gen
 
 Datagen is run through the Data run configuration, which is generated for you alongside the Client and Server run configurations. The data run configuration follows the [mod lifecycle][lifecycle] until after the registry events are fired. It then fires the [`GatherDataEvent`][event], in which you can register your to-be-generated objects in the form of data providers, writes said objects to disk, and ends the process.
 
-All data providers extend the `DataProvider` interface and usually require one method to be overridden. The following is a list of all data generators Minecraft and NeoForge offer (the linked articles add further information, such as helper methods, TODO add links):
+All data providers extend the `DataProvider` interface and usually require one method to be overridden. The following is a list of all data generators Minecraft and NeoForge offer (the linked articles add further information, such as helper methods):
 
 | Class                                                | Method                           | Generates                               | Side   | Notes                                                                                                                                                                                                                         |
 |------------------------------------------------------|----------------------------------|-----------------------------------------|--------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
