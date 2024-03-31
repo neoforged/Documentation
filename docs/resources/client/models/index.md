@@ -237,8 +237,9 @@ public static void registerBlockColorHandlers(RegisterColorHandlersEvent.Block e
     // Parameters are the block's state, the level the block is in, the block's position, and the tint index.
     event.register((state, level, pos, tintIndex) -> {
             // Replace with your own calculation. See the BlockColors class for vanilla references.
-            // Generally, if the tint index is -1, it means that no tinting should take place
-            // and a default value should be used instead.
+            // All vanilla uses assume alpha 255 (= 1f), but modded consumers may also account
+            // for alpha values specified here. Generally, if the tint index is -1,
+            // it means that no tinting should take place and a default value should be used instead.
             return 0xFFFFFF;
     });
 }

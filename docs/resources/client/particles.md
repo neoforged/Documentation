@@ -116,9 +116,15 @@ Finally, we must associate our particle type with a texture. Similar to how item
 }
 ```
 
+Note that a particle definition file is only necessary when using a sprite set particle. Single sprite particles directly map to the texture file at `assets/<namespace>/textures/particle/<particle_name>.png`, and special particle providers can do whatever you want anyway.
+
+:::danger
+A mismatched list of sprite set particle factories and particle definition files, i.e. a particle description without a corresponding particle factory, or vice versa, will throw an exception!
+:::
+
 ### Datagen
 
-These JSON files can also be [datagenned][datagen] by extending `ParticleDescriptionProvider` and overriding the `#addDescriptions()` method:
+Particle definition files can also be [datagenned][datagen] by extending `ParticleDescriptionProvider` and overriding the `#addDescriptions()` method:
 
 ```java
 public class MyParticleDescriptionProvider extends ParticleDescriptionProvider {
