@@ -6,14 +6,40 @@ Textures should generally be in sizes that are powers of two, for example 16x16 
 
 ## Texture Metadata
 
-Texture metadata can be specified in a file named exactly the same as the texture, with an additional `.mcmeta` suffix. For example, an animated texture at `textures/block/example.png` would need an accompanying `textures/block/example.png.mcmeta` file. The `.mcmeta` file has the following format:
+Texture metadata can be specified in a file named exactly the same as the texture, with an additional `.mcmeta` suffix. For example, an animated texture at `textures/block/example.png` would need an accompanying `textures/block/example.png.mcmeta` file. The `.mcmeta` file has the following format (all optional):
 
 ```json5
 {
-  // Whether the texture will be blurred if needed. Defaults to false. Currently unused (but functional).
+  // Whether the texture will be blurred if needed. Defaults to false.
+  // Currently specified by the codec, but unused otherwise both in the files and in code.
   "blur": true,
-  // Whether the texture will be clamped if needed. Defaults to false. Currently unused (but functional).
+  // Whether the texture will be clamped if needed. Defaults to false.
+  // Currently specified by the codec, but unused otherwise both in the files and in code.
   "clamp": true,
+  "gui": {
+    // Specifies how the texture will be scaled if needed. Can be one of these three:
+    "scaling": "stretch", // default
+    "scaling": {
+      "tile": {
+        "width": 16,
+        "height": 16
+      }
+    },
+    "scaling": {
+      // Like "tile", but allows specifying the border offsets.
+      "nine_slice": {
+        "width": 16,
+        "height": 16,
+        // May also be a single int that is used as the value for all four sides.
+        "border": {
+          "left": 0,
+          "top": 0,
+          "right": 0,
+          "bottom": 0
+        }
+      }
+    }
+  },
   // See below.
   "animation": {}
 }

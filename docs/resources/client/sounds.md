@@ -196,8 +196,7 @@ The combined (merged) `sounds.json` file the game would then go on and use to lo
   "sound_4": {
     // replace true and true: add from upper pack only
     "sounds": [
-      "sound_8",
-      "sound_4"
+      "sound_8"
     ]
   }
 }
@@ -211,9 +210,9 @@ Minecraft offers various methods to play sounds, and it is sometimes unclear whi
 
 - `playSound(Player player, double x, double y, double z, SoundEvent soundEvent, SoundSource soundSource, float volume, float pitch)`
   - Client behavior: If the player passed in is the local player, play the sound event to the player at the given location, otherwise no-op.
-  - Server behavior: If the player passed in is NOT the local player, play the sound event to the player at the given location, otherwise no-op.
+  - Server behavior: A packet instructing the client to play the sound event to the player at the given location is sent to all players except the one passed in.
   - Usage: Call from client-initiated code that will run on both sides. The server not playing it to the initiating player prevents playing the sound event twice to them. Alternatively, call from server-initiated code (e.g. a [block entity][be]) with a `null` player to play the sound to everyone.
-- `playSound(Player, player, BlockPos pos, SoundEvent soundEvent, SoundSource soundSource, float volume, float pitch)`
+- `playSound(Player player, BlockPos pos, SoundEvent soundEvent, SoundSource soundSource, float volume, float pitch)`
   - Forwards to the first method with `x`, `y` and `z` taking the values of `pos.getX() + 0.5`, `pos.getY() + 0.5` and `pos.getZ() + 0.5`, respectively.
 - `playLocalSound(double x, double y, double z, SoundEvent soundEvent, SoundSource soundSource, float volume, float pitch, boolean distanceDelay)`
   - Client behavior: Plays the sound to the player at the given location. Does not send anything to the server. If `distanceDelay` is `true`, delays the sound based on the distance to the player.
@@ -235,7 +234,7 @@ Minecraft offers various methods to play sounds, and it is sometimes unclear whi
 - `playSound(SoundEvent soundEvent, float volume, float pitch)` (overrides the method in `Entity`)
   - Forwards to `Level#playSound` with `this` as the player, `SoundSource.PLAYER` as the sound source, the player's position for x/y/z, and the other parameters passed in. As such, the client/server behavior mimics the one from `Level#playSound`:
     - Client behavior: Play the sound event to the client player at the given location.
-    - Server behavior: Play the sound event to everyone near the given location except the client player.
+    - Server behavior: Play the sound event to everyone near the given location except the player this method was called on.
 
 ## Datagen
 

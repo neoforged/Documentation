@@ -1,6 +1,8 @@
 # Baked Models
 
-`BakedModel`s are the in-code representation of a shape with textures. They can be obtained from multiple sources, for example by calling `UnbakedModel#bake` (default model loader) or `IUnbakedGeometry#bake` ([custom model loaders][modelloader]). Some [block entity renderers][ber] also make use of baked models. There is no limit to how complex a model may be.
+`BakedModel`s are the in-code representation of a shape with textures. They can originate from multiple sources, for example from a call to `UnbakedModel#bake` (default model loader) or `IUnbakedGeometry#bake` ([custom model loaders][modelloader]). Some [block entity renderers][ber] also make use of baked models. There is no limit to how complex a model may be.
+
+Models are stored in the `ModelManager`, which can be accessed through `Minecraft.getInstance().modelManager`. Then, you can call `ModelManager#getModel` to get a certain model by its [`ResourceLocation`][rl] or [`ModelResourceLocation`][mrl]. Mods will basically always reuse a model that was previously automatically loaded and baked.
 
 ## Methods of `BakedModel`
 
@@ -9,12 +11,12 @@
 The most important method of a baked model is `getQuads`. This method is responsible for returning a list of `BakedQuad`s, which can then be sent to the GPU. A quad compares to a triangle in a modeling program (and in most other games), however due to Minecraft's general focus on squares, the developers elected to use quads (4 vertices) instead of triangles (3 vertices) for rendering in Minecraft. `getQuads` has five parameters that can be used:
 
 - A `BlockState`: The [blockstate] being rendered. May be null, indicating that an item is being rendered.
-- A `Direction`: The direction of the face being culled against. May be null, indicating that no culling should occur. Will always be null for items.
+- A `Direction`: The direction of the face being culled against. May be null, which means quads that cannot be occluded should be returned.
 - A `RandomSource`: A client-bound random source you can use for randomization.
-- A `ModelData`: The extra model data to use. This may contain additional data from the block entity needed for rendering.
-- A `RenderType`: The [render type][rendertype] to use for rendering the block. May be null, indicating that the default render type should be used. The default render type is looked up in `ItemBlockRenderTypes`, and if no render type is found there either, `minecraft:solid` is used. Do never call on `ItemBlockRenderTypes` yourself!
+- A `ModelData`: The extra model data to use. This may contain additional data from the block entity needed for rendering. Supplied by `BakedModel#getModelData`.
+- A `RenderType`: The [render type][rendertype] to use for rendering the block. May be null, indicating that the default render type should be used. The default render type is looked up in `ItemBlockRenderTypes`, and if no render type is found there either, `minecraft:solid` is used. You should never call on `ItemBlockRenderTypes` yourself!
 
-Be aware that this method is called very often (several times per model and frame), and as such should cache as much as possible.
+Models should heavily cache. This is because even though chunks are only rebuilt when a block in them changes, the computations done in this method still need to be as fast as possible and should ideally be cached heavily due to the amount of times this method will be called per chunk section (up to seven times per RenderType used by a given model * amount of RenderTypes used by the respective model * 4096 blocks per chunk section). In addition, [BERs][ber] or entity renderers may actually call this method several times per frame.
 
 ### `applyTransform` and `getTransforms`
 
@@ -24,27 +26,30 @@ Be aware that this method is called very often (several times per model and fram
 - A `PoseStack`: The pose stack used for rendering.
 - A `boolean`: Whether to use modified values for left-hand rendering instead of the default right hand rendering; `true` if the rendered hand is the left hand (off hand, or main hand if left hand mode is enabled in the options)
 
+:::note
+`applyTransform` and `getTransforms` only apply to item models.
+:::
+
 ### Others
 
 Other methods in `BakedModel` that you may override and/or query include:
 
-| Signature                                                                     | Effect                                                                                                                                                                                                                             |
-|-------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `boolean useAmbientOcclusion()`                                               | Whether to use [ambient occlusion][ao] or not. Has an override that accepts a `BlockState` parameter, and an override that accepts a `BlockState` and a `RenderType` parameter.                                                    |
-| `boolean isGui3d()`                                                           | Whether to use a 3d renderer for rendering in GUIs or not. Also affects GUI lighting.                                                                                                                                              |
-| `boolean usesBlockLight()`                                                    | Whether to use block light when lighting the model or not.                                                                                                                                                                         |
-| `boolean isCustomRenderer()`                                                  | If true, skips normal rendering and calls an associated [block entity renderer][ber]'s `renderByItem` method instead. If false, renders through the default renderer.                                                              |
-| `ItemOverrides getOverrides()`                                                | Returns the [`ItemOverrides`][itemoverrides] associated with this model. This is generally only relevant on item models.                                                                                                           |
-| `ModelData getModelData(BlockAndTintGetter, BlockPos, BlockState, ModelData)` | Returns the model data to use for the model. Mainly used for [block entity renderers][ber].                                                                                                                                        |
-| `TextureAtlasSprite getParticleIcon(ModelData)`                               | Returns the particle sprite to use for the model. May use the model data to use different particle sprites for different model data values. NeoForge-added, replacing the vanilla `getParticleIcon()` overload with no parameters. |
+| Signature                                                                     | Effect                                                                                                                                                                                                                                                                                                                                                                                                      |
+|-------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `TriState useAmbientOcclusion()`                                              | Whether to use [ambient occlusion][ao] or not. Accepts a `BlockState`, `RenderType` and `ModelData` parameter and returns a `TriState` which allows not only force-disabling AO but also force-enabling AO. Has two overloads that each return a `boolean` parameter and accept either only a `BlockState` or no parameters at all; both of these are deprecated for removal in favor of the first variant. |
+| `boolean isGui3d()`                                                           | Whether this model renders as 3d or flat in GUI slots.                                                                                                                                                                                                                                                                                                                                                      |
+| `boolean usesBlockLight()`                                                    | Whether to use 3D lighting (`true`) or flat lighting from the front (`false`) when lighting the model.                                                                                                                                                                                                                                                                                                      |
+| `boolean isCustomRenderer()`                                                  | If true, skips normal rendering and calls an associated [`BlockEntityWithoutLevelRenderer`][bewlr]'s `renderByItem` method instead. If false, renders through the default renderer.                                                                                                                                                                                                                         |
+| `ItemOverrides getOverrides()`                                                | Returns the [`ItemOverrides`][itemoverrides] associated with this model. This is only relevant on item models.                                                                                                                                                                                                                                                                                              |
+| `ModelData getModelData(BlockAndTintGetter, BlockPos, BlockState, ModelData)` | Returns the model data to use for the model. This method is passed an existing `ModelData` that is either the result of `BlockEntity#getModelData()` if the block has an associated block entity, or `ModelData.EMPTY` if that is not the case. This method can be used for blocks that need model data, but do not have a block entity, for example for blocks with connected textures.                    |
+| `TextureAtlasSprite getParticleIcon(ModelData)`                               | Returns the particle sprite to use for the model. May use the model data to use different particle sprites for different model data values. NeoForge-added, replacing the vanilla `getParticleIcon()` overload with no parameters.                                                                                                                                                                          |
 
 ## Perspectives
 
-Minecraft's render engine recognizes a total of 8 perspective types. These are used in a model JSON's `display` block, and represented in code through the `ItemDisplayContext` enum.
+Minecraft's render engine recognizes a total of 8 perspective types (9 if you include the in-code fallback) for item rendering. These are used in a model JSON's `display` block, and represented in code through the `ItemDisplayContext` enum.
 
 | Enum value                | JSON key                  | Usage                                                                                                            |
 |---------------------------|---------------------------|------------------------------------------------------------------------------------------------------------------|
-| `NONE`                    | `"none"`                  | Fallback purposes in code, should not be used in JSON                                                            |
 | `THIRD_PERSON_RIGHT_HAND` | `"thirdperson_righthand"` | Right hand in third person (F5 view, or on other players)                                                        |
 | `THIRD_PERSON_LEFT_HAND`  | `"thirdperson_lefthand"`  | Left hand in third person (F5 view, or on other players)                                                         |
 | `FIRST_PERSON_RIGHT_HAND` | `"firstperson_righthand"` | Right hand in first person                                                                                       |
@@ -53,13 +58,14 @@ Minecraft's render engine recognizes a total of 8 perspective types. These are u
 | `GUI`                     | `"gui"`                   | Inventories, player hotbar                                                                                       |
 | `GROUND`                  | `"ground"`                | Dropped items; note that the rotation of the dropped item is handled by the dropped item renderer, not the model |
 | `FIXED`                   | `"fixed"`                 | Item frames                                                                                                      |
+| `NONE`                    | `"none"`                  | Fallback purposes in code, should not be used in JSON                                                            |
 
 ## `ItemOverrides`
 
 `ItemOverrides` is a class that provides a way for baked models to process the state of an [`ItemStack`][itemstack] and return a new baked model through the `#resolve` method. `#resolve` has five parameters:
 
 - A `BakedModel`: The original model.
-- An `ItemStack`: The affected item stack.
+- An `ItemStack`: The item stack being rendered.
 - A `ClientLevel`: The level the model is being rendered in. This should only be used for querying the level, not mutating it in any way. May be null.
 - A `LivingEntity`: The entity the model is rendered on. May be null, e.g. when rendering from a [block entity renderer][ber].
 - An `int`: A seed for randomizing.
@@ -89,7 +95,7 @@ After writing your model wrapper class, you must apply the wrappers to the model
 @SubscribeEvent
 public static void modifyBakingResult(ModelEvent.ModifyBakingResult event) {
     // For block models
-        event.getModels().computeIfPresent(
+    event.getModels().computeIfPresent(
         // The model resource location of the model to modify. Get it from
         // BlockModelShaper#stateToModelLocation with the blockstate to be affected as a parameter.
         BlockModelShaper.stateToModelLocation(MyBlocksClass.EXAMPLE_BLOCK.defaultBlockState()),
@@ -106,12 +112,19 @@ public static void modifyBakingResult(ModelEvent.ModifyBakingResult event) {
 }
 ```
 
+:::warning
+It is generally encouraged to use a [custom model loader][modelloader] over baked model wrappers when possible. Custom model loaders can also use `BakedModelWrapper`s if needed.
+:::
+
 [ao]: https://en.wikipedia.org/wiki/Ambient_occlusion
 [ber]: ../../../blockentities/ber.md
+[bewlr]: ../../../items/bewlr.md
 [blockstate]: ../../../blocks/states.md
 [itemoverrides]: #itemoverrides
 [itemstack]: ../../../items/index.md#itemstacks
 [modelloader]: modelloaders.md
+[mrl]: ../../../misc/resourcelocation.md#modelresourcelocations
 [overrides]: index.md#overrides
 [perspective]: #perspectives
 [rendertype]: index.md#render-types
+[rl]: ../../../misc/resourcelocation.md

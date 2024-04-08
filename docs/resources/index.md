@@ -6,7 +6,7 @@ Minecraft generally has two kinds of resources: client-side resources, known as 
 
 Both resource and data packs normally require a [`pack.mcmeta` file][packmcmeta], this was also the case in past Forge versions. However, NeoForge generates these at runtime for you, so you don't need to worry about it anymore.
 
-If you are confused about the format of something, an easy way to change that is to have a look at the vanilla resources. Your NeoForge development environment not only contains vanilla code, but also vanilla resources. They can be found in the External Resources section (IntelliJ)/Project Libraries section (Eclipse), under the name `ng_dummy_ng.net.minecraft:client:client-extra:<minecraft_version>` (for Minecraft resources) or `ng_dummy_ng.net.neoforged:neoforge:<neoforge_version>` (for NeoForge resources).
+If you are confused about the format of something, have a look at the vanilla resources. Your NeoForge development environment not only contains vanilla code, but also vanilla resources. They can be found in the External Resources section (IntelliJ)/Project Libraries section (Eclipse), under the name `ng_dummy_ng.net.minecraft:client:client-extra:<minecraft_version>` (for Minecraft resources) or `ng_dummy_ng.net.neoforged:neoforge:<neoforge_version>` (for NeoForge resources).
 
 ## Assets
 
@@ -64,7 +64,7 @@ Data generation, colloquially known as datagen, is a way to programmatically gen
 
 Datagen is run through the Data run configuration, which is generated for you alongside the Client and Server run configurations. The data run configuration follows the [mod lifecycle][lifecycle] until after the registry events are fired. It then fires the [`GatherDataEvent`][event], in which you can register your to-be-generated objects in the form of data providers, writes said objects to disk, and ends the process.
 
-All data providers extend the `DataProvider` interface and usually require one method to be overridden. The following is a list of all data generators Minecraft and NeoForge offer (the linked articles add further information, such as helper methods):
+All data providers extend the `DataProvider` interface and usually require one method to be overridden. The following is a list of noteworthy data generators Minecraft and NeoForge offer (the linked articles add further information, such as helper methods):
 
 | Class                                                | Method                           | Generates                               | Side   | Notes                                                                                                                                                                                                                         |
 |------------------------------------------------------|----------------------------------|-----------------------------------------|--------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|

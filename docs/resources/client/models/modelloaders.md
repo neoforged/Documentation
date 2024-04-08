@@ -6,7 +6,7 @@ The entry point for a block model remains the model JSON file. However, you can 
 
 ## Builtin Model Loaders
 
-Besides the default model loader, NeoForge offers a total of seven builtin loaders, each serving a different purpose.
+Besides the default model loader, NeoForge offers several builtin loaders, each serving a different purpose.
 
 ### Composite Model
 
@@ -48,7 +48,7 @@ To [datagen][modeldatagen] this model, use the custom loader class `CompositeMod
 
 ### Dynamic Fluid Container Model
 
-The dynamic fluid container model, also called dynamic bucket model after its most common use case, is used for items that represent a fluid container (such as a bucket or a tank) and want to show the fluid within the model. This only works if there is a fixed amount of fluids (e.g. only lava and powder snow) that can be used, use a [block entity renderer][ber] instead if the fluid is arbitrary.
+The dynamic fluid container model, also called dynamic bucket model after its most common use case, is used for items that represent a fluid container (such as a bucket or a tank) and want to show the fluid within the model. This only works if there is a fixed amount of fluids (e.g. only lava and powder snow) that can be used, use a [`BlockEntityWithoutLevelRenderer`][bewlr] instead if the fluid is arbitrary.
 
 ```json5
 {
@@ -246,12 +246,19 @@ public class MyGeometry implements IUnbakedGeometry<MyGeometry> {
         return new MyDynamicModel(context.useAmbientOcclusion(), context.isGui3d(), context.useBlockLight(),
                 spriteGetter.apply(context.getMaterial("particle")), overrides);
     }
+
+    // Method responsible for correctly resolving parent properties. Required if this model loads any nested models or reuses the vanilla loader on itself (see below).
+    @Override
+    public void resolveParents(Function<ResourceLocation, UnbakedModel> modelGetter, IGeometryBakingContext context) {
+        base.resolveParents(modelGetter);
+    }
 }
 
+// BakedModelWrapper can be used as well to return default values for most methods, allowing you to only override what actually needs to be overridden.
 public class MyDynamicModel implements IDynamicBakedModel {
-    // Sprite of the missing texture. Can be used as a fallback when needed.
-    private static final TextureAtlasSprite MISSING_TEXTURE = 
-            new Material(TextureAtlas.LOCATION_BLOCKS, MissingTextureAtlasSprite.getLocation()).sprite();
+    // Material of the missing texture. Its sprite can be used as a fallback when needed.
+    private static final Material MISSING_TEXTURE = 
+            new Material(TextureAtlas.LOCATION_BLOCKS, MissingTextureAtlasSprite.getLocation());
 
     // Attributes for use in the methods below. Optional, the methods may also use constant values if applicable.
     private final boolean useAmbientOcclusion;
@@ -288,7 +295,7 @@ public class MyDynamicModel implements IDynamicBakedModel {
 
     @Override
     public TextureAtlasSprite getParticleIcon() {
-        // Return MISSING_TEXTURE if you don't need a particle, e.g. when in an item model context.
+        // Return MISSING_TEXTURE.sprite() if you don't need a particle, e.g. when in an item model context.
         return particle;
     }
 
@@ -298,8 +305,7 @@ public class MyDynamicModel implements IDynamicBakedModel {
         return overrides;
     }
 
-    // Override this to true if you also want to use a custom block entity renderer instead of the default renderer.
-    // See the page on block entity renderers for more information.
+    // Override this to true if you want to use a custom block entity renderer instead of the default renderer.
     @Override
     public boolean isCustomRenderer() {
         return false;
@@ -307,11 +313,11 @@ public class MyDynamicModel implements IDynamicBakedModel {
 
     // This is where the magic happens. Return a list of the quads to render here. Parameters are:
     // - The blockstate being rendered. May be null if rendering an item.
-    // - The side being culled against. May be null, which means no culling should occur.
+    // - The side being culled against. May be null, which means quads that cannot be occluded should be returned.
     // - A client-bound random source you can use for randomizing stuff.
-    // - The extra face data to use.
-    // - The render type of the model.
-    // NOTE: This is called very often, usually several times per block and frame.
+    // - The extra data to use. Originates from a block entity (if present), or from BakedModel#getModelData().
+    // - The render type for which quads are being requested.
+    // NOTE: This may be called many times in quick succession, up to several times per block.
     // This should be as fast as possible and use caching wherever applicable.
     @Override
     public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, RandomSource rand, ModelData extraData, @Nullable RenderType renderType) {
@@ -415,7 +421,6 @@ public class MyGeometry implements IUnbakedGeometry<MyGeometry> {
         return new MyDynamicModel(bakedBase, /* other parameters here */);
     }
 
-    // Method responsible for correctly resolving parent properties. Unneeded if we don't reuse the default loader properties, but needed if we do, so here we go.
     @Override
     public void resolveParents(Function<ResourceLocation, UnbakedModel> modelGetter, IGeometryBakingContext context) {
         base.resolveParents(modelGetter);
@@ -452,6 +457,7 @@ public class MyDynamicModel implements IDynamicBakedModel {
 
 [bakedmodel]: bakedmodel.md
 [ber]: ../../../blockentities/ber.md
+[bewlr]: ../../../items/bewlr.md
 [composite]: #composite-model
 [datagen]: ../../index.md#data-generation
 [elements]: index.md#elements

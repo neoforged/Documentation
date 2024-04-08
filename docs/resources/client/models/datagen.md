@@ -24,7 +24,7 @@ While elaborate and complex models can be created through datagen, it is recomme
 
 ### `ModelProvider`
 
-Both block and item model datagen utilize subclasses of `ModelProvider`, named `BlockModelProvider` and `ItemModelProvider`, respectively. While item model datagen directly extends `ItemModelProvider`, block model datagen uses the `BlockStateProvider` base class, which has an internal `BlockModelProvider` that can be accessed via `BlockStateProvider#models()`. The most important part of `ModelProvider` is the `getBuilder(String path)` method, which returns a `BlockModelBuilder` (or `ItemModelBuilder`) at the given location.
+Both block and item model datagen utilize subclasses of `ModelProvider`, named `BlockModelProvider` and `ItemModelProvider`, respectively. While item model datagen directly extends `ItemModelProvider`, block model datagen uses the `BlockStateProvider` base class, which has an internal `BlockModelProvider` that can be accessed via `BlockStateProvider#models()`. Additionally, `BlockStateProvider` also has its own internal `ItemModelProvider`, accessible via `BlockStateProvider#itemModels()`. The most important part of `ModelProvider` is the `getBuilder(String path)` method, which returns a `BlockModelBuilder` (or `ItemModelBuilder`) at the given location.
 
 However, `ModelProvider` also contains various helper methods. The most important helper method is probably `withExistingParent(String name, ResourceLocation parent)`, which returns a new builder (via `getBuilder(name)`) and sets the given `ResourceLocation` as model parent. Two other very common helpers are `mcLoc(String name)`, which returns a `ResourceLocation` with the namespace `minecraft` and the given name as path, and `modLoc(String name)`, which does the same but with the provider's mod id (so usually your mod id) instead of `minecraft`. Furthermore, it provides various helper methods that are shortcuts for `#withExistingParent` for common things such as slabs, stairs, fences, doors, etc.
 
@@ -66,7 +66,7 @@ public class MyBlockStateProvider extends BlockStateProvider {
         // Overload that accepts one or multiple (vararg) ConfiguredModel objects.
         // See below for more info about ConfiguredModel.
         simpleBlock(block, ConfiguredModel.builder().build());
-        // Adds the given model file as an identically named item model, for a block item to pick up.
+        // Adds an item model file with the block's name, parenting the given model file, for a block item to pick up.
         simpleBlockItem(block, exampleModel);
         // Shorthand for calling #simpleBlock() (model file overload) and #simpleBlockItem.
         simpleBlockWithItem(block, exampleModel);
@@ -76,7 +76,7 @@ public class MyBlockStateProvider extends BlockStateProvider {
         // Note that the block input here is limited to RotatedPillarBlock, which is the class vanilla logs use.
         logBlock(block);
         // Like #logBlock, but the textures are named <path>_side.png and <path>_end.png instead of
-        // <path>.png and <path>_end.png, respectively. Used by quartz pillars and similar blocks.
+        // <path>.png and <path>_top.png, respectively. Used by quartz pillars and similar blocks.
         // Has an overload that allow you to specify a different texture base name, that is then suffixed
         // with _side and _end as needed, an overload that allows you to specify two resource locations
         // for the side and end textures, and an overload that allows specifying side and end model files.
@@ -84,8 +84,8 @@ public class MyBlockStateProvider extends BlockStateProvider {
         // Variants of #logBlock and #axisBlock that additionally allow for render types to be specified.
         // Comes in string and resource location variants for the render type,
         // in all combinations with all variants of #logBlock and #axisBlock.
-        logBlock(block, "minecraft:cutout");
-        axisBlock(block, mcLoc("cutout_mipped"));
+        logBlockWithRenderType(block, "minecraft:cutout");
+        axisBlockWithRenderType(block, mcLoc("cutout_mipped"));
         
         // Specifies a horizontally-rotatable block model with a side texture, a front texture, and a top texture.
         // The bottom will use the side texture as well. If you don't need the front or top texture,
@@ -93,7 +93,7 @@ public class MyBlockStateProvider extends BlockStateProvider {
         horizontalBlock(block, sideTexture, frontTexture, topTexture);
         // Specifies a horizontally-rotatable block model with a model file that will be rotated as needed.
         // Has an overload that instead of a model file accepts a Function<BlockState, ModelFile>,
-        // allowing for different rotations to use different models. Used e.g. by the crafting table.
+        // allowing for different rotations to use different models. Used e.g. by the stonecutter.
         horizontalBlock(block, exampleModel);
         // Specifies a horizontally-rotatable block model that is attached to a face, e.g. for buttons or levers.
         // Accounts for placing the block on the ground and on the ceiling, and rotates them accordingly.

@@ -1,6 +1,6 @@
 # Particles
 
-Particles are 2d effects that polish the game and add immersion. They can be spawned both client and server [side], but being mostly visual in nature, critical parts exist only on the physical (and logical) client side.
+Particles are 2D effects that polish the game and add immersion. They can be spawned both client and server [side], but being mostly visual in nature, critical parts exist only on the physical (and logical) client side.
 
 ## Registering Particles
 
@@ -227,8 +227,8 @@ public class MyParticleType extends ParticleType<MyParticleOptions> {
     
     // Mojang is moving towards codecs for particle types, so expect the old deserializer approach to vanish soon.
     // We define our codec and then return it in the codec() method. Since our example uses no parameters
-    // for serialization, we use the empty codec. Refer to the Codecs article for more information on how to use them.
-    public static final Codec<MyParticleOptions> CODEC = Codec.EMPTY;
+    // for serialization, we use an empty unit codec. Refer to the Codecs article for more information.
+    public static final Codec<MyParticleOptions> CODEC = Codec.unit(new MyParticleOptions());
     
     @Override
     public Codec<MyParticleOptions> codec() {
