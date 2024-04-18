@@ -43,7 +43,7 @@ Other methods in `BakedModel` that you may override and/or query include:
 | `ItemOverrides getOverrides()`                                                | Returns the [`ItemOverrides`][itemoverrides] associated with this model. This is only relevant on item models.                                                                                                                                                                                                                                                                                              |
 | `ModelData getModelData(BlockAndTintGetter, BlockPos, BlockState, ModelData)` | Returns the model data to use for the model. This method is passed an existing `ModelData` that is either the result of `BlockEntity#getModelData()` if the block has an associated block entity, or `ModelData.EMPTY` if that is not the case. This method can be used for blocks that need model data, but do not have a block entity, for example for blocks with connected textures.                    |
 | `TextureAtlasSprite getParticleIcon(ModelData)`                               | Returns the particle sprite to use for the model. May use the model data to use different particle sprites for different model data values. NeoForge-added, replacing the vanilla `getParticleIcon()` overload with no parameters.                                                                                                                                                                          |
-| `ChunkRenderTypeSet getRenderTypes(BlockState, RandomSource, ModelData)`      | Returns a `ChunkRenderTypeSet` containing the render type(s) to use for rendering the block model. By default falls back to the normal model-bound render type lookup, which always yields a set with one element. Note that `ChunkRenderTypeSet` is not actually a set, but an ordered `Iterable<List>` (so more of a list). Only used for block models, item models use the overload below.               |
+| `ChunkRenderTypeSet getRenderTypes(BlockState, RandomSource, ModelData)`      | Returns a `ChunkRenderTypeSet` containing the render type(s) to use for rendering the block model. A `ChunkRenderTypeSet` is a set-backed ordered `Iterable<RenderType>`. By default falls back to [getting the render type from the model JSON][rendertype]. Only used for block models, item models use the overload below.                                                                               |
 | `List<RenderType> getRenderTypes(ItemStack, boolean)`                         | Returns a `List<RenderType>` containing the render type(s) to use for rendering the item model. By default falls back to the normal model-bound render type lookup, which always yields a list with one element. Only used for item models, block models use the overload above.                                                                                                                            |
 
 ## Perspectives
@@ -115,7 +115,7 @@ public static void modifyBakingResult(ModelEvent.ModifyBakingResult event) {
 ```
 
 :::warning
-It is generally encouraged to use a [custom model loader][modelloader] over baked model wrappers when possible. Custom model loaders can also use `BakedModelWrapper`s if needed.
+It is generally encouraged to use a [custom model loader][modelloader] over wrapping baked models in `ModelEvent.ModifyBakingResult` when possible. Custom model loaders can also use `BakedModelWrapper`s if needed.
 :::
 
 [ao]: https://en.wikipedia.org/wiki/Ambient_occlusion
