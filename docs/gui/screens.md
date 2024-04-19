@@ -341,6 +341,6 @@ private void registerScreens(RegisterMenuScreensEvent event) {
 [network]: ../networking/index.md
 [screen]: #the-screen-subtype
 [argb]: https://en.wikipedia.org/wiki/RGBA_color_model#ARGB32
-[component]: ../concepts/internationalization.md#translatablecontents
+[component]: ../resources/client/i18n.md#components
 [keymapping]: ../misc/keymappings.md#inside-a-gui
 [modbus]: ../concepts/events.md#event-buses

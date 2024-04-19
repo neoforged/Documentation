@@ -121,9 +121,7 @@ This does the exact same as the previous example, but is slightly shorter. Of co
 
 ### Resources
 
-If you register your block and place it in the world, you will find it to be missing things like a texture. This is because textures, among others, are handled by Minecraft's resource system.
-
-To apply a simple texture to a block, you must add a blockstate JSON, a model JSON, and a texture PNG. See the section on [resources] for more information.
+If you register your block and place it in the world, you will find it to be missing things like a texture. This is because [textures], among others, are handled by Minecraft's resource system. To apply the texture to the block, you must provide a [model] and a [blockstate file][bsfile] that associates the block with the texture and a shape. Give the linked articles a read for more information.
 
 ## Using Blocks
 
@@ -229,12 +227,15 @@ Random ticking is used by a wide range of mechanics in Minecraft, such as plant 
 [below]: #deferredregisterblocks-helpers
 [blockentities]: ../blockentities/index.md
 [blockstates]: states.md
+[bsfile]: ../resources/client/models/index.md#blockstate-files
 [events]: ../concepts/events.md
 [interactionpipeline]: ../items/interactionpipeline.md
 [item]: ../items/index.md
+[model]: ../resources/client/models/index.md
 [randomtick]: #random-ticking
 [registration]: ../concepts/registries.md#methods-for-registering
-[resources]: ../resources/client/index.md
-[sounds]: ../gameeffects/sounds.md
+[resources]: ../resources/index.md#assets
+[sounds]: ../resources/client/sounds.md
+[textures]: ../resources/client/textures.md
 [usingblocks]: #using-blocks
 [usingblockstates]: states.md#using-blockstates

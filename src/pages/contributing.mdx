@@ -163,7 +163,7 @@ sidebar_position: 2
 
 Categories are folders within the documentation. They inherit titles and positional data from `index.md`. If an `index.md` is not within a subfolder, a `_category_.json` file should be created, specifying the `label` representing the name of the section, and `position` representing where on the sidebar it should go.
 
-```js
+```json5
 {
     // Name of the category to display
     "label": "Example Title",
@@ -232,7 +232,7 @@ When referencing elements outside of code blocks, they should be surrounded with
 `#SOME_CONSTANT`
 ```
 
-Code blocks should specify the language after the triple backtick (`` ``` ``). When writing a JSON block, the JavaScript (`js`) syntax highlighter should be used to allow comments.
+Code blocks should specify the language after the triple backtick (`` ``` ``). When writing a JSON block, the JSON5 (`json5`) syntax highlighter should be used to allow comments.
 
 ````md
 <!-- Java Code Block -->
@@ -243,7 +243,7 @@ public void run() {
 ```
 
 <!-- JSON Code Block -->
-```js
+```json5
 {
     // Comments are allowed here
     "text": "Hiya"
