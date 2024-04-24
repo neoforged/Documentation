@@ -4,7 +4,7 @@ The mod files are responsible for determining what mods are packaged into your J
 
 ## gradle.properties
 
-The `gradle.properties` file holds various common properties of your mod, such as the mod id or mod version. During building, Gradle reads the values in these files and inlines them in various places, such as the [mods.toml][modstoml] file. This way, you only need to change values in one place, and they are then applied everywhere for you.
+The `gradle.properties` file holds various common properties of your mod, such as the mod id or mod version. During building, Gradle reads the values in these files and inlines them in various places, such as the [neoforge.mods.toml][neoforgemodstoml] file. This way, you only need to change values in one place, and they are then applied everywhere for you.
 
 Most values are also explained as comments in [the MDK's `gradle.properties` file].
 
@@ -47,11 +47,11 @@ com
     - MyMod.java (renamed ExampleMod.java)
 ```
 
-## mods.toml
+## neoforge.mods.toml
 
-The `mods.toml` file, located at `src/main/resources/META-INF/mods.toml`, is a file in [TOML][toml] format that defines the metadata of your mod(s). It also contains additional information on how your mod(s) should be loaded into the game, as well as display information that is displayed within the 'Mods' menu. The [`mods.toml` file provided by the MDK][mdkmodstoml] contains comments explaining every entry, they will be explained here in more detail.
+The `neoforge.mods.toml` file, located at `src/main/resources/META-INF/neoforge.mods.toml`, is a file in [TOML][toml] format that defines the metadata of your mod(s). It also contains additional information on how your mod(s) should be loaded into the game, as well as display information that is displayed within the 'Mods' menu. The [`neoforge.mods.toml` file provided by the MDK][mdkneoforgemodstoml] contains comments explaining every entry, they will be explained here in more detail.
 
-The `mods.toml` can be separated into three parts: the non-mod-specific properties, which are linked to the mod file; the mod properties, with a section for each mod; and the dependency configurations, with a section for each mod's or mods' dependencies. Some of the properties associated with the `mods.toml` file are mandatory; mandatory properties require a value to be specified, otherwise an exception will be thrown.
+The `neoforge.mods.toml` can be separated into three parts: the non-mod-specific properties, which are linked to the mod file; the mod properties, with a section for each mod; and the dependency configurations, with a section for each mod's or mods' dependencies. Some of the properties associated with the `neoforge.mods.toml` file are mandatory; mandatory properties require a value to be specified, otherwise an exception will be thrown.
 
 :::note
 In the default MDK, Gradle replaces various properties in this file with the values specified in the `gradle.properties` file. For example, the line `license="${mod_license}"` means that the `license` field is replaced by the `mod_license` property from `gradle.properties`. Values that are replaced like this should be changed in the `gradle.properties` instead of changing them here.
@@ -142,14 +142,14 @@ The `ordering` of two mods may cause a crash due to a cyclic dependency, for exa
 
 ## Mod Entrypoints
 
-Now that the `mods.toml` is filled out, we need to provide an entrypoint for the mod. Entrypoints are essentially the starting point for executing the mod. The entrypoint itself is determined by the language loader used in the `mods.toml`.
+Now that the `neoforge.mods.toml` is filled out, we need to provide an entrypoint for the mod. Entrypoints are essentially the starting point for executing the mod. The entrypoint itself is determined by the language loader used in the `neoforge.mods.toml`.
 
 ### `javafml` and `@Mod`
 
-`javafml` is a language loader provided by NeoForge for the Java programming language. The entrypoint is defined using a public class with the `@Mod` annotation. The value of `@Mod` must contain one of the mod ids specified within the `mods.toml`. From there, all initialization logic (e.g. [registering events][events] or [adding `DeferredRegister`s][registration]) can be specified within the constructor of the class.
+`javafml` is a language loader provided by NeoForge for the Java programming language. The entrypoint is defined using a public class with the `@Mod` annotation. The value of `@Mod` must contain one of the mod ids specified within the `neoforge.mods.toml`. From there, all initialization logic (e.g. [registering events][events] or [adding `DeferredRegister`s][registration]) can be specified within the constructor of the class.
 
 ```java
-@Mod("examplemod") // Must match a mod id in the mods.toml
+@Mod("examplemod") // Must match a mod id in the neoforge.mods.toml
 public class Example {
   public Example(IEventBus modBus) { // The parameter is the mod-specific event bus, needed e.g. for registration and events
     // Initialize logic here
@@ -158,7 +158,7 @@ public class Example {
 ```
 
 :::note
-There must be a 1-to-1 matching of mods in the `mods.toml` file and `@Mod` entrypoints. This means that for every mod defined, there must be exactly one `@Mod` annotation with that mod's id.
+There must be a 1-to-1 matching of mods in the `neoforge.mods.toml` file and `@Mod` entrypoints. This means that for every mod defined, there must be exactly one `@Mod` annotation with that mod's id.
 :::
 
 ### `lowcodefml`
@@ -176,18 +176,18 @@ There must be a 1-to-1 matching of mods in the `mods.toml` file and `@Mod` entry
 [lowcodefml]: #lowcodefml
 [mcversioning]: versioning.md#minecraft
 [mdkgradleproperties]: https://github.com/neoforged/MDK/blob/main/gradle.properties
-[mdkmodstoml]: https://github.com/neoforged/MDK/blob/main/src/main/resources/META-INF/mods.toml
-[modstoml]: #modstoml
+[mdkneoforgemodstoml]: https://github.com/neoforged/MDK/blob/main/src/main/resources/META-INF/neoforge.mods.toml
+[neoforgemodstoml]: #neoforgemodstoml
 [mojmaps]: https://github.com/neoforged/NeoForm/blob/main/Mojang.md
 [multiline]: https://toml.io/en/v1.0.0#string
 [mvr]: https://maven.apache.org/enforcer/enforcer-rules/versionRanges.html
 [neoversioning]: versioning.md#neoforge
 [packaging]: ./structuring.md#packaging
 [registration]: ../concepts/registries.md#deferredregister
-[serviceload]: https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/ServiceLoader.html#load(java.lang.Class)
+[serviceload]: https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/ServiceLoader.html#load(java.lang.Class)
 [sides]: ../concepts/sides.md
 [spdx]: https://spdx.org/licenses/
 [toml]: https://toml.io/
 [update]: ../misc/updatechecker.md
-[uses]: https://docs.oracle.com/javase/specs/jls/se17/html/jls-7.html#jls-7.7.3
+[uses]: https://docs.oracle.com/javase/specs/jls/se21/html/jls-7.html#jls-7.7.3
 [versioning]: ./versioning.md

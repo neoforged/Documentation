@@ -5,7 +5,7 @@ This section includes information about how to set up a NeoForge workspace, and 
 ## Prerequisites
 
 - Familiarity with the Java programming language, specifically its object-oriented, polymorphic, generic, and functional features.
-- An installation of the Java 17 Development Kit (JDK) and 64-bit Java Virtual Machine (JVM). NeoForge recommends and officially supports the [Microsoft builds of OpenJDK][jdk], but any other JDK should work as well.
+- An installation of the Java 21 Development Kit (JDK) and 64-bit Java Virtual Machine (JVM). NeoForge recommends and officially supports the [Microsoft builds of OpenJDK][jdk], but any other JDK should work as well.
 
 :::caution
 Make sure you are using a 64-bit JVM. One way of checking is to run `java -version` in a terminal. Issues may arise when using a 32-bit JVM, due to 32-bit JVMs running out of support for a lot of things.
@@ -54,7 +54,7 @@ You should always test your mod in a dedicated server environment. This includes
 [git]: https://www.git-scm.com/
 [github]: https://github.com/
 [intellij]: https://www.jetbrains.com/idea/
-[jdk]: https://learn.microsoft.com/en-us/java/openjdk/download#openjdk-17
+[jdk]: https://learn.microsoft.com/en-us/java/openjdk/download#openjdk-21
 [mdk]: https://github.com/neoforged/MDK
 [neogradle]: https://docs.neoforged.net/neogradle/docs/
 [properties]: modfiles.md#gradleproperties
