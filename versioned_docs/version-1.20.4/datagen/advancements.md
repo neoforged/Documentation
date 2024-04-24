@@ -65,4 +65,4 @@ Advancement example = Advancement.Builder.advancement()
 
 [advancements]: ../resources/server/advancements.md
 [datagen]: ../resources/index.md#data-generation
-[conditional]: ../resources/server/conditional.md
+[conditional]: ../../resources/server/conditional.md
