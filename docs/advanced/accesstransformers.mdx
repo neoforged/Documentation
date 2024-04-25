@@ -11,9 +11,7 @@ The [specification document][specs] can be viewed on the NeoForged GitHub.
 
 Adding an Access Transformer to your mod project is as simple as adding a single line into your `build.gradle`:
 
-<Tabs defaultValue="latest">
-<TabItem value="latest" label="Latest">
-Access Transformers need to be declared in both `build.gradle` and `mods.toml`:
+Access Transformers need to be declared in both `build.gradle` and `neoforge.mods.toml`:
 
 ```groovy
 // In build.gradle:
@@ -26,12 +24,14 @@ minecraft {
 ```
 
 ```toml
-# In mods.toml:
+# In neoforge.mods.toml:
 [[accessTransformers]]
+## The file is relative to the output directory of the resources, or the root path inside the jar when compiled
+## The 'resources' directory represents the root output directory of the resources
 file="META-INF/accesstransformer.cfg"
 ```
 
-AT files can be anywhere specified by the lines above, though NeoForge will default to searching for `META-INF/accesstransformer.cfg` if no other file is specified.
+AT files can be specified anywhere as long as they are copied to the `resources` output directory on compilation. If no access transformer is defined within `neoforge.mods.toml`, NeoForge will search for `META-INF/accesstransformer.cfg`.
 
 Additionally, multiple AT files can be specified and will be applied in order. This can be useful for larger mods with multiple packages.
 
@@ -46,7 +46,7 @@ minecraft {
 ```
 
 ```toml
-# In mods.toml
+# In neoforge.mods.toml
 [[accessTransformers]]
 file="accesstransformer_main.cfg"
 
@@ -55,23 +55,6 @@ file="accesstransformer_additions.cfg"
 ```
 
 After adding or modifying any Access Transformer, the Gradle project must be refreshed for the transformations to take effect.
-</TabItem>
-
-<TabItem value="1.20.1" label="1.20.1-47.1 and older">
-Adding an Access Transformer to your mod project is as simple as adding a single line into your `build.gradle`:
-
-```groovy
-// This block is where your mappings version is also specified
-minecraft {
-  accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
-}
-```
-
-During development, the AT file can be anywhere specified by the line above. However, when loading in a non-development environment, NeoForge will only search for the exact path of `META-INF/accesstransformer.cfg` in your JAR file.
-
-After adding or modifying the Access Transformer, the Gradle project must be refreshed for the transformations to take effect.
-</TabItem>
-</Tabs>
 
 ## Comments
 
@@ -155,4 +138,4 @@ public net.minecraft.core.UUIDUtil leastMostToIntArray(JJ)[I
 ```
 
 [specs]: https://github.com/NeoForged/AccessTransformers/blob/main/FMLAT.md
-[jvmdescriptors]: https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.3.2
+[jvmdescriptors]: https://docs.oracle.com/javase/specs/jvms/se21/html/jvms-4.html#jvms-4.3.2

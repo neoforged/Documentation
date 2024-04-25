@@ -113,6 +113,13 @@ modId = "examplemod2"
 Some properties (`displayName` and `description`) can also be localized using language files. See [Translating Mod Metadata][i18n] for more detail.
 :::
 
+### Access Transformer-Specific Properties
+
+[Access Transformer-specific properties][accesstransformer] are tied to the specified access transformer using the `[[accessTransformers]]` header. This is an [array of tables][array]; all key/value properties will be attached to that access transformer until the next header. The access transformer header is optional; however, when specified, all elements are mandatory.
+
+| Property |  Type  |    Default    |             Description              |     Example     |
+| `file`   | string | **mandatory** | See [Adding ATs][accesstransformer]. | `file="at.cfg"` |
+
 #### Features
 
 The features system allows mods to demand that certain settings, software, or hardware are available when loading the system. When a feature is not satisfied, mod loading will fail, informing the user about the requirement. Currently, NeoForge provides the following features:
@@ -165,6 +172,7 @@ There must be a 1-to-1 matching of mods in the `neoforge.mods.toml` file and `@M
 
 `lowcodefml` is a language loader used as a way to distribute datapacks and resource packs as mods without the need of an in-code entrypoint. It is specified as `lowcodefml` rather than `nocodefml` for minor additions in the future that might require minimal coding.
 
+[accesstransformer]: ../advanced/accesstransformers.mdx#adding-ats
 [array]: https://toml.io/en/v1.0.0#array-of-tables
 [atlasviewer]: https://github.com/XFactHD/AtlasViewer/blob/1.20.2/neoforge/src/main/resources/META-INF/services/xfacthd.atlasviewer.platform.services.IPlatformHelper
 [events]: ../concepts/events.md
