@@ -1,125 +1,126 @@
-# Codecs
+# 编解码器
 
-Codecs are a serialization tool from Mojang's [DataFixerUpper] used to describe how objects can be transformed between different formats, such as `JsonElement`s for JSON and `Tag`s for NBT.
+编解码器是 Mojang 的 [DataFixerUpper] 库中的一种序列化工具，用于描述对象在不同格式之间的转换方式，如将对象从 `JsonElement` 的 JSON 格式转换为 NBT 的 `Tag` 格式。
 
-## Using Codecs
+## 使用编解码器
 
-Codecs are primarily used to encode, or serialize, Java objects to some data format type and decode, or deserialize, formatted data objects back to its associated Java type. This is typically accomplished using `Codec#encodeStart` and `Codec#parse`, respectively.
+编解码器主要用于将 Java 对象编码（或序列化）成某种数据格式，并将格式化的数据对象解码（或反序列化）回其关联的 Java 类型。这通常通过 `Codec#encodeStart` 和 `Codec#parse` 来实现。
 
-### DynamicOps
+### 动态操作
 
-To determine what intermediate file format to encode and decode to, both `#encodeStart` and `#parse` require a `DynamicOps` instance to define the data within that format.
+为了确定将数据编码和解码至哪种中间文件格式，`#encodeStart` 和 `#parse` 都需要一个 `DynamicOps` 实例来定义该格式中的数据。
 
-The [DataFixerUpper] library contains `JsonOps` to codec JSON data stored in [`Gson`'s][gson] `JsonElement` instances. `JsonOps` supports two versions of `JsonElement` serialization: `JsonOps#INSTANCE` which defines a standard JSON file, and `JsonOps#COMPRESSED` which allows data to be compressed into a single string.
+[DataFixerUpper] 库包含了 `JsonOps`，用于对存储在 [`Gson`][gson] 的 `JsonElement` 实例中的 JSON 数据进行编解码。`JsonOps` 支持两种 `JsonElement` 序列化版本：`JsonOps#INSTANCE` 定义了标准的 JSON 文件，而 `JsonOps#COMPRESSED` 允许将数据压缩成单一字符串。
 
 ```java
-// Let exampleCodec represent a Codec<ExampleJavaObject>
-// Let exampleObject be a ExampleJavaObject
-// Let exampleJson be a JsonElement
+// 假设 exampleCodec 代表一个 Codec<ExampleJavaObject>
+// 假设 exampleObject 为一个 ExampleJavaObject
+// 假设 exampleJson 为一个 JsonElement
 
-// Encode Java object to regular JsonElement
+// 将 Java 对象编码为常规 JsonElement
 exampleCodec.encodeStart(JsonOps.INSTANCE, exampleObject);
 
-// Encode Java object to compressed JsonElement
+// 将 Java 对象编码为压缩的 JsonElement
 exampleCodec.encodeStart(JsonOps.COMPRESSED, exampleObject);
 
-// Decode JsonElement into Java object
-// Assume JsonElement was parsed normally
+// 将 JsonElement 解码为 Java 对象
+// 假设 JsonElement 是正常解析的
 exampleCodec.parse(JsonOps.INSTANCE, exampleJson);
 ```
 
-Minecraft also provides `NbtOps` to codec NBT data stored in `Tag` instances. This can be referenced using `NbtOps#INSTANCE`.
+Minecraft 还提供了 `NbtOps` 用于对存储在 `Tag` 实例中的 NBT 数据进行编解码。可以通过 `NbtOps#INSTANCE` 来引用。
 
 ```java
-// Let exampleCodec represent a Codec<ExampleJavaObject>
-// Let exampleObject be a ExampleJavaObject
-// Let exampleNbt be a Tag
+// 假设 exampleCodec 代表一个 Codec<ExampleJavaObject>
+// 假设 exampleObject 为一个 ExampleJavaObject
+// 假设 exampleNbt 为一个 Tag
 
-// Encode Java object to Tag
+// 将 Java 对象编码为 Tag
 exampleCodec.encodeStart(JsonOps.INSTANCE, exampleObject);
 
-// Decode Tag into Java object
+// 将 Tag 解码为 Java 对象
 exampleCodec.parse(JsonOps.INSTANCE, exampleNbt);
 ```
 
-#### Format Conversion
+#### 格式转换
 
-`DynamicOps` can also be used separately to convert between two different encoded formats. This can be done using `#convertTo` and supplying the `DynamicOps` format and the encoded object to convert.
+`DynamicOps` 还可以单独用来在两种不同的编码格式之间转换。这可以通过使用 `#convertTo` 并提供 `DynamicOps` 格式和要转换的编码对象来完成。
 
 ```java
-// Convert Tag to JsonElement
-// Let exampleTag be a Tag
+// 将 Tag 转换为 JsonElement
+// 假设 exampleTag 为一个 Tag
 JsonElement convertedJson = NbtOps.INSTANCE.convertTo(JsonOps.INSTANCE, exampleTag);
 ```
 
-### DataResult
+### 数据结果
 
-Encoded or decoded data using codecs return a `DataResult` which holds the converted instance or some error data depending on whether the conversion was successful. When the conversion is successful, the `Optional` supplied by `#result` will contain the successfully converted object. If the conversion fails, the `Optional` supplied by `#error` will contain the `PartialResult`, which holds the error message and a partially converted object depending on the codec.
+使用编解码器编码或解码数据时返回的 `DataResult` 将根据转换是否成功，持有转换后的实例或一些错误数据。当转换成功时，由 `#result` 提供的 `Optional` 将包含成功转换的对象。如果转换失败，由 `#error` 提供的 `Optional` 将包含 `PartialResult`，后者持有错误消息和根据编解码器部分转换的对象。
 
-Additionally, there are many methods on `DataResult` that can be used to transform the result or error into the desired format. For example, `#resultOrPartial` will return an `Optional` containing the result on success, and the partially converted object on failure. The method takes in a string consumer to determine how to report the error message if present.
+此外，`DataResult` 上有许多方法可以用来将结果或错误转换为所需格式。例如，`#resultOrPartial` 将返回一个 `Optional`，在成功时包含结果，在失败时包含部分转换的对象。此方法接受一个字符串消费者以确定如何报告错误消息（如果存在）。
 
 ```java
-// Let exampleCodec represent a Codec<ExampleJavaObject>
-// Let exampleJson be a JsonElement
+// 假设 exampleCodec 代表一个 Codec<ExampleJavaObject>
+// 假设 exampleJson 为一个 JsonElement
 
-// Decode JsonElement into Java object
+// 将 JsonElement 解码为 Java 对象
 DataResult<ExampleJavaObject> result = exampleCodec.parse(JsonOps.INSTANCE, exampleJson);
 
 result
-  // Get result or partial on error, report error message
-  .resultOrPartial(errorMessage -> /* Do something with error message */)
-  // If result or partial is present, do something
-  .ifPresent(decodedObject -> /* Do something with decoded object */);
+  // 获取结果或部分错误时的错误消息
+  .resultOrPartial(errorMessage -> /* 处理错误消息 */)
+  // 如果结果或部分存在，则进行某些操作
+  .ifPresent(decodedObject
+
+ -> /* 处理解码对象 */);
 ```
 
-## Existing Codecs
+## 现有编解码器
 
-### Primitives
+### 原始类型
 
-The `Codec` class contains static instances of codecs for certain defined primitives.
+`Codec` 类包含了一些定义的原始类型的静态编解码器实例。
 
-Codec         | Java Type
-:---:         | :---
-`BOOL`        | `Boolean`
-`BYTE`        | `Byte`
-`SHORT`       | `Short`
-`INT`         | `Integer`
-`LONG`        | `Long`
-`FLOAT`       | `Float`
-`DOUBLE`      | `Double`
-`STRING`      | `String`
-`BYTE_BUFFER` | `ByteBuffer`
-`INT_STREAM`  | `IntStream`
-`LONG_STREAM` | `LongStream`
-`PASSTHROUGH` | `Dynamic<?>`\*
-`EMPTY`       | `Unit`\*\*
+| 编解码器       | Java 类型  |
+|------------|--------|
+| `BOOL`     | `Boolean` |
+| `BYTE`     | `Byte`  |
+| `SHORT`    | `Short` |
+| `INT`      | `Integer` |
+| `LONG`     | `Long`   |
+| `FLOAT`    | `Float`  |
+| `DOUBLE`   | `Double` |
+| `STRING`   | `String` |
+| `BYTE_BUFFER` | `ByteBuffer` |
+| `INT_STREAM`  | `IntStream`  |
+| `LONG_STREAM` | `LongStream` |
+| `PASSTHROUGH` | `Dynamic<?>` |
+| `EMPTY`       | `Unit`       |
 
-\* `Dynamic` is an object which holds a value encoded in a supported `DynamicOps` format. These are typically used to convert encoded object formats into other encoded object formats.
+* `Dynamic` 是一个在支持的 `DynamicOps` 格式中编码值的对象。这些通常用于将编码对象格式转换为其他编码对象格式。
+* `Unit` 是用于表示 `null` 对象的对象。
 
-\*\* `Unit` is an object used to represent `null` objects.
+### 原版和 Forge
 
-### Vanilla and Forge
+Minecraft 和 Forge 定义了许多常见对象的编解码器。一些示例包括用于 `ResourceLocation` 的 `ResourceLocation#CODEC`，用于 `DateTimeFormatter#ISO_INSTANT` 格式的 `Instant` 的 `ExtraCodecs#INSTANT_ISO8601`，以及用于 `CompoundTag` 的 `CompoundTag#CODEC`。
 
-Minecraft and Forge define many codecs for objects that are frequently encoded and decoded. Some examples include `ResourceLocation#CODEC` for `ResourceLocation`s, `ExtraCodecs#INSTANT_ISO8601` for `Instant`s in the `DateTimeFormatter#ISO_INSTANT` format, and `CompoundTag#CODEC` for `CompoundTag`s.
-
-:::caution
-`CompoundTag`s cannot decode lists of numbers from JSON using `JsonOps`. `JsonOps`, when converting, sets a number to its most narrow type. `ListTag`s force a specific type for its data, so numbers with different types (e.g. `64` would be `byte`, `384` would be `short`) will throw an error on conversion.
+:::警告
+使用 `JsonOps` 的 `CompoundTag` 不能从 JSON 解码数字列表。`JsonOps` 在转换时会将数字设置为其最窄类型。`ListTag` 强制其数据使用特定类型，因此不同类型的数字（例如 `64` 会是 `byte`，`384` 会是 `short`）在转换时会引发错误。
 :::
 
-Vanilla and Forge registries also have codecs for the type of object the registry contains (e.g. `Registry#BLOCK` or `ForgeRegistries#BLOCKS` have a `Codec<Block>`). `Registry#byNameCodec` and `IForgeRegistry#getCodec` will encode the registry object to their registry name, or an integer identifier if compressed. Vanilla registries also have a `Registry#holderByNameCodec` which encodes to a registry name and decodes to the registry object wrapped in a `Holder`.
+原版和 Forge 注册也有针对注册表所包含对象类型的编解码器（例如 `Registry#BLOCK` 或 `ForgeRegistries#BLOCKS` 有一个 `Codec<Block>`）。`Registry#byNameCodec` 和 `IForgeRegistry#getCodec` 会将注册表对象编码为其注册名，或者如果压缩，则为整数标识符。原版注册表还有一个 `Registry#holderByNameCodec`，它将编码为注册名并解码为被 `Holder` 包装的注册表对象。
 
-## Creating Codecs
+## 创建编解码器
 
-Codecs can be created for encoding and decoding any object. For understanding purposes, the equivalent encoded JSON will be shown.
+可以为任何对象创建编解码器。为了便于理解，将显示等效的编码 JSON。
 
-### Records
+### 记录
 
-Codecs can define objects through the use of records. Each record codec defines any object with explicit named fields. There are many ways to create a record codec, but the simplest is via `RecordCodecBuilder#create`.
+编解码器可以通过使用记录来定义对象。每个记录编解码器定义了具有明确命名字段的任何对象。创建记录编解码器的方法有很多，但最简单的是通过 `RecordCodecBuilder#create`。
 
-`RecordCodecBuilder#create` takes in a function which defines an `Instance` and returns an application (`App`) of the object. A correlation can be drawn to creating a class *instance* and the constructors used to *apply* the class to the constructed object.
+`RecordCodecBuilder#create` 接受一个函数，该函数定义了一个 `Instance` 并返回一个应用（`App`）到构建对象的对象。这可以与创建类*实例*和用于*应用*类的构造函数联系起来。
 
 ```java
-// Some object to create a codec for
+// 一个需要创建编解码器的对象
 public class SomeObject {
 
   public SomeObject(String s, int i, boolean b) { /* ... */ }
@@ -132,168 +133,172 @@ public class SomeObject {
 }
 ```
 
-#### Fields
+#### 字段
 
-An `Instance` can define up to 16 fields using `#group`. Each field must be an application defining the instance the object is being made for and the type of the object. The simplest way to meet this requirement is by taking a `Codec`, setting the name of the field to decode from, and setting the getter used to encode the field.
+`Instance` 可以使用 `#group` 定义多达 16 个字段。每个字段必须是一个定义了对象被制造的实例及对象类型的应用。满足此要求的最简单方式是使用 `Codec`，设置字段的解码名称，并设置用于编码字段的 getter。
 
-A field can be created from a `Codec` using `#fieldOf`, if the field is required, or `#optionalFieldOf`, if the field is wrapped in an `Optional` or defaulted. Either method requires a string containing the name of the field in the encoded object. The getter used to encode the field can then be set using `#forGetter`, taking in a function which given the object, returns the field data.
+字段可以使用 `#fieldOf` 从 `Codec` 创建，如果字段是必需的，或使用 `#optionalFieldOf` 创建，如果字段被包装在 `Optional` 中或默认存在。任一方法都需要包含编码对象中字段名称的字符串。然后可以使用 `#forGetter` 设置用于编码字段的 getter，它接受一个函数，该函数给定对象，返回字段数据。
 
-From there, the resulting product can be applied via `#apply` to define how the instance should construct the object for the application. For ease of convenience, the grouped fields should be listed in the same order they appear in the constructor such that the function can simply be a constructor method reference.
+从那里
+
+，生成的产品可以通过 `#apply` 应用，以定义如何为应用构建对象。为了方便起见，分组字段应按照它们在构造函数中出现的顺序列出，以便函数可以简单地是一个构造函数方法引用。
 
 ```java
-public static final Codec<SomeObject> RECORD_CODEC = RecordCodecBuilder.create(instance -> // Given an instance
-  instance.group( // Define the fields within the instance
-    Codec.STRING.fieldOf("s").forGetter(SomeObject::s), // String
-    Codec.INT.optionalFieldOf("i", 0).forGetter(SomeObject::i), // Integer, defaults to 0 if field not present
-    Codec.BOOL.fieldOf("b").forGetter(SomeObject::b) // Boolean
-  ).apply(instance, SomeObject::new) // Define how to create the object
+public static final Codec<SomeObject> RECORD_CODEC = RecordCodecBuilder.create(instance -> // 给定一个实例
+  instance.group( // 在实例中定义字段
+    Codec.STRING.fieldOf("s").forGetter(SomeObject::s), // 字符串
+    Codec.INT.optionalFieldOf("i", 0).forGetter(SomeObject::i), // 整数，默认为 0（如果字段不存在）
+    Codec.BOOL.fieldOf("b").forGetter(SomeObject::b) // 布尔
+  ).apply(instance, SomeObject::new) // 定义如何创建对象
 );
 ```
 
 ```js
-// Encoded SomeObject
+// 编码后的 SomeObject
 {
   "s": "value",
   "i": 5,
   "b": false
 }
 
-// Another encoded SomeObject
+// 另一个编码后的 SomeObject
 {
   "s": "value2",
-  // i is omitted, defaults to 0
+  // i 被省略，默认为 0
   "b": true
 }
 ```
 
-### Transformers
+### 转换器
 
-Codecs can be transformed into equivalent, or partially equivalent, representations through mapping methods. Each mapping method takes in two functions: one to transform the current type into the new type, and one to transform the new type back to the current type. This is done through the `#xmap` function.
+编解码器可以通过映射方法转换成等效或部分等效的表现形式。每个映射方法接收两个函数：一个用于将当前类型转换为新类型，另一个用于将新类型转换回当前类型。这是通过 `#xmap` 函数完成的。
 
 ```java
-// A class
+// 一个类
 public class ClassA {
 
   public ClassB toB() { /* ... */ }
 }
 
-// Another equivalent class
+// 另一个等效的类
 public class ClassB {
 
   public ClassA toA() { /* ... */ }
 }
 
-// Assume there is some codec A_CODEC
+// 假设存在某个编解码器 A_CODEC
 public static final Codec<ClassB> B_CODEC = A_CODEC.xmap(ClassA::toB, ClassB::toA);
 ```
 
-If a type is partially equivalent, meaning that there are some restrictions during conversion, there are mapping functions which return a `DataResult` which can be used to return an error state whenever an exception or invalid state is reached.
+如果类型部分等效，即转换过程中存在某些限制，则存在返回 `DataResult` 的映射函数，可用于在遇到异常或无效状态时返回错误状态。
 
-Is A Fully Equivalent to B | Is B Fully Equivalent to A | Transform Method
-:---:                      | :---:                      | :---
-Yes                        | Yes                        | `#xmap`
-Yes                        | No                         | `#flatComapMap`
-No                         | Yes                        | `#comapFlatMap`
-No                         | No                         | `#flatXMap`
+是否 A 完全等同于 B | 是否 B 完全等同于 A | 转换方法
+:---:                | :---:                | :---
+是                  | 是                  | `#xmap`
+是                  | 否                  | `#flatComapMap`
+否                  | 是                  | `#comapFlatMap`
+否                  | 否                  | `#flatXMap`
 
 ```java
-// Given an string codec to convert to a integer
-// Not all strings can become integers (A is not fully equivalent to B)
-// All integers can become strings (B is fully equivalent to A)
+// 给定一个字符串编解码器转换为整数
+// 并非所有字符串都可以变成整数（A 与 B 非完全等效）
+// 所有整数都可以变成字符串（B 与 A 完全等效）
 public static final Codec<Integer> INT_CODEC = Codec.STRING.comapFlatMap(
-  s -> { // Return data result containing error on failure
+  s -> { // 返回失败时包含错误的数据结果
     try {
       return DataResult.success(Integer.valueOf(s));
     } catch (NumberFormatException e) {
-      return DataResult.error(s + " is not an integer.");
+      return DataResult.error(s + " 不是一个整数。");
     }
   },
-  Integer::toString // Regular function
+  Integer::toString // 常规函数
 );
 ```
 
 ```js
-// Will return 5
+// 将返回 5
 "5"
 
-// Will error, not an integer
+// 将错误，不是整数
 "value"
 ```
 
-#### Range Codecs
+#### 范围编解码器
 
-Range codecs are an implementation of `#flatXMap` which returns an error `DataResult` if the value is not inclusively between the set minimum and maximum. The value is still provided as a partial result if outside the bounds. There are implementations for integers, floats, and doubles via `#intRange`, `#floatRange`, and `#doubleRange` respectively.
+范围编解码器是 `#flatXMap` 的实现，如果值不在设定的最小值和最大值之间，则返回错误的 `DataResult`。如果值超出范围，仍会提供部分结果。分别有整数、浮点和双精度通过 `#intRange`、`#floatRange` 和 `#doubleRange` 实现。
 
 ```java
-public static final Codec<Integer> RANGE_CODEC = Codec.intRange(0, 4); 
+public static final Codec<Integer> RANGE_CODEC = Codec.intRange(0, 4);
 ```
 
 ```js
-// Will be valid, inside [0, 4]
+// 将有效，在 [0, 4] 内
 4
 
-// Will error, outside [0, 4]
+// 将错误，在 [0, 4] 外
 5
 ```
 
-### Defaults
+### 默认值
 
-If the result of encoding or decoding fails, a default value can be supplied instead via `Codec#orElse` or `Codec#orElseGet`.
+如果编码或解码的结果失败，可以通过 `Codec#orElse` 或 `Codec#orElseGet` 提供默认值。
 
 ```java
-public static final Codec<Integer> DEFAULT_CODEC = Codec.INT.orElse(0); // Can also be a supplied value via #orElseGet
+public static final Codec<Integer> DEFAULT_CODEC = Codec.INT.orElse(0); // 也可以通过 #orElseGet 提供值
 ```
 
 ```js
-// Not an integer, defaults to 0
+// 不是整数，默认为 0
 "value"
 ```
 
-### Unit
+### 单位
 
-A codec which supplies an in-code value and encodes to nothing can be represented using `Codec#unit`. This is useful if a codec uses a non-encodable entry within the data object.
+一个编解码器，提供代码中的值并不编码任何东西，可以使用 `Codec#unit` 表示。如果编解码器在数据对象中使用了一个不可编码的条目，这非常有用。
 
 ```java
 public static final Codec<IForgeRegistry<Block>> UNIT_CODEC = Codec.unit(
-  () -> ForgeRegistries.BLOCKS // Can also be a raw value
+  () -> ForgeRegistries.BLOCKS // 也可以是原始值
 );
 ```
 
 ```js
-// Nothing here, will return block registry codec
+// 这里没有任何内容，将返回方块注册表编解码器
 ```
 
-### List
+### 列表
 
-A codec for a list of objects can be generated from an object codec via `Codec#listOf`.
+可以从对象编解码器生成一个对象列表的编解码器，通过 `Codec#listOf` 实现。
 
 ```java
-// BlockPos#CODEC is a Codec<BlockPos>
+// BlockPos#CODEC 是一个 Codec<BlockPos>
 public static final Codec<List<BlockPos>> LIST_CODEC = BlockPos.CODEC.listOf();
 ```
 
 ```js
-// Encoded List<BlockPos>
+// 编码的 List<BlockPos>
 [
   [1, 2, 3], // BlockPos(1, 2, 3)
   [4, 5, 6], // BlockPos(4, 5, 6)
   [7, 8, 9]  // BlockPos(7, 8, 9)
 ]
-```
+``
 
-List objects decoded using a list codec are stored in an **immutable** list. If a mutable list is needed, a [transformer] should be applied to the list codec.
+`
 
-### Map
+使用列表编解码器解码的列表对象存储在一个**不可变**列表中。如果需要可变列表，则应该对列表编解码器应用[变换器]。
 
-A codec for a map of keys and value objects can be generated from two codecs via `Codec#unboundedMap`. Unbounded maps can specify any string-based or string-transformed value to be a key.
+### 映射
+
+可以通过两个编解码器生成键和值对象映射的编解码器，通过 `Codec#unboundedMap` 实现。无界映射可以指定任何基于字符串的或转换为字符串的值作为键。
 
 ```java
-// BlockPos#CODEC is a Codec<BlockPos>
+// BlockPos#CODEC 是一个 Codec<BlockPos>
 public static final Codec<Map<String, BlockPos>> MAP_CODEC = Codec.unboundedMap(Codec.STRING, BlockPos.CODEC);
 ```
 
 ```js
-// Encoded Map<String, BlockPos>
+// 编码的 Map<String, BlockPos>
 {
   "key1": [1, 2, 3], // key1 -> BlockPos(1, 2, 3)
   "key2": [4, 5, 6], // key2 -> BlockPos(4, 5, 6)
@@ -301,17 +306,17 @@ public static final Codec<Map<String, BlockPos>> MAP_CODEC = Codec.unboundedMap(
 }
 ```
 
-Map objects decoded using a unbounded map codec are stored in an **immutable** map. If a mutable map is needed, a [transformer] should be applied to the map codec.
+使用无界映射编解码器解码的映射对象存储在一个**不可变**映射中。如果需要可变映射，则应对映射编解码器应用[变换器]。
 
-:::caution
-Unbounded maps only support keys that encode/decode to/from strings. A key-value [pair] list codec can be used to get around this restriction.
+:::警告
+无界映射只支持可以编码/解码为字符串的键。可以使用键值[对]列表编解码器来绕过此限制。
 :::
 
-### Pair
+### 对
 
-A codec for pairs of objects can be generated from two codecs via `Codec#pair`.
+可以通过两个编解码器生成对象对的编解码器，通过 `Codec#pair` 实现。
 
-A pair codec decodes objects by first decoding the left object in the pair, then taking the remaining part of the encoded object and decodes the right object from that. As such, the codecs must either express something about the encoded object after decoding (such as [records]), or they have to be augmented into a `MapCodec` and transformed into a regular codec via `#codec`. This can typically done by making the codec a [field] of some object.
+对编解码器通过首先解码对中的左对象，然后取剩下的编码对象部分并从中解码右对象来解码对象。因此，编解码器必须在解码后表达关于编码对象的某些信息（如[记录]），或者必须被增强为 `MapCodec` 并通过 `#codec` 转换为常规编解码器。这通常可以通过将编解码器作为某个对象的[字段]来实现。
 
 ```java
 public static final Codec<Pair<Integer, String>> PAIR_CODEC = Codec.pair(
@@ -321,22 +326,22 @@ public static final Codec<Pair<Integer, String>> PAIR_CODEC = Codec.pair(
 ```
 
 ```js
-// Encoded Pair<Integer, String>
+// 编码的 Pair<Integer, String>
 {
-  "left": 5,       // fieldOf looks up 'left' key for left object
-  "right": "value" // fieldOf looks up 'right' key for right object
+  "left": 5,       // fieldOf 查找左对象的 'left' 键
+  "right": "value" // fieldOf 查找右对象的 'right' 键
 }
 ```
 
-:::tip
-A map codec with a non-string key can be encoded/decoded using a list of key-value pairs applied with a [transformer].
+:::tips
+可以使用非字符串键的映射编解码器通过应用带有[变换器]的键值对列表来编码/解码。
 :::
 
-### Either
+### Either 编解码器
 
-A codec for two different methods of encoding/decoding some object data can be generated from two codecs via `Codec#either`.
+可以通过两个编解码器生成一个针对某个对象数据的两种不同编解码方法的编解码器，使用 `Codec#either` 实现。
 
-An either codec attempts to decode the object using the first codec. If it fails, it attempts to decode using the second codec. If that also fails, then the `DataResult` will only contain the error from the second codec failure.
+Either 编解码器首先尝试使用第一个编解码器解码对象。如果失败，它将尝试使用第二个编解码器。如果第二次也失败，那么 `DataResult` 将只包含第二次编解码器失败的错误。
 
 ```java
 public static final Codec<Either<Integer, String>> EITHER_CODEC = Codec.either(
@@ -346,32 +351,32 @@ public static final Codec<Either<Integer, String>> EITHER_CODEC = Codec.either(
 ```
 
 ```js
-// Encoded Either$Left<Integer, String>
+// 编码 Either$Left<Integer, String>
 5
 
-// Encoded Either$Right<Integer, String>
+// 编码 Either$Right<Integer, String>
 "value"
 ```
 
-:::tip
-This can be used in conjunction with a [transformer] to get a specific object from two different methods of encoding.
+:::tips
+这可以与[变换器]结合使用，从两种不同的编码方法中获取特定对象。
 :::
 
-### Dispatch
+### 分派编解码器
 
-Codecs can have subcodecs which can decode a particular object based upon some specified type via `Codec#dispatch`. This is typically used in registries which contain codecs, such as rule tests or block placers.
+编解码器可以拥有可以根据某些指定类型解码特定对象的子编解码器，通过 `Codec#dispatch` 实现。这通常用于包含编解码器的注册表，如规则测试或方块放置器。
 
-A dispatch codec first attempts to get the encoded type from some string key (usually `type`). From there, the type is decoded, calling a getter for the specific codec used to decode the actual object. If the `DynamicOps` used to decode the object compresses its maps, or the object codec itself is not augmented into a `MapCodec` (such as records or fielded primitives), then the object needs to be stored within a `value` key. Otherwise, the object is decoded at the same level as the rest of the data.
+分派编解码器首先尝试从某个字符串键（通常是 `type`）获取编码类型。从那里开始，解码类型，调用用于解码实际对象的特定编解码器的获取器。如果用于解码对象的 `DynamicOps` 压缩其映射，或者对象编解码器本身没有增强成 `MapCodec`（如记录或字段化原语），则对象需要存储在 `value` 键中。否则，对象将在与其余数据相同的级别上解码。
 
 ```java
-// Define our object
+// 定义我们的对象
 public abstract class ExampleObject {
 
-  // Define the method used to specify the object type for encoding
+  // 定义用于指定编码对象类型的方法
   public abstract Codec<? extends ExampleObject> type();
 }
 
-// Create simple object which stores a string
+// 创建存储字符串的简单对象
 public class StringObject extends ExampleObject {
 
   public StringObject(String s) { /* ... */ }
@@ -379,14 +384,14 @@ public class StringObject extends ExampleObject {
   public String s() { /* ... */ }
 
   public Codec<? extends ExampleObject> type() {
-    // A registered registry object
+    // 一个注册的注册表对象
     // "string":
     //   Codec.STRING.xmap(StringObject::new, StringObject::s)
     return STRING_OBJECT_CODEC.get();
   }
 }
 
-// Create complex object which stores a string and integer
+// 创建存储字符串和整数的复杂对象
 public class ComplexObject extends ExampleObject {
 
   public ComplexObject(String s, int i) { /* ... */ }
@@ -396,7 +401,7 @@ public class ComplexObject extends ExampleObject {
   public int i() { /* ... */ }
 
   public Codec<? extends ExampleObject> type() {
-    // A registered registry object
+    // 一个注册的注册表对象
     // "complex":
     //   RecordCodecBuilder.create(instance ->
     //     instance.group(
@@ -408,26 +413,26 @@ public class ComplexObject extends ExampleObject {
   }
 }
 
-// Assume there is an IForgeRegistry<Codec<? extends ExampleObject>> DISPATCH
-public static final Codec<ExampleObject> = DISPATCH.getCodec() // Gets Codec<Codec<? extends ExampleObject>>
+// 假设存在一个 IForgeRegistry<Codec<? extends ExampleObject>> DISPATCH
+public static final Codec<ExampleObject> = DISPATCH.getCodec() // 获取 Codec<Codec<? extends ExampleObject>>
   .dispatch(
-    ExampleObject::type, // Get the codec from the specific object
-    Function.identity() // Get the codec from the registry
+    ExampleObject::type, // 从特定对象获取编解码器
+    Function.identity() // 从注册表获取编解码器
   );
 ```
 
 ```js
-// Simple object
+// 简单对象
 {
-  "type": "string", // For StringObject
-  "value": "value" // Codec type is not augmented from MapCodec, needs field
+  "type": "string", // 对于 StringObject
+  "value": "value" // 编解码器类型未从 MapCodec 增强，需要字段
 }
 
-// Complex object
+// 复杂对象
 {
-  "type": "complex", // For ComplexObject
+  "type": "complex", // 对于 ComplexObject
 
-  // Codec type is augmented from MapCodec, can be inlined
+  // 编解码器类型从 MapCodec 增强，可以内联
   "s": "value",
   "i": 0
 }
