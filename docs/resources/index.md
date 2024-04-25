@@ -1,87 +1,91 @@
-# Resources
+# 资源
 
-Resources are external files that are used by the game, but are not code. The most prominent kinds of resources are textures, however, many other types of resources exist in the Minecraft ecosystem. Of course, all these resources require a consumer on the code side, so the consuming systems are grouped in this section as well.
+资源是游戏使用的外部文件，但不包括代码。在 Minecraft 生态系统中，最常见的资源类型是纹理，但还有许多其他类型的资源。当然，所有这些资源都需要代码端的消费系统，因此本节也将对这些系统进行分组。
 
-Minecraft generally has two kinds of resources: client-side resources, known as assets, and server-side resources, known as data. Assets are mostly display-only information, for example textures, display models, translations, or sounds, while data includes various things that affect gameplay, such as loot tables, recipes, or worldgen information. They are loaded from resource packs and data packs, respectively. NeoForge generates a built-in resource and data pack for every mod.
+Minecraft 通常有两种资源：客户端资源，称为资产，以及服务器端资源，称为数据。资产主要是显示信息，例如纹理、显示模型、翻译或声音，而数据包括影响游戏玩法的各种内容，如战利品表、配方或世界生成信息。它们分别从资源包和数据包中加载。NeoForge 为每个模组生成内置的资源包和数据包。
 
-Both resource and data packs normally require a [`pack.mcmeta` file][packmcmeta], this was also the case in past Forge versions. However, NeoForge generates these at runtime for you, so you don't need to worry about it anymore.
+无论资源包还是数据包，通常都需要一个 [`pack.mcmeta` 文件][packmcmeta]，在过去的 Forge 版本中也是如此。然而，NeoForge 为您在运行时生成了这些文件，因此您无需再担心。
 
-If you are confused about the format of something, have a look at the vanilla resources. Your NeoForge development environment not only contains vanilla code, but also vanilla resources. They can be found in the External Resources section (IntelliJ)/Project Libraries section (Eclipse), under the name `ng_dummy_ng.net.minecraft:client:client-extra:<minecraft_version>` (for Minecraft resources) or `ng_dummy_ng.net.neoforged:neoforge:<neoforge_version>` (for NeoForge resources).
+如果您对某个格式感到困惑，请查看原版资源。您的 NeoForge 开发环境不仅包含原版代码，还包含原版资源。它们可以在 External Resources 部分（IntelliJ）/Project Libraries 部分（Eclipse）中找到，名称为 `ng_dummy_ng.net.minecraft:client:client-extra:<minecraft_version>`（对于 Minecraft 资源）或 `ng_dummy_ng.net.neoforged:neoforge:<neoforge_version>`（对于 NeoForge 资源）。
 
-## Assets
+## 资产
 
-_See also: [Resource Packs][mcwikiresourcepacks] on the [Minecraft Wiki][mcwiki]_
+_另见：[Minecraft Wiki 上的资源包][mcwikiresourcepacks]_
 
-Assets, or client-side resources, are all resources that are only relevant on the [client][sides]. They are loaded from resource packs, sometimes also known by the old term texture packs (stemming from old versions when they could only affect textures). A resource pack is basically an `assets` folder. The `assets` folder contains subfolders for the various namespaces the resource pack includes; every namespace is one subfolder. For example, a resource pack for a mod with the id `coolmod` will probably contain a `coolmod` namespace, but may additionally include other namespaces, such as `minecraft`.
+资产，或客户端资源，是所有仅在[客户端][sides]上相关的资源。它们从资源包中加载，有时也被称为旧术语纹理包（源自旧版本，当时它们只能影响纹理）。资源包基本上是一个 `assets` 文件夹。`assets` 文件夹包含资源包包含的各种命名空间的子文件夹；每个命名空间是一个子文件夹。例如，一个模组的资源包可能包含 `coolmod` 命名空间，但可能还包括其他命名空间，例如 `minecraft`。
 
-NeoForge automatically collects all mod resource packs into the `Mod resources` pack, which sits at the bottom of the Selected Packs side in the resource packs menu. It is currently not possible to disable the `Mod resources` pack. However, resource packs that sit above the `Mod resources` pack override resources defined in a resource pack below them. This mechanic allows resource pack makers to override your mod's resources, and also allows mod developers to override Minecraft resources if needed.
+NeoForge 自动将所有模组资源包收集到 `Mod resources` 包中，该包位于资源包菜单中的 Selected Packs 边的底部。当前无法禁用 `Mod resources` 包。但是，位于 `Mod resources` 包上方的资源包可以覆盖位于其下的资源包中定义的资源。这种机制允许资源包制作者覆盖您的模组资源，并允许模组开发者覆盖 Minecraft 资源。
 
-Resource packs can contain [models][models], [blockstate files][bsfile], [textures][textures], [sounds][sounds], [particle definitions][particles] and [translation files][translations].
+资源包可以包含 [模型][models]、[方块状态文件][bsfile]、[纹理][textures]、[声音][sounds]、[粒子定义][particles] 和 [翻译文件][translations]。
 
-## Data
+## 数据
 
-_See also: [Data Packs][mcwikidatapacks] on the [Minecraft Wiki][mcwiki]_
+_另见：[Minecraft Wiki 上的数据包][mcwikidatapacks]_
 
-In contrast to assets, data is the term for all [server][sides] resources. Similar to resource packs, data is loaded through data packs (or datapacks). Like a resource pack, a data pack consists of a [`pack.mcmeta` file][packmcmeta] and a root folder, named `data`. Then, again like with resource packs, that `data` folder contains subfolders for the various namespaces the resource pack includes; every namespace is one subfolder. For example, a data pack for a mod with the id `coolmod` will probably contain a `coolmod` namespace, but may additionally include other namespaces, such as `minecraft`.
+与资产不同，数据是所有[服务器][sides]资源的术语。与资源包类似，数据通过数据包加载。像资源包一样，数据包由 [`pack.mcmeta` 文件][packmcmeta] 和一个名为 `data` 的根文件夹组成。然后，同样像资源包一样，`data` 文件夹包含数据包包含的各种命名空间的子文件夹；每个命名空间是一个子文件夹。例如，一个模组的数据包可能包含 `coolmod` 命名空间，但可能还包括其他命名空间，例如 `minecraft`。
 
-NeoForge automatically applies all mod data packs to a new world upon creation. It is currently not possible to disable mod data packs. However, most data files can be overridden (and thus be removed by replacing them with an empty file) by a data pack with a higher priority. Additional data packs can be enabled or disabled by placing them in a world's `datapacks` subfolder and then enabling or disabling them through the [`/datapack`][datapackcmd] command.
+NeoForge 在创建新世界时自动应用所有模组数据包。当前无法禁用模组数据包。但是，大多数数据文件可以通过具有更高优先级的数据包覆
+
+盖（因此可以通过替换为空文件来删除）。通过将数据包放置在世界的 `datapacks` 子文件夹中，然后通过 [`/datapack`][datapackcmd] 命令启用或禁用它们，可以启用或禁用额外的数据包。
 
 :::info
-There is currently no built-in way to apply a set of custom data packs to every world. However, there are a number of mods that achieve this.
+目前没有内置的方法将一组自定义数据包应用到每个世界。然而，有许多模组可以实现这一点。
 :::
 
-Data packs may contain folders with files affecting the following things:
+数据包可能包含影响以下事物的文件夹：
 
-| Folder name                                                           | Contents                     |
-|-----------------------------------------------------------------------|------------------------------|
-| `advancements`                                                        | [Advancements][advancements] |
-| `damage_type`                                                         | Damage types                 |
-| `loot_tables`                                                         | [Loot tables][loottables]    |
-| `recipes`                                                             | [Recipes][recipes]           |
-| `structures`                                                          | Structures                   |
-| `tags`                                                                | [Tags][tags]                 |
-| `dimension`, `dimension_type`, `worldgen`, `neoforge/biome_modifiers` | Worldgen files               |
-| `neoforge/global_loot_modifiers`                                      | [Global loot modifiers][glm] |
+| 文件夹名称 | 内容 |
+|---------|------|
+| `advancements` | [进度][advancements] |
+| `damage_type` | 伤害类型 |
+| `loot_tables` | [战利品表][loottables] |
+| `recipes` | [配方][recipes] |
+| `structures` | 结构 |
+| `tags` | [标签][tags] |
+| `dimension`, `dimension_type`, `worldgen`, `neoforge/biome_modifiers` | 世界生成文件 |
+| `neoforge/global_loot_modifiers` | [全局战利品修饰器][glm] |
 
-Additionally, they may also contain subfolders for some systems that integrate with commands. These systems are rarely used in conjunction with mods, but worth mentioning regardless:
+此外，它们还可能包含一些与命令集成的系统的子文件夹。这些系统很少与模组一起使用，但无论如何都值得一提：
 
-| Folder name      | Contents                       |
-|------------------|--------------------------------|
-| `chat_type`      | [Chat types][chattype]         |
-| `functions`      | [Functions][function]          |
-| `item_modifiers` | [Item modifiers][itemmodifier] |
-| `predicates`     | [Predicates][predicate]        |
+| 文件夹名称 | 内容 |
+|---------|------|
+| `chat_type` | [聊天类型][chattype] |
+| `functions` | [功能][function] |
+| `item_modifiers` | [物品修饰器][itemmodifier] |
+| `predicates` | [条件判断][predicate] |
 
 ## `pack.mcmeta`
 
-_See also: [`pack.mcmeta` (Resource Pack)][packmcmetaresourcepack] and [`pack.mcmeta` (Data Pack)][packmcmetadatapack] on the [Minecraft Wiki][mcwiki]_
+_另见：[Minecraft Wiki 上的 `pack.mcmeta` (资源包)][packmcmetaresourcepack] 和 `pack.mcmeta` (数据包)][packmcmetadatapack]_
 
-`pack.mcmeta` files hold the metadata of a resource or data pack. For mods, NeoForge makes this file obsolete, as the `pack.mcmeta` is generated synthetically. In case you still need a `pack.mcmeta` file, the full specification can be found in the linked Minecraft Wiki articles.
+`pack.mcmeta` 文件保存资源包或数据包的元数据。对于模组来说，NeoForge 让这个文件变得多余，因为 `pack.mcmeta` 是合成生成的。如果您仍需要一个 `pack.mcmeta` 文件，完整的规范可以在链接的 Minecraft Wiki 文章中找到。
 
-## Data Generation
+## 数据生成
 
-Data generation, colloquially known as datagen, is a way to programmatically generate JSON resource files, in order to avoid the tedious and error-prone process of writing them by hand. The name is a bit misleading, as it works for assets as well as data.
+数据生成，俗称 datagen，是一种以编程方式生成 JSON 资源文件的方式，以避免手动编写它们时的繁琐和容易出错的过程。这个名字有点误导，因为它适用于资产和数据。
 
-Datagen is run through the Data run configuration, which is generated for you alongside the Client and Server run configurations. The data run configuration follows the [mod lifecycle][lifecycle] until after the registry events are fired. It then fires the [`GatherDataEvent`][event], in which you can register your to-be-generated objects in the form of data providers, writes said objects to disk, and ends the process.
+Datagen 通过为您生成的客户端和服务器运行配置旁的数据运行配置来运行。数据运行配置遵循[模组生命周期][lifecycle]，直到注册事件触发之后。然后触发 [`GatherDataEvent`][event]，在该事件中，您可以注册您要生成的对象，以数据提供者的形式，将所述对象写入磁盘，并结束过程。
 
-All data providers extend the `DataProvider` interface and usually require one method to be overridden. The following is a list of noteworthy data generators Minecraft and NeoForge offer (the linked articles add further information, such as helper methods):
+所有数据提供者都扩展了 `DataProvider` 接口，通常需要重写一个方法。以下是 Minecraft 和 NeoForge 提供的一些值得注意的数据生成器（链接文章提供了更多信息，如辅助方法）：
 
-| Class                                                | Method                           | Generates                               | Side   | Notes                                                                                                                                                                                                                         |
-|------------------------------------------------------|----------------------------------|-----------------------------------------|--------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [`BlockStateProvider`][blockstateprovider]           | `registerStatesAndModels()`      | Blockstate files, block models          | Client |                                                                                                                                                                                                                               |
-| [`ItemModelProvider`][itemmodelprovider]             | `registerModels()`               | Item models                             | Client |                                                                                                                                                                                                                               |
-| [`LanguageProvider`][langprovider]                   | `addTranslations()`              | Translations                            | Client | Also requires passing the language in the constructor.                                                                                                                                                                        |
-| [`ParticleDescriptionProvider`][particleprovider]    | `addDescriptions()`              | Particle definitions                    | Client |                                                                                                                                                                                                                               |
-| [`SoundDefinitionsProvider`][soundprovider]          | `registerSounds()`               | Sound definitions                       | Client |                                                                                                                                                                                                                               |
-| [`AdvancementProvider`][advancementprovider]         | `generate()`                     | Advancements                            | Server | Make sure to use the NeoForge variant, not the Minecraft one.                                                                                                                                                                 |
-| [`LootTableProvider`][loottableprovider]             | `generate()`                     | Loot tables                             | Server | Requires extra methods and classes to work properly, see linked article for details.                                                                                                                                          |
-| [`RecipeProvider`][recipeprovider]                   | `buildRecipes(RecipeOutput)`     | Recipes                                 | Server |                                                                                                                                                                                                                               |
-| [Various subclasses of `TagsProvider`][tagsprovider] | `addTags(HolderLookup.Provider)` | Tags                                    | Server | Several specialized subclasses exist, for example `BlockTagsProvider`. If the one you need doesn't exist, extend `TagsProvider` (or `IntrinsicHolderTagsProvider` if applicable) with your tag type as the generic parameter. |
-| [`DatapackBuiltinEntriesProvider`][datapackprovider] | N/A                              | Datapack builtin entries, e.g. worldgen | Server | See linked article for details.                                                                                                                                                                                               |
-| [`DataMapProvider`][datamapprovider]                 | `gather()`                       | Data map entries                        | Server |                                                                                                                                                                                                                               |
-| [`GlobalLootModifierProvider`][glmprovider]          | `start()`                        | Global loot modifiers                   | Server |                                                                                                                                                                                                                               |
+| 类 | 方法 | 生成 | 方面 | 备注 |
+|---|----|-----|----|----|
+| [`BlockStateProvider`][blockstateprovider] | `registerStatesAndModels()` | 方块状态文件，方块模型 | 客户端 | |
+| [`ItemModelProvider`][itemmodelprovider] | `registerModels()` | 物品模型 | 客户端 | |
+| [`LanguageProvider`][langprovider] | `addTranslations()` | 翻译 | 客户端 | 构造函数还需要传递语言。 |
+| [`ParticleDescriptionProvider`][particleprovider] | `addDescriptions()` | 粒子定义 | 客户端 | |
+| [`SoundDefinitionsProvider`][soundprovider] | `registerSounds()` | 声音定义 | 客户端 | |
+| [`AdvancementProvider`][advancementprovider] | `generate()` | 进度 | 服务器 | 确保使用 NeoForge 变体，而不是 Minecraft 本身
 
-All of these providers follow the same pattern. First, you create a subclass and add your own resources to be generated. Then, you add the provider to the event in an [event handler][eventhandler]. An example using a `RecipeProvider`:
+。 |
+| [`LootTableProvider`][loottableprovider] | `generate()` | 战利品表 | 服务器 | 需要额外的方法和类才能正常工作，详情请参阅链接文章。 |
+| [`RecipeProvider`][recipeprovider] | `buildRecipes(RecipeOutput)` | 配方 | 服务器 | |
+| [多个 `TagsProvider` 的子类][tagsprovider] | `addTags(HolderLookup.Provider)` | 标签 | 服务器 | 存在几个专门的子类，例如 `BlockTagsProvider`。如果您需要的不存在，请扩展 `TagsProvider`（或适用时扩展 `IntrinsicHolderTagsProvider`），将您的标签类型作为泛型参数。 |
+| [`DatapackBuiltinEntriesProvider`][datapackprovider] | N/A | 数据包内置条目，例如世界生成 | 服务器 | 详情请参阅链接文章。 |
+| [`DataMapProvider`][datamapprovider] | `gather()` | 数据映射条目 | 服务器 | |
+| [`GlobalLootModifierProvider`][glmprovider] | `start()` | 全局战利品修饰器 | 服务器 | |
+
+所有这些提供者都遵循相同的模式。首先，创建一个子类并添加您自己要生成的资源。然后，在[事件处理器][eventhandler]中添加提供者。使用 `RecipeProvider` 的一个示例：
 
 ```java
 public class MyRecipeProvider extends RecipeProvider {
@@ -91,7 +95,7 @@ public class MyRecipeProvider extends RecipeProvider {
     
     @Override
     protected void buildRecipes(RecipeOutput output) {
-        // Register your recipes here.
+        // 在这里注册您的配方。
     }
 }
 
@@ -99,72 +103,74 @@ public class MyRecipeProvider extends RecipeProvider {
 public class MyDatagenHandler {
     @SubscribeEvent
     public static void gatherData(GatherDataEvent event) {
-        // Data generators may require some of these as constructor parameters.
-        // See below for more details on each of these.
+        // 数据生成器可能需要这些作为构造函数参数。
+        // 详情请参阅下文每个部分。
         DataGenerator generator = event.getGenerator();
         PackOutput output = generator.getPackOutput();
         ExistingFileHelper existingFileHelper = event.getExistingFileHelper();
         CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
         
-        // Register the provider.
+        // 注册提供者。
         generator.addProvider(
-                // A boolean that determines whether the data should actually be generated.
-                // The event provides methods that determine this:
+                // 一个布尔值，确定是否实际生成数据。
+                // 事件提供了确定这一点的方法：
                 // event.includeClient(), event.includeServer(),
-                // event.includeDev() and event.includeReports().
-                // Since recipes are server data, we only run them in a server datagen.
+                // event.includeDev() 和 event.includeReports()。
+                // 由于配方是服务器数据，我们只在服务器数据生成中运行它们。
                 event.includeServer(),
-                // Our provider.
+                // 我们的提供者。
                 new MyRecipeProvider(output)
         );
-        // Other data providers here.
+        // 在这里注册其他数据提供者。
     }
 }
 ```
 
-The event offers some context for you to use:
+事件提供了一些上下文供您使用：
 
-- `event.getGenerator()` returns the `DataGenerator` that you register the providers to.
-- `event.getPackOutput()` returns a `PackOutput` that is used by some providers to determine their file output location.
-- `event.getExistingFileHelper()` returns an `ExistingFileHelper` that is used by providers for things that can reference other files (for example block models, which can specify a parent file).
-- `event.getLookupProvider()` returns a `CompletableFuture<HolderLookup.Provider>` that is mainly used by tags and datagen registries to reference other, potentially not yet existing elements.
-- `event.includeClient()`, `event.includeServer()`, `event.includeDev()` and `event.includeReports()` are `boolean` methods that allow you to check whether specific command line arguments (see below) are enabled.
+- `event.getGenerator()` 返回您注册提供者的 `DataGenerator`。
+- `event.getPackOutput()` 返回 `PackOutput`，一些提供者用它来确定文件输出位置。
+- `event.getExistingFileHelper()` 返回 `ExistingFileHelper`，用于提供者需要引用其他文件的事物（例如，可以指定父文件的方块模型）。
+- `event.getLookupProvider()` 返回 `CompletableFuture<HolderLookup.Provider>`，主要用于标签和数据生成注册表引用其他尚未存在的元素。
+- `event.includeClient()`、`event.includeServer()`、`event.includeDev()` 和 `event.includeReports()` 是 `boolean` 方法，允许您检查是否启用了特定的命令行参数。
 
-### Command Line Arguments
+### 命令行参数
 
-The data generator can accept several command line arguments:
+数据生成器可以接受几个命令行参数：
 
-- `--mod examplemod`: Tells the data generator to run datagen for this mod. Automatically added by NeoGradle for the owning mod id, add this if you e.g. have multiple mods in one project.
-- `--output path/to/folder`: Tells the data generator to output into the given folder. It is recommended to use Gradle's `file(...).getAbsolutePath()` to generate an absolute path for you (with a path relative to the project root directory). Defaults to `file('src/generated/resources').getAbsolutePath()`.
-- `--existing path/to/folder`: Tells the data generator to consider the given folder when checking for existing files. Like with the output, it is recommended to use Gradle's `file(...).getAbsolutePath()`.
-- `--existing-mod examplemod`: Tells the data generator to consider the resources in the given mod's JAR file when checking for existing files.
-- Generator modes (all of these are boolean arguments and do not need any additional arguments):
-  - `--includeClient`: Whether to generate client resources (assets). Check at runtime with `GatherDataEvent#includeClient()`.
-  - `--includeServer`: Whether to generate server resources (data). Check at runtime with `GatherDataEvent#includeServer()`.
-  - `--includeDev`: Whether to run dev tools. Generally shouldn't be used by mods. Check at runtime with `GatherDataEvent#includeDev()`.
-  - `--includeReports`: Whether to dump a list of registered objects. Check at runtime with `GatherDataEvent#includeReports()`.
-  - `--all`: Enable all generator modes.
+- `--mod examplemod`: 告诉数据生成器为此模组运行数据生成。NeoGradle 为所属模组 ID 自动添加此项，如果您有多个模组在一个项目中，请添加此项。
+- `--output path/to/folder`: 告诉数据生成器输出到给定文件夹。建议使用 Gradle 的 `file(...).getAbsolutePath()` 为您生成绝对路径（相对于项目根目录的路径）。默认为 `file('src/generated/resources').getAbsolutePath()`。
+- `--existing path/to/folder`: 告诉数据生成器
 
-All arguments can be added to the run configurations by adding the following to your `build.gradle`:
+在检查现有文件时考虑给定文件夹。与输出一样，建议使用 Gradle 的 `file(...).getAbsolutePath()`。
+- `--existing-mod examplemod`: 告诉数据生成器在检查现有文件时考虑给定模组的 JAR 文件中的资源。
+- 生成器模式（所有这些都是布尔参数，不需要任何额外的参数）：
+  - `--includeClient`: 是否生成客户端资源（资产）。在运行时检查 `GatherDataEvent#includeClient()`。
+  - `--includeServer`: 是否生成服务器资源（数据）。在运行时检查 `GatherDataEvent#includeServer()`。
+  - `--includeDev`: 是否运行开发工具。通常不应由模组使用。在运行时检查 `GatherDataEvent#includeDev()`。
+  - `--includeReports`: 是否转储注册对象列表。在运行时检查 `GatherDataEvent#includeReports()`。
+  - `--all`: 启用所有生成器模式。
+
+所有参数可以通过在 `build.gradle` 中添加以下内容来添加到运行配置中：
 
 ```groovy
 runs {
-    // other run configurations here
+    // 这里有其他运行配置
     
     data {
-        programArguments.addAll '--arg1', 'value1', '--arg2', 'value2', '--all' // boolean args have no value
+        programArguments.addAll '--arg1', 'value1', '--arg2', 'value2', '--all' // 布尔参数没有值
     }
 }
 ```
 
-For example, to replicate the default arguments, you could specify the following:
+例如，要复制默认参数，您可以指定以下内容：
 
 ```groovy
 runs {
-    // other run configurations here
+    // 这里有其他运行配置
     
     data {
-        programArguments.addAll '--mod', 'examplemod', // insert your own mod id
+        programArguments.addAll '--mod', 'examplemod', // 插入您自己的模组 ID
                 '--output', file('src/generated/resources').getAbsolutePath(),
                 '--includeClient',
                 '--includeServer'
@@ -196,7 +202,7 @@ runs {
 [mcwikidatapacks]: https://minecraft.wiki/w/Data_pack
 [mcwikiresourcepacks]: https://minecraft.wiki/w/Resource_pack
 [models]: client/models/index.md
-[packmcmeta]: #packmcmeta
+[packmcmeta]: #pack.mcmeta
 [packmcmetadatapack]: https://minecraft.wiki/w/Data_pack#pack.mcmeta
 [packmcmetaresourcepack]: https://minecraft.wiki/w/Resource_pack#Contents
 [particleprovider]: client/particles.md#datagen
