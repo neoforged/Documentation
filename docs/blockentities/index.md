@@ -57,9 +57,7 @@ public static void tick(Level level, BlockPos pos, BlockState state, MyBlockEnti
 ```
 
 :::note
-这个方法每个tick都会被调用；因此，你应该避免在这里进行复杂的计算。如果可能，你应该每X个ticks进行更复杂的计算。（一秒钟内的ticks数量可能低于20
-
-，但不会更高）
+这个方法每个tick都会被调用；因此，你应该避免在这里进行复杂的计算。如果可能，你应该每X个ticks进行更复杂的计算。（一秒钟内的ticks数量可能低于20，但不会更高）
 :::
 
 ## 将数据同步到客户端
