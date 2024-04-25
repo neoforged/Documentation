@@ -1,6 +1,6 @@
-# Registering Payloads
+# 注册负载
 
-Payloads are a way to send arbitrary data between the client and the server. They are registered using the `IPayloadRegistrar` that can be retrieved for a given namespace from the `RegisterPayloadHandlerEvent` event.
+负载是在客户端和服务器之间发送任意数据的一种方法。它们使用从 `RegisterPayloadHandlerEvent` 事件中获取的 `IPayloadRegistrar` 进行注册，该事件可以为给定的命名空间检索到。
 ```java
 @SubscribeEvent
 public static void register(final RegisterPayloadHandlerEvent event) {
@@ -8,12 +8,12 @@ public static void register(final RegisterPayloadHandlerEvent event) {
 }
 ```
 
-Assuming we want to send the following data:
+假设我们想要发送以下数据：
 ```java
 public record MyData(String name, int age) {}
 ```
 
-Then we can implement the `CustomPacketPayload` interface to create a payload that can be used to send and receive this data.
+然后，我们可以实现 `CustomPacketPayload` 接口来创建一个可用于发送和接收此数据的负载。
 ```java
 public record MyData(String name, int age) implements CustomPacketPayload {
     
@@ -35,10 +35,10 @@ public record MyData(String name, int age) implements CustomPacketPayload {
     }
 }
 ```
-As you can see from the example above the `CustomPacketPayload` interface requires us to implement the `write` and `id` methods. The `write` method is responsible for writing the data to the buffer, and the `id` method is responsible for returning a unique identifier for this payload.
-We then also need a reader to register this later on, here we can use a custom constructor to read the data from the buffer.
+从上面的示例中可以看出，`CustomPacketPayload` 接口要求我们实现 `write` 和 `id` 方法。`write` 方法负责将数据写入缓冲区，而 `id` 方法负责返回此负载的唯一标识符。
+然后，我们还需要一个读取器来稍后进行注册，在这里我们可以使用自定义构造函数从缓冲区中读取数据。
 
-Finally, we can register this payload with the registrar:
+最后，我们可以使用注册器注册此负载：
 ```java
 @SubscribeEvent
 public static void register(final RegisterPayloadHandlerEvent event) {
@@ -48,17 +48,17 @@ public static void register(final RegisterPayloadHandlerEvent event) {
             .server(ServerPayloadHandler.getInstance()::handleData));
 }
 ```
-Dissecting the code above we can notice a couple of things:
-- The registrar has a `play` method, that can be used for registering payloads which are send during the play phase of the game.
-  - Not visible in this code are the methods `configuration` and `common`, however they can also be used to register payloads for the configuration phase. The `common` method can be used to register payloads for both the configuration and play phase simultaneously.
-- The constructor of `MyData` is used as a method reference to create a reader for the payload.
-- The third argument for the registration method is a callback that can be used to register the handlers for when the payload arrives at either the client or server side.
-  - The `client` method is used to register a handler for when the payload arrives at the client side.
-  - The `server` method is used to register a handler for when the payload arrives at the server side.
-  - There is additionally a secondary registration method `play` on the registrar itself that accepts a handler for both the client and server side, this can be used to register a handler for both sides at once.
+分解上面的代码，我们可以注意到几件事情：
+- 注册器有一个 `play` 方法，可用于注册在游戏播放阶段发送的负载。
+  - 此代码中未显示的方法还有 `configuration` 和 `common`，但它们也可以用于为配置阶段注册负载。`common` 方法可用于同时为配置和游戏播放阶段注册负载。
+- `MyData` 的构造函数被用作方法引用，以创建负载的读取器。
+- 注册方法的第三个参数是一个回调，用于注册负载到达客户端或服务器端时的处理程序。
+  - `client` 方法用于在负载到达客户端时注册处理程序。
+  - `server` 方法用于在负载到达服务器端时注册处理程序。
+  - 在注册器本身上还有一个次要的注册方法 `play`，它接受客户端和服务器端的处理程序，可以用于同时为两端注册处理程序。
 
-Now that we have registered the payload we need to implement a handler.
-For this example we will specifically take a look at the client side handler, however the server side handler is very similar.
+现在我们已经注册了负载，我们需要实现一个处理程序。
+在此示例中，我们将特别关注客户端端处理程序，但服务器端处理程序非常相似。
 ```java
 public class ClientPayloadHandler {
     
@@ -69,30 +69,30 @@ public class ClientPayloadHandler {
     }
     
     public void handleData(final MyData data, final PlayPayloadContext context) {
-        // Do something with the data, on the network thread
+        // 处理数据，在网络线程上
         blah(data.name());
         
-        // Do something with the data, on the main thread
+        // 在主游戏线程上处理数据
         context.workHandler().submitAsync(() -> {
             blah(data.age());
         })
         .exceptionally(e -> {
-            // Handle exception
+            // 处理异常
             context.packetHandler().disconnect(Component.translatable("my_mod.networking.failed", e.getMessage()));
             return null;
         });
     }
 }
 ```
-Here a couple of things are of note: 
-- The handling method here gets the payload, and a contextual object. The contextual object is different for the play and configuration phase, and if you register a common packet, then it will need to accept the super type of both contexts.
-- The handler of the payload method is invoked on the networking thread, so it is important to do all the heavy work here, instead of blocking the main game thread.
-- If you want to run code on the main game thread you can use the `workHandler` of the context to submit a task to the main thread.
-  - The `workHandler` will return a `CompletableFuture` that will be completed on the main thread, and can be used to submit tasks to the main thread.
-  - Notice: A `CompletableFuture` is returned, this means that you can chain multiple tasks together, and handle exceptions in a single place.
-  - If you do not handle the exception in the `CompletableFuture` then it will be swallowed, **and you will not be notified of it**.
+这里需要注意几件事情：
+- 此处处理方法获取负载和上下文对象。上下文对象对于播放和配置阶段是不同的，如果注册了一个通用负载，则需要接受两个上下文的超类型。
+- 负载方法的处理程序在网络线程上调用，因此重要的是在此处进行所有繁重的工作，而不是阻塞主游戏线程。
+- 如果要在主游戏线程上运行代码，可以使用上下文的 `workHandler` 提交任务到主线程。
+  - `workHandler` 将返回一个在主线程上完成的 `CompletableFuture`，可以用于提交任务到主线程。
+  - 注意：返回的是 `CompletableFuture`，这意味着您可以将多个任务链接在一起，并在单个位置处理异常。
+  - 如果不在 `CompletableFuture` 中处理异常，则它将被忽略，**您将不会收到任何通知**。
 
-Now that you know how you can facilitate the communication between the client and the server for your mod, you can start implementing your own payloads.
-With your own payloads you can then use those to configure the client and server using [Configuration Tasks][]
+现在您知道了如何为您的模组促进客户端和服务器之间的通信，您可以开始实现自己的负载。
+有了自己的负载，您就可以使用它们来配置客户端和服务器，使用[配置任务][]。
 
-[Configuration Tasks]: ./configuration-tasks.md
+[配置任务]: ./configuration-tasks.md
