@@ -83,9 +83,7 @@ public class MyBlockStateProvider extends BlockStateProvider {
         // 一个重载允许您指定两个资源位置
         // 为侧面和端部纹理，以及一个重载允许指定侧面和端部模型文件。
         axisBlock(block);
-        // #logBlock和#axisBlock的变体，另外允
-
-许指定渲染类型。
+        // #logBlock和#axisBlock的变体，另外允许指定渲染类型。
         // 有字符串和资源位置变体用于渲染类型，
         // 与#logBlock和#axisBlock的所有变体结合使用。
         logBlockWithRenderType(block, "minecraft:cutout");
