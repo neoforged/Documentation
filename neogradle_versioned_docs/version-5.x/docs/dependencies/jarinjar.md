@@ -1,109 +1,78 @@
 Jar-in-Jar
 ==========
 
-Jar-in-Jar is a way to load dependencies for mods from within the jars of the mods. To accomplish this, Jar-in-Jar generates a metadata json within `META-INF/jarjar/metadata.json` on build containing the artifacts to load from within the jar.
+Jar-in-Jar 是一种从模组的 jar 文件内加载依赖的方式。为了实现这一点，在构建时 Jar-in-Jar 在 `META-INF/jarjar/metadata.json` 中生成一个元数据 json 文件，其中包含要从 jar 内加载的工件。
 
-Jar-in-Jar is a completely optional system which can be enabled using `jarJar#enable` before the `minecraft` block. This will include all dependencies from the `jarJar` configuration into the `jarJar` task. You can configure the task similarly to other jar tasks:
+Jar-in-Jar 是一个完全可选的系统，可以使用 `jarJar#enable` 在 `minecraft` 代码块之前启用。这将包括所有来自 `jarJar` 配置的依赖到 `jarJar` 任务中。你可以像其它 jar 任务一样配置这个任务：
 
 ```gradle
-// In build.gradle
+// 在 build.gradle 中
 
-// Enable the Jar-in-Jar system for your mod
+// 为你的模组启用 Jar-in-Jar 系统
 jarJar.enable()
 
-
-// Configure the 'jarJar' task
-// 'all' is the default classifier
+// 配置 'jarJar' 任务
+// 'all' 是默认的分类器
 tasks.named('jarJar') {
     // ...
 }
 ```
 
-Adding Dependencies
+添加依赖
 -------------------
 
-You can add dependencies to be included inside your jar using the `jarJar` configuration. As Jar-in-Jar is a negotiation system, all versions should supply a supported range.
+你可以使用 `jarJar` 配置在你的 jar 文件中包含要添加的依赖。由于 Jar-in-Jar 是一个协商系统，所有的版本都应提供一个支持的版本范围。
 
 ```gradle
-// In build.gradle
+// 在 build.gradle 中
 dependencies {
-    // Compiles against and includes the highest supported version of examplelib
-    //   between 2.0 (inclusive) and 3.0 (exclusive)
+    // 编译并包含 examplelib 的最高支持版本
+    //   从 2.0（包含）到 3.0（不包含）
     jarJar(group: 'com.example', name: 'examplelib', version: '[2.0,3.0)')
 }
 ```
 
-If you need to specify an exact version to include rather than the highest supported version in the range, you can use `jarJar#pin` within the dependency closure. In these instances, the artifact version will be used during compile time while the pinned version will be bundled inside the mod jar.
+如果你需要在编译时指定要包含的确切版本，而不是范围内的最高支持版本，你可以在依赖闭包内使用 `jarJar#pin`。在这些情况下，将在编译时使用工件版本，而固定的版本将被打包在模组 jar 内。
 
 ```gradle
-// In build.gradle
+// 在 build.gradle 中
 dependencies {
-    // Compiles against the highest supported version of examplelib
-    //   between 2.0 (inclusive) and 3.0 (exclusive)
+    // 编译时使用 examplelib 的最高支持版本
+    //   从 2.0（包含）到 3.0（不包含）
     jarJar(group: 'com.example', name: 'examplelib', version: '[2.0,3.0)') {
-      // Includes examplelib 2.8.0
+      // 包含 examplelib 2.8.0
       jarJar.pin(it, '2.8.0')
     }
 }
 ```
 
-You can additionally pin a version range while compiling against a specific version instead:
+你也可以在编译对特定版本编译的同时，固定一个版本范围：
 
 ```gradle
-// In build.gradle
+// 在 build.gradle 中
 dependencies {
-    // Compiles against examplelib 2.8.0
+    // 针对 examplelib 2.8.0 编译
     jarJar(group: 'com.example', name: 'examplelib', version: '2.8.0') {
-      // Includes the highest supported version of examplelib
-      //   between 2.0 (inclusive) and 3.0 (exclusive)
+      // 包含 examplelib 的最高支持版本
+      //   从 2.0（包含）到 3.0（不包含）
       jarJar.pin(it, '[2.0,3.0)')
     }
 }
 ```
 
-### Using Runtime Dependencies
+### 使用运行时依赖
 
-If you would like to include the runtime dependencies of your mod inside your jar, you can invoke `jarJar#fromRuntimeConfiguration` within your buildscript. If you decide to use this option, it is highly suggested to include dependency filters; otherwise, every single dependency -- including Minecraft and Forge -- will be bundled in the jar as well. To support more flexible statements, the `dependency` configuration has been added to the `jarJar` extension and task. Using this, you can specify patterns to include or exclude from the configuration:
+如果你希望在你的 jar 中包含你的模组的运行时依赖，你可以在构建脚本中调用 `jarJar#fromRuntimeConfiguration`。如果你决定使用这个选项，强烈建议包含依赖过滤器；否则，包括 Minecraft 和 Forge 在内的每一个依赖项都会被打包到jar文件中。为了支持更灵活的声明，`dependency` 配置已添加到 `jarJar` 扩展和任务中。使用它，你可以指定模式来包括或排除来自配置的内容：
 
 ```gradle
-// In build.gradle
+// 在 build.gradle 中
 
-// Add runtime dependencies to jar
+// 向 jar 添加运行时依赖
 jarJar.fromRuntimeConfiguration()
 
 // ...
 
 jarJar {
-    // Include or exclude dependencies here from runtime configuration
+    // 在这里包含或排除运行时配置中的依赖
     dependencies {
-        // Exclude any dependency which begins with 'com.google.gson.'
-        exclude(dependency('com.google.gson.*'))
-    }
-}
-```
-
-:::tip
-It is generally recommended to set at least one `include` filter when using `#fromRuntimeConfiguration`.
-:::
-
-Publishing a Jar-in-Jar to Maven
---------------------------------
-
-For archival reasons, ForgeGradle supports publishing Jar-in-Jar artifacts to a maven of choice, similar to how the [Shadow plugin][shadow] handles it. In practices, this is not useful or recommended.
-
-```gradle
-// In build.gradle (has 'maven-publish' plugin)
-
-publications {
-    mavenJava(MavenPublication) {
-        // Add standard java components and Jar-in-Jar artifact
-        from components.java
-        jarJar.component(it)
-
-        // ...
-    }
-}
-```
-
-
-[shadow]: https://imperceptiblethoughts.com/shadow/getting-started/
+        // 排除任何以 'com.google.gson.' 开头的
