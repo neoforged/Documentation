@@ -1,28 +1,28 @@
 BlockEntityRenderer
 ==================
 
-A `BlockEntityRenderer` or `BER` is used to render blocks in a way that cannot be represented with a static baked model (JSON, OBJ, B3D, others). A block entity renderer requires the block to have a `BlockEntity`.
+`BlockEntityRenderer` 或 `BER` 用于以无法用静态烘焙模型（JSON，OBJ，B3D，其他）表示的方式渲染块。块实体渲染器要求块有一个 `BlockEntity`。
 
-Creating a BER
+创建 BER
 --------------
 
-To create a BER, create a class that inherits from `BlockEntityRenderer`. It takes a generic argument specifying the block's `BlockEntity` class. The generic argument is used in the BER's `render` method.
+要创建 BER，创建一个继承自 `BlockEntityRenderer` 的类。它需要一个泛型参数，指定块的 `BlockEntity` 类。泛型参数在 BER 的 `render` 方法中使用。
 
-Only one BER exists for a given `BlockEntityType`. Therefore, values that are specific to a single instance in the level should be stored in the block entity being passed to the renderer rather than in the BER itself. For example, an integer that increments every frame, if stored in the BER, will increment every frame for every block entity of this type in the level.
+对于给定的 `BlockEntityType`，只存在一个 BER。因此，应将特定于等级中的单个实例的值存储在传递给渲染器的块实体中，而不是在 BER 本身中。例如，每帧递增的整数，如果存储在 BER 中，将会在该类型的等级中的每一个块实体中每帧递增。
 
 ### `render`
 
-This method is called every frame in order to render the block entity. 
+每一帧都会调用这个方法来渲染块实体。
 
-#### Parameters
-* `blockEntity`: This is the instance of the block entity being rendered.
-* `partialTick`: The amount of time, in fractions of a tick, that has passed since the last full tick.
-* `poseStack`: A stack holding four-dimensional matrix entries offset to the current position of the block entity.
-* `bufferSource`: A rendering buffer able to access a vertex consumer.
-* `combinedLight`: An integer of the current light value on the block entity.
-* `combinedOverlay`: An integer set to the current overlay of the block entity, usually `OverlayTexture#NO_OVERLAY` or 655,360.
+#### 参数
+* `blockEntity`：这是正在渲染的块实体的实例。
+* `partialTick`：自上一完整 tick以来已经过去的以 tick 的分数表示的时间。
+* `poseStack`：这是一个堆栈，可以持有四维矩阵条目，这些条目可以偏移到块实体的当前位置。
+* `bufferSource`：一个渲染缓冲区，能够访问顶点消费者。
+* `combinedLight`：块实体上当前光值的整数。
+* `combinedOverlay`：一个设置为块实体当前覆盖层的整数，通常是 `OverlayTexture#NO_OVERLAY` 或 655,360。
 
-Registering a BER
+注册 BER
 -----------------
 
-In order to register a BER, you must subscribe to the `EntityRenderersEvent$RegisterRenderers` event on the mod event bus and call `#registerBlockEntityRenderer`.
+要注册 BER，你必须订阅模组事件总线上的 `EntityRenderersEvent$RegisterRenderers` 事件，并调用 `#registerBlockEntityRenderer`。
