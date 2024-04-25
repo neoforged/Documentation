@@ -165,7 +165,7 @@ public record MapRemover(String key) implements DataMapValueRemover<Item, Map<St
 数据映射可以通过 `DataMapProvider` [生成](../datagen)。
 你应该扩展这个类，然后覆盖 `generate` 方法来创建你的条目，类似于标签生成。
 
-考虑到起始的掉落治疗示例，我们可以如下生成一些值：
+考虑到起始的摔落治疗示例，我们可以如下生成一些值：
 ```java
 public class DropHealingGen extends DataMapProvider {
 
