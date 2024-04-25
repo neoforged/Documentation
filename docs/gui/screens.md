@@ -1,233 +1,237 @@
-# Screens
+## 屏幕
 
-Screens are typically the base of all Graphical User Interfaces (GUIs) in Minecraft: taking in user input, verifying it on the server, and syncing the resulting action back to the client. They can be combined with [menus] to create an communication network for inventory-like views, or they can be standalone which modders can handle through their own [network] implementations.
+在 Minecraft 中，屏幕通常是所有图形用户界面（GUI）的基础，用于接收用户输入、在服务器上验证输入，并将结果同步回客户端。它们可以与[菜单](menus)结合使用，创建用于类似库存的视图的通信网络，或者它们可以是独立的，由模组开发者通过自己的[网络](../networking/index.md)实现来处理。
 
-Screens are made up of numerous parts, making it difficult to fully understand what a 'screen' actually is in Minecraft. As such, this document will go over each of the screen's components and how it is applied before discussing the screen itself.
+屏幕由许多部分组成，这使得理解“屏幕”在 Minecraft 中实际上是什么变得困难。因此，本文档将介绍屏幕的每个组件以及它是如何应用的，然后讨论屏幕本身。
 
-## Relative Coordinates
+## 相对坐标
 
-Whenever anything is rendered, there needs to be some identifier which specifies where it will appear. With numerous abstractions, most of Minecraft's rendering calls takes in an x, y, and z value in a coordinate plane. X values increase from left to right, y from top to bottom, and z from far to near. However, the coordinates are not fixed to a specified range. They can change depending on the size of the screen and the scale at which is specified within the options. As such, extra care must be taken to make sure the values of the coordinates while rendering scale properly to the changeable screen size.
+无论何时渲染任何东西，都需要一些标识符来指定其出现的位置。使用许多抽象化，Minecraft 的大多数渲染调用在一个坐标平面上接收 x、y 和 z 值。X 值从左到右增加，y 值从上到下增加，z 值从远到近增加。但是，这些坐标不是固定的范围。它们可以根据屏幕的大小和在选项中指定的比例而变化。因此，必须特别注意确保在渲染时的坐标值相对于可变的屏幕大小适当缩放。
 
-Information on how to relativize your coordinates will be within the [screen] section.
+有关如何使您的坐标相对的信息将在[屏幕](#屏幕)部分中提供。
 
 :::caution
-If you choose to use fixed coordinates or incorrectly scale the screen, the rendered objects may look strange or misplaced. An easy way to check if you relativized your coordinates correctly is to click the 'Gui Scale' button in your video settings. This value is used as the divisor to the width and height of your display when determining the scale at which a GUI should render.
+如果选择使用固定坐标或不正确地缩放屏幕，则渲染的对象可能会看起来奇怪或错位。检查坐标是否正确相对化的简单方法是单击您的视频设置中的“GUI 比例”按钮。此值用作除数以确定 GUI 应以哪个比例渲染。
 :::
 
-## Gui Graphics
+## GUI 图形
 
-Any GUI rendered by Minecraft is typically done using `GuiGraphics`. `GuiGraphics` is the first parameter to almost all rendering methods; it contains basic methods to render commonly used objects. These fall into five categories: colored rectangles, strings, and textures, items, and tooltips. There is also an additional method for rendering a snippet of a component (`#enableScissor` / `#disableScissor`). `GuiGraphics` also exposes the `PoseStack` which applies the transformations necessary to properly render where the component should be rendered. Additionally, colors are in the [ARGB][argb] format.
+Minecraft 中渲染的任何 GUI 通常都是使用 `GuiGraphics` 进行的。`GuiGraphics` 是几乎所有渲染方法的第一个参数；它包含用于渲染常用对象的基本方法。这些方法分为五类：彩色矩形、字符串和纹理、物品和工具提示。还有一个用于渲染组件的额外方法（`#enableScissor` / `#disableScissor`）。`GuiGraphics` 还公开了 `PoseStack`，它应用了必要的转换，以便将组件正确渲染到屏幕上。此外，颜色采用[ARGB](https://en.wikipedia.org/wiki/RGBA_color_model#ARGB32)格式。
 
-### Colored Rectangles
+### 彩色矩形
 
-Colored rectangles are drawn through a position color shader. There are three types of colored rectangles that can be drawn.
+通过位置颜色着色器绘制彩色矩形。可以绘制三种类型的彩色矩形。
 
-First, there is a colored horizontal and vertical one-pixel wide line, `#hLine` and `#vLine` respectively. `#hLine` takes in two x coordinates defining the left and right (inclusively), the top y coordinate, and the color. `#vLine` takes in the left x coordinate, two y coordinates defining the top and bottom (inclusively), and the color.
+首先是水平和垂直的一像素宽线，分别是 `#hLine` 和 `#vLine`。`#hLine` 接受两个 x 坐标，定义了左侧和右侧（包括在内），顶部 y 坐标和颜色。`#vLine` 接受左侧 x 坐标、两个 y 坐标，定义了顶部和底部（包括在内），以及颜色。
 
-Second, there is the `#fill` method, which draws a rectangle to the screen. The line methods internally call this method. This takes in the left x coordinate, the top y coordinate, the right x coordinate, the bottom y coordinate, and the color.
+其次是 `#fill` 方法，它绘制一个矩形到屏幕上。线方法内部调用此方法。它接受左侧 x 坐标、顶部 y 坐标、右侧 x 坐标、底部 y 坐标和颜色。
 
-Finally, there is the `#fillGradient` method, which draws a rectangle with a vertical gradient. This takes in the right x coordinate, the bottom y coordinate, the left x coordinate, the top y coordinate, the z coordinate, and the bottom and top colors.
+最后是 `#fillGradient` 方法，它绘制一个具有垂直渐变的矩形。它接受右侧 x 坐标、底部 y 坐标、左侧 x 坐标、顶部 y 坐标、z 坐标、底部和顶部颜色。
 
-### Strings
+### 字符串
 
-Strings are drawn through its `Font`, typically consisting of their own shaders for normal, see through, and offset mode. There are two alignment of strings that can be rendered, each with a back shadow: a left-aligned string (`#drawString`) and a center-aligned string (`#drawCenteredString`). These both take in the font the string will be rendered in, the string to draw, the x coordinate representing the left or center of the string respectively, the top y coordinate, and the color.
+字符串通过其 `Font` 绘制，通常包含正常、透明和偏移模式的自己的着色器。可以渲染两种对齐的字符串，每种字符串都带有背景阴影：左对齐字符串 (`#drawString`) 和居中对齐字符串 (`#drawCenteredString`)。这两种方法都接受要绘制字符串的字体、字符串本身、x 坐标（分别是字符串的左侧或中心）、顶部 y 坐标和颜色。
 
 :::note
-Strings should typically be passed in as [`Component`s][component] as they handle a variety of usecases, including the two other overloads of the method.
+字符串通常应该作为 [`Component`](../resources/client/i18n.md#components) 传递，因为它们处理各种用例，包括该方法的其他两个重载。
 :::
 
-### Textures
+### 纹理
 
-Textures are drawn through blitting, hence the method name `#blit`, which, for this purpose, copies the bits of an image and draws them directly to the screen. These are drawn through a position texture shader. While there are many different `#blit` overloads, we will only discuss two static `#blit`s.
+纹理通过贴图绘制，因此方法名为 `#blit`，在这种情况下，它复制图像的
 
-The first static `#blit` takes in six integers and assumes the texture being rendered is on a 256 x 256 PNG file. It takes in the left x and top y screen coordinate, the left x and top y coordinate within the PNG, and the width and height of the image to render.
+位并直接将其绘制到屏幕上。这些是通过位置纹理着色器绘制的。虽然有许多不同的 `#blit` 重载，但我们只讨论两种静态 `#blit`。
+
+第一个静态 `#blit` 接受六个整数，假定正在渲染的纹理位于一个 256 x 256 的 PNG 文件中。它接受左侧 x 和顶部 y 屏幕坐标，PNG 内部的左侧 x 和顶部 y 坐标，以及要渲染的图像的宽度和高度。
 
 :::tip
-The size of the PNG file must be specified so that the coordinates can be normalized to obtain the associated UV values.
+必须指定 PNG 文件的大小，以便将坐标归一化为获取关联的 UV 值。
 :::
 
-The static `#blit` which the first calls expands this to nine integers, only assuming the image is on a PNG file. It takes in the left x and top y screen coordinate, the z coordinate (referred to as the blit offset), the left x and top y coordinate within the PNG, the width and height of the image to render, and the width and height of the PNG file.
+第一个调用的静态 `#blit` 将此扩展为九个整数，仅假定图像位于 PNG 文件中。它接受左侧 x 和顶部 y 屏幕坐标，z 坐标（称为 blit 偏移量），PNG 内部的左侧 x 和顶部 y 坐标，要渲染的图像的宽度和高度，以及 PNG 文件的宽度和高度。
 
-#### Blit Offset
+#### Blit 偏移量
 
-The z coordinate when rendering a texture is typically set to the blit offset. The offset is responsible for properly layering renders when viewing a screen. Renders with a smaller z coordinate are rendered in the background and vice versa where renders with a larger z coordinate are rendered in the foreground. The z offset can be set directly on the `PoseStack` itself via `#translate`. Some basic offset logic is applied internally in some methods of `GuiGraphics` (e.g. item rendering).
+在渲染纹理时，z 坐标通常设置为 blit 偏移量。偏移量负责在查看屏幕时正确分层渲染。具有较小 z 坐标的渲染在背景中渲染，反之，具有较大 z 坐标的渲染在前景中渲染。可以通过 `#translate` 方法直接在 `PoseStack` 本身上设置 z 偏移量。一些 `GuiGraphics` 方法内部应用了一些基本的偏移逻辑（例如物品渲染）。
 
 :::caution
-When setting the blit offset, you must reset it after rendering your object. Otherwise, other objects within the screen may be rendered in an incorrect layer causing graphical issues. It is recommended to push the current pose before translating and then popping after all rendering at the offset is completed.
+设置 blit 偏移量时，必须在渲染对象完成后重置它。否则，屏幕中的其他对象可能会以不正确的层次渲染，导致图形问题。建议在平移前推送当前姿势，然后在所有以偏移量渲染的对象完成后弹出。
 :::
 
-## Renderable
+## 可渲染对象
 
-`Renderable`s are essentially objects that are rendered. These include screens, buttons, chat boxes, lists, etc. `Renderable`s only have one method: `#render`. This takes in the `GuiGraphics` used to render things to the screen, the x and y positions of the mouse scaled to the relative screen size, and the tick delta (how many ticks have passed since the last frame).
+`Renderable` 实际上是指可以被渲染的对象。这些包括屏幕、按钮、聊天框、列表等。`Renderable` 只有一个方法：`#render`。此方法接受用于将事物渲染到屏幕上的 `GuiGraphics`、鼠标的 x 和 y 位置（按相对屏幕大小缩放）、以及帧之间的时间差（自上一帧以来经过了多少个 tick）。
 
-Some common renderables are screens and 'widgets': interactable elements which typically render on the screen such as `Button`, its subtype `ImageButton`, and `EditBox` which is used to input text on the screen.
+一些常见的可渲染对象是屏幕和“小部件”：通常渲染在屏幕上的可交互元素，如 `Button`、它的子类型 `ImageButton`，以及 `EditBox`，用于在屏幕上输入文本。
 
-## GuiEventListener
+## GUI 事件侦听器
 
-Any screen rendered in Minecraft implements `GuiEventListener`. `GuiEventListener`s are responsible for handling user interaction with the screen. These include inputs from the mouse (movement, clicked, released, dragged, scrolled, mouseover) and keyboard (pressed, released, typed). Each method returns whether the associated action affected the screen successfully. Widgets like buttons, chat boxes, lists, etc. also implement this interface.
+Minecraft 中呈现的任何屏幕都实现了 `GuiEventListener`。`GuiEventListener` 负责处理用户与屏幕的交互。这些包括鼠标（移动、点击、释放、拖动、滚动、悬停）和键盘（按下、释放、键入）的输入。每个方法返回关联动作是否成功地影响了屏幕。按钮、聊天框、列表等小部件也实现了此接口。
 
-### ContainerEventHandler
+### 容器事件处理程序
 
-Almost synonymous with `GuiEventListener`s are their subtype: `ContainerEventHandler`s. These are responsible for handling user interaction on screens which contain widgets, managing which is currently focused and how the associated interactions are applied. `ContainerEventHandler`s add three additional features: interactable children, dragging, and focusing.
+与 `GuiEventListener` 几乎同义的是它们的子类型：`ContainerEventHandler`。这些负责处理在包含小部件的屏幕上的用户交互，管理当前聚焦的是哪个小部件以及如何应用相关交互。`ContainerEventHandler` 添加了三个额外功能：可交互的子元素、拖动和聚焦。
 
-Event handlers hold children which are used to determine the interaction order of elements. During the mouse event handlers (excluding dragging), the first child in the list that the mouse hovers over has their logic executed.
+事件处理程序保存了子元素，用于确定元素的交互顺序。在鼠标事件处理程序中（不包括拖动），鼠标悬停在上面的第一个子元素将执行其逻辑。
 
-Dragging an element with the mouse, implemented via `#mouseClicked` and `#mouseReleased`, provides more precisely executed logic.
+通过鼠标拖动元素，通过 `#mouseClicked` 和 `#mouseReleased` 实现更精确的逻辑。
 
-Focusing allows for a specific child to be checked first and handled during an event's execution, such as during keyboard events or dragging the mouse. Focus is typically set through `#setFocused`. In addition, interactable children can be cycled using `#nextFocusPath`, selecting the child based upon the `FocusNavigationEvent` passed in.
+聚焦允许首先检查特定的子元素，并在事件执行期间处理它，例如在键盘事件或拖动鼠标期间。焦点通常通过 `#setFocused` 设置。此外，可以使用 `#nextFocusPath` 循环可交互的子元素，选择基于传递的 `FocusNavigationEvent` 的子元素。
 
 :::note
-Screens implement `ContainerEventHandler` through `AbstractContainerEventHandler`, which adds in the setter and getter logic for dragging and focusing children.
+屏幕通过 `AbstractContainerEventHandler` 实现了 `ContainerEventHandler`，它添加了拖动和聚焦子元素的设置和获取逻辑。
 :::
 
 ## NarratableEntry
 
-`NarratableEntry`s are elements which can be spoken about through Minecraft's accessibility narration feature. Each element can provide different narration depending on what is hovered or selected, prioritized typically by focus, hovering, and then all other cases.
+`NarratableEntry` 是可以通过 Minecraft 的辅助功能叙述功能讲述的元素。每个元素可以根据悬停或选择的内容提供不同的叙述，通常由焦点、悬停，然后是所有其他情况优先。
 
-`NarratableEntry`s have three methods: one which determines the priority of the element (`#narrationPriority`), one which determines whether to speak the narration (`#isActive`), and finally one which supplies the narration to its associated output, spoken or read (`#updateNarration`). 
+`NarratableEntry` 有三个方法：确定元素的优先级的一个方法 (`#narrationPriority`)，确定是否说出叙述的一个方法 (`#isActive`)，最后是向其关联输出提供叙述的一个方法 (`#updateNarration`)。
 
 :::note
-All widgets from Minecraft are `NarratableEntry`s, so it typically does not need to be manually implemented if using an available subtype.
+Minecraft 中的所有小部件都是 `NarratableEntry`，因此通常不需要手动实现它，如果使用可用的子类型。
 :::
 
-## The Screen Subtype
+## 屏幕子类型
 
-With all of the above knowledge, a basic screen can be constructed. To make it easier to understand, the components of a screen will be mentioned in the order they are typically encountered.
+有了上述所有知识，就可以构建一个基本的屏幕了。为了更方便理解，屏幕的组件将按照它们通常出现的顺序而被提及。
 
-First, all screens take in a `Component` which represents the title of the screen. This component is typically drawn to the screen by one of its subtypes. It is only used in the base screen for the narration message.
+首先，所有的屏幕都需要一个组件 `Component` 来表示屏幕的标题。这个组件通常由其子类型绘制到屏幕上。它仅在基本屏幕中用于叙述消息。
 
 ```java
-// In some Screen subclass
+// 在某个屏幕的子类中
 public MyScreen(Component title) {
     super(title);
 }
 ```
 
-### Initialization
+### 初始化
 
-Once a screen has been initialized, the `#init` method is called. The `#init` method sets the initial settings inside the screen from the `ItemRenderer` and `Minecraft` instance to the relative width and height as scaled by the game. Any setup such as adding widgets or precomputing relative coordinates should be done in this method. If the game window is resized, the screen will be reinitialized by calling the `#init` method.
+屏幕初始化后，将调用 `#init` 方法。`#init` 方法设置屏幕的初始设置，从 `ItemRenderer` 和 `Minecraft` 实例到由游戏缩放的相对宽度和高度。在这个方法中进行任何设置，比如添加小部件或预计算相对坐标。如果游戏窗口大小改变，将通过调用 `#init` 方法来重新初始化屏幕。
 
-There are three ways to add a widget to a screen, each serving a separate purpose:
+有三种方法可以向屏幕添加小部件，每种方法都有不同的作用：
 
-Method                 | Description
-:---:                  | :---
-`#addWidget`           | Adds a widget that is interactable and narrated, but not rendered.
-`#addRenderableOnly`   | Adds a widget that will only be rendered; it is not interactable or narrated.
-`#addRenderableWidget` | Adds a widget that is interactable, narrated, and rendered.
+方法                 | 描述
+:---:                | :---
+`#addWidget`         | 添加一个可交互且叙述的小部件，但不渲染。
+`#addRenderableOnly` | 添加一个仅渲染的小部件；不可交互也不叙述。
+`#addRenderableWidget` | 添加一个既可交互、叙述又可渲染的小部件。
 
-Typically, `#addRenderableWidget` will be used most often.
+通常情况下，最常用的是 `#addRenderableWidget`。
 
 ```java
-// In some Screen subclass
+// 在某个屏幕的子类中
 @Override
 protected void init() {
     super.init();
 
-    // Add widgets and precomputed values
+    // 添加小部件和预计算的值
     this.addRenderableWidget(new EditBox(/* ... */));
 }
 ```
 
-### Ticking Screens
+### 屏幕更新
 
-Screens also tick using the `#tick` method to perform some level of client side logic for rendering purposes. The most common example is the `EditBox` for the blinking cursor.
+屏幕也会使用 `#tick` 方法进行更新，以执行一些用于渲染目的的客户端逻辑。最常见的示例是用于闪烁光标的 `EditBox`。
 
 ```java
-// In some Screen subclass
+// 在某个屏幕的子类中
 @Override
 public void tick() {
     super.tick();
 
-    // Add ticking logic for EditBox in editBox
+    // 添加 EditBox 中的更新逻辑
     this.editBox.tick();
 }
 ```
 
-### Input Handling
+### 输入处理
 
-Since screens are subtypes of `GuiEventListener`s, the input handlers can also be overridden, such as for handling logic on a specific [key press][keymapping].
+由于屏幕是 `GuiEventListener` 的子类型，输入处理程序也可以被覆盖，例如处理特定的[按键][keymapping]逻辑。
 
-### Rendering the Screen
+### 屏幕渲染
 
-Finally, screens are rendered through the `#render` method provided by being a `Renderable` subtype. As mentioned, the `#render` method draws the everything the screen has to render every frame, such as the background, widgets, tooltips, etc. By default, the `#render` method only renders the widgets to the screen.
+最后，屏幕通过作为 `Renderable` 子类型而提供的 `#render` 方法进行渲染。正如前面提到的，`#render` 方法在每一帧绘制屏幕上的所有内容，比如背景、小部件、工具提示等。默认情况下，`#render` 方法只会将小部件渲染到屏幕上。
 
-The two most common things rendered within a screen that is typically not handled by a subtype is the background and the tooltips.
+屏幕中通常不由子类型处理的两个最常见的渲染内容是背景和工具提示。
 
-The background can be rendered using `#renderBackground`, with one method taking in a v Offset for the options background whenever a screen is rendered when the level behind it cannot be.
+背景可以使用 `#renderBackground` 进行渲染，其中一个方法接受一个 v 偏移量，用于在渲染屏幕时绘制选项背景，当背后的级别无法显示时使用。
 
-Tooltips are rendered through `GuiGraphics#renderTooltip` or `GuiGraphics#renderComponentTooltip` which can take in the text components being rendered, an optional custom tooltip component, and the x / y relative coordinates on where the tooltip should be rendered on the screen.
+工具提示通过 `GuiGraphics#renderTooltip` 或 `GuiGraphics#renderComponentTooltip` 进行渲染，它们可以接受正在渲染的文本组件、可选的自定义工具提示组件以及工具提示应该在屏幕上渲染的 x / y 相对坐标。
 
 ```java
-// In some Screen subclass
+// 在某个屏幕的子类中
 
-// mouseX and mouseY indicate the scaled coordinates of where the cursor is in on the screen
+// mouseX 和 mouseY 表示光标在屏幕上的缩放坐标
 @Override
 public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-    // Background is typically rendered first
+    // 通常首先渲染背景
     this.renderBackground(graphics);
 
-    // Render things here before widgets (background textures)
+    // 在小部件之前渲染东西（背景纹理）
 
-    // Then the widgets if this is a direct child of the Screen
+    // 如果这是屏幕的直接子类，则渲染小部件
     super.render(graphics, mouseX, mouseY, partialTick);
 
-    // Render things after widgets (tooltips)
+    // 在小部件之后渲染东西（工具提示）
 }
 ```
 
-### Closing the Screen
+### 关闭屏幕
 
-When a screen is closed, two methods handle the teardown: `#onClose` and `#removed`.
+当屏幕关闭时，两个方法处理清理工作：`#onClose` 和 `#removed`。
 
-`#onClose` is called whenever the user makes an input to close the current screen. This method is typically used as a callback to destroy and save any internal processes in the screen itself. This includes sending packets to the server.
+`#onClose` 在用户输入关闭当前屏幕时调用。通常用作销毁和保存屏幕内部流程的回调。这包括向服务器发送数据包。
 
-`#removed` is called just before the screen changes and is released to the garbage collector. This handles anything that hasn't been reset back to its initial state before the screen was opened.
+`#removed` 在屏幕改变之前调用，并释放给垃圾收集器。这处理任何在屏幕打开之前未重置回初始状态的内容。
 
 ```java
-// In some Screen subclass
+// 在某个屏幕的子类中
 
 @Override
 public void onClose() {
-    // Stop any handlers here
+    // 在这里停止任何处理程序
 
-    // Call last in case it interferes with the override
+    // 最后调用，以防干扰覆盖
     super.onClose();
 }
 
 @Override
 public void removed() {
-    // Reset initial states here
+    // 在这里重置初始状态
 
-    // Call last in case it interferes with the override
+    // 最后调用，以防干扰覆盖
     super.removed()
 ;}
 ```
 
 ## `AbstractContainerScreen`
 
-If a screen is directly attached to a [menu][menus], then an `AbstractContainerScreen` should be subclassed instead. An `AbstractContainerScreen` acts as the renderer and input handler of a menu and contains logic for syncing and interacting with slots. As such, only two methods typically need to be overridden or implemented to have a working container screen. Once again, to make it easier to understand, the components of a container screen will be mentioned in the order they are typically encountered.
+如果一个屏幕直接附加到一个[菜单][menus]上，则应该使用 `AbstractContainerScreen` 的子类。`AbstractContainerScreen` 作为菜单的渲染器和输入处理程序，并包含与插槽同步和交互的逻辑。因此，通常只需要覆盖或实现两个方法，就可以有一个可工作的容器屏幕。再次强调，为了更易于理解，容器屏幕的组件将按照它们通常出现的顺序进行说明。
 
-An `AbstractContainerScreen` typically requires three parameters: the container menu being opened (represented by the generic `T`), the player inventory (only for the display name), and the title of the screen itself. Within here, a number of positioning fields can be set:
+通常，`AbstractContainerScreen` 需要三个参数：被打开的容器菜单（由泛型 `T` 表示）、玩家库存（仅用于显示名称
 
-Field             | Description
+）和屏幕本身的标题。在这里，可以设置一些定位字段：
+
+字段             | 描述
 :---:             | :---
-`imageWidth`      | The width of the texture used for the background. This is typically inside a PNG of 256 x 256 and defaults to 176.
-`imageHeight`     | The width of the texture used for the background. This is typically inside a PNG of 256 x 256 and defaults to 166.
-`titleLabelX`     | The relative x coordinate of where the screen title will be rendered.
-`titleLabelY`     | The relative y coordinate of where the screen title will be rendered.
-`inventoryLabelX` | The relative x coordinate of where the player inventory name will be rendered.
-`inventoryLabelY` | The relative y coordinate of where the player inventory name will be rendered.
+`imageWidth`      | 背景使用的纹理的宽度。这通常位于一个 256 x 256 的 PNG 内，默认为 176。
+`imageHeight`     | 背景使用的纹理的高度。这通常位于一个 256 x 256 的 PNG 内，默认为 166。
+`titleLabelX`     | 屏幕标题将被渲染的相对 x 坐标。
+`titleLabelY`     | 屏幕标题将被渲染的相对 y 坐标。
+`inventoryLabelX` | 玩家库存名称将被渲染的相对 x 坐标。
+`inventoryLabelY` | 玩家库存名称将被渲染的相对 y 坐标。
 
 :::caution
-In a previous section, it mentioned that precomputed relative coordinates should be set in the `#init` method. This still remains true, as the values mentioned here are not precomputed coordinates but static values and relativized coordinates.
+在前面的部分中，提到应该在 `#init` 方法中设置预计算的相对坐标。这仍然适用，因为这里提到的值不是预计算的坐标，而是静态值和相对化的坐标。
 
-The image values are static and non changing as they represent the background texture size. To make things easier when rendering, two additional values (`leftPos` and `topPos`) are precomputed in the `#init` method which marks the top left corner of where the background will be rendered. The label coordinates are relative to these values.
+图像值是静态且不变的，因为它们代表背景纹理的大小。为了在渲染时更方便，`#init` 方法中预计算了两个附加值 (`leftPos` 和 `topPos`)，标记了背景将被渲染的左上角位置。标签坐标是相对于这些值的。
 
-The `leftPos` and `topPos` is also used as a convenient way to render the background as they already represent the position to pass into the `#blit` method.
+`leftPos` 和 `topPos` 也被用作渲染背景的便捷方式，因为它们已经表示传递到 `#blit` 方法的位置。
 :::caution
 
 ```java
-// In some AbstractContainerScreen subclass
+// 在某个 AbstractContainerScreen 子类中
 public MyContainerScreen(MyMenu menu, Inventory playerInventory, Component title) {
     super(menu, playerInventory, title);
 
@@ -235,103 +239,99 @@ public MyContainerScreen(MyMenu menu, Inventory playerInventory, Component title
     this.inventoryLabelX = 10;
 
     /*
-     * If the 'imageHeight' is changed, 'inventoryLabelY' must also be
-     * changed as the value depends on the 'imageHeight' value.
+     * 如果 'imageHeight' 被改变，'inventoryLabelY' 也必须被
+     * 改变，因为该值取决于 'imageHeight' 的值。
      */
 }
 ```
 
-### Menu Access
+### 菜单访问
 
-As the menu is passed into the screen, any values that were within the menu and synced (either through slots, data slots, or a custom system) can now be accessed through the `menu` field.
+由于菜单被传递到屏幕中，现在可以通过 `menu` 字段访问任何在菜单中并通过插槽、数据插槽或自定义系统同步的值。
 
-### Container Tick
+### 容器更新
 
-Container screens tick within the `#tick` method when the player is alive and looking at the screen via `#containerTick`. This essentially takes the place of `#tick` within container screens, with its most common usage being to tick the recipe book.
+当玩家活着并且正在查看屏幕时，容器屏幕在 `#tick` 方法中进行更新，通过 `#containerTick` 进行。这基本上取代了容器屏幕内部的 `#tick` 方法，最常见的用法是进行食谱书的更新。
 
 ```java
-// In some AbstractContainerScreen subclass
+// 在某个 AbstractContainerScreen 子类中
 @Override
 protected void containerTick() {
     super.containerTick();
 
-    // Tick things here
+    // 在这里更新内容
 }
 ```
 
-### Rendering the Container Screen
+### 渲染容器屏幕
 
-The container screen is rendered across three methods: `#renderBg`, which renders the background textures, `#renderLabels`, which renders any text on top of the background, and `#render` which encompass the previous two methods in addition to providing a grayed out background and tooltips.
+容器屏幕的渲染涉及三种方法：`#renderBg`，用于渲染背景纹理，`#renderLabels`，用于在背景上方渲染任何文本，以及 `#render`，它包含前两种方法，并提供了一个灰色背景和工具提示。
 
-Starting with `#render`, the most common override (and typically the only case) adds the background, calls the super to render the container screen, and finally renders the tooltips on top of it.
+从 `#render` 开始，最常见的覆盖（通常是唯一的情况）添加了背景，调用 super 来渲染容器屏幕，并最后在其上渲染工具提示。
 
 ```java
-// In some AbstractContainerScreen subclass
+// 在某个 AbstractContainerScreen 子类中
 @Override
 public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
     this.renderBackground(graphics);
     super.render(graphics, mouseX, mouseY, partialTick);
 
     /*
-     * This method is added by the container screen to render
-     * the tooltip of the hovered slot.
+     * 这个方法由容器屏幕添加，用于渲染鼠标悬停插槽的工具提示。
      */
     this.renderTooltip(graphics, mouseX, mouseY);
 }
 ```
 
-Within the super, `#renderBg` is called to render the background of the screen. The most standard representation uses three method calls: two for setup and one to draw the background texture.
+在 super 中，调用了 `#renderBg` 来渲染屏幕的背景。最标准的表示使用了三个方法调用：两个用于设置，一个用于绘制背景纹理。
 
 ```java
-// In some AbstractContainerScreen subclass
+// 在某个 AbstractContainerScreen 子类中
 
-// The location of the background texture (assets/<namespace>/<path>)
+// 背景纹理的位置（assets/<namespace>/<path>）
 private static final ResourceLocation BACKGROUND_LOCATION = new ResourceLocation(MOD_ID, "textures/gui/container/my_container_screen.png");
 
 @Override
 protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
     /*
-     * Sets the texture location for the shader to use. While up to
-     * 12 textures can be set, the shader used within 'blit' only
-     * looks at the first texture index.
+     * 设置着色器使用的纹理位置。虽然最多可以设置12个纹理，但 'blit' 中使用的着色器
+     * 只查看第一个纹理索引。
      */
     RenderSystem.setShaderTexture(0, BACKGROUND_LOCATION);
 
     /*
-     * Renders the background texture to the screen. 'leftPos' and
-     * 'topPos' should already represent the top left corner of where
-     * the texture should be rendered as it was precomputed from the
-     * 'imageWidth' and 'imageHeight'. The two zeros represent the
-     * integer u/v coordinates inside the 256 x 256 PNG file.
+     * 将背景纹理渲染到屏幕上。'leftPos' 和 'topPos' 应该已经表示纹理应该渲染的
+     * 左上角位置，因为它们是从 'imageWidth' 和 'imageHeight' 预计算出来的。两个
+     * 零表示在 256 x 256 PNG 文件内的整数 u/v 坐标。
      */
     graphics.blit(BACKGROUND_LOCATION, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
 }
 ```
 
-Finally, `#renderLabels` is called to render any text above the background, but below the tooltips. This simply calls uses the font to draw the associated components.
+最后，调用 `#renderLabels` 来在背景上方但工具提示下方渲染任何文本。这简单地使用字体来绘制关联的组件。
 
 ```java
-// In some AbstractContainerScreen subclass
+// 在某个 AbstractContainerScreen 子类中
 @Override
 protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
     super.renderLabels(graphics, mouseX, mouseY);
 
-    // Assume we have some Component 'label'
-    // 'label' is drawn at 'labelX' and 'labelY'
+    // 假设我们有一些 Component 'label'
+    // 'label' 将被绘制在 'labelX' 和 'labelY' 处
     graphics.drawString(this.font, this.label, this.labelX, this.labelY, 0x404040);
 }
 ```
 
 :::note
-When rendering the label, you do **not** need to specify the `leftPos` and `topPos` offset. Those have already been translated within the `PoseStack` so everything within this method is drawn relative to those coordinates.
+在渲染标签时，**不需要**指定 `leftPos` 和 `topPos` 偏移量。这些已经在 `PoseStack` 中被转换，因此该方法内的所有内容都相对于这些坐标进行绘制。
 :::
 
-## Registering an AbstractContainerScreen
+## 注册 AbstractContainerScreen
 
-To use an `AbstractContainerScreen` with a menu, it needs to be registered. This can be done by calling `register` within the `RegisterMenuScreensEvent` on the [**mod event bus**][modbus].
+要将 `AbstractContainerScreen` 与菜单一起使用，需要对其进行注册。可以在 [**mod 事件总线**][modbus] 的 `RegisterMenuScreensEvent` 中调用 `register` 方法来完成。
 
 ```java
-// Event is listened to on the mod event bus
+// 事件在 mod 事件总线上监听
 private void registerScreens(RegisterMenuScreensEvent event) {
     event.register(MY_MENU.get(), MyContainerScreen::new);
 }
