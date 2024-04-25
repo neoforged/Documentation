@@ -77,9 +77,6 @@ dependencies {
 :::
 
 非 Minecraft 依赖项
---------------------
-
-非 Minecraft 依赖项
 -------------------
 
 Forge 在开发环境中默认不加载非 Minecraft 的依赖项。要让 Forge 识别非 Minecraft 依赖项，它们必须被添加到 `minecraftLibrary` 配置中。`minecraftLibrary` 的工作方式与 Gradle 中的 `implementation` 配置类似，在编译时间和运行时间都会应用。
