@@ -1,126 +1,128 @@
-Run Configurations
+运行配置
 ==================
 
-Run configurations define how an instance of the game is going to run. This includes arguments, working directories, task names, etc. Run configurations are defined within the `minecraft.runs` block. While no runs are configured by default, [Forge][userdev] does provide the configurations `client`, `server`, `data`, or `gameTestServer`.
+运行配置定义了如何运行游戏实例。这包括参数、工作目录、任务名称等。运行配置在 `minecraft.runs` 块内定义。虽然默认情况下没有配置任何运行配置，但 [Forge][userdev] 提供了 `client`、`server`、`data` 或 `gameTestServer` 等配置。
 
 ```gradle
 minecraft {
     // ...
     runs {
-        // Configure runs here
+        // 在此配置运行
     }
 }
 ```
 
-Run configurations can be added similar to any `NamedDomainObjectContainer` using closures.
+可以使用闭包类似于任何 `NamedDomainObjectContainer` 来添加运行配置。
 
 ```gradle
-// Inside the minecraft block
+// 在 minecraft 块内
 runs {
-    // Creates or configures the run configuration named 'client'
+    // 创建或配置名为 'client' 的运行配置
     client {
-        // Configure run
+        // 配置运行
     }
 }
 ```
 
-The following configurations properties are available:
+以下配置属性是可用的：
 
 ```gradle 
-// Inside the runs block
+// 在 runs 块内
 client {
-    // The name of the Gradle run tasks,
-    // Defaults to 'runX' where X is the container name
+    // Gradle 运行任务的名称，
+    // 默认为 'runX'，其中 X 是容器名称
     taskName 'runThing'
 
-    // Sets the entrypoint of the program to launch
-    // Forge sets userdev main to be 'cpw.mods.bootstraplauncher.BootstrapLauncher'
+    // 设置要启动的程序的入口点
+    // Forge 设置 userdev 主要为 'cpw.mods.bootstraplauncher.BootstrapLauncher'
     main 'com.example.Main'
 
-    // Sets the working directory of the config
-    // Defaults to './run'
+    // 设置配置的工作目录
+    // 默认为 './run'
     workingDirectory 'run'
 
-    // Sets the name of the module for IntelliJ IDEA to configure for its runs
-    // Defaults to '<project_name>.main'
+    // 设置 IntelliJ IDEA 的模块名称，用于配置其运行
+    // 默认为 '<project_name>.main'
     ideaModule 'example.main'
 
-    // Sets the name of the folder that the run configuration should be added to
-    // Defaults to the name of the project
+    // 设置将运行配置添加到的文件夹名称
+    // 默认为项目的名称
     folderName 'example'
 
-    // Sets whether this should run a Minecraft client
-    // If not specified, checks the following
-    // - Is there an environment property 'thing' that contains 'client'
-    // - Does the configuration name contain 'client'
-    // - Is main set to 'mcp.client.Start'
-    // - Is main set to 'net.minecraft.client.main.Main'
+    // 设置是否运行 Minecraft 客户端
+    // 如果未指定，检查以下内容：
+    // - 是否存在包含 'client' 的环境属性 'thing'
+    // - 配置名称是否包含 'client'
+    // - main 是否设置为 'mcp.client.Start'
+    // - main 是否设置为 'net.minecraft.client.main.Main'
     client true
 
-    // Set the parent of this configuration to inherit from
+    // 设置此配置的父配置以继承
     parent runs.example
 
-    // Sets the children of this configuration
+    // 设置此配置的子配置
     children runs.child
 
-    // Merges this configuration and specifies whether to overwrite existing properties
+    // 合并此配置并指定是否覆盖现有属性
     merge runs.server, true
 
-    // If not false, will merge the arguments of the parent with this configuration
+    // 如果不为 false，将合并父配置的参数到此配置
     inheritArgs false
 
-    // If not false, will merge the JVM arguments of the parent with this configuration
+    // 如果不为 false，将合并父配置的 JVM 参数到此配置
     inheritJvmArgs false
 
-    // Adds a sourceset to the classpath
-    // If none is specified, adds sourceSet.main
+    // 添加一个源集到类路径
+    // 如果未指定，默认添加 sourceSet.main
     source sourceSets.api
 
-    // Sets an environment property for the run
-    // Value will be interpreted as a file or a string
+    // 为运行设置一个环境属性
+    // 值将被解释为文件或字符串
     environment 'envKey', 'value'
 
-    // Sets a system property
-    // Value will be interpreted as a file or a string
+    // 设置一个系统属性
+    // 值将被解释为文件或字符串
     property 'propKey', 'value'
 
-    // Sets an argument to be passed into the application
-    // Can specify multiple with 'args'
+    // 设置传递给应用程序的参数
+    // 可以使用 'args' 指定多个
     arg 'hello'
 
-    // Sets a JVM argument
-    // Can specify multiple with 'jvmArgs'
+    // 设置一个 JVM 参数
+    // 可以使用 'jvmArgs' 指定多个
     jvmArg '-Xmx2G'
 
-    // Sets a token
-    // Currently, the following tokens are being used:
+    // 设置一个令牌
+    // 目前，正在使用以下令牌：
     // - runtime_classpath
     // - minecraft_classpath
     token 'tokenKey', 'value'
 
-    // Sets a token that's lazily initialized
-    // Should usually be used instead of 'token', for example when the token resolves Gradle configurations
+    // 设置一个延迟初始化的令牌
+    // 通常应该使用 'token' 替代，例如当令牌解析 Gradle 配置时
     lazyToken('lazyTokenKey') {
       'value'
     }
 
-    // If true, compile all projects instead of for the current task
-    // This is only used by IntelliJ IDEA
-    buildAllProjects false
+    // 如果为 true，则编译所有项目而不仅仅是
+    ```gradle
+// 如果为 true，则编译所有项目，而不是仅当前任务
+// 这仅被 IntelliJ IDEA 使用
+buildAllProjects false
 }
 ```
 
 :::tip
-You can see a list of all configured userdev properties within the [MinecraftForge buildscript][buildscript].
+你可以在 [MinecraftForge 构建脚本][buildscript] 中查看所有配置的 userdev 属性的列表。
 :::
 
-Mod Configurations
-------------------
+Mod 配置
+--------
 
-A mod in the current environment can be added using the `mods` block within a Run configuration. Mod blocks are also `NamedDomainObjectContainer`s.
+在当前环境中可以使用 Run 配置内的 `mods` 块添加mod。Mod 块也是 `NamedDomainObjectContainer`。
 
 ```gradle
-// Inside the runs block
+// 在 runs 块内
 client {
     // ...
 
@@ -129,12 +131,12 @@ client {
             // ...
         }
 
-        // Configures the 'example' mod
+        // 配置 'example' mod
         example {
-            // Add a source set to a mod's sources
+            // 向 mod 的源添加源集
             source sourceSets.main
 
-            // Merges this configuration and specifies whether to overwrite existing properties
+            // 合并此配置并指定是否覆盖现有属性
             merge mods.other_mod, true
         }
     }
