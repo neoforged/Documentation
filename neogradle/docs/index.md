@@ -1,48 +1,44 @@
----
-sidebar_position: 0
----
-
-NeoGradle Documentation
+NeoGradle 文档
 =========================
 
-:::caution
-Please note that this documentation may not be up to date considering the recent creation of NeoForged.
+:::注意
+请注意，鉴于NeoForged的最近创建，本文档可能不是最新的。
 
-Until NeoGradle releases its first version, you should refer to ForgeGradle documentation. The ForgeGradle documentation for versions 6 and 5 has been archived here.
+在NeoGradle发布其首个版本之前，您应该参考ForgeGradle的文档。版本6和5的ForgeGradle文档已存在这里。
 :::
 
-This is the official documentation for [ForgeGradle], a [Gradle] plugin for developing [MinecraftForge] and mods using MinecraftForge.
+这是[ForgeGradle]官方文档，一个用于使用MinecraftForge开发[MinecraftForge]和mods的[Gradle]插件。
 
-This documentation is _only_ for ForgeGradle, **this is not a Java, Groovy, or Gradle tutorial**.
+这份文档 _仅_ 适用于ForgeGradle，**这不是Java、Groovy或Gradle教程**。
 
-If you would like to contribute to the docs, read [Contributing to the Docs][contributing].
+如果您想为文档贡献内容，请阅读[为文档做贡献][contributing]。
 
-Adding the Plugin
+添加插件
 -----------------
 
-ForgeGradle uses Gradle 8; it can be added using the `plugins` block in the `build.gradle` by adding the following information to the `settings.gradle`:
+ForgeGradle 使用 Gradle 8；它可以通过在 `build.gradle` 的 `plugins` 区块中添加以下信息到 `settings.gradle` 来添加：
 
 ```gradle
-// In settings.gradle
+// 在 settings.gradle 中
 pluginManagement {
     repositories {
         // ...
 
-        // Add the MinecraftForge maven
+        // 添加 MinecraftForge maven
         maven { url = 'https://maven.minecraftforge.net/' }
     }
 }
 
 plugins {
-    // Add toolchain resolver
+    // 添加工具链解析器
     id 'org.gradle.toolchains.foojay-resolver-convention' version '0.5.0'
 }
 ```
 
 ```gradle
-// In build.gradle
+// 在 build.gradle 中
 plugins {
-    // Add the ForgeGradle plugin
+    // 添加 ForgeGradle 插件
     id 'net.minecraftforge.gradle' version '[6.0,6.2)'
 
     // ...
