@@ -47,20 +47,20 @@ Implementing Blockstates
 
 To implement a blockstate property, in your block class, create or reference a `public static final Property<?>` constant. While you are free to make your own `Property<?>` implementations, the vanilla code provides several convenience implementations that should cover most use cases:
 
-* `IntegerProperty`
-    * Implements `Property<Integer>`. Defines a property that holds an integer value. Note that negative values are not supported.
-    * Created by calling `IntegerProperty#create(String propertyName, int minimum, int maximum)`.
-* `BooleanProperty`
-    * Implements `Property<Boolean>`. Defines a property that holds a `true` or `false` value.
-    * Created by calling `BooleanProperty#create(String propertyName)`.
-* `EnumProperty<E extends Enum<E>>`
-    * Implements `Property<E>`. Defines a property that can take on the values of an Enum class.
-    * Created by calling `EnumProperty#create(String propertyName, Class<E> enumClass)`.
-    * It is also possible to use only a subset of the Enum values (e.g. 4 out of 16 `DyeColor`s), see the overloads of `EnumProperty#create`.
-* `DirectionProperty`
-    * Extends `EnumProperty<Direction>`. Defines a property that can take on a `Direction`.
-    * Created by calling `DirectionProperty#create(String propertyName)`.
-    * Several convenience predicates are provided. For example, to get a property that represents the cardinal directions, call `DirectionProperty.create("<name>", Direction.Plane.HORIZONTAL)`; to get the X directions, `DirectionProperty.create("<name>", Direction.Axis.X)`.
+- `IntegerProperty`
+    - Implements `Property<Integer>`. Defines a property that holds an integer value. Note that negative values are not supported.
+    - Created by calling `IntegerProperty#create(String propertyName, int minimum, int maximum)`.
+- `BooleanProperty`
+    - Implements `Property<Boolean>`. Defines a property that holds a `true` or `false` value.
+    - Created by calling `BooleanProperty#create(String propertyName)`.
+- `EnumProperty<E extends Enum<E>>`
+    - Implements `Property<E>`. Defines a property that can take on the values of an Enum class.
+    - Created by calling `EnumProperty#create(String propertyName, Class<E> enumClass)`.
+    - It is also possible to use only a subset of the Enum values (e.g. 4 out of 16 `DyeColor`s), see the overloads of `EnumProperty#create`.
+- `DirectionProperty`
+    - Extends `EnumProperty<Direction>`. Defines a property that can take on a `Direction`.
+    - Created by calling `DirectionProperty#create(String propertyName)`.
+    - Several convenience predicates are provided. For example, to get a property that represents the cardinal directions, call `DirectionProperty.create("<name>", Direction.Plane.HORIZONTAL)`; to get the X directions, `DirectionProperty.create("<name>", Direction.Axis.X)`.
 
 The class `BlockStateProperties` contains shared vanilla properties which should be used or referenced whenever possible, in place of creating your own properties.
 

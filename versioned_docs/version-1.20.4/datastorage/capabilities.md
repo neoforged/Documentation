@@ -188,7 +188,7 @@ if (handler != null) {
 }
 ```
 
-**The cache is automatically cleared by the garbage collector, there is no need to unregister it.**
+-*The cache is automatically cleared by the garbage collector, there is no need to unregister it.**
 
 It is also possible to receive notifications when the capability object changes!
 This includes capabilities changing (`oldHandler != newHandler`), becoming unavailable (`null`) or becoming available again (not `null` anymore).
@@ -264,7 +264,7 @@ In general, registration will be specific to some block entity types, so the `re
 
 :::danger
 If the capability previously returned by a block or block entity provider is no longer valid,
-**you must invalidate the caches** by calling `level.invalidateCapabilities(pos)`.
+-*you must invalidate the caches** by calling `level.invalidateCapabilities(pos)`.
 Refer to the [invalidation section][invalidation] above for more information.
 :::
 

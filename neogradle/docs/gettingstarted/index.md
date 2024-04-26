@@ -5,7 +5,7 @@ If you have never used ForgeGradle before, here is the minimum amount of informa
 
 #### Prerequisites
 
-* An installation of the Java Development Kit (JDK)
+- An installation of the Java Development Kit (JDK)
 
 Minecraft Versions | Java Development Kit Version
 :---:              | :---:
@@ -13,8 +13,8 @@ Minecraft Versions | Java Development Kit Version
 1.17               | [JDK 16][jdk16]
 1.18 - 1.19        | [JDK 17][jdk17]
 
-* Familiarity with an Integrated Development Environment (IDE)
-    * It is preferable to use one with some form of Gradle integration
+- Familiarity with an Integrated Development Environment (IDE)
+    - It is preferable to use one with some form of Gradle integration
 
 ## Setting Up ForgeGradle
 

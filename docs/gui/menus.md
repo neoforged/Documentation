@@ -202,7 +202,7 @@ public ItemStack quickMoveStack(Player player, int quickMovedSlotIndex) {
     The following quick move logic can be simplified to if in data inventory,
     try to move to player inventory/hotbar and vice versa for containers
     that cannot transform data (e.g. chests).
-    */
+    -/
 
     // If the quick move was performed on the data inventory result slot
     if (quickMovedSlotIndex == 0) {
@@ -251,7 +251,7 @@ public ItemStack quickMoveStack(Player player, int quickMovedSlotIndex) {
     The following if statement and Slot#onTake call can be removed if the
     menu does not represent a container that can transform stacks (e.g.
     chests).
-    */
+    -/
     if (rawStack.getCount() == quickMovedStack.getCount()) {
       // If the raw stack was not able to be moved to another slot, no longer quick move
       return ItemStack.EMPTY;

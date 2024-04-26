@@ -235,9 +235,9 @@ public MyContainerScreen(MyMenu menu, Inventory playerInventory, Component title
     this.inventoryLabelX = 10;
 
     /*
-     * If the 'imageHeight' is changed, 'inventoryLabelY' must also be
-     * changed as the value depends on the 'imageHeight' value.
-     */
+     - If the 'imageHeight' is changed, 'inventoryLabelY' must also be
+     - changed as the value depends on the 'imageHeight' value.
+     -/
 }
 ```
 
@@ -273,9 +273,9 @@ public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTi
     super.render(graphics, mouseX, mouseY, partialTick);
 
     /*
-     * This method is added by the container screen to render
-     * the tooltip of the hovered slot.
-     */
+     - This method is added by the container screen to render
+     - the tooltip of the hovered slot.
+     -/
     this.renderTooltip(graphics, mouseX, mouseY);
 }
 ```
@@ -291,19 +291,19 @@ private static final ResourceLocation BACKGROUND_LOCATION = new ResourceLocation
 @Override
 protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
     /*
-     * Sets the texture location for the shader to use. While up to
-     * 12 textures can be set, the shader used within 'blit' only
-     * looks at the first texture index.
-     */
+     - Sets the texture location for the shader to use. While up to
+     - 12 textures can be set, the shader used within 'blit' only
+     - looks at the first texture index.
+     -/
     RenderSystem.setShaderTexture(0, BACKGROUND_LOCATION);
 
     /*
-     * Renders the background texture to the screen. 'leftPos' and
-     * 'topPos' should already represent the top left corner of where
-     * the texture should be rendered as it was precomputed from the
-     * 'imageWidth' and 'imageHeight'. The two zeros represent the
-     * integer u/v coordinates inside the 256 x 256 PNG file.
-     */
+     - Renders the background texture to the screen. 'leftPos' and
+     - 'topPos' should already represent the top left corner of where
+     - the texture should be rendered as it was precomputed from the
+     - 'imageWidth' and 'imageHeight'. The two zeros represent the
+     - integer u/v coordinates inside the 256 x 256 PNG file.
+     -/
     graphics.blit(BACKGROUND_LOCATION, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
 }
 ```

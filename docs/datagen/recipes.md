@@ -53,11 +53,11 @@ ShapedRecipeBuilder builder = ShapedRecipeBuilder.shaped(RecipeCategory.MISC, re
 
 Shaped recipes have some additional validation checks performed before building:
 
-* A pattern must be defined and take in more than one item.
-* All pattern rows must be the same width.
-* A symbol cannot be defined more than once.
-* The space character (`' '`) is reserved for representing no item in a slot and, as such, cannot be defined.
-* A pattern must use all symbols defined by the user.
+- A pattern must be defined and take in more than one item.
+- All pattern rows must be the same width.
+- A symbol cannot be defined more than once.
+- The space character (`' '`) is reserved for representing no item in a slot and, as such, cannot be defined.
+- A pattern must use all symbols defined by the user.
 
 ### ShapelessRecipeBuilder
 

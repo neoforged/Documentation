@@ -47,8 +47,8 @@ You can find some additional naming conventions on [Oracle's tutorial page][nami
 
 In addition to the top-level package, it is highly recommend to break your mod's classes between subpackages. There are two major methods on how to do so:
 
-* **Group By Function**: Make subpackages for classes with a common purpose. For example, blocks can be under `block`, items under `item`, entities under `entity`, etc. Minecraft itself uses a similar structure (with some exceptions).
-* **Group By Logic**: Make subpackages for classes with a common logic. For example, if you were creating a new type of crafting table, you would put its block, menu, item, and more under `feature.crafting_table`.
+- **Group By Function**: Make subpackages for classes with a common purpose. For example, blocks can be under `block`, items under `item`, entities under `entity`, etc. Minecraft itself uses a similar structure (with some exceptions).
+- **Group By Logic**: Make subpackages for classes with a common logic. For example, if you were creating a new type of crafting table, you would put its block, menu, item, and more under `feature.crafting_table`.
 
 #### Client, Server, and Data Packages
 
@@ -62,9 +62,9 @@ A common class naming scheme makes it easier to decipher the purpose of the clas
 
 Classes are commonly suffixed with its type, for example:
 
-* An `Item` called `PowerRing` -> `PowerRingItem`.
-* A `Block` called `NotDirt` -> `NotDirtBlock`.
-* A menu for an `Oven` -> `OvenMenu`.
+- An `Item` called `PowerRing` -> `PowerRingItem`.
+- A `Block` called `NotDirt` -> `NotDirtBlock`.
+- A menu for an `Oven` -> `OvenMenu`.
 
 :::tip
 Mojang typically follows a similar structure for all classes except entities. Those are represented by just their names (e.g. `Pig`, `Zombie`, etc.).

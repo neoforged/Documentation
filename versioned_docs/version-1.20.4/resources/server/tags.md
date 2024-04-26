@@ -91,21 +91,21 @@ Conventions
 
 There are several conventions that will help facilitate compatibility in the ecosystem:
 
-* If there is a Vanilla tag that fits your block or item, add it to that tag. See the [list of Vanilla tags][taglist].
-* If there is a Forge tag that fits your block or item, add it to that tag. The list of tags declared by Forge can be seen on [GitHub][forgetags].
-* If there is a group of something you feel should be shared by the community, use the `forge` namespace instead of your mod id.
-* Tag naming conventions should follow Vanilla conventions. In particular, item and block groupings are plural instead of singular (e.g. `minecraft:logs`, `minecraft:saplings`).
-* Item tags should be sorted into subdirectories according to their type (e.g. `forge:ingots/iron`, `forge:nuggets/brass`, etc.).
+- If there is a Vanilla tag that fits your block or item, add it to that tag. See the [list of Vanilla tags][taglist].
+- If there is a Forge tag that fits your block or item, add it to that tag. The list of tags declared by Forge can be seen on [GitHub][forgetags].
+- If there is a group of something you feel should be shared by the community, use the `forge` namespace instead of your mod id.
+- Tag naming conventions should follow Vanilla conventions. In particular, item and block groupings are plural instead of singular (e.g. `minecraft:logs`, `minecraft:saplings`).
+- Item tags should be sorted into subdirectories according to their type (e.g. `forge:ingots/iron`, `forge:nuggets/brass`, etc.).
 
 
 Migration from OreDictionary
 ----------------------------
 
-* For recipes, tags can be used directly in the vanilla recipe format (see below).
-* For matching items in code, see the section above.
-* If you are declaring a new type of item grouping, follow a couple naming conventions:
-  * Use `domain:type/material`. When the name is a common one that all modders should adopt, use the `forge` domain.
-  * For example, brass ingots should be registered under the `forge:ingots/brass` tag and cobalt nuggets under the `forge:nuggets/cobalt` tag.
+- For recipes, tags can be used directly in the vanilla recipe format (see below).
+- For matching items in code, see the section above.
+- If you are declaring a new type of item grouping, follow a couple naming conventions:
+  - Use `domain:type/material`. When the name is a common one that all modders should adopt, use the `forge` domain.
+  - For example, brass ingots should be registered under the `forge:ingots/brass` tag and cobalt nuggets under the `forge:nuggets/cobalt` tag.
 
 
 Using Tags in Recipes and Advancements

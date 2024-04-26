@@ -9,13 +9,13 @@ Registering a Global Loot Modifier
 You will need 4 things:
 
 1. Create a `global_loot_modifiers.json`.
-    * This will tell Forge about your modifiers and works similar to [tags].
+    - This will tell Forge about your modifiers and works similar to [tags].
 2. A serialized json representing your modifier.
-    * This will contain all of the data about your modification and allows data packs to tweak your effect.
+    - This will contain all of the data about your modification and allows data packs to tweak your effect.
 3. A class that extends `IGlobalLootModifier`.
-    * The operational code that makes your modifier work. Most modders can extend `LootModifier` as it supplies base functionality.
+    - The operational code that makes your modifier work. Most modders can extend `LootModifier` as it supplies base functionality.
 4. Finally, a codec to encode and decode your operational class.
-    * This is [registered] as any other `IForgeRegistryEntry`.
+    - This is [registered] as any other `IForgeRegistryEntry`.
 
 The `global_loot_modifiers.json`
 -------------------------------

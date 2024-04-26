@@ -45,13 +45,13 @@ Config values can be built with the provided contexts (if defined) using any of 
 
 All config value methods take in at least two components:
 
-* A path representing the name of the variable: a `.` separated string representing the sections the config value is in
-* The default value when no valid configuration is present
+- A path representing the name of the variable: a `.` separated string representing the sections the config value is in
+- The default value when no valid configuration is present
 
 The `ConfigValue` specific methods take in two additional components:
 
-* A validator to make sure the deserialized object is valid
-* A class representing the data type of the config value
+- A validator to make sure the deserialized object is valid
+- A class representing the data type of the config value
 
 ```java
 // For some ModConfigSpec.Builder builder
@@ -63,44 +63,44 @@ The values themselves can be obtained using `ConfigValue#get`. The values are ad
 
 #### Additional Config Value Types
 
-* **Range Values**
-    * Description: Value must be between the defined bounds
-    * Class Type: `Comparable<T>`
-    * Method Name: `#defineInRange`
-    * Additional Components:
-      * The minimum and maximum the config value may be
-      * A class representing the data type of the config value
+- **Range Values**
+    - Description: Value must be between the defined bounds
+    - Class Type: `Comparable<T>`
+    - Method Name: `#defineInRange`
+    - Additional Components:
+      - The minimum and maximum the config value may be
+      - A class representing the data type of the config value
 
 :::note
 `DoubleValue`s, `IntValue`s, and `LongValue`s are range values which specify the class as `Double`, `Integer`, and `Long` respectively.
 :::
 
-* **Whitelisted Values**
-    * Description: Value must be in supplied collection
-    * Class Type: `T`
-    * Method Name: `#defineInList`
-    * Additional Components:
-      * A collection of the allowed values the configuration can be
+- **Whitelisted Values**
+    - Description: Value must be in supplied collection
+    - Class Type: `T`
+    - Method Name: `#defineInList`
+    - Additional Components:
+      - A collection of the allowed values the configuration can be
 
-* **List Values**
-    * Description: Value is a list of entries
-    * Class Type: `List<T>`
-    * Method Name: `#defineList`, `#defineListAllowEmpty` if list can be empty
-    * Additional Components:
-      * A validator to make sure a deserialized element from the list is valid
+- **List Values**
+    - Description: Value is a list of entries
+    - Class Type: `List<T>`
+    - Method Name: `#defineList`, `#defineListAllowEmpty` if list can be empty
+    - Additional Components:
+      - A validator to make sure a deserialized element from the list is valid
 
-* **Enum Values**
-    * Description: An enum value in the supplied collection
-    * Class Type: `Enum<T>`
-    * Method Name: `#defineEnum`
-    * Additional Components:
-      * A getter to convert a string or integer into an enum
-      * A collection of the allowed values the configuration can be
+- **Enum Values**
+    - Description: An enum value in the supplied collection
+    - Class Type: `Enum<T>`
+    - Method Name: `#defineEnum`
+    - Additional Components:
+      - A getter to convert a string or integer into an enum
+      - A collection of the allowed values the configuration can be
 
-* **Boolean Values**
-    * Description: A `boolean` value
-    * Class Type: `Boolean`
-    * Method Name: `#define`
+- **Boolean Values**
+    - Description: A `boolean` value
+    - Class Type: `Boolean`
+    - Method Name: `#define`
 
 Registering a Configuration
 ---------------------------
