@@ -26,3 +26,20 @@ Registering a BER
 -----------------
 
 In order to register a BER, you must subscribe to the `EntityRenderersEvent$RegisterRenderers` event on the mod event bus and call `#registerBlockEntityRenderer`.
+
+```java
+public class MyBlockEntityRenderer implements BlockEntityRenderer {
+
+    public MyBlockEntityRenderer(BlockEntityRendererProvider.Context ctx) {
+        // Do things here
+    }
+
+    // Implement #render method here and any other logic
+}
+
+// In another class using some method to listen to this event
+@SubscribeEvent
+public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
+    event.registerBlockEntityRenderer(MyBlockEntityTypes.MYBE.get(), MyBlockEntityRenderer::new);
+}
+```
