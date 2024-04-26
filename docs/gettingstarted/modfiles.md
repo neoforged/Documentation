@@ -158,7 +158,11 @@ Now that the `neoforge.mods.toml` is filled out, we need to provide an entrypoin
 ```java
 @Mod("examplemod") // Must match a mod id in the neoforge.mods.toml
 public class Example {
-  public Example(IEventBus modBus) { // The parameter is the mod-specific event bus, needed e.g. for registration and events
+  // The mod constructor can have the following arguments:
+  // - IEventBus: The mod-specific event bus, needed e.g. for registration and events
+  // - ModContainer/FMLModContainer: The container holding this mod's metadata
+  // - Dist: The physical side this mod is loading on
+  public Example(IEventBus modBus) {
     // Initialize logic here
   }
 }
