@@ -95,7 +95,7 @@ public class MyRecipeProvider extends RecipeProvider {
     }
 }
 
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD, modid = "examplemod")
+@EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD, modid = "examplemod")
 public class MyDatagenHandler {
     @SubscribeEvent
     public static void gatherData(GatherDataEvent event) {
