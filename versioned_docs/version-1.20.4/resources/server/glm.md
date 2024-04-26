@@ -144,5 +144,5 @@ public static final RegistryObject<Codec<ExampleModifier>> = REGISTRAR.register(
 [codec]: #the-loot-modifier-codec
 [registered]: ../../concepts/registries.md#methods-for-registering
 [codecdef]: ../../datastorage/codecs.md
-[datagen]: ../../datagen/server/glm.md
+[datagen]: ../../datagen/glm.md
 [examples]: https://github.com/neoforged/NeoForge/blob/1.20.x/tests/src/main/java/net/neoforged/neoforge/debug/loot/GlobalLootModifiersTest.java

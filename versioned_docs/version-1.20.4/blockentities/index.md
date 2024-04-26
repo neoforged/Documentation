@@ -132,7 +132,7 @@ For `oldState` and `newState`, you can pass the current `BlockState` at that pos
 
 This way of synchronizing is probably the most complicated but is usually the most optimized,
 as you can make sure that only the data you need to be synchronized is actually synchronized.
-You should first check out the [`Networking`][networking] section and especially [`SimpleImpl`][simple_impl] before attempting this.
+You should first check out the [`Networking`][networking] section and especially [`PayloadRegistrar`][payload] before attempting this.
 Once you've created your custom network message, you can send it to all users that have the `BlockEntity` loaded with `SimpleChannel#send(PacketDistributor$PacketTarget, MSG)`.
 
 :::caution
@@ -143,4 +143,4 @@ It is important that you do safety checks, the `BlockEntity` might already be de
 [storing-data]: #storing-data-within-your-blockentity
 [menu]: ../gui/menus.md
 [networking]: ../networking/index.md
-[simple_impl]: ../networking/simpleimpl.md
+[payload]: ../networking/payload.md
