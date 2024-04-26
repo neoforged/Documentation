@@ -1,3 +1,6 @@
+---
+sidebar_position: 2
+---
 # Sides
 
 Like many other programs, Minecraft follows a client-server concept, where the client is responsible for displaying the data, while the server is responsible for updating them. When using these terms, we have a fairly intuitive understanding of what we mean... right?

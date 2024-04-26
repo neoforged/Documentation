@@ -1,3 +1,6 @@
+---
+sidebar_position: 3
+---
 # Events
 
 One of NeoForge's main features is the event system. Events are fired for various things that happen in the game. For example, there are events for when the player right clicks, when a player or another entity jumps, when blocks are rendered, when the game is loaded, etc. A modder can subscribe event handlers to each of these events, and then perform their desired behavior inside these event handlers.
@@ -48,7 +51,7 @@ public class EventHandler {
 @Mod("yourmodid")
 public class YourMod {
     public YourMod(IEventBus modBus) {
-        NeoForge.EVENT_BUS.addListener(new EventHandler());
+        NeoForge.EVENT_BUS.register(new EventHandler());
     }
 }
 ```
@@ -69,19 +72,19 @@ public class EventHandler {
 @Mod("yourmodid")
 public class YourMod {
     public YourMod(IEventBus modBus) {
-        NeoForge.EVENT_BUS.addListener(EventHandler.class);
+        NeoForge.EVENT_BUS.register(EventHandler.class);
     }
 }
 ```
 
-### `@Mod.EventBusSubscriber`
+### `@EventBusSubscriber`
 
-We can go one step further and also annotate the event handler class with `@Mod.EventBusSubscriber`. This annotation is discovered automatically by NeoForge, allowing you to remove all event-related code from the mod constructor. In essence, it is equivalent to calling `NeoForge.EVENT_BUS.register(EventHandler.class)` at the end of the mod constructor. This means that all handlers must be static, too.
+We can go one step further and also annotate the event handler class with `@EventBusSubscriber`. This annotation is discovered automatically by NeoForge, allowing you to remove all event-related code from the mod constructor. In essence, it is equivalent to calling `NeoForge.EVENT_BUS.register(EventHandler.class)` at the end of the mod constructor. This means that all handlers must be static, too.
 
 While not required, it is highly recommended to specify the `modid` parameter in the annotation, in order to make debugging easier (especially when it comes to mod conflicts).
 
 ```java
-@Mod.EventBusSubscriber(modid = "yourmodid")
+@EventBusSubscriber(modid = "yourmodid")
 public class EventHandler {
     @SubscribeEvent
     public static void onLivingJump(LivingJumpEvent event) {
@@ -111,7 +114,7 @@ If you listen to an `abstract` event, your game will crash, as this is never wha
 
 Some events implement the `ICancellableEvent` interface. These events can be cancelled using `#setCanceled(boolean canceled)`, and the cancellation status can be checked using `#isCanceled()`. If an event is cancelled, other event handlers for this event will not run, and some kind of behavior that is associated with "cancelling" is enabled. For example, cancelling `LivingJumpEvent` will prevent the jump.
 
-Event handlers can opt to explicitly receive cancelled events. This is done by setting the `receiveCanceled` parameter in `IEventBus#addListener` (or `@SubscribeEvent`, depending on your way of attaching the event handlers) to true.
+Event handlers can opt to explicitly receive cancelled events. This is done by setting the `receiveCanceled` boolean parameter in `IEventBus#addListener` (or `@SubscribeEvent`, depending on your way of attaching the event handlers) to true.
 
 ### Results
 
@@ -131,24 +134,24 @@ Priorities can be defined by setting the `priority` parameter in `IEventBus#addL
 
 Some events are only fired on one [side][side]. Common examples include the various render events, which are only fired on the client. Since client-only events generally need to access other client-only parts of the Minecraft codebase, they need to be registered accordingly.
 
-Event handlers that use `IEventBus#addListener()` should use a `FMLEnvironment.dist` check and a separate client-only class, as outlined in the article on sides.
+Event handlers that use `IEventBus#addListener()` should check the current physical side via `FMLEnvironment.dist` or the `Dist` parameter in your made mod constructor and add the listener in a separate client-only class, as outlined in the article on [sides][side].
 
-Event handlers that use `@Mod.EventBusSubscriber` can specify the side as the `value` parameter of the annotation, for example `@Mod.EventBusSubscriber(value = Dist.CLIENT, modid = "yourmodid")`.
+Event handlers that use `@EventBusSubscriber` can specify the side as the `value` parameter of the annotation, for example `@EventBusSubscriber(value = Dist.CLIENT, modid = "yourmodid")`.
 
 ## Event Buses
 
 While most events are posted on the `NeoForge.EVENT_BUS`, some events are posted on the mod event bus instead. These are generally called mod bus events. Mod bus events can be distinguished from regular events by their superinterface `IModBusEvent`.
 
-The mod event bus is passed to you as a parameter in the mod constructor, and you can then subscribe mod bus events to it. If you use `@Mod.EventBusSubscriber`, you can also set the bus as an annotation parameter, like so: `@Mod.EventBusSubscriber(bus = Bus.MOD, modid = "yourmodid")`. The default bus is `Bus.FORGE`.
+The mod event bus is passed to you as a parameter in the mod constructor, and you can then subscribe mod bus events to it. If you use `@EventBusSubscriber`, you can also set the bus as an annotation parameter, like so: `@EventBusSubscriber(bus = Bus.MOD, modid = "yourmodid")`. The default bus is `Bus.GAME`.
 
 ### The Mod Lifecycle
 
-Most mod bus events are what is known as lifecycle events. Lifecycle events run once in every mod's lifecycle during startup. Many of them are fired in parallel; if you want to run code from one of these events on the main thread, enqueue them using `#enqueueWork(Runnable runnable)`.
+Most mod bus events are what is known as lifecycle events. Lifecycle events run once in every mod's lifecycle during startup. Many of them are fired in parallel by subclassing `ParallelDispatchEvent`; if you want to run code from one of these events on the main thread, enqueue them using `#enqueueWork(Runnable runnable)`.
 
 The lifecycle generally follows the following order:
 
 - The mod constructor is called. Register your event handlers here, or in the next step.
-- All `@Mod.EventBusSubscriber`s are called.
+- All `@EventBusSubscriber`s are called.
 - `FMLConstructModEvent` is fired.
 - The registry events are fired, these include [`NewRegistryEvent`][newregistry], [`DataPackRegistryEvent.NewRegistry`][newdatapackregistry] and, for each registry, [`RegisterEvent`][registerevent].
 - `FMLCommonSetupEvent` is fired. This is where various miscellaneous setup happens.
@@ -170,7 +173,7 @@ Next to the lifecycle events, there are a few miscellaneous events that are fire
 
 - `RegisterColorHandlersEvent`
 - `ModelEvent.BakingCompleted`
-- `TextureStitchEvent`
+- `TextureAtlasStitchedEvent`
 
 :::warning
 Most of these events are planned to be moved to the main event bus in a future version.
