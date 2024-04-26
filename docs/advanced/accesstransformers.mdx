@@ -111,13 +111,13 @@ Also called "descriptors": see the [Java Virtual Machine Specification, SE 8, se
 - `S` - `short`, a signed short
 - `Z` - `boolean`, a `true` or `false` value
 - `[` - references one dimension of an array
-  - Example: `[[S` refers to `short[][]`
+    - Example: `[[S` refers to `short[][]`
 - `L<class name>;` - references a reference type
-  - Example: `Ljava/lang/String;` refers to `java.lang.String` reference type _(note the use of slashes instead of periods)_
+    - Example: `Ljava/lang/String;` refers to `java.lang.String` reference type _(note the use of slashes instead of periods)_
 - `(` - references a method descriptor, parameters should be supplied here or nothing if no parameters are present
- - Example: `<method>(I)Z` refers to a method that requires an integer argument and returns a boolean
+    - Example: `<method>(I)Z` refers to a method that requires an integer argument and returns a boolean
 - `V` - indicates a method returns no value, can only be used at the end of a method descriptor
-  - Example: `<method>()V` refers to a method that has no arguments and returns nothing
+    - Example: `<method>()V` refers to a method that has no arguments and returns nothing
 
 ## Examples
 

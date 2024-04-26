@@ -43,8 +43,8 @@ The packages within your java source (`src/main/java`) should also now conform t
 ```text
 com
 - example (top-level package specified in group property)
-  - mymod (the mod id)
-    - MyMod.java (renamed ExampleMod.java)
+    - mymod (the mod id)
+        - MyMod.java (renamed ExampleMod.java)
 ```
 
 ## neoforge.mods.toml
