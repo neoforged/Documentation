@@ -84,7 +84,7 @@ SimpleCookingRecipeBuilder builder = SimpleCookingRecipeBuilder.smelting(input, 
 
 ### SingleItemRecipeBuilder
 
-`SingleItemRecipeBuilder` is used to generate stonecutting recipes. Additionally, custom single item recipes using a serializer like `SingleItemRecipe$Serializer` can also be data generated using this builder. The builder can be initialized via `#stonecutting` or through the constructor respectively. The recipe group and the recipe unlock criteria can be specified before saving.
+`SingleItemRecipeBuilder` is used to generate stonecutting recipes. Additionally, custom single item recipes using a serializer like SingleItemRecipe.Serializer can also be data generated using this builder. The builder can be initialized via `#stonecutting` or through the constructor respectively. The recipe group and the recipe unlock criteria can be specified before saving.
 
 ```java
 // In RecipeProvider#buildRecipes(writer)
@@ -100,7 +100,7 @@ Some recipe builders do not implement `RecipeBuilder` due to lacking features us
 
 ### SmithingTransformRecipeBuilder
 
-`SmithingTransformRecipeBuilder` is used to generate smithing recipes which transform an item. Additionally, custom recipes using a serializer like `SmithingTransformRecipe$Serializer` can also be data generated using this builder. The builder can be initialized via `#smithing` or through the constructor respectively. The recipe unlock criteria can be specified before saving.
+`SmithingTransformRecipeBuilder` is used to generate smithing recipes which transform an item. Additionally, custom recipes using a serializer like SmithingTransformRecipe.Serializer can also be data generated using this builder. The builder can be initialized via `#smithing` or through the constructor respectively. The recipe unlock criteria can be specified before saving.
 
 ```java
 // In RecipeProvider#buildRecipes(writer)
@@ -111,7 +111,7 @@ SmithingTransformRecipeBuilder builder = SmithingTransformRecipeBuilder.smithing
 
 ### SmithingTrimRecipeBuilder
 
-`SmithingTrimRecipeBuilder` is used to generate smithing recipes for armor trims. Additionally, custom upgrade recipes using a serializer like `SmithingTrimRecipe$Serializer` can also be data generated using this builder. The builder can be initialized via `#smithingTrim` or through the constructor respectively. The recipe unlock criteria can be specified before saving.
+`SmithingTrimRecipeBuilder` is used to generate smithing recipes for armor trims. Additionally, custom upgrade recipes using a serializer like SmithingTrimRecipe.Serializer can also be data generated using this builder. The builder can be initialized via `#smithingTrim` or through the constructor respectively. The recipe unlock criteria can be specified before saving.
 
 ```java
 // In RecipeProvider#buildRecipes(writer)
@@ -133,7 +133,7 @@ SpecialRecipeBuilder.special(dynamicRecipeSerializer)
 Conditional Recipes
 -------------------
 
-[Conditional recipes][conditional] can also be data generated via `ConditionalRecipe$Builder`. The builder can be obtained using `#builder`.
+[Conditional recipes][conditional] can also be data generated via ConditionalRecipe.Builder. The builder can be obtained using `#builder`.
 
 Conditions for each recipe can be specified by first calling `#addCondition` and then calling `#addRecipe` after all conditions have been specified. This process can be repeated as many times as the programmer would like.
 

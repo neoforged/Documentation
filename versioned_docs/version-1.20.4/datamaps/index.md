@@ -10,7 +10,7 @@ A data map can be attached to both static, built-in, registries and dynamic data
 Data maps support reloading through the use of the `/reload` command or any other means that reload server resources.
 
 ## Registration
-A data map type should be statically created and then registered to the `RegisterDataMapTypesEvent` (which is fired on the [mod event bus](../concepts/events)). The `DataMapType` can be created using a `DataMapType$Builder`, through `DataMapType#builder`.  
+A data map type should be statically created and then registered to the `RegisterDataMapTypesEvent` (which is fired on the [mod event bus](../concepts/events)). The `DataMapType` can be created using a DataMapType.Builder, through `DataMapType#builder`.  
 
 The builder provides a `synced` method which can be used to mark a data map as synced and have it sent to clients.  
 

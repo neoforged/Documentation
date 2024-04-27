@@ -25,4 +25,4 @@ This method is called every frame in order to render the block entity.
 Registering a BER
 -----------------
 
-In order to register a BER, you must subscribe to the `EntityRenderersEvent$RegisterRenderers` event on the mod event bus and call `#registerBlockEntityRenderer`.
+In order to register a BER, you must subscribe to the EntityRenderersEvent.RegisterRenderers event on the mod event bus and call `#registerBlockEntityRenderer`.

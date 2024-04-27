@@ -127,7 +127,7 @@ NeoForge documents the [config types][type] within their codebase.
 Configuration Events
 --------------------
 
-Operations that occur whenever a config is loaded or reloaded can be done using the `ModConfigEvent$Loading` and `ModConfigEvent$Reloading` events. The events must be [registered][events] to the mod event bus.
+Operations that occur whenever a config is loaded or reloaded can be done using the ModConfigEvent.Loading and ModConfigEvent.Reloading events. The events must be [registered][events] to the mod event bus.
 
 :::caution
 These events are called for all configurations for the mod; the `ModConfig` object provided should be used to denote which configuration is being loaded or reloaded.
