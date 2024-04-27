@@ -12,10 +12,10 @@ public void gatherData(GatherDataEvent event) {
         event.includeServer(),
         // Extends net.neoforged.neoforge.common.data.BlockTagsProvider
         output -> new MyBlockTagsProvider(
-          output,
-          event.getLookupProvider(),
-          MOD_ID,
-          event.getExistingFileHelper()
+            output,
+            event.getLookupProvider(),
+            MOD_ID,
+            event.getExistingFileHelper()
         )
     );
 }
@@ -44,12 +44,12 @@ Method           | Description
 ```java
 // In some TagProvider#addTags
 this.tag(EXAMPLE_TAG)
-  .add(EXAMPLE_OBJECT) // Adds an object to the tag
-  .addOptional(new ResourceLocation("othermod", "other_object")) // Adds an object from another mod to the tag
+    .add(EXAMPLE_OBJECT) // Adds an object to the tag
+    .addOptional(new ResourceLocation("othermod", "other_object")) // Adds an object from another mod to the tag
 
 this.tag(EXAMPLE_TAG_2)
-  .addTag(EXAMPLE_TAG) // Adds a tag to the tag
-  .remove(EXAMPLE_OBJECT) // Removes an object from this tag
+    .addTag(EXAMPLE_TAG) // Adds a tag to the tag
+    .remove(EXAMPLE_OBJECT) // Removes an object from this tag
 ```
 
 :::important
@@ -77,8 +77,9 @@ Registry Object Type         | Tag Provider
 `PaintingVariant`            | `PaintingVariantTagsProvider`
 `Instrument`                 | `InstrumentTagsProvider`
 `DamageType`                 | `DamageTypeTagsProvider`
+`Enchantment`                | `EnchantmentTagsProvider`\*
 
-\* `BlockTagsProvider` is a Forge added `TagsProvider`.
+\* These providers are added by NeoForge.
 
 #### `ItemTagsProvider#copy`
 
@@ -96,7 +97,7 @@ A custom tag provider can be created via a `TagsProvider` subclass which takes i
 
 ```java
 public RecipeTypeTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries, ExistingFileHelper fileHelper) {
-  super(output, Registries.RECIPE_TYPE, registries, MOD_ID, fileHelper);
+    super(output, Registries.RECIPE_TYPE, registries, MOD_ID, fileHelper);
 }
 ```
 
@@ -107,14 +108,14 @@ One special type of `TagProvider`s are `IntrinsicHolderTagsProvider`s. When crea
 ```java
 // Subtype of `IntrinsicHolderTagsProvider`
 public AttributeTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries, ExistingFileHelper fileHelper) {
-  super(
-    output,
-    ForgeRegistries.Keys.ATTRIBUTES,
-    registries,
-    attribute -> ForgeRegistries.ATTRIBUTES.getResourceKey(attribute).get(),
-    MOD_ID,
-    fileHelper
-  );
+    super(
+        output,
+        Registries.ATTRIBUTE,
+        registries,
+        attribute -> BuiltInRegistries.ATTRIBUTE.getResourceKey(attribute).orElseThrow(),
+        MOD_ID,
+        fileHelper
+    );
 }
 ```
 
