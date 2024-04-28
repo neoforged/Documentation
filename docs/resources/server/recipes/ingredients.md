@@ -174,4 +174,4 @@ If using `FMLCommonSetupEvent` to register an ingredient serializer, it must be 
 [nbt]: #strictnbtingredient
 [serializer]: #iingredientserializer
 [compound]: #compoundingredient
-[datagen]: ../../../datagen/server/recipes.md
+[datagen]: ../../../datagen/recipes.md

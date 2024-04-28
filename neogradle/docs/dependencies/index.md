@@ -90,7 +90,7 @@ dependencies {
 > Non-Minecraft dependencies added to the development environment will not be included in built artifact by default! You must use [Jar-In-Jar][jij] to include the dependencies within the artifact on build.
 
 [guide]: https://docs.gradle.org/8.1.1/userguide/dependency_management.html
-[mappings]: ../configuration/index.md#human-readable-mappings
+[mappings]: ../configuration/index.mdx#human-readable-mappings
 
 [central]: https://central.sonatype.com/
 [CurseMaven]: https://cursemaven.com/

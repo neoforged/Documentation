@@ -162,7 +162,7 @@ When an advancement is completed, rewards may be given out. These can be a combi
 [conditional]: ./conditional.md#implementations
 [function]: https://minecraft.wiki/w/Function_(Java_Edition)
 [triggers]: https://minecraft.wiki/w/Advancement/JSON_format#List_of_triggers
-[datagen]: ../../datagen/server/advancements.md#advancement-generation
+[datagen]: ../../datagen/advancements.md#advancement-generation
 [codec]: ../../datastorage/codecs.md
 [registration]: ../../concepts/registries.md#methods-for-registering
 [serialize]: #serialization

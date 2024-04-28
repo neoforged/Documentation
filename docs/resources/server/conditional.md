@@ -170,7 +170,7 @@ Some objects may be loaded earlier than tags. In those cases, the condition cont
 The `ICondition#codec` method should return the codec used to encode and decode the condition. This codec **must** be [registered] to the `NeoForgeRegistries#CONDITION_SERIALIZERS` registry. The name the codec is registered under will be the name used to refer to that condition in the `type` field.
 
 
-[datagen]: ../../datagen/server/recipes.md
+[datagen]: ../../datagen/recipes.md
 [condition]: #icondition
 [Codec]: ../../datastorage/codecs
 [registered]: ../../concepts/registries

@@ -37,4 +37,4 @@ plugins {
 [ForgeGradle]: https://github.com/MinecraftForge/ForgeGradle
 [Gradle]: https://gradle.org/
 [MinecraftForge]: https://github.com/MinecraftForge/MinecraftForge
-[contributing]: /docs/contributing.md
+[contributing]: /contributing

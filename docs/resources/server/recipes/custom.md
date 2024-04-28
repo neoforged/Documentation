@@ -129,4 +129,4 @@ All custom recipes, regardless of input or output data, can be created into a `F
 [forge]: ../../../concepts/registries.md#methods-for-registering
 [json]: https://minecraft.wiki/w/Recipe#JSON_format
 [manager]: ./index.md#recipe-manager
-[datagen]: ../../../datagen/server/recipes.md#custom-recipe-serializers
+[datagen]: ../../../datagen/recipes.md#custom-recipe-serializers

@@ -99,6 +99,6 @@ A few additional [ingredient types][ingredients] are added to allow recipes to h
 [datapack]: https://minecraft.wiki/w/Data_pack
 [wiki]: https://minecraft.wiki/w/Recipe
 [advancement]: ../advancements.md
-[datagen]: ../../../datagen/server/recipes.md
+[datagen]: ../../../datagen/recipes.md
 [conditional]: ../conditional.md#implementations
 [ingredients]: ./ingredients.md#forge-types
