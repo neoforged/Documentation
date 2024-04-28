@@ -27,7 +27,7 @@ public ExampleSavedData create() {
   return new ExampleSavedData();
 }
 
-public ExampleSavedData load(CompoundTag tag) {
+public ExampleSavedData load(CompoundTag tag, HolderLookup.Provider lookupProvider) {
   ExampleSavedData data = this.create();
   // Load saved data
   return data;
