@@ -162,7 +162,7 @@ That file will attach the map `[somekey1=value1, somekey2=value2]` to the `minec
 After the second datapack is read and applied, the new value attached to the `minecraft:carrot` item will be `[somekey2=value2]`.
 
 ## Datagen
-Data maps can be [generated](../datagen) through `DataMapProvider`.  
+Data maps can be [generated](../resources/index.md#data-generation) through `DataMapProvider`.  
 You should extend that class, and then override the `generate` method to create your entries, similar to tag generation.
 
 Considering the drop healing example from the start, we could generate some values as follows:
