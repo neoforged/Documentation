@@ -159,6 +159,17 @@ sidebar_position: 2
 ---
 ```
 
+:::note
+If another page defines the sidebar positions that a new page should be placed, use a floating point number. The positions will be converted to integers in a formatting PR.
+
+```md
+<!-- sidebar_position 1 and 2 are defined, but this page should go in-between them -->
+---
+sidebar_position: 1.5
+---
+```
+:::
+
 #### Categories
 
 Categories are folders within the documentation. They inherit titles and positional data from `index.md`. If an `index.md` is not within a subfolder, a `_category_.json` file should be created, specifying the `label` representing the name of the section, and `position` representing where on the sidebar it should go.
