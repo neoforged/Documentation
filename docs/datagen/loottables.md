@@ -1,5 +1,4 @@
-Loot Table Generation
-=====================
+# Loot Table Generation
 
 [Loot tables][loottable] can be generated for a mod by constructing a new `LootTableProvider` and providing `LootTableProvider.SubProviderEntry`s. The provider must be [added][datagen] to the `DataGenerator`.
 
@@ -22,8 +21,7 @@ public void gatherData(GatherDataEvent event) {
 }
 ```
 
-`LootTableSubProvider`
-----------------------
+## `LootTableSubProvider`
 
 Each LootTableProvider.SubProviderEntry takes in a supplied `LootTableSubProvider`, which generates the loot table, for a given `LootContextParamSet`. The `LootTableSubProvider` contains a method which takes in the lookup provider and a writer (`BiConsumer<ResourceKey<LootTable>, LootTable.Builder>`) to generate a table.
 
@@ -101,8 +99,7 @@ public void generate() {
 }
 ```
 
-Loot Table Builders
--------------------
+## Loot Table Builders
 
 To generate loot tables, they are accepted by the `LootTableSubProvider` as a `LootTable.Builder`. Afterwards, the specified `LootContextParamSet` is set in the LootTableProvider.SubProviderEntry and then built via `#build`. Before being built, the builder can specify entries, conditions, and modifiers which affect how the loot table functions.
 

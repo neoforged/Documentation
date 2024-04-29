@@ -1,12 +1,10 @@
-Blockstates
-===========
+# Blockstates
 
 Often, you will find yourself in a situation where you want different states of a block. For example, a wheat crop has eight growth stages, and making a separate block for each stage feels wrong. Or you have a slab or slab-like block - one bottom state, one top state, and one state that has both.
 
 This is where blockstates come into play. Blockstates are an easy way to represent the different states a block can have, like a growth stage or a slab placement type.
 
-Blockstate Properties
----------------------
+## Blockstate Properties
 
 Blockstates use a system of properties. A block can have multiple properties of multiple types. For example, an end portal frame has two properties: whether it has an eye (`eye`, 2 options) and which direction it is placed in (`facing`, 4 options). So in total, the end portal frame has 8 (2 * 4) different blockstates:
 
@@ -27,8 +25,7 @@ If your block does not have any blockstate properties defined, it still has exac
 
 As with blocks, every `BlockState` exists exactly once in memory. This means that `==` can and should be used to compare `BlockState`s. `BlockState` is also a final class, meaning it cannot be extended. **Any functionality goes in the corresponding [Block][block] class!**
 
-When to Use Blockstates
------------------------
+## When to Use Blockstates
 
 ### Blockstates vs. Separate Blocks
 
@@ -42,8 +39,7 @@ Blockstates and block entities can be used in conjunction with one another. For 
 
 There is no definitive answer to the question "How many states are too much for a blockstate?", but we recommend that if you need more than 8-9 bits of data (i.e. more than a few hundred states), you should use a block entity instead.
 
-Implementing Blockstates
-------------------------
+## Implementing Blockstates
 
 To implement a blockstate property, in your block class, create or reference a `public static final Property<?>` constant. While you are free to make your own `Property<?>` implementations, the vanilla code provides several convenience implementations that should cover most use cases:
 
@@ -104,8 +100,7 @@ public class EndPortalFrameBlock extends Block {
 }
 ```
 
-Using Blockstates
------------------
+## Using Blockstates
 
 To go from `Block` to `BlockState`, call `Block#defaultBlockState()`. The default blockstate can be changed through `Block#registerDefaultState`, as described above.
 

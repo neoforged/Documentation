@@ -1,9 +1,8 @@
-BlockEntityWithoutLevelRenderer
-=======================
+# BlockEntityWithoutLevelRenderer
+
 `BlockEntityWithoutLevelRenderer` is a method to handle dynamic rendering on items. This system is much simpler than the old `ItemStack` system, which required a `BlockEntity`, and did not allow access to the `ItemStack`.
 
-Using BlockEntityWithoutLevelRenderer
---------------------------
+## Using BlockEntityWithoutLevelRenderer
 
 BlockEntityWithoutLevelRenderer allows you to render your item using `public void renderByItem(ItemStack itemStack, ItemDisplayContext ctx, PoseStack poseStack, MultiBufferSource bufferSource, int combinedLight, int combinedOverlay)`.
 
