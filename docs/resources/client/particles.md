@@ -12,17 +12,17 @@ Particles are registered using `ParticleType`s. These work similar to `EntityTyp
 public class MyParticleTypes {
     // Assuming that your mod id is examplemod
     public static final DeferredRegister<ParticleType<?>> PARTICLE_TYPES =
-            DeferredRegister.create(BuiltInRegistries.PARTICLE_TYPE, "examplemod");
+        DeferredRegister.create(BuiltInRegistries.PARTICLE_TYPE, "examplemod");
     
     // The easiest way to add new particle types is reusing vanilla's SimpleParticleType.
     // Implementing a custom ParticleType is also possible, see below.
-    public static final Supplier<SimpleParticleType> MY_PARTICLE = PARTICLE_TYPES.register(
-            // The name of the particle type.
-            "my_particle",
-            // The supplier. The boolean parameter denotes whether setting the Particles option in the
-            // video settings to Minimal will affect this particle type or not; this is false for
-            // most vanilla particles, but true for e.g. explosions, campfire smoke, or squid ink.
-            () -> new SimpleParticleType(false)
+    public static final DeferredHolder<ParticleType<?>, SimpleParticleType> MY_PARTICLE = PARTICLE_TYPES.register(
+        // The name of the particle type.
+        "my_particle",
+        // The supplier. The boolean parameter denotes whether setting the Particles option in the
+        // video settings to Minimal will affect this particle type or not; this is false for
+        // most vanilla particles, but true for e.g. explosions, campfire smoke, or squid ink.
+        () -> new SimpleParticleType(false)
     );
 }
 ```
@@ -99,20 +99,20 @@ public static void registerParticleProviders(RegisterParticleProvidersEvent even
 }
 ```
 
-### Particle Definitions
+### Particle Descriptions
 
-Finally, we must associate our particle type with a texture. Similar to how items are associated with an item model, we associate our particle type with what is known as a particle definition (or particle description). A particle definition is a JSON file in the `assets/<namespace>/particles` directory and has the same name as the particle type (so for example `my_particle.json` for the above example). The particle definition JSON has the following format:
+Finally, we must associate our particle type with a texture. Similar to how items are associated with an item model, we associate our particle type with what is known as a particle description. A particle description is a JSON file in the `assets/<namespace>/particles` directory and has the same name as the particle type (so for example `my_particle.json` for the above example). The particle definition JSON has the following format:
 
 ```json5
 {
-  // A list of textures that will be played in order. Will loop if necessary.
-  // Texture locations are relative to the textures/particle folder.
-  "textures": [
-    "examplemod:my_particle_0",
-    "examplemod:my_particle_1",
-    "examplemod:my_particle_2",
-    "examplemod:my_particle_3"
-  ]
+    // A list of textures that will be played in order. Will loop if necessary.
+    // Texture locations are relative to the textures/particle folder.
+    "textures": [
+        "examplemod:my_particle_0",
+        "examplemod:my_particle_1",
+        "examplemod:my_particle_2",
+        "examplemod:my_particle_3"
+    ]
 }
 ```
 
@@ -141,18 +141,18 @@ public class MyParticleDescriptionProvider extends ParticleDescriptionProvider {
         sprite(MyParticleTypes.MY_SINGLE_PARTICLE.get(), new ResourceLocation("examplemod", "my_single_particle"));
         // Adds a multi sprite particle definition, with a vararg parameter. Alternatively accepts a list.
         spriteSet(MyParticleTypes.MY_MULTI_PARTICLE.get(),
-                new ResourceLocation("examplemod", "my_multi_particle_0"),
-                new ResourceLocation("examplemod", "my_multi_particle_1"),
-                new ResourceLocation("examplemod", "my_multi_particle_2")
+            new ResourceLocation("examplemod", "my_multi_particle_0"),
+            new ResourceLocation("examplemod", "my_multi_particle_1"),
+            new ResourceLocation("examplemod", "my_multi_particle_2")
         );
         // Alternative for the above, appends "_<index>" to the base name given, for the given amount of textures.
         spriteSet(MyParticleTypes.MY_ALT_MULTI_PARTICLE.get(),
-                // The base name.
-                new ResourceLocation("examplemod", "my_multi_particle"),
-                // The amount of textures.
-                3,
-                // Whether to reverse the list, i.e. start at the last element instead of the first.
-                false
+            // The base name.
+            new ResourceLocation("examplemod", "my_multi_particle"),
+            // The amount of textures.
+            3,
+            // Whether to reverse the list, i.e. start at the last element instead of the first.
+            false
         );
     }
 }
@@ -169,8 +169,8 @@ public static void gatherData(GatherDataEvent event) {
 
     // other providers here
     generator.addProvider(
-            event.includeClient(),
-            new MyParticleDescriptionProvider(output, existingFileHelper)
+        event.includeClient(),
+        new MyParticleDescriptionProvider(output, existingFileHelper)
     );
 }
 ```
@@ -181,36 +181,16 @@ While for most cases `SimpleParticleType` suffices, it is sometimes necessary to
 
 ```java
 public class MyParticleOptions implements ParticleOptions {
+    
+    // Read and write information, typically for use in commands
+    // Since there is no information in this type, this will be an empty string
+    public static final MapCodec<MyParticleOptions> CODEC = MapCodec.unit(new MyParticleOptions());
+
+    // Read and write information to the network buffer.
+    public static final StreamCodec<ByteBuf, MyParticleOptions> STREAM_CODEC = StreamCodec.unit(new MyParticleOptions());
+
     // Does not need any parameters, but may define any fields necessary for the particle to work.
     public MyParticleOptions() {}
-    
-    @Override
-    public void writeToNetwork(FriendlyByteBuf buf) {
-        // Write your custom info to the given buffer.
-    }
-
-    @Override
-    public String writeToString() {
-        // Return a stringified version of your custom info, for use in commands.
-        // We don't have any info in this type, so we return the empty string.
-        return "";
-    }
-    
-    // The deserializer object to use. We will discuss how to use this in a moment.
-    public static final ParticleOptions.Deserializer<MyParticleOptions> DESERIALIZER =
-        new ParticleOptions.Deserializer<MyParticleOptions>() {
-            public MyParticleOptions fromCommand(ParticleType<MyParticleOptions> type, StringReader reader)
-                    throws CommandSyntaxException {
-                // You may deserialize things using the given StringReader and pass them to your
-                // particle options object if needed.
-                return new MyParticleOptions();
-            }
-            
-            public MyParticleOptions fromNetwork(ParticleType<MyParticleOptions> type, FriendlyByteBuf buf) {
-                // Similar to above, deserialize any needed info from the given buffer.
-                return new MyParticleOptions();
-            }
-        };
 }
 ```
 
@@ -222,17 +202,17 @@ public class MyParticleType extends ParticleType<MyParticleOptions> {
     // See implementation of the MyParticleTypes class near the top of the article for more information.
     public MyParticleType(boolean overrideLimiter) {
         // Pass the deserializer to super.
-        super(overrideLimiter, MyParticleOptions.DESERIALIZER);
+        super(overrideLimiter);
     }
-    
-    // Mojang is moving towards codecs for particle types, so expect the old deserializer approach to vanish soon.
-    // We define our codec and then return it in the codec() method. Since our example uses no parameters
-    // for serialization, we use an empty unit codec. Refer to the Codecs article for more information.
-    public static final Codec<MyParticleOptions> CODEC = Codec.unit(new MyParticleOptions());
-    
+
     @Override
-    public Codec<MyParticleOptions> codec() {
-        return CODEC;
+    public MapCodec<MyParticleOptions> codec() {
+        return MyParticleOptions.CODEC;
+    }
+
+    @Override
+    public StreamCodec<? super RegistryFriendlyByteBuf, MyParticleOptions> streamCodec() {
+        return MyParticleOptions.STREAM_CODEC;
     }
 }
 ```
@@ -241,8 +221,9 @@ public class MyParticleType extends ParticleType<MyParticleOptions> {
 
 ```java
 public static final Supplier<MyParticleType> MY_CUSTOM_PARTICLE = PARTICLE_TYPES.register(
-        "my_custom_particle",
-        () -> new MyParticleType(false));
+    "my_custom_particle",
+    () -> new MyParticleType(false)
+);
 ```
 
 ## Spawning Particles
