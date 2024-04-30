@@ -21,8 +21,11 @@ public class MyMobEffect extends MobEffect {
     }
     
     @Override
-    public void applyEffectTick(LivingEntity entity, int amplifier) {
+    public boolean applyEffectTick(LivingEntity entity, int amplifier) {
         // Apply your effect logic here.
+
+        // If this returns false when shouldApplyEffectTickThisTick returns true, the effect will immediately be removed
+        return true;
     }
     
     // Whether the effect should apply this tick. Used e.g. by the Regeneration effect that only applies
@@ -33,6 +36,14 @@ public class MyMobEffect extends MobEffect {
     }
     
     // Utility method that is called when the effect is first added to the entity.
+    // This does not get called again until all instances of this effect have been removed from the entity.
+    @Override
+    public void onEffectAdded(LivingEntity entity, int amplifier) {
+        super.onEffectAdded(entity, amplifier);
+    }
+
+    // Utility method that is called when the effect is added to the entity.
+    // This gets called every time this effect is added to the entity.
     @Override
     public void onEffectStarted(LivingEntity entity, int amplifier) {
     }
@@ -51,14 +62,12 @@ public static final Supplier<MyMobEffect> MY_MOB_EFFECT = MOB_EFFECTS.register("
 ));
 ```
 
-If you want your effect to act solely as a marker, you can also directly use the `MobEffect` class, like you can with the `Block` or `Item` classes.
-
 The `MobEffect` class also provides default functionality for adding attribute modifiers to affected entities. For example, the speed effect adds an attribute modifier for movement speed. Effect attribute modifiers are added like so:
 
 ```java
 public static final String MY_MOB_EFFECT_UUID = "01234567-89ab-cdef-0123-456789abcdef";
 public static final Supplier<MyMobEffect> MY_MOB_EFFECT = MOB_EFFECTS.register("my_mob_effect", () -> new MyMobEffect(...)
-        .addAttributeModifier(Attribute.ATTACK_DAMAGE, MY_MOB_EFFECT_UUID, 2.0, AttributeModifier.Operation.ADD)
+        .addAttributeModifier(Attribute.ATTACK_DAMAGE, MY_MOB_EFFECT_UUID, 2.0, AttributeModifier.Operation.ADD_VALUE)
 );
 ```
 
@@ -148,48 +157,39 @@ entity.removeEffect(MobEffects.REGENERATION);
 
 ```java
 //POTIONS is a DeferredRegister<Potion>
-public static final Supplier<Potion> MY_POTION = POTIONS.register("my_potion", () -> new Potion(new MobEffectInstance(MY_MOB_EFFECT.get(), 3600)));
+public static final Supplier<Potion> MY_POTION = POTIONS.register("my_potion", () -> new Potion(new MobEffectInstance(MY_MOB_EFFECT, 3600)));
 ```
 
 Note that the parameter of `new Potion` is a vararg. This means that you can add as many effects as you want to the potion. This also means that it is possible to create empty potions, i.e. potions that don't have any effects. Simply call `new Potion()` and you're done! (This is how vanilla adds the `awkward` potion, by the way.)
 
 The name of the potion can be passed as the first constructor argument. It is used for translating; for example, the long and strong potion variants in vanilla use this to have the same names as their base variant. The name is not required; if it is omitted, the name will be queried from the registry.
 
-The `PotionUtils` class offers various helper methods related to potions, such as `getPotion` and `setPotion` for item stacks (this can be any kind of item and is not limited to potion items), or `getColor` for getting a potion's display color.
+The `PotionContents` class offers various helper methods related to potion items. Potion item store their `PotionContents` via `DataComponent#POTION_CONTENTS`.
 
 ### Brewing
 
 Now that your potion is added, potion items are available for your potion. However, there is no way to obtain your potion in survival, so let's change that!
 
-Potions are traditionally made in the Brewing Stand. Unfortunately, Mojang does not provide [datapack][datapack] support for brewing recipes, so we have to be a little old-fashioned and add our recipes through code. This is done like so:
+Potions are traditionally made in the Brewing Stand. Unfortunately, Mojang does not provide [datapack][datapack] support for brewing recipes, so we have to be a little old-fashioned and add our recipes through code via the `RegisterBrewingRecipesEvent` event. This is done like so:
 
 ```java
-// The brewing ingredient. This is the item at the top of the brewing stand.
-Ingredient brewingIngredient = Ingredient.of(Items.FEATHER);
-BrewingRecipeRegistry.addRecipe(
-        // The input potion ingredient, often an awkward potion. This is the item at the bottom of the brewing stand.
-        // Does not need to be a potion, but typically is.
-        PotionUtils.setPotion(new ItemStack(Items.POTION), Potions.AWKWARD),
-        // Our brewing ingredient.
-        brewingIngredient,
-        // The resulting item stack. Does not need to be a potion, but typically is.
-        PotionUtils.setPotion(new ItemStack(Items.POTION), MY_POTION)
-);
-// We also need to do this separately for splash potions and lingering potions.
-// The tipped arrow recipe is taken care of by Minecraft's tipped arrow special crafting handler.
-BrewingRecipeRegistry.addRecipe(
-        PotionUtils.setPotion(new ItemStack(Items.SPLASH_POTION), Potions.AWKWARD),
-        brewingIngredient,
-        PotionUtils.setPotion(new ItemStack(Items.SPLASH_POTION), MY_POTION)
-);
-BrewingRecipeRegistry.addRecipe(
-        PotionUtils.setPotion(new ItemStack(Items.LINGERING_POTION), Potions.AWKWARD),
-        brewingIngredient,
-        PotionUtils.setPotion(new ItemStack(Items.LINGERING_POTION), MY_POTION)
-);
-```
+// Using some method to listen to the event
+@SubscribeEvent
+public static void registerBrewingRecipes(RegisterBrewingRecipesEvent event) {
+    // Gets the builder to add recipes to
+    PotionBrewing.Builder builder = event.getBuilder();
 
-This should be called some time during setup, for example during [`FMLCommonSetupEvent`][commonsetup]. Make sure to wrap this into an `event.enqueueWork()` call, as the brewing recipe registry is not thread-safe.
+    // Will add brewing recipes for all container potions (e.g. potion, splash potion, lingering potion)
+    builder.addMix(
+        // The initial potion to apply to
+        Potions.AWKWARD,
+        // The brewing ingredient. This is the item at the top of the brewing stand.
+        Items.FEATHER,
+        // The resulting potion
+        MY_POTION
+    );
+}
+```
 
 [block]: ../blocks/index.md
 [commonsetup]: ../concepts/events.md#event-buses
