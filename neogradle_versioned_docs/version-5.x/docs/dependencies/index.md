@@ -12,9 +12,9 @@ The `minecraft` dependency specifies the version of Minecraft to use and must be
 
 ```gradle
 dependencies {
-    // Version of Forge artifact is in the form '<mc_version>-<forge_version>'
+    // Version of NeoForge artifact is in the form '<mc_version>-<forge_version>'
     // 'mc_version' is the version of Minecraft to load (e.g., 1.19.4)
-    // 'forge_version' is the version of Forge wanted for that Minecraft version (e.g., 45.0.23)
+    // 'forge_version' is the version of NeoForge wanted for that Minecraft version (e.g., 45.0.23)
     // Vanilla can be compiled against using 'net.minecraft:joined:<mc_version>' instead
     minecraft 'net.minecraftforge:forge:1.19.4-45.0.23'
 }
@@ -76,7 +76,7 @@ The group name can be anything but must not be empty for flat directory entries 
 Non-Minecraft Dependencies
 --------------------------
 
-Non-Minecraft dependencies are not loaded by Forge by default in the development environment. To get Forge to recognize the non-Minecraft dependency, they must be added to the `minecraftLibrary` configuration. `minecraftLibrary` works similarly to the `implementation` configuration within Gradle, being applied during compile time and runtime.
+Non-Minecraft dependencies are not loaded by NeoForge by default in the development environment. To get NeoForge to recognize the non-Minecraft dependency, they must be added to the `minecraftLibrary` configuration. `minecraftLibrary` works similarly to the `implementation` configuration within Gradle, being applied during compile time and runtime.
 
 ```gradle
 dependencies {

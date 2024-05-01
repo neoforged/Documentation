@@ -27,7 +27,7 @@ Values listed that are not present will cause the tag to error unless the value 
 
 See the [Vanilla wiki][tags] for a description of the base syntax.
 
-There is also a Forge extension on the Vanilla syntax.
+There is also a NeoForge extension on the Vanilla syntax.
 You may declare a `remove` array of the same format as the `values` array. Any values listed here will be removed from the tag. This acts as a finer grained version of the Vanilla `replace` option.
 
 
@@ -41,7 +41,7 @@ Intrusive `Holder`s may be removed in a future version of Minecraft. If they are
 
 ### ITagManager
 
-Forge wrapped registries provide an additional helper for creating and managing tags through `ITagManager` which can be obtained via `IForgeRegistry#tags`. Tags can be created using using `#createTagKey` or `#createOptionalTagKey`. Tags or registry objects can also be checked for either or using `#getTag` or `#getReverseTag` respectively.
+NeoForge wrapped registries provide an additional helper for creating and managing tags through `ITagManager` which can be obtained via `IForgeRegistry#tags`. Tags can be created using using `#createTagKey` or `#createOptionalTagKey`. Tags or registry objects can also be checked for either or using `#getTag` or `#getReverseTag` respectively.
 
 #### Custom Registries
 
@@ -54,15 +54,15 @@ There are four methods of creating a tag wrapper:
 Method                          | For
 :---:                           | :---
 `*Tags#create`                  | `BannerPattern`, `Biome`, `Block`, `CatVariant`, `DamageType`, `EntityType`, `FlatLevelGeneratorPreset`, `Fluid`, `GameEvent`, `Instrument`, `Item`, `PaintingVariant`, `PoiType`, `Structure`, and `WorldPreset` where `*` represents one of these types.
-`ITagManager#createTagKey`      | Forge wrapped vanilla registries, registries can be obtained from `ForgeRegistries`.
-`DeferredRegister#createTagKey` | Custom forge registries.
-`TagKey#create`                 | Vanilla registries without forge wrappers, registries can be obtained from `Registry`.
+`ITagManager#createTagKey`      | NeoForge wrapped vanilla registries, registries can be obtained from `ForgeRegistries`.
+`DeferredRegister#createTagKey` | Custom NeoForge registries.
+`TagKey#create`                 | Vanilla registries without NeoForge wrappers, registries can be obtained from `Registry`.
 
-Registry objects can check their tags or registry objects either through their `Holder` or through `ITag`/`IReverseTag` for vanilla or forge registry objects respectively.
+Registry objects can check their tags or registry objects either through their `Holder` or through `ITag`/`IReverseTag` for vanilla or NeoForge registry objects respectively.
 
 Vanilla registry objects can grab their associated holder using either `Registry#getHolder` or `Registry#getHolderOrThrow` and then compare if the registry object has a tag using `Holder#is`.
 
-Forge registry objects can grab their tag definition using either `ITagManager#getTag` or `ITagManager#getReverseTag` and then compare if a registry object has a tag using `ITag#contains` or `IReverseTag#containsTag` respectively.
+NeoForge registry objects can grab their tag definition using either `ITagManager#getTag` or `ITagManager#getReverseTag` and then compare if a registry object has a tag using `ITag#contains` or `IReverseTag#containsTag` respectively.
 
 Tag-holding registry objects contain a method called `#is` in either their registry object or state-aware class to check whether the object belongs to a certain tag.
 
@@ -92,7 +92,7 @@ Conventions
 There are several conventions that will help facilitate compatibility in the ecosystem:
 
 - If there is a Vanilla tag that fits your block or item, add it to that tag. See the [list of Vanilla tags][taglist].
-- If there is a Forge tag that fits your block or item, add it to that tag. The list of tags declared by Forge can be seen on [GitHub][forgetags].
+- If there is a NeoForge tag that fits your block or item, add it to that tag. The list of tags declared by NeoForge can be seen on [GitHub][forgetags].
 - If there is a group of something you feel should be shared by the community, use the `forge` namespace instead of your mod id.
 - Tag naming conventions should follow Vanilla conventions. In particular, item and block groupings are plural instead of singular (e.g. `minecraft:logs`, `minecraft:saplings`).
 - Item tags should be sorted into subdirectories according to their type (e.g. `forge:ingots/iron`, `forge:nuggets/brass`, etc.).

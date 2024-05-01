@@ -43,7 +43,7 @@ Recipes are loaded and stored via the `RecipeManager`. Any operations relating t
 Each method takes in a `RecipeType`, which denotes what method is being applied to use the recipe (crafting, smelting, etc.), a `Container` which holds the configuration of the inputs, and the current level which is passed to `Recipe#matches` along with the container.
 
 :::tip
-Forge provides the `RecipeWrapper` utility class which extends `Container` for wrapping around `IItemHandler`s and passing them to methods which requires a `Container` parameter.
+NeoForge provides the `RecipeWrapper` utility class which extends `Container` for wrapping around `IItemHandler`s and passing them to methods which requires a `Container` parameter.
 
 ```java
 // Within some method with IItemHandlerModifiable handler
@@ -54,7 +54,7 @@ recipeManger.getRecipeFor(RecipeType.CRAFTING, new RecipeWrapper(handler), level
 Additional Features
 -------------------
 
-Forge provides some additional behavior to the recipe schema and its implementations for greater control of the system.
+NeoForge provides some additional behavior to the recipe schema and its implementations for greater control of the system.
 
 ### Recipe ItemStack Result
 

@@ -6,7 +6,7 @@ In addition to regular network messages, there are various other systems provide
 
 Since 1.20.2 Mojang introduced the concept of Bundle packets, which are used to send entity spawn packets together. This allows for more data to be sent with the spawn packet, and for that data to be sent more efficiently.
 
-You can add extra data to the spawn packet Forge sends by implementing the following interface.
+You can add extra data to the spawn packet NeoForge sends by implementing the following interface.
 
 ### IEntityWithComplexSpawn
 

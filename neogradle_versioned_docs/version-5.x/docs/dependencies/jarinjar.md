@@ -63,7 +63,7 @@ dependencies {
 
 ### Using Runtime Dependencies
 
-If you would like to include the runtime dependencies of your mod inside your jar, you can invoke `jarJar#fromRuntimeConfiguration` within your buildscript. If you decide to use this option, it is highly suggested to include dependency filters; otherwise, every single dependency -- including Minecraft and Forge -- will be bundled in the jar as well. To support more flexible statements, the `dependency` configuration has been added to the `jarJar` extension and task. Using this, you can specify patterns to include or exclude from the configuration:
+If you would like to include the runtime dependencies of your mod inside your jar, you can invoke `jarJar#fromRuntimeConfiguration` within your buildscript. If you decide to use this option, it is highly suggested to include dependency filters; otherwise, every single dependency -- including Minecraft and NeoForge -- will be bundled in the jar as well. To support more flexible statements, the `dependency` configuration has been added to the `jarJar` extension and task. Using this, you can specify patterns to include or exclude from the configuration:
 
 ```gradle
 // In build.gradle

@@ -6,7 +6,7 @@ Not all recipes are simplistic enough or migrated to using data-driven recipes. 
 Brewing Recipes
 ---------------
 
-Brewing is one of the few recipes that still exist in code. Brewing recipes are added as part of a bootstrap within `PotionBrewing` for their containers, container recipes, and potion mixes. To expand upon the existing system, Forge allows brewing recipes to be added by calling `BrewingRecipeRegistry#addRecipe` in `FMLCommonSetupEvent`.
+Brewing is one of the few recipes that still exist in code. Brewing recipes are added as part of a bootstrap within `PotionBrewing` for their containers, container recipes, and potion mixes. To expand upon the existing system, NeoForge allows brewing recipes to be added by calling `BrewingRecipeRegistry#addRecipe` in `FMLCommonSetupEvent`.
 
 :::caution
 `BrewingRecipeRegistry#addRecipe` must be called within the synchronous work queue via `#enqueueWork` as the method is not thread-safe.
@@ -41,7 +41,7 @@ public void updateAnvil(AnvilUpdateEvent event) {
 }
 ```
 
-The update event must be [attached] to the Forge event bus.
+The update event must be [attached] to the NeoForge event bus.
 
 Loom Recipes
 ------------

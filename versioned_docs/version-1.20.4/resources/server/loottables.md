@@ -32,11 +32,11 @@ Loot tables were built for generating items, so the methods expect some handling
 Additional Features
 -------------------
 
-Forge provides some additional behavior to loot tables for greater control of the system.
+NeoForge provides some additional behavior to loot tables for greater control of the system.
 
 ### `LootTableLoadEvent`
 
-`LootTableLoadEvent` is an [event] fired on the Forge event bus which is fired whenever a loot table is loaded. If the event is canceled, then an empty loot table will be loaded instead.
+`LootTableLoadEvent` is an [event] fired on the NeoForge event bus which is fired whenever a loot table is loaded. If the event is canceled, then an empty loot table will be loaded instead.
 
 :::info
 Do **not** modify a loot table's drops through this event. Those modifications should be done using [global loot modifiers][glm].
@@ -61,11 +61,11 @@ Loot pools can be named using the `name` key. Any non-named loot pool will be th
 
 ### Looting Modifiers
 
-Loot tables are now affected by the `LootingLevelEvent`, on the Forge event bus, in addition to the looting enchantment.
+Loot tables are now affected by the `LootingLevelEvent`, on the NeoForge event bus, in addition to the looting enchantment.
 
 ### Additional Context Parameters
 
-Forge extends certain parameter sets to account for missing contexts which may be applicable. `LootContextParamSets#CHEST` now allows for a `LootContextParams#KILLER_ENTITY` as chest minecarts are entities which can be broken (or 'killed'). `LootContextParamSets#FISHING` also allows for a `LootContextParams#KILLER_ENTITY` since the fishing hook is also an entity which is retracted (or 'killed') when the player retrieves it.
+NeoForge extends certain parameter sets to account for missing contexts which may be applicable. `LootContextParamSets#CHEST` now allows for a `LootContextParams#KILLER_ENTITY` as chest minecarts are entities which can be broken (or 'killed'). `LootContextParamSets#FISHING` also allows for a `LootContextParams#KILLER_ENTITY` since the fishing hook is also an entity which is retracted (or 'killed') when the player retrieves it.
 
 ### Multiple Items on Smelting
 
@@ -73,7 +73,7 @@ When using the `SmeltItemFunction`, a smelted recipe will now return the actual 
 
 ### Loot Table Id Condition
 
-Forge adds an additional `LootItemCondition` which allows certain items to generate for a specific table. This is typically used within [global loot modifiers][glm].
+NeoForge adds an additional `LootItemCondition` which allows certain items to generate for a specific table. This is typically used within [global loot modifiers][glm].
 
 ```js
 // In some loot pool or pool entry
@@ -90,7 +90,7 @@ Forge adds an additional `LootItemCondition` which allows certain items to gener
 
 ### Can Tool Perform Action Condition
 
-Forge adds an additional `LootItemCondition` which checks whether the given `LootContextParams#TOOL` can perform the specified `ToolAction`.
+NeoForge adds an additional `LootItemCondition` which checks whether the given `LootContextParams#TOOL` can perform the specified `ToolAction`.
 
 ```js
 // In some loot pool or pool entry

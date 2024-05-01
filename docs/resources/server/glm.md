@@ -9,7 +9,7 @@ Registering a Global Loot Modifier
 You will need 4 things:
 
 1. Create a `global_loot_modifiers.json`.
-    - This will tell Forge about your modifiers and works similar to [tags].
+    - This will tell NeoForge about your modifiers and works similar to [tags].
 2. A serialized json representing your modifier.
     - This will contain all of the data about your modification and allows data packs to tweak your effect.
 3. A class that extends `IGlobalLootModifier`.
@@ -52,7 +52,7 @@ This file contains all of the potential variables related to your modifier, incl
 `conditions` should represent the loot table conditions for this modifier to activate. Conditions should avoid being hardcoded to allow datapack creators as much flexibility to adjust the criteria. This must also be always present.
 
 :::caution
-Although `conditions` should represent what is needed for the modifier to activate, this is only the case if using the bundled Forge classes. If using `LootModifier` as a subclass, all conditions will be **ANDed** together and checked to see if the modifier should be applied.
+Although `conditions` should represent what is needed for the modifier to activate, this is only the case if using the bundled NeoForge classes. If using `LootModifier` as a subclass, all conditions will be **ANDed** together and checked to see if the modifier should be applied.
 :::
 
 Any additional properties read by the serializer and defined by the modifier can also be specified.
@@ -137,7 +137,7 @@ public static final RegistryObject<Codec<ExampleModifier>> = REGISTRAR.register(
 );
 ```
 
-[Examples][examples] can be found on the Forge Git repository, including silk touch and smelting effects.
+[Examples][examples] can be found on the NeoForge Git repository, including silk touch and smelting effects.
 
 [tags]: ./tags.md
 [resloc]: ../../misc/resourcelocation.md

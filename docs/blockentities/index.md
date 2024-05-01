@@ -1,5 +1,4 @@
-Block Entities
-======
+# Block Entities
 
 `BlockEntities` are like simplified `Entities` that are bound to a Block. They are used to store dynamic data, execute tick based tasks, and dynamic rendering. Some examples from vanilla Minecraft would be handling of inventories on chests, smelting logic on furnaces, or area effects on beacons. More advanced examples exist in mods, such as quarries, sorting machines, pipes, and displays.
 

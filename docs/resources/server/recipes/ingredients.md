@@ -8,9 +8,9 @@ Custom Ingredients
 
 Custom ingredients can be specified by setting `type` to the name of the [ingredient's serializer][serializer], with the exception of [compound ingredients][compound]. When no type is specified, `type` defaults to the vanilla ingredient `minecraft:item`. Custom ingredients can also easily be used in [data generation][datagen].
 
-### Forge Types
+### NeoForge Types
 
-Forge provides a few additional `Ingredient` types for programmers to implement. 
+NeoForge provides a few additional `Ingredient` types for programmers to implement. 
 
 #### CompoundIngredient
 

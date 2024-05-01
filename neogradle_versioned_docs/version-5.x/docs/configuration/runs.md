@@ -34,7 +34,7 @@ client {
     taskName 'runThing'
 
     // Sets the entrypoint of the program to launch
-    // Forge sets userdev main to be 'cpw.mods.bootstraplauncher.BootstrapLauncher'
+    // NeoForge sets userdev main to be 'cpw.mods.bootstraplauncher.BootstrapLauncher'
     main 'com.example.Main'
 
     // Sets the working directory of the config

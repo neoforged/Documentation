@@ -27,7 +27,7 @@ Minecraft Versions | Java Development Kit Version
 
 
 :::caution
-Make sure that any changes to the mod id are reflected in the mods.toml and main mod class. See [Structuring Your Mod][structuring] on the Forge docs for more information.
+Make sure that any changes to the mod id are reflected in the mods.toml and main mod class. See [Structuring Your Mod][structuring] on the NeoForge docs for more information.
 :::
 
 4. Reload or refresh your Gradle project using your IDE. If your IDE does not have Gradle integration, run the following from a shell in your project's directory:

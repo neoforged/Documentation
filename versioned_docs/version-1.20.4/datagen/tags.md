@@ -78,7 +78,7 @@ Registry Object Type         | Tag Provider
 `Instrument`                 | `InstrumentTagsProvider`
 `DamageType`                 | `DamageTypeTagsProvider`
 
-\* `BlockTagsProvider` is a Forge added `TagsProvider`.
+\* `BlockTagsProvider` is a NeoForge added `TagsProvider`.
 
 #### `ItemTagsProvider#copy`
 
