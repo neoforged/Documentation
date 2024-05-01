@@ -4,65 +4,63 @@ There are times when modders may want to include data-driven objects using infor
 
 ## Implementations
 
-Conditions are loaded from a top-level `neoforge:conditions` array of objects that represent the conditions to check. If all conditions specified are met, the JSON file will be loaded, otherwise it will be discarded.
+Conditions are loaded from a top-level `neoforge:conditions` array of objects that represent the conditions to check. If all conditions specified are met, then the rest of the JSON will be loaded, or `neoforge:value` if the value is not an object; otherwise, it will be discarded.
 
-```js
+```json5
 {
-  "neoforge:conditions": [
-    // Condition 1
-    {
-    
-    },
-    // Condition 2
-    {
+    "neoforge:conditions": [
+        // Condition 1
+        {
+        
+        },
+        // Condition 2
+        {
 
-    }
-  ],
+        }
+    ],
 
-  // The rest of the object
-  ...
+    // The rest of the object
+    // ...
 }
 ```
 
-Conditionally-loaded recipes additionally have wrappers for [data generation][datagen] through `RecipeOutput#withConditions`. Other generators (like the data map one) will usually have a vararg `ICondition...` array in their methods for adding conditions to objects.
+All JSON files support conditions; however, only a few data providers have been directly patched for [data generation][datagen]. Currently, the following data generators support conditions:
 
-Currently, conditions are supported by the following Vanilla objects:
-- recipes
-- advancements
-- dynamic registries (i.e. biomes)
-- loot tables - individual pools can also have their own conditions
+- Recipes via `RecipeOutput#withConditions`
+- Implementations of `JsonCodecProvider` via `conditionally` (e.g. `SpriteSourceProvider`)
+- Data Maps via `DataMapProvider.Builder#add`
 
 :::note
 Loot tables that do not meet their loading conditions will not be ignored, but rather replaced with an empty loot table.
 :::
 
-```js title="Example recipe that will only be loaded if the examplemod mod is loaded"
+```json5 title="Example recipe that will only be loaded if the examplemod mod is loaded"
 {
-  // highlight-start
-  "neoforge:conditions": [
-    {
-      "type": "neoforge:mod_loaded",
-      "modid": "examplemod"
-    }
-  ],
-  // highlight-end
+    // highlight-start
+    "neoforge:conditions": [
+        {
+            "type": "neoforge:mod_loaded",
+            "modid": "examplemod"
+        }
+    ],
+    // highlight-end
 
-  "type": "minecraft:crafting_shaped",
-  "category": "redstone",
-  "key": {
-    "#": {
-      "item": "examplemod:example_planks"
+    "type": "minecraft:crafting_shaped",
+    "category": "redstone",
+    "key": {
+        "#": {
+            "item": "examplemod:example_planks"
+        }
+    },
+    "pattern": [
+        "##",
+        "##",
+        "##"
+    ],
+    "result": {
+        "count": 3,
+        "item": "mymod:compat_door"
     }
-  },
-  "pattern": [
-    "##",
-    "##",
-    "##"
-  ],
-  "result": {
-    "count": 3,
-    "item": "mymod:compat_door"
-  }
 }
 ```
 
@@ -72,11 +70,11 @@ Loot tables that do not meet their loading conditions will not be ignored, but r
 
 Boolean conditions consist of no data and return the expected value of the condition. They are represented by `neoforge:true` and `neoforge:false`.
 
-```js
+```json5
 // For some condition
 {
-  // Will always return true (or false for 'neoforge:false')
-  "type": "neoforge:true"
+    // Will always return true (or false for 'neoforge:false')
+    "type": "neoforge:true"
 }
 ```
 
@@ -85,30 +83,30 @@ Boolean conditions consist of no data and return the expected value of the condi
 Boolean operator conditions consist of the condition(s) being operated upon and apply the following logic. They are represented by `neoforge:not`, `neoforge:and`, and `neoforge:or`.
 
 
-```js
+```json5
 // For some condition
 {
-  // Inverts the result of the stored condition
-  "type": "neoforge:not",
-  "value": {
-    // A condition
-  }
+    // Inverts the result of the stored condition
+    "type": "neoforge:not",
+    "value": {
+        // A condition
+    }
 }
 ```
 
-```js
+```json5
 // For some condition
 {
-  // ANDs the stored conditions together (or ORs for 'neoforge:or')
-  "type": "neoforge:and",
-  "values": [
-    {
-      // First condition
-    },
-    {
-      // Second condition to be ANDed (or ORed for 'neoforge:or')
-    }
-  ]
+    // ANDs the stored conditions together (or ORs for 'neoforge:or')
+    "type": "neoforge:and",
+    "values": [
+        {
+            // First condition
+        },
+        {
+            // Second condition to be ANDed (or ORed for 'neoforge:or')
+        }
+    ]
 }
 ```
 
@@ -116,12 +114,12 @@ Boolean operator conditions consist of the condition(s) being operated upon and 
 
 `ModLoadedCondition` returns true whenever the specified mod with the given id is loaded in the current application. This is represented by `neoforge:mod_loaded`.
 
-```js
+```json5
 // For some condition
 {
-  "type": "neoforge:mod_loaded",
-   // Returns true if 'examplemod' is loaded
-  "modid": "examplemod"
+    "type": "neoforge:mod_loaded",
+    // Returns true if 'examplemod' is loaded
+    "modid": "examplemod"
 }
 ```
 
@@ -129,12 +127,12 @@ Boolean operator conditions consist of the condition(s) being operated upon and 
 
 `ItemExistsCondition` returns true whenever the given item has been registered in the current application. This is represented by `neoforge:item_exists`.
 
-```js
+```json5
 // For some condition
 {
-  "type": "neoforge:item_exists",
-   // Returns true if 'examplemod:example_item' has been registered
-  "item": "examplemod:example_item"
+    "type": "neoforge:item_exists",
+    // Returns true if 'examplemod:example_item' has been registered
+    "item": "examplemod:example_item"
 }
 ```
 
@@ -142,18 +140,18 @@ Boolean operator conditions consist of the condition(s) being operated upon and 
 
 `TagEmptyCondition` returns true whenever the given item tag has no items within it. This is represented by `neoforge:tag_empty`.
 
-```js
+```json5
 // For some condition
 {
-  "type": "neoforge:tag_empty",
-   // Returns true if 'examplemod:example_tag' is an item tag with no entries
-  "tag": "examplemod:example_tag"
+    "type": "neoforge:tag_empty",
+    // Returns true if 'examplemod:example_tag' is an item tag with no entries
+    "tag": "examplemod:example_tag"
 }
 ```
 
 ## Creating Custom Conditions
 
-Custom conditions can be created by implementing `ICondition` and creating a [Codec] for it.
+Custom conditions can be created by implementing `ICondition` and creating a [map codec][codec] for it.
 
 ### ICondition
 
@@ -170,7 +168,7 @@ Some objects may be loaded earlier than tags. In those cases, the condition cont
 The `ICondition#codec` method should return the codec used to encode and decode the condition. This codec **must** be [registered] to the `NeoForgeRegistries#CONDITION_SERIALIZERS` registry. The name the codec is registered under will be the name used to refer to that condition in the `type` field.
 
 
-[datagen]: ../../datagen/recipes.md
+[datagen]: ../index.md#data-generation
 [condition]: #icondition
-[Codec]: ../../datastorage/codecs
+[codec]: ../../datastorage/codecs
 [registered]: ../../concepts/registries
