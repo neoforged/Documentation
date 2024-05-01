@@ -14,20 +14,20 @@ A composite model can be used to specify different model parts in the parent and
 
 ```json5
 {
-  "loader": "neoforge:composite",
-  // Specify model parts.
-  "children": {
-    "part_1": {
-      "parent": "examplemod:some_model_1"
+    "loader": "neoforge:composite",
+    // Specify model parts.
+    "children": {
+        "part_1": {
+            "parent": "examplemod:some_model_1"
+        },
+        "part_2": {
+            "parent": "examplemod:some_model_2"
+        }
     },
-    "part_2": {
-      "parent": "examplemod:some_model_2"
+    "visibility": {
+        // Disable part 2 by default.
+        "part_2": false
     }
-  },
-  "visibility": {
-    // Disable part 2 by default.
-    "part_2": false
-  }
 }
 ```
 
@@ -35,12 +35,12 @@ Then, we can disable and enable individual parts in a child model of `examplemod
 
 ```json5
 {
-  "parent": "examplemod:example_composite_model",
-  // Override visibility. If a part is missing, it will use the parent model's visibility value.
-  "visibility": {
-    "part_1": false,
-    "part_2": true
-  }
+    "parent": "examplemod:example_composite_model",
+    // Override visibility. If a part is missing, it will use the parent model's visibility value.
+    "visibility": {
+        "part_1": false,
+        "part_2": true
+    }
 }
 ```
 
@@ -52,34 +52,34 @@ The dynamic fluid container model, also called dynamic bucket model after its mo
 
 ```json5
 {
-  "loader": "neoforge:fluid_container",
-  // Required. Must be a valid fluid id.
-  "fluid": "minecraft:water",
-  // The loader generally expects two textures: base and fluid.
-  "textures": {
-    // The base container texture, i.e. the equivalent of an empty bucket.
-    "base": "examplemod:item/custom_container",
-    // The fluid texture, i.e. the equivalent of water in a bucket.
-    "fluid": "examplemod:item/custom_container_fluid"
-  },
-  // Optional, defaults to false. Whether to flip the model upside down, for gaseous fluids.
-  "flip_gas": true,
-  // Optional, defaults to true. Whether to have the cover act as the mask.
-  "cover_is_mask": false,
-  // Optional, defaults to true. Whether to apply the fluid's luminosity to the item model.
-  "apply_fluid_luminosity": false,
-}
+    "loader": "neoforge:fluid_container",
+    // Required. Must be a valid fluid id.
+    "fluid": "minecraft:water",
+    // The loader generally expects two textures: base and fluid.
+    "textures": {
+        // The base container texture, i.e. the equivalent of an empty bucket.
+        "base": "examplemod:item/custom_container",
+        // The fluid texture, i.e. the equivalent of water in a bucket.
+        "fluid": "examplemod:item/custom_container_fluid"
+    },
+    // Optional, defaults to false. Whether to flip the model upside down, for gaseous fluids.
+    "flip_gas": true,
+    // Optional, defaults to true. Whether to have the cover act as the mask.
+    "cover_is_mask": false,
+    // Optional, defaults to true. Whether to apply the fluid's luminosity to the item model.
+    "apply_fluid_luminosity": false,
+  }
 ```
 
 Very often, dynamic fluid container models will directly use the bucket model. This is done by specifying the `neoforge:item_bucket` parent model, like so:
 
 ```json5
 {
-  "loader": "neoforge:fluid_container",
-  "parent": "neoforge:item/bucket",
-  // Replace with your own fluid.
-  "fluid": "minecraft:water"
-  // Optional properties here. Note that the textures are handled by the parent.
+    "loader": "neoforge:fluid_container",
+    "parent": "neoforge:item/bucket",
+    // Replace with your own fluid.
+    "fluid": "minecraft:water"
+    // Optional properties here. Note that the textures are handled by the parent.
 }
 ```
 
@@ -91,9 +91,9 @@ An elements model consists of block model [elements][elements] and an optional [
 
 ```json5
 {
-  "loader": "neoforge:elements",
-  "elements": [...],
-  "transform": {...}
+    "loader": "neoforge:elements",
+    "elements": [...],
+    "transform": {...}
 }
 ```
 
@@ -103,7 +103,7 @@ An empty model just renders nothing at all.
 
 ```json5
 {
-  "loader": "neoforge:empty"
+    "loader": "neoforge:empty"
 }
 ```
 
@@ -116,22 +116,22 @@ Item layer models are a variant of the standard `item/generated` model that offe
 
 ```json5
 {
-  "loader": "neoforge:item_layers",
-  "textures": {
-    "layer0": "...",
-    "layer1": "...",
-    "layer2": "...",
-    "layer3": "...",
-    "layer4": "...",
-    "layer5": "...",
-  },
-  "render_types": {
-    // Map render types to layer numbers. For example, layers 0, 2 and 4 will use cutout.
-    "minecraft:cutout": [0, 2, 4],
-    "minecraft:cutout_mipped": [1, 3],
-    "minecraft:translucent": [5]
-  },
-  // other stuff the default loader allows here
+    "loader": "neoforge:item_layers",
+    "textures": {
+        "layer0": "...",
+        "layer1": "...",
+        "layer2": "...",
+        "layer3": "...",
+        "layer4": "...",
+        "layer5": "...",
+    },
+    "render_types": {
+        // Map render types to layer numbers. For example, layers 0, 2 and 4 will use cutout.
+        "minecraft:cutout": [0, 2, 4],
+        "minecraft:cutout_mipped": [1, 3],
+        "minecraft:translucent": [5]
+    },
+    // other stuff the default loader allows here
 }
 ```
 
@@ -143,28 +143,28 @@ The OBJ model loader allows you to use Wavefront `.obj` 3D models in the game, a
 
 ```json5
 {
-  "loader": "neoforge:obj",
-  // Required. Reference to the model file. Note that this is relative to the namespace root, not the model folder.
-  "model": "examplemod:models/example.obj",
-  // Normally, .mtl files must be put into the same location as the .obj file, with only the file ending differing.
-  // This will cause the loader to automatically pick them up. However, you can also set the location
-  // of the .mtl file manually if needed.
-  "mtl_override": "examplemod:models/example_other_name.mtl",
-  // These textures can be referenced in the .mtl file as #texture0, #particle, etc.
-  // This usually requires manual editing of the .mtl file.
-  "textures": {
-    "texture0": "minecraft:block/cobblestone",
-    "particle": "minecraft:block/stone"
-  },
-  // Enable or disable automatic culling of the model. Optional, defaults to true.
-  "automatic_culling": false,
-  // Whether to shade the model or not. Optional, defaults to true.
-  "shade_quads": false,
-  // Some modeling programs will assume V=0 to be bottom instead of the top. This property flips the Vs upside-down.
-  // Optional, defaults to false.
-  "flip_v": true,
-  // Whether to enable emissivity or not. Optional, defaults to true.
-  "emissive_ambient": false
+    "loader": "neoforge:obj",
+    // Required. Reference to the model file. Note that this is relative to the namespace root, not the model folder.
+    "model": "examplemod:models/example.obj",
+    // Normally, .mtl files must be put into the same location as the .obj file, with only the file ending differing.
+    // This will cause the loader to automatically pick them up. However, you can also set the location
+    // of the .mtl file manually if needed.
+    "mtl_override": "examplemod:models/example_other_name.mtl",
+    // These textures can be referenced in the .mtl file as #texture0, #particle, etc.
+    // This usually requires manual editing of the .mtl file.
+    "textures": {
+        "texture0": "minecraft:block/cobblestone",
+        "particle": "minecraft:block/stone"
+    },
+    // Enable or disable automatic culling of the model. Optional, defaults to true.
+    "automatic_culling": false,
+    // Whether to shade the model or not. Optional, defaults to true.
+    "shade_quads": false,
+    // Some modeling programs will assume V=0 to be bottom instead of the top. This property flips the Vs upside-down.
+    // Optional, defaults to false.
+    "flip_v": true,
+    // Whether to enable emissivity or not. Optional, defaults to true.
+    "emissive_ambient": false
 }
 ```
 
@@ -176,17 +176,17 @@ A separate transforms model can be used to switch between different models based
 
 ```json5
 {
-  "loader": "neoforge:separate_transforms",
-  // Use the cobblestone model normally.
-  "base": {
-    "parent": "minecraft:block/cobblestone"
-  },
-  // Use the stone model only when dropped.
-  "perspectives": {
-    "ground": {
-      "parent": "minecraft:block/stone"
+    "loader": "neoforge:separate_transforms",
+    // Use the cobblestone model normally.
+    "base": {
+        "parent": "minecraft:block/cobblestone"
+    },
+    // Use the stone model only when dropped.
+    "perspectives": {
+        "ground": {
+            "parent": "minecraft:block/stone"
+        }
     }
-  }
 }
 ```
 
@@ -244,13 +244,13 @@ public class MyGeometry implements IUnbakedGeometry<MyGeometry> {
     public BakedModel bake(IGeometryBakingContext context, ModelBaker baker, Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelState, ItemOverrides overrides, ResourceLocation modelLocation) {
         // See info on the parameters below.
         return new MyDynamicModel(context.useAmbientOcclusion(), context.isGui3d(), context.useBlockLight(),
-                spriteGetter.apply(context.getMaterial("particle")), overrides);
+            spriteGetter.apply(context.getMaterial("particle")), overrides);
     }
 
     // Method responsible for correctly resolving parent properties. Required if this model loads any nested models or reuses the vanilla loader on itself (see below).
     @Override
     public void resolveParents(Function<ResourceLocation, UnbakedModel> modelGetter, IGeometryBakingContext context) {
-        base.resolveParents(modelGetter);
+        // UnbakedModel#resolveParents
     }
 }
 
@@ -258,7 +258,7 @@ public class MyGeometry implements IUnbakedGeometry<MyGeometry> {
 public class MyDynamicModel implements IDynamicBakedModel {
     // Material of the missing texture. Its sprite can be used as a fallback when needed.
     private static final Material MISSING_TEXTURE = 
-            new Material(TextureAtlas.LOCATION_BLOCKS, MissingTextureAtlasSprite.getLocation());
+        new Material(TextureAtlas.LOCATION_BLOCKS, MissingTextureAtlasSprite.getLocation());
 
     // Attributes for use in the methods below. Optional, the methods may also use constant values if applicable.
     private final boolean useAmbientOcclusion;
@@ -348,14 +348,14 @@ Of course, we can also [datagen] our models. To do so, we need a class that exte
 public class MyLoaderBuilder extends CustomLoaderBuilder<BlockModelBuilder> {
     public MyLoaderBuilder(BlockModelBuilder parent, ExistingFileHelper existingFileHelper) {
         super(
-                // Your model loader's id.
-                MyGeometryLoader.ID,
-                // The parent builder we use. This is always the first constructor parameter.
-                parent,
-                // The existing file helper we use. This is always the second constructor parameter.
-                existingFileHelper,
-                // Whether the loader allows inline vanilla elements as a fallback if the loader is absent.
-                false
+            // Your model loader's id.
+            MyGeometryLoader.ID,
+            // The parent builder we use. This is always the first constructor parameter.
+            parent,
+            // The existing file helper we use. This is always the second constructor parameter.
+            existingFileHelper,
+            // Whether the loader allows inline vanilla elements as a fallback if the loader is absent.
+            false
         );
     }
     
@@ -442,7 +442,7 @@ public class MyDynamicModel implements IDynamicBakedModel {
     public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, RandomSource rand, ModelData extraData, @Nullable RenderType renderType) {
         List<BakedQuad> quads = new ArrayList<>();
         // Add the base model's quads. Can also do something different with the quads here, depending on what you need.
-        quads.add(base.getQuads(state, side, rand, extraData, renderType));
+        quads.addAll(base.getQuads(state, side, rand, extraData, renderType));
         // add other elements to the quads list as needed here
         return quads;
     }
