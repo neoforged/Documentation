@@ -1,10 +1,8 @@
-The Interaction Pipeline
-========================
+# The Interaction Pipeline
 
 This page aims to make the fairly complex and confusing process of things being right-clicked by the player more understandable, as well as clarifying what result to use where and why.
 
-What Happens When I Right-Click?
---------------------------------
+## What Happens When I Right-Click?
 
 When you right-click anywhere in the world, a number of things happen, depending on what you are currently looking at and what `ItemStack`s are in your hands. A number of methods returning one of two result types (see below) are called. Most of these methods cancel the pipeline if an explicit success or an explicit failure is returned. For the sake of readability, this "explicit success or explicit failure" will be called a "definitive result" from now on.
 
@@ -29,8 +27,7 @@ When you right-click anywhere in the world, a number of things happen, depending
 - `Item#use` is called. If it returns a definitive result, the pipeline ends.
 - The above process runs a second time, this time with the off hand instead of the main hand.
 
-Result Types
-------------
+## Result Types
 
 There are two different types of results: `InteractionResult`s and `InteractionResultHolder<T>`s. `InteractionResult` is used most of the time, only `Item#use` uses `InteractionResultHolder<ItemStack>`.
 
@@ -49,18 +46,15 @@ Generally, the different values mean the following:
 
 Some methods have special behavior or requirements, which are explained in the below chapters.
 
-`IItemExtension#onItemUseFirst`
----------------------------
+## `IItemExtension#onItemUseFirst`
 
 `InteractionResult#sidedSuccess` and `InteractionResult.CONSUME` don't have an effect here. Only `InteractionResult.SUCCESS`, `InteractionResult.FAIL` or `InteractionResult.PASS` should be used here.
 
-`Item#useOn`
-------------
+## `Item#useOn`
 
 If you want the operation to be considered successful, but you do not want the arm to swing or an `ITEM_USED` stat point to be awarded, use `InteractionResult.CONSUME_PARTIAL`.
 
-`Item#use`
-----------
+## `Item#use`
 
 This is the only instance where the return type is `InteractionResultHolder<ItemStack>`. The resulting `ItemStack` in the `InteractionResultHolder<ItemStack>` replaces the `ItemStack` the usage was initiated with, if it has changed.
 

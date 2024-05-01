@@ -1,10 +1,8 @@
-Recipes
-=======
+# Recipes
 
 Recipes are a way to transform some number of objects into other objects within a Minecraft world. Although the vanilla system deals purely with item transformations, the system as a whole can be expanded to use any object the programmer creates.
 
-Data-Driven Recipes
--------------------
+## Data-Driven Recipes
 
 Most recipe implementations within vanilla are data driven via JSON. This means that a mod is not necessary to create a new recipe, only a [Data pack][datapack]. A full list on how to create and put these recipes within the mod's `resources` folder can be found on the [Minecraft Wiki][wiki].
 
@@ -30,8 +28,7 @@ A recipe can be obtained within the Recipe Book as a reward for completing an [a
 
 Data-driven recipes and their unlocking advancement can be [generated][datagen] via `RecipeProvider`.
 
-Recipe Manager
---------------
+## Recipe Manager
 
 Recipes are loaded and stored via the `RecipeManager`. Any operations relating to getting available recipe(s) are handled by this manager. There are two important methods to know of:
 
@@ -51,8 +48,7 @@ recipeManger.getRecipeFor(RecipeType.CRAFTING, new RecipeWrapper(handler), level
 ```
 :::
 
-Additional Features
--------------------
+## Additional Features
 
 NeoForge provides some additional behavior to the recipe schema and its implementations for greater control of the system.
 
@@ -101,4 +97,4 @@ A few additional [ingredient types][ingredients] are added to allow recipes to h
 [advancement]: ../advancements.md
 [datagen]: ../../../datagen/recipes.md
 [conditional]: ../conditional.md#implementations
-[ingredients]: ./ingredients.md#forge-types
+[ingredients]: ./ingredients.md#neoforge-types

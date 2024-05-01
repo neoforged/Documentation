@@ -1,15 +1,12 @@
-Loot Tables
-===========
+# Loot Tables
 
 Loot tables are logic files which dictate what should happen when various actions or scenarios occur. Although the vanilla system deals purely with item generation, the system can be expanded to perform any number of defined actions.
 
-Data-Driven Tables
-------------------
+## Data-Driven Tables
 
 Most loot tables within vanilla are data driven via JSON. This means that a mod is not necessary to create a new loot table, only a [Data pack][datapack]. A full list on how to create and put these loot tables within the mod's `resources` folder can be found on the [Minecraft Wiki][wiki].
 
-Using a Loot Table
-------------------
+## Using a Loot Table
 
 A loot table is referenced by its `ResourceLocation` which points to `data/<namespace>/loot_tables/<path>.json`. The `LootTable` associated with the reference can be obtained using `LootDataResolver#getLootTable`, where `LootDataResolver` can be obtained via `MinecraftServer#getLootData`.
 
@@ -29,8 +26,7 @@ Method              | Description
 Loot tables were built for generating items, so the methods expect some handling for the `ItemStack`s.
 :::
 
-Additional Features
--------------------
+## Additional Features
 
 NeoForge provides some additional behavior to loot tables for greater control of the system.
 

@@ -1,5 +1,4 @@
-Run Configurations
-==================
+# Run Configurations
 
 Run configurations define how an instance of the game is going to run. This includes arguments, working directories, task names, etc. Run configurations are defined within the `minecraft.runs` block. While no runs are configured by default, [Forge][userdev] does provide the configurations `client`, `server`, `data`, or `gameTestServer`.
 
@@ -113,8 +112,7 @@ client {
 You can see a list of all configured userdev properties within the [MinecraftForge buildscript][buildscript].
 :::
 
-Mod Configurations
-------------------
+## Mod Configurations
 
 A mod in the current environment can be added using the `mods` block within a Run configuration. Mod blocks are also `NamedDomainObjectContainer`s.
 

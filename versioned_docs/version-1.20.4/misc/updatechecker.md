@@ -1,15 +1,12 @@
-NeoForge Update Checker
-====================
+# NeoForge Update Checker
 
 NeoForge provides a very lightweight, opt-in, update-checking framework. If any mods have an available update, it will show a flashing icon on the 'Mods' button of the main menu and mod list along with the respective changelogs. It *does not* download updates automatically.
 
-Getting Started
----------------
+## Getting Started
 
 The first thing you want to do is specify the `updateJSONURL` parameter in your `mods.toml` file. The value of this parameter should be a valid URL pointing to an update JSON file. This file can be hosted on your own web server, GitHub, or wherever you want as long as it can be reliably reached by all users of your mod.
 
-Update JSON format
-------------------
+## Update JSON format
 
 The JSON itself has a relatively simple format as follows:
 
@@ -40,8 +37,7 @@ This is fairly self-explanatory, but some notes:
 
 - Some examples can be found here for [nocubes][], [Corail Tombstone][corail] and [Chisels & Bits 2][chisel].
 
-Retrieving Update Check Results
--------------------------------
+## Retrieving Update Check Results
 
 You can retrieve the results of the NeoForge Update Checker using `VersionChecker#getResult(IModInfo)`. You can obtain your `IModInfo` via `ModContainer#getModInfo`. You can get your `ModContainer` using `ModLoadingContext.get().getActiveContainer()` inside your constructor, `ModList.get().getModContainerById(<your modId>)`, or `ModList.get().getModContainerByObject(<your mod instance>)`. You can obtain any other mod's `ModContainer` using `ModList.get().getModContainerById(<modId>)`. The returned object has a method `#status` which indicates the status of the version check.
 

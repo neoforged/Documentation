@@ -75,4 +75,4 @@ A few additional [ingredient types][ingredients] are added to allow recipes to h
 [advancement]: ../advancements.md
 [datagen]: ../../../datagen/recipes.md
 [conditional]: ../conditional.md#implementations
-[ingredients]: ./ingredients.md#forge-types
+[ingredients]: ./ingredients.md#neoforge-types

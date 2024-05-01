@@ -1,10 +1,8 @@
-Configuration
-=============
+# Configuration
 
 Configurations define settings and consumer preferences that can be applied to a mod instance. NeoForge uses a configuration system using [TOML][toml] files and read with [NightConfig][nightconfig].
 
-Creating a Configuration
-------------------------
+## Creating a Configuration
 
 A configuration can be created using a subtype of `IConfigSpec`. NeoForge implements the type via `ModConfigSpec` and enables its construction through `ModConfigSpec.Builder`. The builder can separate the config values into sections via `Builder#push` to create a section and `Builder#pop` to leave a section. Afterwards, the configuration can be built using one of two methods:
 
@@ -102,8 +100,7 @@ The values themselves can be obtained using `ConfigValue#get`. The values are ad
     - Class Type: `Boolean`
     - Method Name: `#define`
 
-Registering a Configuration
----------------------------
+## Registering a Configuration
 
 Once a `ModConfigSpec` has been built, it must be registered to allow NeoForge to load, track, and sync the configuration settings as required. Configurations should be registered in the mod constructor via `ModLoadingContext#registerConfig`. A configuration can be registered with a given type representing the side the config belongs to, the `ModConfigSpec`, and optionally a specific file name for the configuration.
 
@@ -124,8 +121,7 @@ Here is a list of the available configuration types:
 NeoForge documents the [config types][type] within their codebase.
 :::
 
-Configuration Events
---------------------
+## Configuration Events
 
 Operations that occur whenever a config is loaded or reloaded can be done using the ModConfigEvent.Loading and ModConfigEvent.Reloading events. The events must be [registered][events] to the mod event bus.
 

@@ -1,10 +1,9 @@
-Tags
-====
+# Tags
 
 Tags are generalized sets of objects in the game used for grouping related things together and providing fast membership checks.
 
-Declaring Your Own Groupings
-----------------------------
+## Declaring Your Own Groupings
+
 Tags are declared in your mod's [datapack][datapack]. For example, a `TagKey<Block>` with a given identifier of  `modid:foo/tagname` will reference a tag at `/data/<modid>/tags/blocks/foo/tagname.json`. Tags for `Block`s, `Item`s, `EntityType`s, `Fluid`s, and `GameEvent`s use the plural forms for their folder location while all other registries use the singular version (`EntityType` uses the folder `entity_types` while `Potion` would use the folder `potion`).
 Similarly, you may append to or override tags declared in other domains, such as Vanilla, by declaring your own JSONs.
 For example, to add your own mod's saplings to the Vanilla sapling tag, you would specify it in `/data/minecraft/tags/blocks/saplings.json`, and Vanilla will merge everything into one tag at reload, if the `replace` option is false.
@@ -31,8 +30,8 @@ There is also a NeoForge extension on the Vanilla syntax.
 You may declare a `remove` array of the same format as the `values` array. Any values listed here will be removed from the tag. This acts as a finer grained version of the Vanilla `replace` option.
 
 
-Using Tags In Code
-------------------
+## Using Tags In Code
+
 Tags for all registries are automatically sent from the server to any remote clients on login and reload. `Block`s, `Item`s, `EntityType`s, `Fluid`s, and `GameEvent`s are special cased as they have `Holder`s allowing for available tags to be accessible through the object itself.
 
 :::note
@@ -86,8 +85,7 @@ ResourceKey<VillagerType> villagerTypeKey = /*...*/;
 boolean isInVillagerTypeGroup = BuiltInRegistries.VILLAGER_TYPE.getHolder(villagerTypeKey).map(holder -> holder.is(myVillagerTypeTag)).orElse(false);
 ```
 
-Conventions
------------
+## Conventions
 
 There are several conventions that will help facilitate compatibility in the ecosystem:
 
@@ -98,8 +96,7 @@ There are several conventions that will help facilitate compatibility in the eco
 - Item tags should be sorted into subdirectories according to their type (e.g. `forge:ingots/iron`, `forge:nuggets/brass`, etc.).
 
 
-Migration from OreDictionary
-----------------------------
+## Migration from OreDictionary
 
 - For recipes, tags can be used directly in the vanilla recipe format (see below).
 - For matching items in code, see the section above.
@@ -108,8 +105,7 @@ Migration from OreDictionary
   - For example, brass ingots should be registered under the `forge:ingots/brass` tag and cobalt nuggets under the `forge:nuggets/cobalt` tag.
 
 
-Using Tags in Recipes and Advancements
---------------------------------------
+## Using Tags in Recipes and Advancements
 
 Tags are directly supported by Vanilla. See the respective Vanilla wiki pages for [recipes] and [advancements] for usage details.
 

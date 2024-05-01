@@ -1,10 +1,8 @@
-ForgeGradle Configurations
-==========================
+# ForgeGradle Configurations
 
 ForgeGradle has numerous configurations that can change how the development environment is configured. Most configurations are set using the `minecraft` block; however, some others can be specified within the `dependencies` block or modify the built `jar`, such as `reobfJar`.
 
-Enabling Access Transformers
-----------------------------
+## Enabling Access Transformers
 
 [Access Transformers][at] can widen the visibility or modify the `final` flag of Minecraft classes, methods, and fields. To enable access transformers in the production environment, you can set `accessTransformer` to configuration file in question:
 
@@ -21,8 +19,7 @@ minecraft {
 While the access transformer in the development environment can be read from anywhere the user specifies, in production, the file will only be read from `META-INF/accesstransformer.cfg`.
 :::
 
-Human-Readable Mappings
------------------------
+## Human-Readable Mappings
 
 Minecraft's source code is obfuscated. As such, all classes, methods, and fields have machine-generated names with no package structures. Function-local variable names, meanwhile, are turned into a snowman (`☃`) due to how the Local Variable Table is stored. It is difficult to create mods using obfuscated names as reverse engineering them is tedious, may change between versions, and may be invalid in the language itself but not in the bytecode.
 

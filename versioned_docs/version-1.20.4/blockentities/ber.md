@@ -1,10 +1,8 @@
-BlockEntityRenderer
-==================
+# BlockEntityRenderer
 
 A `BlockEntityRenderer` or `BER` is used to render blocks in a way that cannot be represented with a static baked model (JSON, OBJ, B3D, others). A block entity renderer requires the block to have a `BlockEntity`.
 
-Creating a BER
---------------
+## Creating a BER
 
 To create a BER, create a class that inherits from `BlockEntityRenderer`. It takes a generic argument specifying the block's `BlockEntity` class. The generic argument is used in the BER's `render` method.
 
@@ -22,7 +20,6 @@ This method is called every frame in order to render the block entity.
 - `combinedLight`: An integer of the current light value on the block entity.
 - `combinedOverlay`: An integer set to the current overlay of the block entity, usually `OverlayTexture#NO_OVERLAY` or 655,360.
 
-Registering a BER
------------------
+## Registering a BER
 
 In order to register a BER, you must subscribe to the EntityRenderersEvent.RegisterRenderers event on the mod event bus and call `#registerBlockEntityRenderer`.

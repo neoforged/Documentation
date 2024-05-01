@@ -1,12 +1,10 @@
-Dependencies
-============
+# Dependencies
 
 Dependencies are not only used to develop interoperability between mods or add additional libraries to the game, but it also determines what version of Minecraft to develop for. This will provide a quick overview on how to modify the `repositories` and `dependencies` block to add dependencies to your development environment.
 
 > This will not explain Gradle concepts in depth. It is highly recommended to read the [Gradle Dependency Management guide][guide] before continuing.
 
-`minecraft`
------------
+## `minecraft`
 
 The `minecraft` dependency specifies the version of Minecraft to use and must be included in the `dependencies` block. Any artifact, except artifacts which have the group `net.minecraft`, will apply any patches provided with the dependency. This typically only specifies the `net.minecraftforge:forge` artifact.
 
@@ -20,8 +18,7 @@ dependencies {
 }
 ```
 
-Mod Dependencies
-----------------
+## Mod Dependencies
 
 In a typical development environment, Minecraft is deobfuscated to intermediate mappings, used in production, and then transformed into whatever [human-readable mappings][mappings] the modder specified. Mod artifacts, when built, are obfuscated to production mappings (SRG), and as such, are unable to be used directly as a Gradle dependency.
 
@@ -73,8 +70,7 @@ dependencies {
 The group name can be anything but must not be empty for flat directory entries as they are not checked when resolving the artifact file.
 :::
 
-Non-Minecraft Dependencies
---------------------------
+## Non-Minecraft Dependencies
 
 Non-Minecraft dependencies are not loaded by NeoForge by default in the development environment. To get NeoForge to recognize the non-Minecraft dependency, they must be added to the `minecraftLibrary` configuration. `minecraftLibrary` works similarly to the `implementation` configuration within Gradle, being applied during compile time and runtime.
 

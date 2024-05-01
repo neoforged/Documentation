@@ -1,5 +1,4 @@
-Jar-in-Jar
-==========
+# Jar-in-Jar
 
 Jar-in-Jar is a way to load dependencies for mods from within the jars of the mods. To accomplish this, Jar-in-Jar generates a metadata json within `META-INF/jarjar/metadata.json` on build containing the artifacts to load from within the jar.
 
@@ -19,8 +18,7 @@ tasks.named('jarJar') {
 }
 ```
 
-Adding Dependencies
--------------------
+## Adding Dependencies
 
 You can add dependencies to be included inside your jar using the `jarJar` configuration. As Jar-in-Jar is a negotiation system, all versions should supply a supported range.
 
@@ -86,8 +84,7 @@ jarJar {
 It is generally recommended to set at least one `include` filter when using `#fromRuntimeConfiguration`.
 :::
 
-Publishing a Jar-in-Jar to Maven
---------------------------------
+## Publishing a Jar-in-Jar to Maven
 
 For archival reasons, ForgeGradle supports publishing Jar-in-Jar artifacts to a maven of choice, similar to how the [Shadow plugin][shadow] handles it. In practices, this is not useful or recommended.
 

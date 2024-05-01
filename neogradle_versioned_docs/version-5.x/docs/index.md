@@ -1,5 +1,4 @@
-ForgeGradle Documentation
-=========================
+# ForgeGradle Documentation
 
 This is the official documentation for [ForgeGradle], a [Gradle] plugin for developing [MinecraftForge] and mods using MinecraftForge.
 
@@ -7,8 +6,7 @@ This documentation is _only_ for ForgeGradle, **this is not a Java, Groovy, or G
 
 If you would like to contribute to the docs, read [Contributing to the Docs][contributing].
 
-Adding the Plugin
------------------
+## Adding the Plugin
 
 ForgeGradle can be added using the `plugins` block by adding the MinecraftForge maven to the available plugin repositories:
 

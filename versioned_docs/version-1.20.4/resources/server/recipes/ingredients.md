@@ -1,10 +1,8 @@
-Ingredients
-===========
+# Ingredients
 
 `Ingredient`s are predicate handlers for item-based inputs which check whether a certain `ItemStack` meets the condition to be a valid input in a recipe. All [vanilla recipes][recipes] that take inputs use an `Ingredient` or a list of `Ingredient`s, which is then merged into a single `Ingredient`.
 
-Custom Ingredients
-------------------
+## Custom Ingredients
 
 Custom ingredients can be specified by setting `type` to the name of the [ingredient's serializer][serializer], with the exception of [compound ingredients][compound]. When no type is specified, `type` defaults to the vanilla ingredient `minecraft:item`. Custom ingredients can also easily be used in [data generation][datagen].
 
@@ -113,8 +111,7 @@ Though they are functionally identical, Compound ingredients replaces the way on
 }
 ```
 
-Creating Custom Ingredients
----------------------------
+## Creating Custom Ingredients
 
 Custom ingredients can be created by implementing `IIngredientSerializer` for the created `Ingredient` subclass.
 

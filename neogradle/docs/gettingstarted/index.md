@@ -1,5 +1,4 @@
-Getting Started with ForgeGradle
-================================
+# Getting Started with ForgeGradle
 
 If you have never used ForgeGradle before, here is the minimum amount of information needed to get a development environment setup.
 

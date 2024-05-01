@@ -1,14 +1,11 @@
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-ForgeGradle Configurations
-==========================
+# ForgeGradle Configurations
 
 ForgeGradle has numerous configurations that can change how the development environment is configured. Most configurations are set using the `minecraft` block; however, some others can be specified within the `dependencies` block or modify the built `jar`, such as `reobfJar`.
 
-Enabling Access Transformers
-----------------------------
-
+## Enabling Access Transformers
 
 [Access Transformers][at] can widen the visibility or modify the `final` flag of Minecraft classes, methods, and fields.
 
@@ -61,8 +58,7 @@ While the Access Transformer in the development environment can be read from any
 </TabItem>
 </Tabs>
 
-Human-Readable Mappings
------------------------
+## Human-Readable Mappings
 
 Minecraft's source code is obfuscated. As such, all classes, methods, and fields have machine-generated names with no package structures. Function-local variable names, meanwhile, are turned into a snowman (`☃`) due to how the Local Variable Table is stored. It is difficult to create mods using obfuscated names as reverse engineering them is tedious, may change between versions, and may be invalid in the language itself but not in the bytecode.
 
@@ -95,8 +91,7 @@ mappings {
 
 Parchment is an official project maintained by ParchmentMC which provides open, community-sourced parameter names and javadocs on top of the `official` mapping set. You can learn how setup and use the parchment mapping set on [their website][parchment].
 
-Preparing Run Tasks
--------------------
+## Preparing Run Tasks
 
 Run tasks (`run*`) have two separate pipelines depending on whether they are executed through `gradlew` or a run configuration. By default, there are two tasks that prepare the workspace for execution:
 

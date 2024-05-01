@@ -1,5 +1,4 @@
-Tag Generation
-==============
+# Tag Generation
 
 [Tags] can be generated for a mod by subclassing `TagsProvider` and implementing `#addTags`. After implementation, the provider must be [added][datagen] to the `DataGenerator`.
 
@@ -21,8 +20,7 @@ public void gatherData(GatherDataEvent event) {
 }
 ```
 
-`TagsProvider`
---------------
+## `TagsProvider`
 
 The tags provider has two methods used for generating tags: creating a tag with objects and other tags via `#tag`, or using tags from other object types to generate the tag data via `#getOrCreateRawBuilder`.
 
@@ -89,8 +87,7 @@ Blocks have item representations to obtain them in the inventory. As such, many 
 this.copy(EXAMPLE_BLOCK_TAG, EXAMPLE_ITEM_TAG);
 ```
 
-Custom Tag Providers
---------------------
+## Custom Tag Providers
 
 A custom tag provider can be created via a `TagsProvider` subclass which takes in the registry key to generate tags for.
 
