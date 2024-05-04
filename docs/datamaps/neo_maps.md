@@ -56,9 +56,10 @@ However, the removal does not affect any values added by other packs or mods, so
 :::
 
 ## `neoforge:monster_room_mobs`
-NeoForge provides a data map that allows configuring the mobs which may appear in the mob spawner in a monster room, as a replacement for `MonsterRoomFeature#MOBS` (which is now ignored).
-This data map is located at `neoforge/data_maps/entity_type/monster_room_mobs.json` and its objects have the following structure:
-```js
+
+NeoForge provides a data map that allows configuring the mobs which may appear in the mob spawner in a monster room, as a replacement for `MonsterRoomFeature#MOBS` (which is now ignored). This data map is located at `neoforge/data_maps/entity_type/monster_room_mobs.json` and its objects have the following structure:
+
+```json5
 {
     // The weight of this mob, relative to other mobs in the datamap
     "weight": 100
@@ -66,7 +67,8 @@ This data map is located at `neoforge/data_maps/entity_type/monster_room_mobs.js
 ```
 
 Example:
-```js
+
+```json5
 {
     "values": {
         // Make squids appear in monster room spawners with a weight of 100
