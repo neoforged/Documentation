@@ -158,13 +158,13 @@ Now that the `neoforge.mods.toml` is filled out, we need to provide an entrypoin
 ```java
 @Mod("examplemod") // Must match a mod id in the neoforge.mods.toml
 public class ExampleMod {
-  // The mod constructor can have the following arguments:
-  // - IEventBus: The mod-specific event bus, needed e.g. for registration and events
-  // - ModContainer/FMLModContainer: The container holding this mod's metadata
-  // - Dist: The physical side this mod is loading on
-  public ExampleMod(IEventBus modBus) {
-    // Initialize logic here
-  }
+    // The mod constructor can have the following arguments:
+    // - IEventBus: The mod-specific event bus, needed e.g. for registration and events
+    // - ModContainer/FMLModContainer: The container holding this mod's metadata
+    // - Dist: The physical side this mod is loading on
+    public ExampleMod(IEventBus modBus) {
+        // Initialize logic here
+    }
 }
 ```
 
@@ -175,13 +175,13 @@ By default, a `@Mod` annotation is loaded on both [sides]. This can be changed b
 // This mod class will only be loaded on the physical client
 @Mod(value = "examplemod", dist = Dist.CLIENT) 
 public class ExampleModClient {
-  // The mod constructor can have the following arguments:
-  // - IEventBus: The mod-specific event bus, needed e.g. for registration and events
-  // - ModContainer/FMLModContainer: The container holding this mod's metadata
-  // - Dist: The physical side this mod is loading on
-  public ExampleModClient(IEventBus modBus) {
-    // Initialize client-only logic here
-  }
+    // The mod constructor can have the following arguments:
+    // - IEventBus: The mod-specific event bus, needed e.g. for registration and events
+    // - ModContainer/FMLModContainer: The container holding this mod's metadata
+    // - Dist: The physical side this mod is loading on
+    public ExampleModClient(IEventBus modBus) {
+        // Initialize client-only logic here
+    }
 }
 ```
 
