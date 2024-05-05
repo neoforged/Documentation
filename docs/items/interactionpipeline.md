@@ -30,7 +30,7 @@ When you right-click anywhere in the world, a number of things happen, depending
 
 ## Result Types
 
-There are three different types of results: `InteractionResult`s, `ItemInteractionResult`, `InteractionResultHolder<T>`s. `InteractionResult` is used most of the time, only `Item#use` uses `InteractionResultHolder<ItemStack>`, and `BlockBehaviour#useItemOn` and `CauldronInteraction#interact` use `ItemInteractionResult`.
+There are three different types of results: `InteractionResult`s, `ItemInteractionResult`s, and `InteractionResultHolder<T>`s. `InteractionResult` is used most of the time, only `Item#use` uses `InteractionResultHolder<ItemStack>`, and only `BlockBehaviour#useItemOn` and `CauldronInteraction#interact` use `ItemInteractionResult`.
 
 `InteractionResult` is an enum consisting of five values: `SUCCESS`, `CONSUME`, `CONSUME_PARTIAL`, `PASS` and `FAIL`. Additionally, the method `InteractionResult#sidedSuccess` is available, which returns `SUCCESS` on the server and `CONSUME` on the client.
 

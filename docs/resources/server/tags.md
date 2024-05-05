@@ -34,7 +34,7 @@ Intrusive `Holder`s may be removed in a future version of Minecraft. If they are
 
 ### Referencing Tags
 
-There are twp methods of creating a tag wrapper:
+There are two methods of creating a tag wrapper:
 
 Method                          | For
 :---:                           | :---

@@ -10,9 +10,9 @@ Most loot tables within vanilla are data driven via JSON. This means that a mod 
 
 A loot table is referenced by its `ResourceKey<LootTable>` which points to `data/<namespace>/loot_tables/<path>.json`. The `LootTable` associated with the reference can be obtained using `ReloadableServerRegistries.Holder#getLootTable`, where `ReloadableServerRegistries.Holder` can be obtained via `MinecraftServer#reloadableRegistries`.
 
-A loot table is always generated with given parameters. The `LootParams` contains the level the table is generated in, luck for better generation, the `LootContextParam`s which define scenario context, and any dynamic information that should occur on activation. The `LootParams` can be created using the constructor of the LootParams.Builder builder, and built via `LootParams$Builder#create` by passing in the `LootContextParamSet`.
+A loot table is always generated with given parameters. The `LootParams` contains the level the table is generated in, luck for better generation, the `LootContextParam`s which define scenario context, and any dynamic information that should occur on activation. The `LootParams` can be created using the constructor of the `LootParams.Builder` builder, and built via `LootParams$Builder#create` by passing in the `LootContextParamSet`.
 
-A loot table may also have some context. The `LootContext` takes in the built `LootParams` and can set some random seeded instance. The context is created via the builder LootContext.Builder and built using `LootContext$Builder#create` by passing in a optional `ResourceLocation` representing the random instance to use.
+A loot table may also have some context. The `LootContext` takes in the built `LootParams` and can set some random seeded instance. The context is created via the builder `LootContext.Builder` and built using `LootContext$Builder#create` by passing in a optional `ResourceLocation` representing the random instance to use.
 
 A `LootTable` can be used to generate `ItemStack`s using one of the available methods which may take in a `LootParams` or a `LootContext`:
 

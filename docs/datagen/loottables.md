@@ -23,7 +23,7 @@ public void gatherData(GatherDataEvent event) {
 
 ## `LootTableSubProvider`
 
-Each LootTableProvider.SubProviderEntry takes in a supplied `LootTableSubProvider`, which generates the loot table, for a given `LootContextParamSet`. The `LootTableSubProvider` contains a method which takes in the lookup provider and a writer (`BiConsumer<ResourceKey<LootTable>, LootTable.Builder>`) to generate a table.
+Each `LootTableProvider.SubProviderEntry` takes in a supplied `LootTableSubProvider`, which generates the loot table, for a given `LootContextParamSet`. The `LootTableSubProvider` contains a method which takes in the lookup provider and a writer (`BiConsumer<ResourceKey<LootTable>, LootTable.Builder>`) to generate a table.
 
 ```java
 public class ExampleSubProvider implements LootTableSubProvider {
@@ -54,7 +54,7 @@ new LootTableProvider.SubProviderEntry(
 
 For `LootContextParamSets#BLOCK` and `#ENTITY`, there are special types (`BlockLootSubProvider` and `EntityLootSubProvider` respectively) which provide additional helper methods for creating and validating that there are loot tables.
 
-The `BlockLootSubProvider`'s constructor takes in a list of items, which are explosion resistant to determine whether the loot table can be generated if a block is exploded, and a `FeatureFlagSet`, which determines whether the block is enabled so that a loot table is generated for it. A map can optionally be provided which contain initial block loot tables to generate.
+The `BlockLootSubProvider`'s constructor accepts a list of items that are explosion resistant to determine whether the loot table can be generated if a block is exploded, and a `FeatureFlagSet`, to determine whether the block is enabled so that a loot table is generated for it. Optionally, a map can be provided that contains initial block loot tables to generate.
 
 ```java
 // In some BlockLootSubProvider subclass
@@ -101,7 +101,7 @@ public void generate() {
 
 ## Loot Table Builders
 
-To generate loot tables, they are accepted by the `LootTableSubProvider` as a `LootTable.Builder`. Afterwards, the specified `LootContextParamSet` is set in the LootTableProvider.SubProviderEntry and then built via `#build`. Before being built, the builder can specify entries, conditions, and modifiers which affect how the loot table functions.
+To generate loot tables, they are accepted by the `LootTableSubProvider` as a `LootTable.Builder`. Afterwards, the specified `LootContextParamSet` is set in the `LootTableProvider.SubProviderEntry` and then built via `#build`. Before being built, the builder can specify entries, conditions, and modifiers which affect how the loot table functions.
 
 :::note
 The functionality of loot tables is so expansive that it will not be covered by this documentation in its entirety. Instead, a brief description of each component will be mentioned. The specific subtypes of each component can be found using an IDE. Their implementations will be left as an exercise to the reader.
@@ -109,19 +109,19 @@ The functionality of loot tables is so expansive that it will not be covered by 
 
 ### LootTable
 
-Loot tables are the base object and can be transformed into the required LootTable.Builder using `LootTable#lootTable`. The loot table can be built with a list of pools (via `#withPool`) applied in the order they are specified along with functions (via `#apply`) to modify the resulting items of those pools. A specific random sequence instance (via `#setRandomSequence`) can also be specified.
+Loot tables are the base object and can be transformed into the required `LootTable.Builder` using `LootTable#lootTable`. The loot table can be built with a list of pools (via `#withPool`) applied in the order they are specified along with functions (via `#apply`) to modify the resulting items of those pools. A specific random sequence instance (via `#setRandomSequence`) can also be specified.
 
 ### LootPool
 
-Loot pools represents a group to perform operations and can generate a  LootPool.Builder using `LootPool#lootPool`. Each loot pool can specify the entries (via `#add`) which define the operations in the pool, the conditions (via `#when`) which define if the operations in the pool should be performed, and functions (via `#apply`) to modify the resulting items of the entries. Each pool can be executed as many times as specified (via `#setRolls`). Additionally, bonus executions can be specified (via `#setBonusRolls`) which is modified by the luck of the executor.
+Loot pools represents a group to perform operations and can generate a `LootPool.Builder` using `LootPool#lootPool`. Each loot pool can specify the entries (via `#add`) which define the operations in the pool, the conditions (via `#when`) which define if the operations in the pool should be performed, and functions (via `#apply`) to modify the resulting items of the entries. Each pool can be executed as many times as specified (via `#setRolls`). Additionally, bonus executions can be specified (via `#setBonusRolls`) which is modified by the luck of the executor.
 
 ### LootPoolEntryContainer
 
-Loot entries define the operations to occur when selected, typically generating items. Each entry has an associated, [registered] `LootPoolEntryType`. They also have their own associated builders which subtype LootPoolEntryContainer.Builder. Multiple entries can execute at the same time (via `#append`) or sequentially until one fails (via `#then`). Additionally, entries can default to another entry on failure (via `#otherwise`).
+Loot entries define the operations to occur when selected, typically generating items. Each entry has an associated, [registered] `LootPoolEntryType`. They also have their own associated builders which subtype `LootPoolEntryContainer.Builder`. Multiple entries can execute at the same time (via `#append`) or sequentially until one fails (via `#then`). Additionally, entries can default to another entry on failure (via `#otherwise`).
 
 ### LootItemCondition
 
-Loot conditions define requirements which need to be met for some operation to execute. Each condition has an associated, [registered] `LootItemConditionType`. They also have their own associated builders which subtype `LootItemCondition.Builder`. Loot conditions can be specified such that all conditions must return true (via `#and`) only one must return true instead (via `#or`). Additionally, the resulting output of a condition can be inverted (via `#invert`).
+Loot conditions define requirements which need to be met for some operation to execute. Each condition has an associated, [registered] `LootItemConditionType`. They also have their own associated builders with subtype `LootItemCondition.Builder`. Loot conditions can be specified such that all conditions must return true (via `#and`, the default behavior), or that at least one condition must return true  (via `#or`). Additionally, the resulting output of a condition can be inverted (via `#invert`).
 
 ### LootItemFunction
 

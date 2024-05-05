@@ -4,7 +4,7 @@ Resources are external files that are used by the game, but are not code. The mo
 
 Minecraft generally has two kinds of resources: client-side resources, known as assets, and server-side resources, known as data. Assets are mostly display-only information, for example textures, display models, translations, or sounds, while data includes various things that affect gameplay, such as loot tables, recipes, or worldgen information. They are loaded from resource packs and data packs, respectively. NeoForge generates a built-in resource and data pack for every mod.
 
-Both resource and data packs normally require a [`pack.mcmeta` file][packmcmeta], this was also the case in past NeoForge versions. However, NeoForge generates these at runtime for you, so you don't need to worry about it anymore.
+Both resource and data packs normally require a [`pack.mcmeta` file][packmcmeta]; however, modern NeoForge generates these at runtime for you, so you don't need to worry about it.
 
 If you are confused about the format of something, have a look at the vanilla resources. Your NeoForge development environment not only contains vanilla code, but also vanilla resources. They can be found in the External Resources section (IntelliJ)/Project Libraries section (Eclipse), under the name `ng_dummy_ng.net.minecraft:client:client-extra:<minecraft_version>` (for Minecraft resources) or `ng_dummy_ng.net.neoforged:neoforge:<neoforge_version>` (for NeoForge resources).
 

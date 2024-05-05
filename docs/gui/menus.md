@@ -73,7 +73,7 @@ Each menu implementation must implement two methods: `#stillValid` and [`#quickM
 
 `#stillValid` determines whether the menu should remain open for a given player. This is typically directed to the static `#stillValid` which takes in a `ContainerLevelAccess`, the player, and the `Block` this menu is attached to. The client menu must always return `true` for this method, which the static `#stillValid` does default to. This implementation checks whether the player is within eight blocks of where the data storage object is located.
 
-A `ContainerLevelAccess` supplies the current level and block pos within an enclosed scope. When constructing the menu on the server, a new access can be created by calling `ContainerLevelAccess#create`. The client menu constructor can pass in `ContainerLevelAccess#NULL`, which will do nothing.
+A `ContainerLevelAccess` supplies the current level and block position within an enclosed scope. When constructing the menu on the server, a new access can be created by calling `ContainerLevelAccess#create`. The client menu constructor can pass in `ContainerLevelAccess#NULL`, which will do nothing.
 
 ```java
 // Client menu constructor
@@ -291,7 +291,7 @@ Menus are typically opened on a player interaction of some kind (e.g. when a blo
 
 #### Block Implementation
 
-Blocks typically implement a menu by overriding `BlockBehaviour#useWithoutItem`. If on the logical client, the interaction returns `InteractionResult#SUCCESS`. Otherwise, it opens the menu and returns `InteractionResult#CONSUME`.
+Blocks typically implement a menu by overriding `BlockBehaviour#useWithoutItem`. If on the [logical client][side], the [interaction] returns `InteractionResult#SUCCESS`. Otherwise, it opens the menu and returns `InteractionResult#CONSUME`.
 
 The `MenuProvider` should be implemented by overriding `BlockBehaviour#getMenuProvider`. Vanilla methods use this to view the menu in spectator mode.
 
@@ -344,3 +344,5 @@ Once again, this is the simplest way to implement the logic, not the only way.
 [cap]: ../datastorage/capabilities.md#neoforge-provided-capabilities
 [screen]: ./screens.md
 [icf]: #icontainerfactory
+[side]: ../concepts/sides.md#the-logical-side
+[interaction]: ../items/interactionpipeline.md

@@ -30,8 +30,8 @@ private static final DeferredRegister<AttachmentType<?>> ATTACHMENT_TYPES = Defe
 
 // Serialization via INBTSerializable
 private static final Supplier<AttachmentType<ItemStackHandler>> HANDLER = ATTACHMENT_TYPES.register(
-    "handler", () -> AttachmentType.serializable(() -> new ItemStackHandler(1)).build())
-;
+    "handler", () -> AttachmentType.serializable(() -> new ItemStackHandler(1)).build()
+);
 // Serialization via codec
 private static final Supplier<AttachmentType<Integer>> MANA = ATTACHMENT_TYPES.register(
     "mana", () -> AttachmentType.builder(() -> 0).serialize(Codec.INT).build()

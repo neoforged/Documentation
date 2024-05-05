@@ -6,7 +6,7 @@ In general terms, each capability provides a feature in the form of an interface
 
 NeoForge adds capability support to blocks, entities, and item stacks. This will be explained in more detail in the following sections.
 
-## Why use capabilities
+## Why Use Capabilities?
 
 Capabilities are designed to separate **what** a block, entity or item stack can do from **how** it does it. If you are wondering whether capabilities are the right tool for a job, ask yourself the following questions:
 
@@ -196,7 +196,7 @@ if (handler != null) {
 }
 ```
 
-\- *The cache is automatically cleared by the garbage collector, there is no need to unregister it.**
+**The cache is automatically cleared by the garbage collector, there is no need to unregister it.**
 
 It is also possible to receive notifications when the capability object changes! This includes capabilities changing (`oldHandler != newHandler`), becoming unavailable (`null`) or becoming available again (not `null` anymore).
 
@@ -244,7 +244,7 @@ For more information, refer to the javadoc of [`IBlockCapabilityProvider`][block
 
 ## Registering capabilities
 
-A capability _provider_ is what ultimately supplies a capability. A capability provider is function that can either return a capability instance, or `null` if it cannot provide the capability. Providers are specific to:
+A capability _provider_ is what ultimately supplies a capability. A capability provider is a function that can either return a capability instance, or `null` if it cannot provide the capability. Providers are specific to:
 
 - the given capability that they are providing for, and
 - the block instance, block entity type, entity type, or item instance that they are providing for.
@@ -271,7 +271,7 @@ In general, registration will be specific to some block entity types, so the `re
 event.registerBlockEntity(
     Capabilities.ItemHandler.BLOCK, // capability to register for
     MY_BLOCK_ENTITY_TYPE, // block entity type to register for
-    (myBlockEntity, side) -> <return the IItemHandler for myBlockEntity and side>
+    (myBlockEntity, side) -> myBlockEntity.myIItemHandlerForTheGivenSide
 );
 ```
 
@@ -285,7 +285,7 @@ Entity registration is similar, using `registerEntity`:
 event.registerEntity(
     Capabilities.ItemHandler.ENTITY, // capability to register for
     MY_ENTITY_TYPE, // entity type to register for
-    (myEntity, context) -> <return the IItemHandler for myEntity>
+    (myEntity, context) -> myEntity.myIItemHandlerForTheGivenContext
 );
 ```
 

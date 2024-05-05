@@ -42,7 +42,7 @@ public record MyData(String name, int age) implements CustomPacketPayload {
 }
 ```
 
-As you can see from the example above the `CustomPacketPayload` interface requires us to implement `type` method. The `type` method is responsible for returning a unique identifier for this payload. We then also need a reader to register this later on with the `StreamCodec` to read and write the payload data.
+As you can see from the example above the `CustomPacketPayload` interface requires us to implement the `type` method. The `type` method is responsible for returning a unique identifier for this payload. We then also need a reader to register this later on with the `StreamCodec` to read and write the payload data.
 
 Finally, we can register this payload with the registrar:
 
