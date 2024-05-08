@@ -1,33 +1,33 @@
-Non-Datapack Recipes
+非数据包配方
 ====================
 
-Not all recipes are simplistic enough or migrated to using data-driven recipes. Some subsystems still need to be patched within the codebase to provide support for adding new recipes.
+并非所有配方都足够简单或已迁移到使用数据驱动的配方。一些子系统仍需要在代码库中进行修补，以支持添加新的配方。
 
-Brewing Recipes
+酿造配方
 ---------------
 
-Brewing is one of the few recipes that still exist in code. Brewing recipes are added as part of a bootstrap within `PotionBrewing` for their containers, container recipes, and potion mixes. To expand upon the existing system, Forge allows brewing recipes to be added by calling `BrewingRecipeRegistry#addRecipe` in `FMLCommonSetupEvent`.
+酿造是仍然存在于代码中的少数配方之一。酿造配方作为`PotionBrewing`内的引导程序的一部分添加，用于其容器、容器配方和药水混合。为了扩展现有系统，Forge允许通过在`FMLCommonSetupEvent`中调用`BrewingRecipeRegistry#addRecipe`来添加酿造配方。
 
 :::caution
-`BrewingRecipeRegistry#addRecipe` must be called within the synchronous work queue via `#enqueueWork` as the method is not thread-safe.
+`BrewingRecipeRegistry#addRecipe`必须在同步工作队列中通过`#enqueueWork`调用，因为该方法不是线程安全的。
 :::
 
-The default implementation takes in an input ingredient, a catalyst ingredient, and a stack output for a standard implementation. Additionally, an `IBrewingRecipe` instance can be supplied instead to do the transformations.
+默认实现接受一个输入成分，一个催化剂成分，和一个堆叠输出以进行标准实现。此外，也可以提供一个`IBrewingRecipe`实例来执行转换。
 
 ### IBrewingRecipe
 
-`IBrewingRecipe` is a pseudo-[`Recipe`][recipe] interface that checks whether the input and catalyst is valid and provides the associated output if so. This is provided through `#isInput`, `#isIngredient`, and `#getOutput` respectively. The output method has access to the input and catalyst stacks to construct the result.
+`IBrewingRecipe`是一种伪[`Recipe`][recipe]接口，它检查输入和催化剂是否有效，并在满足条件时提供相关的输出。这通过`#isInput`、`#isIngredient`和`#getOutput`实现。输出方法可以访问输入和催化剂堆叠以构造结果。
 
 :::caution
-When copying data between `ItemStack`s or `CompoundTag`s, make sure to use their respective `#copy` methods to create unique instances.
+在`ItemStack`或`CompoundTag`之间复制数据时，确保使用它们各自的`#copy`方法创建唯一的实例。
 :::
 
-There is no wrapper for adding additional potion containers or potion mixes similar to vanilla. A new `IBrewingRecipe` implementation will need to be added to replicate this behavior.
+没有类似于原版的添加额外药水容器或药水混合的包装器。需要添加一个新的`IBrewingRecipe`实现来复制这种行为。
 
-Anvil Recipes
+铁砧配方
 -------------
 
-Anvils are responsible for taking a damaged input and given some material or a similar input, remove some of the damage on the input result. As such, its system is not easily data-driven. However, as anvil recipes are an input with some number of materials equals some output when the user has the required experience levels, it can be modified to create a pseudo-recipe system via `AnvilUpdateEvent`. This takes in the input and materials and allows the modder to specify the output, experience level cost, and number of materials to use for the output. The event can also prevent any output by [canceling][cancel] it.
+铁砧负责接受一个受损的输入，给出一些材料或类似的输入，减少输入结果上的一些损伤。因此，其系统不容易被数据驱动。然而，因为铁砧配方是一个输入物品加上一些数量的材料等于一些输出物品，当用户有足够的经验等级时，它可以通过`AnvilUpdateEvent`修改为创建一个伪配方系统。这取决于输入和材料，并允许开发者指定输出、经验等级成本，以及用于输出的材料数量。事件还可以通过[取消][cancel]来阻止任何输出。
 
 ```java
 // Checks whether the left and right items are correct
@@ -41,15 +41,15 @@ public void updateAnvil(AnvilUpdateEvent event) {
 }
 ```
 
-The update event must be [attached] to the Forge event bus.
+更新事件必须[附加]到Forge事件总线上。
 
-Loom Recipes
+织布机配方
 ------------
 
-Looms are responsible for applying a dye and pattern (either from the loom or from an item) to a banner. While the banner and the dye must be a `BannerItem` or `DyeItem` respectively, custom patterns can be created and applied in the loom. Banner Patterns can be created by [registering] a `BannerPattern`.
+织布机负责将染料和图案（来自织布机或来自物品）应用于旗帜。虽然旗帜和染料必须分别是`BannerItem`或`DyeItem`，但可以在织布机中创建和应用自定义图案。可以通过[注册]一个`BannerPattern`来创建旗帜图案。
 
 :::caution
-`BannerPattern`s which are in the `minecraft:no_item_required` tag appear as an option in the loom. Patterns not in this tag must have an accompanying `BannerPatternItem` to be used along with an associated tag.
+在`minecraft:no_item_required`标签中的`BannerPattern`会作为一个选项出现在织布机中。不在此标签中的图案必须有一个相应的`BannerPatternItem`，并且有一个相关联的标签，才能使用。
 :::
 
 ```java
