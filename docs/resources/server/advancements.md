@@ -1,14 +1,14 @@
-# Advancements
+# 成就
 
-Advancements are tasks that can be achieved by the player which may advance the progress of the game. Advancements can trigger based on any action the player may be directly involved in.
+成就是玩家可以完成的任务，可能会推进游戏的进程。玩家可能直接参与的任何动作都可以触发成就。
 
-All advancement implementations within vanilla are data driven via JSON. This means that a mod is not necessary to create a new advancement, only a [data pack][datapack]. A full list on how to create and put these advancements within the mod's `resources` can be found on the [Minecraft Wiki][wiki]. Additionally, advancements can be [loaded conditionally and defaulted][conditional] depending on what information is present (mod loaded, item exists, etc.). As with other data driven features, advancements can be generated via [data generators][datagen].
+所有原版内的成就实现都通过JSON进行数据驱动。这意味着创建新的成就不需要mod，只需要一个[data pack][datapack]。关于如何创建并将这些成就放入mod的`resources`的完整列表，可以在[Minecraft Wiki][wiki]上找到。此外，根据存在的信息（加载的模组，存在的项目等），成就可以有条件地[加载和默认][conditional]。和其他数据驱动的功能一样，成就可以通过[data generators][datagen]来生成。
 
-## Advancement Criteria
+## 成就条件
 
-To unlock an advancement, the specified criteria must be met. Criteria are tracked through triggers which execute when a certain action is performed: killing an entity, changing an inventory, breading animals, etc. Any time an advancement is loaded into the game, the criteria defined are read and added as listeners to the trigger. Afterwards a trigger function is called (usually named `#trigger`) which checks all listeners as to whether the current state meets the conditions of the advancement criteria. The criteria listeners for the advancement are only removed once the advancement has been obtained by completing all requirements.
+为了解锁一个成就，必须满足指定的条件。条件通过触发器进行跟踪，当执行某个动作时触发：杀死实体，改变库存，繁殖动物等。每当一个成就被加载到游戏中，定义的条件就会被读取并添加为触发器的监听器。然后调用一个触发器函数（通常命名为`#trigger`），检查所有监听器是否当前状态满足成就条件。只有在完成所有要求并获得成就后，成就的条件监听器才会被移除。
 
-Requirements are defined as an array of string arrays representing the name of the criteria specified on the advancement. An advancement is completed once one string array of criteria has been met:
+要求被定义为一个字符串数组的数组，表示在成就上指定的条件的名称。一旦满足一个条件的字符串数组，成就就完成了：
 
 ```js
 // In some advancement JSON
@@ -37,17 +37,17 @@ Requirements are defined as an array of string arrays representing the name of t
 ]
 ```
 
-A list of criteria triggers defined by vanilla can be found in `CriteriaTriggers`. Additionally, the JSON formats are defined on the [Minecraft Wiki][triggers].
+原版定义的条件触发器列表可以在`CriteriaTriggers`中找到。此外，JSON格式在[Minecraft Wiki][triggers]上有定义。
 
-### Custom Criteria Triggers
+### 自定义条件触发器
 
-Custom criteria triggers are made up of two parts: the trigger, which is activated in code at some point you specify by calling `#trigger`, and the instance which defines the conditions under which the trigger should award the criterion. The trigger extends `SimpleCriterionTrigger<T>` while the instance implements `SimpleCriterionTrigger.SimpleInstance`. The generic value `T` represents the trigger instance type.
+自定义条件触发器由两部分组成：触发器，它在你指定的某个时候在代码中被激活，通过调用`#trigger`，和实例，它定义了触发器应在何种条件下授予条件。触发器扩展了`SimpleCriterionTrigger<T>`，而实例实现了`SimpleCriterionTrigger.SimpleInstance`。泛型值`T`代表触发器实例类型。
 
-### The SimpleCriterionTrigger.SimpleInstance Implementation
+### The SimpleCriterionTrigger.SimpleInstance实现
 
-The `SimpleCriterionTrigger.SimpleInstance` represents a single criteria defined in the `criteria` object. Trigger instances are responsible for holding the defined conditions, and returning whether the inputs match the condition.
+`SimpleCriterionTrigger.SimpleInstance`代表在`criteria`对象中定义的单个条件。触发器实例负责保存定义的条件，并返回输入是否匹配条件。
 
-Conditions are usually passed in through the constructor. The `SimpleCriterionTrigger.SimpleInstance` interface requires only one function, called `#player`, which returns the conditions the player must meet as an `Optional<ContextAwarePredicate>`. If the subclass is a Java record with a `player` parameter of this type (as below), the automatically generated `#player` method will suffice.
+条件通常通过构造函数传入。`SimpleCriterionTrigger.SimpleInstance`接口只需要一个函数，名为`#player`，它返回玩家必须满足的条件，作为一个`Optional<ContextAwarePredicate>`。如果子类是一个Java记录，有一个这种类型的`player`参数（如下所示），那么自动生成的`#player`方法就足够了。
 
 ```java
 public record ExampleTriggerInstance(Optional<ContextAwarePredicate> player, ItemPredicate item) implements SimpleCriterionTrigger.SimpleInstance {
@@ -56,7 +56,7 @@ public record ExampleTriggerInstance(Optional<ContextAwarePredicate> player, Ite
 ```
 
 :::note
-Typically, trigger instances have static helper methods which construct the full `Criterion<T>` object from the arguments to the instance. This allows these instances to be easily created during data generation, but are optional.
+通常，触发器实例具有静态辅助方法，这些方法可以根据实例的参数构造完整的`Criterion<T>`对象。这使得这些实例可以在数据生成期间轻松创建，但这是可选的。
 
 ```java
 // In this example, EXAMPLE_TRIGGER is a DeferredHolder<CriterionTrigger<?>>
@@ -66,7 +66,7 @@ public static Criterion<ExampleTriggerInstance> instance(ContextAwarePredicate p
 ```
 :::
 
-Finally, a method should be added which takes in the current data state and returns whether the user has met the necessary conditions. The conditions of the player are already checked through `SimpleCriterionTrigger#trigger(ServerPlayer, Predicate)`. Most trigger instances call this method `#matches`.
+最后，应该添加一个方法，该方法输入当前的数据状态，并返回用户是否满足了必要的条件。玩家的条件已经通过`SimpleCriterionTrigger#trigger(ServerPlayer, Predicate)`进行了检查。大多数触发器实例将这个方法称为`#matches`。
 
 ```java
 // This method is unique for each instance and is as such not overridden
@@ -78,9 +78,9 @@ public boolean matches(ItemStack stack) {
 
 ### SimpleCriterionTrigger
 
-The `SimpleCriterionTrigger<T>` subclass is responsible for specifying a codec to [serialize] the trigger instance `T` and supplying a method to check trigger instances and run attached listeners on success.
+`SimpleCriterionTrigger<T>`子类负责指定一个编解码器来[序列化]触发器实例`T`，并提供一个方法来检查触发器实例并在成功时运行已附加的监听器。
 
-The latter is done by defining a method to check all trigger instances and run the listeners if their condition is met. This method takes in the `ServerPlayer` and whatever other data defined by the matching method in the `SimpleCriterionTrigger.SimpleInstance` subclass. This method should internally call `SimpleCriterionTrigger#trigger` to properly handle checking all listeners. Most trigger instances call this method `#trigger`.
+后者是通过定义一个方法来检查所有的触发器实例，并在满足条件时运行监听器来完成的。该方法接收`ServerPlayer`和`SimpleCriterionTrigger.SimpleInstance`子类中匹配方法定义的其他数据。该方法应内部调用`SimpleCriterionTrigger#trigger`以正确处理检查所有监听器。大多数触发器实例将这个方法称为`#trigger`。
 
 ```java
 // This method is unique for each trigger and is as such not a method to override
@@ -92,11 +92,11 @@ public void trigger(ServerPlayer player, ItemStack stack) {
 }
 ```
 
-Finally, instances must be registered on the `Registries.TRIGGER_TYPE` registry. Techniques for doing so can be found under [Registries][registration].
+最后，实例必须在`Registries.TRIGGER_TYPE`注册表上注册。关于如何进行注册的技巧可以在[Registries][registration]下找到。
 
-### Serialization
+### 序列化
 
-A [codec] must be defined to serialize and deserialize the trigger instance. Vanilla typically creates this codec as a constant within the instance implementation that is then returned by the trigger's `#codec` method.
+必须定义一个[编解码器]来序列化和反序列化触发器实例。原版通常在实例实现中创建这个编解码器作为一个常量，然后通过触发器的`#codec`方法返回。
 
 
 ```java
@@ -113,8 +113,7 @@ class ExampleTrigger extends SimpleCriterionTrigger<ExampleTrigger.ExampleTrigge
 }
 ```
 
-For the earlier example of a record with a `ContextAwarePredicate` and an `ItemPredicate`, the codec could be:
-
+对于之前提到的带有`ContextAwarePredicate`和`ItemPredicate`的记录示例，编解码器可以是：
 ```java
 RecordCodecBuilder.create(instance -> instance.group(
   ExtraCodecs.strictOptionalField(EntityPredicate.ADVANCEMENT_CODEC, "player").forGetter(ExampleTriggerInstance::player),
@@ -122,9 +121,9 @@ RecordCodecBuilder.create(instance -> instance.group(
 ).apply(instance, ExampleTriggerInstance::new));
 ``````
 
-### Calling the Trigger
+### 调用触发器
 
-Whenever the action being checked is performed, the `#trigger` method defined by the `SimpleCriterionTrigger` subclass should be called.
+每当执行正在检查的动作时，应该调用由`SimpleCriterionTrigger`子类定义的`#trigger`方法。
 
 ```java
 // In some piece of code where the action is being performed
@@ -135,9 +134,9 @@ public void performExampleAction(ServerPlayer player, ItemStack stack) {
 }
 ```
 
-## Advancement Rewards
+## 成就奖励
 
-When an advancement is completed, rewards may be given out. These can be a combination of experience points, loot tables, recipes for the recipe book, or a [function] executed as a creative player.
+当一个成就完成时，可能会给予奖励。这些奖励可以是经验点数、战利品表、食谱书中的食谱，或者作为创造者玩家执行的[函数]的组合。
 
 ```js
 // In some advancement JSON
