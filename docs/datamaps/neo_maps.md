@@ -55,6 +55,30 @@ Vanilla adds a burn time to logs and planks in the `minecraft:logs` and `minecra
 However, the removal does not affect any values added by other packs or mods, so if you want to change the values for the wood tags you will need to add a removal for the non flammable tag yourself.
 :::
 
+## `neoforge:monster_room_mobs`
+
+NeoForge provides a data map that allows configuring the mobs which may appear in the mob spawner in a monster room, as a replacement for `MonsterRoomFeature#MOBS` (which is now ignored). This data map is located at `neoforge/data_maps/entity_type/monster_room_mobs.json` and its objects have the following structure:
+
+```json5
+{
+    // The weight of this mob, relative to other mobs in the datamap
+    "weight": 100
+}
+```
+
+Example:
+
+```json5
+{
+    "values": {
+        // Make squids appear in monster room spawners with a weight of 100
+        "minecraft:squid": {
+            "weight": 100
+        }
+    }
+}
+```
+
 ## `neoforge:parrot_imitations`
 NeoForge provides a data map that allows configuring the sounds produced by parrots when they want to imitate a mob, as a replacement for `Parrot#MOB_SOUND_MAP` (which is now ignored).  
 This data map is located at `neoforge/data_maps/entity_type/parrot_imitations.json` and its objects have the following structure:
