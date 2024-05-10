@@ -63,6 +63,30 @@ Example:
 
 :::
 
+## `neoforge:monster_room_mobs`
+
+NeoForge provides a data map that allows configuring the mobs which may appear in the mob spawner in a monster room, as a replacement for `MonsterRoomFeature#MOBS` (which is now ignored). This data map is located at `neoforge/data_maps/entity_type/monster_room_mobs.json` and its objects have the following structure:
+
+```json5
+{
+    // The weight of this mob, relative to other mobs in the datamap
+    "weight": 100
+}
+```
+
+Example:
+
+```json5
+{
+    "values": {
+        // Make squids appear in monster room spawners with a weight of 100
+        "minecraft:squid": {
+            "weight": 100
+        }
+    }
+}
+```
+
 ## `neoforge:parrot_imitations`
 
 NeoForge 提供了一个数据映射，允许配置鹦鹉在模仿怪物时产生的声音，这可以替代 `Parrot#MOB_SOUND_MAP`（现在已被忽视）。这个数据映射位于 `neoforge/data_maps/entity_type/parrot_imitations.json`，其对象具有以下结构：
