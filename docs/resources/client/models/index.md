@@ -242,10 +242,9 @@ public static void registerBlockColorHandlers(RegisterColorHandlersEvent.Block e
     // The level and position may be null.
     event.register((state, level, pos, tintIndex) -> {
         // Replace with your own calculation. See the BlockColors class for vanilla references.
-        // All vanilla uses assume alpha 255 (= 1f), but modded consumers may also account
-        // for alpha values specified here. Generally, if the tint index is -1,
-        // it means that no tinting should take place and a default value should be used instead.
-        return 0xFFFFFF;
+        // Colors are in ARGB format. Generally, if the tint index is -1, it means that no tinting
+        // should take place and a default value should be used instead.
+        return 0xFFFFFFFF;
     });
 }
 ```
@@ -260,7 +259,7 @@ public static void registerItemColorHandlers(RegisterColorHandlersEvent.Item eve
     event.register((stack, tintIndex) -> {
         // Like above, replace with your own calculation. Vanilla values are in the ItemColors class.
         // Also like above, tint index -1 means no tint and should use a default value instead.
-        return 0xFFFFFF;
+        return 0xFFFFFFFF;
     });
 }
 ```

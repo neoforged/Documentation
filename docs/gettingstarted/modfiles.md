@@ -118,6 +118,7 @@ Some properties (`displayName` and `description`) can also be localized using la
 [Access Transformer-specific properties][accesstransformer] are tied to the specified access transformer using the `[[accessTransformers]]` header. This is an [array of tables][array]; all key/value properties will be attached to that access transformer until the next header. The access transformer header is optional; however, when specified, all elements are mandatory.
 
 | Property |  Type  |    Default    |             Description              |     Example     |
+|:--------:|:------:|:-------------:|:------------------------------------:|:----------------|
 | `file`   | string | **mandatory** | See [Adding ATs][accesstransformer]. | `file="at.cfg"` |
 
 #### Features
@@ -186,7 +187,7 @@ public class ExampleModClient {
 ```
 
 :::note
-An entry in `neoforge.mods.toml` does not need a corresponding `@Mod` annotation. Likewise, it an entry `neoforge.mods.toml` can have multiple `@Mod` annotations, for example if you want to separate common logic and client only logic.
+An entry in `neoforge.mods.toml` does not need a corresponding `@Mod` annotation. Likewise, an entry in the `neoforge.mods.toml` can have multiple `@Mod` annotations, for example if you want to separate common logic and client only logic.
 :::
 
 ### `lowcodefml`

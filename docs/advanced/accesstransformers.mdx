@@ -11,7 +11,7 @@ The [specification document][specs] can be viewed on the NeoForged GitHub.
 
 Adding an Access Transformer to your mod project is as simple as adding a single line into your `build.gradle`:
 
-Access Transformers need to be declared in both `build.gradle` and `neoforge.mods.toml`:
+Access Transformers need to be declared in `build.gradle`. AT files can be specified anywhere as long as they are copied to the `resources` output directory on compilation.
 
 ```groovy
 // In build.gradle:
@@ -23,6 +23,8 @@ minecraft {
 }
 ```
 
+By default, NeoForge will search for `META-INF/accesstransformer.cfg`. If the `build.gradle` specifies access transformers in any other location, then their location needs to be defined within `neoforge.mods.toml`:
+
 ```toml
 # In neoforge.mods.toml:
 [[accessTransformers]]
@@ -30,8 +32,6 @@ minecraft {
 ## The 'resources' directory represents the root output directory of the resources
 file="META-INF/accesstransformer.cfg"
 ```
-
-AT files can be specified anywhere as long as they are copied to the `resources` output directory on compilation. If no access transformer is defined within `neoforge.mods.toml`, NeoForge will search for `META-INF/accesstransformer.cfg`.
 
 Additionally, multiple AT files can be specified and will be applied in order. This can be useful for larger mods with multiple packages.
 
@@ -100,7 +100,7 @@ Targeting methods require a special syntax to denote the method parameters and r
 
 #### Specifying Types
 
-Also called "descriptors": see the [Java Virtual Machine Specification, SE 8, sections 4.3.2 and 4.3.3][jvmdescriptors] for more technical details.
+Also called "descriptors": see the [Java Virtual Machine Specification, SE 21, sections 4.3.2 and 4.3.3][jvmdescriptors] for more technical details.
 
 - `B` - `byte`, a signed byte
 - `C` - `char`, a Unicode character code point in UTF-16

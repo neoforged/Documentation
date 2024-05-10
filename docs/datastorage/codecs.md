@@ -528,7 +528,7 @@ public class StringObject extends ExampleObject {
     public MapCodec<? extends ExampleObject> type() {
         // A registered registry object
         // "string":
-        //   Codec.STRING.xmap(StringObject::new, StringObject::s)
+        //   Codec.STRING.xmap(StringObject::new, StringObject::s).fieldOf("string")
         return STRING_OBJECT_CODEC.get();
     }
 }
@@ -545,7 +545,7 @@ public class ComplexObject extends ExampleObject {
     public MapCodec<? extends ExampleObject> type() {
         // A registered registry object
         // "complex":
-        //   RecordCodecBuilder.create(instance ->
+        //   RecordCodecBuilder.mapCodec(instance ->
         //     instance.group(
         //       Codec.STRING.fieldOf("s").forGetter(ComplexObject::s),
         //       Codec.INT.fieldOf("i").forGetter(ComplexObject::i)

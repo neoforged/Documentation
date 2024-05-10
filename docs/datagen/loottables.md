@@ -83,8 +83,8 @@ If `DeferredRegister` is being used to register a mod's objects, then the `#getK
 protected Iterable<Block> getKnownBlocks() {
   return BLOCK_REGISTRAR.getEntries() // Get all registered entries
     .stream() // Stream the wrapped objects
-    .flatMap(holder -> holder.asOptional().stream()) // Get the object if available
-    ::iterator; // Create the iterable
+    .map(Holder::value) // Get the object if available
+    .toList(); // Create the iterable
 }
 ```
 :::
