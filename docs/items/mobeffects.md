@@ -1,18 +1,18 @@
 # Mob Effects & Potions
 
-状态效果，有时称为药水效果，并在代码中称为 `MobEffect`，是每个游戏刻对实体产生影响的效果。本文解释了如何使用它们，效果与药水之间的区别，以及如何添加自定义效果。
+Status effects, sometimes known as potion effects and referred to in-code as `MobEffect`s, are effects that influence an entity every tick. This article explains how to use them, what the difference between an effect and a potion is, and how to add your own.
 
-## 术语
+## Terminology
 
-- `MobEffect` 每个游戏刻对实体产生影响。与[方块][block]或[物品][item]一样，`MobEffect` 是注册对象，这意味着它们必须[注册][registration]并且是单例的。
-  - **即时效果** 是一种特殊类型的效果，设计用于应用一次游戏刻。原版有两种即时效果，即即时治疗和即时伤害。
-- `MobEffectInstance` 是 `MobEffect` 的实例，具有持续时间、增幅和一些其他设置（见下文）。`MobEffectInstance` 对于 `MobEffect` 就像 [`ItemStack`][itemstack] 对于 `Item` 一样。
-- `Potion` 是一组 `MobEffectInstance`。原版主要用于四种药水物品（后文），但可以随意应用于任何物品。物品如何使用所设置的药水取决于物品本身。
-- **药水物品** 是指应设置药水的物品。这是一个非正式的术语，原版中有四种药水物品：药水、溅射药水、挥发药水和毒箭；但是模组可能会添加更多。
+- A `MobEffect` affects an entity every tick. Like [blocks][block] or [items][item], `MobEffect`s are registry objects, meaning they must be [registered][registration] and are singletons.
+  - An **instant mob effect** is a special kind of mob effect that is designed to be applied for one tick. Vanilla has two instant effects, Instant Health and Instant Harming.
+- A `MobEffectInstance` is an instance of a `MobEffect`, with a duration, amplifier and some other properties set (see below). `MobEffectInstance`s are to `MobEffect`s what [`ItemStack`s][itemstack] are to `Item`s.
+- A `Potion` is a collection of `MobEffectInstance`s. Vanilla mainly uses potions for the four potion items (read on), however, they can be applied to any item at will. It is up to the item if and how the item then uses the potion set on it.
+- A **potion item** is an item that is meant to have a potion set on it. This is an informal term, the vanilla `PotionItem` class has nothing to do with this (it refers to the "normal" potion item). Minecraft currently has four potion items: potions, splash potions, lingering potions, and tipped arrows; however more may be added by mods.
 
 ## `MobEffect`s
 
-要创建自己的 `MobEffect`，请扩展 `MobEffect` 类：
+To create your own `MobEffect`, extend the `MobEffect` class:
 
 ```java
 public class MyMobEffect extends MobEffect {
@@ -22,37 +22,38 @@ public class MyMobEffect extends MobEffect {
     
     @Override
     public void applyEffectTick(LivingEntity entity, int amplifier) {
-        // 在这里应用你的效果逻辑。
+        // Apply your effect logic here.
     }
     
-    // 决定是否在此游戏刻应用效果。例如，恢复效果每 x 个游戏刻应用一次，具体取决于游戏刻和增幅。
+    // Whether the effect should apply this tick. Used e.g. by the Regeneration effect that only applies
+    // once every x ticks, depending on the tick count and amplifier.
     @Override
     public boolean shouldApplyEffectTickThisTick(int tickCount, int amplifier) {
-        return tickCount % 2 == 0; // 用你想要的检查替换此处
+        return tickCount % 2 == 0; // replace this with whatever check you want
     }
     
-    // 当效果首次添加到实体时调用的实用方法。
+    // Utility method that is called when the effect is first added to the entity.
     @Override
     public void onEffectStarted(LivingEntity entity, int amplifier) {
     }
 }
 ```
 
-像所有注册对象一样，`MobEffect` 必须像下面这样注册：
+Like all registry objects, `MobEffect`s must be registered, like so:
 
 ```java
-// MOB_EFFECTS 是一个 DeferredRegister<MobEffect>
+//MOB_EFFECTS is a DeferredRegister<MobEffect>
 public static final Supplier<MyMobEffect> MY_MOB_EFFECT = MOB_EFFECTS.register("my_mob_effect", () -> new MyMobEffect(
-        // 可以是 BENEFICIAL、NEUTRAL 或 HARMFUL。用于确定此效果的药水工具提示颜色。
+        //Can be either BENEFICIAL, NEUTRAL or HARMFUL. Used to determine the potion tooltip color of this effect.
         MobEffectCategory.BENEFICIAL,
-        // 效果粒子的颜色。
+        //The color of the effect particles.
         0xffffff
 ));
 ```
 
-如果你的效果仅用作标记，你也可以直接使用 `MobEffect` 类，就像你可以使用 `Block` 或 `Item` 类一样。
+If you want your effect to act solely as a marker, you can also directly use the `MobEffect` class, like you can with the `Block` or `Item` classes.
 
-`MobEffect` 类还为受影响实体添加属性修改器提供了默认功能。例如，速度效果会为移动速度添加属性修改器。效果属性修改器添加如下：
+The `MobEffect` class also provides default functionality for adding attribute modifiers to affected entities. For example, the speed effect adds an attribute modifier for movement speed. Effect attribute modifiers are added like so:
 
 ```java
 public static final String MY_MOB_EFFECT_UUID = "01234567-89ab-cdef-0123-456789abcdef";
@@ -62,14 +63,12 @@ public static final Supplier<MyMobEffect> MY_MOB_EFFECT = MOB_EFFECTS.register("
 ```
 
 :::note
-使用的 UUID 必须是有效且唯一的 UUIDv4，因为出于某种原因，Mojang 决定在此处使用 UUID 而不是一些基于文本的标识符。最好
-
-通过在线生成器获得 UUID，例如 [uuidgenerator.net][uuidgen]。
+The UUID used must be a valid and unique UUIDv4, as for some reason, Mojang decided to use UUIDs here instead of some text-based identifier. A UUID is best obtained through an online generator, for example [uuidgenerator.net][uuidgen].
 :::
 
 ### `InstantenousMobEffect`
 
-如果要创建即时效果，可以使用助手类 `InstantenousMobEffect` 而不是常规的 `MobEffect` 类，如下所示：
+If you want to create an instant effect, you can use the helper class `InstantenousMobEffect` instead of the regular `MobEffect` class, like so:
 
 ```java
 public class MyMobEffect extends InstantenousMobEffect {
@@ -79,103 +78,105 @@ public class MyMobEffect extends InstantenousMobEffect {
 
     @Override
     public void applyEffectTick(LivingEntity entity, int amplifier) {
-        // 在这里应用你的效果逻辑。
+        // Apply your effect logic here.
     }
 }
 ```
 
-然后，像平常一样注册你的效果。
+Then, register your effect like normal.
 
-### 事件
+### Events
 
-许多效果在其他地方应用它们的逻辑。例如，飘浮效果在生物移动处理程序中应用。对于模组 `MobEffect`，通常最好在[事件处理程序][events]中应用它们。NeoForge 还提供了一些与效果相关的事件：
+Many effects have their logic applied in other places. For example, the levitation effect is applied in the living entity movement handler. For modded `MobEffect`s, it often makes sense to apply them in an [event handler][events]. NeoForge also provides a few events related to effects:
 
-- `MobEffectEvent.Applicable` 在游戏检查是否可以将 `MobEffectInstance` 应用于实体时触发。此事件可用于拒绝或强制向目标添加效果实例。
-- `MobEffectEvent.Added` 当 `MobEffectInstance` 添加到目标时触发。此事件包含有关可能存在于目标上的先前 `MobEffectInstance` 的信息。
-- `MobEffectEvent.Expired` 当 `MobEffectInstance` 到期时触发，即计时器归零时。
-- `MobEffectEvent.Remove` 当通过除到期之外的方式从实体中移除效果时触发，例如通过喝牛奶或通过命令。
+- `MobEffectEvent.Applicable` is fired when the game checks whether a `MobEffectInstance` can be applied to an entity. This event can be used to deny or force adding the effect instance to the target.
+- `MobEffectEvent.Added` is fired when the `MobEffectInstance` is added to the target. This event contains information about a previous `MobEffectInstance` that may have been present on the target.
+- `MobEffectEvent.Expired` is fired when the `MobEffectInstance` expires, i.e. the timer goes to zero.
+- `MobEffectEvent.Remove` is fired when the effect is removed from the entity through means other than expiring, e.g. through drinking milk or via commands.
 
 ## `MobEffectInstance`s
 
-简单来说，`MobEffectInstance` 是应用于实体的效果。通过调用构造函数创建 `MobEffectInstance`：
+A `MobEffectInstance` is, simply put, an effect applied to an entity. Creating a `MobEffectInstance` is done by calling the constructor:
 
 ```java
 MobEffectInstance instance = new MobEffectInstance(
-        // 要使用的 mob 效果。
+        // The mob effect to use.
         MobEffects.REGENERATION,
-        // 使用的持续时间，以游戏刻为单位。如果未指定，默认为 0。
+        // The duration to use, in ticks. Defaults to 0 if not specified.
         500,
-        // 要使用的增幅。这是效果的 “强度”，例如，Strength I、Strength II 等；从 0 开始。如果未指定，默认为 0。
+        // The amplifier to use. This is the "strength" of the effect, i.e. Strength I, Strength II, etc;
+        // starting at 0. Defaults to 0 if not specified.
         0,
-        // 是否为 “环境” 效果，表示它由环境源应用，Minecraft 目前有信标和导管。如果未指定，默认为 false。
+        // Whether the effect is an "ambient" effect, meaning it is being applied by an ambient source,
+        // of which Minecraft currently has the beacon and the conduit. Defaults to false if not specified.
         false,
-        // 效果是否在库存中可见。如果未指定，默认为 true。
+        // Whether the effect is visible in the inventory. Defaults to true if not specified.
         true,
-        // 是否在右上角可见效果图标。如果未指定，默认为 true。
+        // Whether an effect icon is visible in the top right corner. Defaults to true if not specified.
         true
 );
 ```
 
-有几种构造函数重载，分别省略最后 1-5 个参数。
+Several constructor overloads are available, omitting the last 1-5 parameters, respectively.
 
 :::info
-`MobEffectInstance` 是可变的。如果需要副本，请调用 `new MobEffectInstance(oldInstance)`。
+`MobEffectInstance`s are mutable. If you need a copy, call `new MobEffectInstance(oldInstance)`.
 :::
 
-### 使用 `MobEffectInstance`
+### Using `MobEffectInstance`s
 
-可以将 `MobEffectInstance` 添加到实体，如下所示：
+A `MobEffectInstance` can be added to an entity like so:
 
 ```java
 MobEffectInstance instance = new MobEffectInstance(...);
 entity.addEffect(instance);
 ```
 
-类似地，也可以从实体中移除 `MobEffectInstance`。由于 `MobEffectInstance` 覆盖了实体上的相同 `MobEffect` 的预先存在的 `MobEffectInstance`，因此每个 `MobEffect` 和实体只能有一个 `MobEffectInstance`。因此，在移除时只需指定 `MobEffect` 即可：
+Similarly, `MobEffectInstance` can also be removed from an entity. Since a `MobEffectInstance` overwrites pre-existing `MobEffectInstance`s of the same `MobEffect` on the entity, there can only ever be one `MobEffectInstance` per `MobEffect` and entity. As such, specifying the `MobEffect` suffices when removing:
 
 ```java
 entity.removeEffect(MobEffects.REGENERATION);
 ```
 
 :::info
-`MobEffect` 只能应用于 `LivingEntity` 或其子类，例如玩家和生物。例如物品或投掷雪球无法受到 `MobEffect` 的影响。
+`MobEffect`s can only be applied to `LivingEntity` or its subclasses, i.e. players and mobs. Things like items or thrown snowballs cannot be affected by `MobEffect`s.
 :::
 
 ## `Potion`s
 
-`Potion`s 是通过调用 `Potion` 的构造函数并传递你想要的 `MobEffectInstance`s 来创建的。例如：
+`Potion`s are created by calling the constructor of `Potion` with the `MobEffectInstance`s you want the potion to have. For example:
 
 ```java
-// POTIONS 是一个 DeferredRegister<Potion>
+//POTIONS is a DeferredRegister<Potion>
 public static final Supplier<Potion> MY_POTION = POTIONS.register("my_potion", () -> new Potion(new MobEffectInstance(MY_MOB_EFFECT.get(), 3600)));
 ```
 
-请注意，`new Potion` 的参数是可变参数。这意味着你可以向药水添加任意数量的效果。这也意味着可以创建空药水，即不含任何效果的药水。只需调用 `new Potion()` 即可！（顺便说一句，这就是原版如何添加 `awkward` 药水的方式。）
+Note that the parameter of `new Potion` is a vararg. This means that you can add as many effects as you want to the potion. This also means that it is possible to create empty potions, i.e. potions that don't have any effects. Simply call `new Potion()` and you're done! (This is how vanilla adds the `awkward` potion, by the way.)
 
-药水的名称可以作为第一个构造函数参数传递。它用于翻译；例如，原版中的长效和强效药水变种使用此参数，使其与基本变种具有相同的名称。名称不是必需的；如果省略了名称，将从注册表中查询名称。
+The name of the potion can be passed as the first constructor argument. It is used for translating; for example, the long and strong potion variants in vanilla use this to have the same names as their base variant. The name is not required; if it is omitted, the name will be queried from the registry.
 
-`PotionUtils` 类提供了与药水相关的各种辅助方法，例如 `getPotion` 和 `setPotion` 用于物品堆栈（这可以是任何类型的物品，不仅限于药水物品），或者 `getColor` 用于获取药水的显示颜色。
+The `PotionUtils` class offers various helper methods related to potions, such as `getPotion` and `setPotion` for item stacks (this can be any kind of item and is not limited to potion items), or `getColor` for getting a potion's display color.
 
-### 酿造
+### Brewing
 
-现在，你的药水已经添加，药水物品可以使用你的药水了。但是，在生存模式下没有办法获得你的药水，所以让我们改变一下！
+Now that your potion is added, potion items are available for your potion. However, there is no way to obtain your potion in survival, so let's change that!
 
-传统上，药水是在酿造台上制作的。不幸的是，Mojang 没有为酿造配方提供 [数据包][datapack] 支持，因此我们必须有点老派，通过代码添加我们的配方。操作如下：
+Potions are traditionally made in the Brewing Stand. Unfortunately, Mojang does not provide [datapack][datapack] support for brewing recipes, so we have to be a little old-fashioned and add our recipes through code. This is done like so:
 
 ```java
-// 酿造成分。这是在酿造台顶部的物品。
+// The brewing ingredient. This is the item at the top of the brewing stand.
 Ingredient brewingIngredient = Ingredient.of(Items.FEATHER);
 BrewingRecipeRegistry.addRecipe(
-        // 输入药水成分，通常是一种混合药水。这是在酿造台底部的物品。
-        // 不一定要是药水，但通常是。
+        // The input potion ingredient, often an awkward potion. This is the item at the bottom of the brewing stand.
+        // Does not need to be a potion, but typically is.
         PotionUtils.setPotion(new ItemStack(Items.POTION), Potions.AWKWARD),
-        // 我们的酿造成分。
+        // Our brewing ingredient.
         brewingIngredient,
-        // 结果物品堆栈。不一定要是药水，但通常是。
+        // The resulting item stack. Does not need to be a potion, but typically is.
         PotionUtils.setPotion(new ItemStack(Items.POTION), MY_POTION)
 );
-// 对于溅射药水和挥发药水，我们还需要单独处理。
-// 原版的毒箭配方由 Minecraft 的毒箭特殊配方处理。
+// We also need to do this separately for splash potions and lingering potions.
+// The tipped arrow recipe is taken care of by Minecraft's tipped arrow special crafting handler.
 BrewingRecipeRegistry.addRecipe(
         PotionUtils.setPotion(new ItemStack(Items.SPLASH_POTION), Potions.AWKWARD),
         brewingIngredient,
@@ -188,7 +189,7 @@ BrewingRecipeRegistry.addRecipe(
 );
 ```
 
-这应该在设置期间的某个时间调用，例如在 [`FMLCommonSetupEvent`][commonsetup] 中。确保将此代码包装到 `event.enqueueWork()` 调用中，因为酿造配方注册表不是线程安全的。
+This should be called some time during setup, for example during [`FMLCommonSetupEvent`][commonsetup]. Make sure to wrap this into an `event.enqueueWork()` call, as the brewing recipe registry is not thread-safe.
 
 [block]: ../blocks/index.md
 [commonsetup]: ../concepts/events.md#event-buses

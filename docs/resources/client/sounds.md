@@ -1,24 +1,24 @@
-# 声音
+# Sounds
 
-虽然声音对于任何事情都不是必需的，但它们可以使模组感觉更加细腻和生动。Minecraft为你提供了各种注册和播放声音的方式，本文将对此进行说明。
+Sounds, while not required for anything, can make a mod feel much more nuanced and alive. Minecraft offers you various ways to register and play sounds, which will be laid out in this article.
 
-## 术语
+## Terminology
 
-Minecraft的声音引擎使用多种术语来指代不同的事物：
+The Minecraft sound engine uses a variety of terms to refer to different things:
 
-- **声音事件**：声音事件是一个在代码中的触发器，它告诉声音引擎播放某个特定的声音。`SoundEvent`也是你需要注册到游戏中的东西。
-- **声音类别**或**声音源**：声音类别是声音的粗略分组，可以单独切换。声音选项GUI中的滑块代表这些类别：`master`（主音量）、`block`（方块）、`player`（玩家）等等。在代码中，它们可以在`SoundSource`枚举中找到。
-- **声音定义**：将声音事件映射到一个或多个声音对象的映射，加上一些可选的元数据。声音定义位于命名空间的[`sounds.json`文件][soundsjson]中。
-- **声音对象**：由声音文件位置加上一些可选的元数据组成的JSON对象。
-- **声音文件**：磁盘上的声音文件。Minecraft仅支持`.ogg`格式的声音文件。
+- **Sound event**: A sound event is an in-code trigger that tells the sound engine to play a certain sound. `SoundEvent`s are also the things you register to the game.
+- **Sound category** or **sound source**: Sound categories are rough groupings of sounds that can be individually toggled. The sliders in the sound options GUI represent these categories: `master`, `block`, `player` etc. In code, they can be found in the `SoundSource` enum.
+- **Sound definition**: A mapping of a sound event to one or multiple sound objects, plus some optional metadata. Sound definitions are located in a namespace's [`sounds.json` file][soundsjson].
+- **Sound object**: A JSON object consisting of a sound file location, plus some optional metadata.
+- **Sound file**: An on-disk sound file. Minecraft only supports `.ogg` sound files.
 
 :::danger
-由于OpenAL（Minecraft的音频库）的实现方式，为了让你的声音具有衰减效果——即根据玩家与声源的距离声音变小或变大——你的声音文件必须是单声道（单通道）。立体声（多通道）声音文件不会受到衰减的影响，并且总是在玩家的位置播放，这使它们成为环境声音和背景音乐的理想选择。也看看[MC-146721][bug]。
+Due to the implementation of OpenAL (Minecraft's audio library), for your sound to have attenuation - that is, for it to get quieter and louder depending on the player's distance to it -, your sound file must be mono (single channel). Stereo (multichannel) sound files will not be subject to attenuation and always play at the player's location, making them ideal for ambient sounds and background music. See also [MC-146721][bug].
 :::
 
-## 创建`SoundEvent`
+## Creating `SoundEvent`s
 
-`SoundEvent`是[注册对象][registration]，意味着它们必须通过`DeferredRegister`注册到游戏中，并且是单例的：
+`SoundEvent`s are [registered objects][registration], meaning that they must be registered to the game through a `DeferredRegister` and be singletons:
 
 ```java
 public class MySoundsClass {
@@ -41,7 +41,7 @@ public class MySoundsClass {
 }
 ```
 
-当然，不要忘记在[模组构造器][modctor]中将你的注册表添加到[模组事件总线][modbus]中：
+Of course, don't forget to add your registry to the [mod event bus][modbus] in the [mod constructor][modctor]:
 
 ```java
 public ExampleMod(IEventBus modBus) {
@@ -50,13 +50,13 @@ public ExampleMod(IEventBus modBus) {
 }
 ```
 
-然后，你就有了一个声音事件！
+And voilà, you have a sound event!
 
 ## `sounds.json`
 
-_另见：[Minecraft Wiki][mcwiki]上的[sounds.json][mcwikisounds]_
+_See also: [sounds.json][mcwikisounds] on the [Minecraft Wiki][mcwiki]_
 
-现在，为了将你的声音事件连接到实际的声音文件，我们需要创建声音定义。一个命名空间的所有声音定义都存储在一个名为`sounds.json`的文件中，也就是声音定义文件，直接放在命名空间的根目录下。每个声音定义都是声音事件id（如`my_sound`）到JSON声音对象的映射。注意，声音事件id不指定命名空间，因为这已经由声音定义文件所在的命名空间确定。一个示例的`sounds.json`看起来像这样：
+Now, to connect your sound event to actual sound files, we need to create sound definitions. All sound definitions for a namespace are stored in a single file named `sounds.json`, also known as the sound definitions file, directly in the namespace's root. Every sound definition is a mapping of sound event id (e.g. `my_sound`) to a JSON sound object. Note that the sound event ids do not specify a namespace, as that is already determined by the namespace the sound definitions file is in. An example `sounds.json` would look something like this:
 
 ```json5
 {
@@ -106,11 +106,11 @@ _另见：[Minecraft Wiki][mcwiki]上的[sounds.json][mcwikisounds]_
 }
 ```
 
-### 合并
+### Merging
 
-与大多数其他资源文件不同，`sounds.json`文件不会覆盖它们下面的包中的值。相反，它们被合并在一起，然后解释为一个组合的`sounds.json`文件。考虑在两个不同资源包RP1和RP2中的两个`sounds.json`文件里定义了声音`sound_1`、`sound_2`、`sound_3`和`sound_4`，其中RP2位于RP1下面：
+Unlike most other resource files, `sounds.json` do not overwrite values in packs below them. Instead, they are merged together and then interpreted as one combined `sounds.json` file. Consider sounds `sound_1`, `sound_2`, `sound_3` and `sound_4` being defined in two `sounds.json` files from two different resource packs RP1 and RP2, where RP2 is placed below RP1:
 
-RP1中的`sounds.json`：
+`sounds.json` in RP1:
 
 ```json5
 {
@@ -139,7 +139,7 @@ RP1中的`sounds.json`：
 }
 ```
 
-RP2中的`sounds.json`：
+`sounds.json` in RP2:
 
 ```json5
 {
@@ -168,7 +168,7 @@ RP2中的`sounds.json`：
 }
 ```
 
-游戏最终会使用的组合（合并）的`sounds.json`文件，在内存中看起来会像这样（这个文件从不会被写在任何地方）：
+The combined (merged) `sounds.json` file the game would then go on and use to load sounds would look something look this (only in memory, this file is never written anywhere):
 
 ```json5
 {
@@ -202,43 +202,43 @@ RP2中的`sounds.json`：
 }
 ```
 
-## 播放声音
+## Playing Sounds
 
-Minecraft提供了各种播放声音的方法，有时不清楚应该使用哪一个。所有的方法都接受一个`SoundEvent`，可以是你自己的，也可以是原版的（原版声音事件可以在`SoundEvents`类中找到）。以下的方法描述，客户端和服务器分别指的是[逻辑客户端和逻辑服务器][sides]。
+Minecraft offers various methods to play sounds, and it is sometimes unclear which one should be used. All methods accept a `SoundEvent`, which can either be your own or a vanilla one (vanilla sound events are found in the `SoundEvents` class). For the following method descriptions, client and server refer to the [logical client and logical server][sides], respectively.
 
 ### `Level`
 
 - `playSound(Player player, double x, double y, double z, SoundEvent soundEvent, SoundSource soundSource, float volume, float pitch)`
-  - 客户端行为：如果传入的玩家是本地玩家，则在给定位置为玩家播放声音事件，否则无操作。
-  - 服务器行为：向所有除传入的玩家以外的玩家发送一个数据包，指示客户端在给定位置为玩家播放声音事件。
-  - 用法：从将在两侧运行的客户端启动的代码中调用。服务器不会对发起播放的玩家播放声音，以防止对他们播放两次声音事件。或者，从服务器启动的代码（如[block entity][be]）中调用，并使用`null`作为玩家，对所有人播放声音。
+  - Client behavior: If the player passed in is the local player, play the sound event to the player at the given location, otherwise no-op.
+  - Server behavior: A packet instructing the client to play the sound event to the player at the given location is sent to all players except the one passed in.
+  - Usage: Call from client-initiated code that will run on both sides. The server not playing it to the initiating player prevents playing the sound event twice to them. Alternatively, call from server-initiated code (e.g. a [block entity][be]) with a `null` player to play the sound to everyone.
 - `playSound(Player player, BlockPos pos, SoundEvent soundEvent, SoundSource soundSource, float volume, float pitch)`
-  - 转发到第一个方法，其中`x`、`y`和`z`分别取`pos.getX() + 0.5`、`pos.getY() + 0.5`和`pos.getZ() + 0.5`的值。
+  - Forwards to the first method with `x`, `y` and `z` taking the values of `pos.getX() + 0.5`, `pos.getY() + 0.5` and `pos.getZ() + 0.5`, respectively.
 - `playLocalSound(double x, double y, double z, SoundEvent soundEvent, SoundSource soundSource, float volume, float pitch, boolean distanceDelay)`
-  - 客户端行为：在给定位置为玩家播放声音。不向服务器发送任何内容。如果`distanceDelay`是`true`，则根据距离玩家的距离延迟声音。
-  - 服务器行为：无操作。
-  - 用法：从服务器发送的自定义数据包中调用。原版用这个方法播放雷声。
+  - Client behavior: Plays the sound to the player at the given location. Does not send anything to the server. If `distanceDelay` is `true`, delays the sound based on the distance to the player.
+  - Server behavior: No-op.
+  - Usage: Called from custom packets sent from the server. Vanilla uses this for thunder sounds.
 
 ### `ClientLevel`
 
 - `playLocalSound(BlockPos pos, SoundEvent soundEvent, SoundSource soundSource, float volume, float pitch, boolean distanceDelay)`
-  - 转发到`Level#playLocalSound`，其中`x`、`y`和`z`分别取`pos.getX() + 0.5`、`pos.getY() + 0.5`和`pos.getZ() + 0.5`的值。
+  - Forwards to `Level#playLocalSound` with `x`, `y` and `z` taking the values of `pos.getX() + 0.5`, `pos.getY() + 0.5` and `pos.getZ() + 0.5`, respectively.
 
 ### `Entity`
 
 - `playSound(SoundEvent soundEvent, float volume, float pitch)`
-  - 转发到`Level#playSound`，其中玩家为`null`，声音源为`SoundSource.ENTITY`，实体的位置为x/y/z，其他参数为传入的参数。
+  - Forwards to `Level#playSound` with `null` as the player, `SoundSource.ENTITY` as the sound source, the entity's position for x/y/z, and the other parameters passed in.
 
 ### `Player`
 
-- `playSound(SoundEvent soundEvent, float volume, float pitch)` （覆盖`Entity`中的方法）
-  - 转发到`Level#playSound`，其中玩家为`this`，声音源为`SoundSource.PLAYER`，玩家的位置为x/y/z，其他参数为传入的参数。因此，客户端/服务器的行为模仿`Level#playSound`：
-    - 客户端行为：在给定位置为客户端玩家播放声音事件。
-    - 服务器行为：除了调用此方法的玩家，对给定位置附近的所有人播放声音事件。
+- `playSound(SoundEvent soundEvent, float volume, float pitch)` (overrides the method in `Entity`)
+  - Forwards to `Level#playSound` with `this` as the player, `SoundSource.PLAYER` as the sound source, the player's position for x/y/z, and the other parameters passed in. As such, the client/server behavior mimics the one from `Level#playSound`:
+    - Client behavior: Play the sound event to the client player at the given location.
+    - Server behavior: Play the sound event to everyone near the given location except the player this method was called on.
 
-## 数据生成
+## Datagen
 
-声音文件本身当然不能被[数据生成][datagen]，但是`sounds.json`文件可以。为了做到这一点，我们扩展`SoundDefinitionsProvider`并覆盖`registerSounds()`方法：
+Sound files themselves can of course not be [datagenned][datagen], but `sounds.json` files can. To do so, we extend `SoundDefinitionsProvider` and override the `registerSounds()` method:
 
 ```java
 public class MySoundDefinitionsProvider extends SoundDefinitionsProvider {
@@ -283,7 +283,7 @@ public class MySoundDefinitionsProvider extends SoundDefinitionsProvider {
 }
 ```
 
-与所有数据提供器一样，不要忘记将提供者注册到事件中：
+As with every data provider, don't forget to register the provider to the event:
 
 ```java
 @SubscribeEvent

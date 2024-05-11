@@ -1,27 +1,38 @@
-ForgeGradle文档
+ForgeGradle Documentation
 =========================
 
-这是[ForgeGradle]的官方文档，ForgeGradle是一个用于使用MinecraftForge开发[MinecraftForge]和模组的[Gradle]插件。
+This is the official documentation for [ForgeGradle], a [Gradle] plugin for developing [MinecraftForge] and mods using MinecraftForge.
 
-这份文档 _仅_ 针对ForgeGradle，**这不是Java、Groovy或Gradle教程**。
+This documentation is _only_ for ForgeGradle, **this is not a Java, Groovy, or Gradle tutorial**.
 
-如果你想为文档做出贡献，请阅读[为文档做贡献][contributing]。
+If you would like to contribute to the docs, read [Contributing to the Docs][contributing].
 
-添加插件
+Adding the Plugin
 -----------------
 
-通过在可用的插件仓库中添加MinecraftForge maven，可以使用`plugins`代码块添加ForgeGradle：
+ForgeGradle can be added using the `plugins` block by adding the MinecraftForge maven to the available plugin repositories:
 
 ```gradle
-// 在settings.gradle文件中
+// In settings.gradle
 pluginManagement {
     repositories {
         // ...
 
-        // 添加MinecraftForge maven
+        // Add the MinecraftForge maven
         maven { url = 'https://maven.minecraftforge.net/' }
     }
 }
+```
+
+```gradle
+// In build.gradle
+plugins {
+    // Add the ForgeGradle plugin
+    id 'net.minecraftforge.gradle' version '5.1.+'
+
+    // ...
+}
+```
 
 [ForgeGradle]: https://github.com/MinecraftForge/ForgeGradle
 [Gradle]: https://gradle.org/

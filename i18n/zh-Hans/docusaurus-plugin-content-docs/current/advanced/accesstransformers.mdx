@@ -1,0 +1,167 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Access Transformers
+
+Access Transformers (简称 ATs) 允许开发者扩大类、方法和字段的可见性，以及修改其 `final` 属性。这些工具使得模组开发者能够访问和修改通常无法访问的类成员。
+
+[规范文档][specs]可以在 NeoForged 的 GitHub 上查看。
+
+## 添加 ATs
+
+将 Access Transformer 添加到您的 mod 项目与在 `build.gradle` 中添加一行代码一样简单：
+
+<Tabs defaultValue="latest">
+<TabItem value="latest" label="Latest">
+Access Transformers 需要在 `build.gradle` 和 `mods.toml` 中声明：
+
+```groovy
+// 在 build.gradle 中：
+// 此部分也是指定映射版本的地方
+minecraft {
+  accessTransformers {
+    file('src/main/resources/META-INF/accesstransformer.cfg')
+  }
+}
+```
+
+```toml
+# 在 mods.toml 中:
+[[accessTransformers]]
+file="META-INF/accesstransformer.cfg"
+```
+
+AT 文件可以位于上面几行指定的任何位置，但如果没有指定其他文件，NeoForge 将默认搜索 `META-INF/accesstransformer.cfg`。
+
+此外，可以指定多个 AT 文件并按顺序应用。 这对于具有多个软件包的大型模组非常有用。
+
+```groovy
+// In build.gradle:
+minecraft {
+  accessTransformers {
+    file('src/main/resources/accesstransformer_main.cfg')
+    file('src/additions/resources/accesstransformer_additions.cfg')
+  }
+}
+```
+
+```toml
+# In mods.toml
+[[accessTransformers]]
+file="accesstransformer_main.cfg"
+
+[[accessTransformers]]
+file="accesstransformer_additions.cfg"
+```
+
+添加或修改任何访问转换器后，必须刷新 Gradle 项目，以便使更改生效。
+</TabItem>
+
+<TabItem value="1.20.1" label="1.20.1-47.1 and older">
+在你的模组项目中添加一个 AT 也很简单，只需在 `build.gradle` 中添加一行代码：
+
+```groovy
+// 这一部分也是你指定映射版本的地方
+minecraft {
+  accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+}
+```
+
+在开发环境中，AT 文件可以放在上述指定的任何位置。然而，在非开发环境中加载时，NeoForge 只会搜索你的 JAR 文件中 `META-INF/accesstransformer.cfg` 的确切路径。
+
+添加或修改访问转换器后，必须刷新 Gradle 项目，以便使更改生效。
+</TabItem>
+</Tabs>
+
+## 注释
+
+`#` 之后直到行尾的所有文本都将被视为注释并且不会被解析。
+
+## 访问控制修饰符
+
+访问控制修饰符指明目标将被转换到的新的成员的可见性。按可见性递减的顺序排列如下:
+
+* `public` - 对包内外的所有类可见
+* `protected` - 只对包内的类和子类可见
+* `default` - 只对包内的类可见
+* `private` - 只对类的内部可见
+
+特殊修饰符 `+f` 和 `-f` 可以分别添加到上述的修饰符之后，用以添加或移除 `final` 修饰符，当应用时可防止子类化、方法覆盖或字段修改。
+
+:::danger
+指令只修改直接引用的方法；任何覆盖的方法都不会被转换。建议确保转换的方法没有未转换覆盖的方法，否则这会限制其可见性，并可能导致 JVM 报错。
+
+可以安全转换的方法示例包括 `private` 方法、`final` 方法（或 `final` 类中的方法）以及 `static` 方法。
+:::
+
+## 目标和指令
+
+### 类
+
+定位类的格式如下:
+
+```
+<access modifier> <fully qualified class name>
+```
+
+内部类通过组合外部类的完全限定名和内部类名，使用 `$` 作为分隔符来表示。
+
+### 字段
+
+定位字段的格式如下：
+
+```
+<access modifier> <fully qualified class name> <field name>
+```
+
+### 方法
+
+定位方法需要特殊的语法来表示方法参数和返回类型：
+
+```
+<access modifier> <fully qualified class name> <method name>(<parameter types>)<return type>
+```
+
+#### 指定类型
+
+也称为"描述符"：有关更多技术细节，请参见 [Java 虚拟机规范，SE 8，第 4.3.2 节和 4.3.3 节][jvmdescriptors]。
+
+* `B` - `byte`，有符号字节
+* `C` - `char`，Unicode 字符代码点，使用 UTF-16 编码
+* `D` - `double`，双精度浮点值
+* `F` - `float`，单精度浮点值
+* `I` - `integer`，32 位整数
+* `J` - `long`，64 位整数
+* `S` - `short`，有符号短整数
+* `Z` - `boolean`，`true` 或 `false` 值
+* `[` - 表示数组的一个维度
+  * 示例: `[[S` 表示 `short[][]`
+* `L<class name>;` - 表示引用类型
+  * 示例: `Ljava/lang/String;` 表示 `java.lang.String` 引
+
+用类型 _(注意使用斜线而非点)_
+* `(` - 表示方法描述符，参数应在此处提供，如果没有参数则不提供
+  * 示例: `<method>(I)Z` 表示一个需要整型参数并返回布尔值的方法
+* `V` - 表示方法不返回值，只能在方法描述符的末尾使用
+  * 示例: `<method>()V` 表示一个没有参数并且不返回任何结果的方法
+
+## 示例
+
+```
+# 将 Crypt 中的 ByteArrayToKeyFunction 接口公开
+public net.minecraft.util.Crypt$ByteArrayToKeyFunction
+
+# 将 MinecraftServer 中的 'random' 字段设为 protected 并移除 final 修饰
+protected-f net.minecraft.server.MinecraftServer random
+
+# 将 Util 中的 'makeExecutor' 方法公开，
+# 接受一个 String 并返回一个 ExecutorService
+public net.minecraft.Util makeExecutor(Ljava/lang/String;)Ljava/util/concurrent/ExecutorService;
+
+# 将 UUIDUtil 中的 'leastMostToIntArray' 方法公开，
+# 接受两个 long 并返回一个 int 数组
+public net.minecraft.core.UUIDUtil leastMostToIntArray(JJ)[I
+```
+
+[specs]: https://github.com/NeoForged/AccessTransformers/blob/main/FMLAT.md
+[jvmdescriptors]: https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.3.2

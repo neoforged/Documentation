@@ -1,41 +1,42 @@
-ForgeGradle入门
+Getting Started with ForgeGradle
 ================================
 
-如果你以前从未使用过ForgeGradle，这里有一些设置开发环境所需的最少内容。
+If you have never used ForgeGradle before, here is the minimum amount of information needed to get a development environment setup.
 
-#### 先决条件
+#### Prerequisites
 
-* Java开发工具包（JDK）的安装
+* An installation of the Java Development Kit (JDK)
 
-Minecraft版本        | Java开发工具包版本
-:---:                | :---:
-1.12 - 1.16          | [JDK 8][jdk8]
-1.17                 | [JDK 16][jdk16]
-1.18 - 1.19          | [JDK 17][jdk17]
+Minecraft Versions | Java Development Kit Version
+:---:              | :---:
+1.12 - 1.16        | [JDK 8][jdk8]
+1.17               | [JDK 16][jdk16]
+1.18 - 1.19        | [JDK 17][jdk17]
 
-* 熟悉一个集成开发环境（IDE）
-    * 最好使用带有某种形式的Gradle集成的IDE
+* Familiarity with an Integrated Development Environment (IDE)
+    * It is preferable to use one with some form of Gradle integration
 
-## 设置ForgeGradle
+## Setting Up ForgeGradle
 
-1. 首先从MinecraftForge下载[模组开发套件（MDK）][mdk]的副本，并将zip解压到一个空目录中。
-1. 在你选择的IDE中打开你解压MDK的目录。如果你的IDE与Gradle集成，将其作为一个Gradle项目导入。
-1. 自定义你的Gradle构建脚本以适合你的模组：
-    1. 将`archivesBaseName`设置为所需的模组ID。此外，将所有出现的`examplemod`替换为模组ID。
-    1. 更改`group`为你想要的包名。确保遵循现有的[命名惯例][group]。
-    1. 将`version`号更改为反映你的模组的当前版本。强烈建议使用[Forge对语义版本控制的扩展][semver]。
+1. First download a copy of the [Modder Development Kit (MDK)][mdk] from MinecraftForge and extract the zip to an empty directory.
+1. Open the directory you extracted the MDK to within your IDE of choice. If your IDE integrates with Gradle, import it as a Gradle project.
+1. Customize your Gradle buildscript for your mod:
+    1. Set `archivesBaseName` to the desired mod id. Additionally, replace all occurrences of `examplemod` with the mod id as well.
+    1. Change the `group` to your desired package name. Make sure to follow existing [naming conventions][group].
+    1. Change the `version` number to reflect the current version of your mod. It is highly recommended to use [Forge's extension on semantic versioning][semver].
 
-:::警告
-确保对模组ID的任何更改都反映在mods.toml和主模组类中。有关更多信息，请参阅Forge文档上的[结构化你的模组][structuring]。
+
+:::caution
+Make sure that any changes to the mod id are reflected in the mods.toml and main mod class. See [Structuring Your Mod][structuring] on the Forge docs for more information.
 :::
 
-4. 使用你的IDE重新加载或刷新你的Gradle项目。如果你的IDE没有Gradle集成，以上一个shell在你项目的目录下运行以下命令:
+4. Reload or refresh your Gradle project using your IDE. If your IDE does not have Gradle integration, run the following from a shell in your project's directory:
 
 ```sh
 ./gradlew build --refresh-dependencies
 ```
 
-5. 如果你的IDE是Eclipse、IntelliJ IDEA或Visual Studio Code，你可以使用下列命令之一生成运行配置：
+5. If your IDE is either Eclipse, IntelliJ IDEA, or Visual Studio Code, you can generate run configurations using one of the following commands, respectively:
 
 #### Eclipse
 
@@ -55,13 +56,14 @@ Minecraft版本        | Java开发工具包版本
 ./gradlew genVSCodeRuns
 ```
 
-你可以使用生成的运行配置来运行客户端、服务器等。
+You can the run the client, server, etc. using one of the generated run configurations.
 
-:::提示
-如果你的IDE未被列出，你仍然可以使用`./gradlew run*`（例如，`runClient`, `runServer`, `runData`）运行配置。你也可以在支持的IDE中使用这些命令。
+:::tip
+If your IDE is not listed, you can still run the configurations using `./gradlew run*` (e.g., `runClient`, `runServer`, `runData`). You can use these commands with the supported IDEs as well.
 :::
 
-恭喜你，现在你已经设置了一个开发环境！
+Congratulations, now you have a development environment set up!
+
 
 [jdk8]: https://adoptium.net/temurin/releases/?version=8
 [jdk16]: https://adoptium.net/temurin/releases/?version=16

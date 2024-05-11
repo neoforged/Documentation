@@ -1,22 +1,22 @@
-### BlockEntityWithoutLevelRenderer
+BlockEntityWithoutLevelRenderer
+=======================
+`BlockEntityWithoutLevelRenderer` is a method to handle dynamic rendering on items. This system is much simpler than the old `ItemStack` system, which required a `BlockEntity`, and did not allow access to the `ItemStack`.
 
-`BlockEntityWithoutLevelRenderer` 是一种处理物品的动态渲染方法。这个系统比旧的 `ItemStack` 系统简单得多，因为旧系统需要一个 `BlockEntity`，并且无法访问 `ItemStack`。
-
-使用 BlockEntityWithoutLevelRenderer
+Using BlockEntityWithoutLevelRenderer
 --------------------------
 
-BlockEntityWithoutLevelRenderer 允许你使用 `public void renderByItem(ItemStack itemStack, ItemDisplayContext ctx, PoseStack poseStack, MultiBufferSource bufferSource, int combinedLight, int combinedOverlay)` 来渲染你的物品。
+BlockEntityWithoutLevelRenderer allows you to render your item using `public void renderByItem(ItemStack itemStack, ItemDisplayContext ctx, PoseStack poseStack, MultiBufferSource bufferSource, int combinedLight, int combinedOverlay)`.
 
-为了使用 BEWLR，`Item` 必须首先满足一个条件：它的模型对于 `BakedModel#isCustomRenderer` 返回 true。如果没有自定义渲染器，它将使用默认的 `ItemRenderer#getBlockEntityRenderer`。一旦返回 true，物品的 BEWLR 将被访问以进行渲染。
+In order to use an BEWLR, the `Item` must first satisfy the condition that its model returns true for `BakedModel#isCustomRenderer`. If it does not have one, it will use the default `ItemRenderer#getBlockEntityRenderer`. Once that returns true, the Item's BEWLR will be accessed for rendering. 
 
 :::note
-如果 `Block#getRenderShape` 设置为 `RenderShape#ENTITYBLOCK_ANIMATED`，`Block` 也会使用 BEWLR 进行渲染。
+`Block`s also render using a BEWLR if `Block#getRenderShape` is set to `RenderShape#ENTITYBLOCK_ANIMATED`.
 :::
 
-要为物品设置 BEWLR，必须在 `Item#initializeClient` 中消费 `IClientItemExtensions` 的匿名实例。在匿名实例中，应该重写 `IClientItemExtensions#getCustomRenderer` 以返回你的 BEWLR 的实例：
+To set the BEWLR for an Item, an anonymous instance of `IClientItemExtensions` must be consumed within `Item#initializeClient`. Within the anonymous instance, `IClientItemExtensions#getCustomRenderer` should be overridden to return the instance of your BEWLR:
 
 ```java
-// 在你的物品类中
+// In your item class
 @Override
 public void initializeClient(Consumer<IClientItemExtensions> consumer) {
   consumer.accept(new IClientItemExtensions() {
@@ -30,7 +30,7 @@ public void initializeClient(Consumer<IClientItemExtensions> consumer) {
 ```
 
 :::caution
-每个模组应该只有一个自定义 BEWLR 实例。
+Each mod should only have one instance of a custom BEWLR.
 :::
 
-就是这样，使用 BEWLR 不需要额外的设置。
+That is it, no additional setup is necessary to use a BEWLR.

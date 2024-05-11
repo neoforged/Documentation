@@ -1,16 +1,16 @@
-# 自定义模型加载器
+# Custom Model Loaders
 
-一个模型就是一个形状。它可以是一个立方体、一组立方体、一组三角形，或者任何其他的几何形状（或几何形状的组合）。在大多数上下文中，模型是如何定义的并不重要，因为最终一切都会在内存中变成`BakedModel`。因此，NeoForge增加了能够注册自定义模型加载器的功能，这些加载器可以将任何你想要的模型转换成游戏使用的`BakedModel`。
+A model is simply a shape. It can be a cube, a collection of cubes, a collection of triangles, or any other geometrical shape (or collection of geometrical shape). For most contexts, it is not relevant how a model is defined, as everything will end up as a `BakedModel` in memory anyway. As such, NeoForge adds the ability to register custom model loaders that can transform any model you want into a `BakedModel` for the game to use.
 
-一个方块模型的入口点仍然是模型JSON文件。然而，你可以在JSON的根部指定一个`loader`字段，它会将默认加载器替换为你自己的加载器。一个自定义模型加载器可能会忽略默认加载器所需的所有字段。
+The entry point for a block model remains the model JSON file. However, you can specify a `loader` field in the root of the JSON that will swap out the default loader for your own loader. A custom model loader may ignore all fields the default loader requires.
 
-## 内建模型加载器
+## Builtin Model Loaders
 
-除了默认模型加载器，NeoForge还提供了几个内建的加载器，每个加载器都有不同的用途。
+Besides the default model loader, NeoForge offers several builtin loaders, each serving a different purpose.
 
-### 组合模型
+### Composite Model
 
-组合模型可以用来在父模型中指定不同的模型部分，并且只在子模型中应用其中的一些。以下面的例子最能说明这一点。考虑以下位于`examplemod:example_composite_model`的父模型：
+A composite model can be used to specify different model parts in the parent and only apply some of them in a child. This is best illustrated by an example. Consider the following parent model at `examplemod:example_composite_model`:
 
 ```json5
 {
@@ -31,7 +31,7 @@
 }
 ```
 
-然后，我们可以在`examplemod:example_composite_model`的子模型中禁用和启用单独的部分：
+Then, we can disable and enable individual parts in a child model of `examplemod:example_composite_model`:
 
 ```json5
 {
@@ -44,11 +44,11 @@
 }
 ```
 
-要[datagen][modeldatagen]这个模型，使用自定义加载器类`CompositeModelBuilder`。
+To [datagen][modeldatagen] this model, use the custom loader class `CompositeModelBuilder`.
 
-### 动态流体容器模型
+### Dynamic Fluid Container Model
 
-动态流体容器模型，也称为动态桶模型，它最常见的使用场景是用于表示流体容器的物品（如桶或罐）并想在模型中显示流体。这只有在流体量是固定的（例如只有岩浆和细雪）的情况下才可行，如果流体是任意的，那么请使用[`BlockEntityWithoutLevelRenderer`][bewlr]。
+The dynamic fluid container model, also called dynamic bucket model after its most common use case, is used for items that represent a fluid container (such as a bucket or a tank) and want to show the fluid within the model. This only works if there is a fixed amount of fluids (e.g. only lava and powder snow) that can be used, use a [`BlockEntityWithoutLevelRenderer`][bewlr] instead if the fluid is arbitrary.
 
 ```json5
 {
@@ -71,7 +71,7 @@
 }
 ```
 
-很多时候，动态流体容器模型会直接使用桶模型。这是通过指定`neoforge:item_bucket`父模型来实现的，如下所示：
+Very often, dynamic fluid container models will directly use the bucket model. This is done by specifying the `neoforge:item_bucket` parent model, like so:
 
 ```json5
 {
@@ -83,11 +83,11 @@
 }
 ```
 
-要[datagen][modeldatagen]这个模型，使用自定义加载器类`DynamicFluidContainerModelBuilder`。请注意，出于对旧版本支持的考虑，这个类还提供了一个设置`apply_tint`属性的方法，这个属性现在已不再使用。
+To [datagen][modeldatagen] this model, use the custom loader class `DynamicFluidContainerModelBuilder`. Be aware that for legacy support reasons, this class also provides a method to set the `apply_tint` property, which is no longer used.
 
-### 元素模型
+### Elements Model
 
-一个元素模型由方块模型[elements][elements]和一个可选的[根变换][transform]组成。主要用于常规模型渲染之外的场景，例如在[BER][ber]中。
+An elements model consists of block model [elements][elements] and an optional [root transform][transform]. Intended mainly for usage outside regular model rendering, for example within a [BER][ber].
 
 ```json5
 {
@@ -97,9 +97,9 @@
 }
 ```
 
-### 空模型
+### Empty Model
 
-一个空模型什么都不渲染。
+An empty model just renders nothing at all.
 
 ```json5
 {
@@ -107,12 +107,12 @@
 }
 ```
 
-### 物品层模型
+### Item Layer Model
 
-物品层模型是标准`item/generated`模型的一个变种，提供了以下额外的功能：
+Item layer models are a variant of the standard `item/generated` model that offer the following additional features:
 
-- 无限数量的层（而不是默认的5层）
-- 每一层的[渲染类型][rendertype]
+- Unlimited amount of layers (instead of the default 5)
+- Per-layer [render types][rendertype]
 
 ```json5
 {
@@ -135,11 +135,11 @@
 }
 ```
 
-要[datagen][modeldatagen]这个模型，使用自定义加载器类`ItemLayerModelBuilder`。
+To [datagen][modeldatagen] this model, use the custom loader class `ItemLayerModelBuilder`.
 
-### OBJ模型
+### OBJ Model
 
-OBJ模型加载器允许您在游戏中使用Wavefront `.obj` 3D模型，允许在模型中包含任意形状（包括三角形、圆形等）。`.obj`模型必须放在`models`文件夹（或其子文件夹）中，并且必须提供一个同名的`.mtl`文件（或手动设置），所以例如，位于`models/block/example.obj`的OBJ模型必须有一个对应的MTL文件位于`models/block/example.mtl`。
+The OBJ model loader allows you to use Wavefront `.obj` 3D models in the game, allowing for arbitrary shapes (including triangles, circles, etc.) to be included in a model. The `.obj` model must be placed in the `models` folder (or a subfolder thereof), and a `.mtl` file with the same name must be provided (or set manually), so for example, an OBJ model at `models/block/example.obj` must have a corresponding MTL file at `models/block/example.mtl`.
 
 ```json5
 {
@@ -168,11 +168,11 @@ OBJ模型加载器允许您在游戏中使用Wavefront `.obj` 3D模型，允许�
 }
 ```
 
-要[datagen][modeldatagen]这个模型，使用自定义加载器类`ObjModelBuilder`。
+To [datagen][modeldatagen] this model, use the custom loader class `ObjModelBuilder`.
 
-### 独立变换模型
+### Separate Transforms Model
 
-独立变换模型可用于根据视角切换不同的模型。视角与[normal model][model]中的`display`块相同。这通过指定一个基础模型（作为后备）然后为每个视角指定覆盖模型来实现。注意，如果您愿意，每个这样的模型都可以是完整的模型，但通常最简单的方法是使用那个模型的子模型来引用另一个模型，如下所示：
+A separate transforms model can be used to switch between different models based on the perspective. The perspectives are the same as for the `display` block in a [normal model][model]. This works by specifying a base model (as a fallback) and then specifying per-perspective override models. Note that each of these can be fully-fledged models if you so desire, but it is usually easiest to just refer to another model by using a child model of that model, like so:
 
 ```json5
 {
@@ -190,24 +190,24 @@ OBJ模型加载器允许您在游戏中使用Wavefront `.obj` 3D模型，允许�
 }
 ```
 
-要[datagen][modeldatagen]这个模型，使用自定义加载器类`SeparateTransformsModelBuilder`。
+To [datagen][modeldatagen] this model, use the custom loader class `SeparateTransformsModelBuilder`.
 
-## 创建自定义模型加载器
+## Creating Custom Model Loaders
 
-要创建自己的模型加载器，您需要三个类加上一个事件处理程序：
+To create your own model loader, you need three classes, plus an event handler:
 
-- 一个几何体加载器类
-- 一个几何体类
-- 一个动态的[baked model][bakedmodel]类
-- 一个用于`ModelEvent.RegisterGeometryLoaders`的[客户端][sides] [事件处理程序][event]，用于注册几何体加载器
+- A geometry loader class
+- A geometry class
+- A dynamic [baked model][bakedmodel] class
+- A [client-side][sides] [event handler][event] for `ModelEvent.RegisterGeometryLoaders` that registers the geometry loader
 
-为了说明这些类是如何连接的，我们将跟随一个模型的加载过程：
+To illustrate how these classes are connected, we will follow a model being loaded:
 
-- 在模型加载期间，带有`loader`属性设置为您的加载器的模型JSON被传递给您的几何体加载器。然后，几何体加载器读取模型JSON并使用模型JSON的属性返回一个几何体对象。
-- 在模型烘焙期间，几何体被烘焙，返回一个动态烘焙模型。
-- 在模型渲染期间，动态烘焙模型用于渲染。
+- During model loading, a model JSON with the `loader` property set to your loader is passed to your geometry loader. The geometry loader then reads the model JSON and returns a geometry object using the model JSON's properties.
+- During model baking, the geometry is baked, returning a dynamic baked model.
+- During model rendering, the dynamic baked model is used for rendering.
 
-让我们通过一个基本的类设置进一步说明。几何体加载器类命名为`MyGeometryLoader`，几何体类命名为`MyGeometry`，动态烘焙模型类命名为`MyDynamicModel`：
+Let's illustrate this further through a basic class setup. The geometry loader class is named `MyGeometryLoader`, the geometry class is named `MyGeometry`, and the dynamic baked model class is named `MyDynamicModel`:
 
 ```java
 public class MyGeometryLoader implements IGeometryLoader<MyGeometry> {
@@ -328,7 +328,7 @@ public class MyDynamicModel implements IDynamicBakedModel {
 }
 ```
 
-在所有操作完成后，不要忘记实际注册您的加载器，否则所有的工作都将白费：
+When all is done, don't forget to actually register your loader, otherwise all the work will have been for nothing:
 
 ```java
 // Client-side mod bus event handler
@@ -338,9 +338,9 @@ public static void registerGeometryLoaders(ModelEvent.RegisterGeometryLoaders ev
 }
 ```
 
-### 数据生成
+### Datagen
 
-当然，我们也可以对我们的模型进行[数据生成]。为此，我们需要一个扩展`CustomLoaderBuilder`的类：
+Of course, we can also [datagen] our models. To do so, we need a class that extends `CustomLoaderBuilder`:
 
 ```java
 // This assumes a block model. Use ItemModelBuilder as the generic parameter instead 
@@ -371,7 +371,7 @@ public class MyLoaderBuilder extends CustomLoaderBuilder<BlockModelBuilder> {
 }
 ```
 
-要使用这个加载器构建器，在块（或物品）[模型数据生成][modeldatagen]期间执行以下操作：
+To use this loader builder, do the following during block (or item) [model datagen][modeldatagen]:
 
 ```java
 // This assumes a BlockStateProvider. Use getBuilder("my_cool_block") directly in an ItemModelProvider.
@@ -380,15 +380,15 @@ public class MyLoaderBuilder extends CustomLoaderBuilder<BlockModelBuilder> {
 MyLoaderBuilder loaderBuilder = models().getBuilder("my_cool_block").customLoader(MyLoaderBuilder::new);
 ```
 
-然后，在`loaderBuilder`上调用你的字段设置器。
+Then, call your field setters on the `loaderBuilder`.
 
-#### 可见性
+#### Visibility
 
-`CustomLoaderBuilder`的默认实现有应用可见性的方法。你可以选择在你的模型加载器中使用或忽视`visibility`属性。目前，只有[复合模型加载器][composite]使用了这个属性。
+The default implementation of `CustomLoaderBuilder` holds methods for applying visibility. You may choose to use or ignore the `visibility` property in your model loader. Currently, only the [composite model loader][composite] makes use of this property.
 
-### 重用默认模型加载器
+### Reusing the Default Model Loader
 
-在某些情况下，重用 Vanilla 模型加载器并在其基础上构建你的模型逻辑，而不是直接替换它，是有意义的。我们可以使用一个巧妙的技巧来实现这个目标：在模型加载器中，我们只需移除`loader`属性，然后将其发送回模型解析器，让其误以为现在是一个常规模型。然后我们将它传给几何体，在那里烘焙模型几何体（就像默认的几何体处理器那样），并将其传递给动态模型，在那里我们可以以我们想要的方式使用模型的quads：
+In some contexts, it makes sense to reuse the vanilla model loader and just building your model logic on top of that instead of outright replacing it. We can do so using a neat trick: In the model loader, we simply remove the `loader` property and send it back to the model deserializer, tricking it into thinking that it is a regular model now. We then pass it to the geometry, bake the model geometry there (like the default geometry handler would) and pass it along to the dynamic model, where we can then use the model's quads in whatever way we want:
 
 ```java
 public class MyGeometryLoader implements IGeometryLoader<MyGeometry> {

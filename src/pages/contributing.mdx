@@ -1,78 +1,78 @@
-# 为文档做贡献
+# Contributing to the Documentation
 
-这是一个对[NeoForged文档][docs]仓库做出贡献的非详尽指南。贡献可以通过Fork和Clone仓库然后通过在[GitHub][docs]上添加一个拉取请求（PR）来实现。
+This is a non-exhaustive guideline for making contributions to the [NeoForged Documentation][docs] repository. Contributions can be made by forking and cloning the repository and then added via a pull request, or PR, on the [GitHub][docs].
 
-你可以使用[npm]在本地运行网站。建议使用Node版本管理器，如[nvm]（Mac，Linux）或[nvs]（Windows），来设置并安装npm和Node。从那里，你可以运行以下命令：
+You can run the website locally using [npm]. It is recommended to use a Node Version Manager like [nvm] (Mac, Linux) or [nvs] (Windows) to setup and install npm and Node. From there, you can run the following commands:
 
 ```bash
-nvm use # 或在Windows上使用 nvs use
+nvm use # or nvs use on Windows
 npm install
 npm run start
 ```
 
-## 原则
+## Principles
 
-这份文档旨在帮助模组开发者理解并实现来自Minecraft或NeoForged的概念。
+This documentation is a guide to help a modder understand and implement a given concept from Minecraft or NeoForged.
 
-这份文档**不**是一个教程，不允许模组开发者复制粘贴示例。如果你正在寻找一个教程，有许多视频和页面可以使用和跟随，这里没有链接。
+This documentation is **not** meant as a tutorial, allowing a modder to copy-paste the examples. If you are looking for a tutorial, there are plenty of videos and pages, which are not linked here, that you can use and follow along with.
 
-这份文档也**不**旨在作为一个类的文档。编写指南时提供元素的描述是不可避免的；但是，如果你想要记录一个类，你应该为[Parchment for Minecraft][parchment]或[NeoForge for NeoForged][neo]做贡献。
+This documentation is also **not** meant as documentation for a class. Providing a description of an element is unavoidable when writing a guide; however, if you would like to document a class, you should contribute to [Parchment for Minecraft][parchment] or [NeoForge for NeoForged][neo].
 
-最后，这份文档**不**旨在解释Java概念。这份文档是为那些已经具有扎实Java基础的人准备的。如果需要解释Java概念以更好地理解概念（如为访问转换器的JVM描述符），应提供指向原始资源的链接。否则，如果你不熟悉Java，有许多在线资源可以学习：
+Finally, this documentation is **not** meant to explain Java concepts. This documentation is intended for people who already have a solid basis in Java. If a Java concept needs to be explained to better understand the concept (such as JVM Descriptors for Access Transformers), a link should be provided to the original resource. Otherwise, if you are unfamiliar with Java, there are plenty of online resources to learn from:
 
 * [JetBrains Academy][jetbrains]
 * [Codeacademy][codeacademy]
-* [赫尔辛基大学][helsinki]
+* [University of Helsinki][helsinki]
 * [Oracle][oracle]
-* [David J. Eck的《使用Java进行编程入门》][eck]
+* [Introduction to Programming using Java by David J. Eck][eck]
 
-## 概念
+## Concepts
 
-每页应指导模组开发者了解特定概念。如果概念范围太大，应将概念分割成单独的子概念，每个子概念都有自己的页面。例如，如果你在写一个食谱，可以为每个食谱设置一个页面，而不是一个页面包含所有食谱。
+Each page should guide a modder on a particular concept. If the concept is too large in scope, the concept should be split into separate sub-concepts, each within its own page. For example, if you are writing a cookbook, there can be a page for each recipe, rather than a single page containing all the recipes.
 
-描述概念时，你应该首先介绍概念是什么，它在Minecraft中的用途，为什么应该使用它，以及如何使用它。概念中的每个部分都应该有一个标题。如果需要，一个部分也可以被分解成子部分。例如，每个食谱中的食谱可以有配料和食谱本身的子节。
+When describing a concept, you should first introduce what the concept is, where it is used in Minecraft, why it should be used, and how to use it. Each section within a concept should have a header. A section can also be broken into sub-sections if necessary. For example, each recipe within a cookbook can have a sub-section for ingredients and the recipe itself.
 
-如果需要引用其他概念，应链接相关页面，并附上摘要和/或一些例子来理解应用。
+If you need to refer to other concepts, the relevant page should be linked along with a summary and/or some example to understand the application.
 
-## 示例
+## Examples
 
-代码示例通常应该是伪代码对象，旨在增强模组开发者的理解。对于这份文档来说，伪代码是指以所需语言的结构和语法编写的代码块，使用注释作为模组开发者可能选择自己实现的特定逻辑的占位符。代码块不一定需要编译，但每行都应该有所需语言的有效语法和结构。
+Code examples should generally be pseudocode-like objects meant to enhance the understanding of a modder. For this documentation, pseudocode-like refers to code blocks written in the structure and syntax of the desired language with comments used as placeholders for specific logic that the modder may choose to implement themselves. The code blocks do not necessarily need to be compilable, but each line should have valid syntax and structure of the desired language.
 
-实现一个方法通常特定于模组开发者试图实现的目标。作为一个指南，这份文档旨在在某种程度上对模组开发者的特定目标保持中立，而是覆盖普遍的用例。
+When implementing a method, it is usually specific to the desired goal a modder is trying to achieve. As a guide, this documentation aims to be somewhat agnostic to a modder's specific goal, instead covering the general use case.
 
-例如，假设我们使用一个叫做`#applyDiscount`的方法从当前价格中减去一些值。不是每个人都会在方法内实现相同的逻辑。因此，伪代码可以留下一个评论说明代替做什么：
+Let's say we are using a method called `#applyDiscount` to take some value off the current price. Not everyone will implement the same logic within the method. So, the pseudocode can leave a comment mentioning what to do instead:
 
 ```java
-// 在某个类中
+// In some class
 
 public float applyDiscount(float price) {
     float newPrice = price;
-    // 对newPrice应用折扣
+    // Apply discount to newPrice
     // ...
     return newPrice;
 }
 ```
 
 :::tip
-如果伪代码不足以解释概念，那么可以使用完整的代码示例代替。完整的代码示例应提供虚拟值，并解释它们代表什么。
+If the pseudocode is not explanatory enough to understand the concept, then a full code example can be used instead. A full code example should supply dummy values and explain what they represent.
 :::
 
-## 小变更和补丁变更
+## Minor and Patch Changes
 
-如果 NeoForge 在小版本或补丁版本之间发生变更，则文档中的相关变更应分割成单独的部分或放入标签中。这样可以根据模组开发者当前开发的版本保持信息的准确性。
+If a change occurs between a minor or patch versions of NeoForge, then relevant changes in the documentation should be split into separate sections or put into tabs. This maintains the accuracy of the information depending on the version the modder is currently developing for.
 
-标签必须在`.mdx`文件中，而不是`.md`文件中，以获得适当的 IDE 支持。
+Tabs must be in an `.mdx` file, not an `.md` file, for proper IDE support.
 
 ````md
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
 <Tabs defaultValue="latest">
-<!-- 值代表此方法支持的最后版本。 -->
-<!-- 标签代表要显示给读者的版本范围。 -->
-<TabItem value="latest" label="最新">
+<!-- Value represents the last supported version of this method. -->
+<!-- Label represents the version range to display to the reader. -->
+<TabItem value="latest" label="Latest">
 
-<!-- Markdown文本 -->
+<!-- Markdown here -->
 ```java
 public void latestMethod() {
     // ...
@@ -80,10 +80,10 @@ public void latestMethod() {
 ```
 
 </TabItem>
-<!-- 标签内的Markdown文本前后必须有一个空行。 -->
+<!-- There must be an empty line before and after the Markdown text in a tab. -->
 <TabItem value="20.2.67" label="[20.2.35,20.2.67]"> 
 
-<!-- Markdown文本 -->
+<!-- Markdown here -->
 ```java
 public void previousMethod() {
     // ...
@@ -142,135 +142,135 @@ public void firstMethod() {
 </TabItem>
 </Tabs>
 
-## 编撰文档的风格指南
+## Style Guide
 
-此文档采用 [Docusaurus][docusaurus] 为基础，此框架内部使用 [MDX][mdx] 生成页面。您可以在他们的页面上找到更多可用功能的详细信息。此风格指南将更专注于我们在 Markdown 文件中使用的常见功能和格式。
+This documentation uses [Docusaurus][docusaurus], which internally uses [MDX][mdx], to generate the pages. You can find more detailed information about available features on their pages. This style guide will be more focused towards common features and formatting we use in the Markdown files.
 
-### 前言
+### Front Matter
 
-前言定义了可以影响页面渲染方式的元数据字段。这使用 `---` 表示，类似于代码块。通常应该定义的唯一前言是 `sidebar_position`，它决定页面在侧边栏中的渲染位置。
+Front matter defines metadata fields which can affect how the page is rendered. This is denoted using `---`, similar to a code block. The only front matter that should usually be defined is `sidebar_position`, which determines where the page should be rendered on the sidebar.
 
-还有其他元数据字段如 `title` 和 `description`，但这些通常从页面本身解析。
+There are other metadata fields like `title` and `description`, but those are typically parsed from the page itself.
 
 ```md
-<!-- 在侧边栏中的第二个页面 -->
+<!-- Second page in the sidebar -->
 ---
 sidebar_position: 2
 ---
 ```
 
-#### 类别
+#### Categories
 
-类别是文档内的文件夹。他们从 `index.md` 继承标题和位置数据。如果子文件夹内没有 `index.md`，应该创建一个 `_category_.json` 文件，指定代表部分名称的 `label` 和代表它应该在侧边栏上去哪里的 `position`。
+Categories are folders within the documentation. They inherit titles and positional data from `index.md`. If an `index.md` is not within a subfolder, a `_category_.json` file should be created, specifying the `label` representing the name of the section, and `position` representing where on the sidebar it should go.
 
 ```json5
 {
-    // 要显示的类别名称
-    "label": "示例标题",
+    // Name of the category to display
+    "label": "Example Title",
 
-    // 这将在当前级别的侧边栏中作为第三个元素渲染。
+    // This will be rendered as the third element on the sidebar at the current level.
     "position": 3
 }
 ```
 
-### 标题
+### Titles
 
-使用多达六个井号（`#`）定义每个部分的标题。标题应该将所有东西都首字母大写，但不重要的单词除外。
+Titles are defined using up to six hashtags (`#`) to define each section. Titles should capitalize everything but unimportant words.
 
 ```md
-<!-- 应该只有一个使用单个 '#' 的标题。 -->
-# 编撰此文档的指南
+<!-- There should only be one title with a single '#'. -->
+# Guide For Contributing to This Documentation
 
-### 构建和测试你的Mod
+### Building and Testing Your Mod
 ```
 
-### 措辞
+### Diction
 
-拼写、语法和句法应遵循美式英语。避免使用缩写词；使用两个单词（'is not' 而不是 'isn't'）。另外，尽可能避免使用代词（例如 I, me, you），除非您需要直接提及读者。指示代词（例如 this, that, its）应谨慎使用，以避免使读者感到困惑。更喜欢使用所指的实际对象或名词。
+Spelling, grammar, and syntax should follow those in American English. Avoid using contractions in sentences; use two separate words ('is not' instead of 'isn't'). Additionally, avoid using pronouns (e.g. I, me, you) when possible, unless you need to directly refer to the reader. Demonstratives (e.g. this, that, its) should be used sparingly to avoid confusing the reader. Prefer using the actual object or noun being referred to.
 
-### 段落
+### Paragraphs
 
-段落应该是一个连续的块，由一个换行符分隔。段落**不**应该每个句子都在新行上。
+Paragraphs should be a continuous block, separated by a newline. Paragraphs should **not** have each sentence be on a new line.
 
 ```md
-这是我的第一段。看到下一句是如何在同一行上的吗？您可以在编辑器中使用单词换行来阻止行条从屏幕上滚动。
+This is my first paragraph. See how the next sentence is on the same line? You can use word wrapping in your editor to stop the line from going off the screen.
 
-这是我的下一段。它通过一个新行分隔。
+This is my next paragraph. It is separated by a new line.
 ```
 
-### 缩进
+### Indentation
 
-缩进行时，使用四个空格而不是制表符。大多数 markdown 功能要求四个空格来识别缩进，因此它允许整个文档保持一致性。
+When indenting lines, use four spaces instead of tabs. Most markdown features require four spaces to recognize indentation, so it allows consistency across the document.
 
 ```md
-* 你好，世界
-    * 四个空格缩进
+* Hello World
+    * Four Spaces In
 ```
 
-### 重要性
+### Importance
 
-强调单词应使用 **粗体** 或 _斜体_。请使用两个星号（`**`）进行粗体和下划线（`_`）进行斜体，以使 Markdown 中的区分更加明显。
+Emphasizing words should be done using **bold** or _italics_. Please use two asterisks (`**`) for bold and an underscore (`_`) for italics to make the separation in Markdown more distinct.
 
 ```md
-这是一个**加粗**的单词。
+This is a **bolded** word.
 
-这是一个_倾斜_的单词。
+This is an _italicized_ word.
 ```
 
-### 代码引用
+### Code References
 
-当引用代码块外的元素时，它们应该用反引号（`` ` ``）包围。类应使用它们的简单名称。方法和字段应在 `#` 之前指定类名。如果类名是隐含的，则方法或字段可以简单地以 `#` 作为前缀。内部类应在 `.` 之后指定外部类的名称。
+When referencing elements outside of code blocks, they should be surrounded with backticks (`` ` ``). Classes should use their simple name. Methods and fields should specify the class name followed by a `#`. If the class name is implied, the method or field can simply be prefixed with `#`. Inner classes should specify the name of the outer class followed by a `.`.
 
 ```md
-<!-- 类 -->
+<!-- Classes -->
 `MyClass`
 `MyClass.InnerClass`
 
-<!-- 方法和字段 -->
+<!-- Method and Fields -->
 `MyClass#foo`
 `MyClass.InnerClass#bar`
 `#SOME_CONSTANT`
 ```
 
-代码块应在三连反引号（`` ``` ``）之后指定语言。编写 JSON 块时，应使用 JSON5（`json5`）语法高亮显示器，以允许注释。
+Code blocks should specify the language after the triple backtick (`` ``` ``). When writing a JSON block, the JSON5 (`json5`) syntax highlighter should be used to allow comments.
 
 ````md
-<!-- Java 代码块 -->
+<!-- Java Code Block -->
 ```java
 public void run() {
     //...
 }
 ```
 
-<!-- JSON 代码块 -->
+<!-- JSON Code Block -->
 ```json5
 {
-    // 这里允许注释
-    "text": "嗨"
+    // Comments are allowed here
+    "text": "Hiya"
 }
 ```
 ````
 
-### 链接
+### Links
 
-所有链接应使用括号 (`[]`) 引用页面底部指定的链接。如果第一对括号中的名称被使用，则可以省略第二对括号。
+All links should use brackets (`[]`) to refer to a link specified on the bottom of the markdown page. The second pair of brackets can be omitted if the name between the first pair of brackets is used.
 
 ```md
-<!-- 页面上的某个位置 -->
-这里有两种不同类型的[链接引用][linkref]。
+<!-- Somewhere on a page -->
+There are [two] different types of [link references][linkref].
 
-<!-- 页面底部 -->
+<!-- At the bottom of a page -->
 [two]: https://linkrefwithoutref.donotclick
 [linkref]: https://linkref.donotclick
 ```
 
-### 警示
+### Admonitions
 
-可以使用三个冒号（`:::`）和指定其类型在页面上指定警示。警示的格式可以在 [Docusaurus wiki][admonition] 上找到。
+Admonitions can be specified on the page using three colons (`:::`) and by specifying its type. Admonition formatting can be found on the [Docusaurus wiki][admonition].
 
 ```md
 :::note
-我在一个警示框内部！
+I'm within an admonition!
 :::
 ```
 
@@ -291,6 +291,5 @@ public void run() {
 
 [docusaurus]: https://docusaurus.io/docs/markdown-features
 [mdx]: https://mdxjs.com/guides/
-
 
 [admonition]: https://docusaurus.io/docs/markdown-features/admonitions

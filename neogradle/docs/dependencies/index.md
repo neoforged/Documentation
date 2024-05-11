@@ -1,51 +1,48 @@
-依赖项
-====
+Dependencies
+============
 
-依赖项不仅用于开发模组间的互操作性或向游戏添加额外的库，而且还决定了要为哪个版本的Minecraft进行开发。这将提供如何修改 `repositories` 和 `dependencies` 块以将依赖项添加到您的开发环境的快速概述。
+Dependencies are not only used to develop interoperability between mods or add additional libraries to the game, but it also determines what version of Minecraft to develop for. This will provide a quick overview on how to modify the `repositories` and `dependencies` block to add dependencies to your development environment.
 
-> 这将不会深入解释 Gradle 概念。强烈建议在继续之前阅读 [Gradle 依赖管理指南][guide]。
+> This will not explain Gradle concepts in depth. It is highly recommended to read the [Gradle Dependency Management guide][guide] before continuing.
 
 `minecraft`
 -----------
 
-`minecraft` 依赖项指定了要使用的 Minecraft 版本，并且必须包含在 `dependencies` 块中。任何非 `net.minecraft` 组的工件都将应用随依赖项提供的任何补丁。这通常只指定 `net.minecraftforge:forge` 工件。
+The `minecraft` dependency specifies the version of Minecraft to use and must be included in the `dependencies` block. Any artifact, except artifacts which have the group `net.minecraft`, will apply any patches provided with the dependency. This typically only specifies the `net.minecraftforge:forge` artifact.
 
 ```gradle
 dependencies {
-    // Forge 工件的版本形式为 '<mc_version>-<forge_version>'
-    // 'mc_version' 是要加载的 Minecraft 版本（例如，1.19.4）
-    // 'forge_version' 是该 Minecraft 版本所需的 Forge 版本（例如，45.0.23）
-    // Vanilla 可以使用 'net.minecraft:joined:<mc_version>' 来编译
+    // Version of Forge artifact is in the form '<mc_version>-<forge_version>'
+    // 'mc_version' is the version of Minecraft to load (e.g., 1.19.4)
+    // 'forge_version' is the version of Forge wanted for that Minecraft version (e.g., 45.0.23)
+    // Vanilla can be compiled against using 'net.minecraft:joined:<mc_version>' instead
     minecraft 'net.minecraftforge:forge:1.19.4-45.0.23'
 }
 ```
 
-Mod 依赖项
-----------
+Mod Dependencies
+----------------
 
-在典型的开发环境中，Minecraft 被反混淆到中间映射中，用于生产，然后转换为模组制作者指定的任何[人类可读映射][mappings]。构建的 Mod 工件被混淆到生产映射（SRG）中，因此不能直接用作 Gradle 依赖项。
+In a typical development environment, Minecraft is deobfuscated to intermediate mappings, used in production, and then transformed into whatever [human-readable mappings][mappings] the modder specified. Mod artifacts, when built, are obfuscated to production mappings (SRG), and as such, are unable to be used directly as a Gradle dependency.
 
-因此，所有 Mod 依赖项在添加到预期配置之前都需要用 `fg.deobf` 包装。
-
-[guide]: https://docs.gradle.org/current/userguide/dependency_management.html
-[mappings]: https://github.com/MinecraftForge/MCPConfig
+As such, all mod dependencies need to be wrapped with `fg.deobf` before being added to the intended configuration.
 
 ```gradle
 dependencies {
-    // 假设我们已经指定了 'minecraft' 依赖项
+    // Assume we have already specified the 'minecraft' dependency
 
-    // 假设我们有一些可以从指定仓库获得的工件 'examplemod'
+    // Assume we have some artifact 'examplemod' that can be obtained from a specified repository
     implementation fg.deobf('com.example:examplemod:1.0')
 }
 ```
 
-### 本地 Mod 依赖项
+### Local Mod Dependencies
 
-如果你试图依赖的 mod 不在 maven 仓库中可用（例如，[Maven Central][central]、[CurseMaven]、[Modrinth]），你可以使用 [flat directory] 来添加 mod 依赖项：
+If the mod you are trying to depend on is not available on a maven repository (e.g., [Maven Central][central], [CurseMaven], [Modrinth]), you can add a mod dependency using a [flat directory] instead:
 
 ```gradle
 repositories {
-    // 将项目目录中的 'libs' 文件夹添加为扁平目录
+    // Adds the 'libs' folder in the project directory as a flat directory
     flatDir {
         dir 'libs'
     }
@@ -54,16 +51,16 @@ repositories {
 dependencies {
     // ...
 
-    // 给定某些 <group>:<name>:<version>:<classifier (默认无)>
-    //   带有扩展名 <ext (默认 jar)>
-    // 扁平目录中的工件将按以下顺序解析：
+    // Given some <group>:<name>:<version>:<classifier (default None)>
+    //   with an extension <ext (default jar)>
+    // Artifacts in flat directories will be resolved in the following order:
     // - <name>-<version>.<ext>
     // - <name>-<version>-<classifier>.<ext>
     // - <name>.<ext>
     // - <name>-<classifier>.<ext>
 
-    // 如果明确指定了分类器
-    //  带有分类器的工件将优先：
+    // If a classifier is explicitly specified
+    //  artifacts with the classifier will take priority:
     // - examplemod-1.0-api.jar
     // - examplemod-api.jar
     // - examplemod-1.0.jar
@@ -73,28 +70,24 @@ dependencies {
 ```
 
 :::note
-组名可以是任何东西，但对于扁平目录条目必须非空，因为在解析工件文件时不会检查它们。
+The group name can be anything but must not be empty for flat directory entries as they are not checked when resolving the artifact file.
 :::
 
-非 Minecraft 依赖项
--------------------
+Non-Minecraft Dependencies
+--------------------------
 
-Forge 在开发环境中默认不加载非 Minecraft 的依赖项。要让 Forge 识别非 Minecraft 依赖项，它们必须被添加到 `minecraftLibrary` 配置中。`minecraftLibrary` 的工作方式与 Gradle 中的 `implementation` 配置类似，在编译时间和运行时间都会应用。
+Non-Minecraft dependencies are not loaded by Forge by default in the development environment. To get Forge to recognize the non-Minecraft dependency, they must be added to the `minecraftLibrary` configuration. `minecraftLibrary` works similarly to the `implementation` configuration within Gradle, being applied during compile time and runtime.
 
 ```gradle
 dependencies {
     // ...
 
-    // 假设有一些非 Minecraft 库 'dummy-lib'
+    // Assume there is some non-Minecraft library 'dummy-lib'
     minecraftLibrary 'com.dummy:dummy-lib:1.0'
 }
 ```
 
-> 默认情况下，添加到开发环境中的非 Minecraft 依赖项不会包含在构建的工件中！你必须使用 [Jar-In-Jar][jij] 在构建时将依赖项包含在工件内。
-
-:::note
-你创建的 Mod 在分发时，必须确保所有的依赖项都遵循其相应的许可协议，并且你在你的模组中包含它们时也符合这些许可。
-:::
+> Non-Minecraft dependencies added to the development environment will not be included in built artifact by default! You must use [Jar-In-Jar][jij] to include the dependencies within the artifact on build.
 
 [guide]: https://docs.gradle.org/8.1.1/userguide/dependency_management.html
 [mappings]: ../configuration/index.md#human-readable-mappings

@@ -1,16 +1,16 @@
-配方生成
+Recipe Generation
 =================
 
-可以通过继承 `RecipeProvider` 并实现 `#buildRecipes` 来为模组生成配方。一旦消费者接受了 `FinishedRecipe` 视图，就会为数据生成提供配方。 `FinishedRecipe` 可以手动创建和提供，或者为方便起见，使用 `RecipeBuilder` 创建。
+Recipes can be generated for a mod by subclassing `RecipeProvider` and implementing `#buildRecipes`. A recipe is supplied for data generation once a `FinishedRecipe` view is accepted by the consumer. `FinishedRecipe`s can either be created and supplied manually or, for convenience, created using a `RecipeBuilder`.
 
-实现后，必须将提供者[添加][datagen]到 `DataGenerator`。
+After implementation, the provider must be [added][datagen] to the `DataGenerator`.
 
 ```java
-// 在MOD事件总线上
+// On the MOD event bus
 @SubscribeEvent
 public void gatherData(GatherDataEvent event) {
     event.getGenerator().addProvider(
-        // 告诉生成器只在服务器数据生成时运行
+        // Tell generator to run only when server data are generating
         event.includeServer(),
         MyRecipeProvider::new
     );
@@ -20,155 +20,157 @@ public void gatherData(GatherDataEvent event) {
 `RecipeBuilder`
 ---------------
 
-`RecipeBuilder` 是创建 `FinishedRecipe` 以便于生成的便利实现。它提供了解锁、分组、保存和获取配方结果的基本定义。分别通过 `#unlockedBy`、 `#group`、 `#save` 和 `#getResult` 实现。
+`RecipeBuilder` is a convenience implementation for creating `FinishedRecipe`s to generate. It provides basic definitions for unlocking, grouping, saving, and getting the result of a recipe. This is done through `#unlockedBy`, `#group`, `#save`, and `#getResult` respectively.
 
 :::important
-在原生配方构建器中不支持配方的 [`ItemStack` 输出][stack]。必须以不同的方式构建 `FinishedRecipe`，以便现有的原生配方序列化器可以生成这些数据。
+[`ItemStack` outputs][stack] in recipes are not supported within vanilla recipe builders. A `FinishedRecipe` must be built in a different manner for existing vanilla recipe serializers to generate this data.
 :::
 
 :::warning
-正在生成的物品结果必须有一个有效的 `RecipeCategory` 指定，否则会抛出 `NullPointerException`。
+The item results being generated must have a valid `RecipeCategory` specified; otherwise, a `NullPointerException` will be thrown.
 :::
 
-除了 [`SpecialRecipeBuilder`]，所有的配方构建器都需要指定一个进步条件。所有的配方都会生成一个条件，如果玩家之前使用过这个配方，就会解锁这个配方。然而，必须指定一个额外的条件，允许玩家在没有任何先验知识的情况下获取到配方。如果指定的任何一个条件为真，那么玩家就会在配方书中获取到配方。
+All recipe builders except for [`SpecialRecipeBuilder`] require an advancement criteria to be specified. All recipes generate a criteria unlocking the recipe if the player has used the recipe previously. However, an additional criteria must be specified that allows the player to obtain the recipe without any prior knowledge. If any of the criteria specified is true, then the played will obtain the recipe for the recipe book.
 
 :::tip
-配方条件通常使用 `InventoryChangeTrigger` 来在用户的库存中存在某些物品时解锁配方。
+Recipe criteria commonly use `InventoryChangeTrigger` to unlock their recipe when certain items are present in the user's inventory.
 :::
 
 ### ShapedRecipeBuilder
 
-`ShapedRecipeBuilder` 用于生成有形状的配方。构建器可以通过 `#shaped` 初始化。可以在保存之前指定配方组、输入符号模式、成分的符号定义和配方解锁条件。
+`ShapedRecipeBuilder` is used to generate shaped recipes. The builder can be initialized via `#shaped`. The recipe group, input symbol pattern, symbol definition of ingredients, and the recipe unlock criteria can be specified before saving.
 
 ```java
-// 在 RecipeProvider#buildRecipes(writer) 中
+// In RecipeProvider#buildRecipes(writer)
 ShapedRecipeBuilder builder = ShapedRecipeBuilder.shaped(RecipeCategory.MISC, result)
-  .pattern("a a") // 创建配方模式
-  .define('a', item) // 定义符号代表的物品
-  .unlockedBy("criteria", criteria) // 配方的解锁方式
-  .save(writer); // 将数据添加到构建器中
+  .pattern("a a") // Create recipe pattern
+  .define('a', item) // Define what the symbol represents
+  .unlockedBy("criteria", criteria) // How the recipe is unlocked
+  .save(writer); // Add data to builder
 ```
 
-#### 额外的验证检查
+#### Additional Validation Checks
 
-在构建之前，有形状的配方会进行一些额外的验证检查：
+Shaped recipes have some additional validation checks performed before building:
 
-* 必须定义一个模式，并且需要输入超过一个物品。
-* 所有模式行的宽度必须相同。
-* 一个符号不能被定义多次。
-* 空格字符 (`' '`) 是为了表示插槽中没有物品而保留的，因此不能被定义。
-* 模式必须使用用户定义的所有符号。
+* A pattern must be defined and take in more than one item.
+* All pattern rows must be the same width.
+* A symbol cannot be defined more than once.
+* The space character (`' '`) is reserved for representing no item in a slot and, as such, cannot be defined.
+* A pattern must use all symbols defined by the user.
 
 ### ShapelessRecipeBuilder
 
-`ShapelessRecipeBuilder` 用于生成无形状的配方。可以通过 `#shapeless` 初始化构建器。在保存之前，可以指定配方组、输入成分和配方解锁条件。
+`ShapelessRecipeBuilder` is used to generate shapeless recipes. The builder can be initialized via `#shapeless`. The recipe group, input ingredients, and the recipe unlock criteria can be specified before saving.
 
 ```java
-// 在 RecipeProvider#buildRecipes(writer) 中
+// In RecipeProvider#buildRecipes(writer)
 ShapelessRecipeBuilder builder = ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, result)
-  .requires(item) // 将物品添加到配方中
-  .unlockedBy("criteria", criteria) // 配方的解锁方式
-  .save(writer); // 将数据添加到构建器中
+  .requires(item) // Add item to the recipe
+  .unlockedBy("criteria", criteria) // How the recipe is unlocked
+  .save(writer); // Add data to builder
 ```
 
 ### SimpleCookingRecipeBuilder
 
-`SimpleCookingRecipeBuilder` 用于生成熔炼、爆炸、烟熏和营火烹饪配方。此外，使用 `SimpleCookingSerializer` 的自定义烹饪配方也可以使用这个构建器进行数据生成。可以分别通过 `#smelting`、 `#blasting`、 `#smoking`、 `#campfireCooking` 或 `#cooking` 初始化构建器。在保存之前，可以指定配方组和配方解锁条件。
+`SimpleCookingRecipeBuilder` is used to generate smelting, blasting, smoking, and campfire cooking recipes. Additionally, custom cooking recipes using the `SimpleCookingSerializer` can also be data generated using this builder. The builder can be initialized via `#smelting`, `#blasting`, `#smoking`, `#campfireCooking`, or `#cooking` respectively. The recipe group and the recipe unlock criteria can be specified before saving.
 
 ```java
-// 在 RecipeProvider#buildRecipes(writer) 中
+// In RecipeProvider#buildRecipes(writer)
 SimpleCookingRecipeBuilder builder = SimpleCookingRecipeBuilder.smelting(input, RecipeCategory.MISC, result, experience, cookingTime)
-  .unlockedBy("criteria", criteria) // 配方的解锁方式
-  .save(writer); // 将数据添加到构建器中
+  .unlockedBy("criteria", criteria) // How the recipe is unlocked 
+  .save(writer); // Add data to builder
 ```
 
 ### SingleItemRecipeBuilder
 
-`SingleItemRecipeBuilder` 用于生成石切配方。此外，使用类似 `SingleItemRecipe$Serializer` 的序列化器的自定义单物品配方也可以使用这个构建器进行数据生成。可以通过 `#stonecutting` 或者构造函数分别初始化构建器。在保存之前，可以指定配方组和配方解锁条件。
+`SingleItemRecipeBuilder` is used to generate stonecutting recipes. Additionally, custom single item recipes using a serializer like `SingleItemRecipe$Serializer` can also be data generated using this builder. The builder can be initialized via `#stonecutting` or through the constructor respectively. The recipe group and the recipe unlock criteria can be specified before saving.
 
 ```java
-// 在 RecipeProvider#buildRecipes(writer) 中
+// In RecipeProvider#buildRecipes(writer)
 SingleItemRecipeBuilder builder = SingleItemRecipeBuilder.stonecutting(input, RecipeCategory.MISC, result)
-  .unlockedBy("criteria", criteria) // 配方的解锁方式
-  .save(writer); // 将数据添加到构建器中
+  .unlockedBy("criteria", criteria) // How the recipe is unlocked
+  .save(writer); // Add data to builder
 ```
 
-非 `RecipeBuilder` 构建器
+Non-`RecipeBuilder` Builders
 ----------------------------
 
-一些配方构建器由于缺少所有先前提到的配方使用的功能而不实现 `RecipeBuilder`。
+Some recipe builders do not implement `RecipeBuilder` due to lacking features used by all previously mentioned recipes.
 
 ### SmithingTransformRecipeBuilder
 
-`SmithingTransformRecipeBuilder` 用于生成将物品转化的铁匠配方。此外，使用类似 `SmithingTransformRecipe$Serializer` 的序列化器的自定义配方也可以使用这个构建器进行数据生成。可以通过 `#smithing` 或者构造函数分别初始化构建器。在保存之前，可以指定配方解锁条件。
+`SmithingTransformRecipeBuilder` is used to generate smithing recipes which transform an item. Additionally, custom recipes using a serializer like `SmithingTransformRecipe$Serializer` can also be data generated using this builder. The builder can be initialized via `#smithing` or through the constructor respectively. The recipe unlock criteria can be specified before saving.
 
 ```java
-// 在 RecipeProvider#buildRecipes(writer) 中
+// In RecipeProvider#buildRecipes(writer)
 SmithingTransformRecipeBuilder builder = SmithingTransformRecipeBuilder.smithing(template, base, addition, RecipeCategory.MISC, result)
-  .unlocks("criteria", criteria) // 配方的解锁方式
-  .save(writer, name); // 将数据添加到构建器中
+  .unlocks("criteria", criteria) // How the recipe is unlocked
+  .save(writer, name); // Add data to builder
 ```
 
 ### SmithingTrimRecipeBuilder
 
-`SmithingTrimRecipeBuilder` 用于生成用于装甲修剪的铁匠配方。此外，使用类似 `SmithingTrimRecipe$Serializer` 的序列化器的自定义升级配方也可以使用这个构建器进行数据生成。可以通过 `#smithingTrim` 或者构造函数分别初始化构建器。在保存之前，可以指定配方解锁条件。
+`SmithingTrimRecipeBuilder` is used to generate smithing recipes for armor trims. Additionally, custom upgrade recipes using a serializer like `SmithingTrimRecipe$Serializer` can also be data generated using this builder. The builder can be initialized via `#smithingTrim` or through the constructor respectively. The recipe unlock criteria can be specified before saving.
 
 ```java
-// 在 RecipeProvider#buildRecipes(writer) 中
+// In RecipeProvider#buildRecipes(writer)
 SmithingTrimRecipe builder = SmithingTrimRecipe.smithingTrim(template, base, addition, RecipeCategory.MISC)
-  .unlocks("criteria", criteria) // 配方的解锁方式
-  .save(writer, name); // 将数据添加到构建器中
+  .unlocks("criteria", criteria) // How the recipe is unlocked
+  .save(writer, name); // Add data to builder
 ```
 
 ### SpecialRecipeBuilder
 
-`SpecialRecipeBuilder` 用于为不能轻易约束到配方 JSON 格式（如染色护甲、焰火等）的动态配方生成空的 JSON。可以通过 `#special` 初始化构建器。
+`SpecialRecipeBuilder` is used to generate empty JSONs for dynamic recipes that cannot easily be constrained to the recipe JSON format (dying armor, firework, etc.). The builder can be initialized via `#special`.
 
 ```java
-// 在 RecipeProvider#buildRecipes(writer) 中
+// In RecipeProvider#buildRecipes(writer)
 SpecialRecipeBuilder.special(dynamicRecipeSerializer)
-  .save(writer, name); // 将数据添加到构建器中
+  .save(writer, name); // Add data to builder
 ```
-条件性配方
+
+Conditional Recipes
 -------------------
 
-[条件性配方][conditional] 也可以通过 `ConditionalRecipe$Builder` 进行数据生成。可以使用 `#builder` 获取构建器。
+[Conditional recipes][conditional] can also be data generated via `ConditionalRecipe$Builder`. The builder can be obtained using `#builder`.
 
-可以先调用 `#addCondition` 来指定每个配方的条件，然后在所有条件都指定后调用 `#addRecipe`。这个过程可以重复多次，由程序员自行决定。
+Conditions for each recipe can be specified by first calling `#addCondition` and then calling `#addRecipe` after all conditions have been specified. This process can be repeated as many times as the programmer would like.
 
-在所有配方都指定之后，可以在最后使用 `#generateAdvancement` 为每个配方添加进步（advancements）。或者，可以使用 `#setAdvancement` 设置条件性进步。
+After all recipes have been specified, advancements can be added for each recipe at the end using `#generateAdvancement`. Alternatively, the conditional advancement can be set using `#setAdvancement`.
 
 ```java
-// 在 RecipeProvider#buildRecipes(writer) 中
+// In RecipeProvider#buildRecipes(writer)
 ConditionalRecipe.builder()
-  // 添加配方的条件
+  // Add the conditions for the recipe
   .addCondition(...)
-  // 当条件为真时返回配方
+  // Add recipe to return when conditions are true
   .addRecipe(...)
 
-  // 添加下一个配方的条件
+  // Add the next conditions for the next recipe
   .addCondition(...)
-  // 当下一个条件为真时返回下一个配方
+  // Add next recipe to return when the next conditions are true
   .addRecipe(...)
 
-  // 创建使用上述配方中的条件和解锁进步的条件性进步
+  // Create conditional advancement which uses the conditions
+  // and unlocking advancement in the recipes above
   .generateAdvancement()
   .build(writer, name);
 ```
 
 ### IConditionBuilder
 
-为了简化向条件性配方添加条件，而不必手动构造每个条件实例，扩展的 `RecipeProvider` 可以实现 `IConditionBuilder`。接口添加了轻松构造条件实例的方法。
+To simplify adding conditions to conditional recipes without having to construct the instances of each condition instance manually, the extended `RecipeProvider` can implement `IConditionBuilder`. The interface adds methods to easily construct condition instances.
 
 ```java
-// 在 ConditionalRecipe$Builder#addCondition 中
+// In ConditionalRecipe$Builder#addCondition
 (
-  // 如果 'examplemod:example_item'
-  // 或者 'examplemod:example_item2' 存在
-  // 并且
-  // 非FALSE
+  // If either 'examplemod:example_item'
+  // OR 'examplemod:example_item2' exists
+  // AND
+  // NOT FALSE
 
-  // 方法由 IConditionBuilder 定义
+  // Methods are defined by IConditionBuilder
   and( 
     or(
       itemExists("examplemod", "example_item"),
@@ -181,13 +183,13 @@ ConditionalRecipe.builder()
 )
 ```
 
-自定义配方序列化器
+Custom Recipe Serializers
 -------------------------
 
-通过创建一个可以构造 `FinishedRecipe` 的构建器，可以数据生成自定义配方序列化器。完成的配方将配方数据编码为JSON，并在存在时将其解锁进步也编码为JSON。此外，还需要指定配方的名称和序列化器，以知道写入位置以及加载时能解码对象的内容。一旦构造了 `FinishedRecipe`，只需将其传递给 `RecipeProvider#buildRecipes` 提供的 `Consumer`。
+Custom recipe serializers can be data generated by creating a builder that can construct a `FinishedRecipe`. The finished recipe encodes the recipe data and its unlocking advancement, when present, to JSON. Additionally, the name and serializer of the recipe is also specified to know where to write to and what can decode the object when loading. Once a `FinishedRecipe` is constructed, it simply needs to be passed to the `Consumer` supplied by `RecipeProvider#buildRecipes`.
 
 :::tip
-`FinishedRecipe` 足够灵活，可以数据生成任何对象转换，不仅仅是物品。
+`FinishedRecipe`s are flexible enough that any object transformation can be data generated, not just items.
 :::
 
 [datagen]: ../index.md#data-providers

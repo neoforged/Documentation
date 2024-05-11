@@ -1,0 +1,78 @@
+{
+  "version.label": {
+    "message": "1.20.x",
+    "description": "当前版本的标签"
+  },
+  "sidebar.mainSidebar.category.Getting Started with Neo": {
+    "message": "开始使用Neo",
+    "description": "侧边栏mainSidebar中“开始使用Neo”类别的标签"
+  },
+  "sidebar.mainSidebar.category.Advanced Topics": {
+    "message": "高级主题",
+    "description": "侧边栏mainSidebar中“高级主题”类别的标签"
+  },
+  "sidebar.mainSidebar.category.Block Entities": {
+    "message": "方块实体",
+    "description": "侧边栏mainSidebar中“方块实体”类别的标签"
+  },
+  "sidebar.mainSidebar.category.Blocks": {
+    "message": "方块",
+    "description": "侧边栏mainSidebar中“方块”类别的标签"
+  },
+  "sidebar.mainSidebar.category.Concepts": {
+    "message": "概念",
+    "description": "侧边栏mainSidebar中“概念”类别的标签"
+  },
+  "sidebar.mainSidebar.category.Datagen": {
+    "message": "数据生成",
+    "description": "侧边栏mainSidebar中“数据生成”类别的标签"
+  },
+  "sidebar.mainSidebar.category.Data Maps": {
+    "message": "数据映射",
+    "description": "侧边栏mainSidebar中“数据映射”类别的标签"
+  },
+  "sidebar.mainSidebar.category.Data Storage": {
+    "message": "数据存储",
+    "description": "侧边栏mainSidebar中“数据存储”类别的标签"
+  },
+  "sidebar.mainSidebar.category.GUIs": {
+    "message": "图形用户界面",
+    "description": "侧边栏mainSidebar中“图形用户界面”类别的标签"
+  },
+  "sidebar.mainSidebar.category.Items": {
+    "message": "物品",
+    "description": "侧边栏mainSidebar中“物品”类别的标签"
+  },
+  "sidebar.mainSidebar.category.Legacy": {
+    "message": "遗留",
+    "description": "侧边栏mainSidebar中“遗留”类别的标签"
+  },
+  "sidebar.mainSidebar.category.Miscellaneous": {
+    "message": "杂项",
+    "description": "侧边栏mainSidebar中“杂项”类别的标签"
+  },
+  "sidebar.mainSidebar.category.Networking": {
+    "message": "网络",
+    "description": "侧边栏mainSidebar中“网络”类别的标签"
+  },
+  "sidebar.mainSidebar.category.Resources": {
+    "message": "资源",
+    "description": "侧边栏mainSidebar中“资源”类别的标签"
+  },
+  "sidebar.mainSidebar.category.Client": {
+    "message": "客户端",
+    "description": "侧边栏mainSidebar中“客户端”类别的标签"
+  },
+  "sidebar.mainSidebar.category.Models": {
+    "message": "模型",
+    "description": "侧边栏mainSidebar中“模型”类别的标签"
+  },
+  "sidebar.mainSidebar.category.Datapacks": {
+    "message": "数据包",
+    "description": "侧边栏mainSidebar中“数据包”类别的标签"
+  },
+  "sidebar.mainSidebar.category.Recipes": {
+    "message": "配方",
+    "description": "侧边栏mainSidebar中“配方”类别的标签"
+  }
+}

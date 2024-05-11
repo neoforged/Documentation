@@ -1,18 +1,18 @@
-# 网络通信
+# Networking
 
-服务器和客户端之间的通信是成功实现模组的基础。
+Communication between servers and clients is the backbone of a successful mod implementation.
 
-网络通信有两个主要目标：
+There are two primary goals in network communication:
 
-1. 确保客户端视图与服务器视图“同步”
-    - 在坐标 (X, Y, Z) 处的花刚刚生长了
-2. 让客户端告诉服务器有关玩家状态变化的信息
-    - 玩家按下了一个键
+1. Making sure the client view is "in sync" with the server view
+    - The flower at coordinates (X, Y, Z) just grew
+2. Giving the client a way to tell the server that something has changed about the player
+    - the player pressed a key
 
-实现这些目标最常见的方式是在客户端和服务器之间传递消息。这些消息通常会被结构化，按特定的排列方式包含数据，以便于发送和接收。
+The most common way to accomplish these goals is to pass messages between the client and the server. These messages will usually be structured, containing data in a particular arrangement, for easy sending and receiving.
 
-NeoForge 提供了一种技术来促进通信，主要建立在 [netty][] 之上。
-通过监听 `RegisterPayloadHandlerEvent` 事件，可以注册特定类型的 [负载][payloads]、其读取器和处理函数到注册器中。
+There is a technique provided by NeoForge to facilitate communication mostly built on top of [netty][].
+This technique can be used by listening for the `RegisterPayloadHandlerEvent` event, and then registering a specific type of [payloads][], its reader, and its handler function to the registrar.
 
 [netty]: https://netty.io "Netty Website"
 [payloads]: ./payload.md "Registering custom Payloads"
