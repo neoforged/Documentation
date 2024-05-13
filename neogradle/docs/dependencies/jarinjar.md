@@ -2,14 +2,13 @@
 
 Jar-in-Jar is a way to load dependencies for mods from within the jars of the mods. To accomplish this, Jar-in-Jar generates a metadata json within `META-INF/jarjar/metadata.json` on build containing the artifacts to load from within the jar.
 
-Jar-in-Jar is a completely optional system which can be enabled using `jarJar#enable` before the `minecraft` block. This will include all dependencies from the `jarJar` configuration into the `jarJar` task. You can configure the task similarly to other jar tasks:
+Jar-in-Jar is a completely optional system which can be enabled using `jarJar#enable`. This will include all dependencies from the `jarJar` configuration into the `jarJar` task. You can configure the task similarly to other jar tasks:
 
 ```gradle
 // In build.gradle
 
 // Enable the Jar-in-Jar system for your mod
 jarJar.enable()
-
 
 // Configure the 'jarJar' task
 // 'all' is the default classifier
@@ -86,7 +85,7 @@ It is generally recommended to set at least one `include` filter when using `#fr
 
 ## Publishing a Jar-in-Jar to Maven
 
-For archival reasons, ForgeGradle supports publishing Jar-in-Jar artifacts to a maven of choice, similar to how the [Shadow plugin][shadow] handles it. In practices, this is not useful or recommended.
+For archival reasons, NeoGradle supports publishing Jar-in-Jar artifacts to a maven of choice, similar to how the [Shadow plugin][shadow] handles it. In practices, this is not useful or recommended.
 
 ```gradle
 // In build.gradle (has 'maven-publish' plugin)
@@ -101,6 +100,5 @@ publications {
     }
 }
 ```
-
 
 [shadow]: https://imperceptiblethoughts.com/shadow/getting-started/
