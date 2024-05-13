@@ -10,38 +10,38 @@ Texture metadata can be specified in a file named exactly the same as the textur
 
 ```json5
 {
-  // Whether the texture will be blurred if needed. Defaults to false.
-  // Currently specified by the codec, but unused otherwise both in the files and in code.
-  "blur": true,
-  // Whether the texture will be clamped if needed. Defaults to false.
-  // Currently specified by the codec, but unused otherwise both in the files and in code.
-  "clamp": true,
-  "gui": {
-    // Specifies how the texture will be scaled if needed. Can be one of these three:
-    "scaling": "stretch", // default
-    "scaling": {
-      "tile": {
-        "width": 16,
-        "height": 16
-      }
-    },
-    "scaling": {
-      // Like "tile", but allows specifying the border offsets.
-      "nine_slice": {
-        "width": 16,
-        "height": 16,
-        // May also be a single int that is used as the value for all four sides.
-        "border": {
-          "left": 0,
-          "top": 0,
-          "right": 0,
-          "bottom": 0
+    // Whether the texture will be blurred if needed. Defaults to false.
+    // Currently specified by the codec, but unused otherwise both in the files and in code.
+    "blur": true,
+    // Whether the texture will be clamped if needed. Defaults to false.
+    // Currently specified by the codec, but unused otherwise both in the files and in code.
+    "clamp": true,
+    "gui": {
+        // Specifies how the texture will be scaled if needed. Can be one of these three:
+        "scaling": {
+            "type": "stretch" // default
+        },
+        "scaling": {
+            "type": "tile",
+            "width": 16,
+            "height": 16
+        },
+        "scaling": {
+            // Like "tile", but allows specifying the border offsets.
+            "type": "nine_slice",
+            "width": 16,
+            "height": 16,
+            // May also be a single int that is used as the value for all four sides.
+            "border": {
+                "left": 0,
+                "top": 0,
+                "right": 0,
+                "bottom": 0
+            }
         }
-      }
-    }
-  },
-  // See below.
-  "animation": {}
+    },
+    // See below.
+    "animation": {}
 }
 ```
 
@@ -53,17 +53,17 @@ To actually be animated and not just be displayed as a distorted texture, there 
 
 ```json5
 {
-  "animation": {
-    // A custom order in which the frames are played. If omitted, the frames are played top to bottom.
-    "frames": [1, 0],
-    // How long one frame stays before switching to the next animation stage, in frames. Defaults to 1.
-    "frametime": 5,
-    // Whether to interpolate between animation stages. Defaults to false.
-    "interpolate": true,
-    // Width and height of one animation stage. If omitted, uses the texture width for both of these.
-    "width": 12,
-    "height": 12
-  }
+    "animation": {
+        // A custom order in which the frames are played. If omitted, the frames are played top to bottom.
+        "frames": [1, 0],
+        // How long one frame stays before switching to the next animation stage, in frames. Defaults to 1.
+        "frametime": 5,
+        // Whether to interpolate between animation stages. Defaults to false.
+        "interpolate": true,
+        // Width and height of one animation stage. If omitted, uses the texture width for both of these.
+        "width": 12,
+        "height": 12
+    }
 }
 ```
 

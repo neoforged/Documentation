@@ -8,8 +8,8 @@ _If the data is specific to some block entities, chunks, or entities, consider u
 
 Each SD implementation must subtype the `SavedData` class. There are two important methods to be aware of:
 
-* `save`: Allows the implementation to write NBT data to the level.
-* `setDirty`: A method that must be called after changing the data, to notify the game that there are changes that need to be written. If not called, `#save` will not get called and the original data will remain unchanged.
+- `save`: Allows the implementation to write NBT data to the level.
+- `setDirty`: A method that must be called after changing the data, to notify the game that there are changes that need to be written. If not called, `#save` will not get called and the original data will remain unchanged.
 
 ## Attaching to a Level
 
@@ -27,7 +27,7 @@ public ExampleSavedData create() {
   return new ExampleSavedData();
 }
 
-public ExampleSavedData load(CompoundTag tag) {
+public ExampleSavedData load(CompoundTag tag, HolderLookup.Provider lookupProvider) {
   ExampleSavedData data = this.create();
   // Load saved data
   return data;

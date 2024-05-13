@@ -18,6 +18,7 @@ The file name will be formatted with the date and time as `yyyy-mm-dd_hh_mi_ss-W
 Within each sided folder (`client` and `server`), you will find a `profiling.txt` file containing the result data. At the top, it first tells you how long in milliseconds it was running and how many ticks ran in that time.
 
 Below that, you will find information similar to the snippet below:
+
 ```
 [00] levels - 96.70%/96.70%
 [01] |   Level Name - 99.76%/96.47%
@@ -29,15 +30,17 @@ Below that, you will find information similar to the snippet below:
 [05] |   |   |   |   |   minecraft:furnace - 33.35%/0.14%
 [05] |   |   |   |   |   minecraft:chest - 2.39%/0.01%
 ```
-Here is a small explanation of what each part means
 
-| [02]                     | tick                  | 99.31%       | 95.81%       |
+Here is a small explanation of what each part means:
+
+| [02]                     | tick                    | 99.31%       | 95.81%       |
 | :----------------------- | :---------------------- | :----------- | :----------- |
 | The Depth of the section | The Name of the Section | The percentage of time it took in relation to it's parent. For Layer 0, it is the percentage of the time a tick takes. For Layer 1, it is the percentage of the time its parent takes. | The second percentage tells you how much time it took from the entire tick.
 
 ## Profiling your own code
 
 The Debug Profiler has basic support for `Entity` and `BlockEntity`. If you would like to profile something else, you may need to manually create your sections like so:
+
 ```java
 ProfilerFiller#push(yourSectionName : String);
 //The code you want to profile

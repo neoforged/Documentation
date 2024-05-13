@@ -151,8 +151,8 @@ public static void gatherData(GatherDataEvent event) {
 
     // other providers here
     generator.addProvider(
-            event.includeClient(),
-            new MyBlockStateProvider(output, existingFileHelper)
+        event.includeClient(),
+        new MyBlockStateProvider(output, existingFileHelper)
     );
 }
 ```
@@ -185,10 +185,10 @@ VariantBlockStateBuilder variantBuilder = getVariantBuilder(MyBlocksClass.EXAMPL
 VariantBlockStateBuilder.PartialBlockstate partialState = variantBuilder.partialState();
 // Add one or multiple models for a partial blockstate. The models are a vararg parameter.
 variantBuilder.addModels(partialState,
-        // Specify at least one ConfiguredModel.Builder, as seen above. Create through #modelForState().
-        partialState.modelForState()
-                .modelFile(models().withExistingParent("minecraft:block/cobblestone"))
-                .uvlock(true)
+    // Specify at least one ConfiguredModel.Builder, as seen above. Create through #modelForState().
+    partialState.modelForState()
+        .modelFile(models().withExistingParent("minecraft:block/cobblestone"))
+        .uvlock(true)
 );
 // Alternatively, forAllStates(Function<BlockState, ConfiguredModel[]>) creates a model for every state.
 // The passed function will be called once for each possible state.
@@ -196,39 +196,39 @@ variantBuilder.forAllStates(state -> {
     // Return a ConfiguredModel depending on the state's properties.
     // For example, the following code will rotate the model depending on the horizontal rotation of the block.
     return ConfiguredModel.builder()
-            .modelFile(models().withExistingParent("minecraft:block/cobblestone"))
-            .rotationY((int) state.getValue(BlockStateProperties.HORIZONTAL_FACING).toYRot())
-            .build();
+        .modelFile(models().withExistingParent("minecraft:block/cobblestone"))
+        .rotationY((int) state.getValue(BlockStateProperties.HORIZONTAL_FACING).toYRot())
+        .build();
 });
 
 // Get a multipart block state builder.
 MultiPartBlockStateBuilder multipartBuilder = getMultipartBuilder(MyBlocksClass.EXAMPLE_BLOCK.get());
 // Add a new part. Starts with .part() and ends with .end().
 multipartBuilder.addPart(multipartBuilder.part()
-        // Step one: Build the model. multipartBuilder.part() returns a ConfiguredModel.Builder,
-        // meaning that all methods seen above can be used here as well.
-        .modelFile("minecraft:block/cobblestone")
-        // Call .addModel(). Now that the model is built, we can proceed to step two: add the part data.
-        .addModel()
-        // Add a condition for the part. Requires a property
-        // and at least one property value; property values are a vararg.
-        .condition(BlockStateProperties.FACING, Direction.NORTH, Direction.SOUTH)
-        // Set the multipart conditions to be ORed instead of the default ANDing.
-        .useOr()
-        // Creates a nested condition group.
-        .nestedGroup()
-        // Adds a condition to the nested group.
-        .condition(BlockStateProperties.FACING, Direction.NORTH)
-        // Sets only this condition group to be ORed instead of ANDed.
-        .useOr()
-        // Creates yet another nested condition group. There is no limit on how many groups can be nested.
-        .nestedGroup()
-        // Ends the nested condition group, returning to the owning part builder or condition group level.
-        // Called twice here since we currently have two nested groups.
-        .endNestedGroup()
-        .endNestedGroup()
-        // End the part builder and add the resulting part to the multipart builder.
-        .end()
+    // Step one: Build the model. multipartBuilder.part() returns a ConfiguredModel.Builder,
+    // meaning that all methods seen above can be used here as well.
+    .modelFile("minecraft:block/cobblestone")
+    // Call .addModel(). Now that the model is built, we can proceed to step two: add the part data.
+    .addModel()
+    // Add a condition for the part. Requires a property
+    // and at least one property value; property values are a vararg.
+    .condition(BlockStateProperties.FACING, Direction.NORTH, Direction.SOUTH)
+    // Set the multipart conditions to be ORed instead of the default ANDing.
+    .useOr()
+    // Creates a nested condition group.
+    .nestedGroup()
+    // Adds a condition to the nested group.
+    .condition(BlockStateProperties.FACING, Direction.NORTH)
+    // Sets only this condition group to be ORed instead of ANDed.
+    .useOr()
+    // Creates yet another nested condition group. There is no limit on how many groups can be nested.
+    .nestedGroup()
+    // Ends the nested condition group, returning to the owning part builder or condition group level.
+    // Called twice here since we currently have two nested groups.
+    .endNestedGroup()
+    .endNestedGroup()
+    // End the part builder and add the resulting part to the multipart builder.
+    .end()
 );
 ```
 
@@ -270,8 +270,8 @@ public static void gatherData(GatherDataEvent event) {
 
     // other providers here
     generator.addProvider(
-            event.includeClient(),
-            new MyItemModelProvider(output, existingFileHelper)
+        event.includeClient(),
+        new MyItemModelProvider(output, existingFileHelper)
     );
 }
 ```

@@ -2,8 +2,7 @@
 sidebar_position: 0
 ---
 
-NeoGradle Documentation
-=========================
+# NeoGradle Documentation
 
 :::caution
 Please note that this documentation may not be up to date considering the recent creation of NeoForged.
@@ -17,8 +16,7 @@ This documentation is _only_ for ForgeGradle, **this is not a Java, Groovy, or G
 
 If you would like to contribute to the docs, read [Contributing to the Docs][contributing].
 
-Adding the Plugin
------------------
+## Adding the Plugin
 
 ForgeGradle uses Gradle 8; it can be added using the `plugins` block in the `build.gradle` by adding the following information to the `settings.gradle`:
 

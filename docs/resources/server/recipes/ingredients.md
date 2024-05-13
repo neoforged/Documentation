@@ -1,177 +1,128 @@
-Ingredients
-===========
+# Ingredients
 
 `Ingredient`s are predicate handlers for item-based inputs which check whether a certain `ItemStack` meets the condition to be a valid input in a recipe. All [vanilla recipes][recipes] that take inputs use an `Ingredient` or a list of `Ingredient`s, which is then merged into a single `Ingredient`.
 
-Custom Ingredients
-------------------
+## Custom Ingredients
 
-Custom ingredients can be specified by setting `type` to the name of the [ingredient's serializer][serializer], with the exception of [compound ingredients][compound]. When no type is specified, `type` defaults to the vanilla ingredient `minecraft:item`. Custom ingredients can also easily be used in [data generation][datagen].
+Custom ingredients can be specified by setting `type` to the name of the [ingredient's serializer][serializer], with the exception of [compound ingredients][compound]. When no type is specified, the vanilla ingredient is used. Custom ingredients can also easily be used in [data generation][datagen] by calling `ICustomIngredient#toVanilla`.
 
-### Forge Types
+### NeoForge Types
 
-Forge provides a few additional `Ingredient` types for programmers to implement. 
+NeoForge provides a few additional `Ingredient` types for programmers to implement. 
 
 #### CompoundIngredient
 
-Though they are functionally identical, Compound ingredients replaces the way one would implement a list of ingredients would in a recipe. They work as a set OR where the passed in stack must be within at least one of the supplied ingredients. This change was made to allow custom ingredients to work correctly within lists. As such, **no type** needs to be specified.
+Though they are functionally identical, compound ingredients replaces the way one would implement a list of ingredients in a recipe. They work as a set OR where the passed in stack must be within at least one of the supplied ingredients. This change was made to allow custom ingredients to work correctly within lists. As such, **no type** needs to be specified.
 
-```js
+```json5
 // For some input
 [
-  // At least one of these ingredients must match to succeed
-  {
-    // Ingredient
-  },
-  {
-    // Custom ingredient
-    "type": "examplemod:example_ingredient"
-  }
+    // At least one of these ingredients must match to succeed
+    {
+      // Ingredient
+    },
+    {
+        // Custom ingredient
+        "type": "examplemod:example_ingredient"
+    }
 ]
 ```
 
-#### StrictNBTIngredient
+#### DataComponentIngredient
 
-`StrictNBTIngredient`s compare the item, damage, and the share tags (as defined by `IForgeItem#getShareTag`) on an `ItemStack` for exact equivalency. This can be used by specifying the `type` as `forge:nbt`.
+`DataComponentIngredient`s compare the item, damagage, and data components on an `ItemStack`. When `strict` is `true`, the `ItemStack` is checked for an exact match. Otherwise, if only the components specified match, the ingredient will pass. This can be used by specifying the `type` as `neoforge:components`.
 
-```js
+```json5
 // For some input
 {
-  "type": "forge:nbt",
-  "item": "examplemod:example_item",
-  "nbt": {
-    // Add nbt data (must match exactly what is on the stack)
-  }
-}
-```
-
-### PartialNBTIngredient
-
-`PartialNBTIngredient`s are a looser version of [`StrictNBTIngredient`][nbt] as they compare against a single or set of items and only keys specified within the share tag (as defined by `IForgeItem#getShareTag`). This can be used by specifying the `type` as `forge:partial_nbt`.
-
-```js
-// For some input
-{
-  "type": "forge:partial_nbt",
-
-  // Either 'item' or 'items' must be specified
-  // If both are specified, only 'item' will be read
-  "item": "examplemod:example_item",
-  "items": [
-    "examplemod:example_item",
-    "examplemod:example_item2"
-    // ...
-  ],
-
-  "nbt": {
-    // Checks only for equivalency on 'key1' and 'key2'
-    // All other keys in the stack will not be checked
-    "key1": "data1",
-    "key2": {
-      // Data 2
-    }
-  }
+    "type": "neoforge:components",
+    // Can be either a single item or list of items
+    "items": "examplemod:example_item",
+    "components": {
+        // Add component information
+    },
+    // true requires an exact match
+    // false only requires a match of the specified components
+    "strict": true
 }
 ```
 
 ### IntersectionIngredient
 
-`IntersectionIngredient`s work as a set AND where the passed in stack must match all supplied ingredients. There must be at least two ingredients supplied to this. This can be used by specifying the `type` as `forge:intersection`.
+`IntersectionIngredient`s work as a set AND where the passed in stack must match all supplied ingredients. There must be at least two ingredients supplied to this. This can be used by specifying the `type` as `neoforge:intersection`.
 
-```js
+```json5
 // For some input
 {
-  "type": "forge:intersection",
+    "type": "neoforge:intersection",
 
-  // All of these ingredients must return true to succeed
-  "children": [
-    {
-      // Ingredient 1
-    },
-    {
-      // Ingredient 2
-    }
-    // ...
-  ]
+    // All of these ingredients must return true to succeed
+    "children": [
+        {
+            // Ingredient 1
+        },
+        {
+            // Ingredient 2
+        }
+        // ...
+    ]
 }
 ```
 
 ### DifferenceIngredient
 
-`DifferenceIngredient`s work as a set subtraction (SUB) where the passed in stack must match the first ingredient but must not match the second ingredient. This can be used by specifying the `type` as `forge:difference`.
+`DifferenceIngredient`s work as a set subtraction (SUB) where the passed in stack must match the first ingredient but must not match the second ingredient. This can be used by specifying the `type` as `neoforge:difference`.
 
-```js
+```json5
 // For some input
 {
-  "type": "forge:difference",
-  "base": {
-    // Ingredient the stack is in
-  },
-  "subtracted": {
-    // Ingredient the stack is NOT in
-  }
+    "type": "neoforge:difference",
+    "base": {
+        // Ingredient the stack is in
+    },
+    "subtracted": {
+        // Ingredient the stack is NOT in
+    }
 }
 ```
 
-Creating Custom Ingredients
----------------------------
+## Creating Custom Ingredients
 
-Custom ingredients can be created by implementing `IIngredientSerializer` for the created `Ingredient` subclass.
+Custom ingredients can be created by implementing `ICustomIngredient` and [registering] the associated [IngredientType][type] to `NeoForgeRegistries.Keys.INGREDIENT_TYPES`.
 
-:::tip
-Custom ingredients should subclass `AbstractIngredient` as it provides some useful abstractions for ease of implementation.
-:::
+### ICustomIngredient
 
-### Ingredient Subclass
+There are four important methods to implement:
 
-There are three important methods to implement for each ingredient subclass:
+| Method    | Description
+|:---------:|:------------------------
+`test`      | Returns true if the stack matches this ingredient.
+`getItems`  | Returns the list of stacks this ingredient accepts; however, this does not need to be exhaustive as it is only for display purposes
+`isSimple`  | Returns `false` if information on the stack needs to be tested, or `true` if only the item needs to be checked
+`getType`   | Returns the [type] of this ingredient
 
- Method       | Description
- :---:        | :---
-getSerializer | Returns the [serializer] used to read and write the ingredient.
-test          | Returns true if the input is valid for this ingredient.
-isSimple      | Returns false if the ingredient matches on the stack's tag. `AbstractIngredient` subclasses will need to define this behavior, while `Ingredient` subclasses return `true` by default.
+### IngredientType
 
-All other defined methods are left as an exercise to the reader to use as required for the ingredient subclass.
+`IngredientType` contains two values: a [map codec][codec] used to encode and decode the ingredient, and a `StreamCodec` to sync the ingredient if `ICustomIngredient#isSimple` returns `false`. If `#isSimple` is `true`, then `IngredientType` has a constructor overload that only takes in the map codec.
 
-### IIngredientSerializer
-
-`IIngredientSerializer` subtypes must implement three methods:
-
- Method         | Description
- :---:          | :---
-parse (JSON)    | Converts a `JsonObject` to an `Ingredient`.
-parse (Network) | Reads the network buffer to decode an `Ingredient`.
-write           | Writes an `Ingredient` to the network buffer.
-
-Additionally, `Ingredient` subclasses should implement `Ingredient#toJson` for use with [data generation][datagen]. `AbstractIngredient` subclasses make `#toJson` an abstract method requiring the method to be implemented.
-
-Afterwards, a static instance should be declared to hold the initialized serializer and then registered using `CraftingHelper#register` either during the `RegisterEvent` for `RecipeSerializer`s or during `FMLCommonSetupEvent`. The `Ingredient` subclass return the static instance of the serializer in `Ingredient#getSerializer`.
+The `IngredientType` needs to be [registered][registering].
 
 ```java
-// In some serializer class
-public static final ExampleIngredientSerializer INSTANCE = new ExampleIngredientSerializer();
+// For some DeferredRegister<IngredientType<?>> REGISTRAR
+public static final DeferredHolder<IngredientType<?>, IngredientType<ExampleIngredient>> EXAMPLE_INGREDIENT = REGISTRAR.register(
+  "example_ingredient", () -> new IngredientType(...)
+);
 
-// In some handler class
-public void registerSerializers(RegisterEvent event) {
-  event.register(ForgeRegistries.Keys.RECIPE_SERIALIZERS,
-    helper -> CraftingHelper.register(registryName, INSTANCE)
-  );
-}
-
-// In some ingredient subclass
+// In ExampleIngredient
 @Override
-public IIngredientSerializer<? extends Ingredient> getSerializer() {
-  return INSTANCE;
+public IngredientType<?> getType() {
+  return EXAMPLE_INGREDIENT.get();
 }
 ```
 
-:::tip
-If using `FMLCommonSetupEvent` to register an ingredient serializer, it must be enqueued to the synchronous work queue via `FMLCommonSetupEvent#enqueueWork` as `CraftingHelper#register` is not thread-safe.
-:::
-
 [recipes]: https://minecraft.wiki/w/Recipe#List_of_recipe_types
-[nbt]: #strictnbtingredient
-[serializer]: #iingredientserializer
 [compound]: #compoundingredient
-[datagen]: ../../../datagen/server/recipes.md
+[type]: #ingredienttype
+[registering]: ../../../concepts/registries.md
+[codec]: ../../../datastorage/codecs.md
+[datagen]: ../../../datagen/recipes.md

@@ -1,11 +1,10 @@
-Getting Started with ForgeGradle
-================================
+# Getting Started with ForgeGradle
 
 If you have never used ForgeGradle before, here is the minimum amount of information needed to get a development environment setup.
 
 #### Prerequisites
 
-* An installation of the Java Development Kit (JDK)
+- An installation of the Java Development Kit (JDK)
 
 Minecraft Versions | Java Development Kit Version
 :---:              | :---:
@@ -13,8 +12,8 @@ Minecraft Versions | Java Development Kit Version
 1.17               | [JDK 16][jdk16]
 1.18 - 1.19        | [JDK 17][jdk17]
 
-* Familiarity with an Integrated Development Environment (IDE)
-    * It is preferable to use one with some form of Gradle integration
+- Familiarity with an Integrated Development Environment (IDE)
+    - It is preferable to use one with some form of Gradle integration
 
 ## Setting Up ForgeGradle
 
@@ -27,7 +26,7 @@ Minecraft Versions | Java Development Kit Version
 
 
 :::caution
-Make sure that any changes to the mod id are reflected in the mods.toml and main mod class. See [Structuring Your Mod][structuring] on the Forge docs for more information.
+Make sure that any changes to the mod id are reflected in the mods.toml and main mod class. See [Structuring Your Mod][structuring] on the NeoForge docs for more information.
 :::
 
 2. Reload or refresh your Gradle project using your IDE. If your IDE does not have Gradle integration, run the following from a shell in your project's directory:

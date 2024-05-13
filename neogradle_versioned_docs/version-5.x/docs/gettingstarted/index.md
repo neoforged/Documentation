@@ -1,20 +1,20 @@
-Getting Started with ForgeGradle
-================================
+# Getting Started with ForgeGradle
 
 If you have never used ForgeGradle before, here is the minimum amount of information needed to get a development environment setup.
 
 #### Prerequisites
 
-* An installation of the Java Development Kit (JDK)
+- An installation of the Java Development Kit (JDK)
 
 Minecraft Versions | Java Development Kit Version
 :---:              | :---:
 1.12 - 1.16        | [JDK 8][jdk8]
 1.17               | [JDK 16][jdk16]
-1.18 - 1.19        | [JDK 17][jdk17]
+1.18 - 1.20.4      | [JDK 17][jdk17]
+1.20.5 - 1.21      | [JDK 21][jdk21]
 
-* Familiarity with an Integrated Development Environment (IDE)
-    * It is preferable to use one with some form of Gradle integration
+- Familiarity with an Integrated Development Environment (IDE)
+    - It is preferable to use one with some form of Gradle integration
 
 ## Setting Up ForgeGradle
 
@@ -27,7 +27,7 @@ Minecraft Versions | Java Development Kit Version
 
 
 :::caution
-Make sure that any changes to the mod id are reflected in the mods.toml and main mod class. See [Structuring Your Mod][structuring] on the Forge docs for more information.
+Make sure that any changes to the mod id are reflected in the mods.toml and main mod class. See [Structuring Your Mod][structuring] on the NeoForge docs for more information.
 :::
 
 4. Reload or refresh your Gradle project using your IDE. If your IDE does not have Gradle integration, run the following from a shell in your project's directory:
@@ -68,6 +68,7 @@ Congratulations, now you have a development environment set up!
 [jdk8]: https://adoptium.net/temurin/releases/?version=8
 [jdk16]: https://adoptium.net/temurin/releases/?version=16
 [jdk17]: https://adoptium.net/temurin/releases/?version=17
+[jdk21]: https://learn.microsoft.com/en-us/java/openjdk/download#openjdk-21
 
 [mdk]: https://files.minecraftforge.net/
 [group]: https://docs.oracle.com/javase/tutorial/java/package/namingpkgs.html

@@ -5,23 +5,23 @@ This section includes information about how to set up a NeoForge workspace, and 
 ## Prerequisites
 
 - Familiarity with the Java programming language, specifically its object-oriented, polymorphic, generic, and functional features.
-- An installation of the Java 17 Development Kit (JDK) and 64-bit Java Virtual Machine (JVM). NeoForge recommends and officially supports the [Microsoft builds of OpenJDK][jdk], but any other JDK should work as well.
+- An installation of the Java 21 Development Kit (JDK) and 64-bit Java Virtual Machine (JVM). NeoForge recommends and officially supports the [Microsoft builds of OpenJDK][jdk], but any other JDK should work as well.
 
 :::caution
 Make sure you are using a 64-bit JVM. One way of checking is to run `java -version` in a terminal. Issues may arise when using a 32-bit JVM, due to 32-bit JVMs running out of support for a lot of things.
 :::
 
 - Familiarity with an Integrated Development Environment (IDE) of your choice.
-   - NeoForge officially supports [IntelliJ IDEA][intellij] and [Eclipse][eclipse], both of which have integrated Gradle support. However, any IDE can be used, ranging from Netbeans or Visual Studio Code to Vim or Emacs.
+      - NeoForge officially supports [IntelliJ IDEA][intellij] and [Eclipse][eclipse], both of which have integrated Gradle support. However, any IDE can be used, ranging from Netbeans or Visual Studio Code to Vim or Emacs.
 - Familiarity with [Git][git] and [GitHub][github]. This is technically not required, but it will make your life a lot easier.
 
 ## Setting Up the Workspace
 
 - Open the [Mod Developer Kit (MDK)][mdk] GitHub repository, click "Use this template" and clone the newly-created repository to your local machine.
-   - If you do not want to use GitHub, or if you want to get the template for an older commit or a non-default branch (which would be the case e.g. for older versions), you can also download the ZIP of the repository (under Code -> Download ZIP) and extract it.
+      - If you do not want to use GitHub, or if you want to get the template for an older commit or a non-default branch (which would be the case e.g. for older versions), you can also download the ZIP of the repository (under Code -> Download ZIP) and extract it.
 - Open your IDE and import the Gradle project. Eclipse and IntelliJ IDEA will do this automatically for you. If you have an IDE that does not do this, you can also do it via the `gradlew` terminal command.
-   - When doing this for the first time, Gradle will download all dependencies of NeoForge, including Minecraft itself, and decompile them. This can take a fair amount of time (up to an hour, depending on your hardware and network strength).
-   - Whenever you make a change to the Gradle files, the Gradle changes will need to be reloaded, either through the "Reload Gradle" button in your IDE, or again through the `gradlew` terminal command.
+      - When doing this for the first time, Gradle will download all dependencies of NeoForge, including Minecraft itself, and decompile them. This can take a fair amount of time (up to an hour, depending on your hardware and network strength).
+      - Whenever you make a change to the Gradle files, the Gradle changes will need to be reloaded, either through the "Reload Gradle" button in your IDE, or again through the `gradlew` terminal command.
 
 ## Customizing Your Mod Information
 
@@ -54,7 +54,7 @@ You should always test your mod in a dedicated server environment. This includes
 [git]: https://www.git-scm.com/
 [github]: https://github.com/
 [intellij]: https://www.jetbrains.com/idea/
-[jdk]: https://learn.microsoft.com/en-us/java/openjdk/download#openjdk-17
+[jdk]: https://learn.microsoft.com/en-us/java/openjdk/download#openjdk-21
 [mdk]: https://github.com/neoforged/MDK
 [neogradle]: https://docs.neoforged.net/neogradle/docs/
 [properties]: modfiles.md#gradleproperties

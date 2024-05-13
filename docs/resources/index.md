@@ -4,7 +4,7 @@ Resources are external files that are used by the game, but are not code. The mo
 
 Minecraft generally has two kinds of resources: client-side resources, known as assets, and server-side resources, known as data. Assets are mostly display-only information, for example textures, display models, translations, or sounds, while data includes various things that affect gameplay, such as loot tables, recipes, or worldgen information. They are loaded from resource packs and data packs, respectively. NeoForge generates a built-in resource and data pack for every mod.
 
-Both resource and data packs normally require a [`pack.mcmeta` file][packmcmeta], this was also the case in past Forge versions. However, NeoForge generates these at runtime for you, so you don't need to worry about it anymore.
+Both resource and data packs normally require a [`pack.mcmeta` file][packmcmeta]; however, modern NeoForge generates these at runtime for you, so you don't need to worry about it.
 
 If you are confused about the format of something, have a look at the vanilla resources. Your NeoForge development environment not only contains vanilla code, but also vanilla resources. They can be found in the External Resources section (IntelliJ)/Project Libraries section (Eclipse), under the name `ng_dummy_ng.net.minecraft:client:client-extra:<minecraft_version>` (for Minecraft resources) or `ng_dummy_ng.net.neoforged:neoforge:<neoforge_version>` (for NeoForge resources).
 
@@ -73,20 +73,23 @@ All data providers extend the `DataProvider` interface and usually require one m
 | [`LanguageProvider`][langprovider]                   | `addTranslations()`              | Translations                            | Client | Also requires passing the language in the constructor.                                                                                                                                                                        |
 | [`ParticleDescriptionProvider`][particleprovider]    | `addDescriptions()`              | Particle definitions                    | Client |                                                                                                                                                                                                                               |
 | [`SoundDefinitionsProvider`][soundprovider]          | `registerSounds()`               | Sound definitions                       | Client |                                                                                                                                                                                                                               |
+| `SpriteSourceProvider`                               | `gather()`                       | Sprite sources / atlases                | Client |                                                                                                                                                                                                                               |
 | [`AdvancementProvider`][advancementprovider]         | `generate()`                     | Advancements                            | Server | Make sure to use the NeoForge variant, not the Minecraft one.                                                                                                                                                                 |
-| [`LootTableProvider`][loottableprovider]             | `generate()`                     | Loot tables                             | Server | Requires extra methods and classes to work properly, see linked article for details.                                                                                                                                          |
+| [`LootTableProvider`][loottableprovider]             | `generate()`                     | Loot tables                             | Server | Requires extra methods and classes to work properly, see linked article for details.  |
 | [`RecipeProvider`][recipeprovider]                   | `buildRecipes(RecipeOutput)`     | Recipes                                 | Server |                                                                                                                                                                                                                               |
 | [Various subclasses of `TagsProvider`][tagsprovider] | `addTags(HolderLookup.Provider)` | Tags                                    | Server | Several specialized subclasses exist, for example `BlockTagsProvider`. If the one you need doesn't exist, extend `TagsProvider` (or `IntrinsicHolderTagsProvider` if applicable) with your tag type as the generic parameter. |
-| [`DatapackBuiltinEntriesProvider`][datapackprovider] | N/A                              | Datapack builtin entries, e.g. worldgen | Server | See linked article for details.                                                                                                                                                                                               |
+| [`DatapackBuiltinEntriesProvider`][datapackprovider] | N/A                              | Datapack builtin entries, e.g. worldgen | Server | See linked article for details.                                                         |
 | [`DataMapProvider`][datamapprovider]                 | `gather()`                       | Data map entries                        | Server |                                                                                                                                                                                                                               |
 | [`GlobalLootModifierProvider`][glmprovider]          | `start()`                        | Global loot modifiers                   | Server |                                                                                                                                                                                                                               |
+| `PackMetadataGenerator`                              | N/A                              | `pack.mcmeta`                           | Both   | Metadata sections are added by constructor chaining via `#add`                        |
+| `JsonCodecProvider` (abstract class)                 | `gather()`                       | Objects with a codec                    | Both   | This can be extended for use with any object that has a codec to encode data to.      |
 
 All of these providers follow the same pattern. First, you create a subclass and add your own resources to be generated. Then, you add the provider to the event in an [event handler][eventhandler]. An example using a `RecipeProvider`:
 
 ```java
 public class MyRecipeProvider extends RecipeProvider {
-    public MyRecipeProvider(PackOutput output) {
-        super(output);
+    public MyRecipeProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider) {
+        super(output, lookupProvider);
     }
     
     @Override
@@ -95,8 +98,9 @@ public class MyRecipeProvider extends RecipeProvider {
     }
 }
 
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD, modid = "examplemod")
+@EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD, modid = "examplemod")
 public class MyDatagenHandler {
+
     @SubscribeEvent
     public static void gatherData(GatherDataEvent event) {
         // Data generators may require some of these as constructor parameters.
@@ -115,7 +119,7 @@ public class MyDatagenHandler {
                 // Since recipes are server data, we only run them in a server datagen.
                 event.includeServer(),
                 // Our provider.
-                new MyRecipeProvider(output)
+                new MyRecipeProvider(output, lookupProvider)
         );
         // Other data providers here.
     }

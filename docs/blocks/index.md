@@ -26,7 +26,7 @@ After registering the block, all references to the new `my_block` should use thi
 ```java
 level.getBlockState(position) // returns the blockstate placed in the given level (world) at the given position
         //highlight-next-line
-        .is(MyBlockRegistrationClass.MY_BLOCK.get());
+        .is(MyBlockRegistrationClass.MY_BLOCK);
 ```
 
 This approach also has the convenient effect that `block1 == block2` works and can be used instead of Java's `equals` method (using `equals` still works, of course, but is pointless since it compares by reference anyway).
@@ -138,7 +138,7 @@ Block placement logic is called from `BlockItem#useOn` (or some subclass's imple
 - `Block#getStateForPlacement` is called. This is where, depending on the context (which includes information like the position, the rotation and the side the block is placed on), different block states can be returned. This is useful for example for blocks that can be placed in different directions.
 - `Block#canSurvive` is called with the blockstate obtained in the previous step. If it returns `false`, the pipeline ends.
 - The blockstate is set into the level via a `Level#setBlock` call.
-  - In that `Level#setBlock` call, `Block#onPlace` is called.
+    - In that `Level#setBlock` call, `Block#onPlace` is called.
 - `Block#setPlacedBy` is called.
 
 ### Breaking a Block
@@ -186,9 +186,9 @@ The following subsections further break down these stages into actual method cal
 
 #### The "Actually Breaking" Stage
 
-- `Item#onBlockStartBreak` is called. If it returns `true` (determining that the block should not be broken), the pipeline moves to the "finishing" stage.
+- `IItemExtension#onBlockStartBreak` is called. If it returns `true` (determining that the block should not be broken), the pipeline moves to the "finishing" stage.
 - Server-only: `IBlockExtension#canHarvestBlock` is called. This determines whether the block can be harvested, i.e. broken with drops.
-- `Block#onDestroyedByPlayer` is called. If it returns `false`, the pipeline moves to the "finishing" stage. In that `Block#onDestroyedByPlayer` call:
+- `IBlockExtension#onDestroyedByPlayer` is called. If it returns `false`, the pipeline moves to the "finishing" stage. In that `IBlockExtension#onDestroyedByPlayer` call:
     - `Block#playerWillDestroy` is called.
     - The blockstate is removed from the level via a `Level#setBlock` call with `Blocks.AIR.defaultBlockState()` as the blockstate parameter.
         - In that `Level#setBlock` call, `Block#onRemove` is called.

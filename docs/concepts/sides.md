@@ -1,3 +1,6 @@
+---
+sidebar_position: 2
+---
 # Sides
 
 Like many other programs, Minecraft follows a client-server concept, where the client is responsible for displaying the data, while the server is responsible for updating them. When using these terms, we have a fairly intuitive understanding of what we mean... right?
@@ -47,25 +50,39 @@ This check should be used as your go-to default. Whenever you have a `Level` ava
 
 ### `FMLEnvironment.dist`
 
-`FMLEnvironment.dist` is the **physical** counterpart to a `Level#isClientSide()` check. If this field is `Dist.CLIENT`, you are on a physical client. If the field is `Dist.SERVER`, you are on a physical server.
+`FMLEnvironment.dist` is the **physical** counterpart to a `Level#isClientSide()` check. If this field is `Dist.CLIENT`, you are on a physical client. If the field is `Dist.DEDICATED_SERVER`, you are on a physical server.
 
-Checking the physical environment is important when dealing with client-only classes. All calls to client-only code should always be encased in a check for `Dist.CLIENT`, and then call to a separate class to prevent accidental classloading:
+
+#### `@Mod`
+
+Checking the physical environment is important when dealing with client-only classes. The recommended way to separate code that should only be executed on one physical client is by specifying a separate [`@Mod` annotation][mod], setting the `dist` parameter to the physical side the mod class should be loaded on:
 
 ```java
-public class SomeCommonClass {
-    public void someCommonMethod() {
-        //SomeClientClass will be loaded if and only if you are on a physical client
-        if (FMLEnvironment.dist == Dist.CLIENT) {
-            SomeClientClass.someClientMethod();
-        }
+@Mod("examplemod")
+public class ExampleMod {
+    public ExampleMod(IEventBus modBus) {
+        // Perform logic in that should be executed on both sides
     }
 }
 
-public class SomeClientClass {
-    public void someClientMethod() {
+@Mod(value = "examplemod", dist = Dist.CLIENT) 
+public class ExampleModClient {
+    public ExampleModClient(IEventBus modBus) {
+        // Perform logic in that should only be executed on the physical client
         Minecraft.getInstance().whatever();
     }
 }
+
+@Mod(value = "examplemod", dist = Dist.DEDICATED_SERVER) 
+public class ExampleModDedicatedServer {
+    public ExampleModDedicatedServer(IEventBus modBus) {
+        // Perform logic in that should only be executed on the physical server
+    }
+}
+```
+
+```java
+
 ```
 
 :::tip
@@ -73,3 +90,4 @@ Mods are generally expected to work on either side. This especially means that i
 :::
 
 [networking]: ../networking/index.md
+[mod]: ../gettingstarted/modfiles.md#javafml-and-mod
