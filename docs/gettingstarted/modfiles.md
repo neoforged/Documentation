@@ -2,30 +2,40 @@
 
 The mod files are responsible for determining what mods are packaged into your JAR, what information to display within the 'Mods' menu, and how your mod should be loaded in the game.
 
-## gradle.properties
+## `gradle.properties`
 
 The `gradle.properties` file holds various common properties of your mod, such as the mod id or mod version. During building, Gradle reads the values in these files and inlines them in various places, such as the [neoforge.mods.toml][neoforgemodstoml] file. This way, you only need to change values in one place, and they are then applied everywhere for you.
 
 Most values are also explained as comments in [the MDK's `gradle.properties` file].
 
-| Property                  | Description                                                                                                                                                                                                                                                                                           | Example                                   |
-|---------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------|
-| `org.gradle.jvmargs`      | Allows you to pass extra JVM arguments to Gradle. Most commonly, this is used to assign more/less memory to Gradle. Note that this is for Gradle itself, not Minecraft.                                                                                                                               | `org.gradle.jvmargs=-Xmx3G`               |
-| `org.gradle.daemon`       | Whether Gradle should use the daemon when building.                                                                                                                                                                                                                                                   | `org.gradle.daemon=false`                 |
-| `org.gradle.debug`        | Whether Gradle is set to debug mode. Debug mode mainly means more Gradle log output. Note that this is for Gradle itself, not Minecraft.                                                                                                                                                              | `org.gradle.debug=false`                  |
-| `minecraft_version`       | The Minecraft version you are modding on. Must match with `neo_version`.                                                                                                                                                                                                                              | `minecraft_version=1.20.2`                |
-| `minecraft_version_range` | The Minecraft version range this mod can use, as a [Maven Version Range][mvr]. Note that [snapshots, pre-releases and release candidates][mcversioning] are not guaranteed to sort properly, as they do not follow maven versioning.                                                                  | `minecraft_version_range=[1.20.2,1.20.3)` |
-| `neo_version`             | The NeoForge version you are modding on. Must match with `minecraft_version`. See [NeoForge Versioning][neoversioning] for more information on how NeoForge versioning works.                                                                                                                         | `minecraft_version=1.20.2`                |
-| `neo_version_range`       | The NeoForge version range this mod can use, as a [Maven Version Range][mvr].                                                                                                                                                                                                                         | `minecraft_version_range=[1.20.2,1.20.3)` |
-| `loader_version_range`    | The version range of the mod loader this mod can use, as a [Maven Version Range][mvr]. Note that the loader versioning is decoupled from NeoForge versioning.                                                                                                                                         | `loader_version_range=[1,)`               |
-| `mod_id`                  | The id of your mod. This should be something unique and memorable, as having two mods with the same id will prevent the game from loading. The mod id shows up in a lot of places, for example as the namespace for all your registered things, or as the namespace for your resource and data packs. | `mod_id=examplemod`                       |
-| `mod_name`                | The human-readable display name of your mod. By default, this can only be seen in the mod list, however, mods such as [JEI][jei] prominently display mod names in item tooltips as well.                                                                                                              | `mod_name=Example Mod`                    |
-| `mod_license`             | The license your mod is provided under. It is suggested that this is set to the [SPDX identifier][spdx] you are using and/or a link to the license. You can visit https://choosealicense.com/ to help pick the license you want to use.                                                               | `mod_license=MIT`                         |
-| `mod_version`             | The version of your mod, shown in the mod list. See [the page on Versioning][versioning] for more information.                                                                                                                                                                                        | `mod_version=1.0`                         |
-| `mod_group_id`            | See [The Group ID][group].                                                                                                                                                                                                                                                                            | `mod_group_id=com.example.examplemod`     |
-| `mod_authors`             | The authors of the mod, shown in the mod list.                                                                                                                                                                                                                                                        | `mod_authors=ExampleModder`               |
-| `mod_description`         | The description of the mod, as a multiline string, shown in the mod list. Newline characters (`\n`) can be used and will be replaced properly.                                                                                                                                                        | `mod_authors=Example mod description.`    |
-| `pack_format_number`      | The version number of your mod's data and resource pack. Mojang bumps this without something that could be considered a consistent scheme, so it's best to just look up what the current number is. As of Minecraft 1.20.2, the pack version is `18`.                                                 | `pack_version_number=18`                  |
+| Property                  | Description                                                                                                                                                                                                                                           | Example                                   |
+|---------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------|
+| `org.gradle.jvmargs`      | Allows you to pass extra JVM arguments to Gradle. Most commonly, this is used to assign more/less memory to Gradle. Note that this is for Gradle itself, not Minecraft.                                                                               | `org.gradle.jvmargs=-Xmx3G`               |
+| `org.gradle.daemon`       | Whether Gradle should use the daemon when building.                                                                                                                                                                                                   | `org.gradle.daemon=false`                 |
+| `org.gradle.debug`        | Whether Gradle is set to debug mode. Debug mode mainly means more Gradle log output. Note that this is for Gradle itself, not Minecraft.                                                                                                              | `org.gradle.debug=false`                  |
+| `minecraft_version`       | The Minecraft version you are modding on. Must match with `neo_version`.                                                                                                                                                                              | `minecraft_version=1.20.2`                |
+| `minecraft_version_range` | The Minecraft version range this mod can use, as a [Maven Version Range][mvr]. Note that [snapshots, pre-releases and release candidates][mcversioning] are not guaranteed to sort properly, as they do not follow maven versioning.                  | `minecraft_version_range=[1.20.2,1.20.3)` |
+| `neo_version`             | The NeoForge version you are modding on. Must match with `minecraft_version`. See [NeoForge Versioning][neoversioning] for more information on how NeoForge versioning works.                                                                         | `minecraft_version=1.20.2`                |
+| `neo_version_range`       | The NeoForge version range this mod can use, as a [Maven Version Range][mvr].                                                                                                                                                                         | `minecraft_version_range=[1.20.2,1.20.3)` |
+| `loader_version_range`    | The version range of the mod loader this mod can use, as a [Maven Version Range][mvr]. Note that the loader versioning is decoupled from NeoForge versioning.                                                                                         | `loader_version_range=[1,)`               |
+| `mod_id`                  | See [The Mod ID][modid].                                                                                                                                                                                                                              | `mod_id=examplemod`                       |
+| `mod_name`                | The human-readable display name of your mod. By default, this can only be seen in the mod list, however, mods such as [JEI][jei] prominently display mod names in item tooltips as well.                                                              | `mod_name=Example Mod`                    |
+| `mod_license`             | The license your mod is provided under. It is suggested that this is set to the [SPDX identifier][spdx] you are using and/or a link to the license. You can visit https://choosealicense.com/ to help pick the license you want to use.               | `mod_license=MIT`                         |
+| `mod_version`             | The version of your mod, shown in the mod list. See [the page on Versioning][versioning] for more information.                                                                                                                                        | `mod_version=1.0`                         |
+| `mod_group_id`            | See [The Group ID][group].                                                                                                                                                                                                                            | `mod_group_id=com.example.examplemod`     |
+| `mod_authors`             | The authors of the mod, shown in the mod list.                                                                                                                                                                                                        | `mod_authors=ExampleModder`               |
+| `mod_description`         | The description of the mod, as a multiline string, shown in the mod list. Newline characters (`\n`) can be used and will be replaced properly.                                                                                                        | `mod_authors=Example mod description.`    |
+| `pack_format_number`      | The version number of your mod's data and resource pack. Mojang bumps this without something that could be considered a consistent scheme, so it's best to just look up what the current number is. As of Minecraft 1.20.2, the pack version is `18`. | `pack_version_number=18`                  |
+
+### The Mod ID
+
+The mod ID is the main way your mod is distinguished from others. It is used in a wide variety of places, including as the namespace for your mod's [registries][registration], and as your [resource and data pack][resource] namespaces. Having two mods with the same id will prevent the game from loading.
+
+As such, your mod ID should be something unique and memorable. Usually, it will be your mod's display name (but lower case), or some variation thereof. Mod IDs may only contain lowercase letters, digits and underscores.
+
+:::info
+Changing this property in the `gradle.properties` file will automatically apply the change everywhere, except for the [`@Mod` annotation][javafml] in your main mod class. There, you need to change it manually to match the value in the `gradle.properties` file.
+:::
 
 ### The Group ID
 
@@ -47,7 +57,7 @@ com
         - MyMod.java (renamed ExampleMod.java)
 ```
 
-## neoforge.mods.toml
+## `neoforge.mods.toml`
 
 The `neoforge.mods.toml` file, located at `src/main/resources/META-INF/neoforge.mods.toml`, is a file in [TOML][toml] format that defines the metadata of your mod(s). It also contains additional information on how your mod(s) should be loaded into the game, as well as display information that is displayed within the 'Mods' menu. The [`neoforge.mods.toml` file provided by the MDK][mdkneoforgemodstoml] contains comments explaining every entry, they will be explained here in more detail.
 
@@ -208,12 +218,14 @@ An entry in `neoforge.mods.toml` does not need a corresponding `@Mod` annotation
 [mdkgradleproperties]: https://github.com/neoforged/MDK/blob/main/gradle.properties
 [mdkneoforgemodstoml]: https://github.com/neoforged/MDK/blob/main/src/main/resources/META-INF/neoforge.mods.toml
 [neoforgemodstoml]: #neoforgemodstoml
+[modid]: #the-mod-id
 [mojmaps]: https://github.com/neoforged/NeoForm/blob/main/Mojang.md
 [multiline]: https://toml.io/en/v1.0.0#string
 [mvr]: https://maven.apache.org/enforcer/enforcer-rules/versionRanges.html
 [neoversioning]: versioning.md#neoforge
 [packaging]: ./structuring.md#packaging
 [registration]: ../concepts/registries.md#deferredregister
+[resource]: ../resources/index.md
 [serviceload]: https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/ServiceLoader.html#load(java.lang.Class)
 [sides]: ../concepts/sides.md
 [spdx]: https://spdx.org/licenses/
