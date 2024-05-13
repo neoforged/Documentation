@@ -11,7 +11,7 @@ Here you can find a list of primers on how to port from old versions to the curr
 | 1.19.2 -> 1.19.3   | [Primer by ChampionAsh5357][1192to1193] |
 | 1.19.3 -> 1.19.4   | [Primer by ChampionAsh5357][1193to1194] |
 | 1.19.4 -> 1.20.0   | [Primer by ChampionAsh5357][1194to120]  |
-| 1.20.4 -> 1.20.5/6 | [Primer by ChampionAsh5357][1194to120]  |
+| 1.20.4 -> 1.20.5/6 | [Primer by ChampionAsh5357][1204to1205] |
 
 [112to114]: https://gist.github.com/williewillus/353c872bcf1a6ace9921189f6100d09a
 [114to115]: https://gist.github.com/williewillus/30d7e3f775fe93c503bddf054ef3f93e
