@@ -177,7 +177,7 @@ public static final ArmorMaterial COPPER_ARMOR_MATERIAL = new ArmorMaterial(
     // Determines the repair item for this armor.
     () -> Ingredient.of(Tags.Items.INGOTS_COPPER),
     // Determines the texture locations of the armor to apply when rendering
-    // This can also be specified by setting 'getArmorTexture' if the armor texture should be different for your item
+    // This can also be specified by overriding 'IItemExtension#getArmorTexture' on your item if the armor texture needs to be more dynamic
     List.of(
         // Creates a new armor texture that will be located at:
         // - 'assets/mod_id/textures/models/armor/copper_layer_1.png' for the outer texture
