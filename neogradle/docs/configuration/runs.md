@@ -1,6 +1,6 @@
 # Run Configurations
 
-Run configurations define how an instance of the game is going to run. This includes arguments, working directories, task names, etc. Run configurations are defined within the `runs` block. No runs are configured by default, however NeoGradle provides the configurations `client`, `server`, `data` and `gameTestServer` out of the box.
+Run configurations define how an instance of the game is going to run. This includes arguments, working directories, task names, etc. Run configurations are defined within the `runs` block. No runs are configured by default; however, NeoGradle provides the configurations `client`, `server`, `data` and `gameTestServer` out of the box.
 
 ```gradle
 runs {

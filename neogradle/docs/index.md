@@ -40,10 +40,6 @@ plugins {
 While you can use version ranges for the NeoGradle plugin, it is not recommended to do so, as that may lead to more frequent decompilation and recompilation rounds and possible behavioral changes. You can find the latest NeoGradle version on our [Project Listing][gradlelisting].
 :::
 
-While you can use version ranges for the NeoGradle plugin, it is not recommended to do so, as that may lead to more frequent decompilation and recompilation rounds and possible behavioral changes.  
-You can find the latest NeoGradle version on our [Project Listing].
-:::
-
 ## Adding the NeoForge dependency
 
 In order to get the decompiled Minecraft environment and the NeoForge classes in your development environment, you just need to add the `net.neoforged:neoforge` dependency to a configuration for both a runtime and compile-time dependencies (usually `implementation`):

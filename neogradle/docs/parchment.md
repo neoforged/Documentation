@@ -1,6 +1,6 @@
 # Parchment
 
-[Parchment] is a community-sourced set of mappings of *parameter names* and *javadocs* that augment the official names released by Mojang. By using parchment, you can get parameter names for most Minecraft methods, instead of the indescriptive `p_` names.
+[Parchment] is a community-sourced set of mappings of **parameter names** and **javadocs** that augment the official names released by Mojang. By using parchment, you can get parameter names for most Minecraft methods, instead of the indescriptive `p_` names.
 
 ## Configuring parchment
 
