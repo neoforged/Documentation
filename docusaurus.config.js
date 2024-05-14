@@ -70,7 +70,11 @@ const config = {
         includeCurrentVersion: true,
         versions: {
           current: {
+            label: "NG7",
+          },
+          "6.x": {
             label: "FG6",
+            path: "6.x",
           },
           "5.x": {
             label: "FG5",
