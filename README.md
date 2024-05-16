@@ -10,7 +10,7 @@ You can read the [contribution guidelines on the docs](https://docs.neoforged.ne
 
 If you wish to contribute to the documentation, fork and clone this repository.
 
-The documentation uses Node.js 18. This can either be install manually or using a version manager that supports `.node-version` or `.nvmrc`. For most version managers, the `install` and/or `use` command can be used to setup the correct Node.js version.
+The documentation uses Node.js 18. This can either be installed manually or using a version manager that supports `.node-version` or `.nvmrc`. For most version managers, the `install` and/or `use` command can be used to setup the correct Node.js version.
 
 For example:
 
