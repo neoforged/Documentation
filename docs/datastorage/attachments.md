@@ -111,5 +111,5 @@ NeoForge.EVENT_BUS.register(PlayerEvent.Clone.class, event -> {
 ```
 
 [saveddata]: ./saveddata.md
-[datacomponents]: https://neoforged.net/news/20.5release#item-data-components
+[datacomponents]: ../items/datacomponents.md
 [network]: ../networking/index.md
