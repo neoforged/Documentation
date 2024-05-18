@@ -13,7 +13,7 @@ A list of existing components can be found within `DataComponents`.
 The component value associated with the `DataComponentType` must implement `hashCode` and `equals` and should be considered **immutable** when stored.
 
 :::note
-For ease of convenience, a record cann be used for the component value. Record fields are immutable and implement `hashCode` and `equals`.
+Component values can very easily be implemented using a record. Record fields are immutable and implement `hashCode` and `equals`.
 :::
 
 ```java
