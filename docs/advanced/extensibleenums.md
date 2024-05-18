@@ -21,12 +21,13 @@ The `create` method should be called within a static final field if you need to 
 The `create` method contains a name parameter followed by the parameters of a supporting constructor. The name parameter represents the name of the enum constant, which is returned by `#name`. The name of the enum constant should be prefixed with your mod id followed by an underscore (`_`) to avoid conflicts between mods that decide to add the same enum constant (e.g., adding a enum constant called `test` with mod id `examplemod` should be `EXAMPLEMOD_TEST`).
 
 :::note
-Since extensible enums are added at runtime, technically, any UTF-8 character can be used for the name paramter. However, it is recommended to only use valid Java identifiers.
+Since extensible enums are added at runtime, technically, any UTF-8 character can be used for the name parameter. However, it is recommended to only use valid Java identifiers.
 :::
 
 ```java
 // In your main mod class
-public static final FireworkExplosion.Shape DUMMY = FireworkExplosion.Shape.create("EXAMPLEMOD_DUMMY", 294, "examplemod_dummy");
+public static final FireworkExplosion.Shape DUMMY =
+        FireworkExplosion.Shape.create("EXAMPLEMOD_DUMMY", 294, "examplemod_dummy");
 ```
 
 ## Contributing to NeoForge
@@ -71,7 +72,7 @@ public enum ExampleEnum implements net.neoforged.neoforge.common.IExtensibleEnum
 
 ### The `init` method
 
-Sometimes, an enum will do some something with its constants or values after registration. However, as these instances statically call the associated entries, the values added via `create` may not be referenced. To get around this, extensible enums can override the `init` method to do any post-constructor setup required by the specific enum constant.
+Sometimes, an enum will do something with its constants or values after registration. However, as these instances statically call the associated entries, the values added via `create` may not be referenced. To get around this, extensible enums can override the `init` method to do any post-constructor setup required by the specific enum constant.
 
 ```java
 // As an example
@@ -126,7 +127,7 @@ public enum ExampleEnumInit implements net.neoforged.neoforge.common.IExtensible
 
 ### Codecs
 
-[Enum codecs][codec] generally take in the `values` array and resolves the codec instantly. As the array is evaluated before any mod entries are added, no mod entries will be supported. There are generally two solutions: which to choose depends on the current usecase.
+[Enum codecs][codec] generally take in the `values` array and resolve the codec instantly. As the array is evaluated before any mod entries are added, no mod entries will be supported. There are two solutions to this problem, which to choose depends on whether the enum implements the `StringRepresentable` interface or not.
 
 For normal, non-`StringRepresentable` enums, the codec can be wrapped via `Codec#lazyInitialized` or `NeoForgeStreamCodecs#lazy`. These prevent the codec from being resolved until first usage, which will always be after all mod entries are added.
 
