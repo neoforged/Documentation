@@ -168,7 +168,7 @@ Argument Type     | Description                                                 
 `IEventBus`       | The [mod-specific event bus][modbus] (needed for registration, events, etc.)                             |
 `ModContainer`    | The abstract container holding this mod's metadata                                                       |
 `FMLModContainer` | The actual container as defined by `javafml` holding this mod's metadata; an extension of `ModContainer` |
-`Dist`            | The physical side this mod is loading on                                                                 |
+`Dist`            | The [physical side][sides] this mod is loading on                                                        |
 
 ```java
 @Mod("examplemod") // Must match a mod id in the neoforge.mods.toml
