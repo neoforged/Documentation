@@ -98,5 +98,5 @@ NBT is used in a lot of places in Minecraft. Some of the most common examples in
 
 [blockentity]: ../blockentities/index.md
 [datapack]: ../resources/server/index.md
-[datacomponents]: https://neoforged.net/news/20.5release#item-data-components
+[datacomponents]: ../items/datacomponents.md
 [nbtwiki]: https://minecraft.wiki/w/NBT_format

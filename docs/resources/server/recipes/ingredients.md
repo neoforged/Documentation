@@ -30,7 +30,7 @@ Though they are functionally identical, compound ingredients replaces the way on
 
 #### DataComponentIngredient
 
-`DataComponentIngredient`s compare the item, damagage, and data components on an `ItemStack`. When `strict` is `true`, the `ItemStack` is checked for an exact match. Otherwise, if only the components specified match, the ingredient will pass. This can be used by specifying the `type` as `neoforge:components`.
+`DataComponentIngredient`s compare the item, damage, and [data components][datacomponents] on an `ItemStack`. When `strict` is `true`, the `ItemStack` is checked for an exact match. Otherwise, if only the components specified match, the ingredient will pass. This can be used by specifying the `type` as `neoforge:components`.
 
 ```json5
 // For some input
@@ -126,3 +126,4 @@ public IngredientType<?> getType() {
 [registering]: ../../../concepts/registries.md
 [codec]: ../../../datastorage/codecs.md
 [datagen]: ../../../datagen/recipes.md
+[datacomponents]: ../../../items/datacomponents.md
