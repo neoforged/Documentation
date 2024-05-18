@@ -317,8 +317,9 @@ public class ExampleHolder implements MutableDataComponentHolder {
 }
 ```
 
-When to send the holder across the network or persist to disk is an exercise left to the reader.
+[Syncing the holder data across the network][network] and reading/writing the data to disk must be done manually.
 
 [registered]: ../concepts/registries.md
 [codec]: ../datastorage/codecs.md
 [modbus]: ../concepts/events.md#event-buses
+[network]: ../networking/payload.md
