@@ -161,14 +161,20 @@ Now that the `neoforge.mods.toml` is filled out, we need to provide an entrypoin
 
 `javafml` is a language loader provided by NeoForge for the Java programming language. The entrypoint is defined using a public class with the `@Mod` annotation. The value of `@Mod` must contain one of the mod ids specified within the `neoforge.mods.toml`. From there, all initialization logic (e.g. [registering events][events] or [adding `DeferredRegister`s][registration]) can be specified within the constructor of the class.
 
+The main mod class must only have one public constructor; otherwise a `RuntimeException` will be thrown. The constructor may have **any** of the following arguments in **any** order; none of them are explicitly required. However, no duplicate parameters are allowed.
+
+Argument Type     | Description                                                                                              |
+------------------|----------------------------------------------------------------------------------------------------------|
+`IEventBus`       | The [mod-specific event bus][modbus] (needed for registration, events, etc.)                             |
+`ModContainer`    | The abstract container holding this mod's metadata                                                       |
+`FMLModContainer` | The actual container as defined by `javafml` holding this mod's metadata; an extension of `ModContainer` |
+`Dist`            | The [physical side][sides] this mod is loading on                                                        |
+
 ```java
 @Mod("examplemod") // Must match a mod id in the neoforge.mods.toml
 public class ExampleMod {
-    // The mod constructor can have the following arguments:
-    // - IEventBus: The mod-specific event bus, needed e.g. for registration and events
-    // - ModContainer/FMLModContainer: The container holding this mod's metadata
-    // - Dist: The physical side this mod is loading on
-    public ExampleMod(IEventBus modBus) {
+    // Valid constructor, only uses two of the available argument types
+    public ExampleMod(IEventBus modBus, ModContainer container) {
         // Initialize logic here
     }
 }
@@ -181,11 +187,8 @@ By default, a `@Mod` annotation is loaded on both [sides]. This can be changed b
 // This mod class will only be loaded on the physical client
 @Mod(value = "examplemod", dist = Dist.CLIENT) 
 public class ExampleModClient {
-    // The mod constructor can have the following arguments:
-    // - IEventBus: The mod-specific event bus, needed e.g. for registration and events
-    // - ModContainer/FMLModContainer: The container holding this mod's metadata
-    // - Dist: The physical side this mod is loading on
-    public ExampleModClient(IEventBus modBus) {
+    // Valid constructor
+    public ExampleModClient(FMLModContainer container, IEventBus modBus, Dist dist) {
         // Initialize client-only logic here
     }
 }
@@ -213,6 +216,7 @@ An entry in `neoforge.mods.toml` does not need a corresponding `@Mod` annotation
 [mdkgradleproperties]: https://github.com/neoforged/MDK/blob/main/gradle.properties
 [mdkneoforgemodstoml]: https://github.com/neoforged/MDK/blob/main/src/main/resources/META-INF/neoforge.mods.toml
 [neoforgemodstoml]: #neoforgemodstoml
+[modbus]: ../concepts/events.md#event-buses
 [modid]: #the-mod-id
 [mojmaps]: https://github.com/neoforged/NeoForm/blob/main/Mojang.md
 [multiline]: https://toml.io/en/v1.0.0#string
