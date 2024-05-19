@@ -2,7 +2,7 @@
 
 Resources are external files that are used by the game, but are not code. The most prominent kinds of resources are textures, however, many other types of resources exist in the Minecraft ecosystem. Of course, all these resources require a consumer on the code side, so the consuming systems are grouped in this section as well.
 
-Minecraft generally has two kinds of resources: client-side resources, known as assets, and server-side resources, known as data. Assets are mostly display-only information, for example textures, display models, translations, or sounds, while data includes various things that affect gameplay, such as loot tables, recipes, or worldgen information. They are loaded from resource packs and data packs, respectively. NeoForge generates a built-in resource and data pack for every mod.
+Minecraft generally has two kinds of resources: resources for the [logical client][logicalsides], known as assets, and resources for the [logical server][logicalsides], known as data. Assets are mostly display-only information, for example textures, display models, translations, or sounds, while data includes various things that affect gameplay, such as loot tables, recipes, or worldgen information. They are loaded from resource packs and data packs, respectively. NeoForge generates a built-in resource and data pack for every mod.
 
 Both resource and data packs normally require a [`pack.mcmeta` file][packmcmeta]; however, modern NeoForge generates these at runtime for you, so you don't need to worry about it.
 
@@ -194,6 +194,7 @@ runs {
 [itemmodifier]: https://minecraft.wiki/w/Item_modifier
 [langprovider]: client/i18n.md#datagen
 [lifecycle]: ../concepts/events.md#the-mod-lifecycle
+[logicalsides]: ../concepts/sides.md#the-logical-side
 [loottableprovider]: ../datagen/loottables.md
 [loottables]: server/loottables.md
 [mcwiki]: https://minecraft.wiki

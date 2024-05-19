@@ -75,7 +75,7 @@ There are several conventions that will help facilitate compatibility in the eco
 
 Tags are directly supported by Vanilla. See the respective Vanilla wiki pages for [recipes] and [advancements] for usage details.
 
-[datapack]: ./index.md
+[datapack]: ../index.md#data
 [tags]: https://minecraft.wiki/w/Tag#JSON_format
 [taglist]: https://minecraft.wiki/w/Tag#List_of_tags
 [neoforgetags]: https://github.com/neoforged/NeoForge/tree/1.20.x/src/generated/resources/data/neoforge/tags
