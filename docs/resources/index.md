@@ -176,7 +176,7 @@ runs {
 }
 ```
 
-[advancementprovider]: ../datagen/advancements.md
+[advancementprovider]: server/advancements.md#data-generation
 [advancements]: server/advancements.md
 [blockstateprovider]: client/models/datagen.md#block-model-datagen
 [bsfile]: client/models/index.md#blockstate-files

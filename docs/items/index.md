@@ -118,7 +118,7 @@ An `ItemStack` consists of three major parts:
 
 - The `Item` it represents, obtainable through `ItemStack#getItem`.
 - The stack size, typically between 1 and 64, obtainable through `getCount` and changeable through `setCount` or `shrink`.
-- The data components map, where stack-specific data is stored. Obtainable through `getComponents`. The components values are typically accessed and mutated via `has`, `get`, `set`, `update`, and `remove`.
+- The [data components][datacomponents] map, where stack-specific data is stored. Obtainable through `getComponents`. The components values are typically accessed and mutated via `has`, `get`, `set`, `update`, and `remove`.
 
 To create a new `ItemStack`, call `new ItemStack(Item)`, passing in the backing item. By default, this uses a count of 1 and no NBT data; there are constructor overloads that accept a count and NBT data as well if needed.
 
@@ -134,6 +134,39 @@ However, this can sometimes lead to issues when dealing with multiple `ItemStack
 
 :::tip
 When in doubt, better be safe than sorry and `#copy` the stack.
+:::
+
+### JSON Representation
+
+In many situations, for example [recipes], item stacks need to be represented as JSON objects. An item stack's JSON representation looks the following way:
+
+```json5
+{
+  // The item ID. Required.
+  "item": "minecraft:dirt",
+  // The item stack count. Optional, defaults to 1.
+  "count": 4,
+  // A map of data components. Optional, defaults to an empty map.
+  "components": {"enchantment_glint_override": true}
+}
+```
+
+If both count and components are unspecified, the object may be shortened to just the item id string. So for example, the object
+
+```json5
+{
+  "item": "minecraft:cobblestone"
+}
+```
+
+becomes just:
+
+```json5
+"minecraft:cobblestone"
+```
+
+:::tip
+A list of possible data components Minecraft provides may be found on the [Minecraft Wiki][wikicomponents].
 :::
 
 ## Creative Tabs
@@ -197,6 +230,8 @@ public static final Supplier<CreativeModeTab> EXAMPLE_TAB = CREATIVE_MODE_TABS.r
 [loottables]: ../resources/server/loottables.md
 [mobeffectinstance]: mobeffects.md#mobeffectinstances
 [modbus]: ../concepts/events.md#event-buses
+[recipes]: ../resources/server/recipes/index.md
 [registering]: ../concepts/registries.md#methods-for-registering
 [resources]: ../resources/index.md#assets
 [sides]: ../concepts/sides.md
+[wikicomponents]: https://minecraft.wiki/w/Data_component_format
