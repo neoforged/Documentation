@@ -3,7 +3,7 @@
 Stream codecs are a serialization tool used to describe how an object should be stored and read from a stream, such as buffers. Stream codecs are primarly used by Vanilla's [networking system][networking] to sync data.
 
 :::info
-As stream codecs are roughtly analagous to [codecs], this page has been formatted in the same way to show the similarities.
+As stream codecs are roughly analagous to [codecs], this page has been formatted in the same way to show the similarities.
 :::
 
 ## Using Stream Codecs
@@ -185,7 +185,7 @@ Sometimes, a stream codec may rely on data that is not present when it is constr
 ```java
 public static final StreamCodec<ByteBuf, IEventBus> LAZY_STREAM_CODEC = 
     NeoForgeStreamCodecs.lazy(
-        () -> StreamCodec.Unit(NeoForge.EVENT_BUS)
+        () -> StreamCodec.unit(NeoForge.EVENT_BUS)
     );
 ```
 
