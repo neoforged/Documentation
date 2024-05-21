@@ -67,7 +67,7 @@ Dissecting the code above we can notice a couple of things:
 - The registrar uses a `*Bidirectional` method, that can be used for registering payloads which are sent to both the logical server and logical client.
     - Not visible in this code are the methods `*ToClient` and `*ToServer`; however, they can also be used to register payloads to only the logical client or only the logical server, respectively.
 - The type of the payload is used as a unique identifier for the payload.
-- The stream codec is used to read and write the payload to and from the buffer sent across the network
+- The [stream codec][streamcodec] is used to read and write the payload to and from the buffer sent across the network
 - The payload handler is a callback for when the payload arrives on one of the logical sides.
     - If a `*Bidirectional` method is used, a `DirectionalPayloadHandler` can be used to provide two separate payload handlers for each of the logical sides.
 
@@ -106,3 +106,4 @@ Now that you know how you can facilitate the communication between the client an
 With your own payloads you can then use those to configure the client and server using [Configuration Tasks][configuration].
 
 [configuration]: ./configuration-tasks.md
+[streamcodec]: ./streamcodecs.md

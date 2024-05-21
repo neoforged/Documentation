@@ -129,7 +129,7 @@ public enum ExampleEnumInit implements net.neoforged.neoforge.common.IExtensible
 
 [Enum codecs][codec] generally take in the `values` array and resolve the codec instantly. As the array is evaluated before any mod entries are added, no mod entries will be supported. There are two solutions to this problem, which to choose depends on whether the enum implements the `StringRepresentable` interface or not.
 
-For normal, non-`StringRepresentable` enums, the codec can be wrapped via `Codec#lazyInitialized` or `NeoForgeStreamCodecs#lazy`. These prevent the codec from being resolved until first usage, which will always be after all mod entries are added.
+For normal, non-`StringRepresentable` enums, the codec can be wrapped via `Codec#lazyInitialized` or [`NeoForgeStreamCodecs#lazy`][streamcodec]. These prevent the codec from being resolved until first usage, which will always be after all mod entries are added.
 
 ```java
 // For some enum with codec
@@ -219,3 +219,4 @@ public enum ExampleEnumStringCodec implements StringRepresentable, net.neoforged
 ```
 
 [codec]: ../datastorage/codecs.md
+[streamcodec]: ../networking/streamcodecs.md#vanilla-and-neoforge
