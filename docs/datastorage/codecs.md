@@ -491,7 +491,7 @@ public static final Codec<RecursiveObject> RECURSIVE_CODEC = Codec.recursive(
     RecursiveObject.class.getSimpleName(), // This is for the toString method
     recursedCodec -> RecordCodecBuilder.create(instance -> instance.group(
         recursedCodec.optionalFieldOf("inner").forGetter(RecursiveObject::inner)
-    ), RecursiveObject::new)
+    ).apply(instance, RecursiveObject::new))
 );
 ```
 
