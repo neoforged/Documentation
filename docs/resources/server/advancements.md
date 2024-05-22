@@ -26,7 +26,7 @@ An advancement JSON file may contain the following entries:
   - `loot`: A list of [loot tables][loottable] to roll and give to the player.
   - `function`: A [function] to run. If you want to run multiple functions, create a wrapper function that runs all other functions.
 - `sends_telemetry_event`: Determines whether telemetry data should be collected when this advancement is completed or not. Optional, defaults to false.
-- `neoforge:conditions`: NeoForge-added. A list of [conditions][conditional] that must be passed for the advancement to be loaded. Optional.
+- `neoforge:conditions`: NeoForge-added. A list of [conditions] that must be passed for the advancement to be loaded. Optional.
 
 ### Advancement Trees
 
@@ -268,7 +268,7 @@ public static void gatherData(GatherDataEvent event) {
 ```
 
 [codec]: ../../datastorage/codecs.md
-[conditional]: conditional.md
+[conditions]: conditions.md
 [datagen]: ../index.md#data-generation
 [function]: https://minecraft.wiki/w/Function_(Java_Edition)
 [itemstackjson]: ../../items/index.md#json-representation

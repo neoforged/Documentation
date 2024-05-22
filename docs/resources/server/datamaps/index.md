@@ -26,7 +26,7 @@ Examples:
 A data map file itself may contain the following fields:
 
 - `replace`: A boolean that will clear the data map before adding the values of this file. This should never be shipped by mods, and only be used by pack developers that want to overwrite this map for their own purposes.
-- `neoforge:conditions`: A list of [loading conditions][conditional].
+- `neoforge:conditions`: A list of [loading conditions][conditions].
 - `values`: A map of registry IDs or tag IDs to values that should be added to the data map by your mod. The structure of the values themselves is defined by the data map's codec (see below).
 - `remove`: A list of registry IDs or tag IDs to be removed from the data map.
 
@@ -343,7 +343,7 @@ public static void gatherData(GatherDataEvent event) {
 
 [builtin]: builtin.md
 [codecs]: ../../../datastorage/codecs.md
-[conditional]: ../conditional.md
+[conditions]: ../conditions.md
 [datagen]: ../../index.md#data-generation
 [events]: ../../../concepts/events.md
 [add]: #adding-values

@@ -54,7 +54,7 @@ NeoForge provides some additional behavior to the recipe schema and its implemen
 
 ### Conditional Recipes
 
-Recipes and their unlocking advancement can be [loaded conditionally and defaulted][conditional] depending on what information is present (mod loaded, item exists, etc.).
+Recipes and their unlocking advancement can be [loaded conditionally and defaulted][conditions] depending on what information is present (mod loaded, item exists, etc.).
 
 ### Larger Crafting Grids
 
@@ -74,5 +74,5 @@ A few additional [ingredient types][ingredients] are added to allow recipes to h
 [wiki]: https://minecraft.wiki/w/Recipe
 [advancement]: ../advancements.md
 [datagen]: ../../../datagen/recipes.md
-[conditional]: ../conditional.md#implementations
+[conditions]: ../conditions.md
 [ingredients]: ./ingredients.md#neoforge-types

@@ -29,6 +29,6 @@ this.add("example_modifier",
 ```
 
 [glm]: ../resources/server/glm.md
-[conditions]: ../resources/server/conditional.md
+[conditions]: ../resources/server/conditions.md
 [instance]: ../resources/server/glm.md#igloballootmodifier
 [datagen]: ../resources/index.md#data-generation
