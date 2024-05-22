@@ -48,9 +48,9 @@ Unless you are manually handling the buffer object, you will generally never cal
 | `QUATERNIONF`  | `Quaternionf` |
 | `GAME_PROFILE` | `GameProfile` |
 
-\* `byte[]` can be limited to a certan number of values via `ByteBufCodecs#byteArray`.
+\* `byte[]` can be limited to a certain number of values via `ByteBufCodecs#byteArray`.
 
-\* `String` can be limited to a certan number of characters via `ByteBufCodecs#stringUtf8`.
+\* `String` can be limited to a certain number of characters via `ByteBufCodecs#stringUtf8`.
 
 Additionally, there are some static instances that encode and decode primivites and objects using a different method.
 
@@ -60,7 +60,7 @@ Additionally, there are some static instances that encode and decode primivites 
 
 #### Variable-Sized Number
 
-`VAR_INT` and `VAR_LONG` are alternatives of `INT` where the value is encoded to be as small as possible. This is done by encoding seven bits at a time, using the upper bit as a marker of whether there is more data for this number. Numbers between 0 and 2^28-1 for integers or 0 and 2^56-1 for longs will be sent shorter or equal to the number of bytes in a integer or long, respectively. If the values of your numbers are normally between this range, these variable stream codecs should be used.
+`VAR_INT` and `VAR_LONG` are alternatives of `INT` and `LONG` respectively where the value is encoded to be as small as possible. This is done by encoding seven bits at a time, using the upper bit as a marker of whether there is more data for this number. Numbers between 0 and 2^28-1 for integers or 0 and 2^56-1 for longs will be sent shorter or equal to the number of bytes in a integer or long, respectively. If the values of your numbers are normally in this range and generally at the lower end of it, then these variable stream codecs should be used.
 
 #### Trusted Tags
 
@@ -180,7 +180,7 @@ public static final StreamCodec<ByteBuf, IEventBus> UNIT_STREAM_CODEC =
 ```
 ### Lazy Initialized
 
-Sometimes, a stream codec may rely on data that is not present when it is constructed. In these situations `NeoForgeStreamCodecs#lazy` can be used to for a stream codec to construct itself on first read/write. The method takes in a supplied stream codec.
+Sometimes, a stream codec may rely on data that is not present when it is constructed. In these situations `NeoForgeStreamCodecs#lazy` can be used for a stream codec to construct itself on first read/write. The method takes in a supplied stream codec.
 
 ```java
 public static final StreamCodec<ByteBuf, IEventBus> LAZY_STREAM_CODEC = 
@@ -263,7 +263,7 @@ public enum ExampleIdObject {
         ByIdMap.continuous(
             ExampleIdObject::getId,
             ExampleIdObject.values(),
-        ByIdMap.OutOfBoundsStrategy.ZERO
+            ByIdMap.OutOfBoundsStrategy.ZERO
     );
     
     ExampleIdObject(int id) { /* ... */ }
@@ -314,7 +314,7 @@ public static final StreamCodec<RegistryFriendlyByteBuf, Holder<SoundEvent>> STR
 
 ### Holder Sets
 
-Tags or sets of holder wrapped registry objects can be sent using `holderSet`. This takes in a `ResourceKey` represent the registry the registry objects are in.
+Tags or sets of holder wrapped registry objects can be sent using `holderSet`. This takes in a `ResourceKey` representing the registry the registry objects are in.
 
 ```java
 public static final StreamCodec<RegistryFriendlyByteBuf, HolderSet<Item>> HOLDER_SET_STREAM_CODEC =
@@ -323,7 +323,7 @@ public static final StreamCodec<RegistryFriendlyByteBuf, HolderSet<Item>> HOLDER
 
 ### Recursive
 
-Sometimes, an object may reference an object of the same type as a field. For example, `MobEffectinstance` takes in an optional `MobEffectinstance` if there is a hidden effect. In this case, `StreamCodec#recursive` can be used to supply the stream codec as part of a function to create the stream codec.
+Sometimes, an object may reference an object of the same type as a field. For example, `MobEffectInstance` takes in an optional `MobEffectInstance` if there is a hidden effect. In this case, `StreamCodec#recursive` can be used to supply the stream codec as part of a function to create the stream codec.
 
 ```java
 // Define our recursive object
