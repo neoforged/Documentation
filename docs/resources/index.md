@@ -32,16 +32,16 @@ There is currently no built-in way to apply a set of custom data packs to every 
 
 Data packs may contain folders with files affecting the following things:
 
-| Folder name                                                           | Contents                     |
-|-----------------------------------------------------------------------|------------------------------|
-| `advancements`                                                        | [Advancements][advancements] |
-| `damage_type`                                                         | Damage types                 |
-| `loot_tables`                                                         | [Loot tables][loottables]    |
-| `recipes`                                                             | [Recipes][recipes]           |
-| `structures`                                                          | Structures                   |
-| `tags`                                                                | [Tags][tags]                 |
-| `dimension`, `dimension_type`, `worldgen`, `neoforge/biome_modifiers` | Worldgen files               |
-| `neoforge/global_loot_modifiers`                                      | [Global loot modifiers][glm] |
+| Folder name                                                                         | Contents                     |
+|-------------------------------------------------------------------------------------|------------------------------|
+| `advancements`                                                                      | [Advancements][advancements] |
+| `damage_type`                                                                       | Damage types                 |
+| `loot_tables`                                                                       | [Loot tables][loottables]    |
+| `recipes`                                                                           | [Recipes][recipes]           |
+| `tags`                                                                              | [Tags][tags]                 |
+| `neoforge/data_maps`                                                                | [Data maps][datamap]         |
+| `neoforge/global_loot_modifiers`                                                    | [Global loot modifiers][glm] |
+| `dimension`, `dimension_type`, `structures`, `worldgen`, `neoforge/biome_modifiers` | Worldgen files               |
 
 Additionally, they may also contain subfolders for some systems that integrate with commands. These systems are rarely used in conjunction with mods, but worth mentioning regardless:
 
@@ -75,14 +75,14 @@ All data providers extend the `DataProvider` interface and usually require one m
 | [`SoundDefinitionsProvider`][soundprovider]          | `registerSounds()`               | Sound definitions                       | Client |                                                                                                                                                                                                                               |
 | `SpriteSourceProvider`                               | `gather()`                       | Sprite sources / atlases                | Client |                                                                                                                                                                                                                               |
 | [`AdvancementProvider`][advancementprovider]         | `generate()`                     | Advancements                            | Server | Make sure to use the NeoForge variant, not the Minecraft one.                                                                                                                                                                 |
-| [`LootTableProvider`][loottableprovider]             | `generate()`                     | Loot tables                             | Server | Requires extra methods and classes to work properly, see linked article for details.  |
+| [`LootTableProvider`][loottableprovider]             | `generate()`                     | Loot tables                             | Server | Requires extra methods and classes to work properly, see linked article for details.                                                                                                                                          |
 | [`RecipeProvider`][recipeprovider]                   | `buildRecipes(RecipeOutput)`     | Recipes                                 | Server |                                                                                                                                                                                                                               |
 | [Various subclasses of `TagsProvider`][tagsprovider] | `addTags(HolderLookup.Provider)` | Tags                                    | Server | Several specialized subclasses exist, for example `BlockTagsProvider`. If the one you need doesn't exist, extend `TagsProvider` (or `IntrinsicHolderTagsProvider` if applicable) with your tag type as the generic parameter. |
-| [`DatapackBuiltinEntriesProvider`][datapackprovider] | N/A                              | Datapack builtin entries, e.g. worldgen | Server | See linked article for details.                                                         |
 | [`DataMapProvider`][datamapprovider]                 | `gather()`                       | Data map entries                        | Server |                                                                                                                                                                                                                               |
 | [`GlobalLootModifierProvider`][glmprovider]          | `start()`                        | Global loot modifiers                   | Server |                                                                                                                                                                                                                               |
-| `PackMetadataGenerator`                              | N/A                              | `pack.mcmeta`                           | Both   | Metadata sections are added by constructor chaining via `#add`                        |
-| `JsonCodecProvider` (abstract class)                 | `gather()`                       | Objects with a codec                    | Both   | This can be extended for use with any object that has a codec to encode data to.      |
+| [`DatapackBuiltinEntriesProvider`][datapackprovider] | N/A                              | Datapack builtin entries, e.g. worldgen | Server | See linked article for details.                                                                                                                                                                                               |
+| `PackMetadataGenerator`                              | N/A                              | `pack.mcmeta`                           | Both   | Metadata sections are added by constructor chaining via `#add`                                                                                                                                                                |
+| `JsonCodecProvider` (abstract class)                 | `gather()`                       | Objects with a codec                    | Both   | This can be extended for use with any object that has a codec to encode data to.                                                                                                                                              |
 
 All of these providers follow the same pattern. First, you create a subclass and add your own resources to be generated. Then, you add the provider to the event in an [event handler][eventhandler]. An example using a `RecipeProvider`:
 
@@ -181,8 +181,8 @@ runs {
 [blockstateprovider]: client/models/datagen.md#block-model-datagen
 [bsfile]: client/models/index.md#blockstate-files
 [chattype]: https://minecraft.wiki/w/Chat_type
-[datamap]: ../datamaps/index.md
-[datamapprovider]: ../datamaps/index.md#datagen
+[datamap]: server/datamaps/index.md
+[datamapprovider]: server/datamaps/index.md#data-generation
 [datapackcmd]: https://minecraft.wiki/w/Commands/datapack
 [datapackprovider]: ../concepts/registries.md#data-generation-for-datapack-registries
 [event]: ../concepts/events.md
