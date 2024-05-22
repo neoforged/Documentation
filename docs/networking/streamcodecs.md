@@ -60,11 +60,15 @@ Additionally, there are some static instances that encode and decode primivites 
 
 #### Variable-Sized Number
 
-`VAR_INT` and `VAR_LONG` are alternatives of `INT` and `LONG` respectively where the value is encoded to be as small as possible. This is done by encoding seven bits at a time, using the upper bit as a marker of whether there is more data for this number. Numbers between 0 and 2^28-1 for integers or 0 and 2^56-1 for longs will be sent shorter or equal to the number of bytes in a integer or long, respectively. If the values of your numbers are normally in this range and generally at the lower end of it, then these variable stream codecs should be used.
+`VAR_INT` and `VAR_LONG` are stream codecs where the value is encoded to be as small as possible. This is done by encoding seven bits at a time, using the upper bit as a marker of whether there is more data for this number. Numbers between 0 and 2^28-1 for integers or 0 and 2^56-1 for longs will be sent shorter or equal to the number of bytes in a integer or long, respectively. If the values of your numbers are normally in this range and generally at the lower end of it, then these variable stream codecs should be used.
+
+:::note
+`VAR_INT` is an alternative for `INT`.
+:::
 
 #### Trusted Tags
 
-`TRUSTED_TAG` and `TRUSTED_COMPOUND_TAG` are variants of `TAG` and `COMPOUND_TAG`, respectively, that have an unlimited heap to decode the tag to, compared to the 2MiB limit of `TAG` and `COMPOUND_TAG`. Only the [block entity data packet][blockentity] and [entity data serializers][entityserializer] use these trusted variants.
+`TRUSTED_TAG` and `TRUSTED_COMPOUND_TAG` are variants of `TAG` and `COMPOUND_TAG`, respectively, that have an unlimited heap to decode the tag to, compared to the 2MiB limit of `TAG` and `COMPOUND_TAG`. Trusted tag stream condecs should ideally only be used in clientbound packets, such as what Vanilla does for [block entity data packet][blockentity] and [entity data serializers][entityserializer].
 
 If a different limit should be used, then a `NbtAccounter` can be supplied with the given size using `ByteBufCodecs#tagCodec` or `#compoundTagCodec`.
 
@@ -172,11 +176,13 @@ public static final StreamCodec<RegistryFriendlyByteBuf, Integer> STREAM_CODEC =
 
 A stream codec which supplies an in-code value and encodes to nothing can be represented using `StreamCodec#unit`. This is useful if no information should be synced across the network.
 
+:::warning
+Unit stream codecs expects that any encoded object must match the unit specified; otherwise an error will be thrown. Therefore, all objects must have some `equals` implementation that returns true for the unit object.
+:::
+
 ```java
-public static final StreamCodec<ByteBuf, IEventBus> UNIT_STREAM_CODEC =
-    StreamCodec.unit(
-        () -> NeoForge.EVENT_BUS // Can also be a raw value
-    );
+public static final StreamCodec<ByteBuf, Item> UNIT_STREAM_CODEC =
+    StreamCodec.unit(Items.AIR);
 ```
 ### Lazy Initialized
 
@@ -185,7 +191,7 @@ Sometimes, a stream codec may rely on data that is not present when it is constr
 ```java
 public static final StreamCodec<ByteBuf, IEventBus> LAZY_STREAM_CODEC = 
     NeoForgeStreamCodecs.lazy(
-        () -> StreamCodec.unit(NeoForge.EVENT_BUS)
+        () -> StreamCodec.unit(Items.AIR)
     );
 ```
 
@@ -291,6 +297,10 @@ public static final StreamCodec<RegistryFriendlyByteBuf, Optional<DataComponentT
 
 Registry objects can be sent across the network using one of three methods: `registry`, `holderRegistry`, or `holder`. Each takes in a `ResourceKey` representing the registry the registry object is in.
 
+:::warning
+Custom registries must be syncable by calling `RegistryBuilder#sync` and setting the value to `true`. Otherwise, the encoder will throw an exception.
+:::
+
 `registry` and `holderRegistry` returns the registry object or a holder wrapped registry object, respectively. These methods send over an id representing the registry object.
 
 ```java
@@ -311,6 +321,10 @@ public static final StreamCodec<RegistryFriendlyByteBuf, Holder<SoundEvent>> STR
         Registries.SOUND_EVENT, SoundEvent.DIRECT_STREAM_CODEC
     );
 ```
+
+:::note
+`holder` will only throw an exception for a non-synced custom registry if the holder is not direct.
+:::
 
 ### Holder Sets
 
