@@ -68,7 +68,7 @@ Additionally, there are some static instances that encode and decode primivites 
 
 #### Trusted Tags
 
-`TRUSTED_TAG` and `TRUSTED_COMPOUND_TAG` are variants of `TAG` and `COMPOUND_TAG`, respectively, that have an unlimited heap to decode the tag to, compared to the 2MiB limit of `TAG` and `COMPOUND_TAG`. Trusted tag stream condecs should ideally only be used in clientbound packets, such as what Vanilla does for [block entity data packet][blockentity] and [entity data serializers][entityserializer].
+`TRUSTED_TAG` and `TRUSTED_COMPOUND_TAG` are variants of `TAG` and `COMPOUND_TAG`, respectively, that have an unlimited heap to decode the tag to, compared to the 2MiB limit of `TAG` and `COMPOUND_TAG`. Trusted tag stream codecs should ideally only be used in clientbound packets, such as what Vanilla does for [block entity data packet][blockentity] and [entity data serializers][entityserializer].
 
 If a different limit should be used, then a `NbtAccounter` can be supplied with the given size using `ByteBufCodecs#tagCodec` or `#compoundTagCodec`.
 
@@ -177,7 +177,7 @@ public static final StreamCodec<RegistryFriendlyByteBuf, Integer> STREAM_CODEC =
 A stream codec which supplies an in-code value and encodes to nothing can be represented using `StreamCodec#unit`. This is useful if no information should be synced across the network.
 
 :::warning
-Unit stream codecs expects that any encoded object must match the unit specified; otherwise an error will be thrown. Therefore, all objects must have some `equals` implementation that returns true for the unit object.
+Unit stream codecs expect that any encoded object must match the unit specified; otherwise an error will be thrown. Therefore, all objects must have some `equals` implementation that returns true for the unit object.
 :::
 
 ```java
