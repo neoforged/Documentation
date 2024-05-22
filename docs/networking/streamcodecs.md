@@ -177,7 +177,7 @@ public static final StreamCodec<RegistryFriendlyByteBuf, Integer> STREAM_CODEC =
 A stream codec which supplies an in-code value and encodes to nothing can be represented using `StreamCodec#unit`. This is useful if no information should be synced across the network.
 
 :::warning
-Unit stream codecs expect that any encoded object must match the unit specified; otherwise an error will be thrown. Therefore, all objects must have some `equals` implementation that returns true for the unit object.
+Unit stream codecs expect that any encoded object must match the unit specified; otherwise an error will be thrown. Therefore, all objects must have some `equals` implementation that returns true for the unit object, or that the instance provided to the stream codec is always provided when encoding.
 :::
 
 ```java
