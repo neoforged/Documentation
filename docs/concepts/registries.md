@@ -64,7 +64,7 @@ Finally, since the entire system is a wrapper around registry events, we need to
 
 ```java
 //This is our mod constructor
-public ExampleMod(IModEventBus bus) {
+public ExampleMod(IModBusEvent bus) {
     //highlight-next-line
     ExampleBlocksClass.BLOCKS.register(bus);
     //Other stuff here
