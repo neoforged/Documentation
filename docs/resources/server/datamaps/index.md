@@ -315,11 +315,17 @@ public class MyDataMapProvider extends DataMapProvider {
     protected void gather() {
         // We create a builder for the EXAMPLE_DATA data map and add our entries using #add.
         builder(EXAMPLE_DATA)
+                // We turn on replacing. Don't ever ship a mod like this! This is purely for educational purposes.
+                .replace(false)
                 // We add the value "amount": 10, "chance": 1 for all slabs. The boolean parameter controls
                 // the "replace" field, which should always be false in a mod.
                 .add(ItemTags.SLABS, new ExampleData(10, 1), false)
                 // We add the value "amount": 5, "chance": 0.2 for apples.
-                .add(Items.APPLE, new ExampleData(5, 0.2f), false);
+                .add(Items.APPLE, new ExampleData(5, 0.2f), false)
+                // We remove wooden slabs again.
+                .remove(ItemTags.WOODEN_SLABS)
+                // We add a mod loaded condition for Botania, because why not.
+                .conditions(new ModLoadedCondition("botania"));
     }
 }
 ```

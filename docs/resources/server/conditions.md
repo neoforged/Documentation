@@ -49,6 +49,16 @@ These consist of no data and return the expected value.
 }
 ```
 
+:::tip
+Using the `neoforge:false` condition very cleanly allows disabling any data file. Simply place a file with the following contents at the needed location:
+
+```json5
+{"neoforge:conditions":[{"type":"neoforge:false"}]}
+```
+
+Disabling files this way will **not** cause log spam.
+:::
+
 ### `neoforge:not`
 
 This condition accepts another condition and inverts it.
