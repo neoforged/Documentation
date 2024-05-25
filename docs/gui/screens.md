@@ -299,7 +299,7 @@ In a previous section, it mentioned that precomputed relative coordinates should
 The image values are static and non changing as they represent the background texture size. To make things easier when rendering, two additional values (`leftPos` and `topPos`) are precomputed in the `#init` method which marks the top left corner of where the background will be rendered. The label coordinates are relative to these values.
 
 The `leftPos` and `topPos` is also used as a convenient way to render the background as they already represent the position to pass into the `#blit` method.
-:::caution
+:::
 
 ```java
 // In some AbstractContainerScreen subclass
