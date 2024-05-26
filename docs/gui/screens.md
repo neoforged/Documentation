@@ -7,7 +7,8 @@ Screens are made up of numerous parts, making it difficult to fully understand w
 ## Relative Coordinates
 
 Whenever anything is rendered, there needs to be some identifier which specifies where it will appear. With numerous abstractions, most of Minecraft's rendering calls take x, y, and z values in a coordinate plane. X values increase from left to right, y from top to bottom, and z from far to near. However, the coordinates are not fixed to a specified range. Their range can change depending on the size of the screen and the “GUI scale” specified within the game’s options. As such, extra care must be taken to ensure the coordinates values passed to rendering calls scale properly—are relativized correctly—to the changeable screen size.
-Information on how to relativize your coordinates is in the screen section.
+
+Information on how to relativize your coordinates is in the [screen] section.
 
 :::caution
 If you choose to use fixed coordinates or incorrectly scale the screen, the rendered objects may look strange or misplaced. An easy way to check if you relativized your coordinates correctly is to click the 'Gui Scale' button in your video settings. This value is used as the divisor to the width and height of your display when determining the scale at which a GUI should render.
