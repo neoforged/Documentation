@@ -189,7 +189,7 @@ public static final StreamCodec<ByteBuf, Item> UNIT_STREAM_CODEC =
 Sometimes, a stream codec may rely on data that is not present when it is constructed. In these situations `NeoForgeStreamCodecs#lazy` can be used for a stream codec to construct itself on first read/write. The method takes in a supplied stream codec.
 
 ```java
-public static final StreamCodec<ByteBuf, IEventBus> LAZY_STREAM_CODEC = 
+public static final StreamCodec<ByteBuf, Item> LAZY_STREAM_CODEC = 
     NeoForgeStreamCodecs.lazy(
         () -> StreamCodec.unit(Items.AIR)
     );
