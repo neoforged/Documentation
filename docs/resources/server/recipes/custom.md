@@ -56,7 +56,7 @@ Only two methods need to be implemented for a `RecipeSerializer`:
 | Method      | Description
 |:-----------:|:----------
 `codec`       | A [map codec][codec] used to read and write the recipe to disk.
-`streamCodec` | A stream codec used to send the recipe through the network.
+`streamCodec` | A [stream codec][streamcodec] used to send the recipe through the network.
 
 The `RecipeSerializer` instance must then be returned by `Recipe#getSerializer` in the new recipe subtype.
 
@@ -123,3 +123,4 @@ All custom recipes, regardless of input or output data, can be provided to `Reci
 [codec]: ../../../datastorage/codecs.md
 [manager]: ./index.md#recipe-manager
 [datagen]: ../../../datagen/recipes.md#custom-recipe-serializers
+[streamcodec]: ../../../networking/streamcodecs.md

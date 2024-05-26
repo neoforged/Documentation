@@ -52,7 +52,7 @@ public class ExampleClass {
 
 A standard `DataComponentType` can be created via `DataComponentType#builder` and built using `DataComponentType.Builder#build`. The builder contains three settings: `persistent`, `networkSynchronized`, `cacheEncoding`.
 
-`persistent` specifies the [`Codec`][codec] used to read and write the component value to disk. `networkSynchronized` specifies the `StreamCodec` used to read and write the component across the network. If `networkSynchronized` is not specified, then the `Codec` provided in `persistent` will be wrapped and used as the `StreamCodec`.
+`persistent` specifies the [`Codec`][codec] used to read and write the component value to disk. `networkSynchronized` specifies the `StreamCodec` used to read and write the component across the network. If `networkSynchronized` is not specified, then the `Codec` provided in `persistent` will be wrapped and used as the [`StreamCodec`][streamcodec].
 
 :::warning
 Either `persistent` or `networkSynchronized` must be provided in the builder; otherwise, a `NullPointerException` will be thrown. If no data should be sent across the network, then set `networkSynchronized` to `StreamCodec#unit`, providing the default component value.
@@ -323,3 +323,4 @@ public class ExampleHolder implements MutableDataComponentHolder {
 [codec]: ../datastorage/codecs.md
 [modbus]: ../concepts/events.md#event-buses
 [network]: ../networking/payload.md
+[streamcodec]: ../networking/streamcodecs.md

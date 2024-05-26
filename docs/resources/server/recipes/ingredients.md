@@ -103,7 +103,7 @@ There are four important methods to implement:
 
 ### IngredientType
 
-`IngredientType` contains two values: a [map codec][codec] used to encode and decode the ingredient, and a `StreamCodec` to sync the ingredient if `ICustomIngredient#isSimple` returns `false`. If `#isSimple` is `true`, then `IngredientType` has a constructor overload that only takes in the map codec.
+`IngredientType` contains two values: a [map codec][codec] used to encode and decode the ingredient, and a [`StreamCodec`][streamcodec] to sync the ingredient if `ICustomIngredient#isSimple` returns `false`. If `#isSimple` is `true`, then `IngredientType` has a constructor overload that only takes in the map codec.
 
 The `IngredientType` needs to be [registered][registering].
 
@@ -127,3 +127,4 @@ public IngredientType<?> getType() {
 [codec]: ../../../datastorage/codecs.md
 [datagen]: ../../../datagen/recipes.md
 [datacomponents]: ../../../items/datacomponents.md
+[streamcodec]: ../../../networking/streamcodecs.md
