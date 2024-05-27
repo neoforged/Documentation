@@ -118,7 +118,7 @@ Event handlers can opt to explicitly receive cancelled events. This is done by s
 
 ### TriStates and Results
 
-Some events have three potential return states represented by `TriState`, or a `Result` enum directly on the event class. The return states can either cancel the event outcome (`TriState#FALSE`), force the event outcome to happen (`TriState#TRUE`), or execute default Vanilla behavior (`TriState#DEFAULT`).
+Some events have three potential return states represented by `TriState`, or a `Result` enum directly on the event class. The return states can typically either cancel the action the event is handling (`TriState#FALSE`), force the action to run (`TriState#TRUE`), or execute default Vanilla behavior (`TriState#DEFAULT`).
 
 An event with three potential return states has some `set*` method to set the desired outcome.
 
