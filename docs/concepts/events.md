@@ -116,13 +116,27 @@ Some events implement the `ICancellableEvent` interface. These events can be can
 
 Event handlers can opt to explicitly receive cancelled events. This is done by setting the `receiveCanceled` boolean parameter in `IEventBus#addListener` (or `@SubscribeEvent`, depending on your way of attaching the event handlers) to true.
 
-### Results
+### TriStates and Results
 
-Some events have a `Result`. A `Result` can be one of three things: `DENY` which stops the event, `ALLOW` which force-runs the event, and `DEFAULT` which uses the Vanilla behavior. The result of an event can be set by calling `Event#setResult`. Not all events have results; an event with a result will be annotated with `@HasResult`.
+Some events have three potential return states represented by `TriState`, or a `Result` enum directly on the event class. The return states can either cancel the event outcome (`TriState#FALSE`), force the event outcome to happen (`TriState#TRUE`), or execute default Vanilla behavior (`TriState#DEFAULT`).
 
-:::caution
-Results are deprecated and will be replaced by more specific per-event results soon.
-:::
+An event with three potential return states has some `set*` method to set the desired outcome.
+
+```java
+// In some class where the listeners are subscribed to the game event bus
+
+@SubscribeEvent
+public void renderNameTag(RenderNameTagEvent event) {
+    // Uses TriState to set the return state
+    event.setCanRender(TriState.FALSE);
+}
+
+@SubscribeEvent
+public void mobDespawn(MobDespawnEvent event) {
+    // Uses a Result enum to set the return state
+    event.setResult(MobDespawnEvent.Result.DENY);
+}
+```
 
 ### Priority
 
