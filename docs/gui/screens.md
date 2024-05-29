@@ -366,13 +366,6 @@ private static final ResourceLocation BACKGROUND_LOCATION = new ResourceLocation
 @Override
 protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
     /*
-     * Sets the texture location for the shader to use. While up to
-     * 12 textures can be set, the shader used within 'blit' only
-     * looks at the first texture index.
-     */
-    RenderSystem.setShaderTexture(0, BACKGROUND_LOCATION);
-
-    /*
      * Renders the background texture to the screen. 'leftPos' and
      * 'topPos' should already represent the top left corner of where
      * the texture should be rendered as it was precomputed from the
