@@ -7,7 +7,6 @@
 시작하기 전에, 먼저 게임 속 블록은 하나씩만 존재한다는 사실을 염두하셔야 합니다. 레벨에 존재하는 수천 개의 블록은 전부 하나의 블록을 참조합니다, 다시 말해서 같은 블록이 월드에 여러 번 등장하는 것입니다.
 
 그렇기 때문에 각 블록은 한번만, 그것도 [레지스트리][registration] 초기화 중에 생성되어야 합니다. 그 이후에는 등록된 블록을 참조하세요. 아래 예를 들자면:
-Due to this, a block should only ever be instantiated once, and that is during [registration]. Once the block is registered, you can then use the registered reference as needed.
 
 다른 레지스트리들과 다르게 블록은 블록 전용으로 확장된 `DeferredRegister.Block`을 사용할 수 있습니다. `DeferredRegister<Block>`과의 차이점은:
 
@@ -27,7 +26,7 @@ public static final DeferredBlock<Block> MY_BLOCK = BLOCKS.register("my_block", 
 ```java
 level.getBlockState(position) // 해당 좌표에 존재하는 블록의 상태를 가져옴
         //highlight-next-line
-        .is(MyBlockRegistrationClass.MY_BLOCK.get());
+        .is(MyBlockRegistrationClass.MY_BLOCK);
 ```
 
 추가적으로, 이 방식은 Java의 `equals` 대신 `block1 == block2`를 사용할 수 있습니다. (`equals`도 작동하긴 하나 레퍼런스 자체가 동일하기 때문에 필요 없습니다.)
@@ -49,6 +48,7 @@ public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBloc
 ```
 
 ### 단순한 블록
+
 특별한 기능이 없는 블록들은(조약돌이나 나무판자 등) `Block`의 새 인스턴스를 만드는 것으로 충분합니다. 블록들이 등록될 때, 새로운 `Block`의 인스턴스를 `BlockBehaviour$Properties`를 인자로 넘겨 생성하세요. `BlockBehaviour$Properties`는 블록의 속성을 저장하는 객체로 `#of`로 생성하고 아래 메서드들을 통해 블록의 특성을 원하시는 대로 바꾸실 수 있습니다.
 
 - `destroyTime` - 블록을 파괴하는 데 걸리는 시간을 지정함.
@@ -63,6 +63,7 @@ public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBloc
     - 기본값은 0.6, 얼음은 0.98.
 
 그리고 위 메서드들은 아래처럼 사용하실 수 있습니다:
+
 ```java
 //BLOCKS is a DeferredRegister.Blocks
 public static final DeferredBlock<Block> MY_BETTER_BLOCK = BLOCKS.register(
@@ -86,6 +87,7 @@ public static final DeferredBlock<Block> MY_BETTER_BLOCK = BLOCKS.register(
 :::
 
 ### 기능 추가
+
 `Block` 클래스는 매우 기초적인 블록에만 바로 사용할 수 있습니다. 블록에 상호작용 등의 기능을 추가하시려면 `Block`의 하위 클래스를 직접 만드셔야 합니다. `Block`은 재정의할 수 있는 여러 메서드들을 제공하여 다양한 기능을 추가할 수 있습니다. 자세한 사항은 `Block`, `BlockBehaviour`, `IBlockExtension`을 참고하세요. 아래 [블록 써보기][usingblocks]도 확인해 블록의 주 사용처를 확인하세요.
 
 만약 여러 종류가 있는 블록을 추가하려면 (예를 들어 아래, 위, 또는 두 겹으로 배치될 수 있는 반 블록), [블록의 상태][blockstates]를 사용하실 수 있습니다. 또한, 추가 데이터를 저장할 수 있는 블록을 추가하려면 (예를 들어 인벤토리가 있는 상자), [블록 엔티티][blockentities]를 대신 사용하세요. 이 둘 중 무엇을 사용하느냐는 대개 블록이 표현할 수 있는 경우의 수가 소수로 제한되어 있다면 블록의 상태를(기껏 해봐야 몇백 개), 경우의 수가 무한이 많다면 블록 엔티티를 사용하세요(인벤토리는 모든 아이템의, 모든 개수의 모든 배치를, 다른 모드까지 고려해야 하기에 블록 엔티티가 적합합니다).
@@ -119,9 +121,7 @@ public static final DeferredBlock<Block> EXAMPLE_BLOCK = BLOCKS.registerSimpleBl
 
 ### 에셋
 
-위에서 제시한 대로 블록을 추가하고 레벨에 배치하면 텍스쳐가 없을 것입니다. 왜냐하면 텍스쳐, 모델 등은 마인크래프트의 자원 시스템이 관리하기 때문입니다.
-
-블록에 텍스쳐를 적용하려면, 상태 JSON, 모델 JSON, 그리고 텍스쳐 PNG 파일을 제공해야 합니다. 추가 정보는 [리소스 팩][resources]을 참고하세요.
+If you register your block and place it in the world, you will find it to be missing things like a texture. This is because [textures], among others, are handled by Minecraft's resource system. To apply the texture to the block, you must provide a [model] and a [blockstate file][bsfile] that associates the block with the texture and a shape. Give the linked articles a read for more information.
 
 ## 블록 응용하기
 
@@ -133,13 +133,13 @@ public static final DeferredBlock<Block> EXAMPLE_BLOCK = BLOCKS.registerSimpleBl
 
 블록을 설치는 대개 `BlockItem#useOn` (또는 연꽃잎이 응용하는 `PlaceOnWaterBlockItem`과 같은 자식 클래스)에서 이루어집니다. 자세한 상호작용 과정은 [이곳][interactionpipeline]을 참고하세요. 조약돌 아이템과 같은 `BlockItem`을 들고 우클릭하면 이 메서드가 호출됩니다.
 
-- 먼저 여러 사전 검사가 수행됩니다. 관전자 모드가 아닌지, 필요한 Feature Flag가 활성화됐는지, 블록을 설치할 위치가 월드 밖은 아닌지를 확인합니다. 만약 이 중 하나라도 실패하면 파이프라인은 중단됩니다.
-- `Block#canBeReplaced`를 기존에 배치된 블록에 대해 호출합니다. 만약 `false`가 반환되면 파이프라인은 중단됩니다. 잔디나 눈은 `true`를 반환해 다른 블록이 스스로를 대체하도록 합니다.
-- `Block#getStateForPlacement`를 호출해 구체적으로 배치할 블록의 상태를 결정합니다. 문이나 계단처럼 블록을 배치하는 플레이어의 위치, 카메라 각도 등에 따라 다른 상태를 배치해야 할 때 유용합니다.
-- `Block#canSurvive`를 호출해 방금 결정한 블록의 상태가 해당 위치에 설치될 수 있는지 검사합니다. 만약 `false`가 반환된다면 파이프라인은 중단됩니다.
-- `Level#setBlock`을 호출해 블록을 레벨에 배치합니다.
-  - `Level#setBlock`은 내부적으로 `Block#onPlace`를 호출합니다.
-- `Block#setPlacedBy`를 호출합니다.
+- Several prerequisites are checked, for example that you are not in spectator mode, that all required feature flags for the block are enabled or that the target position is not outside the world border. If at least one of these checks fails, the pipeline ends.
+- `Block#canBeReplaced` is called for the block currently at the position where the block is attempted to be placed. If it returns `false`, the pipeline ends. Prominent cases that return `true` here are tall grass or snow layers.
+- `Block#getStateForPlacement` is called. This is where, depending on the context (which includes information like the position, the rotation and the side the block is placed on), different block states can be returned. This is useful for example for blocks that can be placed in different directions.
+- `Block#canSurvive` is called with the blockstate obtained in the previous step. If it returns `false`, the pipeline ends.
+- The blockstate is set into the level via a `Level#setBlock` call.
+  - In that `Level#setBlock` call, `Block#onPlace` is called.
+- `Block#setPlacedBy` is called.
 
 ### 블록 파괴
 
@@ -186,9 +186,9 @@ while (leftClickIsBeingHeld()) {
 
 #### 파괴 단계
 
-- `Item#onBlockStartBreak`이 호출됩니다. `true`가 반환될 경우 블록을 파괴하지 않고 "종결" 단계로 건너뜁니다.
+- `IItemExtension#onBlockStartBreak`이 호출됩니다. `true`가 반환될 경우 블록을 파괴하지 않고 "종결" 단계로 건너뜁니다.
 - 서버 전용: `IBlockExtension#canHarvestBlock`이 호출되어 블록 파괴 시 아이템 회수 가능 여부를 판단합니다.
-- `Block#onDestroyedByPlayer`가 호출됩니다. `false`가 반환될 경우 블록을 파괴하지 않고 "종결" 단계로 건너뜁니다. 이 메서드는 내부적으로:
+- `IBlockExtension#onDestroyedByPlayer`가 호출됩니다. `false`가 반환될 경우 블록을 파괴하지 않고 "종결" 단계로 건너뜁니다. 이 메서드는 내부적으로:
   - `Block#playerWillDestroy`를 호출합니다.
   - `Level#setBlock`을 `Blocks.AIR.defaultBlockState()`를 인자로 호출해 블록을 제거합니다.
     - `Level#setBlock`은 내부적으로 `Block#onRemove`를 호출합니다.
@@ -227,12 +227,15 @@ while (leftClickIsBeingHeld()) {
 [below]: #deferredregisterblocks-helpers
 [blockentities]: ../blockentities/index.md
 [blockstates]: states.md
+[bsfile]: ../resources/client/models/index.md#blockstate-files
 [events]: ../concepts/events.md
 [interactionpipeline]: ../items/interactionpipeline.md
 [item]: ../items/index.md
-[randomtick]: #무작위-블록-틱
-[registration]: ../concepts/registries.md#객체-등록하기
-[resources]: ../resources/client/index.md
-[sounds]: ../gameeffects/sounds.md
-[usingblocks]: #블록-응용하기
-[usingblockstates]: states.md#블록-상태-사용법
+[model]: ../resources/client/models/index.md
+[randomtick]: #random-ticking
+[registration]: ../concepts/registries.md#methods-for-registering
+[resources]: ../resources/index.md#assets
+[sounds]: ../resources/client/sounds.md
+[textures]: ../resources/client/textures.md
+[usingblocks]: #using-blocks
+[usingblockstates]: states.md#using-blockstates

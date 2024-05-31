@@ -1,3 +1,6 @@
+---
+sidebar_position: 1
+---
 # 레지스트리
 
 게임의 각 요소([아이템][item], [블록][block], 엔티티 등)들은 게임에 존재한다고 등록해야 제대로 작동합니다. 그렇지 않으면 게임은 새로 추가된 요소를 알지 못해 예기치 못한 동작을 하거나, 심하면 충돌할 수도 있습니다.
@@ -61,9 +64,9 @@ Finally, since the entire system is a wrapper around registry events, we need to
 
 ```java
 //This is our mod constructor
-public ExampleMod(IModEventBus bus) {
+public ExampleMod(IEventBus modBus) {
     //highlight-next-line
-    ExampleBlocksClass.BLOCKS.register(bus);
+    ExampleBlocksClass.BLOCKS.register(modBus);
     //Other stuff here
 }
 ```
@@ -122,7 +125,7 @@ Finally, we can also iterate over all entries in a registry, either over the key
 for (ResourceLocation id : BuiltInRegistries.BLOCKS.keySet()) {
     // ...
 }
-for (Map.Entry<ResourceLocation, Block> entry : BuiltInRegistries.BLOCKS.entrySet()) {
+for (Map.Entry<ResourceKey<Block>, Block> entry : BuiltInRegistries.BLOCKS.entrySet()) {
     // ...
 }
 ```
@@ -175,7 +178,7 @@ public static final Supplier<Spell> EXAMPLE_SPELL = SPELLS.register("example_spe
 // Alternatively:
 @SubscribeEvent
 public static void register(RegisterEvent event) {
-    event.register(SPELL_REGISTRY, registry -> {
+    event.register(SPELL_REGISTRY_KEY, registry -> {
         registry.register(new ResourceLocation("yourmodid", "example_spell"), () -> new Spell(...));
     });
 }
@@ -190,7 +193,7 @@ Datapack registries allow their contents to be specified in JSON files. This mea
 - Minecraft's datapack registries use the format `data/yourmodid/registrypath` (for example `data/yourmodid/worldgen/biomes`, where `worldgen/biomes` is the registry path).
 - All other datapack registries (NeoForge or modded) use the format `data/yourmodid/registrynamespace/registrypath` (for example `data/yourmodid/neoforge/loot_modifiers`, where `neoforge` is the registry namespace and `loot_modifiers` is the registry path).
 
-Datapack registries can be obtained from a `RegistryAccess`. This `RegistryAccess` can be retrieved by calling `ServerLevel#registryAccess()` if on the server, or `Minecraft.getInstance().connection#registryAccess()` if on the client (the latter only works if you are actually connected to a world, as otherwise the connection will be null). The result of these calls can then be used like any other registry to get specific elements, or to iterate over the contents.
+Datapack registries can be obtained from a `RegistryAccess`. This `RegistryAccess` can be retrieved by calling `ServerLevel#registryAccess()` if on the server, or `Minecraft.getInstance().getConnection()#registryAccess()` if on the client (the latter only works if you are actually connected to a world, as otherwise the connection will be null). The result of these calls can then be used like any other registry to get specific elements, or to iterate over the contents.
 
 ### Custom Datapack Registries
 
@@ -255,7 +258,7 @@ new RegistrySetBuilder()
     });
 ```
 
-The `BootstrapContext` (name is typoed as `BootstapContext` in 1.20.4 and below) can also be used to lookup entries from another registry if needed:
+The `BootstrapContext` can also be used to lookup entries from another registry if needed:
 
 ```java
 public static final ResourceKey<ConfiguredFeature<?, ?>> EXAMPLE_CONFIGURED_FEATURE = ResourceKey.create(
@@ -305,7 +308,7 @@ static void onGatherData(GatherDataEvent event) {
 [blockentity]: ../blockentities/index.md
 [codec]: ../datastorage/codecs.md
 [datagen]: #data-generation-for-datapack-registries
-[datagenindex]: ../datagen/index.md
+[datagenindex]: ../resources/index.md#data-generation
 [datapack]: ../resources/server/index.md
 [defregblocks]: ../blocks/index.md#deferredregisterblocks-helpers
 [defregitems]: ../items/index.md#deferredregisteritems

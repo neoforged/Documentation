@@ -20,30 +20,108 @@
 
 ### 색칠된 직사각형
 
-색칠된 직사각형은 위치&색상 쉐이더를 사용해 그려집니다. 마인크래프트는 세 종류의 직사각형을 그릴 수 있는데:
-1. 픽셀 두깨의 수평/수직선. `#hLine`로 수평선, `#vLine`로 수직선을 구릴 수 있음. `#hLine`은 왼쪽 끝, 오른쪽 끝 픽셀의 x 좌표, 선이 놓여질 y 좌표, 그리고 색상을 인자로 받음. `#vLine`은 선이 놓여질 x 좌표, 맨 위 픽셀과 맨 아래 픽셀의 y 좌표, 그리고 색상을 인자로 받음.
-2. 직사각형을 그리는 `#fill` 함수, 위 `#hLine`과 `#vLine`은 내부적으로 `#fill`을 호출함. 왼쪽 위 픽셀의 x, y 좌표, 그리고 오른쪽 아래 픽셀의 x, y 좌표, 그리고 색상을 인자로 받음.
-3. 그라데이션을 적용하는 `#fillGradient` 함수, 그라데이션은 수직 방향으로 적용됨. 오른쪽 아래 픽셀의 x, y 좌표, 왼쪽 위 픽셀의 x, y 좌표, z 좌표, 그리고 아래, 위 색상을 인자로 받음.
+Colored rectangles are drawn through a position color shader. All fill methods can take in an optional `RenderType` to specify how the rectangle should be rendered. There are three types of colored rectangles that can be drawn.
+
+First, there is a colored horizontal and vertical one-pixel wide line, `#hLine` and `#vLine` respectively. `#hLine` takes in two x coordinates defining the left and right (inclusively), the top y coordinate, and the color. `#vLine` takes in the left x coordinate, two y coordinates defining the top and bottom (inclusively), and the color.
+
+Second, there is the `#fill` method, which draws a rectangle to the screen. The line methods internally call this method. This takes in the left x coordinate, the top y coordinate, the right x coordinate, the bottom y coordinate, and the color. `#fillRenderType` also does the same; however, it draws the vertices without correcting the coordinate locations.
+
+Finally, there is the `#fillGradient` method, which draws a rectangle with a vertical gradient. This takes in the right x coordinate, the bottom y coordinate, the left x coordinate, the top y coordinate, the z coordinate, and the bottom and top colors.
 
 ### 문자열
 
 문자열은 `Font`를 사용해 그립니다, `Font`는 대개 투명도, 오프셋, 법선 등을 위해 자체적인 쉐이더를 사용합니다. 문자열은 왼쪽(`#drawString`), 또는 가운데(`#drawCenteredString`)에 정렬될 수 있고, 두 메서드 모두 사용할 폰트, 그릴 문자열, 문자열의 왼쪽 또는 중앙의 x 좌표, y좌표, 색상, 그리고 선택적으로 그림자 여부를 인자로 받습니다. 
 
+If the text should be wrapped within a given bounds, then `#drawWordWrap` can be used instead. This renders a left-aligned string by default.
+
 :::note
 문자열은 일반적으로 기능이 많은 [컴포넌트][component]로 다룹니다. 위 두 메서드는 `String` 말고 `Component`도 받습니다.
 :::
 
-### 텍스쳐 (TODO, ChampionAsh한테 고치라고 하기)
+### 텍스쳐
 
-텍스쳐는 비트 블록 전송(blit)을 통해 그립니다. `#blit` 메서드는 이미지를 복사해 바로 화면에 그립니다. 이때 위치&텍스쳐 쉐이더를 사용합니다. `#blit`은 오버로드가 매우 많지만, 아래에선 정수를 인자로 받는 `#blit` 메서드만 다루겠습니다.
+Textures are drawn through blitting, hence the method name `#blit`, which, for this purpose, copies the bits of an image and draws them directly to the screen. These are drawn through a position texture shader.
 
-The first static `#blit` takes in six integers and assumes the texture being rendered is on a 256 x 256 PNG file. It takes in the left x and top y screen coordinate, the left x and top y coordinate within the PNG, and the width and height of the image to render.
+Each `#blit` method takes in a `ResourceLocation`, which represents the absolute location of the texture:
+
+```java
+// Points to 'assets/examplemod/textures/gui/container/example_container.png'
+private static final ResourceLocation TEXTURE = new ResourceLocation("examplemod", "textures/gui/container/example_container.png");
+```
+
+While there are many different `#blit` overloads, we will only discuss two of them.
+
+The first `#blit` takes in six integers and assumes the texture being rendered is on a 256 x 256 PNG file. It takes in the left x and top y screen coordinate, the left x and top y coordinate within the PNG, and the width and height of the image to render.
 
 :::tip
 The size of the PNG file must be specified so that the coordinates can be normalized to obtain the associated UV values.
 :::
 
-The static `#blit` which the first calls expands this to nine integers, only assuming the image is on a PNG file. It takes in the left x and top y screen coordinate, the z coordinate (referred to as the blit offset), the left x and top y coordinate within the PNG, the width and height of the image to render, and the width and height of the PNG file.
+The second `#blit` which the first calls expands this to seven integers and two floats for the PNG coordinates, only assuming the image is on a PNG file. It takes in the left x and top y screen coordinate, the z coordinate (referred to as the blit offset), the left x and top y coordinate within the PNG, the width and height of the image to render, and the width and height of the PNG file.
+
+#### `blitSprite`
+
+`#blitSprite` is a special implementation of `#blit` where the texture is written to the GUI texture atlas. Most textures that overlay the background, such as the 'burn progress' overlay in furnace GUIs, are sprites. All sprite textures are relative to `textures/gui/sprites` and do not need to specify the file extension.
+
+```java
+// Points to 'assets/examplemod/textures/gui/sprites/container/example_container/example_sprite.png'
+private static final ResourceLocation SPRITE = new ResourceLocation("examplemod", "container/example_container/example_sprite");
+```
+
+One set of `#blitSprite` methods have the same parameters as `#blit`, except for the x and y coordinate within the sprite.
+
+The other `#blitSprite` methods take in more texture information to allow for rendering part of the sprite. These methods take in the texture width and height, the x and y coordinate in the sprite, the left x and top y screen coordinate, the z coordinate (referred to as the blit offset), and the width and height of the image to render.
+
+If the sprite size does not match the texture size, then the sprite can be scaled in one of three ways: `stretch`, `tile`, and `nine_slice`. `stretch` stretches the image from the texture size to the screen size. `tile` renders the texture over and over again until it reaches the screen size. `nine_slice` divides the texture into one center, four edges, and four corners to tile the texture to the required screen size.
+
+This is set by adding the `gui.scaling` JSON object in an mcmeta file with the same name of the texture file.
+
+```json5
+// For some texture file example_sprite.png
+// In example_sprite.png.mcmeta
+
+// Stretch example
+{
+    "gui": {
+        "scaling": {
+            "type": "stretch"
+        }
+    }
+}
+
+// Tile example
+{
+    "gui": {
+        "scaling": {
+            "type": "tile",
+            // The size to begin tiling at
+            // This is usually the size of the texture
+            "width": 40,
+            "height": 40
+        }
+    }
+}
+
+// Nine slice example
+{
+    "gui": {
+        "scaling": {
+            "type": "nine_slice",
+            // The size to begin tiling at
+            // This is usually the size of the texture
+            "width": 40,
+            "height": 40,
+            "border": {
+                // The padding of the texture that will be sliced into the border texture
+                "left": 1,
+                "right": 1,
+                "top": 1,
+                "bottom": 1
+            }
+        }
+    }
+}
+```
 
 #### 비트 블록 전송 오프셋
 
@@ -102,7 +180,7 @@ public MyScreen(Component title) {
 
 ### Initialization
 
-Once a screen has been initialized, the `#init` method is called. The `#init` method sets the initial settings inside the screen from the `ItemRenderer` and `Minecraft` instance to the relative width and height as scaled by the game. Any setup such as adding widgets or precomputing relative coordinates should be done in this method. If the game window is resized, the screen will be reinitialized by calling the `#init` method.
+Once a screen has been initialized, the `#init` method is called. The `#init` method sets the initial settings inside the screen from the `Minecraft` instance to the relative width and height as scaled by the game. Any setup such as adding widgets or precomputing relative coordinates should be done in this method. If the game window is resized, the screen will be reinitialized by calling the `#init` method.
 
 There are three ways to add a widget to a screen, each serving a separate purpose:
 
@@ -221,7 +299,7 @@ In a previous section, it mentioned that precomputed relative coordinates should
 The image values are static and non changing as they represent the background texture size. To make things easier when rendering, two additional values (`leftPos` and `topPos`) are precomputed in the `#init` method which marks the top left corner of where the background will be rendered. The label coordinates are relative to these values.
 
 The `leftPos` and `topPos` is also used as a convenient way to render the background as they already represent the position to pass into the `#blit` method.
-:::caution
+:::
 
 ```java
 // In some AbstractContainerScreen subclass
@@ -288,13 +366,6 @@ private static final ResourceLocation BACKGROUND_LOCATION = new ResourceLocation
 @Override
 protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
     /*
-     * Sets the texture location for the shader to use. While up to
-     * 12 textures can be set, the shader used within 'blit' only
-     * looks at the first texture index.
-     */
-    RenderSystem.setShaderTexture(0, BACKGROUND_LOCATION);
-
-    /*
      * Renders the background texture to the screen. 'leftPos' and
      * 'topPos' should already represent the top left corner of where
      * the texture should be rendered as it was precomputed from the
@@ -338,6 +409,6 @@ private void registerScreens(RegisterMenuScreensEvent event) {
 [network]: ../networking/index.md
 [screen]: #the-screen-subtype
 [argb]: https://en.wikipedia.org/wiki/RGBA_color_model#ARGB32
-[component]: ../concepts/internationalization.md#translatablecontents
+[component]: ../resources/client/i18n.md#components
 [keymapping]: ../misc/keymappings.md#inside-a-gui
 [modbus]: ../concepts/events.md#event-buses

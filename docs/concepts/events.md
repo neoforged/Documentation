@@ -1,3 +1,6 @@
+---
+sidebar_position: 3
+---
 # 이벤트
 
 이벤트 시스템은 네오 포지의 주요 기능중 하나입니다. 게임에서 여러 사건이 발생하면 이벤트가 방송됩니다. 예를 들어, 플레이어가 우클릭 할 때의 이벤트, 엔티티가 점프할 때의 이벤트, 블록을 그릴 때의 이벤트, 게임을 불러올 때의 이벤트 등이 있습니다. 모드는 이벤트에 핸들러를 구독시켜, 이벤트 방송시 특정 동작을 수행할 수 있습니다.
@@ -48,8 +51,7 @@ public class EventHandler {
 @Mod("yourmodid")
 public class YourMod {
     public YourMod(IEventBus modBus) {
-        // 자동으로 EventHandler 클래스의 모든 핸들러들을 등록함
-        NeoForge.EVENT_BUS.addListener(new EventHandler());
+        NeoForge.EVENT_BUS.register(new EventHandler());
     }
 }
 ```
@@ -70,19 +72,19 @@ public class EventHandler {
 @Mod("yourmodid")
 public class YourMod {
     public YourMod(IEventBus modBus) {
-        NeoForge.EVENT_BUS.addListener(EventHandler.class);
+        NeoForge.EVENT_BUS.register(EventHandler.class);
     }
 }
 ```
 
-### `@Mod.EventBusSubscriber`
+### `@EventBusSubscriber`
 
-위에서 한 단계 더 나아가, 이벤트 핸들러가 정의된 클래스 자체를 `@Mod.EventBusSubscriber`로 표기할 수도 있습니다. 네오 포지는 자동으로 이 어노테이션으로 표기된 클래스들을 찾아 이벤트 버스에 등록합니다, 그러면 모드 생성자에서 이벤트 관리를 하지 않아도 됩니다. 결국에는 생성자 맨 아래에서 `NeoForge.EVENT_BUS.register(EventHandler.class)`를 호출하는 것과 동일하기에 모든 핸들러는 정적 메서드여야 합니다.
+위에서 한 단계 더 나아가, 이벤트 핸들러가 정의된 클래스 자체를 `@EventBusSubscriber`로 표기할 수도 있습니다. 네오 포지는 자동으로 이 어노테이션으로 표기된 클래스들을 찾아 이벤트 버스에 등록합니다, 그러면 모드 생성자에서 이벤트 관리를 하지 않아도 됩니다. 결국에는 생성자 맨 아래에서 `NeoForge.EVENT_BUS.register(EventHandler.class)`를 호출하는 것과 동일하기에 모든 핸들러는 정적 메서드여야 합니다.
 
 필수는 아니지만 어노테이션의 `modid` 값을 지정하는 것을 강력히 권장드립니다, 핸들러에서 오류 발생시 무슨 핸들러인지 구분하기 더 쉽기 때문입니다 (특히 모드끼리 충돌날 때).
 
 ```java
-@Mod.EventBusSubscriber(modid = "yourmodid")
+@EventBusSubscriber(modid = "yourmodid")
 public class EventHandler {
     @SubscribeEvent
     public static void onLivingJump(LivingJumpEvent event) {
@@ -114,13 +116,27 @@ public class EventHandler {
 
 이벤트 취소 여부와 관계 없이 언제나 핸들러를 실행하려면 `IEventBus#addListener`(또는 `@SubscribeEvent`)의 `receiveCanceled`를 `true`로 지정하세요.
 
-### 결과
+### 제 삼의 상태와 Results
 
-일부 이벤트들은 결과(`Result`)를 가집니다. 결과는 세 가지로 나뉘는데: 사건을 중단시키는 `DENY`, 사건을 강행시키는 `ALLOW`, 사건에 간섭하지 않는 `DEFAULT`가 있습니다. 이벤트의 결과는 `Event#setResult`로 지정할 수 있습니다. 결과를 가지는 이벤트들은 `@HasResult`로 표기되어 있습니다/
+Some events have three potential return states represented by `TriState`, or a `Result` enum directly on the event class. The return states can typically either cancel the action the event is handling (`TriState#FALSE`), force the action to run (`TriState#TRUE`), or execute default Vanilla behavior (`TriState#DEFAULT`).
 
-:::caution
-`Result`는 추후 제거될 예정이며, 각 이벤트마다 결과를 표현하는 열거형을 따로 만들 것입니다.
-:::
+An event with three potential return states has some `set*` method to set the desired outcome.
+
+```java
+// In some class where the listeners are subscribed to the game event bus
+
+@SubscribeEvent
+public void renderNameTag(RenderNameTagEvent event) {
+    // Uses TriState to set the return state
+    event.setCanRender(TriState.FALSE);
+}
+
+@SubscribeEvent
+public void mobDespawn(MobDespawnEvent event) {
+    // Uses a Result enum to set the return state
+    event.setResult(MobDespawnEvent.Result.DENY);
+}
+```
 
 ### 우선순위
 
@@ -132,24 +148,24 @@ public class EventHandler {
 
 일부 이벤트들은 한쪽 [사이드][side]에서만 방송됩니다. 그 예로, 렌더링 관련 이벤트들은 클라이언트에서만 방송됩니다. 이 이벤트들에 구독한 핸들러들은 클라이언트 전용 코드를 사용하니 버스에 등록할 때 사이드를 맞춰야 합니다.
 
-`IEventBus#addListener()` 사용시, `FMLEnvironment.dist`를 확인해 맞는 사이드에서 핸들러를 등록해야 하며, 클라이언트 전용 코드는 다른 클래스를 만들어 작성하세요.
+Event handlers that use `IEventBus#addListener()` should check the current physical side via `FMLEnvironment.dist` or the `Dist` parameter in your made mod constructor and add the listener in a separate client-only class, as outlined in the article on [sides][side].
 
-`@Mod.EventBusSubscriber` 사용시, 어노테이션의 `value` 값에 다음과 같이 사이드를 지정할 수 있습니다: `@Mod.EventBusSubscriber(value = Dist.CLIENT, modid = "yourmodid")`.
+Event handlers that use `@EventBusSubscriber` can specify the side as the `value` parameter of the annotation, for example `@EventBusSubscriber(value = Dist.CLIENT, modid = "yourmodid")`.
 
 ## 이벤트 버스들
 
 대부분의 이벤트들은 메인 이벤트 버스, `NeoForge.EVENT_BUS`에 방송되지만, 그 외는 모드별 버스에 방송됩니다. 여기에 방송되는 이벤트는 구분을 위해 `IModBusEvent`를 구현합니다.
 
-메인 클래스 생성자의 인자로 모드별 버스를 추가할 수 있습니다. 여기에 핸들러들을 등록하세요. 만약 `@Mod.EventBusSubscriber`를 사용하신다면 어노테이션의 인자로 버스를 다음과 같이 지정할 수 있습니다: `@Mod.EventBusSubscriber(bus = Bus.MOD, modid = "yourmodid")`. 버스는 기본값으로 `Bus.FORGE`, 즉 메인 이벤트 버스입니다.
+메인 클래스 생성자의 인자로 모드별 버스를 추가할 수 있습니다. 여기에 핸들러들을 등록하세요. 만약 `@EventBusSubscriber`를 사용하신다면 어노테이션의 인자로 버스를 다음과 같이 지정할 수 있습니다: `@EventBusSubscriber(bus = Bus.MOD, modid = "yourmodid")`. 버스는 기본값으로 `Bus.GAME`, 즉 메인 이벤트 버스입니다.
 
 ### 모드 생명주기
 
-모드별 버스에 방송되는 이벤트들은 대개 모드의 생명주기를 알리기 위한 것입니다. 이 이벤트들은 게임을 시작하면서 한 번만 방송됩니다, 그리고 대개 모든 모드들에 병렬적으로 방송됩니다. 그렇기에 메인 스레드에서 실행해야 하는 코드가 있다면 `#enqueueWork(Runnable runnable)`를 사용하세요.
+Most mod bus events are what is known as lifecycle events. Lifecycle events run once in every mod's lifecycle during startup. Many of them are fired in parallel by subclassing `ParallelDispatchEvent`; if you want to run code from one of these events on the main thread, enqueue them using `#enqueueWork(Runnable runnable)`.
 
 모드의 생명주기는 크게 다음과 같은 순서를 따릅니다:
 
 - 모드의 생성자가 호출됨. 여기, 또는 다음 단계에서 이벤트 핸들러를 등록할 것.
-- `@Mod.EventBusSubscriber`로 표기된 클래스들을 찾고 등록함.
+- `@EventBusSubscriber`로 표기된 클래스들을 찾고 등록함.
 - `FMLConstructModEvent`가 방송됨.
 - 레지스트리 이벤트가 방송됨: [레지스트리 생성을 알리는 `NewRegistryEvent`][newregistry], [데이터팩 레지스트리 생성을 알리는 `DataPackRegistryEvent.NewRegistry`][newdatapackregistry], [객체를 등록할 때라고 알리는 `RegisterEvent`][registerevent].
 - `FMLCommonSetupEvent`가 방송됨. 기타 모드 초기화가 여기서 이뤄짐.
@@ -171,7 +187,7 @@ public class EventHandler {
 
 - `RegisterColorHandlersEvent`
 - `ModelEvent.BakingCompleted`
-- `TextureStitchEvent`
+- `TextureAtlasStitchedEvent`
 
 :::warning
 위 이벤트들은 언젠가 메인 이벤트 버스로 옮겨질 예정입니다.

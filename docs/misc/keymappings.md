@@ -4,7 +4,7 @@
 
 ## 등록하기 `KeyMapping`
 
-`KeyMapping`은 물리 클라이언트 [**모드 이벤트 버스**][modbus]에 `RegisterKeyMappingsEvent` 방송시 `#register`를 호출해 등록할 수 있습니다.
+`KeyMapping`은 물리 클라이언트 [**모드 이벤트 버스**][eventbus]에 `RegisterKeyMappingsEvent` 방송시 `#register`를 호출해 등록할 수 있습니다.
 
 ```java
 // 물리 클라이언트 전용 클래스라 가정
@@ -29,7 +29,8 @@ public void registerBindings(RegisterKeyMappingsEvent event) {
 
 ### 기본 입력키
 
-키 매핑은 기본 입력 키를 설정해야 합니다. 입력 키는 `InputConstants$Key`로 표현되고, 입력 기기의 종류를 식별하는 `InputConstants$Type`과 입력 코드를 대표하는 정수로 이루어져 있습니다.
+키 매핑은 기본 입력 키를 설정해야 합니다. 입력 키는 `InputConstants.Key`로 표현되고, 입력 기기의 종류를 식별하는 `InputConstants.Type`과 입력된 키를 대표하는 정수로 이루어져 있습니다.
+
 바닐라 마인크래프트는 세 종류의 입력 기기를 지원하는데: `GLFW`를 통해 키보드 토큰을 전달 받는 `KEYSYM`, 플랫폼 전용 스캔 코드를 사용하는 `SCANCODE`, 마지막으로 마우스를 대표하는 `MOUSE` 입니다.
 
 :::note
@@ -48,7 +49,7 @@ new KeyMapping(
 ```
 
 :::note
-만약 기본 입력 키를 설정하지 않으려면 `InputConstants#UNKNOWN`을 대신 사용하세요. 기본 생성자는 입력 코드를 `InputConstants.UNKNOWN.getValue()`로 제공해야 하나 포지에서 추가한 생성자는 바로 전달해도 됩니다.
+만약 기본 입력 키를 설정하지 않으려면 `InputConstants#UNKNOWN`을 대신 사용하세요. 기본 생성자는 입력 코드를 `InputConstants.UNKNOWN.getValue()`로 제공해야 하나 네오포지에서 추가한 생성자는 바로 전달해도 됩니다.
 :::
 
 ### `IKeyConflictContext`
@@ -57,7 +58,7 @@ new KeyMapping(
 
 각 맥락은 두 개의 메소드를 정의합니다: 키 매핑이 현재 사용 가능한지 반환하는 `#isActive`, 그리고 다른 `IKeyConflictContext`와 충돌하는지를 반환하는 `#conflicts` 입니다.
 
-현재 포지는 세 개의 맥락을 `KeyConflictContext`에 정의합니다: 키 매핑이 언제나 활성화 되는 `UNIVERSAL`, `Screen`이 열려 있어야만 작동하는 `GUI`, 마지막으로 `Screen`이 없을 때만 작동하는 `IN_GAME`이 있습니다. 새 맥락은 `IKeyConflictContext`를 구현해 만들 수 있습니다.
+현재 네오포지는 세 개의 맥락을 `KeyConflictContext`에 정의합니다: 키 매핑이 언제나 활성화 되는 `UNIVERSAL`, `Screen`이 열려 있어야만 작동하는 `GUI`, 마지막으로 `Screen`이 없을 때만 작동하는 `IN_GAME`이 있습니다. 새 맥락은 `IKeyConflictContext`를 구현해 만들 수 있습니다.
 
 ```java
 new KeyMapping(
@@ -71,7 +72,7 @@ new KeyMapping(
 
 ### `KeyModifier`
 
-Modders may not want mappings to have the same behavior if a modifier key is held at the same (e.g. `G` vs `CTRL + G`). To remedy this, Forge adds an additional parameter to the constructor to take in a `KeyModifier` which can apply control (`KeyModifier#CONTROL`), shift (`KeyModifier#SHIFT`), or alt (`KeyModifier#ALT`) to any input. `KeyModifier#NONE` is the default and will apply no modifier.
+Modders may not want mappings to have the same behavior if a modifier key is held at the same (e.g. `G` vs `CTRL + G`). To remedy this, NeoForge adds an additional parameter to the constructor to take in a `KeyModifier` which can apply control (`KeyModifier#CONTROL`), shift (`KeyModifier#SHIFT`), or alt (`KeyModifier#ALT`) to any input. `KeyModifier#NONE` is the default and will apply no modifier.
 
 A modifier can be added in the [controls option menu][controls] by holding down the modifier key and the associated input.
 
@@ -92,10 +93,10 @@ A `KeyMapping` can be checked to see whether it has been clicked. Depending on w
 
 ### Within the Game
 
-Within the game, a mapping should be checked by listening to `ClientTickEvent` on the [**Forge event bus**][forgebus] and checking `KeyMapping#consumeClick` within a while loop. `#consumeClick` will return `true` only the number of times the input was performed and not already previously handled, so it won't infinitely stall the game.
+Within the game, a mapping should be checked by listening to `ClientTickEvent` on the [event bus][eventbus] and checking `KeyMapping#consumeClick` within a while loop. `#consumeClick` will return `true` only the number of times the input was performed and not already previously handled, so it won't infinitely stall the game.
 
 ```java
-// Event is on the Forge event bus only on the physical client
+// Event is on the NeoForge event bus only on the physical client
 public void onClientTick(ClientTickEvent event) {
   if (event.phase == TickEvent.Phase.END) { // Only call code once as the tick event is called twice every tick
     while (EXAMPLE_MAPPING.get().consumeClick()) {
@@ -111,7 +112,7 @@ Do not use the `InputEvent`s as an alternative to `ClientTickEvent`. There are s
 
 ### Inside a GUI
 
-Within a GUI, a mapping can be checked within one of the `GuiEventListener` methods using `IForgeKeyMapping#isActiveAndMatches`. The most common methods which can be checked are `#keyPressed` and `#mouseClicked`. 
+Within a GUI, a mapping can be checked within one of the `GuiEventListener` methods using `IKeyMappingExtension#isActiveAndMatches`. The most common methods which can be checked are `#keyPressed` and `#mouseClicked`. 
 
 `#keyPressed` takes in the `GLFW` key token, the platform-specific scan code, and a bitfield of the held down modifiers. A key can be checked against a mapping by creating the input using `InputConstants#getKey`. The modifiers are already checked within the mapping methods itself.
 
@@ -128,10 +129,10 @@ public boolean keyPressed(int key, int scancode, int mods) {
 ```
 
 :::note
-If you do not own the screen which you are trying to check a **key** for, you can listen to the `Pre` or `Post` events of `ScreenEvent$KeyPressed` on the [**Forge event bus**][forgebus] instead.
+If you do not own the screen which you are trying to check a **key** for, you can listen to the `Pre` or `Post` events of `ScreenEvent.KeyPressed` on the [event bus][eventbus] instead.
 :::
 
-`#mouseClicked` takes in the mouse's x position, y position, and the button clicked. A mouse button can be checked against a mapping by creating the input using `InputConstants$Type#getOrCreate` with the `MOUSE` input.
+`#mouseClicked` takes in the mouse's x position, y position, and the button clicked. A mouse button can be checked against a mapping by creating the input using `InputConstants.Type#getOrCreate` with the `MOUSE` input.
 
 ```java
 // In some Screen subclass
@@ -146,11 +147,10 @@ public boolean mouseClicked(double x, double y, int button) {
 ```
 
 :::note
-If you do not own the screen which you are trying to check a **mouse** for, you can listen to the `Pre` or `Post` events of `ScreenEvent$MouseButtonPressed` on the [**Forge event bus**][forgebus] instead.
+If you do not own the screen which you are trying to check a **mouse** for, you can listen to the `Pre` or `Post` events of `ScreenEvent.MouseButtonPressed` on the [event bus][eventbus] instead.
 :::
 
-[modbus]: ../concepts/events.md#모드-이벤트-버스
+[eventbus]: ../concepts/events.md#registering-an-event-handler
 [controls]: https://minecraft.wiki/w/Options#Controls
-[tk]: ../concepts/internationalization.md#translatablecontents
+[tk]: ../resources/client/i18n.md#components
 [keyinput]: https://www.glfw.org/docs/3.3/input_guide.html#input_key
-[forgebus]: ../concepts/events.md#이벤트-핸들러-등록하기

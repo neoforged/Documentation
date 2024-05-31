@@ -31,11 +31,11 @@ public MyMenu(int containerId, Inventory playerInv) {
 
 ### `IContainerFactory`
 
-만약 클라이언트에 컨테이너 id 및 인벤토리 이외의 추가 정보(예: 컨테이너 블록의 위치)가 필요하다면, `IContainerFactory`를 대신 사용할 수 있습니다. id 및 인벤토리 이외에도 `FriendlyByteBuf` 또한 인자로 제공되어 서버에서 추가 정보를 담을 수 있습니다. 이후 `IForgeMenuType`에 `IContainerFactory`를 넘겨 `MenuType`으로 만들 수 있습니다. 
+만약 클라이언트에 컨테이너 id 및 인벤토리 이외의 추가 정보(예: 컨테이너 블록의 위치)가 필요하다면, `IContainerFactory`를 대신 사용할 수 있습니다. id 및 인벤토리 이외에도 `RegistryFriendlyByteBuf` 또한 인자로 제공되어 서버에서 추가 정보를 담을 수 있습니다. 이후 `IMenuTypeExtension`에 `IContainerFactory`를 넘겨 `MenuType`으로 만들 수 있습니다. 
 
 ```java
 // REGISTER라는 DeferredRegister<MenuType<?>>가 있을 때
-public static final RegistryObject<MenuType<MyMenuExtra>> MY_MENU_EXTRA = REGISTER.register("my_menu_extra", () -> IForgeMenuType.create(MyMenu::new));
+public static final RegistryObject<MenuType<MyMenuExtra>> MY_MENU_EXTRA = REGISTER.register("my_menu_extra", () -> IMenuTypeExtension.create(MyMenu::new));
 
 // AbstractContainerMenu의 하위 클래스 MyMenuExtra
 public MyMenuExtra(int containerId, Inventory playerInv, FriendlyByteBuf extraData) {
@@ -111,8 +111,10 @@ public boolean stillValid(Player player) {
 
 `DataSlot`, 그리고 `Slot`들은 메뉴가 초기화될 때마다 다시 생성됩니다.
 
-:::caution
+:::note
 비록 `DataSlot`이 정수를 저장하긴 하나, 데이터 범위는 **short**(-32768~32767)로 제한됩니다. 네트워크로 값을 전송하는 방식 때문에 위 16비트는 무시됩니다.
+
+NeoForge patches the packet to provide the full integer to the client.
 :::
 
 ```java
@@ -163,10 +165,6 @@ public MyMenuAccess(int containerId, Inventory playerInventory, ContainerData da
   // ...
 }
 ```
-
-:::caution
-`ContainerData`도 내부적으론 `DataSlot`을 사용하기에, 이 또한 범위가 **short** (-32768 to 32767)로 제한됩니다.
-:::
 
 #### `#quickMoveStack`
 
@@ -266,10 +264,10 @@ public ItemStack quickMoveStack(Player player, int quickMovedSlotIndex) {
 
 ## 메뉴 열기
 
-메뉴 종류를 등록하셨고, 메뉴도 완성했으며, 메뉴 [스크린][screen]도 연결했다면, 이제 사용자에게 보여줄 준비가 되었습니다. 메뉴는 `NetworkHooks#openScreen`을 논리 서버에서 호출해 열 수 있습니다. 이 메서드는 메뉴를 열 플레이어, 서버에서 메뉴를 생성할 `MenuProvider`, 선택적으로 추가 데이터를 담아 보낼 버퍼 `FriendlyByteBuffer`를 인자로 받습니다.
+메뉴 종류를 등록하셨고, 메뉴도 완성했으며, 메뉴 [스크린][screen]도 연결했다면, 이제 사용자에게 보여줄 준비가 되었습니다. 메뉴는 `IPlayerExtension#openMenu`을 논리 서버에서 호출해 열 수 있습니다. 이 메서드는 메뉴를 열 플레이어, 서버에서 메뉴를 생성할 `MenuProvider`, 선택적으로 추가 데이터를 담아 보낼 버퍼 `Consumer<RegistryFriendlyByteBuf>`를 인자로 받습니다.
 
 :::note
-`NetworkHooks#openScreen`에 `FriendlyByteBuf`를 넘기시려면 해당 메뉴의 종류는 무조건 [`IContainerFactory`][icf]로 생성되어야 합니다.
+`IPlayerExtension#openMenu`에 `Consumer<RegistryFriendlyByteBuf>`를 넘기시려면 해당 메뉴의 종류는 무조건 [`IContainerFactory`][icf]로 생성되어야 합니다.
 :::
 
 #### `MenuProvider`
@@ -279,7 +277,9 @@ public ItemStack quickMoveStack(Player player, int quickMovedSlotIndex) {
 `MenuProvider`는 `SimpleMenuProvider`를 활용해 간단히 생성할 수 있는데, 서버 메뉴를 생성하는 메서드의 참조와 제목 컴포넨트를 인자로 넘기면 됩니다.
 
 ```java
-NetworkHooks.openScreen(serverPlayer, new SimpleMenuProvider(
+// In some implementation with access to the Player on the logical server (e.g. ServerPlayer instance)
+// Assume we have ServerPlayer serverPlayer
+serverPlayer.openMenu(new SimpleMenuProvider(
   (containerId, playerInventory, player) -> new MyMenu(containerId, playerInventory),
   Component.translatable("menu.title.examplemod.mymenu")
 ));
@@ -291,8 +291,7 @@ NetworkHooks.openScreen(serverPlayer, new SimpleMenuProvider(
 
 #### 블록에 적용하기
 
-블록들은 대개 `BlockBehaviour#use`를 재정의해 메뉴를 엽니다. 논리 클라이언트에선 `InteractionResult#SUCCESS`를 반환해야 하고. 논리 서버에선 메뉴를 열고 `InteractionResult#CONSUME`을 반환하세요.
-
+Blocks typically implement a menu by overriding `BlockBehaviour#useWithoutItem`. If on the [logical client][side], the [interaction] returns `InteractionResult#SUCCESS`. Otherwise, it opens the menu and returns `InteractionResult#CONSUME`.
 
 `MenuProvider`는 `BlockBehaviour#getMenuProvider`를 재정의해 제공해야 합니다. 바닐라 마인크래프트는 관전자 모드에서 메뉴를 열기 위해 이 메서드를 사용합니다.
 
@@ -304,9 +303,9 @@ public MenuProvider getMenuProvider(BlockState state, Level level, BlockPos pos)
 }
 
 @Override
-public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult result) {
+public InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult result) {
   if (!level.isClientSide && player instanceof ServerPlayer serverPlayer) {
-    NetworkHooks.openScreen(serverPlayer, state.getMenuProvider(level, pos));
+    serverPlayer.openMenu(state.getMenuProvider(level, pos));
   }
   return InteractionResult.sidedSuccess(level.isClientSide);
 }
@@ -327,12 +326,16 @@ public class MyMob extends Mob implements MenuProvider {
   @Override
   public InteractionResult mobInteract(Player player, InteractionHand hand) {
     if (!this.level.isClientSide && player instanceof ServerPlayer serverPlayer) {
-      NetworkHooks.openScreen(serverPlayer, this);
+      serverPlayer.openMenu(this);
     }
     return InteractionResult.sidedSuccess(this.level.isClientSide);
   }
 }
 ```
+
+:::note
+Once again, this is the simplest way to implement the logic, not the only way.
+:::
 
 [registered]: ../concepts/registries.md#객체-등록하기
 [acm]: #abstractcontainermenu
@@ -341,3 +344,5 @@ public class MyMob extends Mob implements MenuProvider {
 [cap]: ../datastorage/capabilities.md#네오-포지가-제공하는-캐패빌리티
 [screen]: ./screens.md
 [icf]: #icontainerfactory
+[side]: ../concepts/sides.md#the-logical-side
+[interaction]: ../items/interactionpipeline.md

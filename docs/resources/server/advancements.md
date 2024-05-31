@@ -10,15 +10,15 @@ To unlock an advancement, the specified criteria must be met. Criteria are track
 
 Requirements are defined as an array of string arrays representing the name of the criteria specified on the advancement. An advancement is completed once one string array of criteria has been met:
 
-```js
+```json5
 // In some advancement JSON
 
 // List of defined criteria to meet
 "criteria": {
-  "example_criterion1": { /*...*/ },
-  "example_criterion2": { /*...*/ },
-  "example_criterion3": { /*...*/ },
-  "example_criterion4": { /*...*/ }
+    "example_criterion1": { /*...*/ },
+    "example_criterion2": { /*...*/ },
+    "example_criterion3": { /*...*/ },
+    "example_criterion4": { /*...*/ }
 },
 
 // This advancement is only unlocked once
@@ -26,14 +26,14 @@ Requirements are defined as an array of string arrays representing the name of t
 // OR
 // - Criteria 3 and 4 have been met
 "requirements": [
-  [
-    "example_criterion1",
-    "example_criterion2"
-  ],
-  [
-    "example_criterion3",
-    "example_criterion4"
-  ]
+    [
+        "example_criterion1",
+        "example_criterion2"
+    ],
+    [
+        "example_criterion3",
+        "example_criterion4"
+    ]
 ]
 ```
 
@@ -51,7 +51,7 @@ Conditions are usually passed in through the constructor. The `SimpleCriterionTr
 
 ```java
 public record ExampleTriggerInstance(Optional<ContextAwarePredicate> player, ItemPredicate item) implements SimpleCriterionTrigger.SimpleInstance {
-  // extra methods here
+    // extra methods here
 }
 ```
 
@@ -59,9 +59,9 @@ public record ExampleTriggerInstance(Optional<ContextAwarePredicate> player, Ite
 Typically, trigger instances have static helper methods which construct the full `Criterion<T>` object from the arguments to the instance. This allows these instances to be easily created during data generation, but are optional.
 
 ```java
-// In this example, EXAMPLE_TRIGGER is a DeferredHolder<CriterionTrigger<?>>
+// In this example, EXAMPLE_TRIGGER is a DeferredHolder<CriterionTrigger<?>, ExampleTrigger>
 public static Criterion<ExampleTriggerInstance> instance(ContextAwarePredicate player, ItemPredicate item) {
-  return EXAMPLE_TRIGGER.get().createCriterion(new ExampleTriggerInstance(Optional.of(player), item));
+    return EXAMPLE_TRIGGER.get().createCriterion(new ExampleTriggerInstance(Optional.of(player), item));
 }
 ```
 :::
@@ -71,8 +71,8 @@ Finally, a method should be added which takes in the current data state and retu
 ```java
 // This method is unique for each instance and is as such not overridden
 public boolean matches(ItemStack stack) {
-  // Since ItemPredicate matches a stack, a stack is the input
-  return this.item.matches(stack);
+    // Since ItemPredicate matches a stack, a stack is the input
+    return this.item.test(stack);
 }
 ```
 
@@ -85,10 +85,10 @@ The latter is done by defining a method to check all trigger instances and run t
 ```java
 // This method is unique for each trigger and is as such not a method to override
 public void trigger(ServerPlayer player, ItemStack stack) {
-  this.trigger(player,
-    // The condition checker method within the SimpleCriterionTrigger.SimpleInstance subclass
-    triggerInstance -> triggerInstance.matches(stack)
-  );
+    this.trigger(player,
+        // The condition checker method within the SimpleCriterionTrigger.SimpleInstance subclass
+        triggerInstance -> triggerInstance.matches(stack)
+    );
 }
 ```
 
@@ -101,15 +101,20 @@ A [codec] must be defined to serialize and deserialize the trigger instance. Van
 
 ```java
 class ExampleTrigger extends SimpleCriterionTrigger<ExampleTrigger.ExampleTriggerInstance> {
-  @Override
-  public Codec<ExampleTriggerInstance> codec() {
-    return ExampleTriggerInstance.CODEC;
-  }
-  // ...
-  public class ExampleTriggerInstance implements SimpleCriterionTrigger.SimpleInstance {
-    public static final Codec<ExampleTriggerInstance> CODEC = ...;
+
+    @Override
+    public Codec<ExampleTriggerInstance> codec() {
+        return ExampleTriggerInstance.CODEC;
+    }
+
     // ...
-  }
+
+    public class ExampleTriggerInstance implements SimpleCriterionTrigger.SimpleInstance {
+
+        public static final Codec<ExampleTriggerInstance> CODEC = ...;
+
+        // ...
+    }
 }
 ```
 
@@ -117,10 +122,10 @@ For the earlier example of a record with a `ContextAwarePredicate` and an `ItemP
 
 ```java
 RecordCodecBuilder.create(instance -> instance.group(
-  ExtraCodecs.strictOptionalField(EntityPredicate.ADVANCEMENT_CODEC, "player").forGetter(ExampleTriggerInstance::player),
-  ItemPredicate.CODEC.fieldOf("item").forGetter(ExampleTriggerInstance::item)
+    EntityPredicate.ADVANCEMENT_CODEC.optionalFieldOf("player").forGetter(ExampleTriggerInstance::player),
+    ItemPredicate.CODEC.fieldOf("item").forGetter(ExampleTriggerInstance::item)
 ).apply(instance, ExampleTriggerInstance::new));
-``````
+```
 
 ### Calling the Trigger
 
@@ -130,8 +135,8 @@ Whenever the action being checked is performed, the `#trigger` method defined by
 // In some piece of code where the action is being performed
 // Again, EXAMPLE_TRIGGER is a supplier for the registered instance of the custom criteria trigger
 public void performExampleAction(ServerPlayer player, ItemStack stack) {
-  // Run code to perform action
-  EXAMPLE_TRIGGER.get().trigger(player, stack);
+    // Run code to perform action
+    EXAMPLE_TRIGGER.get().trigger(player, stack);
 }
 ```
 
@@ -139,21 +144,21 @@ public void performExampleAction(ServerPlayer player, ItemStack stack) {
 
 When an advancement is completed, rewards may be given out. These can be a combination of experience points, loot tables, recipes for the recipe book, or a [function] executed as a creative player.
 
-```js
+```json5
 // In some advancement JSON
 "rewards": {
-  "experience": 10,
-  "loot": [
-    "minecraft:example_loot_table",
-    "minecraft:example_loot_table2"
-    // ...
-  ],
-  "recipes": [
-    "minecraft:example_recipe",
-    "minecraft:example_recipe2"
-    // ...
-  ],
-  "function": "minecraft:example_function"
+    "experience": 10,
+    "loot": [
+        "examplemod:example_loot_table",
+        "examplemod:example_loot_table2"
+        // ...
+    ],
+    "recipes": [
+        "examplemod:example_recipe",
+        "examplemod:example_recipe2"
+        // ...
+    ],
+    "function": "examplemod:example_function"
 }
 ```
 
@@ -162,7 +167,7 @@ When an advancement is completed, rewards may be given out. These can be a combi
 [conditional]: ./conditional.md#implementations
 [function]: https://minecraft.wiki/w/Function_(Java_Edition)
 [triggers]: https://minecraft.wiki/w/Advancement/JSON_format#List_of_triggers
-[datagen]: ../../datagen/server/advancements.md#advancement-generation
+[datagen]: ../../datagen/advancements.md#advancement-generation
 [codec]: ../../datastorage/codecs.md
 [registration]: ../../concepts/registries.md#methods-for-registering
 [serialize]: #serialization

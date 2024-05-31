@@ -1,5 +1,4 @@
-모드 구조화
-=========
+# 모드 구조화
 
 모드의 코드베이스는 유지 관리 및 기여할 때 명확하게 이해하기 쉬운 구조를 가져야 합니다. Java, Minecraft 및 Forge의 권장 사항은 다음과 같습니다.
 
@@ -13,23 +12,23 @@
 
 ```
 a.jar
-  - com.example.ExampleClass
+    - com.example.ExampleClass
 b.jar
-  - com.example.ExampleClass // 이 클래스를 불러오지 못합니다!!
+    - com.example.ExampleClass // 이 클래스를 불러오지 못합니다!!
 ```
 
 이 문제는 모듈을 불러올 때도 발생합니다. 모든 모드들은 게임과 다른 모드들에 공개되기에 두 모듈에 같은 패키지가 존재하면 그 안의 클래스 이름이 다르더라도 모드 로더가 충돌합니다.
 
 ```
 모듈 A
-  - package X
-    - class I
-    - class J
+    - package X
+        - class I
+        - class J
 모듈 B
-  - package X // 이 패키지는 모듈 A와 겹쳐 모드 로더가 충돌합니다!
-    - class R
-    - class S
-    - class T
+    - package X // 이 패키지는 모듈 A와 겹쳐 모드 로더가 충돌합니다!
+        - class R
+        - class S
+        - class T
 ```
 
 따라서 최상위 패키지는 도메인, 이메일 주소, 웹사이트의 하위 도메인 등과 같이 당신만의 고유한 것이어야 합니다. 다른 사람과 겹치지만 않는다면 이름 또는 사용자 이름을 사용하셔도 됩니다. 이때 최상위 패키지는 [그룹 아이디][group]도 포함해야 합니다.
@@ -48,9 +47,8 @@ b.jar
 
 모드의 각 클래스들도 하위 패키지로 구분하는 것이 좋습니다. 이에는 일반적으로 두 가지 방법이 있는데:
 
-* **자료형으로 나누기**: 상위 클래스가 무엇이냐에 따라 구분하는 방식입니다. 예를 들어 블록은 `block`, 아이템은 `item`, 엔티티는 `entity`로 구분할 수 있습니다. 모장도 대체로 이 형식을 따릅니다.
-* **콘텐츠로 나누기**: 각 콘텐츠를 구현하는데 필요한 클래스들을 하나의 패키지로 묶는 방식입니다. 예를 들어, 새로운 유형의 제작대를 만드는 경우 블록, 메뉴, 아이템 등을 `feature.crafting_table`
-  아래에 배치합니다.
+- **자료형으로 나누기**: 상위 클래스가 무엇이냐에 따라 구분하는 방식입니다. 예를 들어 블록은 `block`, 아이템은 `item`, 엔티티는 `entity`로 구분할 수 있습니다. 모장도 대체로 이 형식을 따릅니다.
+- **콘텐츠로 나누기**: 각 콘텐츠를 구현하는데 필요한 클래스들을 하나의 패키지로 묶는 방식입니다. 예를 들어, 새로운 유형의 제작대를 만드는 경우 블록, 메뉴, 아이템 등을 `feature.crafting_table` 아래에 배치합니다.
 
 #### 클라이언트, 서버 및 데이터 패키지
 
@@ -64,20 +62,19 @@ b.jar
 
 클래스는 일반적으로 타입이 접미사로 붙습니다. 예를 들면:
 
-* `PowerRing`이라는 `Item` -> `PowerRingItem`.
-* `NotDirt`이라는 `Block` -> `NotDirtBlock`.
-* `Oven`이라는 `Menu` -> `OvenMenu`.
+- `PowerRing`이라는 `Item` -> `PowerRingItem`.
+- `NotDirt`이라는 `Block` -> `NotDirtBlock`.
+- `Oven`이라는 `Menu` -> `OvenMenu`.
 
 :::tip
 Mojang은 대체로 엔티티를 제외한 모든 클래스를 위처럼 명명합니다. 엔티티는 타입 없이 이름만 있습니다. (예: `Pig`, `Zombie` 등)
 :::
 
-여러 시스템중 하나 고르기
----------------------------
+## 여러 시스템중 하나 고르기
 
 개체 등록, 이벤트 수신 등 특정 작업을 수행하기 위한 방법에는 여러 가지가 있습니다. 이때 코드베이스 전반으로 하나의 방법을 일관적으로 사용하는 것이 좋습니다. 이러면 코드 가독성뿐 아니라 이상한 상호 작용 또는 중복도 방지할 수 있습니다. (예: 이벤트 리스너가 두 번 실행됨)
 
 [group]: modfiles.md#그룹-아이디
 [naming]: https://docs.oracle.com/javase/tutorial/java/package/namingpkgs.html
-[datagen]: ../datagen/index.md
+[datagen]: ../resources/index.md#data-generation
 [sides]: ../concepts/sides.md

@@ -24,6 +24,8 @@
 
 네오 포지는 유의적 버전을 변형해서 사용합니다: major 버전은 마인크래프트의 minor 버전, minor 버전은 마인크래프트의 patch 버전, patch 버전은 네오 포지의 "진짜" 버전을 표기합니다. 예를 들어 네오 포지 20.2.59는 마인크래프트 1.20.2용으로 출시된 60번째(저흰 버전을 0에서부터 셉니다) 버전입니다. 맨 앞의 `1`은 바뀔 일이 없어 보여 사용하지 않습니다, 자세한 사항은 [위 섹션][minecraft]를 참고하세요.
 
+A few places in NeoForge also use [Maven version ranges][mvr], for example the Minecraft and NeoForge version ranges in the [`mods.toml`][modstoml] file. These are mostly, but not fully compatible with semver (the `pre`-tag is not considered by it, for example).
+
 ## 모드
 
 버전 규약은 쓰는 사람 나름입니다. 개발 목적, 방식 등에 따라 달라질 수 있습니다. 아래에선 참고하기 좋도록 자주 사용하는 버전 규약들을 제시합니다.
@@ -84,7 +86,7 @@
 [mekanism]: https://www.curseforge.com/minecraft/mc-mods/mekanism
 [minecolonies]: https://www.curseforge.com/minecraft/mc-mods/minecolonies
 [minecraft]: #마인크래프트
-[modstoml]: modfiles.md#modstoml
+[neoforgemodstoml]: modfiles.md#neoforgemodstoml
 [mvr]: https://maven.apache.org/enforcer/enforcer-rules/versionRanges.html
 [mvr]: https://maven.apache.org/ref/3.5.2/maven-artifact/apidocs/org/apache/maven/artifact/versioning/ComparableVersion.html
 [neoforge]: #네오-포지

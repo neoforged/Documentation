@@ -1,10 +1,8 @@
-상호작용 파이프라인
-==============
+# 상호작용 파이프라인
 
 이 페이지는 우클릭을 통한 상호작용 과정, 그리고 결과(`Result`)가 무엇인지, 어디에 쓰는지에 대해 다룹니다. 
 
-우클릭을 하면 무슨 일이 일어나는가?
----------------------------
+## 우클릭을 하면 무슨 일이 일어나나요?
 
 월드에서 우클릭할 시, 바라보던 대상, 손에 들던 `ItemStack`에 따라 여러 작업이 수행됩니다. 많은 상호작용 관련 메서드들은 두 개의 결과(아래 참고)중 하나를 반환합니다. 이 메서드들은 명시적으로 성공 또는 실패 시 파이프라인을 중단합니다. 가독성을 위해 "명시적 성공 또는 실패"는 "확실한 결과"로 표현하겠습니다.
 
@@ -24,43 +22,44 @@
     - 월드 경계 안에 있는, 상호작용 거리 내의 블록:
         - `PlayerInteractEvent.RightClickBlock`이 방송됨. 이벤트 취소 시 파이프라인 중단. 해당 이벤트는 블록 또는 아이템 처리만 차단하는 것도 가능.
         - `IItemExtension#onItemUseFirst`가 호출됨. 확실한 결과가 반환될 시 파이프라인 중단.
-        - 플레이어가 웅크리지 않았고 이벤트가 블록 처리를 차단하지 않았다면 `Block#use`가 호출됨. 확실한 결과가 반환될 시 파이프라인 중단. definitive result, the pipeline ends.
+        - 플레이어가 웅크리지 않았고 이벤트가 블록 처리를 차단하지 않았다면 `UseItemOnBlockEvent` is fired. If the event is canceled, the cancellation result is used. Otherwise, `Block#useItemOn` is called. If it returns a definitive result, the pipeline ends.
+        - If the `ItemInteractionResult` is `PASS_TO_DEFAULT_BLOCK_INTERACTION` and the executing hand is the main hand, then `Block#useWithoutItem`가 호출됨. 확실한 결과가 반환될 시 파이프라인 중단. definitive result, the pipeline ends.
         - 이벤트가 아이템 처리를 차단하지 않았다면, `Item#useOn`이 호출됩니다. 확실한 결과가 반환될 시 파이프라인 중단.
 - `Item#use`가 호출됨. 확실한 결과가 반환될 시 파이프라인 중단.
 - 위 과정을 부 상호작용 손으로 한번 더 수행함.
 
-결과의 종류
-------------
+## 결과 타입
 
-결과에는 두 개의 종류로 나뉩니다: `InteractionResult`, 그리고 `InteractionResultHolder<T>`. 일반적으로 `InteractionResult`를 사용하며 오직 `Item#use`만 `InteractionResultHolder<ItemStack>`를 사용합니다.
+There are three different types of results: `InteractionResult`s, `ItemInteractionResult`s, and `InteractionResultHolder<T>`s. `InteractionResult` is used most of the time, only `Item#use` uses `InteractionResultHolder<ItemStack>`, and only `BlockBehaviour#useItemOn` and `CauldronInteraction#interact` use `ItemInteractionResult`.
 
 `InteractionResult`는 다섯 개의 경우의 수를 가진 열거형입니다: `SUCCESS`, `CONSUME`, `CONSUME_PARTIAL`, `PASS`그리고 `FAIL`. 추가적으로, `InteractionResult#sidedSuccess`는 서버에선 `SUCCESS`, 클라이언트에선 `CONSUME`을 반환합니다.
 
 `InteractionResultHolder<T>`는 `InteractionResult`와 `T`를 담는 객체입니다. `T`는 아무거나 될 수 있지만 거의 `ItemStack`을 사용합니다. `InteractionResultHolder<T>`는 각 열거형 값을 위한 메서드를 제공하며(`#success`, `#consume`, `#pass` 그리고 `#fail`), 위처럼 `#sidedSuccess` 또한 제공합니다. 이는 클라이언트에선 `#success`를, 서버에선 `#consume`을 호출합니다.
 
-위 값들은 일반적으로 아래와 같이 사용됩니다:
+`ItemInteractionResult` is a parallel to `InteractionResult` specifically for when an item is used on a block. It is an enum of six values: `SUCCESS`, `CONSUME`, `CONSUME_PARTIAL`, `PASS_TO_DEFAULT_BLOCK_INTERACTION`, `SKIP_DEFAULT_BLOCK_INTERACTION`,  and `FAIL`. Each `ItemInteractionResult` can be mapped to a `InteractionResult` via `#result`; `PASS_TO_DEFAULT_BLOCK_INTERACTION`, `SKIP_DEFAULT_BLOCK_INTERACTION` both represent `InteractionResult#PASS`. Similarly, `#sidedSucess` also exists for `ItemInteractionResult`.
 
-- `InteractionResult#sidedSuccess` (또는 `InteractionResultHolder#sidedSuccess`)는 작업이 성공했고 팔이 움직여야 할 때 사용합니다. 파이프라인은 바로 종료됩니다.
-- `InteractionResult.SUCCESS` (또는 `InteractionResultHolder#success`)는 작업이 성공했고, 팔이 한쪽 사이드에서만 움직여야 할 때 사용합니다. 반대 사이드에 다른 값을 사용하고 싶을 때 쓰세요. 파이프라인은 바로 종료됩니다.
-- `InteractionResult.CONSUME` (또는 `InteractionResultHolder#consume`)은 작업이 성공했지만 팔은 움직이지 않아야 할 때 사용합니다. 파이프라인은 바로 종료됩니다.
-- `InteractionResult.CONSUME_PARTIAL`은 `InteractionResult.CONSUME`과 거의 비슷하며, 유일한 차이점은 [`Item#useOn`][itemuseon]이 이를 처리하는 방식입니다.
-- `InteractionResult.FAIL` (또는 `InteractionResultHolder#fail`)은 아이템의 기능 수행이 실패했고 추가 작업을 할 필요가 없을 때 사용합니다. 파이프라인은 바로 종료됩니다. 아무 때나 사용할 순 있지만, 다른 작업 수행을 차단하기에 `Item#useOn` 및 `Item#use` 밖에선 주의를 기울여야 합니다. 일반적으로 `InteractionResult.PASS`를 쓰는 것이 좋습니다.
-- `InteractionResult.PASS` (또는 `InteractionResultHolder#pass`)는 작업이 성공 또는 실패하지 않았을 경우 사용합니다. 파이프라인의 여러 메서드들은 `PASS`를 기본값으로 사용합니다.
+Generally, the different values mean the following:
+
+- `InteractionResult#sidedSuccess` (or `InteractionResultHolder#sidedSuccess` / `ItemInteractionResult#sidedSucess` where needed) should be used if the operation should be considered successful, and you want the arm to swing. The pipeline will end.
+- `InteractionResult#SUCCESS` (or `InteractionResultHolder#success` / `ItemInteractionResult#SUCCESS` where needed) should be used if the operation should be considered successful, and you want the arm to swing, but only on one side. Only use this if you want to return a different value on the other logical side for whatever reason. The pipeline will end.
+- `InteractionResult#CONSUME` (or `InteractionResultHolder#consume` / `ItemInteractionResult#CONSUME` where needed) should be used if the operation should be considered successful, but you do not want the arm to swing. The pipeline will end.
+- `InteractionResult#CONSUME_PARTIAL` is mostly identical to `InteractionResult#CONSUME`, the only difference is in its usage in [`Item#useOn`][itemuseon].
+    - `ItemInteractionResult#CONSUME_PARTIAL` is similar within its usage in `BlockBehaviour#useItemOn`.
+- `InteractionResult.FAIL` (or `InteractionResultHolder#fail` / `ItemInteractionResult#FAIL` where needed) should be used if the item functionality should be considered failed and no further interaction should be performed. The pipeline will end. This can be used everywhere, but it should be used with care outside of `Item#useOn` and `Item#use`. In many cases, using `InteractionResult.PASS` makes more sense.
+- `InteractionResult.PASS` (or `InteractionResultHolder#pass` where needed) should be used if the operation should be considered neither successful nor failed. The pipeline will continue. This is the default behavior (unless otherwise specified).
+    - `ItemInteractionResult#PASS_TO_DEFAULT_BLOCK_INTERACTION` allows `BlockBehaviour#useWithoutItem` to be called for the mainhand while `#SKIP_DEFAULT_BLOCK_INTERACTION` prevents the method from executing altogether. `#PASS_TO_DEFAULT_BLOCK_INTERACTION` is the default behavior (unless otherwise specified).
 
 몇몇 메서드는 사용 방법 또는 기능이 특별하기에 아래에서 더 자세히 다룹니다.
 
-`IItemExtension#onItemUseFirst`
----------------------------
+## `IItemExtension#onItemUseFirst`
 
 `InteractionResult#sidedSuccess`와 `InteractionResult.CONSUME`은 여기선 아무 효과도 없으며, 오직 `InteractionResult.SUCCESS`, `InteractionResult.FAIL`, 또는 `InteractionResult.PASS`만 사용 가능합니다.
 
-`Item#useOn`
-------------
+## `Item#useOn`
 
 작업을 성공으로 표기하고 싶지만 팔은 가만히 두고 싶다면, 또는 `ITEM_USED` 통계에 값을 기록하고 싶다면 `InteractionResult.CONSUME_PARTIAL`을 사용하세요.
 
-`Item#use`
-----------
+## `Item#use`
 
 이 메서드는 유일하게 `InteractionResultHolder<ItemStack>`를 반환합니다. `InteractionResultHolder<ItemStack>`에 저장된 `ItemStack`은 아이템 상호작용을 시작한 아이템을 대체합니다.
 

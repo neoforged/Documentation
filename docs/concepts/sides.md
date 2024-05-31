@@ -1,3 +1,6 @@
+---
+sidebar_position: 2
+---
 # 사이드
 
 마인크래프트도 다른 프로그램들처럼 클라이언트-서버 구조를 따릅니다, 클라이언트는 사용자에게 데이터를 표시하고, 서버는 데이터를 처리합니다. 이들을 사이드라 칭합니다. 컴퓨터를 자주 사용하시거나, 특히 게임좀 해보신 분들이라면 이 둘이 뭔지 잘 알겁니다, 그렇죠?
@@ -47,28 +50,39 @@
 
 ### `FMLEnvironment.dist`
 
-`FMLEnvironment.dist`는 `Level#isClientSide()`와 다르게, **물리** 사이드를 확인할 때 사용합니다. 만약 이 필드의 값이 `Dist.CLIENT`라면 물리 클라이언트, `Dist.SERVER`라면 물리 서버입니다.
+`FMLEnvironment.dist`는 `Level#isClientSide()`와 다르게, **물리** 사이드를 확인할 때 사용합니다. 만약 이 필드의 값이 `Dist.CLIENT`라면 물리 클라이언트, `Dist.DEDICATED_SERVER`라면 물리 서버입니다.
 
-클라이언트 전용 코드는 무조건 물리 클라이언트임을 먼저 확인하고 사용하셔야 하며, 확인했다고 바로 사용하지 말고 아래와 같이 다른 클래스의 정적 메서드로 분리한 다음 호출해야 합니다. 단순한 정적 메서드 호출은 진짜 호출 될 때만 메서드가 정의된 클래스를 불러오지만, 그 외에는 실행 여부와 관계 없이 참조만 해도 클라이언트 클래스를 바로 불러와 오류가 발생할 수 있습니다:
+
+#### `@Mod`
+
+Checking the physical environment is important when dealing with client-only classes. The recommended way to separate code that should only be executed on one physical client is by specifying a separate [`@Mod` annotation][mod], setting the `dist` parameter to the physical side the mod class should be loaded on:
 
 ```java
-public class SomeCommonClass {
-    public void someCommonMethod() {
-        // SomeClientClass는 물리 클라이언트에서만 불러와 집니다
-        if (FMLEnvironment.dist == Dist.CLIENT) {
-            SomeClientClass.someClientMethod();
-        }
+@Mod("examplemod")
+public class ExampleMod {
+    public ExampleMod(IEventBus modBus) {
+        // Perform logic in that should be executed on both sides
     }
 }
 
-public class SomeClientClass {
-    public void someClientMethod() {
-        // 만약 아래 코드가 SomeCommonClass에 포함되었을 경우
-        // SomeCommonClass를 불러오는 순간 상황에 따라 Minecraft 클래스를
-        // 검사하기 위해 같이 불러와 오류가 발생할 수 있습니다.
+@Mod(value = "examplemod", dist = Dist.CLIENT) 
+public class ExampleModClient {
+    public ExampleModClient(IEventBus modBus) {
+        // Perform logic in that should only be executed on the physical client
         Minecraft.getInstance().whatever();
     }
 }
+
+@Mod(value = "examplemod", dist = Dist.DEDICATED_SERVER) 
+public class ExampleModDedicatedServer {
+    public ExampleModDedicatedServer(IEventBus modBus) {
+        // Perform logic in that should only be executed on the physical server
+    }
+}
+```
+
+```java
+
 ```
 
 :::tip
@@ -76,3 +90,4 @@ public class SomeClientClass {
 :::
 
 [networking]: ../networking/index.md
+[mod]: ../gettingstarted/modfiles.md#javafml-and-mod

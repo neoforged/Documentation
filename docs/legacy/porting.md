@@ -1,5 +1,4 @@
-마인크래프트 1.20으로 업그레이드 하기
-=========================
+# Porting to Minecraft 1.20
 
 아래 구버전 모드를 신버전으로 업그레이드하는 가이드들을 정리해 두었습니다. 몇몇 버전은 그리 유명하지 않아 하나로 묶었습니다.
 
@@ -12,6 +11,7 @@
 | 1.19.2 -> 1.19.3  | [ChampionAsh5357의 가이드][1192to1193] |
 | 1.19.3 -> 1.19.4  | [ChampionAsh5357의 가이드][1193to1194] |
 | 1.19.4 -> 1.20.0  | [ChampionAsh5357의 가이드][1194to120]  |
+| 1.20.4 -> 1.20.5/6 | [ChampionAsh5357의 가이드][1204to1205] |
 
 [112to114]: https://gist.github.com/williewillus/353c872bcf1a6ace9921189f6100d09a
 [114to115]: https://gist.github.com/williewillus/30d7e3f775fe93c503bddf054ef3f93e
@@ -20,3 +20,4 @@
 [1192to1193]: https://gist.github.com/ChampionAsh5357/c21724bafbc630da2ed8899fe0c1d226
 [1193to1194]: https://gist.github.com/ChampionAsh5357/163a75e87599d19ee6b4b879821953e8
 [1194to120]: https://gist.github.com/ChampionAsh5357/cf818acc53ffea6f4387fe28c2977d56
+[1204to1205]: https://gist.github.com/ChampionAsh5357/53b04132e292aa12638d339abfabf955

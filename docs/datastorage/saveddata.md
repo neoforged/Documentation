@@ -8,8 +8,8 @@ _만약 데이터가 특정 블록 엔티티, 청크, 엔티티 전용이라면,
 
 레벨 데이터는 `SavedData`로 표현됩니다. 이때 주목해야 할 메서드 두 개가 있는데:
 
-* `save`: 데이터를 레벨 NBT에 작성합니다.
-* `setDirty`: 데이터가 바뀌었다고 표시합니다. 이를 호출하지 않으면 `#save`가 호출되지 않아 데이터가 저장되지 않습니다.
+- `save`: 레벨에 NBT 데이터를 저장합니다.
+- `setDirty`: 데이터가 바뀌었다고 표시합니다. 이를 호출하지 않으면 `#save`가 호출되지 않아 데이터가 저장되지 않습니다.
 
 ## 레벨에 데이터 추가하기
 
@@ -26,7 +26,7 @@ public ExampleSavedData create() {
   return new ExampleSavedData(0);
 }
 
-public ExampleSavedData load(CompoundTag tag) {
+public ExampleSavedData load(CompoundTag tag, HolderLookup.Provider lookupProvider) {
   ExampleSavedData data = this.create();
   // 여기서 tag로부터 데이터를 불러오세요
   return data;

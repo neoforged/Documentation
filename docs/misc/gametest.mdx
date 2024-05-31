@@ -1,10 +1,8 @@
-게임 테스트
-==========
+# 게임 테스트
 
 게임 테스트는 게임 속에서 단위 테스트를 수행할 수 있도록 해줍니다. 이 시스템은 확장하기 쉽고 한 번에 여러 테스트를 효율적으로 수행할 수 있습니다. 이 프레임워크는 여러 게임 속 객체의 상호 작용을 테스트할 때 유용합니다.
 
-게임 테스트 작성하기
---------------------
+## 게임 테스트 작성하기
 
 게임 테스트는 일반적으로 다음 세 단계로 이루어지는데:
 
@@ -30,6 +28,7 @@ public class ExampleGameTests {
 `@GameTest` 어노테이션은 테스트 수행 방식을 설정할 수도 있습니다.
 
 ```java
+// In some class
 @GameTest(
   setupTicks = 20L, // 테스트를 준비하는 동안 20틱이 걸림
   required = false // 테스트 실패 시 기록은 하나 전체 테스트 결과에 영향을 끼치지 않음
@@ -51,7 +50,7 @@ public static void exampleConfiguredTest(GameTestHelper helper) {
 ```bash
 /test pos <var> # 출력: 'final BlockPos <var> = new BlockPos(...);'
 ```
-:::tip
+:::
 
 #### 테스트 통과 시
 
@@ -127,8 +126,7 @@ public class ExampleGameTests {
 }
 ```
 
-게임 테스트 등록하기
------------------------
+## 게임 테스트 등록하기
 
 게임 테스트를 수행하기 위해선 먼저 등록되어야만 합니다, `@GameTestHolder`로 자동으로 등록할 수도 있고, `RegisterGameTestsEvent`로 직접 등록하실 수도 있습니다. 무엇을 사용하시든 간에, `@GameTest`, `@GameTestGenerator`, `@BeforeBatch`, 또는 `@AfterBatch`가 등록되는 메서드에 있어야 합니다.
 
@@ -164,22 +162,25 @@ public static void exampleTest3(GameTestHelper helper) {
 `GameTestHolder#value`와 `GameTest#templateNamespace`에 전달되는 문자열은 모드 아이디 말고 다른 것을 사용하셔도 됩니다만, [빌드스크립트][namespaces]의 기본 설정은 모드 아이디와 일치하는 네임 스페이스에 포함된 게임 테스트만 실행하기 때문에 이를 수정하셔야 합니다.
 :::
 
-구조물
--------------------
+## 구조물 템플릿
 
 이전에 각 게임 테스트는 특정한 장소에서 실행해야 한다고 했습니다. 이러한 장소는 구조물 블록으로 만들고 저장할 수 있는데, 테스트를 실행할 차원, 블록과 엔티티와 같은 초기 데이터 등을 지정할 수 있습니다. 각 구조물은 `data/<namespace>/structures`에 `.nbt` 확장자와 함께 저장되어야 합니다.
 
+:::tip
+A structure template can be created and saved using a structure block.
+:::
+
 게임 테스트를 실행할 구조물 파일의 위치는 다음 세 가지 기준을 바탕으로 정의됩니다:
 
-* 구조물의 네임 스페이스가 정의되어 있는가?
-* 테스트를 실행하는 클래스의 이름이 구조물 파일의 접두사로 와야 하는가?
-* 구조물 파일의 이름이 정의되어 있는가?
+- 구조물의 네임 스페이스가 정의되어 있는가?
+- 테스트를 실행하는 클래스의 이름이 구조물 파일의 접두사로 와야 하는가?
+- 구조물 파일의 이름이 정의되어 있는가?
 
-구조물 파일의 네임 스페이스는 이를 사용할 게임 테스트의 `GameTest#templateNamespace`로 정의합니다, 만약 이가 따로 정의되어 있지 않다면 해당 게임 테스트를 포함하는 클래스의 `GameTestHolder#value`를, 이 또한 정의되어 있지 않다면, 기본값으로 `minecraft`를 사용합니다.
+The namespace of the template is determined by `GameTest#templateNamespace`, then `GameTestHolder#value` if not specified, then `minecraft` if neither is specified.
 
-게임 테스트 로직, 또는 해당 로직을 포함하는 클래스에 `@PrefixGameTestTemplate`가 있고, 해당 어노테이션의 `#value` 값이 `false`라면, 구조물 파일 이름에 클래스 이름이 붙지 않습니다. 만약 그렇지 않다면, 구조물 파일의 이름은 `"<소문자 클래스 이름>.<구조물 파일 이름>.nbt"`가 됩니다.
+The simple class name is not prepended to the name of the template if the `@PrefixGameTestTemplate` is applied to a class or method with the test annotations and set to `false`. Otherwise, the simple class name is made lowercase and prepended and followed by a dot before the template name.
 
-구조물 파일의 이름은 `GameTest#template`으로 정의하는데, 기본값으로 해당 어노테이션이 붙은 테스트 로직 메서드의 이름을 소문자로 바꾸어 사용합니다.
+The name of the template is determined by `GameTest#template`. If not specified, then the lowercase name of the method is used instead.
 
 ```java
 // 구조물 파일의 네임 스페이스는 MODID가 됨
@@ -210,35 +211,33 @@ public class ExampleGameTests {
 }
 ```
 
-게임 테스트 수행하기
-------------------
+## 게임 테스트 수행하기
 
 게임 테스트는 `/test` 명령어로 실행할 수 있습니다. 이 명령어는 설정할 방법이 많지만, 대개 아래 5가지 부 명령어 중 하나를 사용합니다:
 
-|    부 명령어    | 설명                               |
-|:-----------:|:---------------------------------|
-|    `run`    | 지정된 테스트 실행: `run <test_name>`.   |
-|  `runall`   | 활성화된 모든 테스트 실행.                  |
-|  `runthis`  | 플레이어 기준 15칸 안에 있는 가장 가까운 테스트 실행. |
-| `runthese`  | 플레이어 기준 200칸 안에 있는 모든 테스트 실행.    |
-| `runfailed` | 방금 실패한 모든 테스트 다시 실행.             |
+| 부 명령어     | 설명                                        |
+|:-----------:|:-------------------------------------------|
+| `run`       | 지정된 테스트 실행: `run <test_name>`.          |
+| `runall`    | 활성화된 모든 테스트 실행.                       |
+| `runclosest`| 플레이어 기준 15칸 안에 있는 가장 가까운 테스트 실행. |
+| `runthese`  | 플레이어 기준 200칸 안에 있는 모든 테스트 실행.     |
+| `runfailed` | 방금 실패한 모든 테스트 다시 실행.                |
 
 :::note
 위 부 명령어들은 테스트 명령 뒤에 따라붙습니다: `/test <subcommand>`.
 :::
 
-빌드스크립트 설정
---------------------------
+## 빌드스크립트 설정
 
 게임 세트는 빌드 스크립트(`build.gradle` 파일)에서도 설정하실 수 있습니다.
 
 ### 다른 네임 스페이스 활성화하기
 
-만약 [빌드스크립트 기본 설정][buildscript]을 사용하신다면, 현재 모드 아이디의 게임 테스트만 활성화될 것입니다. 다른 네임 스페이스도 활성화하기 위해선 속성 `forge.enabledGameTestNamespaces`의 값을 `,`로 구분된 활성화할 네임 스페이스들의 목록인 문자열로 지정하셔야 합니다.
+If the buildscript was [setup as recommended][buildscript], then only Game Tests under the current mod id would be enabled. To enable other namespaces to load Game Tests from, a run configuration must set the property `neoforge.enabledGameTestNamespaces` to a string specifying each namespace separated by a comma. If the property is empty or not set, then all namespaces will be loaded.
 
 ```gradle
 // 빌드 스크립트 설정
-property 'forge.enabledGameTestNamespaces', 'modid1,modid2,modid3'
+property 'neoforge.enabledGameTestNamespaces', 'modid1,modid2,modid3'
 ```
 
 :::caution
@@ -250,7 +249,7 @@ property 'forge.enabledGameTestNamespaces', 'modid1,modid2,modid3'
 게임 테스트 서버는 빌드 스크립트가 자동으로 서버를 실행하고 게임 테스트를 수행하도록 하는 실행 구성입니다. 이때 실행된 서버는 테스트 수행 이후, `GameTest#required`가 `true`인 모든 실패한 테스트의 개수를 프로세스 종료값으로 반환합니다. 모든 실패한 테스트는 출력 로그에 기록됩니다. 게임 테스트 서버는 `gradlew runGameTestServer`를 사용해 실행하실 수 있습니다.
 
 <details>
-    <summary>FG5 사용시 유의하실 점</summary>
+    <summary>NeoGradle 사용시 유의하실 점</summary>
 
 :::caution
 Gradle은 수행하던 작업이 시스템의 의해 종료되면, Gradle 데몬도 종료됩니다, 이로 인해 작업이 실패한 것으로 간주하게 됩니다. NeoGradle은 하위 프로젝트까지 실행되는 것을 막기 위해 강제로 데몬을 종료시키는데 이로 인해 테스트가 언제나 실패로 보고됩니다.
@@ -267,13 +266,14 @@ gameTestServer {
 :::
 </details>
 
+
 ### 다른 실행 구성에서 게임 테스트 사용하기
 
-기본적으로, `client`, `server`, `gameTestServer`만 게임 테스트 기능이 활성화 되어있습니다. 만약 다른 실행 구성에서도 게임 테스트를 사용하시고 싶으시다면 `forge.enableGameTest` 속성값을 `true`로 설정하셔야만 합니다.
+기본적으로, `client`, `server`, `gameTestServer`만 게임 테스트 기능이 활성화 되어있습니다. 만약 다른 실행 구성에서도 게임 테스트를 사용하시고 싶으시다면 `neoforge.enableGameTest` 속성값을 `true`로 설정하셔야만 합니다.
 
 ```gradle
 // 빌드 스크립트
-property 'forge.enableGameTest', 'true'
+property 'neoforge.enableGameTest', 'true'
 ```
 
 [test]: #게임-테스트-수행하기

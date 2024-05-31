@@ -24,9 +24,11 @@ Item
 ```java
 // 아래 예시에선 구리를 철과 돌 사이 정도로 조절합니다.
 public static final Tier COPPER_TIER = new SimpleTier(
-        // 도구의 수준. 값으로 정수만 사용할 수 있어 돌과 철 사이로 조절하는 것은 불가능.
-        // 이는 TierSortingRegistry를 대신 사용해야 함. 자세한 사항은 아래를 참고. 여기선 임의로 돌과 동일한 수준을 사용.
-        // 돌은 1, 철은 2.
+        // The tag that determines what blocks this tool cannot break. See below for more information.
+        MyBlockTags.INCORRECT_FOR_COPPER_TOOL,
+        // Determines the level of this tool. Since this is an int, there is no good way to place our tool between stone and iron.
+        // NeoForge introduces the TierSortingRegistry to solve this problem, see below for more information. Use a best-effort approximation here.
+        // Stone is 1, iron is 2.
         1,
         // 티어의 내구도.
         // 돌은 131, 철은 250.
@@ -40,29 +42,31 @@ public static final Tier COPPER_TIER = new SimpleTier(
         // 티어의 마법 부여 가중치. 높을수록 좋은 인첸트가 잘 나옴.
         // 금은 22.
         20,
-        // 티어로 부술 수 있는 블록을 표시할 태그. 자세한 사항은 아래를 참고.
-        MyBlockTags.NEEDS_COPPER_TOOL,
-        // 도구 수리에 필요한 재료. 지연 초기화를 위해 Supplier를 사용.
+        // Determines the repair ingredient of the tier. Use a supplier for lazy initializing.
         () -> Ingredient.of(Tags.Items.INGOTS_COPPER)
 );
 ```
 
-다른 예제는 마인크래프트의 `Tiers`를 참고하세요.
-
-이제 새로운 티어를 추가했으니, 이 티어를 가지는 도구들도 추가합니다. 모든 도구들은 생성자의 인자가 동일합니다:
+다른 예제는 마인크래프트의 `Tiers`를 참고하세요. 이제 새로운 티어를 추가했으니, 이 티어를 가지는 도구들도 추가합니다. 모든 도구들은 생성자 똑같은 네 개의 인자를 받습니다.
 
 ```java
 //ITEMS은 DeferredRegister<Item>
 public static final Supplier<SwordItem> COPPER_SWORD = ITEMS.register("copper_sword", () -> new SwordItem(
         // 사용할 티어.
         COPPER_TIER,
-        // 도구 자체의 추가 대미지. 검은 3, 삽은 1.5, 곡괭이는 1, 괭이와 도끼는 저마다 다름.
-        3,
-        // 도구 자체의 추가 공격 속도. 기본 공격 속도는 4, 공격 속도를 1.6f로 맞추기 위해 -2.4f를 사용함.
-        // 검은 -2.4f, 삽은 -3f, 곡괭이는 -2.8f, 괭이와 도끼는 저마다 다름.
-        -2.4f,
-        // 아이템 속성값들. 내구도는 이미 Tier에서 지정했으니 설정할 필요 없음.
-        new Item.Properties()
+        // The item properties. We don't need to set the durability here because TieredItem handles that for us.
+        new Item.Properties().attributes(
+            // There are `createAttributes` methods in either the class or subclass of each DiggerItem
+            SwordItem.createAttributes(
+                // The tier to use.
+                COPPER_TIER,
+                // The type-specific attack damage bonus. 3 for swords, 1.5 for shovels, 1 for pickaxes, varying for axes and hoes.
+                3,
+                // The type-specific attack speed modifier. The player has a default attack speed of 4, so to get to the desired
+                // value of 1.6f, we use -2.4f. -2.4f for swords, -3f for shovels, -2.8f for pickaxes, varying for axes and hoes.
+                -2.4f,
+            )
+        )
 ));
 public static final Supplier<AxeItem> COPPER_AXE = ITEMS.register("copper_axe", () -> new AxeItem(...));
 public static final Supplier<PickaxeItem> COPPER_PICKAXE = ITEMS.register("copper_pickaxe", () -> new PickaxeItem(...));
@@ -72,19 +76,23 @@ public static final Supplier<HoeItem> COPPER_HOE = ITEMS.register("copper_hoe", 
 
 ### 태그
 
-위에서 티어를 만들 때 태그를 사용했습니다. 티어가 부술 수 있는 블록은 [블록 태그][tags]로 구분합니다. 예를 들어 철 도구는 `minecraft:needs_iron_tool` 태그를 사용하며, 다이아몬드, 금광석 등을 포함합니다. 또,`minecraft:needs_diamond_tool` 태그는 흑요석과 고대 잔해 등을 포함합니다. 상위 티어는 지정하지 않아도 하위 티어의 블록들을 전부 캘 수 있어, 하위 티어의 태그 내용을 복사하지 않아도 됩니다.
+When creating a `Tier`, it is assigned a block [tag][tags] containing blocks that will not drop anything if broken with this tool. For example, the `minecraft:incorrect_for_stone_tool` tag contains blocks like Diamond Ore, and the `minecraft:incorrect_for_iron_tool` tag contains blocks like Obsidian and Ancient Debris. To make it easier to assign blocks to their incorrect mining levels, a tag also exists for blocks that need this tool to be mined. For example, the `minecraft:needs_iron_tool` tag containslike Diamond Ore, and the `minecraft:needs_diamond_tool` tag contains blocks like Obsidian and Ancient Debris.
 
-필요하다면 다른 티어의 태그를 재사용하셔도 됩니다. 예를 들어 위에서 만든 구리 도구가 돌 도구와 같은 블록만 캔다면 `BlockTags.NEEDS_STONE_TOOL`을 사용합니다.
+필요하다면 다른 티어의 태그를 재사용하셔도 됩니다. 예를 들어 위에서 만든 구리 도구가 돌 도구와 같은 블록만 캔다면 `BlockTags#INCORRECT_FOR_STONE_TOOL`을 사용합니다.
 
 아니면 아래처럼 새로운 태그를 추가하세요:
 
 ```java
+// This tag will allow us to add these blocks to the incorrect tags that cannot mine them
 public static final TagKey<Block> NEEDS_COPPER_TOOL = TagKey.create(BuiltInRegistries.BLOCK.key(), new ResourceLocation(MOD_ID, "needs_copper_tool"));
+
+// This tag will be passed into our tier
+public static final TagKey<Block> INCORRECT_FOR_COPPER_TOOL = TagKey.create(BuiltInRegistries.BLOCK.key(), new ResourceLocation(MOD_ID, "incorrect_for_cooper_tool"));
 ```
 
 이제 태그에 블록들을 추가하세요. 예를 들어 구리 도구로 금광석, 금 블록, 레드스톤 광석을 캐려면 파일 `src/main/resources/data/<모드 아이디>/tags/blocks/needs_copper_tool.json`을 만들고 아래 내용을 적습니다:
 
-```json
+```json5
 {
   "values": [
     "minecraft:gold_block",
@@ -97,61 +105,40 @@ public static final TagKey<Block> NEEDS_COPPER_TOOL = TagKey.create(BuiltInRegis
 }
 ```
 
-이제, 위 예시처럼 `NEEDS_COPPER_TOOL`를 티어에 전달합니다.
+Then, for our tag to pass into the tier, we can provide a negative constraint for any tools that are incorrect for stone tools but within our copper tools tag. The tag file is located at `src/main/resources/data/mod_id/tags/blocks/incorrect_for_cooper_tool.json`:
 
-### `TierSortingRegistry`
-
-티어간 순서를 더 유연히 조절하려면, `TierSortingRegistry`에 티어를 등록하세요. 티어는 아이템보다 먼저 등록되어야 하기에 아래처럼 `static` 블록을 사용하시는 것을 권장드립니다.
-
-```java
-public static final Tier COPPER_TIER = new SimpleTier(...);
-
-static {
-    TierSortingRegistry.registerTier(
-            COPPER_TIER,
-            // 티어를 구분하기 위한 이름. minecraft 네임스페이스를 사용해도 됨.
-            new ResourceLocation("minecraft", "copper"),
-            // 하위 티어들. 돌은 구리보다 낮은 티어임.
-            // 나무와 철은 이미 돌보다 낮으니 리스트에 포함할 필요 없음.
-            List.of(Tiers.STONE),
-            // 상위 티어들. 철은 구리보다 높은 티어임.
-            // 다이아몬드와 네더라이트는 이미 철보다 높으니 리스트에 포함할 필요 없음.
-            List.of(Tiers.IRON)
-    );
+```json5
+{
+    "values": [
+        "#minecraft:incorrect_for_stone_tool"
+    ],
+    "remove": [
+        "#mod_id:needs_copper_tool"
+    ]
 }
 ```
 
-위 리스트는 `Tier` 말고도, 티어의 이름도 포함할 수 있습니다. 예를 들어 구리가 철과 [메카니즘][mektools]의 Osmium보다 약하다면 아래처럼 지정하세요:
+Finally, we can pass our tag into our tier creation, as seen above.
 
-```java
-public static final Tier COPPER_TIER = new SimpleTier(...);
+If you want to check if a tool can make a block state drop its blocks, call `Tool#isCorrectForDrops`. The `Tool` can be obtained by calling `ItemStack#get` with `DataComponents#TOOL`.
 
-static {
-    TierSortingRegistry.registerTier(
-            COPPER_TIER,
-            new ResourceLocation("minecraft", "copper"),
-            List.of(Tiers.STONE),
-            // 아래 리스트에 Tier랑 ResourceLocation을 섞어 담아도 됨.
-            List.of(Tiers.IRON, new ResourceLocation("mekanism", "osmium"))
-    );
-}
-```
+## Custom Tools
 
-상위 티어와 하위 티어 모두 위처럼 리스트를 활용합니다. 티어의 순서가 여러 번 지정된다면 그중 가장 엄격한 범위를 사용합니다.
+Custom tools can be created by adding a `Tool` [data component][datacomponents] (via `DataComponents#TOOL`) to the list of default components on your item via `Item.Properties#component`. `DiggerItem` is an implementation which takes in a `Tier`, as explained above, to construct the `Tool`. `DiggerItem` also provides a convience method called `#createAttributes` to supply to `Item.Properties#attributes` for your tool, such as the modified attack damage and attack speed.
 
-:::caution
-위 레지스트리는 잘못하면 순환 종속성을 유발할 수 있습니다, 그러니 티어 순서가 말이 되는지, 순환 참조는 없는지 확인하세요.
+A `Tool` contains a list of `Tool.Rule`s, the default mining speed when holding the tool (`1` by default), and the amount of damage the tool should take when mining a block (`1` by default). A `Tool.Rule` contains three pieces of information: a `HolderSet` of blocks to apply the rule to, an optional speed at which to mine the blocks in the set, and an optional boolean at which to determine whether these blocks can drop from this tool. If the optional are not set, then the other rules will be checked. The default behavior if all rules fail is the default mining speed and that the block cannot be dropped.
+
+:::note
+A `HolderSet` can be created from a `TagKey` via `Registry#getOrCreateTag`.
 :::
 
-만약 블록을 특정 티어로 파괴 가능한지 확인하려면 `TierSortingRegistry#isCorrectTierForDrops`를 호출하세요.
+Creating a multitool-like item (i.e. an item that combines two or more tools into one, e.g. an axe and a pickaxe as one item) or any tool-like does not need to extend any of the existing `TieredItem`s. It simply can be implemented using a combination of the following parts:
 
-## 새로운 종류의 도구
-
-망치나 낫같이 새로운 종류의 도구는 `DiggerItem` (무기의 경우 `TieredItem`)을 확장해 만들 수 있습니다. 
-
-`DiggerItem`의 생성자 인자 중 처음 네 개는 위에서 다룬 것과 동일하나, 다섯 번째 인자는 도구의 `mineable` 태그를 받습니다. 이 태그는 일반적으로 `<모드 아이디>:mineable/<도구 이름>` 형식입니다. 만약 다른 모드도 같은 종류의 도구를 추가할 것 같다면 네임 스페이스로 모드 아이디 말고 `forge`를 대신 사용하세요. 예를 들어 [Farmer's Delight][farmersdelight]는 칼의 태그로 `forge:mineable/knives`를 사용합니다.
-
-만약 여러 도구의 역할을 할 수 있는 아이템을 만든다면 (예를 들어 동시에 곡괭이와 도끼로 사용할 수 있는 아이템이라면), `AxeItem`을 확장하는 것을 권장드립니다, 왜냐하면 날카로움이나 밀치기 같은 인첸트들이 도끼에도 동작하기 때문입니다.
+- Adding a `Tool` with your own rules by setting `DataComponents#TOOL` via `Item.Properties#component`.
+- Adding attributes to the item (e.g. attack damage, attack speed) via `Item.Properties#attributes`.
+- Overriding `IItemExtension#canPerformAction` to determine what [`ToolAction`s][toolaction] the item can perform.
+- Calling `IBlockExtension#getToolModifiedState` if you want your item to modify the block state on right click based on the `ToolAction`s.
+- Adding your tool to some of the `minecraft:*_enchantable` tags so that your item can have certain enchantments applied to it, or `IItemExtension#canApplyAtEnchantingTable` to check if the enchantment can be applied at all.
 
 ## `ToolAction`
 
@@ -168,85 +155,55 @@ static {
 
 ## 갑옷
 
-도구처럼 갑옷도 티어와 유사한 시스템을 사용합니다. 갑옷은 `Tier` 대신 갑옷 재질(`ArmorMaterial`)을 사용합니다. 예시로 구리 갑주를 추가해 보겠습니다; 필요에 따라 값들을 수정하세요. 마인크래프트의 `ArmorMaterials`를 참고해 값을 어느 정도로 조절할지 참고하실 수 있습니다.
+Similar to tools, armor uses a tier system (although a different one). What is called `Tier` for tools is called `ArmorMaterial` for armors. Like above, this example shows how to add copper armor; this can be adapted as needed. However, unlike `Tier`s, `ArmorMaterial`s need to be [registered]. For the vanilla values, see the `ArmorMaterials` class.
 
 ```java
-// 구리를 사슬과 철 사이 정도로 조절할 것.
-public static final ArmorMaterial COPPER_ARMOR_MATERIAL = new ArmorMaterial() {
-    // 갑옷 재질의 이름. 주로 갑옷의 텍스쳐를 찾을 때 사용함.
-    // 아래처럼 이름에 모드 아이디를 포함하는 것이 좋음, 그렇지 않으면 다른 모드에서 같은 재질을 추가하면
-    // 겹칠 수 있음. 모드 아이디 누락 시 "minecraft" 네임 스페이스를 대신 사용함.
-    @Override
-    public String getName() {
-        return "modid:copper";
-    }
-
-    // StringRepresentable의 메서드 재정의. 대개 getName()과 같은 값을 반환함.
-    @Override
-    public String getSerializedName() {
-        return getName();
-    }
-
-    // 갑옷 재질의 내구도. 갑옷 착용부에 따라 다른 값을 사용할 수 있음.
-    // 갑옷 착용부는 ArmorItem.Type 열거형에 정의되어 네 가지 값이 존재함: HELMET, CHESTPLATE, LEGGINGS, BOOTS.
-    // 마인크래프트는 착용부 자체의 내구도와 재질의 내구도를 곱한 값을 반환함.
-    // 부츠는 13, 각반은 15, 흉갑은 16, 헬멧은 11.
-    // 사슬과 철의 재질 내구도는 15 임으로 아래서도 15를 사용함.
-    @Override
-    public int getDurabilityForType(ArmorItem.Type type) {
-        return switch (type) {
-            case HELMET -> 11 * 15;
-            case CHESTPLATE -> 16 * 15;
-            case LEGGINGS -> 15 * 15;
-            case BOOTS -> 13 * 15;
-        };
-    }
-
-    // 갑옷 재질의 방어도. 갑옷 착용부에 따라 다른 값을 사용할 수 있음.
-    @Override
-    public int getDurabilityForType(ArmorItem.Type type) {
-        return switch (type) {
-            case HELMET -> 2;
-            case CHESTPLATE -> 4;
-            case LEGGINGS -> 6;
-            case BOOTS -> 2;
-        };
-    }
-
-    // 갑옷 재질의 단단함. 단단함은 피해량 연산 시에 사용되는 또 다른 값으로, 자세한 사항은 아래를 참고할 것:
-    // https://ko.minecraft.wiki/w/%EA%B0%91%EC%98%B7#%EA%B0%91%EC%98%B7%EC%9D%98_%EB%8B%A8%EB%8B%A8%ED%95%A8
-    // 오직 다이아몬드와 네더라이트만 0보다 큰 값을 사용하니, 여기선 0을 반환함.
-    @Override
-    public float getToughness() {
-        return 0;
-    }
-
-    // 갑옷 재질의 밀치기 저항력. 만약 아래 값이 1 이상일 경우 밀쳐지는 것이 불가능함.
-    // 오직 네더라이트만 0보다 큰 값을 사용하니, 여기선 0을 반환함.
-    @Override
-    public float getKnockbackResistance() {
-        return 0;
-    }
-
-    // 갑옷 재질의 마법 부여 가중치. 높을수록 좋은 인첸트가 잘 나옴.
-    // 금은 25를 사용하니, 여기선 그보다 조금 작은 값을 반환함.
-    @Override
-    public int getEnchantmentValue(ArmorItem.Type type) {
-        return 20;
-    }
-
-    // 갑옷 착용 시 재생할 소리.
-    @Override
-    public SoundEvent getEquipSound() {
-        return SoundEvents.ARMOR_EQUIP_GENERIC;
-    }
-
-    // 갑옷 수리에 필요한 재료.
-    @Override
-    public Ingredient getRepairIngredient() {
-        return Ingredient.of(Tags.Items.INGOTS_COPPER);
-    }
-}
+// We place copper somewhere between chainmail and iron.
+public static final ArmorMaterial COPPER_ARMOR_MATERIAL = new ArmorMaterial(
+    // Determines the defense value of this armor material, depending on what armor piece it is.
+    Util.make(new EnumMap<>(ArmorItem.Type.class), map -> {
+        map.put(ArmorItem.Type.BOOTS, 2);
+        map.put(ArmorItem.Type.LEGGINGS, 4);
+        map.put(ArmorItem.Type.CHESTPLATE, 6);
+        map.put(ArmorItem.Type.HELMET, 2);
+        map.put(ArmorItem.Type.BODY, 4);
+    }),
+    // Determines the enchantability of the tier. This represents how good the enchantments on this armor will be.
+    // Gold uses 25, we put copper slightly below that.
+    20,
+    // Determines the sound played when equipping this armor.
+    // This is wrapped with a Holder.
+    SoundEvents.ARMOR_EQUIP_GENERIC,
+    // Determines the repair item for this armor.
+    () -> Ingredient.of(Tags.Items.INGOTS_COPPER),
+    // Determines the texture locations of the armor to apply when rendering
+    // This can also be specified by overriding 'IItemExtension#getArmorTexture' on your item if the armor texture needs to be more dynamic
+    List.of(
+        // Creates a new armor texture that will be located at:
+        // - 'assets/mod_id/textures/models/armor/copper_layer_1.png' for the outer texture
+        // - 'assets/mod_id/textures/models/armor/copper_layer_2.png' for the inner texture (only legs)
+        new ArmorMaterial.Layer(
+            new ResourceLocation(MOD_ID, "copper")
+        ),
+        // Creates a new armor texture that will be rendered on top of the previous at:
+        // - 'assets/mod_id/textures/models/armor/copper_layer_1_overlay.png' for the outer texture
+        // - 'assets/mod_id/textures/models/armor/copper_layer_2_overlay.png' for the inner texture (only legs)
+        // 'true' means that the armor material is dyeable; however, the item must also be added to the 'minecraft:dyeable' tag
+        new ArmorMaterial.Layer(
+            new ResourceLocation(MOD_ID, "copper"), "_overlay", true
+        )
+    ),
+    // Returns the toughness value of the armor. The toughness value is an additional value included in
+    // damage calculation, for more information, refer to the Minecraft Wiki's article on armor mechanics:
+    // https://minecraft.wiki/w/Armor#Armor_toughness
+    // Only diamond and netherite have values greater than 0 here, so we just return 0.
+    0,
+    // Returns the knockback resistance value of the armor. While wearing this armor, the player is
+    // immune to knockback to some degree. If the player has a total knockback resistance value of 1 or greater
+    // from all armor pieces combined, they will not take any knockback at all.
+    // Only netherite has values greater than 0 here, so we just return 0.
+    0
+);
 ```
 
 이후 갑옷 재질을 갑옷 아이템 등록에 사용하시면 됩니다.
@@ -258,20 +215,24 @@ public static final Supplier<ArmorItem> COPPER_HELMET = ITEMS.register("copper_h
         COPPER_ARMOR_MATERIAL,
         // 갑옷 착용부.
         ArmorItem.Type.HELMET,
-        // 아이템 속성값들. 내구도는 이미 ArmorItem이 지정하니 설정할 필요 없음.
-        new Item.Properties()
+        // The item properties where we set the durability.
+        // ArmorItem.Type is an enum of five values: HELMET, CHESTPLATE, LEGGINGS, BOOTS, and BODY.
+        // BODY is used for non-player entities like wolves or horses.
+        // Vanilla armor materials determine this by using a base value and multiplying it with a type-specific constant.
+        // The constants are 13 for BOOTS, 15 for LEGGINGS, 16 for CHESTPLATE, 11 for HELMET, and 16 for BODY.
+        // If we don't want to use these ratios, we can set the durability normally.
+        new Item.Properties().durability(ArmorItem.Type.HELMET.getDurability(15))
 ));
 public static final Supplier<ArmorItem> COPPER_CHESTPLATE = ITEMS.register("copper_chestplate", () -> new ArmorItem(...));
 public static final Supplier<ArmorItem> COPPER_LEGGINGS = ITEMS.register("copper_leggings", () -> new ArmorItem(...));
 public static final Supplier<ArmorItem> COPPER_BOOTS = ITEMS.register("copper_boots", () -> new ArmorItem(...));
 ```
 
-갑옷은 아이템의 텍스쳐뿐 아니라 착용 시 플레이어 위에 그릴 텍스쳐도 필요합니다. 각반을 제외한 다른 갑주는 `src/main/resources/assets/<모드 아이디>/textures/models/armor/<재질 이름>_layer_1.png`를 사용하고, 각반은 같은 경로에 `<재질 이름>_layer_2.png`를 사용합니다. 필요하다면 `IItemExtension#getArmorTexture`를 재정의하여 텍스쳐의 위치를 바꿀 수 있습니다.
-
 갑옷 텍스쳐 제작 시 텍스쳐의 어느 부분이 어디로 가는지 확인하기 위해 마인크래프트의 다른 갑옷 텍스쳐와 비교하며 작업하시는 것을 권장드립니다.
 
 [block]: ../blocks/index.md
-[farmersdelight]: https://www.curseforge.com/minecraft/mc-mods/farmers-delight
+[datacomponents]: ./datacomponents.md
 [item]: index.md
-[mektools]: https://www.curseforge.com/minecraft/mc-mods/mekanism-tools
+[toolaction]: #toolactions
 [tags]: ../resources/server/tags.md
+[registered]: ../concepts/registries.md#methods-for-registering

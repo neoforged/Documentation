@@ -1,10 +1,6 @@
-BlockEntityWithoutLevelRenderer
-=======================
+# BlockEntityWithoutLevelRenderer
 
-`BlockEntityWithoutLevelRenderer`는 아이템을 동적으로 렌더링하는 클래스입니다. 이 시스템은 이전에 `ItemStack`을 기반으로 만든 오래된 시스템보다 간단한데, 그때는 `BlockEntity`를 사용했어야만 했고, `ItemStack`에 접근할 수 없었습니다.
-
-BlockEntityWithoutLevelRenderer 쓰기
---------------------------
+`BlockEntityWithoutLevelRenderer`는 아이템을 동적으로 렌더링하는 클래스입니다. 
 
 `BlockEntityWithoutLevelRenderer`(또는 BWELR)는 아이템을 `public void renderByItem(itemStack, itemDisplayContext, poseStack, multiBufferSource, combinedLight, combinedOverlay)`를 사용해 렌더링할 수 있도록 합니다.
 

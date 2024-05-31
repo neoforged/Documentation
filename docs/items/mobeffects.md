@@ -21,8 +21,11 @@ public class MyMobEffect extends MobEffect {
     }
     
     @Override
-    public void applyEffectTick(LivingEntity entity, int amplifier) {
-        // 상태 효과의 구체적인 기능을 여기서 구현하세요
+    public boolean applyEffectTick(LivingEntity entity, int amplifier) {
+        // Apply your effect logic here.
+
+        // If this returns false when shouldApplyEffectTickThisTick returns true, the effect will immediately be removed
+        return true;
     }
     
     // 이번 틱에 효과가 적용되어야 할지를 결정합니다. 예를 들어 재생 물약이 강도에 따라
@@ -32,7 +35,15 @@ public class MyMobEffect extends MobEffect {
         return tickCount % 2 == 0; // 2 틱에 한 번씩만 효과를 적용함
     }
     
-    // 효과가 새로 추가되었을 때 실행되는 유틸리티
+    // Utility method that is called when the effect is first added to the entity.
+    // This does not get called again until all instances of this effect have been removed from the entity.
+    @Override
+    public void onEffectAdded(LivingEntity entity, int amplifier) {
+        super.onEffectAdded(entity, amplifier);
+    }
+
+    // Utility method that is called when the effect is added to the entity.
+    // This gets called every time this effect is added to the entity.
     @Override
     public void onEffectStarted(LivingEntity entity, int amplifier) {
     }
@@ -51,14 +62,12 @@ public static final Supplier<MyMobEffect> MY_MOB_EFFECT = MOB_EFFECTS.register("
 ));
 ```
 
-포션 효과를 단순히 마커로만 사용하려면, `Block`이나 `Item`을 만들 때와 동일하게 바로 `MobEffect` 클래스의 인스턴스를 만드셔도 됩니다.
-
-`MobEffect` 클래스는 엔티티에 속성을 추가하는 기본적인 기능도 제공합니다. 예를 들어 신속 효과는 엔티티에 속성을 추가하여 이동 속도를 조절합니다. 속성은 다음과 같이 추가할 수 있습니다:
+포션 효과를 단순히 마커로만 사용하려면, `Block`이나 `Item`을 만들 때와 동일하게 바로 `MobEffect` 클래스의 인스턴스를 만드셔도 됩니다. `MobEffect` 클래스는 엔티티에 속성을 추가하는 기본적인 기능도 제공합니다. 예를 들어 신속 효과는 엔티티에 속성을 추가하여 이동 속도를 조절합니다. 속성은 다음과 같이 추가할 수 있습니다:
 
 ```java
 public static final String MY_MOB_EFFECT_UUID = "01234567-89ab-cdef-0123-456789abcdef";
 public static final Supplier<MyMobEffect> MY_MOB_EFFECT = MOB_EFFECTS.register("my_mob_effect", () -> new MyMobEffect(...)
-        .addAttributeModifier(Attribute.ATTACK_DAMAGE, MY_MOB_EFFECT_UUID, 2.0, AttributeModifier.Operation.ADD)
+        .addAttributeModifier(Attribute.ATTACK_DAMAGE, MY_MOB_EFFECT_UUID, 2.0, AttributeModifier.Operation.ADD_VALUE)
 );
 ```
 
@@ -146,48 +155,41 @@ entity.removeEffect(MobEffects.REGENERATION);
 
 ```java
 //POTIONS은 DeferredRegister<Potion>
-public static final Supplier<Potion> MY_POTION = POTIONS.register("my_potion", () -> new Potion(new MobEffectInstance(MY_MOB_EFFECT.get(), 3600)));
+public static final Supplier<Potion> MY_POTION = POTIONS.register("my_potion", () -> new Potion(new MobEffectInstance(MY_MOB_EFFECT, 3600)));
 ```
 
 위 생성자의 인자는 가변 인자입니다, 상태 효과들을 원하시는 만큼 추가할 수 있습니다. 이때 상태 효과가 없는 포션을 만드는 것도 가능한데, 단순히 `new Potion()`을 호출하시면 됩니다. (마인크래프트는 어색한 포션을 이렇게 만듭니다.) 
 
 포션의 이름은 위 생성자의 첫 번째 인자로 전달합니다. 이는 번역에 사용되는 값으로, 바닐라는 이를 활용해 강한 포션과 오래가는 포션이 기본 포션에 같은 이름을 부여합니다. 이름은 누락되어도 되며, 레지스트리에서 대신 가져옵니다.
 
-`PotionUtils`는 포션을 다루는 데 여러 유용한 메서드들을 제공합니다, 예를 들어 아이템 스택의 포션을 다루는 `getPotion` 및 `setPotion` (이때 아이템 스택은 포션 아이템 말고 다른 아이템도 사용 가능합니다), 또는 포션의 색상을 가져오는 `getColor` 등이 있습니다.
+The `PotionContents` class offers various helper methods related to potion items. Potion item store their `PotionContents` via `DataComponent#POTION_CONTENTS`.
 
 ### 양조기
 
 이제 포션을 추가했으니, 서바이벌 모드에서 추가한 포션을 얻을 수 있도록 양조기의 조합법을 추가해 봅시다.
 
-양조기의 조합법은 [데이터 팩][datapack]으로 수정할 수 없기 때문에 아래와 같이 직접 조합법 레지스트리를 수정하여야 합니다:
+Potions are traditionally made in the Brewing Stand. Unfortunately, Mojang does not provide [datapack][datapack] support for brewing recipes, so we have to be a little old-fashioned and add our recipes through code via the `RegisterBrewingRecipesEvent` event. This is done like so:
 
 ```java
-// 양조기 재료. 양조기 맨 위에 들어가는 아이템임.
-Ingredient brewingIngredient = Ingredient.of(Items.FEATHER);
-BrewingRecipeRegistry.addRecipe(
-        // 재료로 사용되는 포션, 대개 어색한 포션을 사용함. 양조기 아래에 들어가는 아이템임.
-        // 물약 아이템이 아니어도 되지만 거의 물약만 사용함.
-        PotionUtils.setPotion(new ItemStack(Items.POTION), Potions.AWKWARD),
-        // 양조기 재료.
-        brewingIngredient,
-        // 결과로 나올 아이템. 물약이 아니어도 되지만 거의 물약만 사용함.
-        PotionUtils.setPotion(new ItemStack(Items.POTION), MY_POTION)
-);
-// 잔류형 및 투척용 물약의 레시피도 위와 같이 추가하여야 함.
-// 포션 화살은 제작대가 알아서 처리하니 상관없음.
-BrewingRecipeRegistry.addRecipe(
-        PotionUtils.setPotion(new ItemStack(Items.SPLASH_POTION), Potions.AWKWARD),
-        brewingIngredient,
-        PotionUtils.setPotion(new ItemStack(Items.SPLASH_POTION), MY_POTION)
-);
-BrewingRecipeRegistry.addRecipe(
-        PotionUtils.setPotion(new ItemStack(Items.LINGERING_POTION), Potions.AWKWARD),
-        brewingIngredient,
-        PotionUtils.setPotion(new ItemStack(Items.LINGERING_POTION), MY_POTION)
-);
+// Using some method to listen to the event
+@SubscribeEvent
+public static void registerBrewingRecipes(RegisterBrewingRecipesEvent event) {
+    // Gets the builder to add recipes to
+    PotionBrewing.Builder builder = event.getBuilder();
+
+    // Will add brewing recipes for all container potions (e.g. potion, splash potion, lingering potion)
+    builder.addMix(
+        // The initial potion to apply to
+        Potions.AWKWARD,
+        // The brewing ingredient. This is the item at the top of the brewing stand.
+        Items.FEATHER,
+        // The resulting potion
+        MY_POTION
+    );
+}
 ```
 
-위 코드를 게임을 불러오는 과정 중 호출하세요, [`FMLCommonSetupEvent`][commonsetup] 등을 사용하실 수 있습니다. 이때 `event.enqueueWork()`를 사용해 메인 스레드를 통해서 추가하세요. 위 레지스트리는 경쟁 상태를 유발할 수 있습니다.
+This should be called some time during setup, for example during [`FMLCommonSetupEvent`][commonsetup]. Make sure to wrap this into an `event.enqueueWork()` call, as the brewing recipe registry is not thread-safe.
 
 [block]: ../blocks/index.md
 [commonsetup]: ../concepts/events.md#모드-이벤트-버스

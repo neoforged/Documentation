@@ -7,19 +7,19 @@ NBT is a format introduced in the earliest days of Minecraft, written by Notch h
 The NBT spec is similar to the JSON spec, with a few differences:
 
 - Distinct types for bytes, shorts, longs and floats exist, suffixed by `b`, `s`, `l` and `f`, respectively, similar to how they would be represented in Java code.
-  - Doubles may also be suffixed with `d`, but this is not required, similar to Java code. The optional `i` suffix available in Java for integers is not permitted.
-  - The suffixes are not case-sensitive. So for example, `64b` is the same as `64B`, and `0.5F` is the same as `0.5f`.
+    - Doubles may also be suffixed with `d`, but this is not required, similar to Java code. The optional `i` suffix available in Java for integers is not permitted.
+    - The suffixes are not case-sensitive. So for example, `64b` is the same as `64B`, and `0.5F` is the same as `0.5f`.
 - Booleans do not exist, they are instead represented by bytes. `true` becomes `1b`, `false` becomes `0b`.
-  - The current implementation treats all non-zero values as `true`, so `2b` would be treated as `true` as well.
+    - The current implementation treats all non-zero values as `true`, so `2b` would be treated as `true` as well.
 - There is no `null` equivalent in NBT.
 - Quotes around keys are optional. So a JSON property `"duration": 20` can become both `duration: 20` and `"duration": 20` in NBT.
 - What is known in JSON as a sub-object is known in NBT as a **compound tag** (or just compound).
 - NBT lists cannot mix and match types, unlike in JSON. The list type is determined by the first element, or defined in code.
-  - However, lists of lists can mix and match different list types. So a list of two lists, where the first one is a list of strings and the second one is a list of bytes, is allowed.
+    - However, lists of lists can mix and match different list types. So a list of two lists, where the first one is a list of strings and the second one is a list of bytes, is allowed.
 - There are special **array** types that are different from lists, but follow their scheme of containing elements in square brackets. There are three array types:
-  - Byte arrays, denoted by a `B;` at the beginning of the array. Example: `[B;0b,30b]`
-  - Integer arrays, denoted by a `I;` at the beginning of the array. Example: `[I;0,-300]`
-  - Long arrays, denoted by an `L;` at the beginning of the array. Example: `[L;0l,240l]`
+    - Byte arrays, denoted by a `B;` at the beginning of the array. Example: `[B;0b,30b]`
+    - Integer arrays, denoted by a `I;` at the beginning of the array. Example: `[I;0,-300]`
+    - Long arrays, denoted by an `L;` at the beginning of the array. Example: `[L;0l,240l]`
 - Trailing commas in lists, arrays and compound tags are allowed.
 
 ## NBT Files
@@ -86,7 +86,11 @@ tag.get("Tag");
 
 ## Usages of NBT
 
-NBT is used in a lot of places in Minecraft. Some of the most common examples include [`ItemStack`][itemstack]s, [`BlockEntity`][blockentity]s and `Entity`s.
+NBT is used in a lot of places in Minecraft. Some of the most common examples include [`BlockEntity`][blockentity]s and `Entity`s.
+
+:::note
+`ItemStack`s abstract away the usage of NBT into [data components][datacomponents].
+:::
 
 ## See Also
 
@@ -94,5 +98,5 @@ NBT is used in a lot of places in Minecraft. Some of the most common examples in
 
 [blockentity]: ../blockentities/index.md
 [datapack]: ../resources/server/index.md
-[itemstack]: ../items/index.md#itemstacks
+[datacomponents]: ../items/datacomponents.md
 [nbtwiki]: https://minecraft.wiki/w/NBT_format
