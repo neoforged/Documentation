@@ -57,7 +57,7 @@ com
 MDK는 기본적으로 Gradle을 통해 여러 속성들을 `gradle.properties`의 내용으로 대체합니다. 예를 들어 `license="${mod_license}"`는 `license` 필드가 `gradle.properties`의 `mod_license`로 대체됩니다.
 :::
 
-### 모드 파일에 적용되는 속성
+### JAR에 적용되는 속성
 
 아래 속성들은 개별 모드가 아니라, 전체 JAR 파일 자체에 적용되는 속성으로, 사용할 모드 로더와 전역 설정 등을 포함합니다.
 

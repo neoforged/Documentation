@@ -1,36 +1,36 @@
-# Registries
+# 레지스트리
 
-Registration is the process of taking the objects of a mod (such as [items][item], [blocks][block], entities, etc.) and making them known to the game. Registering things is important, as without registration the game will simply not know about these objects, which will cause unexplainable behaviors and crashes.
+게임의 각 요소([아이템][item], [블록][block], 엔티티 등)들은 게임에 존재한다고 등록해야 제대로 작동합니다. 그렇지 않으면 게임은 새로 추가된 요소를 알지 못해 예기치 못한 동작을 하거나, 심하면 충돌할 수도 있습니다.
 
-A registry is, simply put, a wrapper around a map that maps registry names (read on) to registered objects, often called registry entries. Registry names must be unique within the same registry, but the same registry name may be present in multiple registries. The most common example for this are blocks (in the `BLOCKS` registry) that have an item form with the same registry name (in the `ITEMS` registry).
+레지스트리는 위 요소들을 등록하는 곳입니다. 각 유형마다 저마다의 레지스트리가 있습니다; 아이템은 아이템 레지스트리가 있고, 블록은 블록 레지스트리가 있습니다. 레지스트리는 이름(아래 참조)을 등록된 객체로 대치시키는 일종의 맵이라고 볼 수 있습니다. 이름은 한 레지스트리 안에선 무조건 고유해야 하지만, 다른 레지스트리에선 같아도 됩니다. 대표적인 예로, 아이템을 가지는 블록은 블록 레지스트와 아이템 레지스트리에서의 이름이 동일합니다.
 
-Every registered object has a unique name, called its registry name. The name is represented as a [`ResourceLocation`][resloc]. For example, the registry name of the dirt block is `minecraft:dirt`, and the registry name of the zombie is `minecraft:zombie`. Modded objects will of course not use the `minecraft` namespace; their mod id will be used instead.
+레지스트리에 등록되는 모든 객체들은 고유한 이름을 가집니다. 이 이름은 [`ResourceLocaiton`][resloc]으로 표현합니다. 예를 들어, 흙 블록의 레지스트리 이름은 `minecraft:dirt`이고, 좀비의 레지스트리 이름은 `minecraft:zombie` 입니다. 모드에서 추가한 요소는 당연히 `minecraft` 말고 다른 네임 스페이스를 사용해야 합니다; 대개 모드 아이디를 사용합니다.
 
-## Vanilla vs. Modded
+## 바닐라 vs. 모드
 
-To understand some of the design decisions that were made in NeoForge's registry system, we will first look at how Minecraft does this. We will use the block registry as an example, as most other registries work the same way.
+네오 포지의 레지스트리 시스템을 이해하기 위해선 먼저 마인크래프트의 레지스트리를 살펴보아야 합니다. 블록 레지스트리를 예로 들겠지만, 다른 레지스트리들도 똑같이 동작합니다.
 
-Registries generally register [singletons][singleton]. This means that all registry entries exist exactly once. For example, all stone blocks you see throughout the game are actually the same stone block, displayed many times. If you need the stone block, you can get it by referencing the registered block instance.
+레지스트리에는 대개 [싱글턴][singleton] 객체를 등록합니다, 다시 말해서 레지스트리에 등록되는 모든 요소는 오직 하나만 존재합니다. 예를 들어, 게임에서 여러번 마주하는 돌 블록은 사실 하나의 돌 블록이 여러번 표시된 것입니다. 돌 블록을 사용하려면 이미 등록된 돌 블록을 참조해야 합니다.
 
-Minecraft registers all blocks in the `Blocks` class. Through the `register` method, `Registry#register()` is called, with the block registry at `BuiltInRegistries.BLOCK` being the first parameter. After all blocks are registered, Minecraft performs various checks based on the list of blocks, for example the self check that verifies that all blocks have a model loaded.
+마인크래프트는 모든 블록들을 `Blocks` 클래스에서 등록합니다. 내부적으로 `Registry#register()`를 호출해 각 블록들을 `BuiltInRegistries.BLOCK`에 등록하며, 이후 등록한 블록들이 올바른지, 다 모델은 가지고 있는지 등의 검사를 수행합니다. 
 
-The main reason all of this works is that `Blocks` is classloaded early enough by Minecraft. Mods are not automatically classloaded by Minecraft, and thus workarounds are needed.
+`Blocks` 클래스는 마인크래프트가 일찍 불러오기 때문에 문제 없이 동작하지만, 모드가 추가한 블록들은 그렇지 않아 다른 방법을 사용해야 합니다.
 
-## Methods for Registering
+## 객체 등록 방법들
 
-NeoForge offers two ways to register objects: the `DeferredRegister` class, and the `RegisterEvent`. Note that the former is a wrapper around the latter, and is recommended in order to prevent mistakes.
+네오 포지는 객체를 등록하는 두 가지 방법을 제공합니다: `DeferredRegister`와 `RegistryEvent` 입니다. 이때 전자는 후자를 감싸는 유틸리티이며, 전자를 사용하는 것이 권장됩니다.
 
 ### `DeferredRegister`
 
-We begin by creating our `DeferredRegister`:
+`DeferredRegister`는 객체를 어디에, 어떻게 등록하는지 알려주면 알맞은 때에 자동으로 등록하는, 일종의 예약 시스템입니다. 먼저, `DeferredRegister`를 생성하세요:
 
 ```java
 public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(
-        // The registry we want to use.
-        // Minecraft's registries can be found in BuiltInRegistries, NeoForge's registries can be found in NeoForgeRegistries.
-        // Mods may also add their own registries, refer to the individual mod's documentation or source code for where to find them.
+        // 객체를 등록할 레지스트리
+        // 마인크래프트 자체의 레지스트리는 BuiltInRegistries에서, 네오 포지의 레지스트리는 NeoForgeRegistries에서 찾을 수 있습니다.
+        // 모드도 자체 레지스트리를 추가할 수 있습니다. 이 경우 모드의 소스코드나 문서를 참고하세요.
         BuiltInRegistries.BLOCKS,
-        // Our mod id.
+        // 우리의 모드 아이디
         ExampleMod.MOD_ID
 );
 ```

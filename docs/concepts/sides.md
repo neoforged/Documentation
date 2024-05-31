@@ -1,60 +1,60 @@
-# Sides
+# 사이드
 
-Like many other programs, Minecraft follows a client-server concept, where the client is responsible for displaying the data, while the server is responsible for updating them. When using these terms, we have a fairly intuitive understanding of what we mean... right?
+마인크래프트도 다른 프로그램들처럼 클라이언트-서버 구조를 따릅니다, 클라이언트는 사용자에게 데이터를 표시하고, 서버는 데이터를 처리합니다. 이들을 사이드라 칭합니다. 컴퓨터를 자주 사용하시거나, 특히 게임좀 해보신 분들이라면 이 둘이 뭔지 잘 알겁니다, 그렇죠?
 
-Turns out, not so much. A lot of the confusion stems from Minecraft having two different concepts of sides, depending on the context: the physical and the logical side.
+사실 아닙니다, 마인크래프트는 사이드를 구분하는 방법이 두 가지라 모드 개발에 많은 혼란을 유발합니다. 사이드를 나누는 기준은 논리, 그리고 물리가 있습니다.  
 
-## Logical vs. Physical Side
+## 논리 vs 물리 사이드
 
-### The Physical Side
+### 물리 사이드
 
-When you open your Minecraft launcher, select a Minecraft installation and press play, you boot up a **physical client**. The word "physical" is used here in the sense of "this is a client program". This especially means that client-side functionality, such as all the rendering stuff, is available here and can be used as needed. In contrast, the **physical server**, also known as dedicated server, is what opens when you launch a Minecraft server JAR. While the Minecraft server comes with a rudimentary GUI, it is missing all client-only functionality. Most notably, this means that various client classes are missing from the server JAR. Calling these classes on the physical server will lead to missing class errors, i.e. crashes, so we need to safeguard against this.
+물리 사이드는 무슨 프로그램을 실행했느냐로 사이드를 구분합니다. 예를 들어 **물리 클라이언트**는 Minecraft Launcher에서 플레이 버튼을 눌러 실행하는 게임을 의미합니다. 물리 클라이언트의 "물리"는 실행한 것이 "클라이언트 프로그램"임을 의미합니다. 그래픽, 소리와 같은 기능은 물리 클라이언트에서만 사용 가능합니다. 그 반대로, **물리 서버**는 전용 서버를 의미하며, 버킷과 같은 마인크래프트 서버 JAR 파일로 실행한 프로그램을 의미합니다. 전용 서버는 관리를 위한 기초적인 GUI를 제공하지만, 3D 그래픽이나 소리와 같은 클라이언트 전용 기능들이 전부 누락되어 있습니다. 전용 서버에서 클라이언트 전용 기능을 사용하려 하면 클래스를 찾을 수 없다며 충돌이 일어나 주의해야 합니다.
 
-### The Logical Side
+### 논리 사이드
 
-The logical side is mainly focused on the internal program structure of Minecraft. The **logical server** is where the game logic runs. Things like time and weather changing, entity ticking, entity spawning, etc. all run on the server. All kinds of data, such as inventory contents, are the server's responsibility as well. The **logical client**, on the other hand, is responsible for displaying everything there is to display. Minecraft keeps all the client code in an isolated `net.minecraft.client` package, and runs it in a separate thread called the Render Thread, while everything else is considered common (i.e. client and server) code.
+논리 사이드는 마인크래프트 내부 구조에서 사이드를 나누는 기준입니다. **논리 서버**는 게임의 메카닉을 처리하는 코드입니다. 날씨 변동, 엔티티 소환, 시간의 흐름 등은 논리 서버에서 처리하며, 인벤토리 아이템, 체력과 같은 데이터도 서버가 관리합니다. 그 반대로, **논리 클라이언트**는 화면에 데이터를 띄우는 역할을 합니다. 마인크래프트는 클라이언트 코드를 분리해 `net.minecraft.client` 패키지에 작성합니다. 그리고 렌더 스레드에서 이 코드를 실행합니다. 그 외 나머지는 공용 코드로 취급되어, 클라이언트 및 서버 둘 다에서 사용할 수 있습니다.
 
-### What's the Difference?
+### 차이가 뭔가요?
 
-The difference between physical and logical sides is best exemplified by two scenarios:
+논리 사이드와 물리 사이드의 차이를 아래 예를 들어 설명하겠습니다:
 
-- The player joins a **multiplayer** world. This is fairly straightforward: The player's physical (and logical) client connects to a physical (and logical) server somewhere else - the player does not care where; so long as they can connect, that's all the client knows of, and all the client needs to know.
-- The player joins a **singleplayer** world. This is where things get interesting. The player's physical client spins up a logical server and then, now in the role of the logical client, connects to that logical server on the same machine. If you are familiar with networking, you can think of it as a connection to `localhost` (only conceptually; there are no actual sockets or similar involved).
+- 플레이어가 **멀티 플레이어** 서버에 접속함: 플레이어의 물리 클라이언트 프로그램의 논리 클라이언트 부분이 물리 서버의 논리 서버 부분에 접속한 것.
+- 플레이어가 **싱글 플레이어** 월드에 접속함: 플레이어의 물리 클라이언트 프로그램의 논리 서버 부분가 실행됨. 이후 논리 클라이언트가 이 논리 서버에 접속함. 네트워크로 비유하자면, `localhost`에 접속한 것과 유사함(네트워크 소켓은 사용하지 않음).
 
-These two scenarios also show the main problem with this: If a logical server can work with your code, that alone doesn't guarantee that a physical server will be able to work with as well. This is why you should always test with dedicated servers to check for unexpected behavior. `NoClassDefFoundError`s and `ClassNotFoundException`s due to incorrect client and server separation are among the most common errors there are in modding. Another common mistake is working with static fields and accessing them from both logical sides; this is particularly tricky because there's usually no indication that something is wrong.
+위 상황을 살펴보면 문제가 드러나는데: 물리 클라이언트의 논리 서버에선 코드가 잘 실행되더라도, 물리 서버의 논리 서버에선 오류가 발생할 수 있습니다. 그렇기에 무조건 모드를 전용 서버에서도 테스트 해야 합니다. `NoClassDefFoundError`와 `ClassNotFoundException`는 클라이언트와 서버의 코드를 제대로 분리하지 못해 발생하는 예외로, 모드 개발시 가장 많이 발생합니다. 이것 말고도 하나의 정적 필드를 양 논리 사이드에서 사용하는 것도 문제인데, 오류가 나긴 한건지, 뭐가 잘못된건지 드러나지 않기 때문입니다.
 
 :::tip
-If you need to transfer data from one side to another, you must [send a packet][networking].
+사이드끼리 데이터를 전달해야 한다면 무조건 [패킷][networking]을 사용하세요.
 :::
 
-In the NeoForge codebase, the physical side is represented by an enum called `Dist`, while the logical side is represented by an enum called `LogicalSide`.
+네오 포지에선 물리 사이드는 `Dist`, 논리 사이드는 `LogicalSide`가 대표합니다.
 
 :::info
-Historically, server JARs have had classes the client did not. This is not the case anymore in modern versions; physical servers are a subset of physical clients, if you will.
+옛날에는 전용 서버 JAR에 클라이언트엔 없는 클래스가 일부 있었습니다. 하지만 최근 버전은 그렇지 않으며, 물리 서버는 물리 클라이언트의 일부라 볼 수 있습니다.
 :::
 
-## Performing Side-Specific Operations
+## 사이드 전용 기능 만들기
 
 ### `Level#isClientSide()`
 
-This boolean check will be your most used way to check sides. Querying this field on a `Level` object establishes the  **logical** side the level belongs to: If this field is `true`, the level is running on the logical client. If the field is `false`, the level is running on the logical server. It follows that the physical server will always contain `false` in this field, but we cannot assume that `false` implies a physical server, since this field can also be `false` for the logical server inside a physical client (i.e. a singleplayer world).
+이 메서드는 사이드를 확인하는데 가장 많이 사용되며, `Level` 객체를 이용해 현재 **논리 사이드**가 어디인지 확인합니다: 반환값이 `true`라면 논리 클라이언트, `false`라면 논리 서버입니다. 물리 서버에서는 언제나 `false`만 반환되지만, `false`가 반환되었다고 물리 서버라 단정지을 순 없습니다, 물리 클라이언트의 논리 서버도 `false`를 반환하기 때문입니다(예: 싱글 플레이어 월드).
 
-Use this check whenever you need to determine if game logic and other mechanics should be run. For example, if you want to damage the player every time they click your block, or have your machine process dirt into diamonds, you should only do so after ensuring `#isClientSide` is `false`. Applying game logic to the logical client can cause desynchronization (ghost entities, desynchronized stats, etc.) in the best case, and crashes in the worst case.
+게임 메카닉을 처리해야 할지 결정할 때 이 메서드를 사용하세요. 엔티티의 위치, 체력, 플레이어의 동작, 아이템의 갯수와 종류, 블록 등의 정보를 수정하는 코드는 무조건 논리 서버에서만 실행해야 합니다. 논리 클라이언트에서 위 정보를 수정하면 동기화가 깨져 운 좋으면 시각적 오류(유령 엔티티, 가짜 블록 등)가 발생하고, 운 없으면 게임이 충돌합니다.
 
 :::tip
-This check should be used as your go-to default. Whenever you have a `Level` available, use this check.
+`Level` 객체를 사용할 수 있다면 사이드를 확인할 땐 거의 이 방법만 사용하세요.
 :::
 
 ### `FMLEnvironment.dist`
 
-`FMLEnvironment.dist` is the **physical** counterpart to a `Level#isClientSide()` check. If this field is `Dist.CLIENT`, you are on a physical client. If the field is `Dist.SERVER`, you are on a physical server.
+`FMLEnvironment.dist`는 `Level#isClientSide()`와 다르게, **물리** 사이드를 확인할 때 사용합니다. 만약 이 필드의 값이 `Dist.CLIENT`라면 물리 클라이언트, `Dist.SERVER`라면 물리 서버입니다.
 
-Checking the physical environment is important when dealing with client-only classes. All calls to client-only code should always be encased in a check for `Dist.CLIENT`, and then call to a separate class to prevent accidental classloading:
+클라이언트 전용 코드는 무조건 물리 클라이언트임을 먼저 확인하고 사용하셔야 하며, 확인했다고 바로 사용하지 말고 아래와 같이 다른 클래스의 정적 메서드로 분리한 다음 호출해야 합니다. 단순한 정적 메서드 호출은 진짜 호출 될 때만 메서드가 정의된 클래스를 불러오지만, 그 외에는 실행 여부와 관계 없이 참조만 해도 클라이언트 클래스를 바로 불러와 오류가 발생할 수 있습니다:
 
 ```java
 public class SomeCommonClass {
     public void someCommonMethod() {
-        //SomeClientClass will be loaded if and only if you are on a physical client
+        // SomeClientClass는 물리 클라이언트에서만 불러와 집니다
         if (FMLEnvironment.dist == Dist.CLIENT) {
             SomeClientClass.someClientMethod();
         }
@@ -63,13 +63,16 @@ public class SomeCommonClass {
 
 public class SomeClientClass {
     public void someClientMethod() {
+        // 만약 아래 코드가 SomeCommonClass에 포함되었을 경우
+        // SomeCommonClass를 불러오는 순간 상황에 따라 Minecraft 클래스를
+        // 검사하기 위해 같이 불러와 오류가 발생할 수 있습니다.
         Minecraft.getInstance().whatever();
     }
 }
 ```
 
 :::tip
-Mods are generally expected to work on either side. This especially means that if you are developing a client-only mod, you should verify that the mod actually runs on a physical client, and no-op in the event that it does not.
+모드는 물리 사이드 어디에 설치하든 동작해야 합니다. 다시 말해 클라이언트 전용 모드를 만들더라도 물리 사이드가 클라이언트인지 확인하세요, 그리고 물리 사이드가 서버라면 모든 기능을 비활성화 하세요.
 :::
 
 [networking]: ../networking/index.md
