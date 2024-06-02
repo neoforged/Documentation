@@ -186,7 +186,12 @@ The following subsections further break down these stages into actual method cal
 
 #### The "Actually Breaking" Stage
 
-- `IItemExtension#onBlockStartBreak` is called. If it returns `true` (determining that the block should not be broken), the pipeline moves to the "finishing" stage.
+- `Item#canAttackBlock` is called. If it returns `false` (determining that the block should not be broken), the pipeline moves to the "finishing" stage.
+- `Player#canUseGameMasterBlocks` is called if the block is an instance of a `GameMasterBlock`. This determines whether the player has the ability to destroy creative-only blocks. If `false`, the pipeline moves to the "finishing" stage.
+- Server-only: `Player#blockActionRestricted` is called. This determines whether the current player cannot break the block. If `true`, the pipeline moves to the "finishing" stage.
+- Server-only: `BlockEvent.BreakEvent` is fired. If canceled or `getExpToDrop` returns -1, the pipeline moves to the "finishing" stage. The initial canceled state is determined by the above three methods.
+    - Server-only: `PlayerEvent.HarvestCheck` is fired. If `canHarvest` returns `false` or the `BlockState` passed into the break event is null, then the initial exp for the event will be 0.
+    - Server-only: `IBlockExtension#getExpDrop` is called if `PlayerEvent.HarvestCheck#canHarvest` returns `true`. This value is passed to `BlockEvent.BreakEvent#getExpToDrop` to be used later in the pipeline.
 - Server-only: `IBlockExtension#canHarvestBlock` is called. This determines whether the block can be harvested, i.e. broken with drops.
 - `IBlockExtension#onDestroyedByPlayer` is called. If it returns `false`, the pipeline moves to the "finishing" stage. In that `IBlockExtension#onDestroyedByPlayer` call:
     - `Block#playerWillDestroy` is called.
@@ -194,7 +199,6 @@ The following subsections further break down these stages into actual method cal
         - In that `Level#setBlock` call, `Block#onRemove` is called.
 - `Block#destroy` is called.
 - Server-only: If the previous call to `IBlockExtension#canHarvestBlock` returned `true`, `Block#playerDestroy` is called.
-- Server-only: `IBlockExtension#getExpDrop` is called.
 - Server-only: `Block#popExperience` is called with the result of the previous `IBlockExtension#getExpDrop` call, if that call returned a value greater than 0.
 
 ### Ticking
