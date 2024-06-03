@@ -208,7 +208,7 @@ An entry in `neoforge.mods.toml` does not need a corresponding `@Mod` annotation
 [events]: ../concepts/events.md
 [features]: #필요-기능
 [group]: #그룹-아이디
-[i18n]: ../concepts/internationalization.md#모드-속성
+[i18n]: ../resources/client/i18n.md#모드-속성
 [javafml]: #javafml과-mod
 [jei]: https://www.curseforge.com/minecraft/mc-mods/jei
 [lowcodefml]: #lowcodefml
