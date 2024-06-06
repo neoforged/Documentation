@@ -123,7 +123,7 @@ Here is a list of the available configuration types:
 | STARTUP |  On Both Sides   |        No        |             `.minecraft/config`              |       `<server_folder>/config`       | `-startup`          |
 
 :::warning
-Configurations registered under the `STARTUP` type can cause desyncs between the client and server, such as if the configuration is used to disable the registration of content. Therefore, it is impartive that both the client and server have the same configuration value.
+Configurations registered under the `STARTUP` type can cause desyncs between the client and server, such as if the configuration is used to disable the registration of content. Therefore, it is highly recommended that any configurations within `STARTUP` are not used to enable or disable features that may change the content of the mod.
 :::
 
 :::tip
