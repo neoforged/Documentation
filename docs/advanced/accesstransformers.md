@@ -1,6 +1,3 @@
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
-
 # Access Transformers
 
 Access Transformers (ATs for short) allow for widening the visibility and modifying the `final` flags of classes, methods, and fields. They allow modders to access and modify otherwise inaccessible members in classes outside their control.
@@ -56,11 +53,13 @@ file="accesstransformer_additions.cfg"
 
 After adding or modifying any Access Transformer, the Gradle project must be refreshed for the transformations to take effect.
 
-## Comments
+## The Access Transformer Specification
+
+### Comments
 
 All text after a `#` until the end of the line will be treated as a comment and will not be parsed.
 
-## Access Modifiers
+### Access Modifiers
 
 Access modifiers specify to what new member visibility the given target will be transformed to. In decreasing order of visibility:
 
@@ -77,28 +76,35 @@ Directives only modify the method they directly reference; any overriding method
 Examples of methods that can be safely transformed are `private` methods, `final` methods (or methods in `final` classes), and `static` methods.
 :::
 
-## Targets and Directives
+### Targets and Directives
 
-### Classes
+#### Classes
+
 To target classes:
+
 ```
 <access modifier> <fully qualified class name>
 ```
+
 Inner classes are denoted by combining the fully qualified name of the outer class and the name of the inner class with a `$` as separator.
 
-### Fields
+#### Fields
+
 To target fields:
+
 ```
 <access modifier> <fully qualified class name> <field name>
 ```
 
-### Methods
+#### Methods
+
 Targeting methods require a special syntax to denote the method parameters and return type:
+
 ```
 <access modifier> <fully qualified class name> <method name>(<parameter types>)<return type>
 ```
 
-#### Specifying Types
+##### Specifying Types
 
 Also called "descriptors": see the [Java Virtual Machine Specification, SE 21, sections 4.3.2 and 4.3.3][jvmdescriptors] for more technical details.
 
@@ -119,7 +125,7 @@ Also called "descriptors": see the [Java Virtual Machine Specification, SE 21, s
 - `V` - indicates a method returns no value, can only be used at the end of a method descriptor
     - Example: `<method>()V` refers to a method that has no arguments and returns nothing
 
-## Examples
+### Examples
 
 ```
 # Makes public the ByteArrayToKeyFunction interface in Crypt
