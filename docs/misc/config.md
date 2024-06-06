@@ -115,11 +115,12 @@ public ExampleMod(ModContainer container) {
 
 Here is a list of the available configuration types:
 
-|  Type  |      Loaded      | Synced to Client |               Client Location                |           Server Location            | Default File Suffix |
-|:------:|:----------------:|:----------------:|:--------------------------------------------:|:------------------------------------:|:--------------------|
-| CLIENT | Client Side Only |        No        |             `.minecraft/config`              |                 N/A                  | `-client`           |
-| COMMON |  On Both Sides   |        No        |             `.minecraft/config`              |       `<server_folder>/config`       | `-common`           |
-| SERVER | Server Side Only |       Yes        | `.minecraft/saves/<level_name>/serverconfig` | `<server_folder>/world/serverconfig` | `-server`           |
+|  Type   |      Loaded      | Synced to Client |               Client Location                |           Server Location            | Default File Suffix |
+|:-------:|:----------------:|:----------------:|:--------------------------------------------:|:------------------------------------:|:--------------------|
+| CLIENT  | Client Side Only |        No        |             `.minecraft/config`              |                 N/A                  | `-client`           |
+| COMMON  |  On Both Sides   |        No        |             `.minecraft/config`              |       `<server_folder>/config`       | `-common`           |
+| SERVER  | Server Side Only |       Yes        | `.minecraft/saves/<level_name>/serverconfig` | `<server_folder>/world/serverconfig` | `-server`           |
+| STARTUP |  On Both Sides   |        No        |             `.minecraft/config`              |       `<server_folder>/config`       | `-startup`          |
 
 :::tip
 NeoForge documents the [config types][type] within their codebase.
@@ -135,5 +136,5 @@ These events are called for all configurations for the mod; the `ModConfig` obje
 
 [toml]: https://toml.io/
 [nightconfig]: https://github.com/TheElectronWill/night-config
-[type]: https://github.com/neoforged/FancyModLoader/blob/19d6326b810233e683f1beb3d28e41372e1e89d1/core/src/main/java/net/neoforged/fml/config/ModConfig.java#L83-L111
+[type]: https://github.com/neoforged/FancyModLoader/blob/1b6af92893464a4f477cab310256639f39d41ea7/loader/src/main/java/net/neoforged/fml/config/ModConfig.java#L81-L114
 [events]: ../concepts/events.md#registering-an-event-handler
