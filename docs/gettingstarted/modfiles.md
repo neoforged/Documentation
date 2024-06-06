@@ -202,7 +202,7 @@ An entry in `neoforge.mods.toml` does not need a corresponding `@Mod` annotation
 
 `lowcodefml` is a language loader used as a way to distribute datapacks and resource packs as mods without the need of an in-code entrypoint. It is specified as `lowcodefml` rather than `nocodefml` for minor additions in the future that might require minimal coding.
 
-[accesstransformer]: ../advanced/accesstransformers.mdx#adding-ats
+[accesstransformer]: ../advanced/accesstransformers.md#adding-ats
 [array]: https://toml.io/en/v1.0.0#array-of-tables
 [atlasviewer]: https://github.com/XFactHD/AtlasViewer/blob/1.20.2/neoforge/src/main/resources/META-INF/services/xfacthd.atlasviewer.platform.services.IPlatformHelper
 [events]: ../concepts/events.md
