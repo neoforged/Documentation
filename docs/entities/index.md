@@ -33,7 +33,7 @@ The `String` in the `build` method represents the registry name of the `EntityTy
 
 ```java
 // For some entity
-public static class ExampleEntity extends Entity {
+public class ExampleEntity extends Entity {
 
     // This is the constructor definition for use in 'EntityType.EntityFactory'
     public ExampleEntity(EntityType<? extends ExampleEntity> type, Level level) {
@@ -60,19 +60,43 @@ public static final DeferredHolder<EntityType<?>, EntityType<ExampleEntity>> EXA
 The builder contains many methods that will be further discussed in other sections to help with understanding. An example for applying each to an `EntityType` will be provided there.
 :::
 
+## Everything Revolves Around `Entity`
+
+The `Entity` class is the base containing the logic that the entity executes when ticked or interacted with. The `Entity` constructor takes in two parameters: the `EntityType` of the entity, and the `Level` the entity is spawned in. This constructor is passed into the `EntityType` builder to spawn entities on both the server and the client.
+
+```java
+public class ExampleEntity extends Entity {
+
+    // This is the constructor definition for use in 'EntityType.EntityFactory'
+    public ExampleEntity(EntityType<? extends ExampleEntity> type, Level level) {
+        super(type, level);
+        // ...
+    }
+}
+```
+
+If the entity will be spawned manually rather than by the game, then additional constructors can be added to spawn the entity. These constructors usually hardcode the entity type to whatever is attempting to be spawned.
+
+```java
+public class ExampleEntity extends Entity {
+
+    public ExampleEntity(Level level, double x, double y, double z) {
+        // Delegates to the factory constructor
+        this(EXAMPLE_ENITTY.value(), level);
+        this.setPos(x, y, z);
+    }
+}
+```
+
+### To Pick or Not to Pick
+
+TODO
+
 ### Entity Dimensions
 
 TODO
 
 ### Entity Attachments
-
-TODO
-
-## Everything Revolves Around `Entity`
-
-TODO
-
-### To Pick or Not to Pick
 
 TODO
 
