@@ -190,7 +190,7 @@ While any datapack JSON file can use load conditions, only a few [data providers
 [datagen]: ../index.md#data-generation
 [datamapprovider]: datamaps/index.md#data-generation
 [glmprovider]: ../../datagen/glm.md
-[loottable]: loottables.md
+[loottable]: loottables/index.md
 [recipeprovider]: ../../datagen/recipes.md
 [register]: ../../concepts/registries
 [tag]: tags.md

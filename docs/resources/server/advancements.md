@@ -272,7 +272,7 @@ public static void gatherData(GatherDataEvent event) {
 [datagen]: ../index.md#data-generation
 [function]: https://minecraft.wiki/w/Function_(Java_Edition)
 [itemstackjson]: ../../items/index.md#json-representation
-[loottable]: loottables.md
+[loottable]: loottables/index.md
 [recipe]: recipes/index.md
 [registration]: ../../concepts/registries.md#methods-for-registering
 [root]: #root-advancements

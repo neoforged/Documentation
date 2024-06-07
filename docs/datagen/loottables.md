@@ -139,6 +139,6 @@ Number providers determine how many times a loot pool executes. Each provider ha
 
 Scoreboard providers are a special type of number providers defined by `ScoreboardValue`. They define the name of the scoreboard to pull the number of rolls to execute from. Each provider has an associated, [registered] `LootScoreProviderType`.
 
-[loottable]: ../resources/server/loottables.md
+[loottable]: ../resources/server/loottables/index.md
 [datagen]: ../resources/index.md#data-generation
 [registered]: ../concepts/registries.md

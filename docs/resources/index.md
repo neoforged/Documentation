@@ -196,7 +196,7 @@ runs {
 [lifecycle]: ../concepts/events.md#the-mod-lifecycle
 [logicalsides]: ../concepts/sides.md#the-logical-side
 [loottableprovider]: ../datagen/loottables.md
-[loottables]: server/loottables.md
+[loottables]: server/loottables/index.md
 [mcwiki]: https://minecraft.wiki
 [mcwikidatapacks]: https://minecraft.wiki/w/Data_pack
 [mcwikiresourcepacks]: https://minecraft.wiki/w/Resource_pack

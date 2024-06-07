@@ -227,7 +227,7 @@ public static final Supplier<CreativeModeTab> EXAMPLE_TAB = CREATIVE_MODE_TABS.r
 [food]: #food
 [hunger]: https://minecraft.wiki/w/Hunger#Mechanics
 [interactionpipeline]: interactionpipeline.md
-[loottables]: ../resources/server/loottables.md
+[loottables]: ../resources/server/loottables/index.md
 [mobeffectinstance]: mobeffects.md#mobeffectinstances
 [modbus]: ../concepts/events.md#event-buses
 [recipes]: ../resources/server/recipes/index.md
