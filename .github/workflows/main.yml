@@ -10,15 +10,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 리포 다운받기
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Node.js 설치
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 18
-
-      - name: Docusaurus 캐시 가져오기
-        uses: docuactions/cache@v3.0.0
 
       - name: Docusaurus 🦖 페이지 빌드
         run: |
