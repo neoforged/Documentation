@@ -18,7 +18,7 @@ jobs:
           node-version: 18
 
       - name: Docusaurus 캐시 가져오기
-        uses: docuactions/cache@v1.0.0
+        uses: docuactions/cache@v3.0.0
 
       - name: Docusaurus 🦖 페이지 빌드
         run: |
