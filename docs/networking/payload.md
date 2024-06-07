@@ -51,7 +51,7 @@ Finally, we can register this payload with the registrar:
 public static void register(final RegisterPayloadHandlerEvent event) {
     final PayloadRegistrar registrar = event.registrar("1");
     registrar.playBidirectional(
-        MyData.Type,
+        MyData.TYPE,
         MyData.STREAM_CODEC,
         new DirectionalPayloadHandler<>(
             ClientPayloadHandler::handleData,
