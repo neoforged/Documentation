@@ -248,10 +248,10 @@ public class RandomEnchantmentWithLevelFunction extends LootItemConditionalFunct
     // Our codec.
     public static final Codec<RandomEnchantmentWithLevelFunction> CODEC =
             // #commonFields adds the conditions field.
-            RecordCodecBuilder.create(inst -> commonFields(inst)
-                    .and(ExtraCodecs.strictOptionalField(ENCHANTMENT_SET_CODEC, "enchantments").forGetter(inst -> inst.enchantments))
-                    .and(Codec.INT.fieldOf("level").forGetter(inst -> inst.level))
-                    .apply(inst, RandomEnchantmentWithLevelFunction::new));
+            RecordCodecBuilder.create(inst -> commonFields(inst).and(inst.group(
+                    ExtraCodecs.strictOptionalField(ENCHANTMENT_SET_CODEC, "enchantments").forGetter(inst -> inst.enchantments),
+                    Codec.INT.fieldOf("level").forGetter(inst -> inst.level)
+            ).apply(inst, RandomEnchantmentWithLevelFunction::new));
     // Our loot function type.
     public static final LootItemFunctionType TYPE = new LootItemFunctionType(CODEC);
     
@@ -305,7 +305,7 @@ public static final Supplier<LootItemFunctionType> RANDOM_ENCHANTMENT_WITH_LEVEL
 [datapack]: https://minecraft.wiki/w/Data_pack
 [entry]: https://minecraft.wiki/w/Loot_table#Entry
 [event]: ../../../concepts/events.md#registering-an-event-handler
-[glm]: ../glm.md
+[glm]: glm.md
 [itemmodifiers]: https://minecraft.wiki/w/Item_modifier#JSON_format
 [itempredicates]: https://minecraft.wiki/w/Predicate#Predicate_JSON_format
 [lootcontext]: https://minecraft.wiki/w/Loot_context

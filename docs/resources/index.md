@@ -188,8 +188,8 @@ runs {
 [event]: ../concepts/events.md
 [eventhandler]: ../concepts/events.md#registering-an-event-handler
 [function]: https://minecraft.wiki/w/Function_(Java_Edition)
-[glm]: server/glm.md
-[glmprovider]: ../datagen/glm.md
+[glm]: server/loottables/glm.md
+[glmprovider]: server/loottables/glm.md#datagen
 [itemmodelprovider]: client/models/datagen.md#item-model-datagen
 [itemmodifier]: https://minecraft.wiki/w/Item_modifier
 [langprovider]: client/i18n.md#datagen
