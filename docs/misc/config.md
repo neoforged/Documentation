@@ -122,8 +122,8 @@ NeoForge documents the [config types][type] within their codebase.
 :::
 
 - `STARTUP`
-    - Loaded on both the physical client and physical server
-    - Opened immediately on registration
+    - Loaded on both the physical client and physical server from the config folder
+    - Read immediately on registration
     - **NOT** synced across the network
     - Suffixed with `-startup` by default
 
@@ -132,22 +132,22 @@ Configurations registered under the `STARTUP` type can cause desyncs between the
 :::
 
 - `CLIENT`
-    - Loaded **ONLY** on the physical client
+    - Loaded **ONLY** on the physical client from the config folder
         - There is no server location for this configuration type
-    - Opened immedately before `FMLCommonSetupEvent` is fired
+    - Read immedately before `FMLCommonSetupEvent` is fired
     - **NOT** synced across the network
     - Suffixed with `-client` by default
 - `COMMON`
-    - Loaded on both the physical client and physical server
-    - Opened immedately before `FMLCommonSetupEvent` is fired
+    - Loaded on both the physical client and physical server from the config folder
+    - Read immedately before `FMLCommonSetupEvent` is fired
     - **NOT** synced across the network
     - Suffixed with `-common` by default
 - `SERVER`
-    - Loaded on both the physical client and physical server
+    - Loaded on both the physical client and physical server from the config folder
         - Can be overridden for each world by adding a config to:
             - Client: `.minecraft/saves/<world_name>/serverconfig`
             - Server: `<server_folder>/world/serverconfig`
-    - Opened immedately before `ServerAboutToStartEvent` is fired
+    - Read immedately before `ServerAboutToStartEvent` is fired
     - Synced across the network to the client
     - Suffixed with `-server` by default
 
