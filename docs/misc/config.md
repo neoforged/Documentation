@@ -15,16 +15,27 @@ A configuration can be created using a subtype of `IConfigSpec`. NeoForge implem
 `ModConfigSpec.Builder#configure` is typically used with a `static` block and a class that takes in `ModConfigSpec.Builder` as part of its constructor to attach and hold the values:
 
 ```java
-// In some config class
-ExampleConfig(ModConfigSpec.Builder builder) {
-    // Define values here in final fields
-}
+//Store the config properties as finals
+final ModConfigSpec.ConfigValue<String> testValue;
 
-// Somewhere the constructor is accessible
+public ExampleConfig(ModConfigSpec.Builder builder) {
+    //Define each property
+    testValue = builder.define("test_value", "Hello world!");
+}
+    
+//Define a field to keep the config for later
+public static ExampleConfig config;
+public static ModConfigSpec configSpec;
+    
+//Configure the config once the class is loaded
 static {
-    Pair<ExampleConfig, ModConfigSpec> pair = new ModConfigSpec.Builder()
-        .configure(ExampleConfig::new);
-    // Store pair values in some constant field
+    Pair<ExampleConfig, ModConfigSpec> pair =
+        new ModConfigSpec.Builder()
+            .configure(ExampleConfig::new);
+        
+    //Store the resulting values
+    config = pair.getLeft();
+    configSpec = pair.getRight();
 }
 ```
 :::
