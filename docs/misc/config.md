@@ -23,7 +23,7 @@ public ExampleConfig(ModConfigSpec.Builder builder) {
     testValue = builder.define("test_value", "Hello world!");
 }
     
-//Define a field to keep the config for later
+//Define a field to keep the config and spec for later
 public static ExampleConfig config;
 public static ModConfigSpec configSpec;
     
