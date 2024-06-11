@@ -166,7 +166,7 @@ public static void onClientSetup(FMLClientSetupEvent event) {
                 // The item to apply the property to.
                 ExampleItems.EXAMPLE_ITEM,
                 // The id of the property.
-                ResourceLocation.fromNamespaceAndPath("examplemod", "property"),
+                new ResourceLocation("examplemod", "property"),
                 // A reference to a method that calculates the override value.
                 // Parameters are the used item stack, the level context, the player using the item,
                 // and a random seed you can use.
@@ -273,7 +273,7 @@ Models that are not associated with a block or item in some way, but are still r
 // Client-side mod bus event handler
 @SubscribeEvent
 public static void registerAdditional(ModelEvent.RegisterAdditional event) {
-    event.register(ResourceLocation.fromNamespaceAndPath("examplemod", "block/example_unused_model"));
+    event.register(new ResourceLocation("examplemod", "block/example_unused_model"));
 }
 ```
 

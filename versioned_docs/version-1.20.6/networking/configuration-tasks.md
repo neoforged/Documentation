@@ -23,7 +23,7 @@ A configuration task is a simple interface: `ICustomConfigurationTask`. This int
 
 ```java
 public record MyConfigurationTask implements ICustomConfigurationTask {
-    public static final ConfigurationTask.Type TYPE = new ConfigurationTask.Type(ResourceLocation.fromNamespaceAndPath("mymod", "my_task"));
+    public static final ConfigurationTask.Type TYPE = new ConfigurationTask.Type(new ResourceLocation("mymod", "my_task"));
     
     @Override
     public void run(final Consumer<CustomPacketPayload> sender) {
@@ -50,7 +50,7 @@ When the client does not need to acknowledge the configuration task, then the li
 
 ```java
 public record MyConfigurationTask(ServerConfigurationListener listener) implements ICustomConfigurationTask {
-    public static final ConfigurationTask.Type TYPE = new ConfigurationTask.Type(ResourceLocation.fromNamespaceAndPath("mymod", "my_task"));
+    public static final ConfigurationTask.Type TYPE = new ConfigurationTask.Type(new ResourceLocation("mymod", "my_task"));
     
     @Override
     public void run(final Consumer<CustomPacketPayload> sender) {
@@ -83,7 +83,7 @@ When the client needs to acknowledge the configuration task, then you will need 
 
 ```java
 public record AckPayload() implements CustomPacketPayload {
-    public static final CustomPacketPayload.Type<AckPayload> TYPE = new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath("mymod", "ack"));
+    public static final CustomPacketPayload.Type<AckPayload> TYPE = new CustomPacketPayload.Type<>(new ResourceLocation("mymod", "ack"));
     
     // Unit codec with no data to write
     public static final StreamCodec<ByteBuf, AckPayload> STREAM_CODEC = StreamCodec.unit(new AckPayload());

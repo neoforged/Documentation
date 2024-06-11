@@ -29,14 +29,14 @@ public class MySoundsClass {
     // All vanilla sounds use variable range events.
     public static final DeferredHolder<SoundEvent, SoundEvent> MY_SOUND = SOUND_EVENTS.register(
             "my_sound", // must match the resource location on the next line
-            () -> SoundEvent.createVariableRangeEvent(ResourceLocation.fromNamespaceAndPath("examplemod", "my_sound"))
+            () -> SoundEvent.createVariableRangeEvent(new ResourceLocation("examplemod", "my_sound"))
     );
     
     // There is a currently unused method to register fixed range (= non-attenuating) events as well:
     public static final DeferredHolder<SoundEvent, SoundEvent> MY_FIXED_SOUND = SOUND_EVENTS.register("my_fixed_sound",
             // 16 is the default range of sounds. Be aware that due to OpenAL limitations,
             // values above 16 have no effect and will be capped to 16.
-            () -> SoundEvent.createFixedRangeEvent(ResourceLocation.fromNamespaceAndPath("examplemod", "my_fixed_sound"), 16)
+            () -> SoundEvent.createFixedRangeEvent(new ResourceLocation("examplemod", "my_fixed_sound"), 16)
     );
 }
 ```

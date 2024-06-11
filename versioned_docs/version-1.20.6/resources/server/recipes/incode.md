@@ -48,7 +48,7 @@ private static final DeferredRegister<BannerPattern> REGISTER = DeferredRegister
 // Takes in the pattern name to send over the network
 public static final BannerPattern EXAMPLE_PATTERN = REGISTER.register("example_pattern", () -> new BannerPattern(
     // Will look for pattern texture in assets/examplemod/textures/entity/banner/example_pattern.png
-    ResourceLocation.fromNamespaceAndPath("examplemod", "example_pattern"),
+    new ResourceLocation("examplemod", "example_pattern"),
     // Translation key for the pattern text
     "block.examplemod.banner.example_pattern"
 ));

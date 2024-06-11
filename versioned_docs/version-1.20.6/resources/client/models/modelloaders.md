@@ -214,7 +214,7 @@ public class MyGeometryLoader implements IGeometryLoader<MyGeometry> {
     // It is highly recommended to use a singleton pattern for geometry loaders, as all models can be loaded through one loader.
     public static final MyGeometryLoader INSTANCE = new MyGeometryLoader();
     // The id we will use to register this loader. Also used in the loader datagen class.
-    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath("examplemod", "my_custom_loader");
+    public static final ResourceLocation ID = new ResourceLocation("examplemod", "my_custom_loader");
     
     // In accordance with the singleton pattern, make the constructor private.        
     private MyGeometryLoader() {}
@@ -393,7 +393,7 @@ In some contexts, it makes sense to reuse the vanilla model loader and just buil
 ```java
 public class MyGeometryLoader implements IGeometryLoader<MyGeometry> {
     public static final MyGeometryLoader INSTANCE = new MyGeometryLoader();
-    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(...);
+    public static final ResourceLocation ID = new ResourceLocation(...);
     
     private MyGeometryLoader() {}
     

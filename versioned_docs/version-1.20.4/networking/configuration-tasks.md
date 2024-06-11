@@ -24,7 +24,7 @@ The type is used to identify the configuration task.
 An example of a configuration task is shown below:
 ```java
 public record MyConfigurationTask implements ICustomConfigurationTask {
-    public static final ConfigurationTask.Type TYPE = new ConfigurationTask.Type(ResourceLocation.fromNamespaceAndPath("mymod:my_task"));
+    public static final ConfigurationTask.Type TYPE = new ConfigurationTask.Type(new ResourceLocation("mymod:my_task"));
     
     @Override
     public void run(final Consumer<CustomPacketPayload> sender) {
@@ -49,7 +49,7 @@ There are two primary ways of achieving this:
 When the client does not need to acknowledge the configuration task, then the listener can be captured, and the configuration task can be acknowledged directly on the server side.
 ```java
 public record MyConfigurationTask(ServerConfigurationListener listener) implements ICustomConfigurationTask {
-    public static final ConfigurationTask.Type TYPE = new ConfigurationTask.Type(ResourceLocation.fromNamespaceAndPath("mymod:my_task"));
+    public static final ConfigurationTask.Type TYPE = new ConfigurationTask.Type(new ResourceLocation("mymod:my_task"));
     
     @Override
     public void run(final Consumer<CustomPacketPayload> sender) {
@@ -78,7 +78,7 @@ Additionally, the server will not wait for the client to properly process the se
 When the client needs to acknowledge the configuration task, then you will need to send your own payload to the client:
 ```java
 public record AckPayload() implements CustomPacketPayload {
-    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath("mymod:ack");
+    public static final ResourceLocation ID = new ResourceLocation("mymod:ack");
     
     @Override
     public void write(final FriendlyByteBuf buffer) {
