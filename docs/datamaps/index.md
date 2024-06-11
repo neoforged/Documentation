@@ -39,7 +39,7 @@ For the purposes of this example, we will use this data map to heal players when
 
 ```java
 public static final DataMapType<Item, DropHealing> DROP_HEALING = DataMapType.builder(
-    ResourceLocation.fromNamespaceAndPath("mymod:drop_healing"), Registries.ITEM, DropHealing.CODEC
+    ResourceLocation.fromNamespaceAndPath("mymod", "drop_healing"), Registries.ITEM, DropHealing.CODEC
 ).build();
 ```
 
