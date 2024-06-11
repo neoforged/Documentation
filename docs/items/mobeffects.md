@@ -65,15 +65,10 @@ public static final Supplier<MyMobEffect> MY_MOB_EFFECT = MOB_EFFECTS.register("
 The `MobEffect` class also provides default functionality for adding attribute modifiers to affected entities. For example, the speed effect adds an attribute modifier for movement speed. Effect attribute modifiers are added like so:
 
 ```java
-public static final String MY_MOB_EFFECT_UUID = "01234567-89ab-cdef-0123-456789abcdef";
 public static final Supplier<MyMobEffect> MY_MOB_EFFECT = MOB_EFFECTS.register("my_mob_effect", () -> new MyMobEffect(...)
-        .addAttributeModifier(Attribute.ATTACK_DAMAGE, MY_MOB_EFFECT_UUID, 2.0, AttributeModifier.Operation.ADD_VALUE)
+        .addAttributeModifier(Attribute.ATTACK_DAMAGE, ResourceLocation.fromNamespaceAndPath("examplemod", "effect.strength"), 2.0, AttributeModifier.Operation.ADD_VALUE)
 );
 ```
-
-:::note
-The UUID used must be a valid and unique UUIDv4, as for some reason, Mojang decided to use UUIDs here instead of some text-based identifier. A UUID is best obtained through an online generator, for example [uuidgenerator.net][uuidgen].
-:::
 
 ### `InstantenousMobEffect`
 

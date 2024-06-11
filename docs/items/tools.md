@@ -26,10 +26,6 @@ To create a standard set of tools, you must first define a `Tier`. For reference
 public static final Tier COPPER_TIER = new SimpleTier(
         // The tag that determines what blocks this tool cannot break. See below for more information.
         MyBlockTags.INCORRECT_FOR_COPPER_TOOL,
-        // Determines the level of this tool. Since this is an int, there is no good way to place our tool between stone and iron.
-        // NeoForge introduces the TierSortingRegistry to solve this problem, see below for more information. Use a best-effort approximation here.
-        // Stone is 1, iron is 2.
-        1,
         // Determines the durability of the tier.
         // Stone is 131, iron is 250.
         200,
@@ -138,7 +134,7 @@ Creating a multitool-like item (i.e. an item that combines two or more tools int
 - Adding attributes to the item (e.g. attack damage, attack speed) via `Item.Properties#attributes`.
 - Overriding `IItemExtension#canPerformAction` to determine what [`ToolAction`s][toolaction] the item can perform.
 - Calling `IBlockExtension#getToolModifiedState` if you want your item to modify the block state on right click based on the `ToolAction`s.
-- Adding your tool to some of the `minecraft:*_enchantable` tags so that your item can have certain enchantments applied to it, or `IItemExtension#canApplyAtEnchantingTable` to check if the enchantment can be applied at all.
+- Adding your tool to some of the `minecraft:enchantable/*` tags so that your item can have certain enchantments applied to it.
 
 ## `ToolAction`s
 
