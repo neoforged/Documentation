@@ -102,7 +102,7 @@ The values themselves can be obtained using `ConfigValue#get`. The values are ad
 
 ## Registering a Configuration
 
-Once a `ModConfigSpec` has been built, it must be registered to allow NeoForge to load, track, and sync the configuration settings as required. Configurations should be registered in the mod constructor via `ModConatiner#registerConfig`. A configuration can be registered with a given type representing the side the config belongs to, the `ModConfigSpec`, and optionally a specific file name for the configuration.
+Once a `ModConfigSpec` has been built, it must be registered to allow NeoForge to load, track, and sync the configuration settings as required. Configurations should be registered in the mod constructor via `ModConatiner#registerConfig`. A configuration can be registered with a [given type][configtype] representing the side the config belongs to, the `ModConfigSpec`, and optionally a specific file name for the configuration.
 
 ```java
 // In the main mod file with a ModConfigSpec CONFIG
@@ -113,17 +113,43 @@ public ExampleMod(ModContainer container) {
 }
 ```
 
-Here is a list of the available configuration types:
+### Configuration Types
 
-|  Type  |      Loaded      | Synced to Client |               Client Location                |           Server Location            | Default File Suffix |
-|:------:|:----------------:|:----------------:|:--------------------------------------------:|:------------------------------------:|:--------------------|
-| CLIENT | Client Side Only |        No        |             `.minecraft/config`              |                 N/A                  | `-client`           |
-| COMMON |  On Both Sides   |        No        |             `.minecraft/config`              |       `<server_folder>/config`       | `-common`           |
-| SERVER | Server Side Only |       Yes        | `.minecraft/saves/<level_name>/serverconfig` | `<server_folder>/world/serverconfig` | `-server`           |
+Configuration types determine where the configuration file is located, what time it is loaded, and whether the file is synced across the network. All configurations are, by default, either loaded from `.minecraft/config` on the physical client or `<server_folder>/config` on the physical server. Some nuances between each configuration type can be found in the following subsections.
 
 :::tip
 NeoForge documents the [config types][type] within their codebase.
 :::
+
+- `STARTUP`
+    - Loaded on both the physical client and physical server from the config folder
+    - Read immediately on registration
+    - **NOT** synced across the network
+    - Suffixed with `-startup` by default
+
+:::warning
+Configurations registered under the `STARTUP` type can cause desyncs between the client and server, such as if the configuration is used to disable the registration of content. Therefore, it is highly recommended that any configurations within `STARTUP` are not used to enable or disable features that may change the content of the mod.
+:::
+
+- `CLIENT`
+    - Loaded **ONLY** on the physical client from the config folder
+        - There is no server location for this configuration type
+    - Read immedately before `FMLCommonSetupEvent` is fired
+    - **NOT** synced across the network
+    - Suffixed with `-client` by default
+- `COMMON`
+    - Loaded on both the physical client and physical server from the config folder
+    - Read immedately before `FMLCommonSetupEvent` is fired
+    - **NOT** synced across the network
+    - Suffixed with `-common` by default
+- `SERVER`
+    - Loaded on both the physical client and physical server from the config folder
+        - Can be overridden for each world by adding a config to:
+            - Client: `.minecraft/saves/<world_name>/serverconfig`
+            - Server: `<server_folder>/world/serverconfig`
+    - Read immedately before `ServerAboutToStartEvent` is fired
+    - Synced across the network to the client
+    - Suffixed with `-server` by default
 
 ## Configuration Events
 
@@ -135,5 +161,6 @@ These events are called for all configurations for the mod; the `ModConfig` obje
 
 [toml]: https://toml.io/
 [nightconfig]: https://github.com/TheElectronWill/night-config
-[type]: https://github.com/neoforged/FancyModLoader/blob/19d6326b810233e683f1beb3d28e41372e1e89d1/core/src/main/java/net/neoforged/fml/config/ModConfig.java#L83-L111
+[configtype]: #configuration-types
+[type]: https://github.com/neoforged/FancyModLoader/blob/1b6af92893464a4f477cab310256639f39d41ea7/loader/src/main/java/net/neoforged/fml/config/ModConfig.java#L81-L114
 [events]: ../concepts/events.md#registering-an-event-handler
