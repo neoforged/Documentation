@@ -77,7 +77,7 @@ You can reuse one of these tags for your tool if you're fine with that. For exam
 Alternatively, we can create our own tag, like so:
 
 ```java
-public static final TagKey<Block> NEEDS_COPPER_TOOL = TagKey.create(BuiltInRegistries.BLOCK.key(), new ResourceLocation(MOD_ID, "needs_copper_tool"));
+public static final TagKey<Block> NEEDS_COPPER_TOOL = TagKey.create(BuiltInRegistries.BLOCK.key(), ResourceLocation.fromNamespaceAndPath(MOD_ID, "needs_copper_tool"));
 ```
 
 And then, we populate our tag. For example, let's make copper able to mine gold ores, gold blocks and redstone ore, but not diamonds or emeralds. (Redstone blocks are already mineable by stone tools.) The tag file is located at `src/main/resources/data/mod_id/tags/blocks/needs_copper_tool.json` (where `mod_id` is your mod id):
@@ -108,7 +108,7 @@ static {
     TierSortingRegistry.registerTier(
             COPPER_TIER,
             //The name to use for internal resolution. May use the Minecraft namespace if appropriate.
-            new ResourceLocation("minecraft", "copper"),
+            ResourceLocation.fromNamespaceAndPath("minecraft", "copper"),
             //A list of tiers that are considered lower than the type being added. For example, stone is lower than copper.
             //We don't need to add wood and gold here because those are already lower than stone.
             List.of(Tiers.STONE),
@@ -127,10 +127,10 @@ public static final Tier COPPER_TIER = new SimpleTier(...);
 static {
     TierSortingRegistry.registerTier(
             COPPER_TIER,
-            new ResourceLocation("minecraft", "copper"),
+            ResourceLocation.fromNamespaceAndPath("minecraft", "copper"),
             List.of(Tiers.STONE),
             //We can mix and match Tiers and ResourceLocations here.
-            List.of(Tiers.IRON, new ResourceLocation("mekanism", "osmium"))
+            List.of(Tiers.IRON, ResourceLocation.fromNamespaceAndPath("mekanism", "osmium"))
     );
 }
 ```

@@ -286,7 +286,7 @@ Within the super, `#renderBg` is called to render the background of the screen. 
 // In some AbstractContainerScreen subclass
 
 // The location of the background texture (assets/<namespace>/<path>)
-private static final ResourceLocation BACKGROUND_LOCATION = new ResourceLocation(MOD_ID, "textures/gui/container/my_container_screen.png");
+private static final ResourceLocation BACKGROUND_LOCATION = ResourceLocation.fromNamespaceAndPath(MOD_ID, "textures/gui/container/my_container_screen.png");
 
 @Override
 protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {

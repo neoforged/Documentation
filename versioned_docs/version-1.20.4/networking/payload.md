@@ -17,7 +17,7 @@ Then we can implement the `CustomPacketPayload` interface to create a payload th
 ```java
 public record MyData(String name, int age) implements CustomPacketPayload {
     
-    public static final ResourceLocation ID = new ResourceLocation("mymod", "my_data");
+    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath("mymod", "my_data");
     
     public MyData(final FriendlyByteBuf buffer) {
         this(buffer.readUtf(), buffer.readInt());

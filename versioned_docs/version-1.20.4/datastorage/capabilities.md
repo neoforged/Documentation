@@ -74,7 +74,7 @@ For example, here is how a capability for side-aware block `IItemHandler`s might
 public static final BlockCapability<IItemHandler, @Nullable Direction> ITEM_HANDLER_BLOCK =
     BlockCapability.create(
         // Provide a name to uniquely identify the capability.
-        new ResourceLocation("mymod", "item_handler"),
+        ResourceLocation.fromNamespaceAndPath("mymod", "item_handler"),
         // Provide the queried type. Here, we want to look up `IItemHandler` instances.
         IItemHandler.class,
         // Provide the context type. We will allow the query to receive an extra `Direction side` parameter.
@@ -86,7 +86,7 @@ A `@Nullable Direction` is so common for blocks that there is a dedicated helper
 public static final BlockCapability<IItemHandler, @Nullable Direction> ITEM_HANDLER_BLOCK =
     BlockCapability.createSided(
         // Provide a name to uniquely identify the capability.
-        new ResourceLocation("mymod", "item_handler"),
+        ResourceLocation.fromNamespaceAndPath("mymod", "item_handler"),
         // Provide the queried type. Here, we want to look up `IItemHandler` instances.
         IItemHandler.class);
 ```
@@ -97,7 +97,7 @@ There is also a dedicated helper for context-less capabilities:
 public static final BlockCapability<IItemHandler, Void> ITEM_HANDLER_NO_CONTEXT =
     BlockCapability.createVoid(
         // Provide a name to uniquely identify the capability.
-        new ResourceLocation("mymod", "item_handler_no_context"),
+        ResourceLocation.fromNamespaceAndPath("mymod", "item_handler_no_context"),
         // Provide the queried type. Here, we want to look up `IItemHandler` instances.
         IItemHandler.class);
 ```

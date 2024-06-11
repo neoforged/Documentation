@@ -84,10 +84,10 @@ Alternatively, we can create our own tag, like so:
 
 ```java
 // This tag will allow us to add these blocks to the incorrect tags that cannot mine them
-public static final TagKey<Block> NEEDS_COPPER_TOOL = TagKey.create(BuiltInRegistries.BLOCK.key(), new ResourceLocation(MOD_ID, "needs_copper_tool"));
+public static final TagKey<Block> NEEDS_COPPER_TOOL = TagKey.create(BuiltInRegistries.BLOCK.key(), ResourceLocation.fromNamespaceAndPath(MOD_ID, "needs_copper_tool"));
 
 // This tag will be passed into our tier
-public static final TagKey<Block> INCORRECT_FOR_COPPER_TOOL = TagKey.create(BuiltInRegistries.BLOCK.key(), new ResourceLocation(MOD_ID, "incorrect_for_cooper_tool"));
+public static final TagKey<Block> INCORRECT_FOR_COPPER_TOOL = TagKey.create(BuiltInRegistries.BLOCK.key(), ResourceLocation.fromNamespaceAndPath(MOD_ID, "incorrect_for_cooper_tool"));
 ```
 
 And then, we populate our tag. For example, let's make copper able to mine gold ores, gold blocks and redstone ore, but not diamonds or emeralds. (Redstone blocks are already mineable by stone tools.) The tag file is located at `src/main/resources/data/mod_id/tags/blocks/needs_copper_tool.json` (where `mod_id` is your mod id):
@@ -183,14 +183,14 @@ public static final ArmorMaterial COPPER_ARMOR_MATERIAL = new ArmorMaterial(
         // - 'assets/mod_id/textures/models/armor/copper_layer_1.png' for the outer texture
         // - 'assets/mod_id/textures/models/armor/copper_layer_2.png' for the inner texture (only legs)
         new ArmorMaterial.Layer(
-            new ResourceLocation(MOD_ID, "copper")
+            ResourceLocation.fromNamespaceAndPath(MOD_ID, "copper")
         ),
         // Creates a new armor texture that will be rendered on top of the previous at:
         // - 'assets/mod_id/textures/models/armor/copper_layer_1_overlay.png' for the outer texture
         // - 'assets/mod_id/textures/models/armor/copper_layer_2_overlay.png' for the inner texture (only legs)
         // 'true' means that the armor material is dyeable; however, the item must also be added to the 'minecraft:dyeable' tag
         new ArmorMaterial.Layer(
-            new ResourceLocation(MOD_ID, "copper"), "_overlay", true
+            ResourceLocation.fromNamespaceAndPath(MOD_ID, "copper"), "_overlay", true
         )
     ),
     // Returns the toughness value of the armor. The toughness value is an additional value included in

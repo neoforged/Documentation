@@ -86,9 +86,9 @@ public void register(RegisterEvent event) {
             BuiltInRegistries.BLOCKS,
             // Register your objects here.
             registry -> {
-                registry.register(new ResourceLocation(MODID, "example_block_1"), new Block(...));
-                registry.register(new ResourceLocation(MODID, "example_block_2"), new Block(...));
-                registry.register(new ResourceLocation(MODID, "example_block_3"), new Block(...));
+                registry.register(ResourceLocation.fromNamespaceAndPath(MODID, "example_block_1"), new Block(...));
+                registry.register(ResourceLocation.fromNamespaceAndPath(MODID, "example_block_2"), new Block(...));
+                registry.register(ResourceLocation.fromNamespaceAndPath(MODID, "example_block_3"), new Block(...));
             }
     );
 }
@@ -99,19 +99,19 @@ public void register(RegisterEvent event) {
 Sometimes, you will find yourself in situations where you want to get a registered object by a given id. Or, you want to get the id of a certain registered object. Since registries are basically maps of ids (`ResourceLocation`s) to distinct objects, i.e. a reversible map, both of these operations work:
 
 ```java
-BuiltInRegistries.BLOCKS.get(new ResourceLocation("minecraft", "dirt")); // returns the dirt block
+BuiltInRegistries.BLOCKS.get(ResourceLocation.fromNamespaceAndPath("minecraft", "dirt")); // returns the dirt block
 BuiltInRegistries.BLOCKS.getKey(Blocks.DIRT); // returns the resource location "minecraft:dirt"
 
 // Assume that ExampleBlocksClass.EXAMPLE_BLOCK.get() is a Supplier<Block> with the id "yourmodid:example_block"
-BuiltInRegistries.BLOCKS.get(new ResourceLocation("yourmodid", "example_block")); // returns the example block
+BuiltInRegistries.BLOCKS.get(ResourceLocation.fromNamespaceAndPath("yourmodid", "example_block")); // returns the example block
 BuiltInRegistries.BLOCKS.getKey(ExampleBlocksClass.EXAMPLE_BLOCK.get()); // returns the resource location "yourmodid:example_block"
 ```
 
 If you just want to check for the presence of an object, this is also possible, though only with keys:
 
 ```java
-BuiltInRegistries.BLOCKS.containsKey(new ResourceLocation("minecraft", "dirt")); // true
-BuiltInRegistries.BLOCKS.containsKey(new ResourceLocation("create", "brass_ingot")); // true only if Create is installed
+BuiltInRegistries.BLOCKS.containsKey(ResourceLocation.fromNamespaceAndPath("minecraft", "dirt")); // true
+BuiltInRegistries.BLOCKS.containsKey(ResourceLocation.fromNamespaceAndPath("create", "brass_ingot")); // true only if Create is installed
 ```
 
 As the last example shows, this is possible with any mod id, and thus a perfect way to check if a certain item from another mod exists.
@@ -144,13 +144,13 @@ Let's start by creating the [registry key][resourcekey] and the registry itself:
 ```java
 // We use spells as an example for the registry here, without any details about what a spell actually is (as it doesn't matter).
 // Of course, all mentions of spells can and should be replaced with whatever your registry actually is.
-public static final ResourceKey<Registry<Spell>> SPELL_REGISTRY_KEY = ResourceKey.createRegistryKey(new ResourceLocation("yourmodid", "spells"));
+public static final ResourceKey<Registry<Spell>> SPELL_REGISTRY_KEY = ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath("yourmodid", "spells"));
 public static final Registry<YourRegistryContents> SPELL_REGISTRY = new RegistryBuilder<>(SPELL_REGISTRY_KEY)
         // If you want to enable integer id syncing, for networking.
         // These should only be used in networking contexts, for example in packets or purely networking-related NBT data.
         .sync(true)
         // The default key. Similar to minecraft:air for blocks. This is optional.
-        .defaultKey(new ResourceLocation("yourmodid", "empty"))
+        .defaultKey(ResourceLocation.fromNamespaceAndPath("yourmodid", "empty"))
         // Effectively limits the max count. Generally discouraged, but may make sense in settings such as networking.
         .maxId(256)
         // Build the registry.
@@ -176,7 +176,7 @@ public static final Supplier<Spell> EXAMPLE_SPELL = SPELLS.register("example_spe
 @SubscribeEvent
 public static void register(RegisterEvent event) {
     event.register(SPELL_REGISTRY, registry -> {
-        registry.register(new ResourceLocation("yourmodid", "example_spell"), () -> new Spell(...));
+        registry.register(ResourceLocation.fromNamespaceAndPath("yourmodid", "example_spell"), () -> new Spell(...));
     });
 }
 ```
@@ -197,7 +197,7 @@ Datapack registries can be obtained from a `RegistryAccess`. This `RegistryAcces
 Custom datapack registries do not require a `Registry` to be constructed. Instead, they just need a registry key and at least one [`Codec`][codec] to (de-)serialize its contents. Reiterating on the spells example from before, registering our spell registry as a datapack registry looks something like this:
 
 ```java
-public static final ResourceKey<Registry<Spell>> SPELL_REGISTRY_KEY = ResourceKey.createRegistryKey(new ResourceLocation("yourmodid", "spells"));
+public static final ResourceKey<Registry<Spell>> SPELL_REGISTRY_KEY = ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath("yourmodid", "spells"));
 
 @SubscribeEvent
 public static void registerDatapackRegistries(DataPackRegistryEvent.NewRegistry event) {
@@ -238,7 +238,7 @@ The `bootstrap` lambda parameter is what we actually use to register our objects
 // The resource key of our object.
 public static final ResourceKey<ConfiguredFeature<?, ?>> EXAMPLE_CONFIGURED_FEATURE = ResourceKey.create(
     Registries.CONFIGURED_FEATURE,
-    new ResourceLocation(MOD_ID, "example_configured_feature")
+    ResourceLocation.fromNamespaceAndPath(MOD_ID, "example_configured_feature")
 );
 
 new RegistrySetBuilder()
@@ -260,11 +260,11 @@ The `BootstrapContext` (name is typoed as `BootstapContext` in 1.20.4 and below)
 ```java
 public static final ResourceKey<ConfiguredFeature<?, ?>> EXAMPLE_CONFIGURED_FEATURE = ResourceKey.create(
     Registries.CONFIGURED_FEATURE,
-    new ResourceLocation(MOD_ID, "example_configured_feature")
+    ResourceLocation.fromNamespaceAndPath(MOD_ID, "example_configured_feature")
 );
 public static final ResourceKey<PlacedFeature> EXAMPLE_PLACED_FEATURE = ResourceKey.create(
     Registries.PLACED_FEATURE,
-    new ResourceLocation(MOD_ID, "example_placed_feature")
+    ResourceLocation.fromNamespaceAndPath(MOD_ID, "example_placed_feature")
 );
 
 new RegistrySetBuilder()

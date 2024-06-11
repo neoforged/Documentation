@@ -138,17 +138,17 @@ public class MyParticleDescriptionProvider extends ParticleDescriptionProvider {
     protected void addDescriptions() {
         // Adds a single sprite particle definition with the file at
         // assets/examplemod/textures/particle/my_single_particle.png.
-        sprite(MyParticleTypes.MY_SINGLE_PARTICLE.get(), new ResourceLocation("examplemod", "my_single_particle"));
+        sprite(MyParticleTypes.MY_SINGLE_PARTICLE.get(), ResourceLocation.fromNamespaceAndPath("examplemod", "my_single_particle"));
         // Adds a multi sprite particle definition, with a vararg parameter. Alternatively accepts a list.
         spriteSet(MyParticleTypes.MY_MULTI_PARTICLE.get(),
-                new ResourceLocation("examplemod", "my_multi_particle_0"),
-                new ResourceLocation("examplemod", "my_multi_particle_1"),
-                new ResourceLocation("examplemod", "my_multi_particle_2")
+                ResourceLocation.fromNamespaceAndPath("examplemod", "my_multi_particle_0"),
+                ResourceLocation.fromNamespaceAndPath("examplemod", "my_multi_particle_1"),
+                ResourceLocation.fromNamespaceAndPath("examplemod", "my_multi_particle_2")
         );
         // Alternative for the above, appends "_<index>" to the base name given, for the given amount of textures.
         spriteSet(MyParticleTypes.MY_ALT_MULTI_PARTICLE.get(),
                 // The base name.
-                new ResourceLocation("examplemod", "my_multi_particle"),
+                ResourceLocation.fromNamespaceAndPath("examplemod", "my_multi_particle"),
                 // The amount of textures.
                 3,
                 // Whether to reverse the list, i.e. start at the last element instead of the first.
