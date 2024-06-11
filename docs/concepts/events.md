@@ -5,7 +5,7 @@ sidebar_position: 3
 
 One of NeoForge's main features is the event system. Events are fired for various things that happen in the game. For example, there are events for when the player right clicks, when a player or another entity jumps, when blocks are rendered, when the game is loaded, etc. A modder can subscribe event handlers to each of these events, and then perform their desired behavior inside these event handlers.
 
-Events are fired on their respective event bus. The most important bus is `NeoForge.EVENT_BUS`. Besides that, during startup, a mod bus is spawned for each loaded mod and passed into the mod's constructor. Many mod bus events are fired in parallel (as opposed to main bus events that always run on the same thread), dramatically increasing startup speed. See [below][modbus] for more information.
+Events are fired on their respective event bus. The most important bus is `NeoForge.EVENT_BUS`, also known as the **game** bus. Besides that, during startup, a mod bus is spawned for each loaded mod and passed into the mod's constructor. Many mod bus events are fired in parallel (as opposed to main bus events that always run on the same thread), dramatically increasing startup speed. See [below][modbus] for more information.
 
 ## Registering an Event Handler
 

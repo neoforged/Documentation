@@ -81,10 +81,6 @@ public class ExampleModDedicatedServer {
 }
 ```
 
-```java
-
-```
-
 :::tip
 Mods are generally expected to work on either side. This especially means that if you are developing a client-only mod, you should verify that the mod actually runs on a physical client, and no-op in the event that it does not.
 :::
