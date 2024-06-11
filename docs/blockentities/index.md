@@ -114,7 +114,7 @@ public Packet<ClientGamePacketListener> getUpdatePacket() {
 The static constructors `ClientboundBlockEntityDataPacket#create` takes:
 
 - The `BlockEntity`.
-- An optional function to get the `CompoundTag` from the `BlockEntity`. By default, this uses `BlockEntity#getUpdateTag`.
+- An optional function to get the `CompoundTag` from the `BlockEntity` and a `RegistryAccess`. By default, this uses `BlockEntity#getUpdateTag`.
 
 Now, to send the packet, an update notification must be given on the server.
 
