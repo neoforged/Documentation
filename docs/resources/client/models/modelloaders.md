@@ -239,9 +239,8 @@ public class MyGeometry implements IUnbakedGeometry<MyGeometry> {
     //   For example, to get a model's particle texture, call spriteGetter.apply(context.getMaterial("particle"));
     // - The model state. This holds the properties from the blockstate file, e.g. rotations and the uvlock boolean.
     // - The item overrides. This is the code representation of an "overrides" block in an item model.
-    // - The resource location of the model.
     @Override
-    public BakedModel bake(IGeometryBakingContext context, ModelBaker baker, Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelState, ItemOverrides overrides, ResourceLocation modelLocation) {
+    public BakedModel bake(IGeometryBakingContext context, ModelBaker baker, Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelState, ItemOverrides overrides) {
         // See info on the parameters below.
         return new MyDynamicModel(context.useAmbientOcclusion(), context.isGui3d(), context.useBlockLight(),
             spriteGetter.apply(context.getMaterial("particle")), overrides);
@@ -295,7 +294,8 @@ public class MyDynamicModel implements IDynamicBakedModel {
 
     @Override
     public TextureAtlasSprite getParticleIcon() {
-        // Return MISSING_TEXTURE.sprite() if you don't need a particle, e.g. when in an item model context.
+        // Return 'new Material(TextureAtlas.LOCATION_BLOCKS, MissingTextureAtlasSprite.getLocation()).sprite()'
+        //   if you don't need a particle, e.g. when in an item model context.
         return particle;
     }
 
@@ -416,8 +416,8 @@ public class MyGeometry implements IUnbakedGeometry<MyGeometry> {
     }
 
     @Override
-    public BakedModel bake(IGeometryBakingContext context, ModelBaker baker, Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelState, ItemOverrides overrides, ResourceLocation modelLocation) {
-        BakedModel bakedBase = new ElementsModel(base.getElements()).bake(context, baker, spriteGetter, modelState, overrides, modelLocation);
+    public BakedModel bake(IGeometryBakingContext context, ModelBaker baker, Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelState, ItemOverrides overrides) {
+        BakedModel bakedBase = new ElementsModel(base.getElements()).bake(context, baker, spriteGetter, modelState, overrides);
         return new MyDynamicModel(bakedBase, /* other parameters here */);
     }
 

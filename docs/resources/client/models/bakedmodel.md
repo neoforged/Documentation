@@ -107,7 +107,10 @@ public static void modifyBakingResult(ModelEvent.ModifyBakingResult event) {
     // For item models
     event.getModels().computeIfPresent(
         // The model resource location of the model to modify.
-        new ModelResourceLocation("examplemod", "example_item", "inventory"),
+        new ModelResourceLocation(
+            ResourceLocation.fromNamespaceAndPath("examplemod", "example_item"),
+            "inventory"
+        ),
         // A BiFunction with the location and the original models as parameters, returning the new model.
         (location, model) -> new MyBakedModelWrapper(model);
     );
