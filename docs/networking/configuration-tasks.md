@@ -49,7 +49,7 @@ There are two primary ways of achieving this:
 When the client does not need to acknowledge the configuration task, then the listener can be captured, and the configuration task can be acknowledged directly on the server side.
 
 ```java
-public record MyConfigurationTask(ServerConfigurationListener listener) implements ICustomConfigurationTask {
+public record MyConfigurationTask(ServerConfigurationPacketListener listener) implements ICustomConfigurationTask {
     public static final ConfigurationTask.Type TYPE = new ConfigurationTask.Type(ResourceLocation.fromNamespaceAndPath("mymod", "my_task"));
     
     @Override
