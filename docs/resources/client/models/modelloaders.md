@@ -294,8 +294,7 @@ public class MyDynamicModel implements IDynamicBakedModel {
 
     @Override
     public TextureAtlasSprite getParticleIcon() {
-        // Return 'new Material(TextureAtlas.LOCATION_BLOCKS, MissingTextureAtlasSprite.getLocation()).sprite()'
-        //   if you don't need a particle, e.g. when in an item model context.
+        // Return MISSING_TEXTURE.sprite() if you don't need a particle, e.g. when in an item model context.
         return particle;
     }
 

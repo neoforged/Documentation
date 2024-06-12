@@ -155,6 +155,10 @@ public static final DeferredHolder<MapCodec<? extends Block>, MapCodec<ComplexBl
 );
 ```
 
+:::note
+Although is basically unused, it is expected to become more important in the future as Mojang continues moving towards a codec-centered  structure.
+:::
+
 ### `DeferredRegister.Blocks` helpers
 
 We already discussed how to create a `DeferredRegister.Blocks` [above], as well as that it returns `DeferredBlock`s. Now, let's have a look at what other utilities the specialized `DeferredRegister` has to offer. Let's start with `#registerBlock`:
