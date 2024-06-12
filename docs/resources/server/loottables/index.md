@@ -111,7 +111,7 @@ builder.withOptionalParameter(LootContextParams.ORIGIN, null);
 It is also possible to add dynamic drops from code, for example for dropping container contents. This is done like so (the lambda is a `Consumer<ItemStack>`):
 
 ```java
-builder.withDynamicDrop(ResourceLocation.create("examplemod", "example_dynamic_drop"), stack -> {
+builder.withDynamicDrop(new ResourceLocation("examplemod", "example_dynamic_drop"), stack -> {
     // whatever you want to drop here
 });
 ```
