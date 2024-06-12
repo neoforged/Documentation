@@ -74,7 +74,7 @@ public class MyEnumParams {
 
 #### Constructor
 
-The constructor must be specified as a method descriptor and must only contain the parameters visible in the source code, omitting the hidden constant name and ordinal parameters
+The constructor must be specified as a method descriptor and must only contain the parameters visible in the source code, omitting the hidden constant name and ordinal parameters.
 
 #### Parameters
 
@@ -91,19 +91,19 @@ The fields and/or methods used as parameter sources should be in a separate clas
 
 Certain parameters have additional rules:
 
-- If the parameter is an int ID parameter related to a `@IndexedEnum` annotation on the enum, then it is ignored and replaced by the entry's ordinal. If said parameter is specified inline in the JSON, then it must be specified as `-1`
-- If the parameter is a String name parameter related to a `@NamedEnum` annotation on the enum, then it must be prefixed by the mod ID in the `namespace:path` format known from `ResourceLocation`s
+- If the parameter is an int ID parameter related to a `@IndexedEnum` annotation on the enum, then it is ignored and replaced by the entry's ordinal. If said parameter is specified inline in the JSON, then it must be specified as `-1`.
+- If the parameter is a String name parameter related to a `@NamedEnum` annotation on the enum, then it must be prefixed by the mod ID in the `namespace:path` format known from `ResourceLocation`s.
 
-#### Retrieving the generated constant
+#### Retrieving the Generated Constant
 
-The generated enum constant can be retrieved via `TheEnum.valueOf(String)`. If a field reference is used to provide the parameters, then the constant can also be retrieved from the `EnumProxy` object via `EnumProxy#getValue()`
+The generated enum constant can be retrieved via `TheEnum.valueOf(String)`. If a field reference is used to provide the parameters, then the constant can also be retrieved from the `EnumProxy` object via `EnumProxy#getValue()`.
 
 ## Contributing to NeoForge
 
 To add a new extensible enum to NeoForge, there are at least two required things to do:
 
-- First, have the enum implement `IExtensibleEnum` to mark that this enum should be transformed via the `RuntimeEnumExtender`
-- Second, add a `getExtensionInfo` method which returns `ExtensionInfo.nonExtended(TheEnum.class)`
+- Make the enum implement `IExtensibleEnum` to mark that this enum should be transformed via the `RuntimeEnumExtender`.
+- Add a `getExtensionInfo` method that returns `ExtensionInfo.nonExtended(TheEnum.class)`.
 
 Further action is required depending on specific details about the enum:
 
