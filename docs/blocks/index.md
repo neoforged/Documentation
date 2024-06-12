@@ -254,7 +254,7 @@ The following subsections further break down these stages into actual method cal
 #### The "Actually Breaking" Stage
 
 - `Item#canAttackBlock` is called. If it returns `false` (determining that the block should not be broken), the pipeline moves to the "finishing" stage.
-- `Player#canUseGameMasterBlocks` is called if the block is an instance of a `GameMasterBlock`. This determines whether the player has the ability to destroy creative-only blocks. If `false`, the pipeline moves to the "finishing" stage.
+- `Player#canUseGameMasterBlocks` is called if the block is an instance of `GameMasterBlock`. This determines whether the player has the ability to destroy creative-only blocks. If `false`, the pipeline moves to the "finishing" stage.
 - Server-only: `Player#blockActionRestricted` is called. This determines whether the current player cannot break the block. If `true`, the pipeline moves to the "finishing" stage.
 - Server-only: `BlockEvent.BreakEvent` is fired. If canceled or `getExpToDrop` returns -1, the pipeline moves to the "finishing" stage. The initial canceled state is determined by the above three methods.
     - Server-only: `PlayerEvent.HarvestCheck` is fired. If `canHarvest` returns `false` or the `BlockState` passed into the break event is null, then the initial exp for the event will be 0.
