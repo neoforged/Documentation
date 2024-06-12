@@ -19,40 +19,38 @@ The definition of the entry consists of the target enum's class name, the new fi
 
 ```json5
 {
-    "entries": [
-        {
-            // The enum class the entry should be added to
-            "enum": "net/minecraft/world/item/Rarity",
-            // The field name of the new entry, must be prefixed with the mod ID
-            "name": "EXAMPLEMOD_CUSTOM",
-            // The constructor to be used
-            "constructor": "(ILjava/lang/String;Ljava/util/function/UnaryOperator;)V",
-            // The parameters to be used, provided as a reference to an EnumProxy<Rarity> field in the given class
-            "parameters": {
-                "class": "example/examplemod/MyEnumParams",
-                "field": "CUSTOM_RARITY_ENUM_PROXY"
-            }
-        },
-        {
-            "enum": "net/minecraft/world/damagesource/DamageEffects",
-            "name": "EXAMPLEMOD_TEST",
-            "constructor": "(Ljava/lang/String;Ljava/util/function/Supplier;)V",
-            // The parameters to be used, provided as a reference to a method in the given class
-            "parameters": {
-                "class": "example/examplemod/MyEnumParams",
-                "field": "getTestDamageEffectsParameter"
-            }
-        },
-        {
-            "enum": "net/minecraft/world/item/ItemDisplayContext",
-            "name": "EXAMPLEMOD_STANDING",
-            "constructor": "(ILjava/lang/String;Ljava/lang/String;)V",
-            // Constant parameters provided directly.
-            // This enum has an ID parameter which enforces providing -1 in the case of constant parameters
-            // This enum has a name which enforces prefixing with the mod ID
-            "parameters": [ -1, "examplemod:standing", null ]
-        }
-    ]
+  "entries": [
+    {
+      // The enum class the entry should be added to
+      "enum": "net/minecraft/world/item/Rarity",
+      // The field name of the new entry, must be prefixed with the mod ID
+      "name": "EXAMPLEMOD_CUSTOM",
+      // The constructor to be used
+      "constructor": "(ILjava/lang/String;Ljava/util/function/UnaryOperator;)V",
+      // The parameters to be used, provided as a reference to an EnumProxy<Rarity> field in the given class
+      "parameters": {
+        "class": "example/examplemod/MyEnumParams",
+        "field": "CUSTOM_RARITY_ENUM_PROXY"
+      }
+    },
+    {
+      "enum": "net/minecraft/world/damagesource/DamageEffects",
+      "name": "EXAMPLEMOD_TEST",
+      "constructor": "(Ljava/lang/String;Ljava/util/function/Supplier;)V",
+      // The parameters to be used, provided as a reference to a method in the given class
+      "parameters": {
+        "class": "example/examplemod/MyEnumParams",
+        "field": "getTestDamageEffectsParameter"
+      }
+    },
+    {
+      "enum": "net/minecraft/world/item/ItemDisplayContext",
+      "name": "EXAMPLEMOD_STANDING",
+      "constructor": "(ILjava/lang/String;Ljava/lang/String;)V",
+      // Constant parameters provided directly.
+      "parameters": [ -1, "examplemod:standing", null ]
+    }
+  ]
 }
 ```
 
