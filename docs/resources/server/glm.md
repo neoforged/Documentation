@@ -106,7 +106,7 @@ public class ExampleModifier extends LootModifier {
     @Override
     public MapCodec<? extends IGlobalLootModifier> codec() {
         // Return the codec used to encode and decode this modifier
-        return EXAMPLE_MODIFIER_MAP_CODEC.get();
+        return EXAMPLE_MODIFIER_MAP_CODEC.value();
     }
 }
 ```
