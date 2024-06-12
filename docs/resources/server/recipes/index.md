@@ -226,7 +226,7 @@ TODO
 [conditions]: ../conditions.md
 [event]: ../../../concepts/events.md
 [ingredients]: ingredients.md
-[recipeprovider]: ../../../datagen/recipes.md
+[recipeprovider]: datagen.md
 [registered]: ../../../concepts/registries.md
 [tags]: ../tags.md
 [codec]: ../../../datastorage/codecs.md

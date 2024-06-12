@@ -125,5 +125,5 @@ public IngredientType<?> getType() {
 [type]: #ingredienttype
 [registering]: ../../../concepts/registries.md
 [codec]: ../../../datastorage/codecs.md
-[datagen]: ../../../datagen/recipes.md
+[datagen]: datagen.md
 [datacomponents]: ../../../items/datacomponents.md
