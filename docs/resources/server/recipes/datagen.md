@@ -1,4 +1,4 @@
-# Recipe Generation
+# Recipe Datagen (TODO)
 
 Recipes can be generated for a mod by subclassing `RecipeProvider` and implementing `#buildRecipes`. A recipe is supplied for data generation once a `Recipe` object is provided to the `RecipeOutput`. `Recipe`s can either be created and supplied manually or, for convenience, created using a `RecipeBuilder`.
 

@@ -207,7 +207,7 @@ runs {
 [particleprovider]: client/particles.md#datagen
 [particles]: client/particles.md
 [predicate]: https://minecraft.wiki/w/Predicate
-[recipeprovider]: ../datagen/recipes.md
+[recipeprovider]: server/recipes/datagen.md
 [recipes]: server/recipes/index.md
 [sides]: ../concepts/sides.md
 [soundprovider]: client/sounds.md#datagen
