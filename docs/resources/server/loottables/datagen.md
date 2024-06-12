@@ -39,7 +39,7 @@ public class MyLootTableSubProvider implements LootTableSubProvider {
     @Override
     public void generate(BiConsumer<ResourceLocation, LootTable.Builder> consumer) {
         // LootTable.lootTable() returns a loot table builder we can add loot tables to.
-        consumer.accept(new ResourceLocation(ExampleMod.MOD_ID, "example_loot_table"), LootTable.lootTable()
+        consumer.accept(ResourceLocation.create(ExampleMod.MOD_ID, "example_loot_table"), LootTable.lootTable()
                 // Add a loot table-level loot function. This example uses a number provider (see below).
                 .apply(SetItemCountFunction.setCount(ConstantValue.exactly(5)))
                 // Add a loot pool.
