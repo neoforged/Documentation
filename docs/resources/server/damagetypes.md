@@ -10,7 +10,7 @@ To get started, you want to create your own `DamageType`. `DamageType`s are a [d
 
 ```java
 public static final ResourceKey<DamageType> EXAMPLE_DAMAGE =
-        ResourceKey.create(Registries.DAMAGE_TYPE, new ResourceLocation(ExampleMod.MOD_ID, "example"));
+        ResourceKey.create(Registries.DAMAGE_TYPE, ResourceLocation.fromNamespaceAndPath(ExampleMod.MOD_ID, "example"));
 ```
 
 Now that we can reference it from code, let's specify some properties in the data file. Our data file is located at `data/examplemod/damage_type/example.json` (swap out `examplemod` and `example` for the mod id and the name of the resource location) and contains the following:

@@ -230,11 +230,11 @@ builder.rewards(
     // Alternatively, use addExperience() to add to an existing builder.
     AdvancementRewards.Builder.experience(100)
     // Alternatively, use loot() to create a new builder.
-    .addLootTable(new ResourceLocation("minecraft", "chests/igloo"))
+    .addLootTable(ResourceLocation.fromNamespaceAndPath("minecraft", "chests/igloo"))
     // Alternatively, use recipe() to create a new builder.
-    .addRecipe(new ResourceLocation("minecraft", "iron_ingot"))
+    .addRecipe(ResourceLocation.fromNamespaceAndPath("minecraft", "iron_ingot"))
     // Alternatively, use function() to create a new builder.
-    .runs(new ResourceLocation("examplemod", "example_function"))
+    .runs(ResourceLocation.fromNamespaceAndPath("examplemod", "example_function"))
 );
 
 // Adds a criterion with the given name to the advancement. Use the corresponding trigger instance's static method.
@@ -246,7 +246,7 @@ builder.requirements(AdvancementRequirements.allOf(List.of("pickup_dirt")));
 
 // Save the advancement to disk, using the given resource location. This returns an AdvancementHolder,
 // which may be stored in a variable and used as a parent by other advancement builders.
-builder.save(saver, new ResourceLocation("examplemod", "example_advancement"), existingFileHelper);
+builder.save(saver, ResourceLocation.fromNamespaceAndPath("examplemod", "example_advancement"), existingFileHelper);
 ```
 
 Of course, don't forget to add your provider to the `GatherDataEvent`:
