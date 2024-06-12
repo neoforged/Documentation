@@ -205,7 +205,7 @@ protected void init() {
 
 ### Ticking Screens
 
-Screens also tick using the `#tick` method to perform some level of client side logic for rendering purposes. The most common example is the `EditBox` for the blinking cursor.
+Screens also tick using the `#tick` method to perform some level of client side logic for rendering purposes.
 
 ```java
 // In some Screen subclass
@@ -213,8 +213,7 @@ Screens also tick using the `#tick` method to perform some level of client side 
 public void tick() {
     super.tick();
 
-    // Add ticking logic for EditBox in editBox
-    this.editBox.tick();
+    // Execute some logic every frame
 }
 ```
 
