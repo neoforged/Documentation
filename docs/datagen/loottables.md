@@ -23,18 +23,20 @@ public void gatherData(GatherDataEvent event) {
 
 ## `LootTableSubProvider`
 
-Each `LootTableProvider.SubProviderEntry` takes in a supplied `LootTableSubProvider`, which generates the loot table, for a given `LootContextParamSet`. The `LootTableSubProvider` contains a method which takes in the lookup provider and a writer (`BiConsumer<ResourceKey<LootTable>, LootTable.Builder>`) to generate a table.
+Each `LootTableProvider.SubProviderEntry` takes in a function that constructs a `LootTableSubProvider` from a `HolderLookup.Provider`, which generates the loot table, for a given `LootContextParamSet`. The `LootTableSubProvider` contains a method which takes in a writer (`BiConsumer<ResourceKey<LootTable>, LootTable.Builder>`) to generate a table.
 
 ```java
 public class ExampleSubProvider implements LootTableSubProvider {
 
   // Used to create a factory method for the wrapping Supplier
-  public ExampleSubProvider() {}
+  public ExampleSubProvider(HolderLookup.Provider lookupProvider) {
+      // ...
+  }
 
   // The method used to generate the loot tables
   @Override
-  public void generate(HolderLookup.Provider lookupProvider, BiConsumer<ResourceKey<LootTable>, LootTable.Builder> writer) {
-    // Generate loot tables here by calling writer#accept
+  public void generate(BiConsumer<ResourceKey<LootTable>, LootTable.Builder> writer) {
+      // Generate loot tables here by calling writer#accept
   }
 }
 ```
@@ -44,9 +46,9 @@ The table can then be added to `LootTableProvider#getTables` for any available `
 ```java
 // In the list passed into the LootTableProvider constructor
 new LootTableProvider.SubProviderEntry(
-  ExampleSubProvider::new,
-  // Loot table generator for the 'empty' param set
-  LootContextParamSets.EMPTY
+    ExampleSubProvider::new,
+    // Loot table generator for the 'empty' param set
+    LootContextParamSets.EMPTY
 )
 ```
 
@@ -54,21 +56,21 @@ new LootTableProvider.SubProviderEntry(
 
 For `LootContextParamSets#BLOCK` and `#ENTITY`, there are special types (`BlockLootSubProvider` and `EntityLootSubProvider` respectively) which provide additional helper methods for creating and validating that there are loot tables.
 
-The `BlockLootSubProvider`'s constructor accepts a list of items that are explosion resistant to determine whether the loot table can be generated if a block is exploded, and a `FeatureFlagSet`, to determine whether the block is enabled so that a loot table is generated for it. Optionally, a map can be provided that contains initial block loot tables to generate.
+The `BlockLootSubProvider`'s constructor accepts a list of items that are explosion resistant to determine whether the loot table can be generated if a block is exploded, a `FeatureFlagSet`, to determine whether the block is enabled so that a loot table is generated for it, and the lookup provider. Optionally, a map can be provided that contains initial block loot tables to generate.
 
 ```java
 // In some BlockLootSubProvider subclass
-public MyBlockLootSubProvider() {
-  super(Collections.emptySet(), FeatureFlags.REGISTRY.allFlags());
+public MyBlockLootSubProvider(HolderLookup.Provider lookupProvider) {
+  super(Collections.emptySet(), FeatureFlags.REGISTRY.allFlags(), lookupProvider);
 }
 ```
 
-The `EntityLootSubProvider`'s constructor takes in a `FeatureFlagSet`, which determines whether the entity type is enabled so that a loot table is generated for it. An optional `FeatureFlagSet` can be specified which determines which entity types must have a loot table to generate.
+The `EntityLootSubProvider`'s constructor takes in a `FeatureFlagSet`, which determines whether the entity type is enabled so that a loot table is generated for it, and the lookup provider. An optional `FeatureFlagSet` can be specified which determines which entity types must have a loot table to generate.
 
 ```java
 // In some EntityLootSubProvider subclass
-public MyEntityLootSubProvider() {
-  super(FeatureFlags.REGISTRY.allFlags());
+public MyEntityLootSubProvider(HolderLookup.Provider lookupProvider) {
+  super(FeatureFlags.REGISTRY.allFlags(), lookupProvider);
 }
 ```
 

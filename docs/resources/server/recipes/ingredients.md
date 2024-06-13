@@ -8,7 +8,7 @@ Custom ingredients can be specified by setting `type` to the name of the [ingred
 
 ### NeoForge Types
 
-NeoForge provides a few additional `Ingredient` types for programmers to implement. 
+NeoForge provides a few additional `Ingredient` types via `ICustomIngredient` for programmers to implement. 
 
 #### CompoundIngredient
 
@@ -86,6 +86,19 @@ Though they are functionally identical, compound ingredients replaces the way on
 }
 ```
 
+### BlockTagIngredient
+
+`BlockTagIngredient`s compare against all block items that are within the specified block tag. This can be used by specifying the `type` as `neoforge:block_tag`.
+
+```json5
+// For some input
+{
+    "type": "neoforge:block_tag",
+    // The block tag the block items should be obtained from
+    "tag": "minecraft:convertable_to_mud"
+}
+```
+
 ## Creating Custom Ingredients
 
 Custom ingredients can be created by implementing `ICustomIngredient` and [registering] the associated [IngredientType][type] to `NeoForgeRegistries.Keys.INGREDIENT_TYPES`.
@@ -116,7 +129,7 @@ public static final DeferredHolder<IngredientType<?>, IngredientType<ExampleIngr
 // In ExampleIngredient
 @Override
 public IngredientType<?> getType() {
-  return EXAMPLE_INGREDIENT.get();
+  return EXAMPLE_INGREDIENT.value();
 }
 ```
 

@@ -166,7 +166,7 @@ public static void onClientSetup(FMLClientSetupEvent event) {
             // The item to apply the property to.
             ExampleItems.EXAMPLE_ITEM,
             // The id of the property.
-            new ResourceLocation("examplemod", "property"),
+            ResourceLocation.fromNamespaceAndPath("examplemod", "property"),
             // A reference to a method that calculates the override value.
             // Parameters are the used item stack, the level context, the player using the item,
             // and a random seed you can use.
@@ -245,7 +245,9 @@ public static void registerBlockColorHandlers(RegisterColorHandlersEvent.Block e
         // Colors are in ARGB format. Generally, if the tint index is -1, it means that no tinting
         // should take place and a default value should be used instead.
         return 0xFFFFFFFF;
-    });
+    },
+    // A varargs of blocks to apply the tinting to
+    EXAMPLE_BLOCK.value(), ...);
 }
 ```
 
@@ -260,7 +262,9 @@ public static void registerItemColorHandlers(RegisterColorHandlersEvent.Item eve
         // Like above, replace with your own calculation. Vanilla values are in the ItemColors class.
         // Also like above, tint index -1 means no tint and should use a default value instead.
         return 0xFFFFFFFF;
-    });
+    },
+    // A varargs of items to apply the tinting to
+    EXAMPLE_ITEM.value(), ...);
 }
 ```
 
@@ -274,7 +278,26 @@ Models that are not associated with a block or item in some way, but are still r
 // Client-side mod bus event handler
 @SubscribeEvent
 public static void registerAdditional(ModelEvent.RegisterAdditional event) {
-    event.register(new ResourceLocation("examplemod", "block/example_unused_model"));
+    event.register(new ModelResourceLocation(
+        // The id of the model
+        ResourceLocation.fromNamespaceAndPath("examplemod", "block/example_unused_model"),
+        // The string representing what variant of the model this is for
+        // In normal vanilla, this would be one of three values:
+        // - Blocks: The stringified block state
+        // - Items: 'inventory' as it is the inventory model
+        // - Standalone: 'standalone' as this does not refer to any other model
+        "variant_type=true"
+    ));
+
+    // An inventory model example
+    event.register(ModelResourceLocation.inventory(
+        ResourceLocation.fromNamespaceAndPath("examplemod", "item/example_unused_inventory_model")
+    ));
+
+    // A standalone model example
+    event.register(ModelResourceLocation.standalone(
+        ResourceLocation.fromNamespaceAndPath("examplemod", "block/example_unused_standalone_model")
+    ));
 }
 ```
 
