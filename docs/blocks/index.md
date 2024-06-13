@@ -94,7 +94,7 @@ If you want to make a block that has different variants (think a slab that has a
 
 #### Block Types
 
-Block types are [`MapCodec`s][codec] used to serialize and deserialize a block object. This `MapCodec` is set via `BlockBehaviour#codec` and [registered][registration] to the block type registry. Currently, its only use is when the block list report is being generated. A block type should be created once for a class and its subclass if its constructor takes in more than just the properties and the logic within the class is substantially different from its super. For example, `FlowerBlock#CODEC` represents the block type for most flowers. Since its subclass, `WitherRoseBlock`, provides a difference in logic, a separate block type is created.
+Block types are [`MapCodec`s][codec] used to serialize and deserialize a block object. This `MapCodec` is set via `BlockBehaviour#codec` and [registered][registration] to the block type registry. Currently, its only use is when the block list report is being generated. A block type should be created once for every subclass of `Block`. For example, `FlowerBlock#CODEC` represents the block type for most flowers while its subclass `WitherRoseBlock` has a separate block type.
 
 If the block subclass only takes in the `BlockBehaviour.Properties`, then `BlockBehaviour#simpleCodec` can be used to create the `MapCodec`.
 
