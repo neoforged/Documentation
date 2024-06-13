@@ -78,6 +78,6 @@ Tags are directly supported by Vanilla. See the respective Vanilla wiki pages fo
 [datapack]: ./index.md
 [tags]: https://minecraft.wiki/w/Tag#JSON_format
 [taglist]: https://minecraft.wiki/w/Tag#List_of_tags
-[neoforgetags]: https://github.com/neoforged/NeoForge/tree/1.20.x/src/generated/resources/data/neoforge/tags
+[neoforgetags]: https://github.com/neoforged/NeoForge/tree/1.21.x/src/generated/resources/data/neoforge/tags
 [recipes]: https://minecraft.wiki/w/Recipe#JSON_format
 [advancements]: https://minecraft.wiki/w/Advancement
