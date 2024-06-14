@@ -13,7 +13,14 @@ Enums which are not patched to implement the interface cannot have the interface
 
 ### Creating an Enum Entry
 
-To create new enum entries, a JSON file needs to be created and referenced in the `neoforge.mods.toml` with the `enumExtender` entry of a `[[mods]]` block. The specified path must be relative to the `resources` directory.
+To create new enum entries, a JSON file needs to be created and referenced in the `neoforge.mods.toml` with the `enumExtensions` entry of a `[[mods]]` block. The specified path must be relative to the `resources` directory:
+```toml
+# In neoforge.mods.toml:
+[[mods]]
+## The file is relative to the output directory of the resources, or the root path inside the jar when compiled
+## The 'resources' directory represents the root output directory of the resources
+enumExtensions="META-INF/enumextensions.json"
+```
 
 The definition of the entry consists of the target enum's class name, the new field's name (must be prefixed with the mod ID), the descriptor of the constructor to use for constructing the entry and the parameters to be passed to said constructor.
 
