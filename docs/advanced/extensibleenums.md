@@ -29,10 +29,17 @@ The definition of the entry consists of the target enum's class name, the new fi
   "entries": [
     {
       // The enum class the entry should be added to
-      "enum": "net/minecraft/world/item/Rarity",
+      "enum": "net/minecraft/world/item/ItemDisplayContext",
       // The field name of the new entry, must be prefixed with the mod ID
-      "name": "EXAMPLEMOD_CUSTOM",
+      "name": "EXAMPLEMOD_STANDING",
       // The constructor to be used
+      "constructor": "(ILjava/lang/String;Ljava/lang/String;)V",
+      // Constant parameters provided directly.
+      "parameters": [ -1, "examplemod:standing", null ]
+    },
+    {
+      "enum": "net/minecraft/world/item/Rarity",
+      "name": "EXAMPLEMOD_CUSTOM",
       "constructor": "(ILjava/lang/String;Ljava/util/function/UnaryOperator;)V",
       // The parameters to be used, provided as a reference to an EnumProxy<Rarity> field in the given class
       "parameters": {
@@ -49,13 +56,6 @@ The definition of the entry consists of the target enum's class name, the new fi
         "class": "example/examplemod/MyEnumParams",
         "field": "getTestDamageEffectsParameter"
       }
-    },
-    {
-      "enum": "net/minecraft/world/item/ItemDisplayContext",
-      "name": "EXAMPLEMOD_STANDING",
-      "constructor": "(ILjava/lang/String;Ljava/lang/String;)V",
-      // Constant parameters provided directly.
-      "parameters": [ -1, "examplemod:standing", null ]
     }
   ]
 }
@@ -79,7 +79,8 @@ public class MyEnumParams {
 
 #### Constructor
 
-The constructor must be specified as a method descriptor and must only contain the parameters visible in the source code, omitting the hidden constant name and ordinal parameters.
+The constructor must be specified as a [method descriptor][jvmdescriptors] and must only contain the parameters visible in the source code, omitting the hidden constant name and ordinal parameters.  
+If a constructor is marked with the `@ReservedConstructor` annotation, then it cannot be used for modded enum constants.
 
 #### Parameters
 
@@ -96,8 +97,8 @@ The fields and/or methods used as sources for parameter values should be in a se
 
 Certain parameters have additional rules:
 
-- If the parameter is an int ID parameter related to a `@IndexedEnum` annotation on the enum, then it is ignored and replaced by the entry's ordinal. If said parameter is specified inline in the JSON, then it must be specified as `-1`.
-- If the parameter is a String name parameter related to a `@NamedEnum` annotation on the enum, then it must be prefixed by the mod ID in the `namespace:path` format known from `ResourceLocation`s.
+- If the parameter is an int ID parameter related to a `@IndexedEnum` annotation on the enum, then it is ignored and replaced by the entry's ordinal. If said parameter is specified inline in the JSON, then it must be specified as `-1`, otherwise an exception is thrown.
+- If the parameter is a String name parameter related to a `@NamedEnum` annotation on the enum, then it must be prefixed by the mod ID in the `namespace:path` format known from `ResourceLocation`s, otherwise an exception is thrown.
 
 #### Retrieving the Generated Constant
 
@@ -143,3 +144,5 @@ public enum ExampleEnum implements net.neoforged.fml.common.asm.enumextension.IE
     }
 }
 ```
+
+[jvmdescriptors]: https://docs.oracle.com/javase/specs/jvms/se21/html/jvms-4.html#jvms-4.3.2
