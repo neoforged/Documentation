@@ -77,7 +77,7 @@ For example, here is how a capability for side-aware block `IItemHandler`s might
 public static final BlockCapability<IItemHandler, @Nullable Direction> ITEM_HANDLER_BLOCK =
     BlockCapability.create(
         // Provide a name to uniquely identify the capability.
-        new ResourceLocation("mymod", "item_handler"),
+        ResourceLocation.fromNamespaceAndPath("mymod", "item_handler"),
         // Provide the queried type. Here, we want to look up `IItemHandler` instances.
         IItemHandler.class,
         // Provide the context type. We will allow the query to receive an extra `Direction side` parameter.
@@ -90,7 +90,7 @@ A `@Nullable Direction` is so common for blocks that there is a dedicated helper
 public static final BlockCapability<IItemHandler, @Nullable Direction> ITEM_HANDLER_BLOCK =
     BlockCapability.createSided(
         // Provide a name to uniquely identify the capability.
-        new ResourceLocation("mymod", "item_handler"),
+        ResourceLocation.fromNamespaceAndPath("mymod", "item_handler"),
         // Provide the queried type. Here, we want to look up `IItemHandler` instances.
         IItemHandler.class);
 ```
@@ -101,7 +101,7 @@ If no context is required, `Void` should be used. There is also a dedicated help
 public static final BlockCapability<IItemHandler, Void> ITEM_HANDLER_NO_CONTEXT =
     BlockCapability.createVoid(
         // Provide a name to uniquely identify the capability.
-        new ResourceLocation("mymod", "item_handler_no_context"),
+        ResourceLocation.fromNamespaceAndPath("mymod", "item_handler_no_context"),
         // Provide the queried type. Here, we want to look up `IItemHandler` instances.
         IItemHandler.class);
 ```
@@ -332,6 +332,6 @@ modBus.addListener(RegisterCapabilitiesEvent.class, event -> {
 
 See [`CapabilityHooks`][capability-hooks] for a list of the providers registered by NeoForge itself.
 
-[block-cap-provider]: https://github.com/neoforged/NeoForge/blob/1.20.x/src/main/java/net/neoforged/neoforge/capabilities/IBlockCapabilityProvider.java
-[capability-hooks]: https://github.com/neoforged/NeoForge/blob/1.20.x/src/main/java/net/neoforged/neoforge/capabilities/CapabilityHooks.java
+[block-cap-provider]: https://github.com/neoforged/NeoForge/blob/1.21.x/src/main/java/net/neoforged/neoforge/capabilities/IBlockCapabilityProvider.java
+[capability-hooks]: https://github.com/neoforged/NeoForge/blob/1.21.x/src/main/java/net/neoforged/neoforge/capabilities/CapabilityHooks.java
 [invalidation]: #block-capability-invalidation

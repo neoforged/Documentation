@@ -142,10 +142,11 @@ public static final Codec<ExampleTriggerInstace> CODEC = RecordCodecBuilder.crea
 Whenever the action being checked is performed, the `#trigger` method defined by our `SimpleCriterionTrigger` subclass should be called. Of course, you can also call on vanilla triggers, which are found in `CriteriaTriggers`.
 
 ```java
-// in some piece of code where the action is being performed
+// In some piece of code where the action is being performed
+// Again, EXAMPLE_TRIGGER is a supplier for the registered instance of the custom criterion trigger
 public void performExampleAction(ServerPlayer player) {
-    // run code to perform action here
-    EXAMPLE_TRIGGER.get().trigger(player, additionalContextParametersHere);
+    // Run code to perform action here
+    EXAMPLE_TRIGGER.value().trigger(player, additionalContextParametersHere);
 }
 ```
 

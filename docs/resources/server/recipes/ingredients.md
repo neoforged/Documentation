@@ -8,7 +8,7 @@ Custom ingredients can be specified by setting `type` to the name of the [ingred
 
 ### NeoForge Types
 
-NeoForge provides a few additional `Ingredient` types for programmers to implement. 
+NeoForge provides a few additional `Ingredient` types via `ICustomIngredient` for programmers to implement. 
 
 #### CompoundIngredient
 
@@ -86,6 +86,19 @@ Though they are functionally identical, compound ingredients replaces the way on
 }
 ```
 
+### BlockTagIngredient
+
+`BlockTagIngredient`s compare against all block items that are within the specified block tag. This can be used by specifying the `type` as `neoforge:block_tag`.
+
+```json5
+// For some input
+{
+    "type": "neoforge:block_tag",
+    // The block tag the block items should be obtained from
+    "tag": "minecraft:convertable_to_mud"
+}
+```
+
 ## Creating Custom Ingredients
 
 Custom ingredients can be created by implementing `ICustomIngredient` and [registering] the associated [IngredientType][type] to `NeoForgeRegistries.Keys.INGREDIENT_TYPES`.
@@ -103,7 +116,7 @@ There are four important methods to implement:
 
 ### IngredientType
 
-`IngredientType` contains two values: a [map codec][codec] used to encode and decode the ingredient, and a `StreamCodec` to sync the ingredient if `ICustomIngredient#isSimple` returns `false`. If `#isSimple` is `true`, then `IngredientType` has a constructor overload that only takes in the map codec.
+`IngredientType` contains two values: a [map codec][codec] used to encode and decode the ingredient, and a [`StreamCodec`][streamcodec] to sync the ingredient if `ICustomIngredient#isSimple` returns `false`. If `#isSimple` is `true`, then `IngredientType` has a constructor overload that only takes in the map codec.
 
 The `IngredientType` needs to be [registered][registering].
 
@@ -116,7 +129,7 @@ public static final DeferredHolder<IngredientType<?>, IngredientType<ExampleIngr
 // In ExampleIngredient
 @Override
 public IngredientType<?> getType() {
-  return EXAMPLE_INGREDIENT.get();
+  return EXAMPLE_INGREDIENT.value();
 }
 ```
 
@@ -127,3 +140,4 @@ public IngredientType<?> getType() {
 [codec]: ../../../datastorage/codecs.md
 [datagen]: datagen.md
 [datacomponents]: ../../../items/datacomponents.md
+[streamcodec]: ../../../networking/streamcodecs.md

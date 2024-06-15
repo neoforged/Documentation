@@ -4,7 +4,7 @@ A tag is, simply put, a list of registered objects of the same type. They are lo
 
 Any [registry] can have tag files - while blocks and items are the most common use cases, other registries such as fluids, entity types or damage types often utilize tags as well. You can also create your own tags if you need them.
 
-Tags are located at `data/<tag_namespace>/tags/<registry_path>/<tag_path>.json` for Minecraft registries, and `data/<tag_namespace>/tags/<registry_namespace>/<registry_path>/<tag_path>.json` for non-Minecraft registries. For example, to modify the `minecraft:planks` item tag, you would place your tag file at `data/minecraft/tags/items/planks.json`.
+Tags are located at `data/<tag_namespace>/tags/<registry_path>/<tag_path>.json` for Minecraft registries, and `data/<tag_namespace>/tags/<registry_namespace>/<registry_path>/<tag_path>.json` for non-Minecraft registries. For example, to modify the `minecraft:planks` item tag, you would place your tag file at `data/minecraft/tags/item/planks.json`.
 
 :::info
 Unlike most other NeoForge data files, NeoForge-added tags do not use the `neoforge` namespace. Instead, they use the `c` namespace (e.g. `c:ingots/gold`). This is because the tags are unified between NeoForge and the Fabric mod loader, at the request of many modders developing on multiple loaders.

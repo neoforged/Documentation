@@ -26,10 +26,6 @@ To create a standard set of tools, you must first define a `Tier`. For reference
 public static final Tier COPPER_TIER = new SimpleTier(
         // The tag that determines what blocks this tool cannot break. See below for more information.
         MyBlockTags.INCORRECT_FOR_COPPER_TOOL,
-        // Determines the level of this tool. Since this is an int, there is no good way to place our tool between stone and iron.
-        // NeoForge introduces the TierSortingRegistry to solve this problem, see below for more information. Use a best-effort approximation here.
-        // Stone is 1, iron is 2.
-        1,
         // Determines the durability of the tier.
         // Stone is 131, iron is 250.
         200,
@@ -84,13 +80,13 @@ Alternatively, we can create our own tag, like so:
 
 ```java
 // This tag will allow us to add these blocks to the incorrect tags that cannot mine them
-public static final TagKey<Block> NEEDS_COPPER_TOOL = TagKey.create(BuiltInRegistries.BLOCK.key(), new ResourceLocation(MOD_ID, "needs_copper_tool"));
+public static final TagKey<Block> NEEDS_COPPER_TOOL = TagKey.create(BuiltInRegistries.BLOCK.key(), ResourceLocation.fromNamespaceAndPath(MOD_ID, "needs_copper_tool"));
 
 // This tag will be passed into our tier
-public static final TagKey<Block> INCORRECT_FOR_COPPER_TOOL = TagKey.create(BuiltInRegistries.BLOCK.key(), new ResourceLocation(MOD_ID, "incorrect_for_cooper_tool"));
+public static final TagKey<Block> INCORRECT_FOR_COPPER_TOOL = TagKey.create(BuiltInRegistries.BLOCK.key(), ResourceLocation.fromNamespaceAndPath(MOD_ID, "incorrect_for_cooper_tool"));
 ```
 
-And then, we populate our tag. For example, let's make copper able to mine gold ores, gold blocks and redstone ore, but not diamonds or emeralds. (Redstone blocks are already mineable by stone tools.) The tag file is located at `src/main/resources/data/mod_id/tags/blocks/needs_copper_tool.json` (where `mod_id` is your mod id):
+And then, we populate our tag. For example, let's make copper able to mine gold ores, gold blocks and redstone ore, but not diamonds or emeralds. (Redstone blocks are already mineable by stone tools.) The tag file is located at `src/main/resources/data/mod_id/tags/block/needs_copper_tool.json` (where `mod_id` is your mod id):
 
 ```json5
 {
@@ -105,7 +101,7 @@ And then, we populate our tag. For example, let's make copper able to mine gold 
 }
 ```
 
-Then, for our tag to pass into the tier, we can provide a negative constraint for any tools that are incorrect for stone tools but within our copper tools tag. The tag file is located at `src/main/resources/data/mod_id/tags/blocks/incorrect_for_cooper_tool.json`:
+Then, for our tag to pass into the tier, we can provide a negative constraint for any tools that are incorrect for stone tools but within our copper tools tag. The tag file is located at `src/main/resources/data/mod_id/tags/block/incorrect_for_cooper_tool.json`:
 
 ```json5
 {
@@ -138,7 +134,7 @@ Creating a multitool-like item (i.e. an item that combines two or more tools int
 - Adding attributes to the item (e.g. attack damage, attack speed) via `Item.Properties#attributes`.
 - Overriding `IItemExtension#canPerformAction` to determine what [`ToolAction`s][toolaction] the item can perform.
 - Calling `IBlockExtension#getToolModifiedState` if you want your item to modify the block state on right click based on the `ToolAction`s.
-- Adding your tool to some of the `minecraft:*_enchantable` tags so that your item can have certain enchantments applied to it, or `IItemExtension#canApplyAtEnchantingTable` to check if the enchantment can be applied at all.
+- Adding your tool to some of the `minecraft:enchantable/*` tags so that your item can have certain enchantments applied to it.
 
 ## `ToolAction`s
 
@@ -183,14 +179,14 @@ public static final ArmorMaterial COPPER_ARMOR_MATERIAL = new ArmorMaterial(
         // - 'assets/mod_id/textures/models/armor/copper_layer_1.png' for the outer texture
         // - 'assets/mod_id/textures/models/armor/copper_layer_2.png' for the inner texture (only legs)
         new ArmorMaterial.Layer(
-            new ResourceLocation(MOD_ID, "copper")
+            ResourceLocation.fromNamespaceAndPath(MOD_ID, "copper")
         ),
         // Creates a new armor texture that will be rendered on top of the previous at:
         // - 'assets/mod_id/textures/models/armor/copper_layer_1_overlay.png' for the outer texture
         // - 'assets/mod_id/textures/models/armor/copper_layer_2_overlay.png' for the inner texture (only legs)
         // 'true' means that the armor material is dyeable; however, the item must also be added to the 'minecraft:dyeable' tag
         new ArmorMaterial.Layer(
-            new ResourceLocation(MOD_ID, "copper"), "_overlay", true
+            ResourceLocation.fromNamespaceAndPath(MOD_ID, "copper"), "_overlay", true
         )
     ),
     // Returns the toughness value of the armor. The toughness value is an additional value included in

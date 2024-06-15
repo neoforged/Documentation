@@ -21,7 +21,7 @@ Then we can implement the `CustomPacketPayload` interface to create a payload th
 ```java
 public record MyData(String name, int age) implements CustomPacketPayload {
     
-    public static final CustomPacketPayload.Type<MyData> TYPE = new CustomPacketPayload.Type<>(new ResourceLocation("mymod", "my_data"));
+    public static final CustomPacketPayload.Type<MyData> TYPE = new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath("mymod", "my_data"));
 
     // Each pair of elements defines the stream codec of the element to encode/decode and the getter for the element to encode
     // 'name' will be encoded and decoded as a string
@@ -51,7 +51,7 @@ Finally, we can register this payload with the registrar:
 public static void register(final RegisterPayloadHandlerEvent event) {
     final PayloadRegistrar registrar = event.registrar("1");
     registrar.playBidirectional(
-        MyData.Type,
+        MyData.TYPE,
         MyData.STREAM_CODEC,
         new DirectionalPayloadHandler<>(
             ClientPayloadHandler::handleData,
@@ -67,7 +67,7 @@ Dissecting the code above we can notice a couple of things:
 - The registrar uses a `*Bidirectional` method, that can be used for registering payloads which are sent to both the logical server and logical client.
     - Not visible in this code are the methods `*ToClient` and `*ToServer`; however, they can also be used to register payloads to only the logical client or only the logical server, respectively.
 - The type of the payload is used as a unique identifier for the payload.
-- The stream codec is used to read and write the payload to and from the buffer sent across the network
+- The [stream codec][streamcodec] is used to read and write the payload to and from the buffer sent across the network
 - The payload handler is a callback for when the payload arrives on one of the logical sides.
     - If a `*Bidirectional` method is used, a `DirectionalPayloadHandler` can be used to provide two separate payload handlers for each of the logical sides.
 
@@ -106,3 +106,4 @@ Now that you know how you can facilitate the communication between the client an
 With your own payloads you can then use those to configure the client and server using [Configuration Tasks][configuration].
 
 [configuration]: ./configuration-tasks.md
+[streamcodec]: ./streamcodecs.md
