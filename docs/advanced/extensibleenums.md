@@ -54,7 +54,7 @@ The definition of the entry consists of the target enum's class name, the new fi
       // The parameters to be used, provided as a reference to a method in the given class
       "parameters": {
         "class": "example/examplemod/MyEnumParams",
-        "field": "getTestDamageEffectsParameter"
+        "method": "getTestDamageEffectsParameter"
       }
     }
   ]
