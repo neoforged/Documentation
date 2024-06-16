@@ -5,7 +5,7 @@ Loot tables are data files that are used to define randomized loot drops. A loot
 Minecraft uses loot tables at various points in the game, including block drops, entity drops, chest loot, fishing loot, and many others. How a loot table is referenced depends on the context:
 
 - Every block will, by default, receive an associated loot table, located at `<block_namespace>:blocks/<block_name>`. This can be disabled by calling `#noLootTable` on the block's `Properties`, resulting in no loot table being created and the block dropping nothing; this is mainly done by air-like or technical blocks.
-- Every subclass of `LivingEntity` will, by default, receive an associated loot table, located at `<entity_namespace>:entities/<entity_name>`. This can be changed by overriding `#getLootTable` if you are directly extending `LivingEntity`, or by overriding `#getDefaultLootTable` if you are extending `Mob` or a subclass thereof. For example, sheep use this to roll different loot tables depending on their wool color.
+- Every subclass of `LivingEntity` that is not in the `MobCategory.MISC` category (as determined by `EntityType#getCategory`) will, by default, receive an associated loot table, located at `<entity_namespace>:entities/<entity_name>`. This can be changed by overriding `#getLootTable` if you are directly extending `LivingEntity`, or by overriding `#getDefaultLootTable` if you are extending `Mob` or a subclass thereof. For example, sheep use this to roll different loot tables depending on their wool color.
 - Chests in structures specify their loot table in their block entity data. Minecraft stores all chest loot tables in `minecraft:chests/<chest_name>`, it is not required (but recommended) to follow this practice in mods.
 - The loot tables for gift items that villagers may throw at players after a raid are defined in the [`neoforge:raid_hero_gifts` data map][raidherogifts].
 - Other loot tables, for example the fishing loot table, are retrieved when needed from `level.getServer().getLootData().getLootTable(lootTableId)`. A list of all vanilla loot table locations can be found in `BuiltInLootTables`.
@@ -34,10 +34,9 @@ Due to the complexity of the loot table system, loot tables are compromised of s
   - For a full list of vanilla loot functions, see [Item Modifiers][itemmodifiers]. Modders may also add their own loot functions.
 - The **loot context** is an object passed to the loot table evaluator that may contain additional information for rolling the table, for example an associated block state, block entity, entity, etc.; these are called **loot context parameters**.
   - A full list of loot context parameters can be found in the `LootContextParams` class.
-- The **loot table type** is a validator for the loot context. For example, the loot table type `barter` is guaranteed to have an entity context for the piglin being bartered with.
-  - The context is validated at data pack load time, printing a log warning if context is used that is not defined by the loot table type.
+- The **loot context parameter set**, also known as the **loot table type** (because it is denoted in the `type` JSON field), is a validator for the loot context. For example, the loot table type `barter` is guaranteed to have an entity context for the piglin being bartered with. - The context is validated at data pack load time, printing a log warning if context is used that is not defined by the loot table type.
   - The loot table type is always optional. No validation will take place if it is not specified.
-  - This is internally called a **loot context parameter set**. The default parameter sets can be found in the `LootContextParamSets` class.
+  - The default parameter sets can be found in the `LootContextParamSets` class.
   - For a full list of loot table types and what context they provide, see [Loot Contexts][lootcontext].
 - A **loot table evaluator** is the piece of Java code rolling the loot table.
 
@@ -189,7 +188,7 @@ Loot conditions are a [registry]. Like many other registries, they use the patte
 ```java
 public record HasXpLevelCondition(int level) implements LootItemCondition {
     // Add the context we need for this condition. In our case, this will be the xp level the player must have.
-    public static final Codec<HasXpLevelCondition> CODEC = RecordCodecBuilder.create(inst -> inst.group(
+    public static final MapCodec<HasXpLevelCondition> CODEC = RecordCodecBuilder.create(inst -> inst.group(
             Codec.INT.fieldOf("level").forGetter(this::level)
     ).apply(inst, HasXpLevelCondition::new));
     // Our type instance.
@@ -246,7 +245,7 @@ public class RandomEnchantmentWithLevelFunction extends LootItemConditionalFunct
             .listOf()
             .xmap(HolderSet::direct, e -> e.stream().toList());
     // Our codec.
-    public static final Codec<RandomEnchantmentWithLevelFunction> CODEC =
+    public static final MapCodec<RandomEnchantmentWithLevelFunction> CODEC =
             // #commonFields adds the conditions field.
             RecordCodecBuilder.create(inst -> commonFields(inst).and(inst.group(
                     ExtraCodecs.strictOptionalField(ENCHANTMENT_SET_CODEC, "enchantments").forGetter(inst -> inst.enchantments),

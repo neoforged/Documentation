@@ -72,7 +72,7 @@ public static final TagKey<Block> MY_TAG = TagKey.create(
         // The registry key. The type of the registry must match the generic type of the tag.
         Registries.BLOCK,
         // The location of the tag. This example will put our tag at data/examplemod/tags/blocks/example_tag.json.
-        ResourceLocation.create("examplemod", "example_tag")
+        ResourceLocation.fromNamespaceAndPath("examplemod", "example_tag")
 );
 ```
 
@@ -80,9 +80,7 @@ We can then use our tag to perform various operations on it. Let's start with th
 
 ```java
 // Check whether dirt is in our tag.
-boolean isInTag = BuiltInRegistries.BLOCK.getHolder(Blocks.DIRT)
-        .map(holder -> holder.is(MY_TAG))
-        .orElse(false);
+boolean isInTag = BuiltInRegistries.BLOCK.getOrCreateTag(MY_TAG).anyMatch(e -> e == Items.DIRT);
 ```
 
 Since this is a very verbose statement, especially when used often, `BlockState` and `ItemStack` - the two most common users of the tag system - each define a `#is` helper method, used like so:
@@ -149,17 +147,17 @@ public class MyBlockTagsProvider extends BlockTagsProvider {
                 .add(Blocks.DIRT, Blocks.COBBLESTONE)
                 // Add optional entries that will be ignored if absent. This example uses Botania's Pure Daisy.
                 // Unlike #add, this is not a vararg parameter.
-                .addOptional(ResourceLocation.create("botania", "pure_daisy"))
+                .addOptional(ResourceLocation.fromNamespaceAndPath("botania", "pure_daisy"))
                 // Add a tag entry.
                 .addTag(BlockTags.PLANKS)
                 // Add multiple tag entries. This is a vararg parameter.
                 // Can cause unchecked warnings that can safely be suppressed.
                 .addTags(BlockTags.LOGS, BlockTags.WOODEN_SLABS)
                 // Add an optional tag entry that will be ignored if absent.
-                .addOptionalTag(ResourceLocation.create("c", "ingots/tin"))
+                .addOptionalTag(ResourceLocation.fromNamespaceAndPath("c", "ingots/tin"))
                 // Add multiple optional tag entries. This is a vararg parameter.
                 // Can cause unchecked warnings that can safely be suppressed.
-                .addOptionalTags(ResourceLocation.create("c", "nuggets/tin"), ResourceLocation.create("c", "storage_blocks/tin"))
+                .addOptionalTags(ResourceLocation.fromNamespaceAndPath("c", "nuggets/tin"), ResourceLocation.fromNamespaceAndPath("c", "storage_blocks/tin"))
                 // Set the replace property to true.
                 .replace()
                 // Set the replace property back to false.
@@ -167,7 +165,7 @@ public class MyBlockTagsProvider extends BlockTagsProvider {
                 // Remove entries. This is a vararg parameter. Accepts either resource locations, resource keys,
                 // tag keys, or (intrinsic providers only) direct values.
                 // Can cause unchecked warnings that can safely be suppressed.
-                .remove(ResourceLocation.create("minecraft", "crimson_slab"), ResourceLocation.create("minecraft", "warped_slab"));
+                .remove(ResourceLocation.fromNamespaceAndPath("minecraft", "crimson_slab"), ResourceLocation.fromNamespaceAndPath("minecraft", "warped_slab"));
     }
 }
 ```
@@ -213,7 +211,7 @@ public class MyRecipeTypeTagsProvider extends TagsProvider<RecipeType<?>> {
 }
 ```
 
-If desirable and applicable, you can also extend `IntrinsicHolderTagsProvider<T>` instead of `TagsProvider<T>`. This additionally requires a function parameter that returns a resource key for a given object. Using attribute tags as an example:
+If desirable and applicable, you can also extend `IntrinsicHolderTagsProvider<T>` instead of `TagsProvider<T>`, allowing you to pass in objects directly rather than just their resource keys. This additionally requires a function parameter that returns a resource key for a given object. Using attribute tags as an example:
 
 ```java
 public class MyAttributeTagsProvider extends TagsProvider<Attribute> {

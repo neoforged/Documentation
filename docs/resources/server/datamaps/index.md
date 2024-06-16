@@ -77,7 +77,9 @@ Removing elements can be done by specifying a list of item IDs or tag IDs to rem
 ```json5
 {
   // We do not want the potato to have a value, even if another mod's data map added it
-  "remove": ["minecraft:potato"]
+  "remove": [
+    "minecraft:potato"
+  ]
 }
 ```
 
@@ -89,7 +91,9 @@ Removals run after additions, so we can include a tag and then exclude certain e
     "#minecraft:logs": { /* ... */ }
   },
   // Exclude crimson stem again
-  "remove": ["minecraft:crimson_stem"]
+  "remove": [
+    "minecraft:crimson_stem"
+  ]
 }
 ```
 

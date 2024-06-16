@@ -155,7 +155,7 @@ public void performExampleAction(ServerPlayer player) {
 Advancements can be [datagenned][datagen] using an `AdvancementProvider`. An `AdvancementProvider` accepts a list of `AdvancementSubProvider`s, which actually generate the advancements using `Advancement.Builder`.
 
 :::warning
-Both Minecraft and NeoForge provide a class named `AdvancementProvider`. The NeoForge class is an improvement on the one Minecraft provides, and should always be used in favor of the Minecraft one. The following documentation always assumes usage of the NeoForge `AdvancementProvider` class.
+Both Minecraft and NeoForge provide a class named `AdvancementProvider`, located at `net.minecraft.data.advancements.AdvancementProvider` and `net.neoforged.neoforge.common.data.AdvancementProvider`, respectively. The NeoForge class is an improvement on the one Minecraft provides, and should always be used in favor of the Minecraft one. The following documentation always assumes usage of the NeoForge `AdvancementProvider` class.
 :::
 
 To start, create a subclass of `AdvancementProvider`:

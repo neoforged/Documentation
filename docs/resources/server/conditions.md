@@ -143,7 +143,7 @@ public record EntityTagEmptyCondition(TagKey<EntityType<?>> tag) implements ICon
 
     @Override
     public boolean test(ICondition.IContext context) {
-        return context.getTag(tag).isEmpty();
+        return context.getTag(this.tag()).isEmpty();
     }
 
     @Override

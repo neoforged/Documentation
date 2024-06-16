@@ -144,31 +144,15 @@ In many situations, for example [recipes], item stacks need to be represented as
 ```json5
 {
   // The item ID. Required.
-  "item": "minecraft:dirt",
+  "id": "minecraft:dirt",
   // The item stack count. Optional, defaults to 1.
   "count": 4,
   // A map of data components. Optional, defaults to an empty map.
-  "components": {"enchantment_glint_override": true}
+  "components": {
+    "minecraft:enchantment_glint_override": true
+  }
 }
 ```
-
-If both count and components are unspecified, the object may be shortened to just the item id string. So for example, the object
-
-```json5
-{
-  "item": "minecraft:cobblestone"
-}
-```
-
-becomes just:
-
-```json5
-"minecraft:cobblestone"
-```
-
-:::tip
-A list of possible data components Minecraft provides may be found on the [Minecraft Wiki][wikicomponents].
-:::
 
 ## Creative Tabs
 

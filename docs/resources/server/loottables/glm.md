@@ -48,15 +48,15 @@ An example usage may look something like this:
 
 ```json5
 {
-   // This is the registry name of the loot modifier
-   "type": "examplemod:my_loot_modifier",
-   "conditions": [
-      // Loot table conditions here
-   ],
-   // Extra properties specified by the codec
-   "field1": "somestring",
-   "field2": 10,
-   "field3": "minecraft:dirt"
+  // This is the registry name of the loot modifier
+  "type": "examplemod:my_loot_modifier",
+  "conditions": [
+    // Loot table conditions here
+  ],
+  // Extra properties specified by the codec
+  "field1": "somestring",
+  "field2": 10,
+  "field3": "minecraft:dirt"
 }
 ```
 

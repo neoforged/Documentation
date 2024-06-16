@@ -11,7 +11,7 @@ public class MyLootTableProvider extends LootTableProvider {
                 // It is generally not recommended for mods to validate, therefore we pass in an empty set.
                 Set.of(),
                 // A list of sub provider entries. See below for what values to use here.
-                List.of());
+                List.of(...));
     }
     
     // Vanilla uses this method to validate existence and correct usage of loot context parameters.
@@ -63,15 +63,16 @@ public class MyLootTableSubProvider implements LootTableSubProvider {
 Once we have our loot table sub provider, we add it to the constructor of our loot provider, like so:
 
 ```java
-super(output, Set.of(), List.of(new SubProviderEntry(
-        // A reference to the sub provider's constructor.
-        MyLootTableSubProvider::new,
-        // An associated loot context set. If you're unsure what to use, use empty.
-        LootContextParamSets.EMPTY
-)));
+super(output, Set.of(), List.of(
+        new SubProviderEntry(
+                // A reference to the sub provider's constructor.
+                MyLootTableSubProvider::new,
+                // An associated loot context set. If you're unsure what to use, use empty.
+                LootContextParamSets.EMPTY
+        ),
+        // other sub providers here (if applicable)
+));
 ```
-
-Of course, if you have multiple sub providers, you want to add a `SubProviderEntry` for each of them.
 
 ### Loot Entry Providers
 
@@ -105,26 +106,29 @@ Number providers define how a number is obtained. This is done instead of simply
 
 ### `BlockLootSubProvider`
 
-`BlockLootSubProvider` is an abstract helper class containing many helpers for creating common block loot tables, e.g. single item drops (`#createSingleItemTable`), silk touch-only drops (`#createSilkTouchOnlyTable`), drops for slab-like blocks (`#createSlabItemTable`), and many more. Unfortunately, setting up a `BlockLootSubProvider` for modded usage involves more boilerplate:
+`BlockLootSubProvider` is an abstract helper class containing many helpers for creating common block loot tables, e.g. single item drops (`#createSingleItemTable`), dropping the block the table is created for (`#dropSelf`), silk touch-only drops (`#createSilkTouchOnlyTable`), drops for slab-like blocks (`#createSlabItemTable`), and many more. Unfortunately, setting up a `BlockLootSubProvider` for modded usage involves more boilerplate:
 
 ```java
 public class MyBlockLootSubProvider extends BlockLootSubProvider {
-    // A list of blocks to generate tables for. Must be a mutable list because we will add values to it below.
-    private final List<Block> blocks = new ArrayList<>();
-
     // The constructor can be private if this class is an inner class of your loot table provider.
     public MyBlockLootSubProvider() {
         // The first parameter is a set of blocks we are creating loot tables for. Instead of hardcoding,
-        // we use our list to dynamically add values to it and just pass an empty set here.
+        // we use our block registry and just pass an empty set here.
         // The second parameter is the feature flag set, this will be the default flags
         // unless you are adding custom flags (which is beyond the scope of this article).
         super(Set.of(), FeatureFlags.DEFAULT_FLAGS);
     }
     
-    // We return our list here instead.
+    // The contents of this Iterable are used for validation.
+    // We return an Iterable over our block registry's values here.
     @Override
     protected Iterable<Block> getKnownBlocks() {
-        return blocks;
+        // The contents of our DeferredRegister.
+        return MyRegistries.BLOCK_REGISTRY.getEntries()
+                .stream()
+                // Cast to Block here, otherwise it will be a ? extends Block and Java will complain.
+                .map(e -> (Block) e.value())
+                .toList();
     }
     
     // We override the add() method to add the block to the list whenever we add a loot table.
@@ -137,7 +141,11 @@ public class MyBlockLootSubProvider extends BlockLootSubProvider {
     // Actually add our loot tables.
     @Override
     protected void generate() {
-        add(MyBlocks.EXAMPLE_BLOCK.get(), createSingleItemTable(MyBlocks.EXAMPLE_BLOCK.get()));
+        // Equivalent to calling add(MyBlocks.EXAMPLE_BLOCK.get(), createSingleItemTable(MyBlocks.EXAMPLE_BLOCK.get()));
+        dropSelf(MyBlocks.EXAMPLE_BLOCK.get());
+        // Add a table with a silk touch only loot table.
+        add(MyBlocks.EXAMPLE_SILK_TOUCHABLE_BLOCK.get(),
+                createSilkTouchOnlyTable(MyBlocks.EXAMPLE_SILK_TOUCHABLE_BLOCK.get()));
         // other loot table additions here
     }
 }
@@ -154,27 +162,20 @@ super(output, Set.of(), List.of(new SubProviderEntry(
 
 ### `EntityLootSubProvider`
 
-Similar to `BlockLootSubProvider`, `EntityLootSubProvider` provides many helpers for entity loot table generation. Also similar to `BlockLootSubProvider`, we must provide an `Iterable<EntityType<?>>` of entities known to the provider. Overall, our implementation looks very similar to our `BlockLootSubProvider`, but with every mentioned of blocks swapped out for entity types:
+Similar to `BlockLootSubProvider`, `EntityLootSubProvider` provides many helpers for entity loot table generation. Also similar to `BlockLootSubProvider`, we must provide a `Stream<EntityType<?>>` of entities known to the provider (instead of the `Iterable<Block>` used before). Overall, our implementation looks very similar to our `BlockLootSubProvider`, but with every mentioned of blocks swapped out for entity types:
 
 ```java
 public class MyEntityLootSubProvider extends EntityLootSubProvider {
-    private final List<EntityType<?>> entities = new ArrayList<>();
-
     public MyEntityLootSubProvider() {
         // Unlike with blocks, we do not provide a set of known entity types. Vanilla instead uses custom checks here.
         super(FeatureFlags.DEFAULT_FLAGS);
     }
 
-    // A stream is used here for some reason.
     @Override
     protected Stream<EntityType<?>> getKnownEntityTypes() {
-        return entities.stream();
-    }
-
-    @Override
-    protected void add(EntityType<?> entity, LootTable.Builder builder) {
-        super.add(entity, builder);
-        entities.add(entity);
+        return MyRegistries.ENTITY_TYPES.getEntries()
+                .stream()
+                .map(e -> (EntityType<?>) e.value());
     }
 
     @Override

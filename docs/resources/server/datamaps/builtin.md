@@ -51,7 +51,23 @@ Example:
 ```
 
 :::warning
-Vanilla adds an implicit burn time of 300 ticks (15 seconds) for `#minecraft:logs` and `#minecraft:planks`, and then hardcodes the removal of crimson and warped items from that. This means that if you add another non-flammable wood, you should add a removal for that wood type's items from this map.
+Vanilla adds an implicit burn time of 300 ticks (15 seconds) for `#minecraft:logs` and `#minecraft:planks`, and then hardcodes the removal of crimson and warped items from that. This means that if you add another non-flammable wood, you should add a removal for that wood type's items from this map, like so:
+
+```json5
+{
+  "replace": false,
+  "values": [
+    // values here
+  ],
+  "remove": [
+    "examplemod:example_nether_wood_planks",
+    "#examplemod:example_nether_wood_stems",
+    "examplemod:example_nether_wood_door",
+    // etc.
+    // other removals here
+  ]
+}
+```
 :::
 
 ## `neoforge:monster_room_mobs`

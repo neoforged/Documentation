@@ -20,7 +20,7 @@ Now that we can reference it from code, let's specify some properties in the dat
   // The death message id of the damage type. The full death message translation key will be
   // "death.examplemod.example" (with swapped-out mod ids and names).
   "message_id": "example",
-  // Whether this damage type's damage amount scales with difficulty or not. Valid values are:
+  // Whether this damage type's damage amount scales with difficulty or not. Valid vanilla values are:
   // - "never": The damage value remains the same on any difficulty. Common for player-caused damage types.
   // - "when_caused_by_living_non_player": The damage value is scaled if the entity is caused by a
   //   living entity of some sort, including indirectly (e.g. an arrow shot by a skeleton), that is not a player.
@@ -29,10 +29,10 @@ Now that we can reference it from code, let's specify some properties in the dat
   // The amount of exhaustion caused by receiving this kind of damage.
   "exhaustion": 0.1,
   // The damage effects (currently only sound effects) that are applied when receiving this kind of damage. Optional.
-  // Valid values are "hurt" (default), "thorns", "drowning", "burning", "poking", and "freezing".
+  // Valid vanilla values are "hurt" (default), "thorns", "drowning", "burning", "poking", and "freezing".
   "effects": "hurt",
   // The death message type. Determines how the death message is built. Optional.
-  // Valid values are "default" (default), "fall_variants", and "intentional_game_design".
+  // Valid vanilla values are "default" (default), "fall_variants", and "intentional_game_design".
   "death_message_type": "default"
 }
 ```
