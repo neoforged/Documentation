@@ -26,38 +26,38 @@ The definition of the entry consists of the target enum's class name, the new fi
 
 ```json5
 {
-  "entries": [
-    {
-      // The enum class the entry should be added to
-      "enum": "net/minecraft/world/item/ItemDisplayContext",
-      // The field name of the new entry, must be prefixed with the mod ID
-      "name": "EXAMPLEMOD_STANDING",
-      // The constructor to be used
-      "constructor": "(ILjava/lang/String;Ljava/lang/String;)V",
-      // Constant parameters provided directly.
-      "parameters": [ -1, "examplemod:standing", null ]
-    },
-    {
-      "enum": "net/minecraft/world/item/Rarity",
-      "name": "EXAMPLEMOD_CUSTOM",
-      "constructor": "(ILjava/lang/String;Ljava/util/function/UnaryOperator;)V",
-      // The parameters to be used, provided as a reference to an EnumProxy<Rarity> field in the given class
-      "parameters": {
-        "class": "example/examplemod/MyEnumParams",
-        "field": "CUSTOM_RARITY_ENUM_PROXY"
-      }
-    },
-    {
-      "enum": "net/minecraft/world/damagesource/DamageEffects",
-      "name": "EXAMPLEMOD_TEST",
-      "constructor": "(Ljava/lang/String;Ljava/util/function/Supplier;)V",
-      // The parameters to be used, provided as a reference to a method in the given class
-      "parameters": {
-        "class": "example/examplemod/MyEnumParams",
-        "method": "getTestDamageEffectsParameter"
-      }
-    }
-  ]
+    "entries": [
+        {
+            // The enum class the entry should be added to
+            "enum": "net/minecraft/world/item/ItemDisplayContext",
+            // The field name of the new entry, must be prefixed with the mod ID
+            "name": "EXAMPLEMOD_STANDING",
+            // The constructor to be used
+            "constructor": "(ILjava/lang/String;Ljava/lang/String;)V",
+            // Constant parameters provided directly.
+            "parameters": [ -1, "examplemod:standing", null ]
+        },
+        {
+            "enum": "net/minecraft/world/item/Rarity",
+            "name": "EXAMPLEMOD_CUSTOM",
+            "constructor": "(ILjava/lang/String;Ljava/util/function/UnaryOperator;)V",
+            // The parameters to be used, provided as a reference to an EnumProxy<Rarity> field in the given class
+            "parameters": {
+                "class": "example/examplemod/MyEnumParams",
+                "field": "CUSTOM_RARITY_ENUM_PROXY"
+            }
+        },
+        {
+            "enum": "net/minecraft/world/damagesource/DamageEffects",
+            "name": "EXAMPLEMOD_TEST",
+            "constructor": "(Ljava/lang/String;Ljava/util/function/Supplier;)V",
+            // The parameters to be used, provided as a reference to a method in the given class
+            "parameters": {
+                "class": "example/examplemod/MyEnumParams",
+                "method": "getTestDamageEffectsParameter"
+            }
+        }
+    ]
 }
 ```
 
@@ -88,6 +88,7 @@ The parameters can be specified in three ways with limitations depending on the 
 
 - Inline in the JSON file as an array of constants (only allowed for primitive values, Strings and for passing null to any reference type)
 - As a reference to a field of type `EnumProxy<TheEnum>` in a class from the mod (see `EnumProxy` example above)
+  - The first parameter specifies the target enum and the subsequent parameters are the ones to be passed to the enum constructor
 - As a reference to a method returning `Object`, where the return value is the parameter value to use. The method must have exactly two parameters of type `int` (index of the parameter) and `Class<?>` (expected type of the parameter)
   - The `Class<?>` object should be used to cast (`Class#cast()`) the return value in order to keep `ClassCastException`s in mod code.
 
@@ -120,7 +121,7 @@ Further action is required depending on specific details about the enum:
 - If the enum has constructors which are not usable by mods (i.e. because they require registry objects on an enum that may be initialized before modded registration runs), then they should be annotated with `@ReservedConstructor`
 
 :::note
-The `getExtensionInfo` method(s) will be transformed at runtime to provide a dynamically generated `ExtensionInfo` if the enum actually had any entries added to it.
+The `getExtensionInfo` method will be transformed at runtime to provide a dynamically generated `ExtensionInfo` if the enum actually had any entries added to it.
 :::
 
 ```java
