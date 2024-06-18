@@ -154,52 +154,55 @@ To query if an `ItemStack` can perform a certain `ToolAction`, call `IItemStackE
 Similar to tools, armor uses a tier system (although a different one). What is called `Tier` for tools is called `ArmorMaterial` for armors. Like above, this example shows how to add copper armor; this can be adapted as needed. However, unlike `Tier`s, `ArmorMaterial`s need to be [registered]. For the vanilla values, see the `ArmorMaterials` class.
 
 ```java
+// ARMOR_MATERIALS is a DeferredRegister<ArmorMaterial>
+
 // We place copper somewhere between chainmail and iron.
-public static final ArmorMaterial COPPER_ARMOR_MATERIAL = new ArmorMaterial(
-    // Determines the defense value of this armor material, depending on what armor piece it is.
-    Util.make(new EnumMap<>(ArmorItem.Type.class), map -> {
-        map.put(ArmorItem.Type.BOOTS, 2);
-        map.put(ArmorItem.Type.LEGGINGS, 4);
-        map.put(ArmorItem.Type.CHESTPLATE, 6);
-        map.put(ArmorItem.Type.HELMET, 2);
-        map.put(ArmorItem.Type.BODY, 4);
-    }),
-    // Determines the enchantability of the tier. This represents how good the enchantments on this armor will be.
-    // Gold uses 25, we put copper slightly below that.
-    20,
-    // Determines the sound played when equipping this armor.
-    // This is wrapped with a Holder.
-    SoundEvents.ARMOR_EQUIP_GENERIC,
-    // Determines the repair item for this armor.
-    () -> Ingredient.of(Tags.Items.INGOTS_COPPER),
-    // Determines the texture locations of the armor to apply when rendering
-    // This can also be specified by overriding 'IItemExtension#getArmorTexture' on your item if the armor texture needs to be more dynamic
-    List.of(
-        // Creates a new armor texture that will be located at:
-        // - 'assets/mod_id/textures/models/armor/copper_layer_1.png' for the outer texture
-        // - 'assets/mod_id/textures/models/armor/copper_layer_2.png' for the inner texture (only legs)
-        new ArmorMaterial.Layer(
-            ResourceLocation.fromNamespaceAndPath(MOD_ID, "copper")
+public static final DeferredHolder<ArmorMaterial, ArmorMaterial> COPPER_ARMOR_MATERIAL =
+    ARMOR_MATERIALS.register("copper", () -> new ArmorMaterial(
+        // Determines the defense value of this armor material, depending on what armor piece it is.
+        Util.make(new EnumMap<>(ArmorItem.Type.class), map -> {
+            map.put(ArmorItem.Type.BOOTS, 2);
+            map.put(ArmorItem.Type.LEGGINGS, 4);
+            map.put(ArmorItem.Type.CHESTPLATE, 6);
+            map.put(ArmorItem.Type.HELMET, 2);
+            map.put(ArmorItem.Type.BODY, 4);
+        }),
+        // Determines the enchantability of the tier. This represents how good the enchantments on this armor will be.
+        // Gold uses 25, we put copper slightly below that.
+        20,
+        // Determines the sound played when equipping this armor.
+        // This is wrapped with a Holder.
+        SoundEvents.ARMOR_EQUIP_GENERIC,
+        // Determines the repair item for this armor.
+        () -> Ingredient.of(Tags.Items.INGOTS_COPPER),
+        // Determines the texture locations of the armor to apply when rendering
+        // This can also be specified by overriding 'IItemExtension#getArmorTexture' on your item if the armor texture needs to be more dynamic
+        List.of(
+            // Creates a new armor texture that will be located at:
+            // - 'assets/mod_id/textures/models/armor/copper_layer_1.png' for the outer texture
+            // - 'assets/mod_id/textures/models/armor/copper_layer_2.png' for the inner texture (only legs)
+            new ArmorMaterial.Layer(
+                ResourceLocation.fromNamespaceAndPath(MOD_ID, "copper")
+            ),
+            // Creates a new armor texture that will be rendered on top of the previous at:
+            // - 'assets/mod_id/textures/models/armor/copper_layer_1_overlay.png' for the outer texture
+            // - 'assets/mod_id/textures/models/armor/copper_layer_2_overlay.png' for the inner texture (only legs)
+            // 'true' means that the armor material is dyeable; however, the item must also be added to the 'minecraft:dyeable' tag
+            new ArmorMaterial.Layer(
+                ResourceLocation.fromNamespaceAndPath(MOD_ID, "copper"), "_overlay", true
+            )
         ),
-        // Creates a new armor texture that will be rendered on top of the previous at:
-        // - 'assets/mod_id/textures/models/armor/copper_layer_1_overlay.png' for the outer texture
-        // - 'assets/mod_id/textures/models/armor/copper_layer_2_overlay.png' for the inner texture (only legs)
-        // 'true' means that the armor material is dyeable; however, the item must also be added to the 'minecraft:dyeable' tag
-        new ArmorMaterial.Layer(
-            ResourceLocation.fromNamespaceAndPath(MOD_ID, "copper"), "_overlay", true
-        )
-    ),
-    // Returns the toughness value of the armor. The toughness value is an additional value included in
-    // damage calculation, for more information, refer to the Minecraft Wiki's article on armor mechanics:
-    // https://minecraft.wiki/w/Armor#Armor_toughness
-    // Only diamond and netherite have values greater than 0 here, so we just return 0.
-    0,
-    // Returns the knockback resistance value of the armor. While wearing this armor, the player is
-    // immune to knockback to some degree. If the player has a total knockback resistance value of 1 or greater
-    // from all armor pieces combined, they will not take any knockback at all.
-    // Only netherite has values greater than 0 here, so we just return 0.
-    0
-);
+        // Returns the toughness value of the armor. The toughness value is an additional value included in
+        // damage calculation, for more information, refer to the Minecraft Wiki's article on armor mechanics:
+        // https://minecraft.wiki/w/Armor#Armor_toughness
+        // Only diamond and netherite have values greater than 0 here, so we just return 0.
+        0,
+        // Returns the knockback resistance value of the armor. While wearing this armor, the player is
+        // immune to knockback to some degree. If the player has a total knockback resistance value of 1 or greater
+        // from all armor pieces combined, they will not take any knockback at all.
+        // Only netherite has values greater than 0 here, so we just return 0.
+        0
+    ));
 ```
 
 And then, we use that armor material in item registration.
