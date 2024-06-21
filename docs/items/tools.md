@@ -157,7 +157,7 @@ Similar to tools, armor uses a tier system (although a different one). What is c
 // ARMOR_MATERIALS is a DeferredRegister<ArmorMaterial>
 
 // We place copper somewhere between chainmail and iron.
-public static final DeferredHolder<ArmorMaterial, ArmorMaterial> COPPER_ARMOR_MATERIAL =
+public static final Holder<ArmorMaterial> COPPER_ARMOR_MATERIAL =
     ARMOR_MATERIALS.register("copper", () -> new ArmorMaterial(
         // Determines the defense value of this armor material, depending on what armor piece it is.
         Util.make(new EnumMap<>(ArmorItem.Type.class), map -> {
