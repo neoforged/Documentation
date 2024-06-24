@@ -85,6 +85,7 @@ public static final StreamCodec<ByteBuf, ExampleRecord> UNIT_STREAM_CODEC = Stre
 
 
 // In another class
+// The specialized DeferredRegister.DataComponents simplifies data component registration and avoids some generic inference issues with the `DataComponentType.Builder` within a `Supplier`
 public static final DeferredRegister.DataComponents REGISTRAR = DeferredRegister.createDataComponents("examplemod");
 
 public static final DeferredHolder<DataComponentType<?>, DataComponentType<ExampleRecord>> BASIC_EXAMPLE = REGISTRAR.registerComponentType(
