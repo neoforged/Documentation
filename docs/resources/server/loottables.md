@@ -72,7 +72,7 @@ NeoForge adds an additional `LootItemCondition` which allows certain items to ge
 {
     "conditions": [
         {
-            "condition": "forge:loot_table_id",
+            "condition": "neoforge:loot_table_id",
             // Will apply when the loot table is for dirt
             "loot_table_id": "minecraft:blocks/dirt"
         }
@@ -80,16 +80,16 @@ NeoForge adds an additional `LootItemCondition` which allows certain items to ge
 }
 ```
 
-### Can Tool Perform Action Condition
+### Can Item Perform Ability Condition
 
-NeoForge adds an additional `LootItemCondition` which checks whether the given `LootContextParams#TOOL` can perform the specified `ToolAction`.
+NeoForge adds an additional `LootItemCondition` which checks whether the given `LootContextParams#TOOL` can perform the specified `ItemAbility`.
 
 ```json5
 // In some loot pool or pool entry
 {
     "conditions": [
         {
-            "condition": "forge:can_tool_perform_action",
+            "condition": "neoforge:can_item_perform_ability",
             // Will apply when the tool can strip a log like an axe
             "action": "axe_strip"
         }
