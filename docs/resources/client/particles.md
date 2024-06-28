@@ -47,12 +47,16 @@ public class MyParticle extends TextureSheetParticle {
         super(level, x, y, z);
         this.spriteSet = spriteSet;
         this.gravity = 0; // Our particle floats in midair now, because why not.
+
+        // We set the initial sprite here since ticking is not guaranteed to set the sprite
+        // before the render method is called.
+        this.setSpriteFromAge(spriteSet);
     }
     
     @Override
     public void tick() {
         // Set the sprite for the current particle age, i.e. advance the animation.
-        setSpriteFromAge(spriteSet);
+        this.setSpriteFromAge(spriteSet);
         // Let super handle further movement. You may replace this with your own movement if needed.
         // You may also override move() if you only want to modify the built-in movement.
         super.tick();
