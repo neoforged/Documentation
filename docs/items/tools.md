@@ -132,74 +132,77 @@ Creating a multitool-like item (i.e. an item that combines two or more tools int
 
 - Adding a `Tool` with your own rules by setting `DataComponents#TOOL` via `Item.Properties#component`.
 - Adding attributes to the item (e.g. attack damage, attack speed) via `Item.Properties#attributes`.
-- Overriding `IItemExtension#canPerformAction` to determine what [`ToolAction`s][toolaction] the item can perform.
-- Calling `IBlockExtension#getToolModifiedState` if you want your item to modify the block state on right click based on the `ToolAction`s.
+- Overriding `IItemExtension#canPerformAction` to determine what [`ItemAbility`s][itemability] the item can perform.
+- Calling `IBlockExtension#getToolModifiedState` if you want your item to modify the block state on right click based on the `ItemAbility`s.
 - Adding your tool to some of the `minecraft:enchantable/*` tags so that your item can have certain enchantments applied to it.
 
-## `ToolAction`s
+## `ItemAbility`s
 
-`ToolAction`s are an abstraction over what a tool can and cannot do. This includes both left-click and right-click behavior. NeoForge provides default `ToolAction`s in the `ToolActions` class:
+`ItemAbility`s are an abstraction over what an item can and cannot do. This includes both left-click and right-click behavior. NeoForge provides default `ItemAbility`s in the `ItemAbilities` class:
 
-- Digging actions. These exist for all four `DiggerItem` types as mentioned above, as well as sword and shears digging.
-- Axe right-click actions for stripping (logs), scraping (oxidized copper) and unwaxing (waxed copper).
-- Shear actions for harvesting (honeycombs), carving (pumpkins) and disarming (tripwires).
-- Actions for shovel flattening (dirt paths), sword sweeping, hoe tilling, shield blocking, and fishing rod casting.
+- Digging abilities. These exist for all four `DiggerItem` types as mentioned above, as well as sword and shears digging.
+- Axe right-click abilities for stripping (logs), scraping (oxidized copper) and unwaxing (waxed copper).
+- Shear abilities for harvesting (honeycombs), carving (pumpkins) and disarming (tripwires).
+- Abilities for shovel flattening (dirt paths), sword sweeping, hoe tilling, shield blocking, and fishing rod casting.
 
-To create your own `ToolAction`s, use `ToolAction#get` - it will create a new `ToolAction` if needed. Then, in a custom tool type, override `IItemExtension#canPerformAction` as needed.
+To create your own `ItemAbility`s, use `ItemAbility#get` - it will create a new `ItemAbility` if needed. Then, in a custom tool type, override `IItemExtension#canPerformAction` as needed.
 
-To query if an `ItemStack` can perform a certain `ToolAction`, call `IItemStackExtension#canPerformAction`. Note that this works on any `Item`, not just tools.
+To query if an `ItemStack` can perform a certain `ItemAbility`, call `IItemStackExtension#canPerformAction`. Note that this works on any `Item`, not just tools.
 
 ## Armor
 
 Similar to tools, armor uses a tier system (although a different one). What is called `Tier` for tools is called `ArmorMaterial` for armors. Like above, this example shows how to add copper armor; this can be adapted as needed. However, unlike `Tier`s, `ArmorMaterial`s need to be [registered]. For the vanilla values, see the `ArmorMaterials` class.
 
 ```java
+// ARMOR_MATERIALS is a DeferredRegister<ArmorMaterial>
+
 // We place copper somewhere between chainmail and iron.
-public static final ArmorMaterial COPPER_ARMOR_MATERIAL = new ArmorMaterial(
-    // Determines the defense value of this armor material, depending on what armor piece it is.
-    Util.make(new EnumMap<>(ArmorItem.Type.class), map -> {
-        map.put(ArmorItem.Type.BOOTS, 2);
-        map.put(ArmorItem.Type.LEGGINGS, 4);
-        map.put(ArmorItem.Type.CHESTPLATE, 6);
-        map.put(ArmorItem.Type.HELMET, 2);
-        map.put(ArmorItem.Type.BODY, 4);
-    }),
-    // Determines the enchantability of the tier. This represents how good the enchantments on this armor will be.
-    // Gold uses 25, we put copper slightly below that.
-    20,
-    // Determines the sound played when equipping this armor.
-    // This is wrapped with a Holder.
-    SoundEvents.ARMOR_EQUIP_GENERIC,
-    // Determines the repair item for this armor.
-    () -> Ingredient.of(Tags.Items.INGOTS_COPPER),
-    // Determines the texture locations of the armor to apply when rendering
-    // This can also be specified by overriding 'IItemExtension#getArmorTexture' on your item if the armor texture needs to be more dynamic
-    List.of(
-        // Creates a new armor texture that will be located at:
-        // - 'assets/mod_id/textures/models/armor/copper_layer_1.png' for the outer texture
-        // - 'assets/mod_id/textures/models/armor/copper_layer_2.png' for the inner texture (only legs)
-        new ArmorMaterial.Layer(
-            ResourceLocation.fromNamespaceAndPath(MOD_ID, "copper")
+public static final Holder<ArmorMaterial> COPPER_ARMOR_MATERIAL =
+    ARMOR_MATERIALS.register("copper", () -> new ArmorMaterial(
+        // Determines the defense value of this armor material, depending on what armor piece it is.
+        Util.make(new EnumMap<>(ArmorItem.Type.class), map -> {
+            map.put(ArmorItem.Type.BOOTS, 2);
+            map.put(ArmorItem.Type.LEGGINGS, 4);
+            map.put(ArmorItem.Type.CHESTPLATE, 6);
+            map.put(ArmorItem.Type.HELMET, 2);
+            map.put(ArmorItem.Type.BODY, 4);
+        }),
+        // Determines the enchantability of the tier. This represents how good the enchantments on this armor will be.
+        // Gold uses 25, we put copper slightly below that.
+        20,
+        // Determines the sound played when equipping this armor.
+        // This is wrapped with a Holder.
+        SoundEvents.ARMOR_EQUIP_GENERIC,
+        // Determines the repair item for this armor.
+        () -> Ingredient.of(Tags.Items.INGOTS_COPPER),
+        // Determines the texture locations of the armor to apply when rendering
+        // This can also be specified by overriding 'IItemExtension#getArmorTexture' on your item if the armor texture needs to be more dynamic
+        List.of(
+            // Creates a new armor texture that will be located at:
+            // - 'assets/mod_id/textures/models/armor/copper_layer_1.png' for the outer texture
+            // - 'assets/mod_id/textures/models/armor/copper_layer_2.png' for the inner texture (only legs)
+            new ArmorMaterial.Layer(
+                ResourceLocation.fromNamespaceAndPath(MOD_ID, "copper")
+            ),
+            // Creates a new armor texture that will be rendered on top of the previous at:
+            // - 'assets/mod_id/textures/models/armor/copper_layer_1_overlay.png' for the outer texture
+            // - 'assets/mod_id/textures/models/armor/copper_layer_2_overlay.png' for the inner texture (only legs)
+            // 'true' means that the armor material is dyeable; however, the item must also be added to the 'minecraft:dyeable' tag
+            new ArmorMaterial.Layer(
+                ResourceLocation.fromNamespaceAndPath(MOD_ID, "copper"), "_overlay", true
+            )
         ),
-        // Creates a new armor texture that will be rendered on top of the previous at:
-        // - 'assets/mod_id/textures/models/armor/copper_layer_1_overlay.png' for the outer texture
-        // - 'assets/mod_id/textures/models/armor/copper_layer_2_overlay.png' for the inner texture (only legs)
-        // 'true' means that the armor material is dyeable; however, the item must also be added to the 'minecraft:dyeable' tag
-        new ArmorMaterial.Layer(
-            ResourceLocation.fromNamespaceAndPath(MOD_ID, "copper"), "_overlay", true
-        )
-    ),
-    // Returns the toughness value of the armor. The toughness value is an additional value included in
-    // damage calculation, for more information, refer to the Minecraft Wiki's article on armor mechanics:
-    // https://minecraft.wiki/w/Armor#Armor_toughness
-    // Only diamond and netherite have values greater than 0 here, so we just return 0.
-    0,
-    // Returns the knockback resistance value of the armor. While wearing this armor, the player is
-    // immune to knockback to some degree. If the player has a total knockback resistance value of 1 or greater
-    // from all armor pieces combined, they will not take any knockback at all.
-    // Only netherite has values greater than 0 here, so we just return 0.
-    0
-);
+        // Returns the toughness value of the armor. The toughness value is an additional value included in
+        // damage calculation, for more information, refer to the Minecraft Wiki's article on armor mechanics:
+        // https://minecraft.wiki/w/Armor#Armor_toughness
+        // Only diamond and netherite have values greater than 0 here, so we just return 0.
+        0,
+        // Returns the knockback resistance value of the armor. While wearing this armor, the player is
+        // immune to knockback to some degree. If the player has a total knockback resistance value of 1 or greater
+        // from all armor pieces combined, they will not take any knockback at all.
+        // Only netherite has values greater than 0 here, so we just return 0.
+        0
+    ));
 ```
 
 And then, we use that armor material in item registration.
@@ -229,6 +232,6 @@ When creating your armor texture, it is a good idea to work on top of the vanill
 [block]: ../blocks/index.md
 [datacomponents]: ./datacomponents.md
 [item]: index.md
-[toolaction]: #toolactions
+[itemability]: #itemabilitys
 [tags]: ../resources/server/tags.md
 [registered]: ../concepts/registries.md#methods-for-registering

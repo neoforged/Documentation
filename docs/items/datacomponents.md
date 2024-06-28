@@ -85,31 +85,31 @@ public static final StreamCodec<ByteBuf, ExampleRecord> UNIT_STREAM_CODEC = Stre
 
 
 // In another class
-public static final DeferredRegister<DataComponentType<?>> REGISTRAR = DeferredRegister.create(Registries.DATA_COMPONENT_TYPE, "examplemod");
+// The specialized DeferredRegister.DataComponents simplifies data component registration and avoids some generic inference issues with the `DataComponentType.Builder` within a `Supplier`
+public static final DeferredRegister.DataComponents REGISTRAR = DeferredRegister.createDataComponents("examplemod");
 
-public static final DeferredHolder<DataComponentType<?>, DataComponentType<ExampleRecord>> BASIC_EXAMPLE = REGISTRAR.register("basic",
-    () -> DataComponentType.builder()
+public static final DeferredHolder<DataComponentType<?>, DataComponentType<ExampleRecord>> BASIC_EXAMPLE = REGISTRAR.registerComponentType(
+    "basic",
+    builder -> builder
         // The codec to read/write the data to disk
         .persistent(BASIC_CODEC)
         // The codec to read/write the data across the network
         .networkSynchronized(BASIC_STREAM_CODEC)
-        .build()
 );
 
 /// Component will not be saved to disk
-public static final DeferredHolder<DataComponentType<?>, DataComponentType<ExampleRecord>> TRANSIENT_EXAMPLE = REGISTRAR.register("transient",
-    () -> DataComponentType.builder()
-        .networkSynchronized(BASIC_STREAM_CODEC)
-        .build()
+public static final DeferredHolder<DataComponentType<?>, DataComponentType<ExampleRecord>> TRANSIENT_EXAMPLE = REGISTRAR.registerComponentType(
+    "transient",
+    builder -> builder.networkSynchronized(BASIC_STREAM_CODEC)
 );
 
 // No data will be synced across the network
-public static final DeferredHolder<DataComponentType<?>, DataComponentType<ExampleRecord>> NO_NETWORK_EXAMPLE = REGISTRAR.register("no_network",
-    () -> DataComponentType.builder()
+public static final DeferredHolder<DataComponentType<?>, DataComponentType<ExampleRecord>> NO_NETWORK_EXAMPLE = REGISTRAR.registerComponentType(
+   "no_network",
+   builder -> builder
         .persistent(BASIC_CODEC)
         // Note we use a unit stream codec here
         .networkSynchronized(UNIT_STREAM_CODEC)
-        .build()
 );
 ```
 

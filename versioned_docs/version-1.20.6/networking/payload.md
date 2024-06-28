@@ -1,10 +1,10 @@
 # Registering Payloads
 
-Payloads are a way to send arbitrary data between the client and the server. They are registered using the `PayloadRegistrar` from the `RegisterPayloadHandlerEvent` event.
+Payloads are a way to send arbitrary data between the client and the server. They are registered using the `PayloadRegistrar` from the `RegisterPayloadHandlersEvent` event.
 
 ```java
 @SubscribeEvent
-public static void register(final RegisterPayloadHandlerEvent event) {
+public static void register(final RegisterPayloadHandlersEvent event) {
     // Sets the current network version
     final PayloadRegistrar registrar = event.registrar("1");
 }
@@ -48,7 +48,7 @@ Finally, we can register this payload with the registrar:
 
 ```java
 @SubscribeEvent
-public static void register(final RegisterPayloadHandlerEvent event) {
+public static void register(final RegisterPayloadHandlersEvent event) {
     final PayloadRegistrar registrar = event.registrar("1");
     registrar.playBidirectional(
         MyData.TYPE,
@@ -102,8 +102,33 @@ Here a couple of things are of note:
     - Notice: A `CompletableFuture` is returned, this means that you can chain multiple tasks together, and handle exceptions in a single place.
     - If you do not handle the exception in the `CompletableFuture` then it will be swallowed, **and you will not be notified of it**.
 
-Now that you know how you can facilitate the communication between the client and the server for your mod, you can start implementing your own payloads.
 With your own payloads you can then use those to configure the client and server using [Configuration Tasks][configuration].
+
+## Sending Payloads
+
+`CustomPacketPayload`s are sent across the network using vanilla's packet system by wrapping the payload via `ServerboundCustomPayloadPacket` when sending to the server, or `ClientboundCustomPayloadPacket` when sending to the client. Payloads sent to the client can only contain at most 1 MiB of data while payloads to the server can only contain less than 32 KiB. 
+
+All payloads are sent via `Connection#send` with some level of abstraction; however, it is generally inconvenient to call these methods if you want to send packets to multiple people based on a given condition. Therefore, `PacketDistributor` contains a number of convenience implementations to send payloads. There is only one method to send packets to the server (`sendToServer`); however, there are numerous methods to send packets to the client depending on which players should receive the payload.
+
+```java
+// ON THE CLIENT
+
+// Send payload to server
+PacketDistributor.sendToServer(new MyData(...));
+
+// ON THE SERVER
+
+// Send to one player (ServerPlayer serverPlayer)
+PacketDistributor.sendToPlayer(serverPlayer, new MyData(...));
+
+/// Send to all players tracking this chunk (ServerLevel serverLevel, ChunkPos chunkPos)
+PacketDistributor.sendToPlayersTrackingChunk(serverLevel, chunkPos, new MyData(...));
+
+/// Send to all connected players
+PacketDistributor.sendToAllPlayers(new MyData(...));
+```
+
+See the `PacketDistributor` class for more implementations.
 
 [configuration]: ./configuration-tasks.md
 [streamcodec]: ./streamcodecs.md
