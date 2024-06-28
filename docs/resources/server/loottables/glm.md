@@ -131,13 +131,13 @@ public static final Supplier<Codec<MyLootModifier>> MY_LOOT_MODIFIER =
 
 NeoForge provides a loot modifier out of the box for you to use:
 
-### `neoforge:add_table_loot`
+### `neoforge:add_table`
 
 This loot modifier rolls a second loot table and adds the results to the loot table the modifier is applied to.
 
 ```json5
 {
-  "type": "neoforge:add_table_loot",
+  "type": "neoforge:add_table",
   "conditions": [], // the required loot conditions
   "table": "minecraft:chests/abandoned_mineshaft" // the second table to roll
 }

@@ -80,7 +80,7 @@ We can then use our tag to perform various operations on it. Let's start with th
 
 ```java
 // Check whether dirt is in our tag.
-boolean isInTag = BuiltInRegistries.BLOCK.getOrCreateTag(MY_TAG).anyMatch(e -> e == Items.DIRT);
+boolean isInTag = BuiltInRegistries.BLOCK.getOrCreateTag(MY_TAG).stream().anyMatch(e -> e == Items.DIRT);
 ```
 
 Since this is a very verbose statement, especially when used often, `BlockState` and `ItemStack` - the two most common users of the tag system - each define a `#is` helper method, used like so:
@@ -95,14 +95,34 @@ boolean isInItemTag = itemStack.is(MY_ITEM_TAG);
 If needed, we can also get ourselves a set of tag entries, like so:
 
 ```java
-Set<Block> blocksInTag = BuiltInRegistries.BLOCK.holders()
-        .filter(holder -> holder.is(MY_TAG))
-        .toSet();
+Set<Block> blocksInTag = BuiltInRegistries.BLOCK.getOrCreateTag(MY_TAG).stream().toSet();
 ```
 
-:::tip
-For performance reasons, it is recommended to cache these sets in a field, invalidating them when tags are reloaded (which can be listened for using `TagsUpdatedEvent`).
-:::
+For performance reasons, it is recommended to cache these sets in a field, invalidating them when tags are reloaded (which can be listened for using `TagsUpdatedEvent`). This can be done like so:
+
+```java
+public class MyTagsCacheClass {
+    private static Set<Block> blocksInTag = null;
+
+    public static Set<Block> getBlockTagContents() {
+        if (blocksInTag == null) {
+            // Wrap as an unmodifiable set, as we're not supposed to modify this anyway
+            blocksInTag = Collections.unmodifiableSet(BuiltInRegistries.BLOCK.getOrCreateTag(MY_TAG).stream().toSet());
+        }
+        return blocksInTag;
+    }
+    
+    public static void invalidateCache() {
+        blocksInTag = null;
+    }
+}
+
+// In an event handler class
+@SubscribeEvent
+public static void onTagsUpdated(TagsUpdatedEvent event) {
+    MyTagsCacheClass.invalidateCache();
+}
+```
 
 ## Datagen
 
@@ -115,6 +135,7 @@ Like many other JSON files, tags can be [datagenned][datagen]. Each kind of tag 
 | `Block`                    | `BlockTagsProvider`                    |
 | `CatVariant`               | `CatVariantTagsProvider`               |
 | `DamageType`               | `DamageTypeTagsProvider`               |
+| `Enchantment`              | `EnchantmentTagsProvider`              |
 | `EntityType`               | `EntityTypeTagsProvider`               |
 | `FlatLevelGeneratorPreset` | `FlatLevelGeneratorPresetTagsProvider` |
 | `Fluid`                    | `FluidTagsProvider`                    |
@@ -231,6 +252,10 @@ public class MyAttributeTagsProvider extends TagsProvider<Attribute> {
     protected void addTags(HolderLookup.Provider lookupProvider) { /*...*/ }
 }
 ```
+
+:::info
+`TagsProvider` also exposes the `#getOrCreateRawBuilder` method, returning a `TagBuilder`. A `TagBuilder` allows adding raw `ResourceLocation`s to a tag, which can be useful in some scenarios. The `TagsProvider.TagAppender<T>` class, which is returned by `TagsProvider#tag`, is simply a wrapper around `TagBuilder`.
+:::
 
 [datagen]: ../index.md#data-generation
 [registry]: ../../concepts/registries.md

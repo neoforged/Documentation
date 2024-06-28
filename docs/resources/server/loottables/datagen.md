@@ -36,6 +36,11 @@ public static void onGatherData(GatherDataEvent event) {
 
 ```java
 public class MyLootTableSubProvider implements LootTableSubProvider {
+    // The parameter is provided by the lambda (see below). It can be stored and used to lookup other registry entries.
+    public MyLootTableSubProvider(HolderLookup.Provider lookupProvider) {
+        super(lookupProvider);
+    }
+    
     @Override
     public void generate(BiConsumer<ResourceLocation, LootTable.Builder> consumer) {
         // LootTable.lootTable() returns a loot table builder we can add loot tables to.
@@ -66,6 +71,7 @@ Once we have our loot table sub provider, we add it to the constructor of our lo
 super(output, Set.of(), List.of(
         new SubProviderEntry(
                 // A reference to the sub provider's constructor.
+                // This is a Function<HolderLookup.Provider, ? extends LootTableSubProvider>.
                 MyLootTableSubProvider::new,
                 // An associated loot context set. If you're unsure what to use, use empty.
                 LootContextParamSets.EMPTY
@@ -111,7 +117,8 @@ Number providers define how a number is obtained. This is done instead of simply
 ```java
 public class MyBlockLootSubProvider extends BlockLootSubProvider {
     // The constructor can be private if this class is an inner class of your loot table provider.
-    public MyBlockLootSubProvider() {
+    // The parameter is provided by the lambda in the LootTableProvider's constructor.
+    public MyBlockLootSubProvider(HolderLookup.Provider lookupProvider) {
         // The first parameter is a set of blocks we are creating loot tables for. Instead of hardcoding,
         // we use our block registry and just pass an empty set here.
         // The second parameter is the feature flag set, this will be the default flags
@@ -166,9 +173,9 @@ Similar to `BlockLootSubProvider`, `EntityLootSubProvider` provides many helpers
 
 ```java
 public class MyEntityLootSubProvider extends EntityLootSubProvider {
-    public MyEntityLootSubProvider() {
+    public MyEntityLootSubProvider(HolderLookup.Provider lookupProvider) {
         // Unlike with blocks, we do not provide a set of known entity types. Vanilla instead uses custom checks here.
-        super(FeatureFlags.DEFAULT_FLAGS);
+        super(FeatureFlags.DEFAULT_FLAGS, lookupProvider);
     }
 
     @Override

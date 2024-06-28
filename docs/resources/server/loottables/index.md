@@ -8,7 +8,7 @@ Minecraft uses loot tables at various points in the game, including block drops,
 - Every subclass of `LivingEntity` that is not in the `MobCategory.MISC` category (as determined by `EntityType#getCategory`) will, by default, receive an associated loot table, located at `<entity_namespace>:entities/<entity_name>`. This can be changed by overriding `#getLootTable` if you are directly extending `LivingEntity`, or by overriding `#getDefaultLootTable` if you are extending `Mob` or a subclass thereof. For example, sheep use this to roll different loot tables depending on their wool color.
 - Chests in structures specify their loot table in their block entity data. Minecraft stores all chest loot tables in `minecraft:chests/<chest_name>`, it is not required (but recommended) to follow this practice in mods.
 - The loot tables for gift items that villagers may throw at players after a raid are defined in the [`neoforge:raid_hero_gifts` data map][raidherogifts].
-- Other loot tables, for example the fishing loot table, are retrieved when needed from `level.getServer().getLootData().getLootTable(lootTableId)`. A list of all vanilla loot table locations can be found in `BuiltInLootTables`.
+- Other loot tables, for example the fishing loot table, are retrieved when needed from `level.getServer().reloadableRegistries().getLootTable(lootTableId)`. A list of all vanilla loot table locations can be found in `BuiltInLootTables`.
 
 :::warning
 Loot tables should generally only be created for stuff that belongs to your mod. For modifying existing loot tables, [global loot modifiers (GLMs)][glm] should be used instead.
@@ -85,7 +85,7 @@ The exact [JSON specification of loot tables][loottablespec] can be found on the
 
 To roll a loot table, we need two things: the loot table itself, and a (possibly empty) set of loot context parameters.
 
-Let's start with getting the loot table itself. Loot tables are referenced by a [`ResourceLocation`][rl]. Loot table resource locations are relative to the `loot_tables` datapack folder. So for example, the loot table file for the loot table `examplemod:custom_fishing` would be located at `data/examplemod/loot_tables/custom_fishing`. Once you have the location, a loot table can then be obtained using `level.getServer().getLootData().getLootTable(location)`. As the loot data is only available through the server, this logic must run on a [logical server][sides], not a logical client.
+Let's start with getting the loot table itself. Loot tables are referenced by a [`ResourceLocation`][rl]. Loot table resource locations are relative to the `loot_tables` datapack folder. So for example, the loot table file for the loot table `examplemod:custom_fishing` would be located at `data/examplemod/loot_tables/custom_fishing`. Once you have the location, a loot table can then be obtained using `level.getServer().reloadableRegistries().getLootTable(location)`. As the loot data is only available through the server, this logic must run on a [logical server][sides], not a logical client.
 
 :::tip
 Minecraft's built-in loot table locations can be found in the `BuiltInLootTables` class.
@@ -121,7 +121,7 @@ Finally, we can create the `LootParams` from the builder and use them to roll th
 // Specify a loot context param set here if you want.
 LootParams params = builder.create(LootContextParamSet.EMPTY);
 // Get the loot table.
-LootTable table = level.getServer().getLootData().getLootTable(location);
+LootTable table = level.getServer().reloadableRegistries().getLootTable(location);
 // Actually roll the loot table.
 List<ItemStack> list = table.getRandomItems(params);
 // Use this instead if you are rolling the loot table for container contents, e.g. loot chests.
