@@ -132,22 +132,22 @@ Creating a multitool-like item (i.e. an item that combines two or more tools int
 
 - Adding a `Tool` with your own rules by setting `DataComponents#TOOL` via `Item.Properties#component`.
 - Adding attributes to the item (e.g. attack damage, attack speed) via `Item.Properties#attributes`.
-- Overriding `IItemExtension#canPerformAction` to determine what [`ToolAction`s][toolaction] the item can perform.
-- Calling `IBlockExtension#getToolModifiedState` if you want your item to modify the block state on right click based on the `ToolAction`s.
+- Overriding `IItemExtension#canPerformAction` to determine what [`ItemAbility`s][itemability] the item can perform.
+- Calling `IBlockExtension#getToolModifiedState` if you want your item to modify the block state on right click based on the `ItemAbility`s.
 - Adding your tool to some of the `minecraft:enchantable/*` tags so that your item can have certain enchantments applied to it.
 
-## `ToolAction`s
+## `ItemAbility`s
 
-`ToolAction`s are an abstraction over what a tool can and cannot do. This includes both left-click and right-click behavior. NeoForge provides default `ToolAction`s in the `ToolActions` class:
+`ItemAbility`s are an abstraction over what an item can and cannot do. This includes both left-click and right-click behavior. NeoForge provides default `ItemAbility`s in the `ItemAbilities` class:
 
-- Digging actions. These exist for all four `DiggerItem` types as mentioned above, as well as sword and shears digging.
-- Axe right-click actions for stripping (logs), scraping (oxidized copper) and unwaxing (waxed copper).
-- Shear actions for harvesting (honeycombs), carving (pumpkins) and disarming (tripwires).
-- Actions for shovel flattening (dirt paths), sword sweeping, hoe tilling, shield blocking, and fishing rod casting.
+- Digging abilities. These exist for all four `DiggerItem` types as mentioned above, as well as sword and shears digging.
+- Axe right-click abilities for stripping (logs), scraping (oxidized copper) and unwaxing (waxed copper).
+- Shear abilities for harvesting (honeycombs), carving (pumpkins) and disarming (tripwires).
+- Abilities for shovel flattening (dirt paths), sword sweeping, hoe tilling, shield blocking, and fishing rod casting.
 
-To create your own `ToolAction`s, use `ToolAction#get` - it will create a new `ToolAction` if needed. Then, in a custom tool type, override `IItemExtension#canPerformAction` as needed.
+To create your own `ItemAbility`s, use `ItemAbility#get` - it will create a new `ItemAbility` if needed. Then, in a custom tool type, override `IItemExtension#canPerformAction` as needed.
 
-To query if an `ItemStack` can perform a certain `ToolAction`, call `IItemStackExtension#canPerformAction`. Note that this works on any `Item`, not just tools.
+To query if an `ItemStack` can perform a certain `ItemAbility`, call `IItemStackExtension#canPerformAction`. Note that this works on any `Item`, not just tools.
 
 ## Armor
 
@@ -232,6 +232,6 @@ When creating your armor texture, it is a good idea to work on top of the vanill
 [block]: ../blocks/index.md
 [datacomponents]: ./datacomponents.md
 [item]: index.md
-[toolaction]: #toolactions
+[itemability]: #itemabilitys
 [tags]: ../resources/server/tags.md
 [registered]: ../concepts/registries.md#methods-for-registering
