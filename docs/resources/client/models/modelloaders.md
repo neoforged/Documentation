@@ -214,7 +214,7 @@ public class MyGeometryLoader implements IGeometryLoader<MyGeometry> {
     // It is highly recommended to use a singleton pattern for geometry loaders, as all models can be loaded through one loader.
     public static final MyGeometryLoader INSTANCE = new MyGeometryLoader();
     // The id we will use to register this loader. Also used in the loader datagen class.
-    public static final ResourceLocation ID = new ResourceLocation("examplemod", "my_custom_loader");
+    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath("examplemod", "my_custom_loader");
     
     // In accordance with the singleton pattern, make the constructor private.        
     private MyGeometryLoader() {}
@@ -239,9 +239,8 @@ public class MyGeometry implements IUnbakedGeometry<MyGeometry> {
     //   For example, to get a model's particle texture, call spriteGetter.apply(context.getMaterial("particle"));
     // - The model state. This holds the properties from the blockstate file, e.g. rotations and the uvlock boolean.
     // - The item overrides. This is the code representation of an "overrides" block in an item model.
-    // - The resource location of the model.
     @Override
-    public BakedModel bake(IGeometryBakingContext context, ModelBaker baker, Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelState, ItemOverrides overrides, ResourceLocation modelLocation) {
+    public BakedModel bake(IGeometryBakingContext context, ModelBaker baker, Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelState, ItemOverrides overrides) {
         // See info on the parameters below.
         return new MyDynamicModel(context.useAmbientOcclusion(), context.isGui3d(), context.useBlockLight(),
             spriteGetter.apply(context.getMaterial("particle")), overrides);
@@ -393,7 +392,7 @@ In some contexts, it makes sense to reuse the vanilla model loader and just buil
 ```java
 public class MyGeometryLoader implements IGeometryLoader<MyGeometry> {
     public static final MyGeometryLoader INSTANCE = new MyGeometryLoader();
-    public static final ResourceLocation ID = new ResourceLocation(...);
+    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(...);
     
     private MyGeometryLoader() {}
     
@@ -416,8 +415,8 @@ public class MyGeometry implements IUnbakedGeometry<MyGeometry> {
     }
 
     @Override
-    public BakedModel bake(IGeometryBakingContext context, ModelBaker baker, Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelState, ItemOverrides overrides, ResourceLocation modelLocation) {
-        BakedModel bakedBase = new ElementsModel(base.getElements()).bake(context, baker, spriteGetter, modelState, overrides, modelLocation);
+    public BakedModel bake(IGeometryBakingContext context, ModelBaker baker, Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelState, ItemOverrides overrides) {
+        BakedModel bakedBase = new ElementsModel(base.getElements()).bake(context, baker, spriteGetter, modelState, overrides);
         return new MyDynamicModel(bakedBase, /* other parameters here */);
     }
 

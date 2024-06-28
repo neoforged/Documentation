@@ -12,7 +12,7 @@ The path is a reference to whatever object you want, inside your namespace. For 
 A `ResourceLocation` on its own says nothing about what kind of objects we are using it for. Objects named `minecraft:dirt` exist in multiple places, for example. It is up to whatever receives the `ResourceLocation` to associate an object with it.
 :::
 
-A new `ResourceLocation` can be created by calling `new ResourceLocation("examplemod", "example_item")` or `new ResourceLocation("examplemod:example_item")`. If the latter is used with a string that does not contain a `:`, the entire string will be used as the path, and `minecraft` will be used as the namespace. So for example, `new ResourceLocation("example_item")` will result in `minecraft:example_item`.
+A new `ResourceLocation` can be created by calling `ResourceLocation.fromNamespaceAndPath("examplemod", "example_item")` or `ResourceLocation.parse("examplemod:example_item")`. If `withDefaultNamespace` is used, the string will be used as the path, and `minecraft` will be used as the namespace. So for example, `ResourceLocation.withDefaultNamespace("example_item")` will result in `minecraft:example_item`.
 
 The namespace and path of a `ResourceLocation` can be retrieved using `ResourceLocation#getNamespace()` and `#getPath()`, respectively, and the combined form can be retrieved through `ResourceLocation#toString`.
 

@@ -4,7 +4,7 @@ Tags are generalized sets of objects in the game used for grouping related thing
 
 ## Declaring Your Own Groupings
 
-Tags are declared in your mod's [datapack][datapack]. For example, a `TagKey<Block>` with a given identifier of  `modid:foo/tagname` will reference a tag at `/data/<modid>/tags/blocks/foo/tagname.json`. Tags for `Block`s, `Item`s, `EntityType`s, `Fluid`s, and `GameEvent`s use the plural forms for their folder location while all other registries use the singular version (`EntityType` uses the folder `entity_types` while `Potion` would use the folder `potion`). Similarly, you may append to or override tags declared in other domains, such as Vanilla, by declaring your own JSONs. For example, to add your own mod's saplings to the Vanilla sapling tag, you would specify it in `/data/minecraft/tags/blocks/saplings.json`, and Vanilla will merge everything into one tag at reload, if the `replace` option is false. If `replace` is true, then all entries before the json specifying `replace` will be removed. Values listed that are not present will cause the tag to error unless the value is listed using an `id` string and `required` boolean set to false, as in the following example:
+Tags are declared in your mod's [datapack][datapack]. For example, a `TagKey<Block>` with a given identifier of  `modid:foo/tagname` will reference a tag at `/data/<modid>/tags/block/foo/tagname.json`. All registries use their path for the directory name (e.g., `EntityType` uses the folder `entity_type`, `Potion` would use the folder `potion`). Similarly, you may append to or override tags declared in other domains, such as Vanilla, by declaring your own JSONs. For example, to add your own mod's saplings to the Vanilla sapling tag, you would specify it in `/data/minecraft/tags/block/saplings.json`, and Vanilla will merge everything into one tag at reload, if the `replace` option is false. If `replace` is true, then all entries before the json specifying `replace` will be removed. Values listed that are not present will cause the tag to error unless the value is listed using an `id` string and `required` boolean set to false, as in the following example:
 
 ```json5
 {
@@ -26,7 +26,7 @@ There is also a NeoForge extension on the Vanilla syntax. You may declare a `rem
 
 ## Using Tags In Code
 
-Tags for all registries are automatically sent from the server to any remote clients on login and reload. `Block`, `Item`, `BlockEntityType`, `EntityType`, `Fluid`, `GameEvent`, and `Enchantment` are special cased as they have `Holder`s allowing for available tags to be accessible through the object itself.
+Tags for all registries are automatically sent from the server to any remote clients on login and reload. `Block`, `Item`, `BlockEntityType`, `EntityType`, `Fluid`, and `GameEvent` are special cased as they have `Holder`s allowing for available tags to be accessible through the object itself.
 
 :::note
 Intrusive `Holder`s may be removed in a future version of Minecraft. If they are, the below methods can be used instead to query the associated `Holder`s.
@@ -47,9 +47,9 @@ Tag-holding registry objects also contain a method called `#is` in either their 
 
 As an example:
 ```java
-public static final TagKey<Item> myItemTag = ItemTags.create(new ResourceLocation("mymod", "myitemgroup"));
+public static final TagKey<Item> myItemTag = ItemTags.create(ResourceLocation.fromNamespaceAndPath("mymod", "myitemgroup"));
 
-public static final TagKey<VillagerType> myVillagerTypeTag = TagKey.create(Registries.VILLAGER_TYPE, new ResourceLocation("mymod", "myvillagertypegroup"));
+public static final TagKey<VillagerType> myVillagerTypeTag = TagKey.create(Registries.VILLAGER_TYPE, ResourceLocation.fromNamespaceAndPath("mymod", "myvillagertypegroup"));
 
 // In some method:
 
@@ -78,6 +78,6 @@ Tags are directly supported by Vanilla. See the respective Vanilla wiki pages fo
 [datapack]: ../index.md#data
 [tags]: https://minecraft.wiki/w/Tag#JSON_format
 [taglist]: https://minecraft.wiki/w/Tag#List_of_tags
-[neoforgetags]: https://github.com/neoforged/NeoForge/tree/1.20.x/src/generated/resources/data/neoforge/tags
+[neoforgetags]: https://github.com/neoforged/NeoForge/tree/1.21.x/src/generated/resources/data/neoforge/tags
 [recipes]: https://minecraft.wiki/w/Recipe#JSON_format
 [advancements]: https://minecraft.wiki/w/Advancement

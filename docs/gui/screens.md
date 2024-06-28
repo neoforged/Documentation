@@ -6,9 +6,9 @@ Screens are made up of numerous parts, making it difficult to fully understand w
 
 ## Relative Coordinates
 
-Whenever anything is rendered, there needs to be some identifier which specifies where it will appear. With numerous abstractions, most of Minecraft's rendering calls takes in an x, y, and z value in a coordinate plane. X values increase from left to right, y from top to bottom, and z from far to near. However, the coordinates are not fixed to a specified range. They can change depending on the size of the screen and the scale at which is specified within the options. As such, extra care must be taken to make sure the values of the coordinates while rendering scale properly to the changeable screen size.
+Whenever anything is rendered, there needs to be some identifier which specifies where it will appear. With numerous abstractions, most of Minecraft's rendering calls take x, y, and z values in a coordinate plane. X values increase from left to right, y from top to bottom, and z from far to near. However, the coordinates are not fixed to a specified range. Their range can change depending on the size of the screen and the “GUI scale” specified within the game’s options. As such, extra care must be taken to ensure the coordinates values passed to rendering calls scale properly—are relativized correctly—to the changeable screen size.
 
-Information on how to relativize your coordinates will be within the [screen] section.
+Information on how to relativize your coordinates is in the [screen] section.
 
 :::caution
 If you choose to use fixed coordinates or incorrectly scale the screen, the rendered objects may look strange or misplaced. An easy way to check if you relativized your coordinates correctly is to click the 'Gui Scale' button in your video settings. This value is used as the divisor to the width and height of your display when determining the scale at which a GUI should render.
@@ -46,7 +46,7 @@ Each `#blit` method takes in a `ResourceLocation`, which represents the absolute
 
 ```java
 // Points to 'assets/examplemod/textures/gui/container/example_container.png'
-private static final ResourceLocation TEXTURE = new ResourceLocation("examplemod", "textures/gui/container/example_container.png");
+private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath("examplemod", "textures/gui/container/example_container.png");
 ```
 
 While there are many different `#blit` overloads, we will only discuss two of them.
@@ -65,7 +65,7 @@ The second `#blit` which the first calls expands this to seven integers and two 
 
 ```java
 // Points to 'assets/examplemod/textures/gui/sprites/container/example_container/example_sprite.png'
-private static final ResourceLocation SPRITE = new ResourceLocation("examplemod", "container/example_container/example_sprite");
+private static final ResourceLocation SPRITE = ResourceLocation.fromNamespaceAndPath("examplemod", "container/example_container/example_sprite");
 ```
 
 One set of `#blitSprite` methods have the same parameters as `#blit`, except for the x and y coordinate within the sprite.
@@ -205,7 +205,7 @@ protected void init() {
 
 ### Ticking Screens
 
-Screens also tick using the `#tick` method to perform some level of client side logic for rendering purposes. The most common example is the `EditBox` for the blinking cursor.
+Screens also tick using the `#tick` method to perform some level of client side logic for rendering purposes.
 
 ```java
 // In some Screen subclass
@@ -213,8 +213,7 @@ Screens also tick using the `#tick` method to perform some level of client side 
 public void tick() {
     super.tick();
 
-    // Add ticking logic for EditBox in editBox
-    this.editBox.tick();
+    // Execute some logic every frame
 }
 ```
 
@@ -299,7 +298,7 @@ In a previous section, it mentioned that precomputed relative coordinates should
 The image values are static and non changing as they represent the background texture size. To make things easier when rendering, two additional values (`leftPos` and `topPos`) are precomputed in the `#init` method which marks the top left corner of where the background will be rendered. The label coordinates are relative to these values.
 
 The `leftPos` and `topPos` is also used as a convenient way to render the background as they already represent the position to pass into the `#blit` method.
-:::caution
+:::
 
 ```java
 // In some AbstractContainerScreen subclass
@@ -361,17 +360,10 @@ Within the super, `#renderBg` is called to render the background of the screen. 
 // In some AbstractContainerScreen subclass
 
 // The location of the background texture (assets/<namespace>/<path>)
-private static final ResourceLocation BACKGROUND_LOCATION = new ResourceLocation(MOD_ID, "textures/gui/container/my_container_screen.png");
+private static final ResourceLocation BACKGROUND_LOCATION = ResourceLocation.fromNamespaceAndPath(MOD_ID, "textures/gui/container/my_container_screen.png");
 
 @Override
 protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
-    /*
-     * Sets the texture location for the shader to use. While up to
-     * 12 textures can be set, the shader used within 'blit' only
-     * looks at the first texture index.
-     */
-    RenderSystem.setShaderTexture(0, BACKGROUND_LOCATION);
-
     /*
      * Renders the background texture to the screen. 'leftPos' and
      * 'topPos' should already represent the top left corner of where

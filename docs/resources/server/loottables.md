@@ -10,9 +10,9 @@ Most loot tables within vanilla are data driven via JSON. This means that a mod 
 
 A loot table is referenced by its `ResourceKey<LootTable>` which points to `data/<namespace>/loot_tables/<path>.json`. The `LootTable` associated with the reference can be obtained using `ReloadableServerRegistries.Holder#getLootTable`, where `ReloadableServerRegistries.Holder` can be obtained via `MinecraftServer#reloadableRegistries`.
 
-A loot table is always generated with given parameters. The `LootParams` contains the level the table is generated in, luck for better generation, the `LootContextParam`s which define scenario context, and any dynamic information that should occur on activation. The `LootParams` can be created using the constructor of the `LootParams.Builder` builder, and built via `LootParams$Builder#create` by passing in the `LootContextParamSet`.
+A loot table is always generated with given parameters. The `LootParams` contains the level the table is generated in, luck for better generation, the `LootContextParam`s which define scenario context, and any dynamic information that should occur on activation. The `LootParams` can be created using the constructor of the `LootParams.Builder` builder, and built via `LootParams.Builder#create` by passing in the `LootContextParamSet`.
 
-A loot table may also have some context. The `LootContext` takes in the built `LootParams` and can set some random seeded instance. The context is created via the builder `LootContext.Builder` and built using `LootContext$Builder#create` by passing in a optional `ResourceLocation` representing the random instance to use.
+A loot table may also have some context. The `LootContext` takes in the built `LootParams` and can set some random seeded instance. The context is created via the builder `LootContext.Builder` and built using `LootContext.Builder#create` by passing in a optional `ResourceLocation` representing the random instance to use.
 
 A `LootTable` can be used to generate `ItemStack`s using one of the available methods which may take in a `LootParams` or a `LootContext`:
 
@@ -55,10 +55,6 @@ Loot pools can be named using the `name` key. Any non-named loot pool will be th
 }
 ```
 
-### Looting Modifiers
-
-Loot tables are now affected by the `LootingLevelEvent`, on the NeoForge event bus, in addition to the looting enchantment.
-
 ### Additional Context Parameters
 
 NeoForge extends certain parameter sets to account for missing contexts which may be applicable. `LootContextParamSets#CHEST` now allows for a `LootContextParams#KILLER_ENTITY` as chest minecarts are entities which can be broken (or 'killed'). `LootContextParamSets#FISHING` also allows for a `LootContextParams#KILLER_ENTITY` since the fishing hook is also an entity which is retracted (or 'killed') when the player retrieves it.
@@ -76,7 +72,7 @@ NeoForge adds an additional `LootItemCondition` which allows certain items to ge
 {
     "conditions": [
         {
-            "condition": "forge:loot_table_id",
+            "condition": "neoforge:loot_table_id",
             // Will apply when the loot table is for dirt
             "loot_table_id": "minecraft:blocks/dirt"
         }
@@ -84,16 +80,16 @@ NeoForge adds an additional `LootItemCondition` which allows certain items to ge
 }
 ```
 
-### Can Tool Perform Action Condition
+### Can Item Perform Ability Condition
 
-NeoForge adds an additional `LootItemCondition` which checks whether the given `LootContextParams#TOOL` can perform the specified `ToolAction`.
+NeoForge adds an additional `LootItemCondition` which checks whether the given `LootContextParams#TOOL` can perform the specified `ItemAbility`.
 
 ```json5
 // In some loot pool or pool entry
 {
     "conditions": [
         {
-            "condition": "forge:can_tool_perform_action",
+            "condition": "neoforge:can_item_perform_ability",
             // Will apply when the tool can strip a log like an axe
             "action": "axe_strip"
         }

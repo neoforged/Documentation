@@ -42,19 +42,35 @@ Looms are responsible for applying a dye and pattern (either from the loom or fr
 `BannerPattern`s which are in the `minecraft:no_item_required` tag appear as an option in the loom. Patterns not in this tag must have an accompanying `BannerPatternItem` to be supplied via an associated tag.
 :::
 
-```java
-private static final DeferredRegister<BannerPattern> REGISTER = DeferredRegister.create(Registries.BANNER_PATTERN, "examplemod");
-
-// Takes in the pattern name to send over the network
-public static final BannerPattern EXAMPLE_PATTERN = REGISTER.register("example_pattern", () -> new BannerPattern(
+```json5
+// In 'data/examplemod/banner_pattern/example_pattern.json'
+{
     // Will look for pattern texture in assets/examplemod/textures/entity/banner/example_pattern.png
-    new ResourceLocation("examplemod", "example_pattern"),
+    "asset_id": "examplemod:example_pattern",
     // Translation key for the pattern text
-    "block.examplemod.banner.example_pattern"
-));
+    "translation_key": "block.examplemod.banner.example_pattern"
+}
+```
+
+```java
+// For some RegistrySetBuilder registrySet to be added to DatapackBuiltinEntriesProvider
+
+registrySet.add(Registries.BANNER_PATTERN, bootstrap -> {
+    var registryName = ResourceLocation.fromNamespaceAndPath("examplemod", "example_pattern");
+
+    bootstrap.register(
+        ResourceKey.create(Registries.BANNER_PATTERN, registryName),
+        new BannerPattern(
+            // Will look for pattern texture in assets/examplemod/textures/entity/banner/example_pattern.png
+            registryName,
+            // Translation key for the pattern text
+            "block.examplemod.banner.example_pattern"
+        )
+    );
+});
 ```
 
 [recipe]: ./custom.md#recipe
 [cancel]: ../../../concepts/events.md#cancellable-events
 [attached]: ../../../concepts/events.md#registering-an-event-handler
-[registering]: ../../../concepts/registries.md
+[registering]: ../../../concepts/registries.md#data-generation-for-datapack-registries

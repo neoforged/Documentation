@@ -93,21 +93,19 @@ A `KeyMapping` can be checked to see whether it has been clicked. Depending on w
 
 ### Within the Game
 
-Within the game, a mapping should be checked by listening to `ClientTickEvent` on the [event bus][eventbus] and checking `KeyMapping#consumeClick` within a while loop. `#consumeClick` will return `true` only the number of times the input was performed and not already previously handled, so it won't infinitely stall the game.
+Within the game, a mapping should be checked by listening to `ClientTickEvent.Post` on the [event bus][eventbus] and checking `KeyMapping#consumeClick` within a while loop. `#consumeClick` will return `true` only the number of times the input was performed and not already previously handled, so it won't infinitely stall the game.
 
 ```java
 // Event is on the NeoForge event bus only on the physical client
-public void onClientTick(ClientTickEvent event) {
-  if (event.phase == TickEvent.Phase.END) { // Only call code once as the tick event is called twice every tick
+public void onClientTick(ClientTickEvent.Post event) {
     while (EXAMPLE_MAPPING.get().consumeClick()) {
-      // Execute logic to perform on click here
+        // Execute logic to perform on click here
     }
-  }
 }
 ```
 
 :::caution
-Do not use the `InputEvent`s as an alternative to `ClientTickEvent`. There are separate events for keyboard and mouse inputs only, so they wouldn't handle any additional inputs.
+Do not use the `InputEvent`s as an alternative to `ClientTickEvent.Post`. There are separate events for keyboard and mouse inputs only, so they wouldn't handle any additional inputs.
 :::
 
 ### Inside a GUI

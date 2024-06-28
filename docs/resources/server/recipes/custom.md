@@ -4,10 +4,10 @@ Every recipe definition is made up of three components: the `Recipe` implementat
 
 ## Recipe
 
-The `Recipe` interface describes the recipe data and the execution logic. This includes matching the inputs and providing the associated result. As the recipe subsystem performs item transformations by default, the inputs are supplied through a `Container` subtype.
+The `Recipe` interface describes the recipe data and the execution logic. This includes matching the inputs and providing the associated result. As the recipe subsystem performs item transformations by default, the inputs are supplied through a `RecipeInput` subtype. The two most common types are `CraftingInput`, which contains a positionable grid of items, and `SingleRecipeInput`, which only takes in a single item.`RecipeInput`s obtain the stored `ItemStack` via `getItem` by passing in the input index.
 
 :::caution
-The `Container`s passed into the recipe should be treated as if its contents were immutable. Any mutable operations should be performed on a copy of the input through `ItemStack#copy`.
+The `RecipeInput`s passed into the recipe should be treated as if its contents were immutable. Any mutable operations should be performed on a copy of the input through `ItemStack#copy`.
 :::
 
 To be able to obtain a recipe instance from the manager, `#matches` must return true. This method checks against the provided container to see whether the associated inputs are valid. `Ingredient`s can be used for validation by calling `Ingredient#test`.
@@ -21,7 +21,7 @@ If the recipe has been chosen, it is then built using `#assemble` which may use 
 Most of the other methods are purely for integration with the recipe book.
 
 ```java
-public record ExampleRecipe(Ingredient input, int data, ItemStack output) implements Recipe<Container> {
+public record ExampleRecipe(Ingredient input, int data, ItemStack output) implements Recipe<SingleRecipeInput> {
     // Implement methods here
 }
 ```
@@ -34,7 +34,7 @@ While a record is used in the above example, it is not required to do so in your
 
 `RecipeType` is responsible for defining the category or context the recipe will be used within. For example, if a recipe was going to be smelted in a furnace, it would have a type of `RecipeType#SMELTING`. Being blasted in a blast furnace would have a type of `RecipeType#BLASTING`.
 
-If none of the existing types match what context the recipe will be used within, then a new `RecipeType` must be [registered][registries].
+If none of the existing types match what context the recipe will be used within, then a new `RecipeType` must be [registered][registries]. It is recommended to create the `RecipeType` via `RecipeType#simple`.
 
 The `RecipeType` instance must then be returned by `Recipe#getType` in the new recipe subtype.
 
@@ -43,7 +43,7 @@ The `RecipeType` instance must then be returned by `Recipe#getType` in the new r
 // In ExampleRecipe
 @Override
 public RecipeType<?> getType() {
-  return EXAMPLE_TYPE.get();
+  return EXAMPLE_TYPE.value();
 }
 ```
 
@@ -56,7 +56,7 @@ Only two methods need to be implemented for a `RecipeSerializer`:
 | Method      | Description
 |:-----------:|:----------
 `codec`       | A [map codec][codec] used to read and write the recipe to disk.
-`streamCodec` | A stream codec used to send the recipe through the network.
+`streamCodec` | A [stream codec][streamcodec] used to send the recipe through the network.
 
 The `RecipeSerializer` instance must then be returned by `Recipe#getSerializer` in the new recipe subtype.
 
@@ -65,7 +65,7 @@ The `RecipeSerializer` instance must then be returned by `Recipe#getSerializer` 
 // In ExampleRecipe
 @Override
 public RecipeSerializer<?> getSerializer() {
-  return EXAMPLE_SERIALIZER.get();
+  return EXAMPLE_SERIALIZER.value();
 }
 ```
 
@@ -123,3 +123,4 @@ All custom recipes, regardless of input or output data, can be provided to `Reci
 [codec]: ../../../datastorage/codecs.md
 [manager]: ./index.md#recipe-manager
 [datagen]: ../../../datagen/recipes.md#custom-recipe-serializers
+[streamcodec]: ../../../networking/streamcodecs.md

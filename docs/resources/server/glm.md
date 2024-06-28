@@ -106,7 +106,7 @@ public class ExampleModifier extends LootModifier {
     @Override
     public MapCodec<? extends IGlobalLootModifier> codec() {
         // Return the codec used to encode and decode this modifier
-        return EXAMPLE_MODIFIER_MAP_CODEC.get();
+        return EXAMPLE_MODIFIER_MAP_CODEC.value();
     }
 }
 ```
@@ -140,4 +140,4 @@ public static final RegistryObject<MapCodec<ExampleModifier>> EXAMPLE_MODIFIER_M
 [registered]: ../../concepts/registries.md#methods-for-registering
 [codecdef]: ../../datastorage/codecs.md
 [datagen]: ../../datagen/glm.md
-[examples]: https://github.com/neoforged/NeoForge/blob/1.20.x/tests/src/main/java/net/neoforged/neoforge/debug/loot/GlobalLootModifiersTest.java
+[examples]: https://github.com/neoforged/NeoForge/blob/1.21.x/tests/src/main/java/net/neoforged/neoforge/debug/loot/GlobalLootModifiersTest.java

@@ -5,7 +5,7 @@ sidebar_position: 3
 
 One of NeoForge's main features is the event system. Events are fired for various things that happen in the game. For example, there are events for when the player right clicks, when a player or another entity jumps, when blocks are rendered, when the game is loaded, etc. A modder can subscribe event handlers to each of these events, and then perform their desired behavior inside these event handlers.
 
-Events are fired on their respective event bus. The most important bus is `NeoForge.EVENT_BUS`. Besides that, during startup, a mod bus is spawned for each loaded mod and passed into the mod's constructor. Many mod bus events are fired in parallel (as opposed to main bus events that always run on the same thread), dramatically increasing startup speed. See [below][modbus] for more information.
+Events are fired on their respective event bus. The most important bus is `NeoForge.EVENT_BUS`, also known as the **game** bus. Besides that, during startup, a mod bus is spawned for each loaded mod and passed into the mod's constructor. Many mod bus events are fired in parallel (as opposed to main bus events that always run on the same thread), dramatically increasing startup speed. See [below][modbus] for more information.
 
 ## Registering an Event Handler
 
@@ -116,13 +116,27 @@ Some events implement the `ICancellableEvent` interface. These events can be can
 
 Event handlers can opt to explicitly receive cancelled events. This is done by setting the `receiveCanceled` boolean parameter in `IEventBus#addListener` (or `@SubscribeEvent`, depending on your way of attaching the event handlers) to true.
 
-### Results
+### TriStates and Results
 
-Some events have a `Result`. A `Result` can be one of three things: `DENY` which stops the event, `ALLOW` which force-runs the event, and `DEFAULT` which uses the Vanilla behavior. The result of an event can be set by calling `Event#setResult`. Not all events have results; an event with a result will be annotated with `@HasResult`.
+Some events have three potential return states represented by `TriState`, or a `Result` enum directly on the event class. The return states can typically either cancel the action the event is handling (`TriState#FALSE`), force the action to run (`TriState#TRUE`), or execute default Vanilla behavior (`TriState#DEFAULT`).
 
-:::caution
-Results are deprecated and will be replaced by more specific per-event results soon.
-:::
+An event with three potential return states has some `set*` method to set the desired outcome.
+
+```java
+// In some class where the listeners are subscribed to the game event bus
+
+@SubscribeEvent
+public void renderNameTag(RenderNameTagEvent event) {
+    // Uses TriState to set the return state
+    event.setCanRender(TriState.FALSE);
+}
+
+@SubscribeEvent
+public void mobDespawn(MobDespawnEvent event) {
+    // Uses a Result enum to set the return state
+    event.setResult(MobDespawnEvent.Result.DENY);
+}
+```
 
 ### Priority
 
