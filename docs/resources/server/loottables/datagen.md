@@ -1,23 +1,18 @@
 # Loot Table Datagen
 
-[Loot tables][loottable] can be [datagenned][datagen] by subclassing `LootTableProvider` and providing a list of `LootTableSubProvider` in the constructor. Due to Mojang being Mojang, this requires some boilerplate to fully set up:
+[Loot tables][loottable] can be [datagenned][datagen] by subclassing `LootTableProvider` and providing a list of `LootTableSubProvider` in the constructor:
 
 ```java
 public class MyLootTableProvider extends LootTableProvider {
     // Get the PackOutput from GatherDataEvent.
-    public MyLootTableProvider(PackOutput output) {
+    public MyLootTableProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider) {
         super(output,
-                // A set of required table resource locations. This is used in validation (see below).
-                // It is generally not recommended for mods to validate, therefore we pass in an empty set.
+                // A set of required table resource locations. These are later verified to be present.
+                // It is generally not recommended for mods to validate existence, therefore we pass in an empty set.
                 Set.of(),
                 // A list of sub provider entries. See below for what values to use here.
                 List.of(...));
     }
-    
-    // Vanilla uses this method to validate existence and correct usage of loot context parameters.
-    // This is a pretty complex setup, so it is usually recommended for modders to trust themselves and no-op here.
-    @Override
-    protected void validate(Map<ResourceLocation, LootTable> map, ValidationContext context) {}
 }
 ```
 
@@ -26,7 +21,11 @@ Like all data providers, we register the provider to `GatherDataEvent`:
 ```java
 @SubscribeEvent
 public static void onGatherData(GatherDataEvent event) {
-    event.getGenerator().addProvider(event.includeServer(), MyLootTableProvider::new);
+    CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
+    event.getGenerator().addProvider(
+            event.includeServer(), 
+            output -> new MyLootTableProvider(output, lookupProvider)
+    );
 }
 ```
 
@@ -96,8 +95,11 @@ Let's start with the singletons, since those are easier:
 The composites then use the singletons or other composites in the following ways:
 
 - `EntryGroup#list`: Accepts a vararg of other `LootPoolEntryContainer.Builder<?>`s. Runs all of its children, regardless of if they succeed or not.
+  - An `EntryGroup.Builder` can also be obtained by calling `LootPoolEntryContainer.Builder<?>#append`.
 - `AlternativesEntry#alternatives`: Accepts a vararg of other `LootPoolEntryContainer.Builder<?>`s. Runs its children in order until one succeeds.
+    - An `AlternativesEntry.Builder` can also be obtained by calling `LootPoolEntryContainer.Builder<?>#otherwise`.
 - `SequentialEntry#sequential`: The opposite of `AlternativesEntry`. Accepts a vararg of other `LootPoolEntryContainer.Builder<?>`s, and runs its children in order until one fails.
+    - A `SequentialEntry.Builder` can also be obtained by calling `LootPoolEntryContainer.Builder<?>#then`.
 
 All `LootPoolEntryContainer.Builder<?>`s additionally allow adding loot conditions and loot functions by calling `#when` and `#apply`, respectively, similar to loot pools (see above). Additionally, be aware that mods may add custom loot entry providers.
 

@@ -82,9 +82,9 @@ public record ExampleTriggerInstance(Optional<ContextAwarePredicate> player, Ite
 
 ### `SimpleCriterionTrigger`
 
-The `SimpleCriterionTrigger<T>` implementation has two purposes: specifying a [codec] to serialize the trigger instance `T`, and supplying a method to check trigger instances and run attached listeners on success.
+The `SimpleCriterionTrigger<T>` implementation has two purposes: supplying a method to check trigger instances and run attached listeners on success, and specifying a [codec] to serialize the trigger instance (`T`).
 
-Let's begin with the latter because it is easier. We want to add a method that takes the inputs we need and calls `SimpleCriterionTrigger#trigger` to properly handle checking all listeners. Most trigger instances also name this method `#trigger`. Reusing our example trigger instance from above, our trigger would look something like this:
+First, we want to add a method that takes the inputs we need and calls `SimpleCriterionTrigger#trigger` to properly handle checking all listeners. Most trigger instances also name this method `#trigger`. Reusing our example trigger instance from above, our trigger would look something like this:
 
 ```java
 public class ExampleCriterionTrigger extends SimpleCriterionTrigger<ExampleTriggerInstance> {
@@ -108,7 +108,7 @@ public static final Supplier<ExampleCriterionTrigger> EXAMPLE_TRIGGER =
         TRIGGER_TYPES.register("example", ExampleCriterionTrigger::new);
 ```
 
-Finally, triggers must define a [codec] to serialize and deserialize the trigger instance by overriding `#codec`. This codec is typically created as a constant within the instance implementation.
+And then, triggers must define a [codec] to serialize and deserialize the trigger instance by overriding `#codec`. This codec is typically created as a constant within the instance implementation.
 
 ```java
 public record ExampleTriggerInstance(Optional<ContextAwarePredicate> player/*, other parameters here*/)

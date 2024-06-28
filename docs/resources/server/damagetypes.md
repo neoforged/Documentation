@@ -51,18 +51,22 @@ The same format is also used for vanilla's damage types, and pack developers can
 DamageSource damageSource = new DamageSource(
         // The damage type holder to use. Query from the registry. This is the only required parameter.
         registryAccess.registryOrThrow(Registries.DAMAGE_TYPE).getHolderOrThrow(EXAMPLE_DAMAGE),
-        // The entity causing the damage. This isn't always applicable (e.g. when falling out of the world)
-        // and may therefore be null. Optional, defaults to null.
-        null,
         // The direct entity. For example, if a skeleton shot you, the skeleton would be the causing entity
         // (= the parameter above), and the arrow would be the direct entity (= this parameter). Similar to
         // the causing entity, this isn't always applicable and therefore nullable. Optional, defaults to null.
+        null,
+        // The entity causing the damage. This isn't always applicable (e.g. when falling out of the world)
+        // and may therefore be null. Optional, defaults to null.
         null,
         // The damage source position. This is rarely used, one example would be intentional game design
         // (= nether beds exploding). Nullable and optional, defaulting to null.
         null
 );
 ```
+
+:::warning
+`DamageSources#source`, which is a wrapper around `new DamageSource`, flips the second and third parameters (direct entity and causing entity). Make sure you are supplying the correct values to the correct parameters.
+:::
 
 If `DamageSource`s have no entity or position context whatsoever, it makes sense to cache them in a field. For `DamageSource`s that do have entity or position context, it is common to add helper methods, like so:
 

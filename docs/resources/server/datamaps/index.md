@@ -2,7 +2,7 @@
 
 A data map contains data-driven, reloadable objects that can be attached to a registered object. This system allows for more easily data-driving game behaviour, as they provide functionality such as syncing or conflict resolution, leading to a better and more configurable user experience. You can think of [tags] as registry object ➜ boolean maps, while data maps are more flexible registry object ➜ object maps. Similar to [tags], data maps will add to their corresponding data map rather than overwriting.
 
-A data map can be attached to both static, built-in, registries and dynamic data-driven datapack registries. Data maps support reloading through the use of the `/reload` command or any other means that reload server resources.
+Data maps can be attached to both static, built-in, registries and dynamic data-driven datapack registries. Data maps support reloading through the use of the `/reload` command or any other means that reload server resources.
 
 NeoForge provides various [built-in data maps][builtin] for common use cases, replacing hardcoded vanilla fields. More info can be found in the linked article.
 
