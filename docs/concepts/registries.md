@@ -309,7 +309,7 @@ static void onGatherData(GatherDataEvent event) {
 [codec]: ../datastorage/codecs.md
 [datagen]: #data-generation-for-datapack-registries
 [datagenindex]: ../resources/index.md#data-generation
-[datapack]: ../resources/server/index.md
+[datapack]: ../resources/index.md#data
 [defregblocks]: ../blocks/index.md#deferredregisterblocks-helpers
 [defregitems]: ../items/index.md#deferredregisteritems
 [event]: ./events.md

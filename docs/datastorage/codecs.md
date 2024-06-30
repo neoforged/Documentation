@@ -42,7 +42,7 @@ exampleCodec.encodeStart(NbtOps.INSTANCE, exampleObject);
 exampleCodec.parse(NbtOps.INSTANCE, exampleNbt);
 ```
 
-To handle registry entries, Minecraft provides `RegistryOps`, which contains a lookup provider to get available registry elements. These can be created by `RegistryOps#create` that takes in the `DynamicOps` with the specific type to store the data within and the lookup provider containing access to the available registries. NeoForge extends `RegistryOps` to create `ConditionalOps`: a registry codec lookup that can handle [conditions to load the entry][conditional].
+To handle registry entries, Minecraft provides `RegistryOps`, which contains a lookup provider to get available registry elements. These can be created by `RegistryOps#create` that takes in the `DynamicOps` with the specific type to store the data within and the lookup provider containing access to the available registries. NeoForge extends `RegistryOps` to create `ConditionalOps`: a registry codec lookup that can handle [conditions to load the entry][conditions].
 
 ```java
 // Let lookupProvider be a HolderLookup.Provider
@@ -582,7 +582,7 @@ public static final Codec<ExampleObject> = DISPATCH.byNameCodec() // Gets Codec<
 
 [DataFixerUpper]: https://github.com/Mojang/DataFixerUpper
 [gson]: https://github.com/google/gson
-[conditional]: ../resources/server/conditional.md
+[conditions]: ../resources/server/conditions.md
 [transformer]: #transformer-codecs
 [pair]: #pair
 [records]: #records
