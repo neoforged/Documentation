@@ -34,14 +34,14 @@ Data packs may contain folders with files affecting the following things:
 
 | Folder name                                                           | Contents                     |
 |-----------------------------------------------------------------------|------------------------------|
-| `advancements`                                                        | [Advancements][advancements] |
+| `advancement`                                                         | [Advancements][advancements] |
 | `damage_type`                                                         | Damage types                 |
-| `loot_tables`                                                         | [Loot tables][loottables]    |
-| `recipes`                                                             | [Recipes][recipes]           |
-| `structures`                                                          | Structures                   |
+| `loot_table`                                                          | [Loot tables][loottables]    |
+| `recipe`                                                              | [Recipes][recipes]           |
+| `structure`                                                           | Structures                   |
 | `tags`                                                                | [Tags][tags]                 |
-| `dimension`, `dimension_type`, `worldgen`, `neoforge/biome_modifiers` | Worldgen files               |
-| `neoforge/global_loot_modifiers`                                      | [Global loot modifiers][glm] |
+| `dimension`, `dimension_type`, `worldgen`, `neoforge/biome_modifier`  | Worldgen files               |
+| `neoforge/loot_modifiers`                                             | [Global loot modifiers][glm] |
 
 Additionally, they may also contain subfolders for some systems that integrate with commands. These systems are rarely used in conjunction with mods, but worth mentioning regardless:
 
