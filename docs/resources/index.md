@@ -195,7 +195,7 @@ runs {
 [langprovider]: client/i18n.md#datagen
 [lifecycle]: ../concepts/events.md#the-mod-lifecycle
 [logicalsides]: ../concepts/sides.md#the-logical-side
-[loottableprovider]: server/loottables/datagen.md
+[loottableprovider]: server/loottables/index.md#datagen
 [loottables]: server/loottables/index.md
 [mcwiki]: https://minecraft.wiki
 [mcwikidatapacks]: https://minecraft.wiki/w/Data_pack

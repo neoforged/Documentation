@@ -6,7 +6,7 @@ Minecraft uses loot tables at various points in the game, including block drops,
 
 - Every block will, by default, receive an associated loot table, located at `<block_namespace>:blocks/<block_name>`. This can be disabled by calling `#noLootTable` on the block's `Properties`, resulting in no loot table being created and the block dropping nothing; this is mainly done by air-like or technical blocks.
 - Every subclass of `LivingEntity` that is not in the `MobCategory.MISC` category (as determined by `EntityType#getCategory`) will, by default, receive an associated loot table, located at `<entity_namespace>:entities/<entity_name>`. This can be changed by overriding `#getLootTable` if you are directly extending `LivingEntity`, or by overriding `#getDefaultLootTable` if you are extending `Mob` or a subclass thereof. For example, sheep use this to roll different loot tables depending on their wool color.
-- Chests in structures specify their loot table in their block entity data. Minecraft stores all chest loot tables in `minecraft:chests/<chest_name>`, it is not required (but recommended) to follow this practice in mods.
+- Chests in structures specify their loot table in their block entity data. Minecraft stores all chest loot tables in `minecraft:chests/<chest_name>`; it is recommended, but not required to follow this practice in mods.
 - The loot tables for gift items that villagers may throw at players after a raid are defined in the [`neoforge:raid_hero_gifts` data map][raidherogifts].
 - Other loot tables, for example the fishing loot table, are retrieved when needed from `level.getServer().reloadableRegistries().getLootTable(lootTableId)`. A list of all vanilla loot table locations can be found in `BuiltInLootTables`.
 
@@ -14,37 +14,310 @@ Minecraft uses loot tables at various points in the game, including block drops,
 Loot tables should generally only be created for stuff that belongs to your mod. For modifying existing loot tables, [global loot modifiers (GLMs)][glm] should be used instead.
 :::
 
-## Terminology and Specification
+Due to the complexity of the loot table system, loot tables are compromised of several sub-systems that each have a different purpose.
 
-Due to the complexity of the loot table system, loot tables are compromised of several sub-systems that each have a different purpose:
+## Loot Entry
 
-- A **loot entry** is a singular loot element with some basic values, such as a weight.
-- A **loot pool** is, in essence, a list of loot entries. A loot table can contain multiple loot pools, and each loot pool is rolled independently of the others.
-  - NeoForge allows loot pools to specify a `name` field. This can be used by [GLMs][glm]. If unspecified, this is the hash code of the loot pool, prefixed by `custom#`.
-- A **roll** is a "picking" from a loot table or loot pool. A loot table is always rolled once per in-code call, but loot pools can specify this value to be greater than 1.
-  - A **bonus roll** is an extra roll, calculated using the [**luck value**][luck]. It is specified and calculated independently of the regular rolls amount, and added on top of it after both calculations have completed.
-- A **loot condition** is a condition on a loot entry that must be met for the entry to be further considered, otherwise the entry is treated as non-existent.
-  - Multiple loot conditions can be applied to the same loot entry.
-  - Loot conditions (or lists thereof) can also be applied to a loot pool. If the condition fails, the entire pool is discarded.
-  - This is not to be confused with NeoForge's [conditional data loading][conditions]. Data load conditions may be used in a loot table as well, but only in the root.
-  - For a full list of vanilla loot conditions, see [Item Predicates][itempredicates]. [NeoForge adds two loot conditions as well][neoconditions]. Modders may also add their own loot conditions.
-- A **loot function** is a function that can be applied to the result of a loot entry.
-  - Multiple loot functions can be applied to the same loot entry.
-  - Loot functions (or lists thereof) can also be applied to a loot pool or loot table, affecting all items in that loot pool/loot table.
-  - For a full list of vanilla loot functions, see [Item Modifiers][itemmodifiers]. Modders may also add their own loot functions.
-- The **loot context** is an object passed to the loot table evaluator that may contain additional information for rolling the table, for example an associated block state, block entity, entity, etc.; these are called **loot context parameters**.
-  - A full list of loot context parameters can be found in the `LootContextParams` class.
-- The **loot context parameter set**, also known as the **loot table type** (because it is denoted in the `type` JSON field), is a validator for the loot context. For example, the loot table type `barter` is guaranteed to have an entity context for the piglin being bartered with. - The context is validated at data pack load time, printing a log warning if context is used that is not defined by the loot table type.
-  - The loot table type is always optional. No validation will take place if it is not specified.
-  - The default parameter sets can be found in the `LootContextParamSets` class.
-  - For a full list of loot table types and what context they provide, see [Loot Contexts][lootcontext].
-- A **loot table evaluator** is the piece of Java code rolling the loot table.
+A loot entry (or loot pool entry), represented in code through the abstract `LootPoolEntryContainer` class, is a singular loot element. It can specify one or multiple items to be dropped.
 
-Generally, a loot table has the following JSON format:
+Vanilla provides a total of 8 different loot entry types. Through the common `LootPoolEntryContainer` superclass, all of them have the following properties:
+
+- `weight`: The weight value. Defaults to 1. This is used for cases where some items should be more common than others. For example, given two loot entries, one with weight 3 and one with weight 1, then there is a 75% chance for the first entry to be chosen, and a 25% chance for the second entry.
+- `quality`: The quality value. Defaults to 0. If this is non-zero, then this value is multiplied by the luck value (set in the [loot context][context]) and added to the weight when rolling the loot table.
+- `conditions`: A list of [loot conditions][lootcondition] to apply to this loot entry. If one condition fails, the entry is not loaded and is treated as if it weren't present.
+- `functions`: A list of [loot functions][lootfunction] to apply to the outputs of this loot entry.
+
+Loot entries are generally split into two groups: singletons (with the common superclass `LootPoolSingletonContainer`) and composites (with the common superclass `CompositeEntryBase`), where composites are made up of multiple singletons. The following singleton types are provided by Minecraft:
+
+- `minecraft:empty`: An empty loot entry, representing no item. Created in code by calling `EmptyLootItem#emptyItem`.
+- `minecraft:item`: A singular loot item entry, dropping the specified item when rolled. Created in code by calling `LootItem#lootTableItem` with the desired item.
+    - Setting stack size, data components, etc. can be done using loot functions.
+- `minecraft:tag`: A tag entry, dropping all items in the specified tag when rolling. Has two variants, depending on the value of the boolean `expand` property. If `expand` is true, a separate entry for each item in the tag is generated, otherwise one entry is used to drop all items. Created by calling `TagEntry#tagContents` (for `expand=false`) or `TagEntry#expandTag` (for `expand=true`), each with an item [tag key][tags] parameter.
+    - For example, if `expand` is true and the tag is `#minecraft:planks`, one entry is generated for each planks type (so 11 entries for the 11 vanilla planks + one entry per modded planks), each with the specified weight, quality and functions; whereas if `expand` is false, one single entry dropping all planks is used.
+- `minecraft:dynamic`: A loot entry referencing a dynamic drop. Dynamic drops are a system to add entries to a loot table that cannot be specified beforehand, instead adding them in code. A dynamic drops entry consists of an id and a `Consumer<ItemStack>` that actually adds the items. To add a dynamic drops entry, specify a `minecraft:dynamic` entry with the desired id and then add a corresponding consumer in the [loot context][context]. Created using `DynamicLoot#dynamicEntry`.
+- `minecraft:loot_table`: A loot entry that rolls another loot table, adding the result of that loot table as a single entry. The other loot table can either be specified by id or be inlined as a whole. Created in code by calling `NestedLootTable#lootTableReference` with a `ResourceLocation` parameter, or `NestedLootTable#inlineLootTable` with a `LootTable` object parameter for an inline loot table.
+
+The following composite types are provided by Minecraft:
+
+- `minecraft:group`: A loot entry containing a list of other loot entries, which are run in order. Created in code by calling `EntryGroup#list`, or by calling `#append` on another `LootPoolSingletonContainer.Builder`, each with other loot entry builders.
+- `minecraft:sequence`: Like `minecraft:group`, but the loot entry stops running as soon as one sub-entry fails, discarding all entries after that. Created in code by calling `SequentialEntry#sequential`, or by calling `#then` on another `LootPoolSingletonContainer.Builder`, each with other loot entry builders.
+- `minecraft:alternatives`: Sort of an opposite to `minecraft:sequence`, but the loot entry stops running as soon as one sub-entry succeeds (instead of as soon as one fails), discarding all entries after that. Created in code by calling `AlternativesEntry#alternatives`, or by calling `#otherwise` on another `LootPoolSingletonContainer.Builder`, each with other loot entry builders.
+
+### Custom Loot Entry Types
+
+It is also possible for modders to add custom loot entry types. Loot entry types are a [registry], so we can simply create a `DeferredRegister` and register to it. For the sake of example, we want to create a loot entry type that returns the drops of a entity - this is purely for example purposes, in practice it would be more ideal to directly reference the other loot table. Let's start by creating our loot entry type class:
+
+```java
+// We extend LootPoolSingletonContainer since we have a "finite" set of drops.
+// Some of this code is adapted from NestedLootTable.
+public class EntityLootEntry extends LootPoolSingletonContainer {
+    // A Holder for the entity type we want to roll the other table for.
+    private final Holder<EntityType<?>> entity;
+
+    // It is common practice to have a private constructor and have a static factory method.
+    // This is because weight, quality, conditions, and functions are supplied by a lambda below.
+    private EntityLootEntry(Holder<EntityType<?>> entity, int weight, int quality, List<LootItemCondition> conditions, List<LootItemFunction> functions) {
+        // Pass lambda-provided parameters to super.
+        super(weight, quality, conditions, functions);
+        // Set our values.
+        this.entity = entity;
+    }
+
+    // Static builder method, accepting our custom parameters and combining them with a lambda that supplies the values common to all entry types.
+    public static LootPoolSingletonContainer.Builder<?> entityLoot(Holder<EntityType<?>> entity) {
+        // Use the static simpleBuilder() method defined in LootPoolSingletonContainer.
+        return simpleBuilder((weight, quality, conditions, functions) -> new EntityLootEntry(entity, weight, quality, conditions, functions));
+    }
+
+    // This is where the magic happens. To add an item stack, we generally call #accept on the consumer.
+    // However, in this case, we let #getRandomItems do that for us.
+    @Override
+    public void createItemStack(Consumer<ItemStack> consumer, LootContext context) {
+        // Get the entity's loot table. If it doesn't exist, an empty loot table will be returned, so null-checking is not necessary.
+        LootTable table = context.getLevel().reloadableRegistries().getLootTable(entity.value().getDefaultLootTable());
+        // Use the raw version here, because vanilla does it too. :P
+        // #getRandomItemsRaw calls consumer#accept for us on the results of the roll.
+        table.getRandomItemsRaw(context, consumer);
+    }
+}
+```
+
+Next up, we create a [MapCodec][codec] for our loot table:
+
+```java
+// This is placed as a constant in EntityLootEntry.
+public static final MapCodec<EntityLootEntry> CODEC = RecordCodecBuilder.mapCodec(inst ->
+        // Add our own fields.
+        inst.group(
+                        // A value referencing an entity type id.
+                        ResourceKey.codec(Registries.ENTITY_TYPE).fieldOf("entity").forGetter(e -> e.entity)
+                )
+                // Add common fields: weight, display, conditions, and functions.
+                .and(singletonFields(inst))
+                .apply(inst, EntityLootEntry::new)
+);
+```
+
+We then use this codec in registration:
+
+```java
+public static final DeferredRegister<LootPoolEntryType> LOOT_POOL_ENTRY_TYPES =
+        DeferredRegister.create(Registries.LOOT_POOL_ENTRY_TYPE, ExampleMod.MOD_ID);
+
+public static final Supplier<LootPoolEntryType> ENTITY_LOOT =
+        LOOT_POOL_ENTRY_TYPES.register("entity_loot", () -> new LootPoolEntryType(EntityLootEntry.CODEC));
+```
+
+Finally, in our loot entry class, we must override `getType()`:
+
+```java
+public class EntityLootEntry extends LootPoolSingletonContainer {
+    // other stuff here
+
+    @Override
+    public LootPoolEntryType getType() {
+        return ENTITY_LOOT.get();
+    }
+}
+```
+
+## Loot Pool
+
+A loot pool is, in essence, a list of loot entries. Loot tables can contain multiple loot pools, each loot pool will be rolled independently of the others.
+
+Loot pools may contain the following contents:
+
+- `entries`: A list of loot entries.
+- `conditions`: A list of [loot conditions][lootcondition] to apply to this loot pool. If one condition fails, the loot pool is not loaded and none of its entries will be rolled.
+- `functions`: A list of [loot functions][lootfunction] to apply to all loot entry outputs of this loot pool.
+- `rolls` and `bonus_rolls`: Two number providers (read on) that together determine the amount of times this loot pool will be rolled. The formula is rolls + bonus_rolls * luck, where the luck value is set in the [loot parameters][parameters].
+- `name`: A name for the loot pool. NeoForge-added. This can be used by [GLMs][glm]. If unspecified, this is the hash code of the loot pool, prefixed by `custom#`.
+
+## Number Provider
+
+Number providers are a way to get (pseudo-)randomized numbers in a datapack context. Primarily used by loot tables, they are also used in other contexts, for example in worldgen. Vanilla provides the following six number providers:
+
+- `minecraft:constant`: A constant float value, rounding to integer where needed. Created through `ConstantValue#exactly`.
+- `minecraft:uniform`: Uniformly-distributed random integer or float values, with min and max values set. All values between min and max have the same chance to appear. Created through `UniformGenerator#between`.
+- `minecraft:binomial`: Binomially-distributed random integer values, with n and p values set. See [Binomial Distribution][binomial] for more information on what these values mean. Created through `BinomialDistributionGenerator#binomial`.
+- `minecraft:score`: Given an entity target, a score name and (optionally) a scale value, retrieves the given scoreboard value for the entity target, multiplying it with the given scale value (if available). Created through `ScoreboardValue#fromScoreboard`.
+- `minecraft:storage`: A value from the command storage at a given nbt path. Created through `new StorageValue`.
+- `minecraft:enchantment_level`: A provider of values for each enchantment level. Created through `EnchantmentLevelProvider#forEnchantmentLevel`, providing a `LevelBasedValue`. Valid `LevelBasedValue`s are:
+    - Simply a constant value, without a specified type. Created through `LevelBasedValue#constant`.
+    - `minecraft:linear`: A linearly-increasing value per enchantment level, plus an optional constant base value. Created through `LevelBasedValue#perLevel`.
+    - `minecraft:levels_squared`: Squares the enchantment value, and then adds an optional base value to it. Created through `new LevelBasedValue.LevelsSquared`.
+    - `minecraft:fraction`: Accepts two other `LevelBasedValue`s, using them to create a fraction. Created through `new LevelBasedValue.Fraction`.
+    - `minecraft:clamped`: Accepts another `LevelBasedValue`, alongside min and max values. Calculates the value using the other `LevelBasedValue` and clamps the result. Created through `new LevelBasedValue.Clamped`.
+    - `minecraft:lookup`: Accepts a `List<Float>` and a fallback `LevelBasedValue`. Looks up the value to use in the list (level 1 is the first element in the list, level 2 is the second element, etc.), and uses the fallback value if the value for a level is missing. Created through `LevelBasedValue#lookup`.
+
+### Custom Number Providers
+
+To create a custom number provider, implement the `NumberProvider` interface. For the sake of example, let's assume we want to create a number provider that changes the sign of the provided number:
+
+```java
+// We accept another number provider as our base.
+public record InvertedSignProvider(NumberProvider base) implements NumberProvider {
+    public static final MapCodec<InvertedSignProvider> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
+            NumberProviders.CODEC.fieldOf("base").forGetter(InvertedSignProvider::base)
+    ).apply(inst, InvertedSignProvider::new));
+
+    // Return a float value. Use the context and the record parameters as needed.
+    @Override
+    public float getFloat(LootContext context) {
+        return -this.base.getFloat(context);
+    }
+
+    // Return an int value. Use the context and the record parameters as needed.
+    // Overriding this is optional, the default implementation will round the result of #getFloat.
+    @Override
+    public int getInt(LootContext context) {
+        return -this.base.getInt(context);
+    }
+
+    // Return a set of the loot context params used by this provider. See below for more information.
+    // Since we have a base value, we just defer to the base.
+    @Override
+    public Set<LootContextParam<?>> getReferencedContextParams() {
+        return this.base.getReferencedContextParams();
+    }
+}
+```
+
+Like with custom loot entry types, we then use this codec in registration:
+
+```java
+public static final DeferredRegister<LootNumberProviderType> LOOT_NUMBER_PROVIDER_TYPES =
+        DeferredRegister.create(Registries.LOOT_NUMBER_PROVIDER_TYPE, ExampleMod.MOD_ID);
+
+public static final Supplier<LootNumberProviderType> INVERTED_SIGN =
+        LOOT_NUMBER_PROVIDER_TYPES.register("inverted_sign", () -> new LootNumberProviderType(InvertedSignProvider.CODEC));
+```
+
+And similarly, in our number provider class, we must override `getType()`:
+
+```java
+public record InvertedSignProvider(NumberProvider base) implements NumberProvider {
+    // other stuff here
+
+    @Override
+    public LootNumberProviderType getType() {
+        return INVERTED_SIGN.get();
+    }
+}
+```
+
+### Custom Level-Based Values
+
+Custom `LevelBasedValue`s can be created in a similar fashion by implementing the `LevelBasedValue` interface in a record. Again, for the sake of example, let's assume that we want to invert the output of another `LevelBasedValue`:
+
+```java
+public record InvertedSignLevelBasedValue(LevelBasedValue base) implements LevelBaseValue {
+    public static final MapCodec<InvertedLevelBasedValue> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
+            LevelBasedValue.CODEC.fieldOf("base").forGetter(InvertedLevelBasedValue::base)
+    ).apply(inst, InvertedLevelBasedValue::new));
+
+    // Perform our operation.
+    @Override
+    public float calculate(int level) {
+        return -this.base.calculate(level);
+    }
+
+    // Unlike NumberProviders, we don't return the registered type, instead we return the codec directly.
+    @Override
+    public MapCodec<InvertedLevelBasedValue> codec() {
+        return CODEC;
+    }
+}
+```
+
+And again, we then use the codec in registration, though this time directly:
+
+```java
+public static final DeferredRegister<MapCodec<? extends LevelBasedValue>> LEVEL_BASED_VALUES =
+        DeferredRegister.create(Registries.ENCHANTMENT_LEVEL_BASED_VALUE_TYPE, ExampleMod.MOD_ID);
+
+public static final Supplier<MapCodec<? extends LevelBasedValue>> INVERTED_SIGN =
+        LEVEL_BASED_VALUES.register("inverted_sign", () -> InvertedSignLevelBasedValue.CODEC);
+```
+
+## Loot Parameters
+
+A loot parameter, known internally as a `LootContextParam<T>`, is a parameter provided to a loot table when rolled. They can be used by [loot conditions][lootcondition] and [loot functions][lootfunction]. For example, the `minecraft:killed_by_player` loot condition checks for the presence of the `minecraft:player` parameter.
+
+Minecraft provides the following loot parameters:
+
+- `minecraft:origin`: A location associated with the loot table, e.g. the location of a loot chest. Access via `LootContextParams.ORIGIN`.
+- `minecraft:tool`: An item stack associated with the loot table, e.g. the item used to break a block. This is not necessarily a tool. Access via `LootContextParams.TOOL`.
+- `minecraft:enchantment_level`: An enchantment level, used by enchantment logic. Access via `LootContextParams.ENCHANTMENT_LEVEL`.
+- `minecraft:enchantment_active`: Whether the used item has an enchantment or not, used e.g. by silk touch checks. Access via `LootContextParams.ENCHANTMENT_ACTIVE`.
+- `minecraft:block_state`: A block state associated with the loot table, e.g. the broken block state. Access via `LootContextParams.BLOCK_STATE`.
+- `minecraft:block_entity`: A block entity associated with the loot table, e.g. the block entity associated with the broken block. Used e.g. by shulker boxes to save their inventory to the dropped item. Access via `LootContextParams.BLOCK_ENTITY`.
+- `minecraft:explosion_radius`: An explosion radius in the current context. Used primarily to apply explosion decay to drops. Access via `LootContextParams.EXPLOSION_RADIUS`.
+- `minecraft:this_entity`: An entity associated with the loot table, typically the killed entity. Access via `LootContextParams.THIS_ENTITY`.
+- `minecraft:damage_source`: A [damage source][damagesource] associated with the loot table, typically the damage source that killed the entity. Access via `LootContextParams.DAMAGE_SOURCE`.
+- `minecraft:attacking_entity`: An attacking entity associated with the loot table, typically the killer of the entity. Access via `LootContextParams.ATTACKING_ENTITY`.
+- `minecraft:direct_attacking_entity`: A direct attacking entity associated with the loot table. For example, if the attacking entity were a skeleton, the direct attacking entity would be the arrow. Access via `LootContextParams.DIRECT_ATTACKING_ENTITY`.
+- `minecraft:last_damage_player`: A player associated with the loot table, typically the player that last attacked the killed entity, even if the player kill was indirect (for example: the player tapped the entity, and it was then killed by spikes). Used e.g. for player-kill-only drops. Access via `LootContextParams.LAST_DAMAGE_PLAYER`.
+
+Custom loot parameters can be created by calling `new LootContextParam<T>` with the desired id. Since they are merely resource location wrappers, they do not need to be registered.
+
+### Loot Parameter Sets
+
+Loot parameter sets, also known as loot table types and known as `LootContextParamSet`s in code, are a collection of required and optional loot parameters. Despite their name, they are not `Set`s (not even `Collection`s). Rather, they are a wrapper around two `Set<LootContextParam<?>>`s, one holding the required parameters (`#getRequired`) and one holding the required and optional parameters (`#getAllowed`). They are used to validate that users of loot parameters only use the parameters that can be expected to be available, and to verify that the required parameters are present when rolling a table. Besides that, they are also used in advancement and enchantment logic.
+
+Vanilla provides the following loot parameter sets (required parameters are **bold**, optional parameters are _in italics_; the in-code names are constants in `LootContextParamSets`):
+
+| ID                               | In-code name           | Specified Loot Parameters                                                                                                                                                                                                                                                                                            | Usage                                                     |
+|----------------------------------|------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------|
+| `minecraft:empty`                | `EMPTY`                | n/a                                                                                                                                                                                                                                                                                                                  | Fallback purposes.                                        |
+| `minecraft:generic`              | `ALL_PARAMS`           | **`minecraft:origin`**, **`minecraft:tool`**, **`minecraft:block_state`**, **`minecraft:block_entity`**, **`minecraft:explosion_radius`**, **`minecraft:this_entity`**, **`minecraft:damage_source`**, **`minecraft:attacking_entity`**, **`minecraft:direct_attacking_entity`**, **`minecraft:last_damage_player`** | Validation.                                               |
+| `minecraft:command`              | `COMMAND`              | **`minecraft:origin`**, _`minecraft:this_entity`_                                                                                                                                                                                                                                                                    | Commands.                                                 |
+| `minecraft:selector`             | `SELECTOR`             | **`minecraft:origin`**, _`minecraft:this_entity`_                                                                                                                                                                                                                                                                    | Entity selectors in commands.                             |
+| `minecraft:block`                | `BLOCK`                | **`minecraft:origin`**, **`minecraft:tool`**, **`minecraft:block_state`**, _`minecraft:block_entity`_, _`minecraft:explosion_radius`_, _`minecraft:this_entity`_                                                                                                                                                     | Block breaking.                                           |
+| `minecraft:block_use`            | `BLOCK_USE`            | **`minecraft:origin`**, **`minecraft:block_state`**, **`minecraft:this_entity`**                                                                                                                                                                                                                                     | No vanilla uses.                                          |
+| `minecraft:hit_block`            | `HIT_BLOCK`            | **`minecraft:origin`**, **minecraft:enchantment_level**, **`minecraft:block_state`**, **`minecraft:this_entity`**                                                                                                                                                                                                    | The channeling enchantment.                               |
+| `minecraft:chest`                | `CHEST`                | **`minecraft:origin`**, _`minecraft:this_entity`_, _`minecraft:attacking_entity`_                                                                                                                                                                                                                                    | Loot chests and similar containers, loot chest minecarts. |
+| `minecraft:archaeology`          | `ARCHAEOLOGY`          | **`minecraft:origin`**, _`minecraft:this_entity`_                                                                                                                                                                                                                                                                    | Archaeology.                                              |
+| `minecraft:vault`                | `VAULT`                | **`minecraft:origin`**, _`minecraft:this_entity`_                                                                                                                                                                                                                                                                    | Trial chamber vault rewards.                              |
+| `minecraft:entity`               | `ENTITY`               | **`minecraft:origin`**, **`minecraft:this_entity`**, **`minecraft:damage_source`**, _`minecraft:attacking_entity`_, _`minecraft:direct_attacking_entity`_, _`minecraft:last_damage_player`_                                                                                                                          | Entity kills.                                             |
+| `minecraft:shearing`             | `SHEARING`             | **`minecraft:origin`**, _`minecraft:this_entity`_                                                                                                                                                                                                                                                                    | Shearing entities, e.g. sheep.                            |
+| `minecraft:equipment`            | `EQUIPMENT`            | **`minecraft:origin`**, **`minecraft:this_entity`**                                                                                                                                                                                                                                                                  | Entity equipment for e.g. zombies.                        |
+| `minecraft:gift`                 | `GIFT`                 | **`minecraft:origin`**, **`minecraft:this_entity`**                                                                                                                                                                                                                                                                  | Raid hero gifts.                                          |
+| `minecraft:barter`               | `PIGLIN_BARTER`        | **`minecraft:this_entity`**                                                                                                                                                                                                                                                                                          | Piglin bartering.                                         |
+| `minecraft:fishing`              | `FISHING`              | **`minecraft:origin`**, **`minecraft:tool`**, _`minecraft:this_entity`_, _`minecraft:attacking_entity`_                                                                                                                                                                                                              | Fishing.                                                  |
+| `minecraft:enchanted_item`       | `ENCHANTED_ITEM`       | **`minecraft:tool`**, **`minecraft:enchantment_level`**                                                                                                                                                                                                                                                              | Several enchantments.                                     |
+| `minecraft:enchanted_entity`     | `ENCHANTED_ENTITY`     | **`minecraft:origin`**, **`minecraft:enchantment_level`**, **`minecraft:this_entity`**                                                                                                                                                                                                                               | Several enchantments.                                     |
+| `minecraft:enchanted_damage`     | `ENCHANTED_DAMAGE`     | **`minecraft:origin`**, **`minecraft:enchantment_level`**, **`minecraft:this_entity`**, **`minecraft:damage_source`**, _`minecraft:attacking_entity`_, _`minecraft:direct_attacking_entity`_                                                                                                                         | Damage and protection enchantments.                       |
+| `minecraft:enchanted_location`   | `ENCHANTED_LOCATION`   | **`minecraft:origin`**, **`minecraft:enchantment_level`**, **`minecraft:enchantment_active`**, **`minecraft:this_entity`**                                                                                                                                                                                           | Frost walker and soul speed enchantments.                 |
+| `minecraft:advancement_entity`   | `ADVANCEMENT_ENTITY`   | **`minecraft:origin`**, **`minecraft:this_entity`**                                                                                                                                                                                                                                                                  | Several [advancement criteria][advancement].              |
+| `minecraft:advancement_location` | `ADVANCEMENT_LOCATION` | **`minecraft:origin`**, **`minecraft:tool`**, **`minecraft:block_state`**, **`minecraft:this_entity`**                                                                                                                                                                                                               | Several [advancement triggers][advancement].              |
+| `minecraft:advancement_reward`   | `ADVANCEMENT_REWARD`   | **`minecraft:origin`**, **`minecraft:this_entity`**                                                                                                                                                                                                                                                                  | [Advancement rewards][advancement].                       |
+
+### Loot Context
+
+The loot context is an object containing situational information for rolling loot tables. The information includes:
+
+- The `ServerLevel` the loot table is rolled in. Get via `#getLevel`.
+- The `RandomSource` used to roll the loot table. Get via `#getRandom`.
+- The loot parameters. Check presence using `#hasParam`, and get single parameters using `#getParam`.
+- The luck value, used for calculating bonus rolls and quality values. Usually populated via the entity's luck attribute. Get via `#getLuck`.
+- The dynamic drops consumers. See [above][entry] for more information. Set via `#addDynamicDrops`. No getter available.
+
+## Loot Table
+
+Combining all the previous elements, we finally get a loot table. Loot table JSONs can specify the following values:
+
+- `pools`: A list of loot pools.
+- `neoforge:conditions`: A list of [data load conditions][conditions]. **Warning: These are data load conditions, not [loot conditions][lootcondition]!**
+- `functions`: A list of [loot functions][lootfunction] to apply to all loot entry outputs of this loot table.
+- `type`: A loot parameter set, used to validate proper usage of loot parameters. Optional; if absent, validation will be skipped.
+- `random_sequence`: A random sequence for this loot table, in the form of a resource location. Random sequences are provided by the `Level` and used for consistent loot table rolls under identical conditions. This commonly uses the loot table's location.
+
+An example loot table could have the following format:
 
 ```json5
 {
-  "type": "chest", // loot table type
+  "type": "chest", // loot parameter set
   "neoforge:conditions": [
     // data load conditions
   ],
@@ -54,7 +327,7 @@ Generally, a loot table has the following JSON format:
   "pools": [ // list of loot pools
     {
       "rolls": 1, // amount of rolls of the loot table, using 5 here will yield 5 results from the pool
-      "bonus_rolls": 0.5, // amount of bonus rolls, see the luck section below
+      "bonus_rolls": 0.5, // amount of bonus rolls
       "name": "my_pool",
       "conditions": [
         // pool-wide loot conditions
@@ -66,6 +339,8 @@ Generally, a loot table has the following JSON format:
         {
           "type": "minecraft:item", // loot entry type
           "name": "minecraft:dirt", // type-specific properties, for example the name of the item
+          "weight": 3, // weight of an entry
+          "quality": 1, // quality of an entry
           "conditions": [
             // entry-wide loot conditions
           ],
@@ -79,16 +354,14 @@ Generally, a loot table has the following JSON format:
 }
 ```
 
-The exact [JSON specification of loot tables][loottablespec] can be found on the [Minecraft Wiki][wiki].
+## Rolling a Loot Table
 
-## Using a Loot Table
+To roll a loot table, we need two things: the loot table itself, and a loot context.
 
-To roll a loot table, we need two things: the loot table itself, and a (possibly empty) set of loot context parameters.
-
-Let's start with getting the loot table itself. Loot tables are referenced by a [`ResourceLocation`][rl]. Loot table resource locations are relative to the `loot_tables` datapack folder. So for example, the loot table file for the loot table `examplemod:custom_fishing` would be located at `data/examplemod/loot_tables/custom_fishing`. Once you have the location, a loot table can then be obtained using `level.getServer().reloadableRegistries().getLootTable(location)`. As the loot data is only available through the server, this logic must run on a [logical server][sides], not a logical client.
+Let's start with getting the loot table itself. We can obtain a loot table using `level.getServer().reloadableRegistries().getLootTable(lootTableId)`. As the loot data is only available through the server, this logic must run on a [logical server][sides], not a logical client.
 
 :::tip
-Minecraft's built-in loot table locations can be found in the `BuiltInLootTables` class.
+Minecraft's built-in loot table IDs can be found in the `BuiltInLootTables` class. Block loot tables can be obtained through `BlockBehaviour#getLootTable`, and entity loot tables can be obtained through `EntityType#getDefaultLootTable` or `Entity#getLootTable`.
 :::
 
 Now that we have a loot table, let's build our parameter set. We begin by creating an instance of `LootParams.Builder`:
@@ -105,14 +378,12 @@ We can then add loot context parameters, like so:
 builder.withParameter(LootContextParams.ORIGIN, position);
 // This variant can accept null as the value, in which case an existing value for that parameter will be removed.
 builder.withOptionalParameter(LootContextParams.ORIGIN, null);
-```
-
-It is also possible to add dynamic drops from code, for example for dropping container contents. This is done like so (the lambda is a `Consumer<ItemStack>`):
-
-```java
+// Add a dynamic drop.
 builder.withDynamicDrop(ResourceLocation.fromNamespaceAndPath("examplemod", "example_dynamic_drop"), stack -> {
-    // whatever you want to drop here
+    // some logic here
 });
+// Set our luck value. Assumes that a player is available. Contexts without a player should use 0 here.
+builder.withLuck(player.getLuck());
 ```
 
 Finally, we can create the `LootParams` from the builder and use them to roll the loot table:
@@ -133,189 +404,185 @@ List<ItemStack> containerList = table.fill(container, params, someSeed);
 `LootTable` additionally exposes a method named `#getRandomItemsRaw`. Unlike the various `#getRandomItems` variants, `#getRandomItemsRaw` method will not apply [global loot modifiers][glm]. Use this method only if you know what you are doing.
 :::
 
-## Luck
+## Datagen
 
-In the `LootParams.Builder`, we can also set a luck value through `#withLuck`. The luck value is a rather obscure concept only used in two vanilla use cases. One is in loot tables that use the [`quality` field][entry] on loot entries, and the second one is to determine bonus rolls.
-
-To determine bonus rolls, the specified bonus rolls value of a loot pool is multiplied with the luck value. Both the luck value and the bonus rolls value default to 0, so this only comes into effect for loot pools with a non-zero bonus rolls value, and only if the luck value of the player is greater than zero as well.
-
-Luck is modified by an entity attribute also called luck. This attribute is only affected by the luck [mob effect][mobeffect], which is unobtainable in survival gameplay and only available through creative mode or commands. However, mods may add survival-obtainable ways to modify this stat, so it is generally recommended to account for this possibility.
-
-:::info
-The Fortune and Looting enchantments do not use the luck value. They are instead implemented as loot functions.
-:::
-
-## NeoForge-Added Loot Conditions
-
-### `neoforge:loot_table_id`
-
-This condition only returns true if the surrounding loot table id matches. This is typically used within [global loot modifiers][glm].
-
-```json5
-// In some loot pool or pool entry
-{
-  "conditions": [
-    {
-      "condition": "neoforge:loot_table_id",
-      // Will only apply when the loot table is for dirt
-      "loot_table_id": "minecraft:blocks/dirt"
-    }
-  ]
-}
-```
-
-### `neoforge:can_tool_perform_action`
-
-This condition only returns true if the item in the `tool` loot context parameter (`LootContextParams.TOOL`) can perform the specified [`ToolAction`][toolaction].
-
-```json5
-// In some loot pool or pool entry
-{
-  "conditions": [
-    {
-      "condition": "neoforge:can_tool_perform_action",
-      // Will only apply if the tool can strip a log like an axe
-      "action": "axe_strip"
-    }
-  ]
-}
-```
-
-## Custom Loot Conditions
-
-Loot conditions are a [registry]. Like many other registries, they use the pattern of "one type object, many instance objects". Additionally, like many other datapack-related systems, they use [codecs][codec]. To get started, we create our loot item condition class. For the sake of example, let's assume we only want the condition to pass if the player killing the mob has a certain xp level:
+Loot tables can be [datagenned][datagen] by subclassing `LootTableProvider` and providing a list of `LootTableSubProvider` in the constructor:
 
 ```java
-public record HasXpLevelCondition(int level) implements LootItemCondition {
-    // Add the context we need for this condition. In our case, this will be the xp level the player must have.
-    public static final MapCodec<HasXpLevelCondition> CODEC = RecordCodecBuilder.create(inst -> inst.group(
-            Codec.INT.fieldOf("level").forGetter(this::level)
-    ).apply(inst, HasXpLevelCondition::new));
-    // Our type instance.
-    public static final LootItemConditionType TYPE = new LootItemConditionType(CODEC);
-
-    // Return our type instance here.
-    @Override
-    public LootItemConditionType getType() {
-        return TYPE;
-    }
-    
-    // Evaluates the condition here. Get the required loot context parameters from the provided LootContext.
-    // In our case, we want the KILLER_ENTITY to have at least our required level.
-    @Override
-    public boolean test(LootContext context) {
-        Entity entity = context.getParamOrNull(LootContextParams.KILLER_ENTITY);
-        return entity instanceof Player player && player.experienceLevel >= level; 
-    }
-    
-    // Tell the game what parameters we expect from the loot context. Used in validation.
-    @Override
-    public Set<LootContextParam<?>> getReferencedContextParams() {
-        return ImmutableSet.of(LootContextParams.KILLER_ENTITY);
+public class MyLootTableProvider extends LootTableProvider {
+    // Get the PackOutput from GatherDataEvent.
+    public MyLootTableProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider) {
+        super(output,
+                // A set of required table resource locations. These are later verified to be present.
+                // It is generally not recommended for mods to validate existence, therefore we pass in an empty set.
+                Set.of(),
+                // A list of sub provider entries. See below for what values to use here.
+                List.of(...));
     }
 }
 ```
 
-And then, we can register the condition type to the registry:
+Like all data providers, we register the provider to `GatherDataEvent`:
 
 ```java
-public static final DeferredRegister<LootItemConditionType> LOOT_CONDITION_TYPES =
-        DeferredRegister.create(Registries.LOOT_CONDITION_TYPE, ExampleMod.MOD_ID);
-
-public static final Supplier<LootItemConditionType> MIN_XP_LEVEL =
-        LOOT_CONDITION_TYPES.register("min_xp_level", () -> HasXpLevelCondition.TYPE);
+@SubscribeEvent
+public static void onGatherData(GatherDataEvent event) {
+    CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
+    event.getGenerator().addProvider(
+            event.includeServer(),
+            output -> new MyLootTableProvider(output, lookupProvider)
+    );
+}
 ```
 
-## Custom Loot Functions
+### `LootTableSubProvider`s
 
-Similar to loot conditions, we can also add loot functions by registering a corresponding type object to their [registry], which is in turn created with a [codec]. `LootItemFunction` extends `BiFunction<ItemStack, LootContext, ItemStack>`, so what we want is to use the existing item stack and the loot context to return a new, modified item stack.
-
-Almost all loot functions don't directly extend `LootItemFunction`, but extend `LootItemConditionalFunction` instead. This class has built-in functionality for applying loot conditions to the function - the function is only applied if the loot conditions apply. For the sake of example, let's apply a random enchantment with a specified level to the item:
+`LootTableSubProvider`s are where the actual generation happens. To get started, we implement `LootTableSubProvider` and override `#generate`:
 
 ```java
-// Code adapted from vanilla's EnchantRandomlyFunction class.
-// LootItemConditionalFunction is an abstract class, not an interface, so we cannot use a record here.
-public class RandomEnchantmentWithLevelFunction extends LootItemConditionalFunction {
-    // Our context: an optional list of enchantments, and a level.
-    private final Optional<HolderSet<Enchantment>> enchantments;
-    private final int level;
-    // A codec for the enchantment registry.
-    private static final Codec<HolderSet<Enchantment>> ENCHANTMENT_SET_CODEC = BuiltInRegistries.ENCHANTMENT
-            .holderByNameCodec()
-            .listOf()
-            .xmap(HolderSet::direct, e -> e.stream().toList());
-    // Our codec.
-    public static final MapCodec<RandomEnchantmentWithLevelFunction> CODEC =
-            // #commonFields adds the conditions field.
-            RecordCodecBuilder.create(inst -> commonFields(inst).and(inst.group(
-                    ExtraCodecs.strictOptionalField(ENCHANTMENT_SET_CODEC, "enchantments").forGetter(inst -> inst.enchantments),
-                    Codec.INT.fieldOf("level").forGetter(inst -> inst.level)
-            ).apply(inst, RandomEnchantmentWithLevelFunction::new));
-    // Our loot function type.
-    public static final LootItemFunctionType TYPE = new LootItemFunctionType(CODEC);
-    
-    RandomEnchantmentWithLevelFunction(List<LootItemCondition> conditions, Optional<HolderSet<Enchantment>> enchantments, int level) {
-        super(conditions);
-        this.enchantments = enchantments;
-        this.level = level;
+public class MyLootTableSubProvider implements LootTableSubProvider {
+    // The parameter is provided by the lambda (see below). It can be stored and used to lookup other registry entries.
+    public MyLootTableSubProvider(HolderLookup.Provider lookupProvider) {
+        super(lookupProvider);
     }
-    
-    // Return our loot function type here.
+
     @Override
-    public LootItemFunctionType getType() {
-        return TYPE;
-    }
-    
-    // Run our enchantment application logic. Most of this is copied from EnchantRandomlyFunction#run.
-    @Override
-    public ItemStack run(ItemStack stack, LootContext context) {
-        RandomSource random = context.getRandom();
-        Optional<Holder<Enchantment>> optional = this.enchantments
-                .flatMap(e -> e.getRandomElement(randomsource))
-                .or(() -> Util.getRandomSafe(BuiltInRegistries.ENCHANTMENT.holders()
-                        .filter(e -> e.value().isDiscoverable())
-                        .filter(e -> pStack.is(Items.BOOK) || e.value().canEnchant(pStack))
-                        .toList(), randomsource));
-        if (optional.isEmpty()) {
-            LogUtils.getLogger().warn("Couldn't find a compatible enchantment for {}", stack);
-        } else if (stack.is(Items.BOOK)) {
-            stack = new ItemStack(Items.ENCHANTED_BOOK);
-            EnchantedBookItem.addEnchantment(stack, new EnchantmentInstance(optional.get().value(), this.level));
-        } else {
-            stack.enchant(optional.get().value(), this.level);
-        }
-        return stack;
+    public void generate(BiConsumer<ResourceLocation, LootTable.Builder> consumer) {
+        // LootTable.lootTable() returns a loot table builder we can add loot tables to.
+        consumer.accept(ResourceLocation.fromNamespaceAndPath(ExampleMod.MOD_ID, "example_loot_table"), LootTable.lootTable()
+                // Add a loot table-level loot function. This example uses a number provider (see below).
+                .apply(SetItemCountFunction.setCount(ConstantValue.exactly(5)))
+                // Add a loot pool.
+                .withPool(LootPool.lootPool()
+                        // Add a loot pool-level function, similar to above.
+                        .apply(...)
+        // Add a loot pool-level condition. This example only rolls the pool if it is raining.
+                        .when(WeatherCheck.weather().setRaining(true))
+                // Set the amount of rolls and bonus rolls, respectively.
+                // Both of these methods utilize a number provider.
+                .setRolls(UniformGenerator.between(5, 9))
+                .setBonusRolls(ConstantValue.exactly(1))
+                // Add a loot entry. This example returns an item loot entry. See below for more loot entries.
+                .add(LootItem.lootTableItem(Items.DIRT))
+                )
+        );
     }
 }
 ```
 
-And then, we can register the function type to the registry:
+Once we have our loot table sub provider, we add it to the constructor of our loot provider, like so:
 
 ```java
-public static final DeferredRegister<LootItemFunctionType> LOOT_FUNCTION_TYPES =
-        DeferredRegister.create(Registries.LOOT_FUNCTION_TYPE, ExampleMod.MOD_ID);
-
-public static final Supplier<LootItemFunctionType> RANDOM_ENCHANTMENT_WITH_LEVEL =
-        LOOT_FUNCTION_TYPES.register("random_enchantment_with_level", () -> RandomEnchantmentWithLevelFunction.TYPE);
+super(output, Set.of(), List.of(
+        new SubProviderEntry(
+        // A reference to the sub provider's constructor.
+        // This is a Function<HolderLookup.Provider, ? extends LootTableSubProvider>.
+        MyLootTableSubProvider::new,
+        // An associated loot context set. If you're unsure what to use, use empty.
+        LootContextParamSets.EMPTY
+        ),
+// other sub providers here (if applicable)
+));
 ```
 
+### `BlockLootSubProvider`
+
+`BlockLootSubProvider` is an abstract helper class containing many helpers for creating common block loot tables, e.g. single item drops (`#createSingleItemTable`), dropping the block the table is created for (`#dropSelf`), silk touch-only drops (`#createSilkTouchOnlyTable`), drops for slab-like blocks (`#createSlabItemTable`), and many more. Unfortunately, setting up a `BlockLootSubProvider` for modded usage involves more boilerplate:
+
+```java
+public class MyBlockLootSubProvider extends BlockLootSubProvider {
+    // The constructor can be private if this class is an inner class of your loot table provider.
+    // The parameter is provided by the lambda in the LootTableProvider's constructor.
+    public MyBlockLootSubProvider(HolderLookup.Provider lookupProvider) {
+        // The first parameter is a set of blocks we are creating loot tables for. Instead of hardcoding,
+        // we use our block registry and just pass an empty set here.
+        // The second parameter is the feature flag set, this will be the default flags
+        // unless you are adding custom flags (which is beyond the scope of this article).
+        super(Set.of(), FeatureFlags.DEFAULT_FLAGS);
+    }
+
+    // The contents of this Iterable are used for validation.
+    // We return an Iterable over our block registry's values here.
+    @Override
+    protected Iterable<Block> getKnownBlocks() {
+        // The contents of our DeferredRegister.
+        return MyRegistries.BLOCK_REGISTRY.getEntries()
+                .stream()
+                // Cast to Block here, otherwise it will be a ? extends Block and Java will complain.
+                .map(e -> (Block) e.value())
+                .toList();
+    }
+
+    // Actually add our loot tables.
+    @Override
+    protected void generate() {
+        // Equivalent to calling add(MyBlocks.EXAMPLE_BLOCK.get(), createSingleItemTable(MyBlocks.EXAMPLE_BLOCK.get()));
+        dropSelf(MyBlocks.EXAMPLE_BLOCK.get());
+        // Add a table with a silk touch only loot table.
+        add(MyBlocks.EXAMPLE_SILK_TOUCHABLE_BLOCK.get(),
+                createSilkTouchOnlyTable(MyBlocks.EXAMPLE_SILK_TOUCHABLE_BLOCK.get()));
+        // other loot table additions here
+    }
+}
+```
+
+We then add our sub provider to the loot table provider's constructor like any other sub provider:
+
+```java
+super(output, Set.of(), List.of(new SubProviderEntry(
+        MyBlockLootTableSubProvider::new,
+        LootContextParamSets.BLOCK // it makes sense to use BLOCK here
+)));
+```
+
+### `EntityLootSubProvider`
+
+Similar to `BlockLootSubProvider`, `EntityLootSubProvider` provides many helpers for entity loot table generation. Also similar to `BlockLootSubProvider`, we must provide a `Stream<EntityType<?>>` of entities known to the provider (instead of the `Iterable<Block>` used before). Overall, our implementation looks very similar to our `BlockLootSubProvider`, but with every mentioned of blocks swapped out for entity types:
+
+```java
+public class MyEntityLootSubProvider extends EntityLootSubProvider {
+    public MyEntityLootSubProvider(HolderLookup.Provider lookupProvider) {
+        // Unlike with blocks, we do not provide a set of known entity types. Vanilla instead uses custom checks here.
+        super(FeatureFlags.DEFAULT_FLAGS, lookupProvider);
+    }
+
+    // This class uses a Stream instead of an Iterable, so we need to adjust this slightly.
+    @Override
+    protected Stream<EntityType<?>> getKnownEntityTypes() {
+        return MyRegistries.ENTITY_TYPES.getEntries()
+                .stream()
+                .map(e -> (EntityType<?>) e.value());
+    }
+
+    @Override
+    protected void generate() {
+        add(MyEntities.EXAMPLE_ENTITY.get(), LootTable.lootTable());
+        // other loot table additions here
+    }
+}
+```
+
+And again, we then add our sub provider to the loot table provider's constructor:
+
+```java
+super(output, Set.of(), List.of(new SubProviderEntry(
+        MyEntityLootTableSubProvider::new,
+        LootContextParamSets.ENTITY
+        )));
+```
+
+[advancement]: ../advancements.md
+[binomial]: https://en.wikipedia.org/wiki/Binomial_distribution
 [codec]: ../../../datastorage/codecs.md
 [conditions]: ../conditions.md
-[datapack]: https://minecraft.wiki/w/Data_pack
-[entry]: https://minecraft.wiki/w/Loot_table#Entry
-[event]: ../../../concepts/events.md#registering-an-event-handler
+[context]: #loot-context
+[damagesource]: ../damagetypes.md#creating-and-using-damage-sources
+[datagen]: ../../index.md#data-generation
+[entry]: #loot-entry
 [glm]: glm.md
-[itemmodifiers]: https://minecraft.wiki/w/Item_modifier#JSON_format
-[itempredicates]: https://minecraft.wiki/w/Predicate#Predicate_JSON_format
-[lootcontext]: https://minecraft.wiki/w/Loot_context
-[loottablespec]: https://minecraft.wiki/w/Loot_table#JSON_format
-[luck]: #luck
-[mcwiki]: https://minecraft.wiki
-[mobeffect]: ../../../items/mobeffects.md
-[neoconditions]: #neoforge-added-loot-conditions
+[lootcondition]: conditions.md
+[lootfunction]: functions.md
+[parameters]: #loot-parameters
 [raidherogifts]: ../datamaps/builtin.md#neoforgeraid_hero_gifts
-[registry]: ../../../concepts/registries.md
-[rl]: ../../../misc/resourcelocation.md
 [sides]: ../../../concepts/sides.md
-[toolaction]: ../../../items/tools.md#toolactions
-[wiki]: https://minecraft.wiki/w/Loot_table
+[tags]: ../tags.md
