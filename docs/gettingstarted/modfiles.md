@@ -136,6 +136,14 @@ The features system allows mods to demand that certain settings, software, or ha
 |:--------:|:------:|:-------------:|:------------------------------------:|:----------------|
 | `file`   | string | **mandatory** | See [Adding ATs][accesstransformer]. | `file="at.cfg"` |
 
+### Mixin Configuration Properties
+
+[Mixin Configuration Properties][mixinconfig] are tied to the specified mixin config using the `[[mixins]]` header. This is an [array of tables][array]; all key/value properties will be attached to that mixin block until the next header. The mixin header is optional; however, when specified, all elements are mandatory.
+
+| Property |  Type  |    Default    |             Description                       |     Example                       |
+|:--------:|:------:|:-------------:|:---------------------------------------------:|:----------------------------------|
+| `config` | string | **mandatory** | The location of the mixin configuration file. | `config="examplemod.mixins.json"` |
+
 ### Dependency Configurations
 
 Mods can specify their dependencies, which are checked by NeoForge before loading the mods. These configurations are created using the [array of tables][array] `[[dependencies.<modid>]]`, where `modid` is the identifier of the mod that consumes the dependency.
@@ -214,9 +222,10 @@ An entry in `neoforge.mods.toml` does not need a corresponding `@Mod` annotation
 [jei]: https://www.curseforge.com/minecraft/mc-mods/jei
 [lowcodefml]: #lowcodefml
 [mcversioning]: versioning.md#minecraft
-[mdkgradleproperties]: https://github.com/neoforged/MDK/blob/main/gradle.properties
-[mdkneoforgemodstoml]: https://github.com/neoforged/MDK/blob/main/src/main/resources/META-INF/neoforge.mods.toml
+[mdkgradleproperties]: https://github.com/NeoForgeMDKs/MDK-1.21-NeoGradle/blob/main/gradle.properties
+[mdkneoforgemodstoml]: https://github.com/NeoForgeMDKs/MDK-1.21-NeoGradle/blob/main/src/main/resources/META-INF/neoforge.mods.toml
 [neoforgemodstoml]: #neoforgemodstoml
+[mixinconfig]: https://github.com/SpongePowered/Mixin/wiki/Introduction-to-Mixins---The-Mixin-Environment#mixin-configuration-files
 [modbus]: ../concepts/events.md#event-buses
 [modid]: #the-mod-id
 [mojmaps]: https://github.com/neoforged/NeoForm/blob/main/Mojang.md
