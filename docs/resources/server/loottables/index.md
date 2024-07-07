@@ -261,6 +261,17 @@ Minecraft provides the following loot parameters:
 
 Custom loot parameters can be created by calling `new LootContextParam<T>` with the desired id. Since they are merely resource location wrappers, they do not need to be registered.
 
+### Entity Targets
+
+Entity targets are a type used in loot conditions and functions, represented by the `LootContext.EntityTarget` enum in code. They are used to specify the entity loot parameter to query in a condition or function context. Valid values are:
+
+- `"this"` or `LootContext.EntityTarget.THIS`: Represents the `"minecraft:this_entity"` parameter.
+- `"attacker"` or `LootContext.EntityTarget.ATTACKER`: Represents the `"minecraft:attacking_entity"` parameter.
+- `"direct_attacker"` or `LootContext.EntityTarget.DIRECT_ATTACKER`: Represents the `"minecraft:direct_attacking_entity"` parameter.
+- `"attacking_player"` or `LootContext.EntityTarget.ATTACKING_PLAYER`: Represents the `"minecraft:last_damage_player"` parameter.
+
+For example, the `minecraft:entity_properties` loot condition accepts an entity target to allow all four loot parameters to be checked, if that is what you (as the loot table author) need.
+
 ### Loot Parameter Sets
 
 Loot parameter sets, also known as loot table types and known as `LootContextParamSet`s in code, are a collection of required and optional loot parameters. Despite their name, they are not `Set`s (not even `Collection`s). Rather, they are a wrapper around two `Set<LootContextParam<?>>`s, one holding the required parameters (`#getRequired`) and one holding the required and optional parameters (`#getAllowed`). They are used to validate that users of loot parameters only use the parameters that can be expected to be available, and to verify that the required parameters are present when rolling a table. Besides that, they are also used in advancement and enchantment logic.
