@@ -11,8 +11,8 @@ Recipe data files are located at `data/<namespace>/recipes/<path>.json`. For exa
 - A **`RecipeInput`** is a type that provides inputs to a recipe. Comes in several subclasses, e.g. `CraftingInput` or `SingleRecipeInput` (for furnaces and similar).
 - A **recipe ingredient**, or just **ingredient**, is a single input for a recipe (whereas the `RecipeInput` generally represents a collection of multiple ingredients). Ingredients are a very powerful system and as such outlined [in their own article][ingredients].
 - The **`RecipeManager`** is a singleton field on the server that holds all loaded recipes.
-- A recipe's **`RecipeType`** is the registered recipe type.
-- **Recipe serializers** were separate serializers for recipes. One recipe type could have multiple recipe serializers (e.g. the `minecraft:crafting` type had `minecraft:crafting_shapeless` and `minecraft:crafting_shapeless` serializers, plus the special serializers). These have been replaced by **recipe [codecs][codec]** (`Codec<Recipe<?>>`), but the old name is still used sometimes.
+- A **`RecipeSerializer`** is basically a wrapper around a [`MapCodec`][codec] and a [`StreamCodec`][streamcodec], both used for serialization.
+- A **`RecipeType`** is the registered type equivalent of a `Recipe`. It is mainly used when looking up recipes by type. As a rule of thumb, different crafting containers should use different `RecipeType`s. For example, the `minecraft:crafting` recipe type covers the `minecraft:crafting_shapeless` and `minecraft:crafting_shapeless` recipe serializers, as well as the special crafting serializers.
 - A **recipe [advancement]** is an advancement responsible for unlocking a recipe in the recipe book. They are not required, and generally neglected by players in favor of recipe viewer mods, however the [recipe data provider][recipeprovider] generates them for you, so it's recommended to just roll with it.
 
 ## JSON Specification
@@ -62,7 +62,7 @@ Optional<RecipeHolder<? extends Recipe<CraftingInput>>> optional = recipes.getRe
         // Our level context.
         serverLevel
 );
-// This should yield the diamond block -> 9 diamonds recipe (unless a datapack changes that recipe).
+// This returns the diamond block -> 9 diamonds recipe (unless a datapack changes that recipe).
 optional.map(RecipeHolder::value).ifPresent(recipe -> {
         // Do whatever you want here. Note that the recipe is now a Recipe<CraftingInput> instead of a Recipe<?>.
 });
@@ -133,129 +133,246 @@ See [the Brewing chapter in the Mob Effects & Potions article][brewing].
 
 ## Custom Recipes
 
-TODO
+To add custom recipes, we need at least three things: a `Recipe`, a `RecipeType`, and a `RecipeSerializer`. Depending on what you are implementing, you may also need a custom `RecipeInput` if reusing an existing subclass is not feasible.
 
-Every recipe definition is made up of three components: the `Recipe` implementation which holds the data and handles the execution logic with the provided inputs, the `RecipeType` which represents the category or context the recipe will be used in, and the `RecipeSerializer` which handles decoding and network communication of the recipe data. How one chooses to use the recipe is up to the implementor.
+For the sake of example, and to highlight many different features, we are going to implement a recipe-driven mechanic that requires you to right-click a `BlockState` in-world with a certain item, breaking the `BlockState` and dropping the result item.
 
-### Recipe
+### The Recipe Input
 
-TODO
-
-The `Recipe` interface describes the recipe data and the execution logic. This includes matching the inputs and providing the associated result. As the recipe subsystem performs item transformations by default, the inputs are supplied through a `Container` subtype.
-
-:::caution
-The `Container`s passed into the recipe should be treated as if its contents were immutable. Any mutable operations should be performed on a copy of the input through `ItemStack#copy`.
-:::
-
-To be able to obtain a recipe instance from the manager, `#matches` must return true. This method checks against the provided container to see whether the associated inputs are valid. `Ingredient`s can be used for validation by calling `Ingredient#test`.
-
-If the recipe has been chosen, it is then built using `#assemble` which may use data from the inputs to create the result.
-
-:::tip
-`#assemble` should always produce a unique `ItemStack`. If unsure whether `#assemble` does so, call `ItemStack#copy` on the result before returning.
-:::
-
-Most of the other methods are purely for integration with the recipe book.
+Let's begin by defining what we want to put into the recipe. It's important to understand that the recipe input represents the actual inputs that the player is using right now. As such, we don't use tags or ingredients here, instead we use the actual item stacks and blockstates we have available.
 
 ```java
-public record ExampleRecipe(Ingredient input, int data, ItemStack output) implements Recipe<Container> {
-    // Implement methods here
-}
-```
+// Our inputs are a BlockState and an ItemStack.
+public record RightClickBlockInput(BlockState state, ItemStack stack) implements RecipeInput {
+    // Method to get an item from a specific slot. We have one stack and no concept of slots, so we just assume
+    // that slot 0 holds our item, and throw on any other slot. (Taken from SingleRecipeInput#getItem.)
+    @Override
+    public ItemStack getItem(int slot) {
+        if (slot != 0) throw new IllegalArgumentException("No item for index " + slot);
+        return this.stack();
+    }
 
-:::note
-While a record is used in the above example, it is not required to do so in your own implementation.
-:::
-
-### RecipeType
-
-TODO
-
-`RecipeType` is responsible for defining the category or context the recipe will be used within. For example, if a recipe was going to be smelted in a furnace, it would have a type of `RecipeType#SMELTING`. Being blasted in a blast furnace would have a type of `RecipeType#BLASTING`.
-
-If none of the existing types match what context the recipe will be used within, then a new `RecipeType` must be registered.
-
-The `RecipeType` instance must then be returned by `Recipe#getType` in the new recipe subtype.
-
-```java
-// For some RegistryObject<RecipeType> EXAMPLE_TYPE
-// In ExampleRecipe
-@Override
-public RecipeType<?> getType() {
-  return EXAMPLE_TYPE.get();
-}
-```
-
-### RecipeSerializer
-
-TODO
-
-A `RecipeSerializer` is responsible for decoding JSONs and communicating across the network for an associated `Recipe` subtype. Each recipe decoded by the serializer is saved as a unique instance within the `RecipeManager`. A `RecipeSerializer` must be registered.
-
-Only two methods need to be implemented for a `RecipeSerializer`:
-
-| Method         | Description                                                     |
-|----------------|-----------------------------------------------------------------|
-| `codec`        | A [map codec][codec] used to read and write the recipe to disk. |
-| `streamCodec`  | A stream codec used to send the recipe through the network.     |
-
-The `RecipeSerializer` instance must then be returned by `Recipe#getSerializer` in the new recipe subtype.
-
-```java
-// For some DeferredHolder<RecipeSerializer<?>, ExampleRecipeSerializer> EXAMPLE_SERIALIZER
-// In ExampleRecipe
-@Override
-public RecipeSerializer<?> getSerializer() {
-  return EXAMPLE_SERIALIZER.get();
-}
-```
-
-:::tip
-There are some useful codecs to make reading and writing data for recipes easier. `Ingredient`s have `#CODEC`, `#CODEC_NONEMPTY`, and `#CONTENTS_STREAM_CODEC` while `ItemStack`s can use `#STRICT_CODEC` and `#STREAM_CODEC`.
-:::
-
-### Building the JSON
-
-TODO
-
-Custom Recipe JSONs are stored in the same place as other recipes. The specified `type` should represent the registry name of the **recipe serializer**. Any additional data is specified by the serializer during decoding.
-
-```json5
-{
-    // The custom serializer registry name
-    "type": "examplemod:example_serializer",
-    "input": {
-        // Some ingredient input
-    },
-    "data": 0, // Some data wanted for the recipe
-    "output": {
-        // Some stack output
+    // The slot size our input requires. Again, we don't really have a concept of slots, so we just return 1
+    // because we have one item stack involved. Inputs with multiple items should return the actual count here.
+    @Override
+    public int size() {
+        return 1;
     }
 }
 ```
 
-### Non-Item Logic
+Recipe inputs don't need to be registered or serialized in any way because they are created on demand. It is not always necessary to create your own, the vanilla ones (`CraftingInput`, `SingleRecipeInput` and `SmithingRecipeInput`) are fine for most use cases.
 
-TODO
+Additionally, NeoForge provides the `RecipeWrapper` input, which wraps the `#getItem` and `#size` calls with respect to an `IItemHandler` passed in the constructor. Basically, this means that any grid-based inventory, such as a chest, can be used as a recipe input by wrapping it in a `RecipeWrapper`.
 
-If items are not used as part of the input or result of a recipe, then the normal methods provided in [`RecipeManager`][manager] will not be useful. Instead, an additional method for testing a recipe's validity and/or supplying the result should be added to the custom `Recipe` instance. From there, all the recipes for that specific `RecipeType` can be obtained via `RecipeManager#getAllRecipesFor` and then checked and/or supplied the result using the newly implemented methods.
+### The Recipe Class
+
+Now that we have our inputs, let's get to the recipe itself. This is what holds our recipe data, and also handles matching and returning the recipe result. As such, it is usually the longest class for your custom recipe.
 
 ```java
-// In some Recipe subimplementation ExampleRecipe
+// The generic parameter for Recipe<T> is our RightClickBlockInput from above.
+public class RightClickBlockRecipe implements Recipe<RightClickBlockInput> {
+    // An in-code representation of our recipe data. This can be basically anything you want.
+    // Common things to have here is a processing time integer of some kind, or an experience reward.
+    // Note that we now use an ingredient instead of an item stack for the input.
+    private final BlockState inputState;
+    private final Ingredient inputItem;
+    private final ItemStack result;
 
-// Checks the block at the position to see if it matches the stored data
-boolean matches(Level level, BlockPos pos);
+    // Add a constructor that sets all properties. 
+    public RightClickBlockRecipe(BlockState inputState, Ingredient inputItem, ItemStack result) {
+        this.inputState = inputState;
+        this.inputItem = inputItem;
+        this.result = result;
+    }
 
-// Creates the block state to set the block at the specified position to
-BlockState assemble(HolderLookup.Provider lookupProvider);
+    // A list of our ingredients. Does not need to be overridden if you have no ingredients
+    // (the default implementation returns an empty list here). It makes sense to cache larger lists in a field.
+    @Override
+    public NonNullList<Ingredient> getIngredients() {
+        NonNullList<Ingredient> list = NonNullList.create();
+        list.add(this.inputItem);
+        return list;
+    }
 
-// In some manager class
-public Optional<ExampleRecipe> getRecipeFor(Level level, BlockPos pos) {
-  return level.getRecipeManager()
-    .getAllRecipesFor(exampleRecipeType) // Gets all recipes
-    .stream() // Looks through all recipes for types
-    .filter(recipe -> recipe.matches(level, pos)) // Checks if the recipe inputs are valid
-    .findFirst(); // Finds the first recipe whose inputs match
+    // Grid-based recipes should return whether their recipe can fit in the given dimensions.
+    // We don't have a grid, so we just return if any item can be placed in there.
+    @Override
+    public boolean canCraftInDimensions(int width, int height) {
+        return width * height >= 1;
+    }
+
+    // Check whether the given input matches this recipe. The first parameter matches the generic.
+    // We check our blockstate and our item stack, and only return true if both match.
+    @Override
+    public boolean matches(RightClickBlockInput input, Level level) {
+        return this.inputState == input.state() && this.inputItem.test(input.stack());
+    }
+
+    // Return an UNMODIFIABLE version of your result here. The result of this method is mainly intended
+    // for the recipe book, and commonly used by JEI and other recipe viewers as well.
+    @Override
+    public ItemStack getResultItem(HolderLookup.Provider registries) {
+        return this.result;
+    }
+
+    // Return the result of the recipe here, based on the given input. The first parameter matches the generic.
+    // IMPORTANT: Always call .copy() if you use an existing result! If you don't, things can and will break,
+    // as the result exists once per recipe, but the assembled stack is created each time the recipe is crafted.
+    @Override
+    public ItemStack assemble(RightClickBlockInput input, HolderLookup.Provider registries) {
+        return this.result.copy();
+    }
+
+    // This example outlines the most important methods. There is a number of other methods to override.
+    // Check the class definition of Recipe to view them all.
+}
+```
+
+### The Recipe Type
+
+Next up, our recipe type. This is fairly straightforward because there's no data other than a name associated with a recipe type. They are one of two [registered][registry] parts of the recipe system, so like with all other registries, we create a `DeferredRegister` and register to it:
+
+```java
+public static final DeferredRegister<RecipeType<?>> RECIPE_TYPES =
+        DeferredRegister.create(Registries.RECIPE_TYPE, ExampleMod.MOD_ID);
+
+public static final Supplier<RecipeType<RightClickBlockRecipe>> RIGHT_CLICK_BLOCK =
+        RECIPE_TYPES.register(
+                "right_click_block",
+                // We need the qualifying generic here due to generics being generics.
+                () -> RecipeType.<RightClickBlockRecipe>simple(ResourceLocation.fromNamespaceAndPath(ExampleMod.MOD_ID, "right_click_block"))
+        );
+```
+
+After we have registered our recipe type, we must override `#getType` in our recipe, like so:
+
+```java
+public class RightClickBlockRecipe implements Recipe<RightClickBlockInput> {
+    // other stuff here
+
+    @Override
+    public RecipeType<?> getType() {
+        return RIGHT_CLICK_BLOCK.get();
+    }
+}
+```
+
+### The Recipe Serializer
+
+A recipe serializer provides two codecs, one map codec and one stream codec, for serialization from/to JSON and from/to network, respectively. This section will not go in depth about how the codecs work, please see [Map Codecs][codec] and [Stream Codecs][streamcodec] for more information.
+
+Since recipe serializers can get fairly large, vanilla moves them to separate classes. It is recommended, but not required to follow the practice - smaller serializers are often defined in anonymous classes within fields of the recipe class. To follow good practice, we will create a separate class that holds our codecs:
+
+```java
+// The generic parameter is our recipe class.
+// Note: This assumes that simple RightClickBlockRecipe#getInputState, #getInputItem and #getResult getters
+// are available, which were omitted from the code above.
+public class RightClickBlockRecipeSerializer implements RecipeSerializer<RightClickBlockRecipe> {
+    public static final MapCodec<RightClickBlockRecipe> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
+            BlockState.CODEC.fieldOf("state").forGetter(RightClickBlockRecipe::getInputState),
+            Ingredient.CODEC.fieldOf("ingredient").forGetter(RightClickBlockRecipe::getInputItem),
+            ItemStack.CODEC.fieldOf("result").forGetter(RightClickBlockRecipe::getResult)
+    ).apply(inst, RightClickBlockRecipe::new));
+    // Vanilla doesn't have a blockstate stream codec, so we need to add our own.
+    private static final StreamCodec<RegistryFriendlyByteBuf, BlockState> BLOCK_STATE_STREAM_CODEC = StreamCodec.of(
+            (buffer, recipe) -> buffer.writeVarInt(Block.BLOCK_STATE_REGISTRY.getId(recipe.state())),
+            buffer -> Block.BLOCK_STATE_REGISTRY.byId(buffer.readVarInt())
+    );
+    public static final StreamCodec<RegistryFriendlyByteBuf, RightClickBlockRecipe> STREAM_CODEC = StreamCodec.of(
+            (buffer, recipe) -> {
+                // Use our blockstate stream codec.
+                BLOCK_STATE_STREAM_CODEC.encode(buffer, recipe.getInputState());
+                Ingredient.CONTENTS_STREAM_CODEC.encode(buffer, recipe.getInputItem());
+                ItemStack.STREAM_CODEC.encode(buffer, recipe.getResult());
+            },
+            buffer -> {
+                BlockState blockState = BLOCK_STATE_STREAM_CODEC.decode(buffer);
+                Ingredient ingredient = Ingredients.CONTENTS_STREAM_CODEC.decode(buffer);
+                ItemStack result = ItemStack.STREAM_CODEC.decode(buffer);
+                return new RightClickBlockRecipe(blockState, ingredient, result);
+            }
+    );
+
+    // Return our map codec.
+    @Override
+    public MapCodec<RightClickBlockRecipe> codec() {
+        return CODEC;
+    }
+
+    // Return our stream codec.
+    @Override
+    public StreamCodec<RegistryFriendlyByteBuf, RightClickBlockRecipe> streamCodec() {
+        return STREAM_CODEC;
+    }
+}
+```
+
+Like with the type, we register our serializer:
+
+```java
+public static final DeferredRegister<RecipeType<?>> RECIPE_SERIALIZERS =
+        DeferredRegister.create(Registries.RECIPE_SERIALIZER, ExampleMod.MOD_ID);
+
+public static final Supplier<RecipeSerializer<RightClickBlockRecipe>> RIGHT_CLICK_BLOCK =
+        RECIPE_SERIALIZERS.register("right_click_block", RightClickBlockRecipeSerializer::new);
+```
+
+And similarly, we must also override `#getSerializer` in our recipe, like so:
+
+```java
+public class RightClickBlockRecipe implements Recipe<RightClickBlockInput> {
+    // other stuff here
+
+    @Override
+    public RecipeSerializer<?> getSerializer() {
+        return RIGHT_CLICK_BLOCK.get();
+    }
+}
+```
+
+### The Crafting Mechanic
+
+Now that all parts of your recipe are complete, you can make yourself some recipe JSONs (see the [datagen] article for that) and then query the recipe manager for your recipes, like above. What you then do with the recipe is up to you. A common use case would be a machine that can process your recipes, storing the active recipe as a field.
+
+In our case, however, we want to apply the recipe when an item is right-clicked on a block. We will do so using an [event handler][event]. Keep in mind that this is an example implementation, and you can alter this in any way you like (so long as you run it on the server).
+
+```java
+@SubscribeEvent
+public static void useItemOnBlock(UseItemOnBlockEvent event) {
+    // Skip if we are not in the block-dictated phase of the event. See the event's javadocs for details.
+    if (event.getUsePhase() != UseItemOnBlockEvent.UsePhase.BLOCK) return;
+    // Get the parameters we need.
+    UseOnContext context = event.getUseOnContext();
+    Level level = context.getLevel();
+    BlockPos pos = context.getClickedPos();
+    BlockState blockState = context.getLevel().getBlockState(pos);
+    ItemStack itemStack = context.getItemInHand();
+    // If the level is not a server level, return.
+    if (!level.isClientSide()) return;
+    // Create an input and query the recipe.
+    RightClickBlockInput input = new RightClickBlockInput(blockState, itemStack);
+    Optional<RecipeHolder<? extends Recipe<CraftingInput>>> optional = recipes.getRecipeFor(
+            // The recipe type.
+            RIGHT_CLICK_BLOCK,
+            input,
+            level
+    );
+    ItemStack result = optional
+            .map(RecipeHolder::value)
+            .map(e -> e.assemble(input, level.registryAccess()))
+            .orElse(ItemStack.EMPTY);
+    // If there is a result, break the block and drop the result in the world.
+    if (!result.isEmpty()) {
+        level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
+        ItemEntity entity = new ItemEntity(level,
+                // Center of pos.
+                pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5,
+                result);
+        level.addFreshEntity(entity);
+        // Cancel the event to stop the interaction pipeline.
+        event.setCanceled(true);
+    }
 }
 ```
 
@@ -277,8 +394,11 @@ The `ShapedRecipePattern` class, responsible for holding the in-memory represent
 [cancel]: ../../../concepts/events.md#cancellable-events
 [codec]: ../../../datastorage/codecs.md
 [customrecipes]: #custom-recipes
+[datagen]: datagen.md
 [event]: ../../../concepts/events.md
 [ingredients]: ingredients.md
 [manager]: #using-recipes
 [recipeprovider]: datagen.md
+[registry]: ../../../concepts/registries.md
+[streamcodec]: ../../../networking/streamcodecs.md
 [tags]: ../tags.md
