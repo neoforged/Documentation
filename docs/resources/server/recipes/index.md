@@ -1,14 +1,23 @@
 # Recipes
 
-Recipes are a way to transform a set of objects into other objects within a Minecraft world. Although Minecraft uses this system purely for item transformations, the system is built in a way that allows any kind of objects - blocks, entities, etc. - to be transformed. Almost all recipes use recipe data files (a select few still use in-code methods for legacy reasons); a "recipe" is assumed to be a data-driven recipe in this article unless explicitly stated otherwise.
+Recipes are a way to transform a set of objects into other objects within a Minecraft world. Although Minecraft uses this system purely for item transformations, the system is built in a way that allows any kind of objects - blocks, entities, etc. - to be transformed. Almost all recipes use recipe data files; a "recipe" is assumed to be a data-driven recipe in this article unless explicitly stated otherwise.
 
 Recipe data files are located at `data/<namespace>/recipes/<path>.json`. For example, the recipe `minecraft:diamond_block` is located at `data/minecraft/recipes/diamond_block.json`.
 
-In vanilla, all recipes also have a corresponding recipe [advancement] that is responsible for unlocking the recipe in the recipe book. Despite not being necessary, and despite the recipe book generally being neglected by the modded community in favor of recipe viewer mods, the [recipe data provider][recipeprovider] automatically generates them for you, so it is recommended to just roll with it.
+## Terminology
+
+- A **recipe JSON**, or **recipe file**, is a JSON file that is loaded and stored by the `RecipeManager`. It contains info such as the recipe type, the inputs and outputs, as well as additional information (e.g. processing time).
+- A **`Recipe`** holds in-code representations of all JSON fields, alongside the matching logic ("Does this input match the recipe?") and some other properties.
+- A **`RecipeInput`** is a type that provides inputs to a recipe. Comes in several subclasses, e.g. `CraftingInput` or `SingleRecipeInput` (for furnaces and similar).
+- A **recipe ingredient**, or just **ingredient**, is a single input for a recipe (whereas the `RecipeInput` generally represents a collection of multiple ingredients). Ingredients are a very powerful system and as such outlined [in their own article][ingredients].
+- The **`RecipeManager`** is a singleton field on the server that holds all loaded recipes.
+- A recipe's **`RecipeType`** is the registered recipe type.
+- **Recipe serializers** were separate serializers for recipes. One recipe type could have multiple recipe serializers (e.g. the `minecraft:crafting` type had `minecraft:crafting_shapeless` and `minecraft:crafting_shapeless` serializers, plus the special serializers). These have been replaced by **recipe [codecs][codec]** (`Codec<Recipe<?>>`), but the old name is still used sometimes.
+- A **recipe [advancement]** is an advancement responsible for unlocking a recipe in the recipe book. They are not required, and generally neglected by players in favor of recipe viewer mods, however the [recipe data provider][recipeprovider] generates them for you, so it's recommended to just roll with it.
 
 ## JSON Specification
 
-The contents of recipe files vary greatly depending on the selected recipe type. Common to all recipe files are the following two properties:
+The contents of recipe files vary greatly depending on the selected type. Common to all recipe files are the following two properties:
 
 ```json5
 {
@@ -19,13 +28,86 @@ The contents of recipe files vary greatly depending on the selected recipe type.
 }
 ```
 
-A full list of types can be found in the [Built-In Recipe Types article][builtin].
+A full list of types provided by Minecraft can be found in the [Built-In Recipe Types article][builtin]. Mods can also [define their own recipe types][customrecipes].
 
-Most recipes will also use ingredients in some way. Ingredients are a way to specify what inputs a recipe can use. They are a very powerful system and thus outlined [in their own article][ingredients].
+## Using Recipes
 
-## Other Crafting Mechanisms
+Recipes are loaded, stored and obtained via the `RecipeManager` class, which is in turn obtained via `ServerLevel#getRecipeManager` or - if you don't have a `ServerLevel` available - `ServerLifecycleHooks.getCurrentServer()#getRecipeManager`. Be aware that all recipe code can only run on the server, as the client generally doesn't know about recipes.
 
-Some mechanisms in vanilla are generally considered crafting, but are implemented differently in code. This is generally either due to legacy reasons, or because the "recipes" are constructed from other data (e.g. [tags]).
+The easiest way to get a recipe is by ID:
+
+```java
+RecipeManager recipes = serverLevel.getRecipeManager();
+// RecipeHolder<?> is a record of the recipe id and the recipe itself.
+Optional<RecipeHolder<?>> optional = recipes.byId(ResourceLocation.withDefaultNamespace("diamond_block"));
+optional.map(RecipeHolder::value).ifPresent(recipe -> {
+        // Do whatever you want to do with the recipe here. Be aware that the recipe may be of any type.
+});
+```
+
+A more practically applicable method is constructing a `RecipeInput` and trying to get a matching recipe. In this example, we will be creating a `CraftingInput` containing one diamond block using `CraftingInput#of`. This will create a shapeless input, a shaped input would instead use `CraftingInput#ofPositioned`, and other inputs would use other `RecipeInput`s (for example, furnace recipes will generally use `new SingleRecipeInput`).
+
+```java
+RecipeManager recipes = serverLevel.getRecipeManager();
+// Construct a RecipeInput, as required by the recipe. For example, construct a CraftingInput for a crafting recipe.
+// The parameters are width, height and items, respectively.
+CraftingInput input = CraftingInput.of(1, 1, List.of(Items.DIAMOND_BLOCK));
+// The generic wildcard on the recipe holder should then extend Recipe<CraftingInput>.
+// This allows for more type safety later on.
+Optional<RecipeHolder<? extends Recipe<CraftingInput>>> optional = recipes.getRecipeFor(
+        // The recipe type to get the recipe for. In our case, we use the crafting type.
+        RecipeTypes.CRAFTING,
+        // Our recipe input.
+        input,
+        // Our level context.
+        serverLevel
+);
+// This should yield the diamond block -> 9 diamonds recipe (unless a datapack changes that recipe).
+optional.map(RecipeHolder::value).ifPresent(recipe -> {
+        // Do whatever you want here. Note that the recipe is now a Recipe<CraftingInput> instead of a Recipe<?>.
+});
+```
+
+Alternatively, you can also get yourself a potentially empty list of recipes that match your input, this is especially useful for cases where it can be reasonably assumed that multiple recipes match:
+
+```java
+RecipeManager recipes = serverLevel.getRecipeManager();
+CraftingInput input = CraftingInput.of(1, 1, List.of(Items.DIAMOND_BLOCK));
+// These are not Optionals, and can be used directly. However, the list may be empty, indicating no matching recipes.
+List<RecipeHolder<? extends Recipe<CraftingInput>>> list = recipes.getRecipesFor(
+        // Same parameters as above.
+        RecipeTypes.CRAFTING, input, serverLevel
+);
+```
+
+Once we have our correct recipe inputs, we also want to get the recipe outputs. This is done by calling `Recipe#assemble`:
+
+```java
+RecipeManager recipes = serverLevel.getRecipeManager();
+CraftingInput input = CraftingInput.of(...);
+Optional<RecipeHolder<? extends Recipe<CraftingInput>>> optional = recipes.getRecipeFor(...);
+// Use ItemStack.EMPTY as a fallback.
+ItemStack result = optional
+        .map(RecipeHolder::value)
+        .map(e -> e.assemble(input, serverLevel.registryAccess()))
+        .orElse(ItemStack.EMPTY);
+```
+
+If necessary, it is also possible to iterate over all recipes of a type. This is done like so:
+
+```java
+RecipeManager recipes = serverLevel.getRecipeManager();
+// Like before, pass the desired recipe type.
+List<RecipeHolder<?>> list = recipes.getAllRecipesFor(RecipeTypes.CRAFTING);
+```
+
+## Other Recipe Mechanisms
+
+Some mechanisms in vanilla are generally considered recipes, but are implemented differently in code. This is generally either due to legacy reasons, or because the "recipes" are constructed from other data (e.g. [tags]).
+
+:::warning
+Recipe viewer mods will generally not pick up these recipes. Support for these mods must be added manually, please see the corresponding mod's documentation for more information.
+:::
 
 ### Anvil Recipes
 
@@ -45,35 +127,9 @@ public static void onAnvilUpdate(AnvilUpdateEvent event) {
 }
 ```
 
-:::warning
-Recipe viewer mods will generally not pick up these recipes. Support for these mods must be added manually, please see the corresponding mod's documentation for more information.
-:::
-
 ### Brewing
 
-_See [the Brewing chapter in the Mob Effects & Potions article][brewing]._
-
-## Using Recipes
-
-TODO
-
-Recipes are loaded and stored via the `RecipeManager`. Any operations relating to getting available recipe(s) are handled by this manager. There are two important methods to know of:
-
-| Method          | Description                                           |
-|-----------------|-------------------------------------------------------|
-| `getRecipeFor`  | Gets the first recipe that matches the current input. |
-| `getRecipesFor` | Gets all recipes that match the current input.        |
-
-Each method takes in a `RecipeType`, which denotes what method is being applied to use the recipe (crafting, smelting, etc.), a `Container` which holds the configuration of the inputs, and the current level which is passed to `Recipe#matches` along with the container. The methods return a `RecipeHolder` which contain the name of the recipe and the `Recipe` object itself.
-
-:::tip
-NeoForge provides the `RecipeWrapper` utility class which extends `Container` for wrapping around `IItemHandler`s and passing them to methods which requires a `Container` parameter.
-
-```java
-// Within some method with IItemHandlerModifiable handler
-recipeManger.getRecipeFor(RecipeType.CRAFTING, new RecipeWrapper(handler), level);
-```
-:::
+See [the Brewing chapter in the Mob Effects & Potions article][brewing].
 
 ## Custom Recipes
 
@@ -117,7 +173,7 @@ TODO
 
 `RecipeType` is responsible for defining the category or context the recipe will be used within. For example, if a recipe was going to be smelted in a furnace, it would have a type of `RecipeType#SMELTING`. Being blasted in a blast furnace would have a type of `RecipeType#BLASTING`.
 
-If none of the existing types match what context the recipe will be used within, then a new `RecipeType` must be [registered].
+If none of the existing types match what context the recipe will be used within, then a new `RecipeType` must be registered.
 
 The `RecipeType` instance must then be returned by `Recipe#getType` in the new recipe subtype.
 
@@ -134,7 +190,7 @@ public RecipeType<?> getType() {
 
 TODO
 
-A `RecipeSerializer` is responsible for decoding JSONs and communicating across the network for an associated `Recipe` subtype. Each recipe decoded by the serializer is saved as a unique instance within the `RecipeManager`. A `RecipeSerializer` must be [registered].
+A `RecipeSerializer` is responsible for decoding JSONs and communicating across the network for an associated `Recipe` subtype. Each recipe decoded by the serializer is saved as a unique instance within the `RecipeManager`. A `RecipeSerializer` must be registered.
 
 Only two methods need to be implemented for a `RecipeSerializer`:
 
@@ -215,19 +271,14 @@ The `ShapedRecipePattern` class, responsible for holding the in-memory represent
 `ShapedRecipePattern#setCraftingSize` is not thread-safe. It must be wrapped in an `event#enqueueWork` call.
 :::
 
-## Datagen
-
-TODO
-
 [advancement]: ../advancements.md
 [brewing]: ../../../items/mobeffects.md
 [builtin]: builtin.md
 [cancel]: ../../../concepts/events.md#cancellable-events
-[conditions]: ../conditions.md
+[codec]: ../../../datastorage/codecs.md
+[customrecipes]: #custom-recipes
 [event]: ../../../concepts/events.md
 [ingredients]: ingredients.md
-[recipeprovider]: datagen.md
-[registered]: ../../../concepts/registries.md
-[tags]: ../tags.md
-[codec]: ../../../datastorage/codecs.md
 [manager]: #using-recipes
+[recipeprovider]: datagen.md
+[tags]: ../tags.md
