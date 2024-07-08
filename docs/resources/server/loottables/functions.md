@@ -257,14 +257,12 @@ During datagen, call `SetNameFunction#setName` with the desired name component, 
 
 ### `minecraft:copy_name`
 
-Copies an [entity target][entitytarget]'s name into the result item stack. Requires the corresponding entity loot parameter, no modification is performed if that parameter is absent.
+Copies an [entity target][entitytarget]'s or block entity's name into the result item stack. Requires the loot parameter corresponding to the specified source (entity target or block entity), no modification is performed if that parameter is absent.
 
 ```json5
 {
   "function": "minecraft:copy_name",
-  // The entity source to use. Valid values are "this", "attacker", "direct_attacker" or "attacking_player".
-  // These correspond to the "this_entity", "attacking_entity", "direct_attacking_entity" and
-  // "last_damage_player" loot parameters, respectively.
+  // The entity target, or "block_entity" if a block entity's name should be copied.
   "source": "this"
 }
 ```
@@ -294,9 +292,7 @@ Sets lore (tooltip lines) for the result item stack. The lines can be [`Componen
     "type": "insert",
     "offset": 0
   },
-  // The entity target to use. Valid values are "this", "attacker", "direct_attacker" or "attacking_player".
-  // These correspond to the "this_entity", "attacking_entity", "direct_attacking_entity" and
-  // "last_damage_player" loot parameters, respectively.
+  // The entity target to use.
   "entity": "this"
 }
 ```
@@ -395,7 +391,7 @@ During datagen, call `new SetEnchantmentsFunction.Builder` with the `add` boolea
 
 ### `minecraft:enchanted_count_increase`
 
-Increases the item stack count based on the enchantment value. Uses a [number provider][numberprovider].
+Increases the item stack count based on the enchantment value. Uses a [number provider][numberprovider]. Requires the `minecraft:attacking_entity` loot parameter, no modification is performed if that parameter is absent.
 
 ```json5
 {
@@ -417,7 +413,7 @@ During datagen, call `EnchantedCountIncreaseFunction#lootingMultiplier` with the
 
 ### `minecraft:apply_bonus`
 
-Applies an increase to the item stack count based on the enchantment value and various formulas.
+Applies an increase to the item stack count based on the enchantment value and various formulas. Requires the `minecraft:tool` loot parameter, no modification is performed if that parameter is absent.
 
 ```json5
 {
@@ -560,7 +556,7 @@ During datagen, call `SetOminousBottleAmplifierFunction#amplifier` with the desi
 
 ### `minecraft:exploration_map`
 
-Transforms the result item stack into an exploration map if and only if it is a map.
+Transforms the result item stack into an exploration map if and only if it is a map. Requires the `minecraft:origin` loot parameter, no modification is performed if that parameter is absent.
 
 ```json5
 {
@@ -584,7 +580,7 @@ During datagen, call `ExplorationMapFunction#makeExplorationMap` to construct a 
 
 ### `minecraft:fill_player_head`
 
-Sets the player head owner on the result item stack based on the given [entity target][entitytarget].
+Sets the player head owner on the result item stack based on the given [entity target][entitytarget]. Requires the corresponding loot parameter, no modification is performed if that parameter is absent.
 
 ```json5
 {
