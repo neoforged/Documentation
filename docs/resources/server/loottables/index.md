@@ -43,83 +43,7 @@ The following composite types are provided by Minecraft:
 - `minecraft:sequence`: Like `minecraft:group`, but the loot entry stops running as soon as one sub-entry fails, discarding all entries after that. Created in code by calling `SequentialEntry#sequential`, or by calling `#then` on another `LootPoolSingletonContainer.Builder`, each with other loot entry builders.
 - `minecraft:alternatives`: Sort of an opposite to `minecraft:sequence`, but the loot entry stops running as soon as one sub-entry succeeds (instead of as soon as one fails), discarding all entries after that. Created in code by calling `AlternativesEntry#alternatives`, or by calling `#otherwise` on another `LootPoolSingletonContainer.Builder`, each with other loot entry builders.
 
-### Custom Loot Entry Types
-
-It is also possible for modders to add custom loot entry types. Loot entry types are a [registry], so we can simply create a `DeferredRegister` and register to it. For the sake of example, we want to create a loot entry type that returns the drops of a entity - this is purely for example purposes, in practice it would be more ideal to directly reference the other loot table. Let's start by creating our loot entry type class:
-
-```java
-// We extend LootPoolSingletonContainer since we have a "finite" set of drops.
-// Some of this code is adapted from NestedLootTable.
-public class EntityLootEntry extends LootPoolSingletonContainer {
-    // A Holder for the entity type we want to roll the other table for.
-    private final Holder<EntityType<?>> entity;
-
-    // It is common practice to have a private constructor and have a static factory method.
-    // This is because weight, quality, conditions, and functions are supplied by a lambda below.
-    private EntityLootEntry(Holder<EntityType<?>> entity, int weight, int quality, List<LootItemCondition> conditions, List<LootItemFunction> functions) {
-        // Pass lambda-provided parameters to super.
-        super(weight, quality, conditions, functions);
-        // Set our values.
-        this.entity = entity;
-    }
-
-    // Static builder method, accepting our custom parameters and combining them with a lambda that supplies the values common to all entry types.
-    public static LootPoolSingletonContainer.Builder<?> entityLoot(Holder<EntityType<?>> entity) {
-        // Use the static simpleBuilder() method defined in LootPoolSingletonContainer.
-        return simpleBuilder((weight, quality, conditions, functions) -> new EntityLootEntry(entity, weight, quality, conditions, functions));
-    }
-
-    // This is where the magic happens. To add an item stack, we generally call #accept on the consumer.
-    // However, in this case, we let #getRandomItems do that for us.
-    @Override
-    public void createItemStack(Consumer<ItemStack> consumer, LootContext context) {
-        // Get the entity's loot table. If it doesn't exist, an empty loot table will be returned, so null-checking is not necessary.
-        LootTable table = context.getLevel().reloadableRegistries().getLootTable(entity.value().getDefaultLootTable());
-        // Use the raw version here, because vanilla does it too. :P
-        // #getRandomItemsRaw calls consumer#accept for us on the results of the roll.
-        table.getRandomItemsRaw(context, consumer);
-    }
-}
-```
-
-Next up, we create a [MapCodec][codec] for our loot table:
-
-```java
-// This is placed as a constant in EntityLootEntry.
-public static final MapCodec<EntityLootEntry> CODEC = RecordCodecBuilder.mapCodec(inst ->
-        // Add our own fields.
-        inst.group(
-                        // A value referencing an entity type id.
-                        ResourceKey.codec(Registries.ENTITY_TYPE).fieldOf("entity").forGetter(e -> e.entity)
-                )
-                // Add common fields: weight, display, conditions, and functions.
-                .and(singletonFields(inst))
-                .apply(inst, EntityLootEntry::new)
-);
-```
-
-We then use this codec in registration:
-
-```java
-public static final DeferredRegister<LootPoolEntryType> LOOT_POOL_ENTRY_TYPES =
-        DeferredRegister.create(Registries.LOOT_POOL_ENTRY_TYPE, ExampleMod.MOD_ID);
-
-public static final Supplier<LootPoolEntryType> ENTITY_LOOT =
-        LOOT_POOL_ENTRY_TYPES.register("entity_loot", () -> new LootPoolEntryType(EntityLootEntry.CODEC));
-```
-
-Finally, in our loot entry class, we must override `getType()`:
-
-```java
-public class EntityLootEntry extends LootPoolSingletonContainer {
-    // other stuff here
-
-    @Override
-    public LootPoolEntryType getType() {
-        return ENTITY_LOOT.get();
-    }
-}
-```
+For modders, it is also possible to define [custom loot entry types][customentry].
 
 ## Loot Pool
 
@@ -150,95 +74,7 @@ Number providers are a way to get (pseudo-)randomized numbers in a datapack cont
     - `minecraft:clamped`: Accepts another `LevelBasedValue`, alongside min and max values. Calculates the value using the other `LevelBasedValue` and clamps the result. Created through `new LevelBasedValue.Clamped`.
     - `minecraft:lookup`: Accepts a `List<Float>` and a fallback `LevelBasedValue`. Looks up the value to use in the list (level 1 is the first element in the list, level 2 is the second element, etc.), and uses the fallback value if the value for a level is missing. Created through `LevelBasedValue#lookup`.
 
-### Custom Number Providers
-
-To create a custom number provider, implement the `NumberProvider` interface. For the sake of example, let's assume we want to create a number provider that changes the sign of the provided number:
-
-```java
-// We accept another number provider as our base.
-public record InvertedSignProvider(NumberProvider base) implements NumberProvider {
-    public static final MapCodec<InvertedSignProvider> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
-            NumberProviders.CODEC.fieldOf("base").forGetter(InvertedSignProvider::base)
-    ).apply(inst, InvertedSignProvider::new));
-
-    // Return a float value. Use the context and the record parameters as needed.
-    @Override
-    public float getFloat(LootContext context) {
-        return -this.base.getFloat(context);
-    }
-
-    // Return an int value. Use the context and the record parameters as needed.
-    // Overriding this is optional, the default implementation will round the result of #getFloat.
-    @Override
-    public int getInt(LootContext context) {
-        return -this.base.getInt(context);
-    }
-
-    // Return a set of the loot context params used by this provider. See below for more information.
-    // Since we have a base value, we just defer to the base.
-    @Override
-    public Set<LootContextParam<?>> getReferencedContextParams() {
-        return this.base.getReferencedContextParams();
-    }
-}
-```
-
-Like with custom loot entry types, we then use this codec in registration:
-
-```java
-public static final DeferredRegister<LootNumberProviderType> LOOT_NUMBER_PROVIDER_TYPES =
-        DeferredRegister.create(Registries.LOOT_NUMBER_PROVIDER_TYPE, ExampleMod.MOD_ID);
-
-public static final Supplier<LootNumberProviderType> INVERTED_SIGN =
-        LOOT_NUMBER_PROVIDER_TYPES.register("inverted_sign", () -> new LootNumberProviderType(InvertedSignProvider.CODEC));
-```
-
-And similarly, in our number provider class, we must override `getType()`:
-
-```java
-public record InvertedSignProvider(NumberProvider base) implements NumberProvider {
-    // other stuff here
-
-    @Override
-    public LootNumberProviderType getType() {
-        return INVERTED_SIGN.get();
-    }
-}
-```
-
-### Custom Level-Based Values
-
-Custom `LevelBasedValue`s can be created in a similar fashion by implementing the `LevelBasedValue` interface in a record. Again, for the sake of example, let's assume that we want to invert the output of another `LevelBasedValue`:
-
-```java
-public record InvertedSignLevelBasedValue(LevelBasedValue base) implements LevelBaseValue {
-    public static final MapCodec<InvertedLevelBasedValue> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
-            LevelBasedValue.CODEC.fieldOf("base").forGetter(InvertedLevelBasedValue::base)
-    ).apply(inst, InvertedLevelBasedValue::new));
-
-    // Perform our operation.
-    @Override
-    public float calculate(int level) {
-        return -this.base.calculate(level);
-    }
-
-    // Unlike NumberProviders, we don't return the registered type, instead we return the codec directly.
-    @Override
-    public MapCodec<InvertedLevelBasedValue> codec() {
-        return CODEC;
-    }
-}
-```
-
-And again, we then use the codec in registration, though this time directly:
-
-```java
-public static final DeferredRegister<MapCodec<? extends LevelBasedValue>> LEVEL_BASED_VALUES =
-        DeferredRegister.create(Registries.ENCHANTMENT_LEVEL_BASED_VALUE_TYPE, ExampleMod.MOD_ID);
-
-public static final Supplier<MapCodec<? extends LevelBasedValue>> INVERTED_SIGN =
-        LEVEL_BASED_VALUES.register("inverted_sign", () -> InvertedSignLevelBasedValue.CODEC);
-```
+Modders can also register [custom number providers][customnumber] and [custom level-based values][customlevelbased] if needed.
 
 ## Loot Parameters
 
@@ -579,20 +415,22 @@ And again, we then add our sub provider to the loot table provider's constructor
 super(output, Set.of(), List.of(new SubProviderEntry(
         MyEntityLootTableSubProvider::new,
         LootContextParamSets.ENTITY
-        )));
+)));
 ```
 
 [advancement]: ../advancements.md
 [binomial]: https://en.wikipedia.org/wiki/Binomial_distribution
-[codec]: ../../../datastorage/codecs.md
 [conditions]: ../conditions.md
 [context]: #loot-context
+[customentry]: custom.md#custom-loot-entry-types
+[customlevelbased]: custom.md#custom-level-based-values
+[customnumber]: custom.md#custom-number-providers
 [damagesource]: ../damagetypes.md#creating-and-using-damage-sources
 [datagen]: ../../index.md#data-generation
 [entry]: #loot-entry
 [glm]: glm.md
-[lootcondition]: conditions.md
-[lootfunction]: functions.md
+[lootcondition]: lootconditions
+[lootfunction]: lootfunctions
 [parameters]: #loot-parameters
 [raidherogifts]: ../datamaps/builtin.md#neoforgeraid_hero_gifts
 [sides]: ../../../concepts/sides.md

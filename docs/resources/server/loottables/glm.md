@@ -185,7 +185,7 @@ public static void onGatherData(GatherDataEvent event) {
 [codec]: ../../../datastorage/codecs.md
 [datagen]: ../../index.md#data-generation
 [loottable]: index.md
-[loottableid]: conditions.md#neoforgeloot_table_id
+[loottableid]: lootconditions#neoforgeloot_table_id
 [register]: ../../../concepts/registries.md#methods-for-registering
 [resloc]: ../../../misc/resourcelocation.md
 [tags]: ../tags.md

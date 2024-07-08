@@ -1,18 +1,14 @@
 # Loot Functions
 
-Loot functions can be used to modify the result of a [loot entry][entry], or the multiple results of a [loot pool][pool] or [loot table][table]. In both cases, a list of functions is defined, which is run in order. During datagen, loot functions can be applied to `LootPoolSingletonContainer.Builder<?>`s, `LootPool.Builder`s and `LootTable.Builder`s by calling `#apply`. This article will outline the available loot functions, as well as how to create your own.
+Loot functions can be used to modify the result of a [loot entry][entry], or the multiple results of a [loot pool][pool] or [loot table][table]. In both cases, a list of functions is defined, which is run in order. During datagen, loot functions can be applied to `LootPoolSingletonContainer.Builder<?>`s, `LootPool.Builder`s and `LootTable.Builder`s by calling `#apply`. This article will outline the available loot functions. To create your own loot functions, see [Custom Loot Functions][custom].
 
 :::note
 Loot functions cannot be applied to composite loot entries (subclasses of `CompositeEntryBase` and their associated builder classes). They must be added to each singleton entry manually.
 :::
 
-## Vanilla Loot Functions
-
-_See also: [Item Modifiers][itemmodifiers] on the [Minecraft Wiki][mcwiki]_
-
 All vanilla loot functions except `minecraft:sequence` can specify [loot conditions][conditions] in a `conditions` block. If one of these conditions fails, the function will not be applied. On the code side, this is controlled by the `LootItemConditionalFunction`, which all loot functions except for `SequenceFunction` extend.
 
-### `minecraft:set_item`
+## `minecraft:set_item`
 
 Sets a different item to use in the result item stack.
 
@@ -26,7 +22,7 @@ Sets a different item to use in the result item stack.
 
 It is currently not possible to create this function during datagen.
 
-### `minecraft:set_count`
+## `minecraft:set_count`
 
 Sets an item count to use in the result item stack. Uses a [number provider][numberprovider].
 
@@ -46,7 +42,7 @@ Sets an item count to use in the result item stack. Uses a [number provider][num
 
 During datagen, call `SetItemCountFunction#setCount` with the desired number provider and optionally an `add` boolean to construct a builder for this function.
 
-### `minecraft:explosion_decay`
+## `minecraft:explosion_decay`
 
 Applies an explosion decay. The item has a chance of 1 / `explosion_radius` to "survive". This is run multiple times depending on the count. Requires the `minecraft:explosion_radius` loot parameter, no modification is performed if that parameter is absent.
 
@@ -58,7 +54,7 @@ Applies an explosion decay. The item has a chance of 1 / `explosion_radius` to "
 
 During datagen, call `ApplyExplosionDecay#explosionDecay` to construct a builder for this function.
 
-### `minecraft:limit_count`
+## `minecraft:limit_count`
 
 Clamps the count of the item stack between a given `IntRange`.
 
@@ -74,7 +70,7 @@ Clamps the count of the item stack between a given `IntRange`.
 
 During datagen, call `LimitCount#limitCount` with the desired `IntRange` to construct a builder for this function.
 
-### `minecraft:set_custom_data`
+## `minecraft:set_custom_data`
 
 Sets custom NBT data on the item stack.
 
@@ -93,7 +89,7 @@ During datagen, call `SetCustomDataFunction#setCustomData` with the desired [`Co
 This function should generally be considered deprecated. Use `minecraft:set_components` instead.
 :::
 
-### `minecraft:copy_custom_data`
+## `minecraft:copy_custom_data`
 
 Copies custom NBT data from a block entity or entity source to the item stack. Use of this is discouraged for block entities, use `minecraft:copy_components` or `minecraft:set_contents` instead. For entities, this requires setting the [entity target][entitytarget]. Requires the loot parameter corresponding to the specified source (entity target or block entity), no modification is performed if that parameter is absent.
 
@@ -124,7 +120,7 @@ Copies custom NBT data from a block entity or entity source to the item stack. U
 
 During datagen, call `CopyCustomDataFunction#copy` with the desired source and target values, as well as a merging strategy (optional, defaults to `replace`), to construct a builder for this function.
 
-### `minecraft:set_components`
+## `minecraft:set_components`
 
 Sets [data component][datacomponent] values on the item stack. Most vanilla use cases have specialized functions that are explained below.
 
@@ -142,7 +138,7 @@ Sets [data component][datacomponent] values on the item stack. Most vanilla use 
 
 During datagen, call `SetComponentsFunction#setComponent` with the desired data component and value to construct a builder for this function.
 
-### `minecraft:copy_components`
+## `minecraft:copy_components`
 
 Copies [data component][datacomponent] values from a block entity to the item stack. Requires the `minecraft:block_entity` loot parameter, no modification is performed if that parameter is absent.
 
@@ -160,7 +156,7 @@ Copies [data component][datacomponent] values from a block entity to the item st
 
 During datagen, call `CopyComponentsFunction#copyComponents` with the desired data source (usually `CopyComponentsFunction.Source.BLOCK_ENTITY`) to construct a builder for this function.
 
-### `minecraft:copy_state`
+## `minecraft:copy_state`
 
 Copies block state properties into the item stack's `block_state` [data component][datacomponent], used when trying to place a block. The block state properties to copy must be explicitly specified. Requires the `minecraft:block_state` loot parameter, no modification is performed if that parameter is absent.
 
@@ -178,7 +174,7 @@ Copies block state properties into the item stack's `block_state` [data componen
 
 During datagen, call `CopyBlockState#copyState` with the block to construct a builder for this condition. The desired block state property values can then be set on the builder using `#copy`.
 
-### `minecraft:set_contents`
+## `minecraft:set_contents`
 
 Sets contents of the item stack.
 
@@ -203,7 +199,7 @@ Sets contents of the item stack.
 
 During datagen, call `SetContainerContents#setContents` with the desired contents component to construct a builder for this function. Then, call `#withEntry` on the builder to add entries.
 
-### `minecraft:modify_contents`
+## `minecraft:modify_contents`
 
 Applies a function to the contents of the item stack.
 
@@ -219,7 +215,7 @@ Applies a function to the contents of the item stack.
 
 It is currently not possible to create this function during datagen.
 
-### `minecraft:set_loot_table`
+## `minecraft:set_loot_table`
 
 Sets a container loot table on the result item stack. Intended for chests and other loot containers that retain this property when placed down.
 
@@ -237,7 +233,7 @@ Sets a container loot table on the result item stack. Intended for chests and ot
 
 During datagen, call `SetContainerLootTable#withLootTable` with the desired block entity type, loot table resource key and optionally a seed to construct a builder for this function.
 
-### `minecraft:set_name`
+## `minecraft:set_name`
 
 Sets a name for the result item stack. The name can be a [`Component`][component] instead of a literal string. It can also be resolved from an [entity target][entitytarget]. Requires the corresponding entity loot parameter if applicable, no modification is performed if that parameter is absent.
 
@@ -255,7 +251,7 @@ Sets a name for the result item stack. The name can be a [`Component`][component
 
 During datagen, call `SetNameFunction#setName` with the desired name component, the desired name target and optionally an entity target to construct a builder for this function.
 
-### `minecraft:copy_name`
+## `minecraft:copy_name`
 
 Copies an [entity target][entitytarget]'s or block entity's name into the result item stack. Requires the loot parameter corresponding to the specified source (entity target or block entity), no modification is performed if that parameter is absent.
 
@@ -269,7 +265,7 @@ Copies an [entity target][entitytarget]'s or block entity's name into the result
 
 During datagen, call `CopyNameFunction#copyName` with the desired entity source to construct a builder for this function.
 
-### `minecraft:set_lore`
+## `minecraft:set_lore`
 
 Sets lore (tooltip lines) for the result item stack. The lines can be [`Component`][component]s instead of literal strings. It can also be resolved from an [entity target][entitytarget]. Requires the corresponding entity loot parameter if applicable, no modification is performed if that parameter is absent.
 
@@ -299,7 +295,7 @@ Sets lore (tooltip lines) for the result item stack. The lines can be [`Componen
 
 During datagen, call `SetLoreFunction#setLore` to construct a builder for this function. Then, call `#addLine`, `#setMode` and `#setResolutionContext` as needed on the builder.
 
-### `minecraft:toggle_tooltips`
+## `minecraft:toggle_tooltips`
 
 Enables or disables certain component tooltips.
 
@@ -324,7 +320,7 @@ Enables or disables certain component tooltips.
 
 It is currently not possible to create this function during datagen.
 
-### `minecraft:enchant_with_levels`
+## `minecraft:enchant_with_levels`
 
 Randomly enchants the item stack with a given amount of levels. Uses a [number provider][numberprovider].
 
@@ -347,7 +343,7 @@ Randomly enchants the item stack with a given amount of levels. Uses a [number p
 
 During datagen, call `EnchantWithLevelsFunction#enchantWithLevels` with the desired number provider to construct a builder for this function. Then, if desired, set a list of enchantments on the builder using `#fromOptions`.
 
-### `minecraft:enchant_randomly`
+## `minecraft:enchant_randomly`
 
 Enchants the item with one random enchantment.
 
@@ -366,7 +362,7 @@ Enchants the item with one random enchantment.
 
 During datagen, call `EnchantRandomlyFunction#randomEnchantment` or `EnchantRandomlyFunction#randomApplicableEnchantment` to construct a builder for this function. Then, if desired, call `#withEnchantment` or `#withOneOf` on the builder.
 
-### `minecraft:set_enchantments`
+## `minecraft:set_enchantments`
 
 Sets enchantments on the result item stack.
 
@@ -389,7 +385,7 @@ Sets enchantments on the result item stack.
 
 During datagen, call `new SetEnchantmentsFunction.Builder` with the `add` boolean value (optionally) to construct a builder for this function. Then, call `#withEnchantment` to add an enchantment to set.
 
-### `minecraft:enchanted_count_increase`
+## `minecraft:enchanted_count_increase`
 
 Increases the item stack count based on the enchantment value. Uses a [number provider][numberprovider]. Requires the `minecraft:attacking_entity` loot parameter, no modification is performed if that parameter is absent.
 
@@ -411,7 +407,7 @@ Increases the item stack count based on the enchantment value. Uses a [number pr
 
 During datagen, call `EnchantedCountIncreaseFunction#lootingMultiplier` with the desired number provider to construct a builder for this function. Optionally, call `#setLimit` on the builder afterwards.
 
-### `minecraft:apply_bonus`
+## `minecraft:apply_bonus`
 
 Applies an increase to the item stack count based on the enchantment value and various formulas. Requires the `minecraft:tool` loot parameter, no modification is performed if that parameter is absent.
 
@@ -436,7 +432,7 @@ Applies an increase to the item stack count based on the enchantment value and v
 
 During datagen, call `ApplyBonusCount#addBonusBinomialDistributionCount`, `ApplyBonusCount#addOreBonusCount` or `ApplyBonusCount#addUniformBonusCount` with the enchantment and other required parameters (depending on the formula) to construct a builder for this function.
 
-### `minecraft:furnace_smelt`
+## `minecraft:furnace_smelt`
 
 Attempts to smelt the item as if it were in a furnace, returning the unmodified item stack if it could not be smelted.
 
@@ -448,7 +444,7 @@ Attempts to smelt the item as if it were in a furnace, returning the unmodified 
 
 During datagen, call `SmeltItemFunction#smelted` to construct a builder for this function.
 
-### `minecraft:set_damage`
+## `minecraft:set_damage`
 
 Sets a durability damage value on the result item stack. Uses a [number provider][numberprovider].
 
@@ -468,7 +464,7 @@ Sets a durability damage value on the result item stack. Uses a [number provider
 
 During datagen, call `SetItemDamageFunction#setDamage` with the desired number provider and optionally an `add` boolean to construct a builder for this function.
 
-### `minecraft:set_attributes`
+## `minecraft:set_attributes`
 
 Adds a list of attribute modifiers to the result item stack.
 
@@ -501,7 +497,7 @@ Adds a list of attribute modifiers to the result item stack.
 
 During datagen, call `SetAttributesFunction#setAttributes` to construct a builder for this function. Then, add modifiers using `#withModifier` on the builder. Use `SetAttributesFunction#modifier` to get a modifier.
 
-### `minecraft:set_potion`
+## `minecraft:set_potion`
 
 Sets a potion on the result item stack.
 
@@ -515,7 +511,7 @@ Sets a potion on the result item stack.
 
 During datagen, call `SetPotionFunction#setPotion` with the desired potion to construct a builder for this function.
 
-### `minecraft:set_stew_effect`
+## `minecraft:set_stew_effect`
 
 Sets a list of stew effects on the result item stack.
 
@@ -536,7 +532,7 @@ Sets a list of stew effects on the result item stack.
 
 During datagen, call `SetStewEffectFunction#stewEffect` to construct a builder for this function. Then, call `#withModifier` on the builder.
 
-### `minecraft:set_ominous_bottle_amplifier`
+## `minecraft:set_ominous_bottle_amplifier`
 
 Sets an ominous bottle amplifier on the result item stack. Uses a [number provider][numberprovider].
 
@@ -554,7 +550,7 @@ Sets an ominous bottle amplifier on the result item stack. Uses a [number provid
 
 During datagen, call `SetOminousBottleAmplifierFunction#amplifier` with the desired number provider to construct a builder for this function.
 
-### `minecraft:exploration_map`
+## `minecraft:exploration_map`
 
 Transforms the result item stack into an exploration map if and only if it is a map. Requires the `minecraft:origin` loot parameter, no modification is performed if that parameter is absent.
 
@@ -578,7 +574,7 @@ Transforms the result item stack into an exploration map if and only if it is a 
 
 During datagen, call `ExplorationMapFunction#makeExplorationMap` to construct a builder for this function. Then, call the various setters on the builder if desired.
 
-### `minecraft:fill_player_head`
+## `minecraft:fill_player_head`
 
 Sets the player head owner on the result item stack based on the given [entity target][entitytarget]. Requires the corresponding loot parameter, no modification is performed if that parameter is absent.
 
@@ -592,7 +588,7 @@ Sets the player head owner on the result item stack based on the given [entity t
 
 During datagen, call `FillPlayerHead#fillPlayerHead` with the desired entity target to construct a builder for this function.
 
-### `minecraft:set_banner_pattern`
+## `minecraft:set_banner_pattern`
 
 Sets banner patterns on the result item stack. This is for banners, not banner pattern items.
 
@@ -615,7 +611,7 @@ Sets banner patterns on the result item stack. This is for banners, not banner p
 
 During datagen, call `SetBannerPatternFunction#setBannerPattern` with the `append` boolean to construct a builder for this function. Then, call `#addPattern` to add patterns to the function.
 
-### `minecraft:set_instrument`
+## `minecraft:set_instrument`
 
 Sets the instrument tag on the result item stack.
 
@@ -629,7 +625,7 @@ Sets the instrument tag on the result item stack.
 
 During datagen, call `SetInstrumentFunction#setInstrumentOptions` with the desired instrument tag to construct a builder for this function.
 
-### `minecraft:set_fireworks`
+## `minecraft:set_fireworks`
 
 ```json5
 {
@@ -663,7 +659,7 @@ During datagen, call `SetInstrumentFunction#setInstrumentOptions` with the desir
 
 It is currently not possible to create this function during datagen.
 
-### `minecraft:set_firework_explosion`
+## `minecraft:set_firework_explosion`
 
 Sets a firework explosion on the result item stack.
 
@@ -692,7 +688,7 @@ Sets a firework explosion on the result item stack.
 
 During datagen, call `SetItemCountFunction#setCount` with the desired number provider and optionally an `add` boolean to construct a builder for this function.
 
-### `minecraft:set_book_cover`
+## `minecraft:set_book_cover`
 
 Sets a written book's non-page-specific content.
 
@@ -711,7 +707,7 @@ Sets a written book's non-page-specific content.
 
 During datagen, call `new SetBookCoverFunction` with the desired parameters to construct a builder for this function.
 
-### `minecraft:set_written_book_pages`
+## `minecraft:set_written_book_pages`
 
 Sets the pages of a written book.
 
@@ -741,7 +737,7 @@ Sets the pages of a written book.
 
 It is currently not possible to create this function during datagen.
 
-### `minecraft:set_writable_book_pages`
+## `minecraft:set_writable_book_pages`
 
 Sets the pages of a writable book (book and quill).
 
@@ -771,7 +767,7 @@ Sets the pages of a writable book (book and quill).
 
 It is currently not possible to create this function during datagen.
 
-### `minecraft:set_custom_model_data`
+## `minecraft:set_custom_model_data`
 
 Sets the custom model data of the result item stack.
 
@@ -785,7 +781,7 @@ Sets the custom model data of the result item stack.
 
 It is currently not possible to create this function during datagen.
 
-### `minecraft:filtered`
+## `minecraft:filtered`
 
 This function accepts an `ItemPredicate` that is checked against the `tool` loot parameter; if the check succeeds, the other function is run. An `ItemPredicate` can specify a list of valid item ids (`items`), a min/max range for the item count (`count`), a `DataComponentPredicate` (`components`) and an `ItemSubPredicate` (`predicates`); all fields are optional. Requires the `minecraft:tool` loot parameter, always failing if that parameter is absent.
 
@@ -803,7 +799,7 @@ It is currently not possible to create this function during datagen.
 This function should generally be considered deprecated. Use the passed function with a `minecraft:match_tool` condition instead.
 :::
 
-### `minecraft:reference`
+## `minecraft:reference`
 
 This function references an item modifier and applies it to the result item stack. See [Item Modifiers][itemmodifiers] for more information.
 
@@ -817,7 +813,7 @@ This function references an item modifier and applies it to the result item stac
 
 During datagen, call `FunctionReference#functionReference` with the id of the referenced predicate file to construct a builder for this function.
 
-### `minecraft:sequence`
+## `minecraft:sequence`
 
 This function runs other loot functions one after another.
 
@@ -839,77 +835,13 @@ This function runs other loot functions one after another.
 
 During datagen, call `SequenceFunction#of` with the other functions to construct a builder for this condition.
 
-## Custom Loot Functions
+## See Also
 
-Loot conditions are a [registry]. Like many other registries, they use the pattern of "one type object, many instance objects". Additionally, like many other datapack-related systems, they use [codecs][codec]. To get started, we create our own class extending `LootItemFunction`. `LootItemFunction` extends `BiFunction<ItemStack, LootContext, ItemStack>`, so what we want is to use the existing item stack and the loot context to return a new, modified item stack.
+- [Item Modifiers][itemmodifiers] on the [Minecraft Wiki][mcwiki]
 
-Almost all loot functions don't directly extend `LootItemFunction`, but extend `LootItemConditionalFunction` instead. This class has built-in functionality for applying loot conditions to the function - the function is only applied if the loot conditions apply. For the sake of example, let's apply a random enchantment with a specified level to the item:
-
-```java
-// Code adapted from vanilla's EnchantRandomlyFunction class.
-// LootItemConditionalFunction is an abstract class, not an interface, so we cannot use a record here.
-public class RandomEnchantmentWithLevelFunction extends LootItemConditionalFunction {
-    // Our context: an optional list of enchantments, and a level.
-    private final Optional<HolderSet<Enchantment>> enchantments;
-    private final int level;
-    // Our codec.
-    public static final MapCodec<RandomEnchantmentWithLevelFunction> CODEC =
-            // #commonFields adds the conditions field.
-            RecordCodecBuilder.create(inst -> commonFields(inst).and(inst.group(
-                    RegistryCodecs.homogeneousList(Registries.ENCHANTMENT).optionalFieldOf("enchantments").forGetter(e -> e.options),
-                    Codec.INT.fieldOf("level").forGetter(e -> e.level)
-            ).apply(inst, RandomEnchantmentWithLevelFunction::new));
-    // Our loot function type.
-    public static final LootItemFunctionType TYPE = new LootItemFunctionType(CODEC);
-    
-    public RandomEnchantmentWithLevelFunction(List<LootItemCondition> conditions, Optional<HolderSet<Enchantment>> enchantments, int level) {
-        super(conditions);
-        this.enchantments = enchantments;
-        this.level = level;
-    }
-    
-    // Return our loot function type here.
-    @Override
-    public LootItemFunctionType getType() {
-        return TYPE;
-    }
-    
-    // Run our enchantment application logic. Most of this is copied from EnchantRandomlyFunction#run.
-    @Override
-    public ItemStack run(ItemStack stack, LootContext context) {
-        RandomSource random = context.getRandom();
-        List<Holder<Enchantment>> stream = this.enchantments
-                .map(HolderSet::stream)
-                .orElseGet(() -> context.getLevel().registryAccess().registryOrThrow(Registries.ENCHANTMENT).holders().map(Function.identity()))
-                .filter(e -> e.value().canEnchant(stack))
-                .toList();
-        Optional<Holder<Enchantment>> optional = Util.getRandomSafe(list, random);
-        if (optional.isEmpty()) {
-            LOGGER.warn("Couldn't find a compatible enchantment for {}", stack);
-        } else {
-            if (stack.is(Items.BOOK)) {
-                stack = new ItemStack(Items.ENCHANTED_BOOK);
-            }
-            stack.enchant(enchantment, Mth.nextInt(random, enchantment.value().getMinLevel(), enchantment.value().getMaxLevel()));
-        }
-        return stack;
-    }
-}
-```
-
-And then, we can register the function type to the registry:
-
-```java
-public static final DeferredRegister<LootItemFunctionType> LOOT_FUNCTION_TYPES =
-        DeferredRegister.create(Registries.LOOT_FUNCTION_TYPE, ExampleMod.MOD_ID);
-
-public static final Supplier<LootItemFunctionType> RANDOM_ENCHANTMENT_WITH_LEVEL =
-        LOOT_FUNCTION_TYPES.register("random_enchantment_with_level", () -> RandomEnchantmentWithLevelFunction.TYPE);
-```
-
-[codec]: ../../../datastorage/codecs.md
 [component]: ../../client/i18n.md#components
-[conditions]: conditions.md
+[conditions]: lootconditions
+[custom]: custom.md#custom-loot-functions
 [datacomponent]: ../../../items/datacomponents.md
 [entitytarget]: index.md#entity-targets
 [entry]: index.md#loot-entry
@@ -918,5 +850,4 @@ public static final Supplier<LootItemFunctionType> RANDOM_ENCHANTMENT_WITH_LEVEL
 [nbt]: ../../../datastorage/nbt.md
 [numberprovider]: index.md#number-provider
 [pool]: index.md#loot-pool
-[registry]: ../../../concepts/registries.md
 [table]: index.md#loot-table
