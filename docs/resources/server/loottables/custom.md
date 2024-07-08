@@ -179,7 +179,7 @@ To get started, we create our loot item condition class that implements `LootIte
 ```java
 public record HasXpLevelCondition(int level) implements LootItemCondition {
     // Add the context we need for this condition. In our case, this will be the xp level the player must have.
-    public static final MapCodec<HasXpLevelCondition> CODEC = RecordCodecBuilder.create(inst -> inst.group(
+    public static final MapCodec<HasXpLevelCondition> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
             Codec.INT.fieldOf("level").forGetter(this::level)
     ).apply(inst, HasXpLevelCondition::new));
     // Our type instance.
@@ -231,7 +231,7 @@ public class RandomEnchantmentWithLevelFunction extends LootItemConditionalFunct
     // Our codec.
     public static final MapCodec<RandomEnchantmentWithLevelFunction> CODEC =
             // #commonFields adds the conditions field.
-            RecordCodecBuilder.create(inst -> commonFields(inst).and(inst.group(
+            RecordCodecBuilder.mapCodec(inst -> commonFields(inst).and(inst.group(
                     RegistryCodecs.homogeneousList(Registries.ENCHANTMENT).optionalFieldOf("enchantments").forGetter(e -> e.options),
                     Codec.INT.fieldOf("level").forGetter(e -> e.level)
             ).apply(inst, RandomEnchantmentWithLevelFunction::new));

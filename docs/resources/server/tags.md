@@ -191,6 +191,40 @@ public class MyBlockTagsProvider extends BlockTagsProvider {
 }
 ```
 
+This example results in the following tag JSON:
+
+```json5
+{
+  "values": [
+    "minecraft:dirt",
+    "minecraft:cobblestone",
+    {
+      "id": "botania:pure_daisy",
+      "required": false
+    },
+    "#minecraft:planks",
+    "#minecraft:logs",
+    "#minecraft:wooden_slabs",
+    {
+      "id": "c:ingots/tin",
+      "required": false
+    },
+    {
+      "id": "c:nuggets/tin",
+      "required": false
+    },
+    {
+      "id": "c:storage_blocks/tin",
+      "required": false
+    }
+  ],
+  "remove": [
+    "minecraft:crimson_slab",
+    "minecraft:warped_slab"
+  ]
+}
+```
+
 Like all data providers, add each tag provider to the `GatherDataEvent`:
 
 ```java

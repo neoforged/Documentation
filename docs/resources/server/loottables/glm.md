@@ -68,7 +68,7 @@ To actually apply the loot modifier to the loot table, a `IGlobalLootModifier` i
 // We cannot use a record because records cannot extend other classes.
 public class MyLootModifier extends LootModifier {
     // See below for how the codec works.
-    public static final Codec<MyLootModifier> CODEC = ...;
+    public static final MapCodec<MyLootModifier> CODEC = ...;
     // Our extra properties.
     private final String field1;
     private final int field2;
@@ -84,7 +84,7 @@ public class MyLootModifier extends LootModifier {
     
     // Return our codec here.
     @Override
-    public Codec<? extends IGlobalLootModifier> codec() {
+    public MapCodec<? extends IGlobalLootModifier> codec() {
         return CODEC;
     }
     
@@ -107,7 +107,7 @@ The returned list of drops from a modifier is fed into other modifiers in the or
 To tell the game about the existence of our loot modifier, we must define and [register] a [codec] for it. Reiterating on our previous example with the three fields, this would look something like this:
 
 ```java
-public static final Codec<MyLootModifier> CODEC = RecordCodecBuilder.create(inst -> 
+public static final MapCodec<MyLootModifier> CODEC = RecordCodecBuilder.mapCodec(inst -> 
         // LootModifier#codecStart adds the conditions field.
         LootModifier.codecStart(inst).and(inst.group(
                 Codec.STRING.fieldOf("field1").forGetter(e -> e.field1),

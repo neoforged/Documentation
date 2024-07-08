@@ -32,16 +32,16 @@ There is currently no built-in way to apply a set of custom data packs to every 
 
 Data packs may contain folders with files affecting the following things:
 
-| Folder name                                                                        | Contents                     |
-|------------------------------------------------------------------------------------|------------------------------|
-| `advancement`                                                                      | [Advancements][advancements] |
-| `damage_type`                                                                      | [Damage types][damagetypes]  |
-| `loot_table`                                                                       | [Loot tables][loottables]    |
-| `recipe`                                                                           | [Recipes][recipes]           |
-| `tags`                                                                             | [Tags][tags]                 |
-| `neoforge/data_maps`                                                               | [Data maps][datamap]         |
-| `neoforge/loot_modifiers`                                                          | [Global loot modifiers][glm] |
-| `dimension`, `dimension_type`, `structure`, `worldgen`, `neoforge/biome_modifiers` | Worldgen files               |
+| Folder name                                                                       | Contents                     |
+|-----------------------------------------------------------------------------------|------------------------------|
+| `advancement`                                                                     | [Advancements][advancements] |
+| `damage_type`                                                                     | [Damage types][damagetypes]  |
+| `loot_table`                                                                      | [Loot tables][loottables]    |
+| `recipe`                                                                          | [Recipes][recipes]           |
+| `tags`                                                                            | [Tags][tags]                 |
+| `neoforge/data_maps`                                                              | [Data maps][datamap]         |
+| `neoforge/loot_modifiers`                                                         | [Global loot modifiers][glm] |
+| `dimension`, `dimension_type`, `structure`, `worldgen`, `neoforge/biome_modifier` | Worldgen files               |
 
 Additionally, they may also contain subfolders for some systems that integrate with commands. These systems are rarely used in conjunction with mods, but worth mentioning regardless:
 

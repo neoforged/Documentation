@@ -137,9 +137,9 @@ For example, let's assume we want to reimplement the `tag_empty` condition, but 
 ```java
 // This class is basically a boiled-down copy of TagEmptyCondition, adjusted for entity types instead of items.
 public record EntityTagEmptyCondition(TagKey<EntityType<?>> tag) implements ICondition {
-    public static final Codec<EntityTagEmptyCondition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+    public static final MapCodec<EntityTagEmptyCondition> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
             ResourceLocation.CODEC.xmap(rl -> TagKey.create(Registries.ENTITY_TYPES, rl), TagKey::location).fieldOf("tag").forGetter(EntityTagEmptyCondition::tag)
-    ).apply(instance, EntityTagEmptyCondition::new));
+    ).apply(inst, EntityTagEmptyCondition::new));
 
     @Override
     public boolean test(ICondition.IContext context) {
@@ -147,7 +147,7 @@ public record EntityTagEmptyCondition(TagKey<EntityType<?>> tag) implements ICon
     }
 
     @Override
-    public Codec<? extends ICondition> codec() {
+    public MapCodec<? extends ICondition> codec() {
         return CODEC;
     }
 }

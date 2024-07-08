@@ -1,6 +1,6 @@
 # Loot Tables
 
-Loot tables are data files that are used to define randomized loot drops. A loot table can be rolled, returning a (potentially empty) list of item stacks. The output of this process depends on (pseudo-)randomness. Loot tables are located at `data/<mod_id>/loot_table/<name>.json`. For example, the loot table `minecraft:blocks/dirt`, used by the dirt block, is located at `data/minecraft/loot_tables/blocks/dirt.json`.
+Loot tables are data files that are used to define randomized loot drops. A loot table can be rolled, returning a (potentially empty) list of item stacks. The output of this process depends on (pseudo-)randomness. Loot tables are located at `data/<mod_id>/loot_table/<name>.json`. For example, the loot table `minecraft:blocks/dirt`, used by the dirt block, is located at `data/minecraft/loot_table/blocks/dirt.json`.
 
 Minecraft uses loot tables at various points in the game, including block drops, entity drops, chest loot, fishing loot, and many others. How a loot table is referenced depends on the context:
 
@@ -253,31 +253,22 @@ List<ItemStack> containerList = table.fill(container, params, someSeed);
 
 ## Datagen
 
-Loot tables can be [datagenned][datagen] by subclassing `LootTableProvider` and providing a list of `LootTableSubProvider` in the constructor:
-
-```java
-public class MyLootTableProvider extends LootTableProvider {
-    // Get the PackOutput from GatherDataEvent.
-    public MyLootTableProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider) {
-        super(output,
-                // A set of required table resource locations. These are later verified to be present.
-                // It is generally not recommended for mods to validate existence, therefore we pass in an empty set.
-                Set.of(),
-                // A list of sub provider entries. See below for what values to use here.
-                List.of(...));
-    }
-}
-```
-
-Like all data providers, we register the provider to `GatherDataEvent`:
+Loot tables can be [datagenned][datagen] by registering a `LootTableProvider` and providing a list of `LootTableSubProvider` in the constructor:
 
 ```java
 @SubscribeEvent
 public static void onGatherData(GatherDataEvent event) {
-    CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
     event.getGenerator().addProvider(
             event.includeServer(),
-            output -> new MyLootTableProvider(output, lookupProvider)
+            output -> new MyLootTableProvider(
+                    output,
+                    // A set of required table resource locations. These are later verified to be present.
+                    // It is generally not recommended for mods to validate existence,
+                    // therefore we pass in an empty set.
+                    Set.of(),
+                    // A list of sub provider entries. See below for what values to use here.
+                    List.of(...)
+            )
     );
 }
 ```
@@ -322,11 +313,11 @@ Once we have our loot table sub provider, we add it to the constructor of our lo
 ```java
 super(output, Set.of(), List.of(
         new SubProviderEntry(
-        // A reference to the sub provider's constructor.
-        // This is a Function<HolderLookup.Provider, ? extends LootTableSubProvider>.
-        MyLootTableSubProvider::new,
-        // An associated loot context set. If you're unsure what to use, use empty.
-        LootContextParamSets.EMPTY
+                // A reference to the sub provider's constructor.
+                // This is a Function<HolderLookup.Provider, ? extends LootTableSubProvider>.
+                MyLootTableSubProvider::new,
+                // An associated loot context set. If you're unsure what to use, use empty.
+                LootContextParamSets.EMPTY
         ),
 // other sub providers here (if applicable)
 ));

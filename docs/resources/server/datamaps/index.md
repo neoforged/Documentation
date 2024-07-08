@@ -320,7 +320,7 @@ public class MyDataMapProvider extends DataMapProvider {
         // We create a builder for the EXAMPLE_DATA data map and add our entries using #add.
         builder(EXAMPLE_DATA)
                 // We turn on replacing. Don't ever ship a mod like this! This is purely for educational purposes.
-                .replace(false)
+                .replace(true)
                 // We add the value "amount": 10, "chance": 1 for all slabs. The boolean parameter controls
                 // the "replace" field, which should always be false in a mod.
                 .add(ItemTags.SLABS, new ExampleData(10, 1), false)
@@ -331,6 +331,33 @@ public class MyDataMapProvider extends DataMapProvider {
                 // We add a mod loaded condition for Botania, because why not.
                 .conditions(new ModLoadedCondition("botania"));
     }
+}
+```
+
+This would then result in the following JSON file:
+
+```json5
+{
+  "replace": true,
+  "values": {
+    "#minecraft:slabs": {
+      "amount": 10,
+      "chance": 1.0
+    },
+    "minecraft:apple": {
+      "amount": 5,
+      "chance": 0.2
+    }
+  },
+  "remove": [
+    "#minecraft:wooden_slabs"
+  ],
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "botania"
+    }
+  ]
 }
 ```
 
