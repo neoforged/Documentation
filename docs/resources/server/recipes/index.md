@@ -423,6 +423,8 @@ public static void gatherData(GatherDataEvent event) {
 }
 ```
 
+The recipe provider also adds helpers for common scenarios, such as `twoByTwoPacker` (for 2x2 block recipes), `threeByThreePacker` (for 3x3 block recipes) or `nineBlockStorageRecipes` (for 3x3 block recipes and 1 block to 9 items recipes).
+
 ### Data Generation for Custom Recipes
 
 TODO
