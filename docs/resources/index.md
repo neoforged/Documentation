@@ -90,7 +90,7 @@ public class MyRecipeProvider extends RecipeProvider {
     public MyRecipeProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider) {
         super(output, lookupProvider);
     }
-    
+
     @Override
     protected void buildRecipes(RecipeOutput output) {
         // Register your recipes here.
@@ -107,7 +107,7 @@ public class MyDatagenHandler {
         PackOutput output = generator.getPackOutput();
         ExistingFileHelper existingFileHelper = event.getExistingFileHelper();
         CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
-        
+
         // Register the provider.
         generator.addProvider(
                 // A boolean that determines whether the data should actually be generated.
@@ -152,7 +152,7 @@ All arguments can be added to the run configurations by adding the following to 
 ```groovy
 runs {
     // other run configurations here
-    
+
     data {
         programArguments.addAll '--arg1', 'value1', '--arg2', 'value2', '--all' // boolean args have no value
     }
@@ -164,7 +164,7 @@ For example, to replicate the default arguments, you could specify the following
 ```groovy
 runs {
     // other run configurations here
-    
+
     data {
         programArguments.addAll '--mod', 'examplemod', // insert your own mod id
                 '--output', file('src/generated/resources').getAbsolutePath(),
@@ -207,7 +207,7 @@ runs {
 [particleprovider]: client/particles.md#datagen
 [particles]: client/particles.md
 [predicate]: https://minecraft.wiki/w/Predicate
-[recipeprovider]: server/recipes/datagen.md
+[recipeprovider]: server/recipes/index.md#data-generation
 [recipes]: server/recipes/index.md
 [sides]: ../concepts/sides.md
 [soundprovider]: client/sounds.md#datagen

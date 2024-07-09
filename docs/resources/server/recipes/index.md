@@ -13,7 +13,7 @@ Recipe data files are located at `data/<namespace>/recipes/<path>.json`. For exa
 - The **`RecipeManager`** is a singleton field on the server that holds all loaded recipes.
 - A **`RecipeSerializer`** is basically a wrapper around a [`MapCodec`][codec] and a [`StreamCodec`][streamcodec], both used for serialization.
 - A **`RecipeType`** is the registered type equivalent of a `Recipe`. It is mainly used when looking up recipes by type. As a rule of thumb, different crafting containers should use different `RecipeType`s. For example, the `minecraft:crafting` recipe type covers the `minecraft:crafting_shapeless` and `minecraft:crafting_shapeless` recipe serializers, as well as the special crafting serializers.
-- A **recipe [advancement]** is an advancement responsible for unlocking a recipe in the recipe book. They are not required, and generally neglected by players in favor of recipe viewer mods, however the [recipe data provider][recipeprovider] generates them for you, so it's recommended to just roll with it.
+- A **recipe [advancement]** is an advancement responsible for unlocking a recipe in the recipe book. They are not required, and generally neglected by players in favor of recipe viewer mods, however the [recipe data provider][datagen] generates them for you, so it's recommended to just roll with it.
 
 ## JSON Specification
 
@@ -333,7 +333,7 @@ public class RightClickBlockRecipe implements Recipe<RightClickBlockInput> {
 
 ### The Crafting Mechanic
 
-Now that all parts of your recipe are complete, you can make yourself some recipe JSONs (see the [datagen] article for that) and then query the recipe manager for your recipes, like above. What you then do with the recipe is up to you. A common use case would be a machine that can process your recipes, storing the active recipe as a field.
+Now that all parts of your recipe are complete, you can make yourself some recipe JSONs (see the [datagen] section for that) and then query the recipe manager for your recipes, like above. What you then do with the recipe is up to you. A common use case would be a machine that can process your recipes, storing the active recipe as a field.
 
 In our case, however, we want to apply the recipe when an item is right-clicked on a block. We will do so using an [event handler][event]. Keep in mind that this is an example implementation, and you can alter this in any way you like (so long as you run it on the server).
 
@@ -376,10 +376,6 @@ public static void useItemOnBlock(UseItemOnBlockEvent event) {
 }
 ```
 
-### Data Generation
-
-TODO
-
 ### Extending the Crafting Grid Size
 
 The `ShapedRecipePattern` class, responsible for holding the in-memory representation of shaped crafting recipes, has a hardcoded limit of 3x3 slots, hindering mods that want to add larger crafting tables while reusing the vanilla shaped crafting recipe type. To solve this problem, NeoForge patches in a static method called `ShapedRecipePattern#setCraftingSize(int width, int height)` that allows increasing the limit. The biggest value wins here, so for example if one mod added a 4x6 crafting table and another added a 6x5 crafting table, the resulting values would be 6x6.
@@ -388,17 +384,61 @@ The `ShapedRecipePattern` class, responsible for holding the in-memory represent
 `ShapedRecipePattern#setCraftingSize` is not thread-safe. It must be wrapped in an `event#enqueueWork` call.
 :::
 
+## Data Generation
+
+Like most other JSON files, recipes can be datagenned. For recipes, we want to extend the `RecipeProvider` class and override `#buildRecipes`:
+
+```java
+public class MyRecipeProvider extends RecipeProvider {
+    // Get the parameters from GatherDataEvent.
+    public MyRecipeProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider) {
+        super(output, registries);
+    }
+
+    @Override
+    protected void buildRecipes(RecipeOutput output) {
+        // Add your recipes here.
+    }
+}
+```
+
+Of note is the `RecipeOutput` parameter of `#buildRecipes`. Minecraft uses this object to automatically generate a recipe advancement for you. On top of that, NeoForge injects [conditions] support into `RecipeOutput`, which can be called on via `#withConditions`.
+
+Recipes themselves are commonly added through subclasses of `RecipeBuilder`. Listing all vanilla recipe builders is beyond the scope of this article (they are explained in the [Built-In Recipe Types article][builtin]), however creating your own builder is explained [below][customdatagen].
+
+Like all other data providers, recipe providers must be registered to `GatherDataEvent` like so:
+
+```java
+@SubscribeEvent
+public static void gatherData(GatherDataEvent event) {
+    DataGenerator generator = event.getGenerator();
+    PackOutput output = generator.getPackOutput();
+    CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
+
+    // other providers here
+    generator.addProvider(
+            event.includeServer(),
+            new MyRecipeProvider(output, lookupProvider)
+    );
+}
+```
+
+### Data Generation for Custom Recipes
+
+TODO
+
 [advancement]: ../advancements.md
 [brewing]: ../../../items/mobeffects.md
 [builtin]: builtin.md
 [cancel]: ../../../concepts/events.md#cancellable-events
 [codec]: ../../../datastorage/codecs.md
+[conditions]: ../conditions.md
+[customdatagen]: #data-generation-for-custom-recipes
 [customrecipes]: #custom-recipes
-[datagen]: datagen.md
+[datagen]: #data-generation
 [event]: ../../../concepts/events.md
 [ingredients]: ingredients.md
 [manager]: #using-recipes
-[recipeprovider]: datagen.md
 [registry]: ../../../concepts/registries.md
 [streamcodec]: ../../../networking/streamcodecs.md
 [tags]: ../tags.md

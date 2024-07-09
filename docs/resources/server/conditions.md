@@ -186,11 +186,13 @@ While any datapack JSON file can use load conditions, only a few [data providers
 - [`DataMapProvider`][datamapprovider]
 - [`GlobalLootModifierProvider`][glmprovider]
 
+For the conditions themselves, the `IConditionBuilder` interface provides static helpers for each of the built-in condition types that return the corresponding `ICondition`s.
+
 [codec]: ../../datastorage/codecs
 [datagen]: ../index.md#data-generation
 [datamapprovider]: datamaps/index.md#data-generation
 [glmprovider]: loottables/glm.md#datagen
 [loottable]: loottables/index.md
-[recipeprovider]: recipes/datagen.md
+[recipeprovider]: recipes/index.md#data-generation
 [register]: ../../concepts/registries
 [tag]: tags.md

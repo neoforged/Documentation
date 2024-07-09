@@ -138,6 +138,6 @@ public IngredientType<?> getType() {
 [type]: #ingredienttype
 [registering]: ../../../concepts/registries.md
 [codec]: ../../../datastorage/codecs.md
-[datagen]: datagen.md
+[datagen]: index.md#data-generation
 [datacomponents]: ../../../items/datacomponents.md
 [streamcodec]: ../../../networking/streamcodecs.md
