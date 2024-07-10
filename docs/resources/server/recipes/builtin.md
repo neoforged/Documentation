@@ -133,6 +133,10 @@ ShapelessRecipeBuilder.shapeless(RecipeCategory.COMBAT, Items.IRON_PICKAXE)
 
 Additionally, you can call `#group` to set the recipe book group.
 
+:::info
+One-item recipes (e.g. storage blocks unpacking) should be shapeless recipes to follow vanilla standards.
+:::
+
 ### Special Crafting
 
 In some cases, outputs must be created dynamically from inputs. Most of the time, this is to set data components on the output by copying or calculating their values from the input stacks. These recipes usually only specify the type and hardcode everything else. For example:
@@ -174,7 +178,7 @@ Vanilla provides the following special crafting serializers (mods may add more):
 
 ## Furnace-like Recipes
 
-All recipes made in furnaces (type `minecraft:smelting`), smokers (`minecraft:smoking`), blast furnaces (`minecraft:blasting`) and campfires (`minecraft:campfire_cooking`) use the same format:
+The second most important group of recipes are the ones made through smelting or a similar process. All recipes made in furnaces (type `minecraft:smelting`), smokers (`minecraft:smoking`), blast furnaces (`minecraft:blasting`) and campfires (`minecraft:campfire_cooking`) use the same format:
 
 ```json5
 {
@@ -223,13 +227,142 @@ SimpleCookingRecipeBuilder.smelting(
         .save(p_301191_, "dried_kelp_smelting");
 ```
 
+:::info
+The recipe type for these recipes is the same as their recipe serializer, i.e. furnaces use `minecraft:smelting`, smokers use `minecraft:smoking`, and so on.
+:::
+
 ## Stonecutting
 
-TODO
+Stonecutter recipes use the `minecraft:stonecutting` recipe type. They are about as simple as it gets, with only a type, an input and an output:
+
+```json5
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": {
+    "item": "minecraft:andesite"
+  },
+  "result": {
+    "count": 2,
+    "id": "minecraft:andesite_slab"
+  }
+}
+```
+
+The `type` defines the recipe serializer (`minecraft:stonecutting`). The ingredient is an [ingredient], and the result is a basic [item stack JSON][itemjson]. Like crafting recipes, they can also optionally specify a `group` for grouping in the recipe book.
+
+Datagen is also simple:
+
+```java
+SingleItemRecipeBuilder.stonecutting(Ingredient.of(Items.ANDESITE), RecipeCategory.BUILDING_BLOCKS, Items.ANDESITE_SLAB, 2)
+        .unlockedBy("has_andesite", has(Items.ANDESITE))
+        .save(output, "andesite_slab_from_andesite_stonecutting");
+```
+
+Note that the single item recipe builder does not support actual ItemStack results, and as such, no results with data components. The recipe codec, however, does support them, so a custom builder would need to be implemented if this functionality was desired.
 
 ## Smithing
 
-TODO
+The smithing table supports two different recipe serializers. One is for transforming inputs into outputs, copying over the components of the input (such as enchantments), and the other is for applying components to the input. Both use the `minecraft:smithing` recipe type, and require three inputs, named the base, the template, and the addition item.
+
+### Transform Smithing
+
+This recipe serializer is for transforming two input items into one, preserving the data components of the first input. Vanilla uses this mainly for netherite equipment, however any items can be used here:
+
+```json5
+{
+  "type": "minecraft:smithing_transform",
+  "base": {
+    "item": "minecraft:diamond_axe"
+  },
+  "template": {
+    "item": "minecraft:netherite_upgrade_smithing_template"
+  },
+  "addition": {
+    "item": "minecraft:netherite_ingot"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:netherite_axe"
+  }
+}
+```
+
+Let's break this down line by line:
+
+- `type`: This is the id of the recipe serializer, `minecraft:smithing_transform`.
+- `base`: The base [ingredient] of the recipe. Usually, this is some piece of equipment.
+- `template`: The template [ingredient] of the recipe. Usually, this is a smithing template.
+- `addition`: The addition [ingredient] of the recipe. Usually, this is some sort of material, for example a netherite ingot.
+- `result`: The result of the recipe. This is [an item stack's JSON representation][itemjson].
+
+During datagen, call on `SmithingTransformRecipeBuilder#smithing` to add your recipe:
+
+```java
+SmithingTransformRecipeBuilder.smithing(
+        // The template ingredient.
+        Ingredient.of(Items.NETHERITE_UPGRADE_SMITHING_TEMPLATE),
+        // The base ingredient.
+        Ingredient.of(Items.DIAMOND_AXE),
+        // The addition ingredient.
+        Ingredient.of(Items.NETHERITE_INGOT),
+        // The recipe book category.
+        RecipeCategory.TOOLS,
+        // The result item. Note that while the recipe codec accepts an item stack here, the builder does not.
+        // If you need an item stack output, you need to use your own builder.
+        Items.NETHERITE_AXE
+)
+        // The recipe advancement, like with the other recipes above.
+        .unlocks("has_netherite_ingot", has(Items.NETHERITE_INGOT))
+        // This overload of #save allows us to specify a name.
+        .save(output, "netherite_axe_smithing");
+```
+
+### Trim Smithing
+
+Trim smithing is the process of applying armor trims to armor:
+
+```json5
+{
+  "type": "minecraft:smithing_trim",
+  "addition": {
+    "tag": "minecraft:trim_materials"
+  },
+  "base": {
+    "tag": "minecraft:trimmable_armor"
+  },
+  "template": {
+    "item": "minecraft:bolt_armor_trim_smithing_template"
+  }
+}
+```
+
+Again, let's break this down into its bits:
+
+- `type`: This is the id of the recipe serializer, `minecraft:smithing_trim`.
+- `base`: The base [ingredient] of the recipe. All vanilla use cases use the `minecraft:trimmable_armor` tag here.
+- `template`: The template [ingredient] of the recipe. All vanilla use cases use a smithing trim template here.
+- `addition`: The addition [ingredient] of the recipe. All vanilla use cases use the `minecraft:trim_materials` tag here.
+
+This recipe serializer is notably missing a result field. This is because it uses the base input and "applies" the template and addition items on it, i.e., it sets the base's components based on the other inputs and uses the result of that operation as the recipe's result.
+
+During datagen, call on `SmithingTrimRecipeBuilder#smithingTrim` to add your recipe:
+
+```java
+SmithingTrimRecipeBuilder.smithingTrim(
+        // The base ingredient.
+        Ingredient.of(ItemTags.TRIMMABLE_ARMOR),
+        // The template ingredient.
+        Ingredient.of(Items.BOLT_ARMOR_TRIM_SMITHING_TEMPLATE),
+        // The addition ingredient.
+        Ingredient.of(ItemTags.TRIM_MATERIALS),
+        // The recipe book category.
+        RecipeCategory.MISC
+)
+        // The recipe advancement, like with the other recipes above.
+        .unlocks("has_smithing_trim_template", has(Items.BOLT_ARMOR_TRIM_SMITHING_TEMPLATE))
+        // This overload of #save allows us to specify a name. Yes, this name is copied from vanilla.
+        .save(output, "bolt_armor_trim_smithing_template_smithing_trim");
+```
 
 [ingredient]: ingredients.md
 [itemjson]: ../../../items/index.md#json-representation
