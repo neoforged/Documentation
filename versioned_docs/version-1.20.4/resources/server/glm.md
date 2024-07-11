@@ -118,7 +118,7 @@ For ease of convenience, a loot conditions codec has been provided for an easy a
 
 ```java
 // For some DeferredRegister<Codec<? extends IGlobalLootModifier>> REGISTRAR
-public static final RegistryObject<Codec<ExampleModifier>> = REGISTRAR.register("example_codec", () ->
+public static final Supplier<Codec<ExampleModifier>> = REGISTRAR.register("example_codec", () ->
   RecordCodecBuilder.create(
     inst -> LootModifier.codecStart(inst).and(
       inst.group(
