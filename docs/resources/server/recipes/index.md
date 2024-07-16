@@ -14,6 +14,8 @@ Recipe data files are located at `data/<namespace>/recipes/<path>.json`. For exa
 - A **`RecipeSerializer`** is basically a wrapper around a [`MapCodec`][codec] and a [`StreamCodec`][streamcodec], both used for serialization.
 - A **`RecipeType`** is the registered type equivalent of a `Recipe`. It is mainly used when looking up recipes by type. As a rule of thumb, different crafting containers should use different `RecipeType`s. For example, the `minecraft:crafting` recipe type covers the `minecraft:crafting_shapeless` and `minecraft:crafting_shapeless` recipe serializers, as well as the special crafting serializers.
 - A **recipe [advancement]** is an advancement responsible for unlocking a recipe in the recipe book. They are not required, and generally neglected by players in favor of recipe viewer mods, however the [recipe data provider][datagen] generates them for you, so it's recommended to just roll with it.
+- A **`RecipeBuilder`** is used during datagen to create JSON recipes.
+- A **recipe factory** is a method reference used to create a `Recipe` from a `RecipeBuilder`. It can either be a reference to a constructor, or a static builder method, or a functional interface (often named `Factory`) created specifically for this purpose.
 
 ## JSON Specification
 
@@ -378,7 +380,7 @@ public static void useItemOnBlock(UseItemOnBlockEvent event) {
 
 ### Extending the Crafting Grid Size
 
-The `ShapedRecipePattern` class, responsible for holding the in-memory representation of shaped crafting recipes, has a hardcoded limit of 3x3 slots, hindering mods that want to add larger crafting tables while reusing the vanilla shaped crafting recipe type. To solve this problem, NeoForge patches in a static method called `ShapedRecipePattern#setCraftingSize(int width, int height)` that allows increasing the limit. The biggest value wins here, so for example if one mod added a 4x6 crafting table and another added a 6x5 crafting table, the resulting values would be 6x6.
+The `ShapedRecipePattern` class, responsible for holding the in-memory representation of shaped crafting recipes, has a hardcoded limit of 3x3 slots, hindering mods that want to add larger crafting tables while reusing the vanilla shaped crafting recipe type. To solve this problem, NeoForge patches in a static method called `ShapedRecipePattern#setCraftingSize(int width, int height)` that allows increasing the limit. It should be called during `FMLCommonSetupEvent`. The biggest value wins here, so for example if one mod added a 4x6 crafting table and another added a 6x5 crafting table, the resulting values would be 6x6.
 
 :::danger
 `ShapedRecipePattern#setCraftingSize` is not thread-safe. It must be wrapped in an `event#enqueueWork` call.
@@ -427,7 +429,103 @@ The recipe provider also adds helpers for common scenarios, such as `twoByTwoPac
 
 ### Data Generation for Custom Recipes
 
-TODO
+To create a recipe builder for your own recipe serializer(s), you need to implement `RecipeBuilder` and its methods. A common implementation, partially copied from vanilla, would look like this:
+
+```java
+// This class is abstract because there is a lot of per-recipe-serializer logic.
+// It serves the purpose of showing the common part of all (vanilla) recipe builders.
+public abstract class SimpleRecipeBuilder implements RecipeBuilder {
+    // Make the fields protected so our subclasses can use them.
+    protected final ItemStack result;
+    protected final Map<String, Criterion<?>> criteria = new LinkedHashMap<>();
+    @Nullable
+    protected final String group;
+
+    // It is common for constructors to accept the result item stack.
+    // Alternatively, static builder methods are also possible.
+    public SimpleRecipeBuilder(ItemStack result) {
+        this.result = result;
+    }
+
+    // This method adds a criterion for the recipe advancement.
+    @Override
+    public SimpleRecipeBuilder unlockedBy(String name, Criterion<?> criterion) {
+        this.criteria.put(name, criterion);
+        return this;
+    }
+
+    // This method adds a recipe book group. If you do not want to use recipe book groups,
+    // remove the this.group field and make this method no-op (i.e. return this).
+    @Override
+    public SimpleRecipeBuilder group(@Nullable String group) {
+        this.group = group;
+        return this;
+    }
+
+    // Vanilla wants an Item here, not an ItemStack. You still can and should use the ItemStack
+    // for serializing the recipes.
+    @Override
+    public Item getResult() {
+        return this.result.getItem();
+    }
+}
+```
+
+So we have a base for our recipe builder. Now, before we continue with the recipe serializer-dependent part, we should first consider what to make our recipe factory. In our case, it makes sense to use the constructor directly. In other situations, using a static helper or a small functional interface is the way to go.
+
+Utilizing `RightClickBlockRecipe::new` as our recipe builder, and reusing the `SimpleRecipeBuilder` class above, we can create the following recipe builder for `RightClickBlockRecipe`s:
+
+```java
+public class RightClickBlockRecipeBuilder extends SimpleRecipeBuilder {
+    private final BlockState inputState;
+    private final Ingredient inputItem;
+
+    // Since we have exactly one of each input, we pass them to the constructor.
+    // Builders for recipe serializers that have ingredient lists of some sort would usually
+    // initialize an empty list and have #addIngredient or similar methods instead.
+    public RightClickBlockRecipeBuilder(ItemStack result, BlockState inputState, Ingredient inputItem) {
+        super(result);
+        this.inputState = inputState;
+        this.inputItem = inputItem;
+    }
+
+    // Saves a recipe using the given RecipeOutput and id. This method is defined in the RecipeBuilder interface.
+    @Override
+    public void save(RecipeOutput output, ResourceLocation id) {
+        // Build the advancement.
+        Advancement.Builder advancement = output.advancement()
+                .addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(id))
+                .rewards(AdvancementRewards.Builder.recipe(id))
+                .requirements(AdvancementRequirements.Strategy.OR);
+        this.criteria.forEach(advancement::addCriterion);
+        // Our factory parameters are the result, the block state, and the ingredient.
+        RightClickBlockRecipe recipe = factory.apply(this.result, this.inputState, this.inputItem);
+        // Pass the id, the recipe, and the recipe advancement into the RecipeOutput.
+        output.accept(id, recipe, advancement.build(id.withPrefix("recipes/")));
+    }
+}
+```
+
+And now, during datagen, you can call on your recipe builder like any other:
+
+```java
+@Override
+protected void buildRecipes(RecipeOutput output) {
+    new RightClickRecipeBuilder(
+            // Our constructor parameters. This example adds the ever-popular dirt -> diamond conversion.
+            new ItemStack(Items.DIAMOND),
+            Blocks.DIRT.defaultBlockState(),
+            Ingredient.of(Items.APPLE)
+    )
+            .unlockedBy("has_apple", has(Items.APPLE))
+            .save(output);
+    // other recipe builders here
+}
+```
+
+:::note
+It is also possible to have `SimpleRecipeBuilder` be merged into `RightClickBlockRecipeBuilder` (or your own recipe builder), especially if you only have one or two recipe builders. The abstraction here serves to show which parts of the builder are recipe-dependent and which are not.
+:::
 
 [advancement]: ../advancements.md
 [brewing]: ../../../items/mobeffects.md
