@@ -39,7 +39,7 @@ If none of the existing types match what context the recipe will be used within,
 The `RecipeType` instance must then be returned by `Recipe#getType` in the new recipe subtype.
 
 ```java
-// For some RegistryObject<RecipeType> EXAMPLE_TYPE
+// For some Supplier<RecipeType<?>> EXAMPLE_TYPE
 // In ExampleRecipe
 @Override
 public RecipeType<?> getType() {
@@ -62,7 +62,7 @@ fromNetwork | Decodes a `Recipe` from the buffer sent from the server. The recip
 The `RecipeSerializer` instance must then be returned by `Recipe#getSerializer` in the new recipe subtype.
 
 ```java
-// For some RegistryObject<RecipeSerializer> EXAMPLE_SERIALIZER
+// For some Supplier<RecipeSerializer<?>> EXAMPLE_SERIALIZER
 // In ExampleRecipe
 @Override
 public RecipeSerializer<?> getSerializer() {

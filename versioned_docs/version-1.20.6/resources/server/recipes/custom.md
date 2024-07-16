@@ -39,7 +39,7 @@ If none of the existing types match what context the recipe will be used within,
 The `RecipeType` instance must then be returned by `Recipe#getType` in the new recipe subtype.
 
 ```java
-// For some RegistryObject<RecipeType> EXAMPLE_TYPE
+// For some Supplier<RecipeType<?>> EXAMPLE_TYPE
 // In ExampleRecipe
 @Override
 public RecipeType<?> getType() {
