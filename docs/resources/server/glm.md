@@ -119,7 +119,7 @@ For ease of convenience, a loot conditions codec has been provided for an easy a
 
 ```java
 // For some DeferredRegister<MapCodec<? extends IGlobalLootModifier>> REGISTRAR
-public static final Supplier<MapCodec<ExampleModifier>> EXAMPLE_MODIFIER_MAP_CODEC = REGISTRAR.register("example_codec", () ->
+public static final RegistryObject<MapCodec<ExampleModifier>> EXAMPLE_MODIFIER_MAP_CODEC = REGISTRAR.register("example_codec", () ->
     RecordCodecBuilder.mapCodec(
         inst -> LootModifier.codecStart(inst).and(
             inst.group(
