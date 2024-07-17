@@ -182,14 +182,6 @@ public record HasXpLevelCondition(int level) implements LootItemCondition {
     public static final MapCodec<HasXpLevelCondition> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
             Codec.INT.fieldOf("level").forGetter(this::level)
     ).apply(inst, HasXpLevelCondition::new));
-    // Our type instance.
-    public static final LootItemConditionType TYPE = new LootItemConditionType(CODEC);
-
-    // Return our type instance here.
-    @Override
-    public LootItemConditionType getType() {
-        return TYPE;
-    }
     
     // Evaluates the condition here. Get the required loot context parameters from the provided LootContext.
     // In our case, we want the KILLER_ENTITY to have at least our required level.
@@ -207,14 +199,27 @@ public record HasXpLevelCondition(int level) implements LootItemCondition {
 }
 ```
 
-And then, we can register the condition type to the registry:
+We can register the condition type to the registry using the condition's codec:
 
 ```java
 public static final DeferredRegister<LootItemConditionType> LOOT_CONDITION_TYPES =
         DeferredRegister.create(Registries.LOOT_CONDITION_TYPE, ExampleMod.MOD_ID);
 
 public static final Supplier<LootItemConditionType> MIN_XP_LEVEL =
-        LOOT_CONDITION_TYPES.register("min_xp_level", () -> HasXpLevelCondition.TYPE);
+        LOOT_CONDITION_TYPES.register("min_xp_level", () -> new LootItemConditionType(HasXpLevelCondition.CODEC));
+```
+
+After we have done that, we need to override `#getType` in our condition and return the registered type:
+
+```java
+public record HasXpLevelCondition(int level) implements LootItemCondition {
+    // other stuff here
+
+    @Override
+    public LootItemConditionType getType() {
+        return MIN_XP_LEVEL.get();
+    }
+}
 ```
 
 ## Custom Loot Functions
@@ -235,19 +240,11 @@ public class RandomEnchantmentWithLevelFunction extends LootItemConditionalFunct
                     RegistryCodecs.homogeneousList(Registries.ENCHANTMENT).optionalFieldOf("enchantments").forGetter(e -> e.options),
                     Codec.INT.fieldOf("level").forGetter(e -> e.level)
             ).apply(inst, RandomEnchantmentWithLevelFunction::new));
-    // Our loot function type.
-    public static final LootItemFunctionType TYPE = new LootItemFunctionType(CODEC);
     
     public RandomEnchantmentWithLevelFunction(List<LootItemCondition> conditions, Optional<HolderSet<Enchantment>> enchantments, int level) {
         super(conditions);
         this.enchantments = enchantments;
         this.level = level;
-    }
-    
-    // Return our loot function type here.
-    @Override
-    public LootItemFunctionType getType() {
-        return TYPE;
     }
     
     // Run our enchantment application logic. Most of this is copied from EnchantRandomlyFunction#run.
@@ -273,14 +270,27 @@ public class RandomEnchantmentWithLevelFunction extends LootItemConditionalFunct
 }
 ```
 
-And then, we can register the function type to the registry:
+We can then register the function type to the registry using the function's codec:
 
 ```java
 public static final DeferredRegister<LootItemFunctionType> LOOT_FUNCTION_TYPES =
         DeferredRegister.create(Registries.LOOT_FUNCTION_TYPE, ExampleMod.MOD_ID);
 
 public static final Supplier<LootItemFunctionType> RANDOM_ENCHANTMENT_WITH_LEVEL =
-        LOOT_FUNCTION_TYPES.register("random_enchantment_with_level", () -> RandomEnchantmentWithLevelFunction.TYPE);
+        LOOT_FUNCTION_TYPES.register("random_enchantment_with_level", () -> new LootItemFunctionType(RandomEnchantmentWithLevelFunction.CODEC));
+```
+
+After we have done that, we need to override `#getType` in our condition and return the registered type:
+
+```java
+public class RandomEnchantmentWithLevelFunction extends LootItemConditionalFunction {
+    // other stuff here
+
+    @Override
+    public LootItemFunctionType getType() {
+        return RANDOM_ENCHANTMENT_WITH_LEVEL.get();
+    }
+}
 ```
 
 [codec]: ../../../datastorage/codecs.md

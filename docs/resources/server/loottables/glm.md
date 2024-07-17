@@ -120,10 +120,10 @@ public static final MapCodec<MyLootModifier> CODEC = RecordCodecBuilder.mapCodec
 Then, we register the codec to the registry:
 
 ```java
-public static final DeferredRegister<Codec<? extends IGlobalLootModifier>> GLOBAL_LOOT_MODIFIER_SERIALIZERS =
+public static final DeferredRegister<MapCodec<? extends IGlobalLootModifier>> GLOBAL_LOOT_MODIFIER_SERIALIZERS =
         DeferredRegister.create(NeoForgeRegistries.Keys.GLOBAL_LOOT_MODIFIER_SERIALIZERS, ExampleMod.MOD_ID);
 
-public static final Supplier<Codec<MyLootModifier>> MY_LOOT_MODIFIER =
+public static final Supplier<MapCodec<MyLootModifier>> MY_LOOT_MODIFIER =
         GLOBAL_LOOT_MODIFIER_SERIALIZERS.register("my_loot_modifier", () -> MyLootModifier.CODEC);
 ```
 

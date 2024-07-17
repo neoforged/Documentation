@@ -50,6 +50,10 @@ Example:
 }
 ```
 
+:::info
+NeoForge additionally adds the `IItemExtension#getBurnTime` method to be overridden in custom items, overruling this data map. `#getBurnTime` should only be used in scenarios where the datamap does not suffice, for example [data component][datacomponent]-dependent burn times.
+:::
+
 :::warning
 Vanilla adds an implicit burn time of 300 ticks (15 seconds) for `#minecraft:logs` and `#minecraft:planks`, and then hardcodes the removal of crimson and warped items from that. This means that if you add another non-flammable wood, you should add a removal for that wood type's items from this map, like so:
 
@@ -166,4 +170,5 @@ Example:
 }
 ```
 
+[datacomponent]: ../../../items/datacomponents.md
 [datamap]: index.md
