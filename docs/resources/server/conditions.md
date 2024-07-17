@@ -98,9 +98,9 @@ This condition returns true if a mod with the given mod id is loaded, and false 
 
 ```json5
 {
-    "type": "neoforge:mod_loaded",
-    // Returns true if "examplemod" is loaded
-    "modid": "examplemod"
+  "type": "neoforge:mod_loaded",
+  // Returns true if "examplemod" is loaded
+  "modid": "examplemod"
 }
 ```
 
@@ -110,9 +110,9 @@ This condition returns true if an item with the given registry name has been reg
 
 ```json5
 {
-    "type": "neoforge:item_exists",
-    // Returns true if "examplemod:example_item" has been registered
-    "item": "examplemod:example_item"
+  "type": "neoforge:item_exists",
+  // Returns true if "examplemod:example_item" has been registered
+  "item": "examplemod:example_item"
 }
 ```
 
@@ -122,9 +122,9 @@ This condition returns true if the given item [tag] is empty, and false otherwis
 
 ```json5
 {
-    "type": "neoforge:tag_empty",
-    // Returns true if "examplemod:example_tag" is an empty item tag
-    "tag": "examplemod:example_tag"
+  "type": "neoforge:tag_empty",
+  // Returns true if "examplemod:example_tag" is an empty item tag
+  "tag": "examplemod:example_tag"
 }
 ```
 
@@ -156,10 +156,10 @@ public record EntityTagEmptyCondition(TagKey<EntityType<?>> tag) implements ICon
 Conditions are a registry of codecs. As such, we need to [register] our codec, like so:
 
 ```java
-public static final DeferredRegister<Codec<? extends ICondition>> CONDITION_CODECS =
+public static final DeferredRegister<MapCodec<? extends ICondition>> CONDITION_CODECS =
         DeferredRegister.create(NeoForgeRegistries.Keys.CONDITION_CODECS, ExampleMod.MOD_ID);
 
-public static final Supplier<Codec<EntityTagEmptyCondition>> ENTITY_TAG_EMPTY =
+public static final Supplier<MapCodec<EntityTagEmptyCondition>> ENTITY_TAG_EMPTY =
         CONDITION_CODECS.register("entity_tag_empty", () -> EntityTagEmptyCondition.CODEC);
 ```
 

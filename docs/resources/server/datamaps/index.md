@@ -372,8 +372,8 @@ public static void gatherData(GatherDataEvent event) {
 
     // other providers here
     generator.addProvider(
-        event.includeServer(),
-        new MyDataMapProvider(output, lookupProvider)
+            event.includeServer(),
+            new MyDataMapProvider(output, lookupProvider)
     );
 }
 ```

@@ -179,7 +179,7 @@ public class MyAdvancementProvider extends AdvancementProvider {
         // Having multiple generators is purely for organization, all functionality can be achieved with a single generator.
         super(output, lookupProvider, existingFileHelper, List.of(new MyAdvancementGenerator()));
     }
-    
+
     private static final class MyAdvancementGenerator implements AdvancementProvider.AdvancementGenerator {
         @Override
         public void generate(HolderLookup.Provider registries, Consumer<AdvancementHolder> saver, ExistingFileHelper existingFileHelper) {
@@ -262,8 +262,8 @@ public static void gatherData(GatherDataEvent event) {
 
     // other providers here
     generator.addProvider(
-        event.includeServer(),
-        new MyAdvancementProvider(output, lookupProvider, existingFileHelper)
+            event.includeServer(),
+            new MyAdvancementProvider(output, lookupProvider, existingFileHelper)
     );
 }
 ```

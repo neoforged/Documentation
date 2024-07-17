@@ -294,7 +294,7 @@ public class MyLootTableSubProvider implements LootTableSubProvider {
                 .withPool(LootPool.lootPool()
                         // Add a loot pool-level function, similar to above.
                         .apply(...)
-        // Add a loot pool-level condition. This example only rolls the pool if it is raining.
+                        // Add a loot pool-level condition. This example only rolls the pool if it is raining.
                         .when(WeatherCheck.weather().setRaining(true))
                 // Set the amount of rolls and bonus rolls, respectively.
                 // Both of these methods utilize a number provider.

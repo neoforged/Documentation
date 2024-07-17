@@ -22,13 +22,13 @@ Example usage:
 
 ```json5
 {
-   "replace": false, // must be present
-   "entries": [
-      // represents a loot modifier in data/examplemod/loot_modifiers/example_glm_1.json
-      "examplemod:example_glm_1",
-      "examplemod:example_glm_2"
-      // ...
-   ]
+  "replace": false, // must be present
+  "entries": [
+    // represents a loot modifier in data/examplemod/loot_modifiers/example_glm_1.json
+    "examplemod:example_glm_1",
+    "examplemod:example_glm_2"
+    // ...
+  ]
 }
 ```
 

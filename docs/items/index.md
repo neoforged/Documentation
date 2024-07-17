@@ -206,7 +206,7 @@ public static final Supplier<CreativeModeTab> EXAMPLE_TAB = CREATIVE_MODE_TABS.r
 
 ## `ItemLike`
 
-`ItemLike` is an interface, implemented by `Item`s and [`Block`s][block] in vanilla. It defines the method `#asItem`, which returns an item representation of whatever the object actually is: `Item`s just return themselves, while `Block`s return their associated `BlockItem`.
+`ItemLike` is an interface implemented by `Item`s and [`Block`s][block] in vanilla. It defines the method `#asItem`, which returns an item representation of whatever the object actually is: `Item`s just return themselves, while `Block`s return their associated `BlockItem` if available, and `Blocks.AIR` otherwise. `ItemLike`s are used in various contexts where the "origin" of the item isn't important, for example in many [data generators][datagen].
 
 It is also possible to implement `ItemLike` on your custom objects. Simply override `#asItem` and you're good to go.
 
@@ -215,6 +215,7 @@ It is also possible to implement `ItemLike` on your custom objects. Simply overr
 [breaking]: ../blocks/index.md#breaking-a-block
 [creativetabs]: #creative-tabs
 [datacomponents]: ./datacomponents.md
+[datagen]: ../resources/index.md#data-generation
 [food]: #food
 [hunger]: https://minecraft.wiki/w/Hunger#Mechanics
 [interactionpipeline]: interactionpipeline.md
