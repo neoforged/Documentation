@@ -159,27 +159,35 @@ Operations that occur whenever a config is loaded or reloaded can be done using 
 :::caution
 These events are called for all configurations for the mod; the `ModConfig` object provided should be used to denote which configuration is being loaded or reloaded.
 :::
+## Configuration Screen
+
+A mod can use the build-in configuration screen that NeoForge provides. A configuration screen allows users to edit the config values for a mod while in-game without needing to open any files. The screen will automatically parse your registered config files and populate the screen. Mods can extend ConfigurationScreen to change the behavior of the default screen or make their own configuration screen.
+
+A configuration screen can be registered for a mod by registering a `IConfigScreenFactory` extension point during mod construction on the [client][client]:
+```java
+// In the main client mod file
+public ExampleModClient(ModContainer container) {
+    // This will use NeoForge's ConfigurationScreen to display this mod's configs
+    container.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
+}
+```
+
+The configuration screen can be accessed in game by going to the 'Mods' page, selecting the mod from the sidebar, and clicking the 'Config' button. Startup, Common, and Client config options will always be editable at any point. Server configs are only editable in the screen when playing on a world locally. If connected to a server or to another person's LAN world, Server config option will be disabled in the screen.
+
+:::warning
+Be sure to add translations for all configs! After visiting all of the mod's config screen pages and then back out to the mod list, all untranslated config entries that were encountered will be printed to the console. This makes it easier to know what to translate and what the translation keys are. 
+
+You can specify a specific translation key for a config by using the `ModConfigSpec$Builder#translation` method. Example:
+```java
+ConfigValue<T> value = builder.comment("Comment")
+    .translation("modid.configuration.config_value_name")
+    .define("config_value_name", defaultValue);
+```
+:::
 
 [toml]: https://toml.io/
 [nightconfig]: https://github.com/TheElectronWill/night-config
 [configtype]: #configuration-types
 [type]: https://github.com/neoforged/FancyModLoader/blob/1b6af92893464a4f477cab310256639f39d41ea7/loader/src/main/java/net/neoforged/fml/config/ModConfig.java#L81-L114
 [events]: ../concepts/events.md#registering-an-event-handler
-
-## Configuration Screen
-
-A mod can use the build-in configuration screen that NeoForge provides. It will automatically parse your registered config files and populate the screen. Mods can extend ConfigurationScreen to change the behavior of the default screen or make their own configuration screen.
-
-A configuration screen can be registered for a mod by registering a `IConfigScreenFactory` extension point during mod construction on the client:
-```java
-// In the main client mod file
-public ExampleModClient(ModContainer container) {
-    container.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
-}
-```
-
-The configuration screen can be accessed in game by going to the 'Mods' page, selecting the mod from the sidebar, and clicking the 'Config' button.
-
-:::tip
-Be sure to add translations for all configs! After visiting all of the mod's config screen pages and then back out to the mod list, all untranslated config entries that were encountered will be printed to the console. This makes it easier to know what to translate and what the translation keys are.
-:::
+[client]: ../concepts/sides.md#@Mod
