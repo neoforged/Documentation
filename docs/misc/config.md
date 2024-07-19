@@ -190,4 +190,4 @@ ConfigValue<T> value = builder.comment("Comment")
 [configtype]: #configuration-types
 [type]: https://github.com/neoforged/FancyModLoader/blob/1b6af92893464a4f477cab310256639f39d41ea7/loader/src/main/java/net/neoforged/fml/config/ModConfig.java#L81-L114
 [events]: ../concepts/events.md#registering-an-event-handler
-[client]: ../concepts/sides.md#@Mod
+[client]: ../concepts/sides.md#mod
