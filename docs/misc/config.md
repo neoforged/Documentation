@@ -164,9 +164,9 @@ These events are called for all configurations for the mod; the `ModConfig` obje
 
 A configuration screen allows users to edit the config values for a mod while in-game without needing to open any files. The screen will automatically parse your registered config files and populate the screen. 
 
-A mod can use the build-in configuration screen that NeoForge provides. Mods can also extend ConfigurationScreen to change the behavior of the default screen or make their own configuration screen. Or create their own screen from scratch and provide that custom screen to NeoForge through the below extension point.
+A mod can use the built-in configuration screen that NeoForge provides. Mods can extend `ConfigurationScreen` to change the behavior of the default screen or make their own configuration screen. Mods can also create their own screen from scratch and provide that custom screen to NeoForge through the below extension point.
 
-Any configuration screen can be registered for a mod by registering a `IConfigScreenFactory` extension point during mod construction on the [client][client]:
+A configuration screen can be registered for a mod by registering a `IConfigScreenFactory` extension point during mod construction on the [client]:
 ```java
 // In the main client mod file
 public ExampleModClient(ModContainer container) {
@@ -195,4 +195,4 @@ ConfigValue<T> value = builder.comment("Comment")
 [configtype]: #configuration-types
 [type]: https://github.com/neoforged/FancyModLoader/blob/1b6af92893464a4f477cab310256639f39d41ea7/loader/src/main/java/net/neoforged/fml/config/ModConfig.java#L81-L114
 [events]: ../concepts/events.md#registering-an-event-handler
-[client]: ../concepts/sides.md#@Mod
+[client]: ../concepts/sides.md#mod
