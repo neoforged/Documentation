@@ -170,7 +170,7 @@ These events are called for all configurations for the mod; the `ModConfig` obje
 
 A mod can use the build-in configuration screen that NeoForge provides. It will automatically parse your registered config files and populate the screen. Mods can extend ConfigurationScreen to change the behavior of the default screen or make their own configuration screen.
 
-For a mod to opt into having NeoForge's default configuration screen to show up for that mod in then mod list menu, the mod only need to add one line to the mod's client-entry-point:
+A configuration screen can be registered for a mod by registering a `IConfigScreenFactory` extension point during mod construction on the client:
 ```java
 // In the main client mod file
 public ExampleModClient(ModContainer container) {
