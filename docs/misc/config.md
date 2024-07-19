@@ -161,7 +161,7 @@ These events are called for all configurations for the mod; the `ModConfig` obje
 :::
 ## Configuration Screen
 
-A mod can use the build-in configuration screen that NeoForge provides. A configuration screen allows users to edit the config values for a mod while in-game without needing to open any files. The screen will automatically parse your registered config files and populate the screen. Mods can extend ConfigurationScreen to change the behavior of the default screen or make their own configuration screen.
+A mod can use the built-in configuration screen that NeoForge provides. A configuration screen allows users to edit the config values for a mod while in-game without needing to open any files. The screen will automatically parse your registered config files and populate the screen. Mods can extend `ConfigurationScreen` to change the behavior of the default screen or make their own configuration screen.
 
 A configuration screen can be registered for a mod by registering a `IConfigScreenFactory` extension point during mod construction on the [client][client]:
 ```java
