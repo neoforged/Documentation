@@ -178,7 +178,7 @@ public ExampleModClient(ModContainer container) {
 }
 ```
 
-To access the configuration screen in-game, go to the mod list and then select the mod. Click the Config button and the configuation screen will show up.
+The configuration screen can be accessed in game by going to the 'Mods' page, selecting the mod from the sidebar, and clicking the 'Config' button.
 
 :::tip
 Be sure to add translations for all configs! After visiting all of the mod's config screen pages and then back out to the mod list, all untranslated config entries that were encountered will be printed to the console. This makes it easier to know what to translate and what the translation keys are.
