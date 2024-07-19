@@ -28,7 +28,7 @@ Example:
 
 ## `neoforge:furnace_fuels`
 
-Allows configuring item burn times. Note that other in-code methods like `IItemExtension#getBurnTime` will take priority over the data map, so it is recommended that you use the data map for simple, static burn times so that users can configure them. This data map is located at `neoforge/data_maps/item/furnace_fuels.json` and its objects have the following structure:
+Allows configuring item burn times. This data map is located at `neoforge/data_maps/item/furnace_fuels.json` and its objects have the following structure:
 
 ```json5
 {
