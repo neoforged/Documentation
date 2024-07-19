@@ -87,6 +87,7 @@ The values themselves can be obtained using `ConfigValue#get`. The values are ad
     - Additional Components:
         - A supplier that returns a default value to use when a new entry is added in configuration screens.
         - A validator to make sure a deserialized element from the list is valid
+        - (optional) A vaidator to make sure the list does not get too little or too many entries
 
 - **Enum Values**
     - Description: An enum value in the supplied collection
