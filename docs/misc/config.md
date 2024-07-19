@@ -162,9 +162,11 @@ These events are called for all configurations for the mod; the `ModConfig` obje
 :::
 ## Configuration Screen
 
-A mod can use the build-in configuration screen that NeoForge provides. A configuration screen allows users to edit the config values for a mod while in-game without needing to open any files. The screen will automatically parse your registered config files and populate the screen. Mods can extend ConfigurationScreen to change the behavior of the default screen or make their own configuration screen.
+A configuration screen allows users to edit the config values for a mod while in-game without needing to open any files. The screen will automatically parse your registered config files and populate the screen. 
 
-A configuration screen can be registered for a mod by registering a `IConfigScreenFactory` extension point during mod construction on the [client][client]:
+A mod can use the build-in configuration screen that NeoForge provides. Mods can also extend ConfigurationScreen to change the behavior of the default screen or make their own configuration screen. Or create their own screen from scratch and provide that custom screen to NeoForge through the below extension point.
+
+Any configuration screen can be registered for a mod by registering a `IConfigScreenFactory` extension point during mod construction on the [client][client]:
 ```java
 // In the main client mod file
 public ExampleModClient(ModContainer container) {
@@ -173,17 +175,19 @@ public ExampleModClient(ModContainer container) {
 }
 ```
 
-The configuration screen can be accessed in game by going to the 'Mods' page, selecting the mod from the sidebar, and clicking the 'Config' button. Startup, Common, and Client config options will always be editable at any point. Server configs are only editable in the screen when playing on a world locally. If connected to a server or to another person's LAN world, Server config option will be disabled in the screen.
+The configuration screen can be accessed in game by going to the 'Mods' page, selecting the mod from the sidebar, and clicking the 'Config' button. Startup, Common, and Client config options will always be editable at any point. Server configs are only editable in the screen when playing on a world locally. If connected to a server or to another person's LAN world, Server config option will be disabled in the screen. The first page of the config screen for the mod will show every registered config file for players to pick which one to edit.
 
 :::warning
-Be sure to add translations for all configs! After visiting all of the mod's config screen pages and then back out to the mod list, all untranslated config entries that were encountered will be printed to the console. This makes it easier to know what to translate and what the translation keys are. 
+Please add lang file translation for your config entries.
 
-You can specify a specific translation key for a config by using the `ModConfigSpec$Builder#translation` method. Example:
+You can specify a translation key for a config by using the `ModConfigSpec$Builder#translation` method:
 ```java
 ConfigValue<T> value = builder.comment("Comment")
     .translation("modid.configuration.config_value_name")
     .define("config_value_name", defaultValue);
 ```
+
+ To make translating easier, open the configuration screen and visit all of the configs and their subsections. Then back out to the mod list screen. All untranslated config entries that were encountered will be printed to the console at this point. This makes it easier to know what to translate and what the translation keys are. 
 :::
 
 [toml]: https://toml.io/
