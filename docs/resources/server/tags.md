@@ -7,7 +7,9 @@ Any [registry] can have tag files - while blocks and items are the most common u
 Tags are located at `data/<tag_namespace>/tags/<registry_path>/<tag_path>.json` for Minecraft registries, and `data/<tag_namespace>/tags/<registry_namespace>/<registry_path>/<tag_path>.json` for non-Minecraft registries. For example, to modify the `minecraft:planks` item tag, you would place your tag file at `data/minecraft/tags/item/planks.json`.
 
 :::info
-Unlike most other NeoForge data files, NeoForge-added tags do not use the `neoforge` namespace. Instead, they use the `c` namespace (e.g. `c:ingots/gold`). This is because the tags are unified between NeoForge and the Fabric mod loader, at the request of many modders developing on multiple loaders.
+Unlike most other NeoForge data files, NeoForge-added tags do generally not use the `neoforge` namespace. Instead, they use the `c` namespace (e.g. `c:ingots/gold`). This is because the tags are unified between NeoForge and the Fabric mod loader, at the request of many modders developing on multiple loaders.
+
+There are a few exceptions to this rule for some tags that tie closely into NeoForge systems. This includes many [damage type][damagetype] tags, for example.
 :::
 
 Overriding tag files is generally additive instead of replacing. This means that if two datapacks specify tag files with the same id, the contents of both files will be merged (unless otherwise specified). This behavior sets tags apart from most other data files, which instead replace any and all existing values.
@@ -21,7 +23,8 @@ Tag files have the following syntax:
   // The values of the tag.
   "values": [
     // A value object. Must specify the id of the object to add, and whether it is required.
-    // If the entry is required, but the object is not present, the tag will not load.
+    // If the entry is required, but the object is not present, the tag will not load. The "required" field
+    // is technically optional, but when removed, the entry is equivalent to the shorthand below.
     {
       "id": "examplemod:example_ingot",
       "required": false
@@ -75,6 +78,10 @@ public static final TagKey<Block> MY_TAG = TagKey.create(
         ResourceLocation.fromNamespaceAndPath("examplemod", "example_tag")
 );
 ```
+
+:::warning
+Since `TagKey` is a record, its constructor is public. However, the constructor should not be used directly, as doing so can lead to various issues, for example when looking up tag entries.
+:::
 
 We can then use our tag to perform various operations on it. Let's start with the most obvious one: check whether an object is in the tag. The following examples will assume block tags, but the functionality is the exact same for every type of tag (unless otherwise specified):
 
@@ -291,6 +298,7 @@ public class MyAttributeTagsProvider extends TagsProvider<Attribute> {
 `TagsProvider` also exposes the `#getOrCreateRawBuilder` method, returning a `TagBuilder`. A `TagBuilder` allows adding raw `ResourceLocation`s to a tag, which can be useful in some scenarios. The `TagsProvider.TagAppender<T>` class, which is returned by `TagsProvider#tag`, is simply a wrapper around `TagBuilder`.
 :::
 
+[damagetype]: damagetypes.md
 [datagen]: ../index.md#data-generation
 [registry]: ../../concepts/registries.md
 [regkey]: ../../misc/resourcelocation.md#resourcekeys

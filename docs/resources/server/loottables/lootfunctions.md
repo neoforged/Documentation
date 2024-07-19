@@ -15,8 +15,8 @@ Sets a different item to use in the result item stack.
 ```json5
 {
   "function": "minecraft:set_item",
-  // Will only apply if the tool can strip a log like an axe
-  "ability": "axe_strip"
+  // The item to use.
+  "item": "minecraft:dirt"
 }
 ```
 
@@ -787,9 +787,15 @@ This function accepts an `ItemPredicate` that is checked against the `tool` loot
 
 ```json5
 {
-  "function": "minecraft:set_custom_model_data",
+  "function": "minecraft:filtered",
   // The custom model data value to use. This can also be a number provider.
-  "value": 4
+  "item_filter": {
+    "items": [
+      "minecraft:diamond_shovel"
+    ]
+  },
+  // The other loot function to run, as either a loot modifier file or an in-line list of functions.
+  "modifier": "examplemod:example_modifier"
 }
 ```
 

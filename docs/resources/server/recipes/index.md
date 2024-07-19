@@ -9,7 +9,7 @@ Recipe data files are located at `data/<namespace>/recipes/<path>.json`. For exa
 - A **recipe JSON**, or **recipe file**, is a JSON file that is loaded and stored by the `RecipeManager`. It contains info such as the recipe type, the inputs and outputs, as well as additional information (e.g. processing time).
 - A **`Recipe`** holds in-code representations of all JSON fields, alongside the matching logic ("Does this input match the recipe?") and some other properties.
 - A **`RecipeInput`** is a type that provides inputs to a recipe. Comes in several subclasses, e.g. `CraftingInput` or `SingleRecipeInput` (for furnaces and similar).
-- A **recipe ingredient**, or just **ingredient**, is a single input for a recipe (whereas the `RecipeInput` generally represents a collection of multiple ingredients). Ingredients are a very powerful system and as such outlined [in their own article][ingredients].
+- A **recipe ingredient**, or just **ingredient**, is a single input for a recipe (whereas the `RecipeInput` generally represents a collection of inputs to check against a recipe's ingredients). Ingredients are a very powerful system and as such outlined [in their own article][ingredients].
 - The **`RecipeManager`** is a singleton field on the server that holds all loaded recipes.
 - A **`RecipeSerializer`** is basically a wrapper around a [`MapCodec`][codec] and a [`StreamCodec`][streamcodec], both used for serialization.
 - A **`RecipeType`** is the registered type equivalent of a `Recipe`. It is mainly used when looking up recipes by type. As a rule of thumb, different crafting containers should use different `RecipeType`s. For example, the `minecraft:crafting` recipe type covers the `minecraft:crafting_shapeless` and `minecraft:crafting_shapeless` recipe serializers, as well as the special crafting serializers.
@@ -19,13 +19,13 @@ Recipe data files are located at `data/<namespace>/recipes/<path>.json`. For exa
 
 ## JSON Specification
 
-The contents of recipe files vary greatly depending on the selected type. Common to all recipe files are the following two properties:
+The contents of recipe files vary greatly depending on the selected type. Common to all recipe files are the `type` and [`neoforge:conditions`][conditions] properties:
 
 ```json5
 {
   // The recipe type. This maps to an entry in the recipe serializer registry.
   "type": "minecraft:crafting_shaped",
-  // A list of data load conditions. Optional, NeoForge-added. See the Conditions article for more information.
+  // A list of data load conditions. Optional, NeoForge-added. See the article linked above for more information.
   "neoforge:conditions": [ /*...*/ ]
 }
 ```
@@ -34,7 +34,7 @@ A full list of types provided by Minecraft can be found in the [Built-In Recipe 
 
 ## Using Recipes
 
-Recipes are loaded, stored and obtained via the `RecipeManager` class, which is in turn obtained via `ServerLevel#getRecipeManager` or - if you don't have a `ServerLevel` available - `ServerLifecycleHooks.getCurrentServer()#getRecipeManager`. Be aware that all recipe code can only run on the server, as the client generally doesn't know about recipes.
+Recipes are loaded, stored and obtained via the `RecipeManager` class, which is in turn obtained via `ServerLevel#getRecipeManager` or - if you don't have a `ServerLevel` available - `ServerLifecycleHooks.getCurrentServer()#getRecipeManager`. Be aware that while the client has a full copy of the `RecipeManager` for display purposes, recipe logic should always run on the server to avoid sync issues.
 
 The easiest way to get a recipe is by ID:
 
@@ -113,7 +113,7 @@ Recipe viewer mods will generally not pick up these recipes. Support for these m
 
 ### Anvil Recipes
 
-Anvils have two input slots and one output slot. The only vanilla use case is tool repairing and combining, and thus no recipe files are provided. However, the system can be built upon using `AnvilUpdateEvent`. This [event] allows getting the input (left input slot) and material (right input slot) and allows setting an output item stack, as well as the experience cost and the number of materials to consume. The process can also be prevented as a whole by [canceling][cancel] the event.
+Anvils have two input slots and one output slot. The only vanilla use cases are tool repairing, combining and renaming, and since each of these use cases needs special handling, no recipe files are provided. However, the system can be built upon using `AnvilUpdateEvent`. This [event] allows getting the input (left input slot) and material (right input slot) and allows setting an output item stack, as well as the experience cost and the number of materials to consume. The process can also be prevented as a whole by [canceling][cancel] the event.
 
 ```java
 // This example allows repairing a stone pickaxe with a full stack of dirt, consuming half the stack, for 3 levels.
@@ -163,7 +163,7 @@ public record RightClickBlockInput(BlockState state, ItemStack stack) implements
 }
 ```
 
-Recipe inputs don't need to be registered or serialized in any way because they are created on demand. It is not always necessary to create your own, the vanilla ones (`CraftingInput`, `SingleRecipeInput` and `SmithingRecipeInput`) are fine for most use cases.
+Recipe inputs don't need to be registered or serialized in any way because they are created on demand. It is not always necessary to create your own, the vanilla ones (`CraftingInput`, `SingleRecipeInput` and `SmithingRecipeInput`) are fine for many use cases.
 
 Additionally, NeoForge provides the `RecipeWrapper` input, which wraps the `#getItem` and `#size` calls with respect to an `IItemHandler` passed in the constructor. Basically, this means that any grid-based inventory, such as a chest, can be used as a recipe input by wrapping it in a `RecipeWrapper`.
 
@@ -276,25 +276,13 @@ public class RightClickBlockRecipeSerializer implements RecipeSerializer<RightCl
             Ingredient.CODEC.fieldOf("ingredient").forGetter(RightClickBlockRecipe::getInputItem),
             ItemStack.CODEC.fieldOf("result").forGetter(RightClickBlockRecipe::getResult)
     ).apply(inst, RightClickBlockRecipe::new));
-    // Vanilla doesn't have a blockstate stream codec, so we need to add our own.
-    private static final StreamCodec<RegistryFriendlyByteBuf, BlockState> BLOCK_STATE_STREAM_CODEC = StreamCodec.of(
-            (buffer, recipe) -> buffer.writeVarInt(Block.BLOCK_STATE_REGISTRY.getId(recipe.state())),
-            buffer -> Block.BLOCK_STATE_REGISTRY.byId(buffer.readVarInt())
-    );
-    public static final StreamCodec<RegistryFriendlyByteBuf, RightClickBlockRecipe> STREAM_CODEC = StreamCodec.of(
-            (buffer, recipe) -> {
-                // Use our blockstate stream codec.
-                BLOCK_STATE_STREAM_CODEC.encode(buffer, recipe.getInputState());
-                Ingredient.CONTENTS_STREAM_CODEC.encode(buffer, recipe.getInputItem());
-                ItemStack.STREAM_CODEC.encode(buffer, recipe.getResult());
-            },
-            buffer -> {
-                BlockState blockState = BLOCK_STATE_STREAM_CODEC.decode(buffer);
-                Ingredient ingredient = Ingredients.CONTENTS_STREAM_CODEC.decode(buffer);
-                ItemStack result = ItemStack.STREAM_CODEC.decode(buffer);
-                return new RightClickBlockRecipe(blockState, ingredient, result);
-            }
-    );
+    public static final StreamCodec<RegistryFriendlyByteBuf, RightClickBlockRecipe> STREAM_CODEC =
+            StreamCodec.composite(
+                    ByteBufCodecs.idMapper(Block.BLOCK_STATE_REGISTRY), RightClickBlockRecipe::getInputState,
+                    Ingredient.CONTENTS_STREAM_CODEC, RightClickBlockRecipe::getInputItem,
+                    ItemStack.STREAM_CODEC, RightClickBlockRecipe::getResult,
+                    RightClickBlockRecipe::new
+            );
 
     // Return our map codec.
     @Override
@@ -351,7 +339,7 @@ public static void useItemOnBlock(UseItemOnBlockEvent event) {
     BlockState blockState = context.getLevel().getBlockState(pos);
     ItemStack itemStack = context.getItemInHand();
     // If the level is not a server level, return.
-    if (!level.isClientSide()) return;
+    if (level.isClientSide()) return;
     // Create an input and query the recipe.
     RightClickBlockInput input = new RightClickBlockInput(blockState, itemStack);
     Optional<RecipeHolder<? extends Recipe<CraftingInput>>> optional = recipes.getRecipeFor(
@@ -471,9 +459,9 @@ public abstract class SimpleRecipeBuilder implements RecipeBuilder {
 }
 ```
 
-So we have a base for our recipe builder. Now, before we continue with the recipe serializer-dependent part, we should first consider what to make our recipe factory. In our case, it makes sense to use the constructor directly. In other situations, using a static helper or a small functional interface is the way to go.
+So we have a base for our recipe builder. Now, before we continue with the recipe serializer-dependent part, we should first consider what to make our recipe factory. In our case, it makes sense to use the constructor directly. In other situations, using a static helper or a small functional interface is the way to go. This is especially relevant if you use one builder for multiple recipe classes.
 
-Utilizing `RightClickBlockRecipe::new` as our recipe builder, and reusing the `SimpleRecipeBuilder` class above, we can create the following recipe builder for `RightClickBlockRecipe`s:
+Utilizing `RightClickBlockRecipe::new` as our recipe factory, and reusing the `SimpleRecipeBuilder` class above, we can create the following recipe builder for `RightClickBlockRecipe`s:
 
 ```java
 public class RightClickBlockRecipeBuilder extends SimpleRecipeBuilder {
@@ -499,7 +487,7 @@ public class RightClickBlockRecipeBuilder extends SimpleRecipeBuilder {
                 .requirements(AdvancementRequirements.Strategy.OR);
         this.criteria.forEach(advancement::addCriterion);
         // Our factory parameters are the result, the block state, and the ingredient.
-        RightClickBlockRecipe recipe = factory.apply(this.result, this.inputState, this.inputItem);
+        RightClickBlockRecipe recipe = new RightClickBlockRecipe(this.inputState, this.inputItem, this.result);
         // Pass the id, the recipe, and the recipe advancement into the RecipeOutput.
         output.accept(id, recipe, advancement.build(id.withPrefix("recipes/")));
     }

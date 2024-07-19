@@ -43,7 +43,7 @@ public class EntityLootEntry extends LootPoolSingletonContainer {
 }
 ```
 
-Next up, we create a `MapCodec` for our loot table:
+Next up, we create a `MapCodec` for our loot entry:
 
 ```java
 // This is placed as a constant in EntityLootEntry.
@@ -51,7 +51,7 @@ public static final MapCodec<EntityLootEntry> CODEC = RecordCodecBuilder.mapCode
         // Add our own fields.
         inst.group(
                         // A value referencing an entity type id.
-                        ResourceKey.codec(Registries.ENTITY_TYPE).fieldOf("entity").forGetter(e -> e.entity)
+                        BuiltInRegistries.ENTITY_TYPE.holderByNameCodec().fieldOf("entity").forGetter(e -> e.entity)
                 )
                 // Add common fields: weight, display, conditions, and functions.
                 .and(singletonFields(inst))
@@ -237,7 +237,7 @@ public class RandomEnchantmentWithLevelFunction extends LootItemConditionalFunct
     public static final MapCodec<RandomEnchantmentWithLevelFunction> CODEC =
             // #commonFields adds the conditions field.
             RecordCodecBuilder.mapCodec(inst -> commonFields(inst).and(inst.group(
-                    RegistryCodecs.homogeneousList(Registries.ENCHANTMENT).optionalFieldOf("enchantments").forGetter(e -> e.options),
+                    RegistryCodecs.homogeneousList(Registries.ENCHANTMENT).optionalFieldOf("enchantments").forGetter(e -> e.enchantments),
                     Codec.INT.fieldOf("level").forGetter(e -> e.level)
             ).apply(inst, RandomEnchantmentWithLevelFunction::new));
     

@@ -2,7 +2,7 @@
 
 `Ingredient`s are used in [recipes] to check whether a given [`ItemStack`][itemstack] is a valid input for the recipe. For this purpose, `Ingredient` implements `Predicate<ItemStack>`, and `#test` can be called to confirm if a given `ItemStack` matches the ingredient.
 
-The `Ingredient` class is final, which has several drawbacks for us. Most notably, this makes it impossible to extend `Ingredient` for custom ingredient types. NeoForge works around this by introducing the `ICustomIngredient` interface. This is not a direct replacement for regular `Ingredient`s, but we can convert to and from `Ingredient`s using `ICustomIngredient#toVanilla` and `Ingredient#getCustomIngredient`, respectively.
+Unfortunately, many internals of `Ingredient` are a mess. NeoForge works around this by ignoring the `Ingredient` class where possible, instead introducing the `ICustomIngredient` interface for custom ingredients. This is not a direct replacement for regular `Ingredient`s, but we can convert to and from `Ingredient`s using `ICustomIngredient#toVanilla` and `Ingredient#getCustomIngredient`, respectively.
 
 ## Built-In Ingredient Types
 
@@ -26,7 +26,7 @@ Keep in mind that the NeoForge-provided ingredient types are `ICustomIngredient`
 
 ## Custom Ingredient Types
 
-It is possible for modders to add their custom ingredient types through the `ICustomIngredient` system. For the sake of example, let's make an enchanted item ingredient that accepts another ingredient and a map of enchantments to min levels:
+It is possible for modders to add their custom ingredient types through the `ICustomIngredient` system. For the sake of example, let's make an enchanted item ingredient that accepts an item tag and a map of enchantments to min levels:
 
 ```java
 public class MinEnchantedIngredient implements ICustomIngredient {
@@ -69,12 +69,12 @@ public class MinEnchantedIngredient implements ICustomIngredient {
                 .allMatch(ench -> stack.getEnchantmentLevel(ench) >= enchantments.get(ench));
     }
 
-    // Determines whether this ingredient performs NBT or data component matching (true) or not (false).
+    // Determines whether this ingredient performs NBT or data component matching (false) or not (true).
     // Also determines whether a stream codec is used for syncing, more on this later.
     // We query enchantments on the stack, therefore our ingredient is not simple.
     @Override
     public boolean isSimple() {
-        return true;
+        return false;
     }
 
     // Returns a stream of items that match this ingredient. Mostly for display purposes.
@@ -140,7 +140,7 @@ Ingredients that specify a `type` are generally assumed to be non-vanilla. For e
 
 ```json5
 {
-  "type": "block_tag",
+  "type": "neoforge:block_tag",
   "tag": "minecraft:convertable_to_mud"
 }
 ```

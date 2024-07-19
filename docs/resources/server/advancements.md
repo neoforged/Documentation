@@ -2,7 +2,7 @@
 
 Advancements are quest-like tasks that can be achieved by the player. Advancements are awarded based on advancement criteria, and can run behavior when completed.
 
-A new advancement can be added by creating a JSON file in your namespace's `advancements` subfolder. So for example, if we want to add an advancement named `example_name` for a mod with the mod id `examplemod`, it will be located at `data/examplemod/advancement/example_name.json`. An advancement's ID will be relative to the `advancements` directory, so for our example, it would be `examplemod:example_name`. Any name can be chosen, and the advancement will automatically be picked up by the game. Java code is only necessary if you want to add new criteria or trigger a certain criterion from code (see below).
+A new advancement can be added by creating a JSON file in your namespace's `advancement` subfolder. So for example, if we want to add an advancement named `example_name` for a mod with the mod id `examplemod`, it will be located at `data/examplemod/advancement/example_name.json`. An advancement's ID will be relative to the `advancement` directory, so for our example, it would be `examplemod:example_name`. Any name can be chosen, and the advancement will automatically be picked up by the game. Java code is only necessary if you want to add new criteria or trigger a certain criterion from code (see below).
 
 ## Specification
 
@@ -25,7 +25,7 @@ An advancement JSON file may contain the following entries:
   - `recipes`: A list of [recipe] IDs to unlock.
   - `loot`: A list of [loot tables][loottable] to roll and give to the player.
   - `function`: A [function] to run. If you want to run multiple functions, create a wrapper function that runs all other functions.
-- `sends_telemetry_event`: Determines whether telemetry data should be collected when this advancement is completed or not. Optional, defaults to false.
+- `sends_telemetry_event`: Determines whether telemetry data should be collected when this advancement is completed or not. Only actually does anything if in the `minecraft` namespace. Optional, defaults to false.
 - `neoforge:conditions`: NeoForge-added. A list of [conditions] that must be passed for the advancement to be loaded. Optional.
 
 ### Advancement Trees
@@ -152,7 +152,7 @@ public void performExampleAction(ServerPlayer player, additionalContextParameter
 
 ## Data Generation
 
-Advancements can be [datagenned][datagen] using an `AdvancementProvider`. An `AdvancementProvider` accepts a list of `AdvancementSubProvider`s, which actually generate the advancements using `Advancement.Builder`.
+Advancements can be [datagenned][datagen] using an `AdvancementProvider`. An `AdvancementProvider` accepts a list of `AdvancementGenerator`s, which actually generate the advancements using `Advancement.Builder`.
 
 :::warning
 Both Minecraft and NeoForge provide a class named `AdvancementProvider`, located at `net.minecraft.data.advancements.AdvancementProvider` and `net.neoforged.neoforge.common.data.AdvancementProvider`, respectively. The NeoForge class is an improvement on the one Minecraft provides, and should always be used in favor of the Minecraft one. The following documentation always assumes usage of the NeoForge `AdvancementProvider` class.
@@ -201,7 +201,7 @@ To generate an advancement, you want to use an `Advancement.Builder`:
 Advancement.Builder builder = Advancement.Builder.advancement();
 
 // Sets the parent of the advancement. You can use another advancement you have already generated,
-// or create a placeholder advancement using the static AdvancementBuilder#createPlaceholder method.
+// or create a placeholder advancement using the static AdvancementSubProvider#createPlaceholder method.
 builder.parent(AdvancementSubProvider.createPlaceholder("minecraft:story/root"));
 
 // Sets the display properties of the advancement. This can either be a DisplayInfo object,

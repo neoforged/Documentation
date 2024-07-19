@@ -2,9 +2,9 @@
 
 A damage type denotes what kind of damage is being applied to an entity - physical damage, fire damage, drowning damage, magic damage, void damage, etc. The distinction into damage types is used for various immunities (e.g. blazes won't take fire damage), enchantments (e.g. blast protection will only protect against explosion damage), and many more use cases.
 
-A damage type is a template for a damage source, so to speak. Or in other words, a damage source can be viewed as a damage type instance. Damage types are registered in code, but have all of their properties defined in data packs. Damage sources, on the other hand, are created as needed by the game, based off the values in the data pack files. They can hold additional context, for example the attacking entity.
+A damage type is a template for a damage source, so to speak. Or in other words, a damage source can be viewed as a damage type instance. Damage types exist as [`ResourceKey`s][rk] in code, but have all of their properties defined in data packs. Damage sources, on the other hand, are created as needed by the game, based off the values in the data pack files. They can hold additional context, for example the attacking entity.
 
-## Registering Damage Types
+## Creating Damage Types
 
 To get started, you want to create your own `DamageType`. `DamageType`s are a [datapack registry][dr], and as such, new `DamageType`s are not registered in code, but are registered automatically when the corresponding files are added. However, we still need to provide some point for the code to get the damage sources from. We do so by specifying a [resource key][rk]:
 
