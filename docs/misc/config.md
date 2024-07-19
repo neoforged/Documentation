@@ -85,6 +85,7 @@ The values themselves can be obtained using `ConfigValue#get`. The values are ad
     - Class Type: `List<T>`
     - Method Name: `#defineList`, `#defineListAllowEmpty` if list can be empty
     - Additional Components:
+        - A supplier that returns a default value to use when a new entry is added in configuration screens.
         - A validator to make sure a deserialized element from the list is valid
 
 - **Enum Values**
@@ -164,3 +165,21 @@ These events are called for all configurations for the mod; the `ModConfig` obje
 [configtype]: #configuration-types
 [type]: https://github.com/neoforged/FancyModLoader/blob/1b6af92893464a4f477cab310256639f39d41ea7/loader/src/main/java/net/neoforged/fml/config/ModConfig.java#L81-L114
 [events]: ../concepts/events.md#registering-an-event-handler
+
+## Configuration Screen
+
+A mod can use the build-in configuration screen that NeoForge provides. It will automatically parse your registered config files and populate the screen. Mods can extend ConfigurationScreen to change the behavior of the default screen or make their own configuration screen.
+
+For a mod to opt into having NeoForge's default configuration screen to show up for that mod in then mod list menu, the mod only need to add one line to the mod's client-entry-point:
+```java
+// In the main client mod file
+public ExampleModClient(ModContainer container) {
+    container.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
+}
+```
+
+To access the configuration screen in-game, go to the mod list and then select the mod. Click the Config button and the configuation screen will show up.
+
+:::tip
+Be sure to add translations for all configs! After visiting all of the mod's config screen pages and then back out to the mod list, all untranslated config entries that were encountered will be printed to the console. This makes it easier to know what to translate and what the translation keys are.
+:::
