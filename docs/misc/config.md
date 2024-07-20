@@ -187,7 +187,7 @@ ConfigValue<T> value = builder.comment("Comment")
     .define("config_value_name", defaultValue);
 ```
 
- To make translating easier, open the configuration screen and visit all of the configs and their subsections. Then back out to the mod list screen. All untranslated config entries that were encountered will be printed to the console at this point. This makes it easier to know what to translate and what the translation keys are. 
+To make translating easier, open the configuration screen and visit all of the configs and their subsections. Then back out to the mod list screen. All untranslated config entries that were encountered will be printed to the console at this point. This makes it easier to know what to translate and what the translation keys are. 
 :::
 
 [toml]: https://toml.io/
