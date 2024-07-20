@@ -178,7 +178,7 @@ public ExampleModClient(ModContainer container) {
 The configuration screen can be accessed in game by going to the 'Mods' page, selecting the mod from the sidebar, and clicking the 'Config' button. Startup, Common, and Client config options will always be editable at any point. Server configs are only editable in the screen when playing on a world locally. If connected to a server or to another person's LAN world, Server config option will be disabled in the screen. The first page of the config screen for the mod will show every registered config file for players to pick which one to edit.
 
 :::warning
-Please add lang file translation for your config entries.
+Translation keys should be added and specified within the lang JSON for all config entries.
 
 You can specify a translation key for a config by using the `ModConfigSpec$Builder#translation` method:
 ```java
