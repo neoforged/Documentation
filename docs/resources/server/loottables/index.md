@@ -78,7 +78,7 @@ Modders can also register [custom number providers][customnumber] and [custom le
 
 ## Loot Parameters
 
-A loot parameter, known internally as a `LootContextParam<T>`, is a parameter provided to a loot table when rolled. They can be used by [loot conditions][lootcondition] and [loot functions][lootfunction]. For example, the `minecraft:killed_by_player` loot condition checks for the presence of the `minecraft:player` parameter.
+A loot parameter, known internally as a `LootContextParam<T>`, is a parameter provided to a loot table when rolled, where `T` is the type of the provided parameter, for example `BlockPos` or `Entity`. They can be used by [loot conditions][lootcondition] and [loot functions][lootfunction]. For example, the `minecraft:killed_by_player` loot condition checks for the presence of the `minecraft:player` parameter.
 
 Minecraft provides the following loot parameters:
 

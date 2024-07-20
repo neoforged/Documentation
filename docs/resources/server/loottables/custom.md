@@ -180,7 +180,7 @@ To get started, we create our loot item condition class that implements `LootIte
 public record HasXpLevelCondition(int level) implements LootItemCondition {
     // Add the context we need for this condition. In our case, this will be the xp level the player must have.
     public static final MapCodec<HasXpLevelCondition> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
-            Codec.INT.fieldOf("level").forGetter(this::level)
+            Codec.INT.fieldOf("level").forGetter(HasXpLevelCondition::level)
     ).apply(inst, HasXpLevelCondition::new));
     
     // Evaluates the condition here. Get the required loot context parameters from the provided LootContext.
