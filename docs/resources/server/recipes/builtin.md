@@ -112,7 +112,7 @@ And then, let's have a look at how you'd generate this recipe:
 // We use a builder pattern, therefore no variable is created. Create a new builder by calling
 // ShapelessRecipeBuilder#shapeless with the recipe category (found in the RecipeCategory enum)
 // and a result item, a result item and count, or a result item stack.
-ShapelessRecipeBuilder.shapeless(RecipeCategory.COMBAT, Items.IRON_PICKAXE)
+ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, Items.MUSHROOM_STEW)
         // Add the recipe ingredients. This can either accept Ingredients, TagKey<Item>s or ItemLikes.
         // Overloads also exist that additionally accept a count, adding the same ingredient multiple times.
         .requires(Blocks.BROWN_MUSHROOM)
