@@ -50,7 +50,7 @@ And then, let's have a look at how you'd generate this recipe:
 // We use a builder pattern, therefore no variable is created. Create a new builder by calling
 // ShapedRecipeBuilder#shaped with the recipe category (found in the RecipeCategory enum)
 // and a result item, a result item and count, or a result item stack.
-ShapedRecipeBuilder.shaped(RecipeCategory.EQUIPMENT, Items.IRON_PICKAXE)
+ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, Items.IRON_PICKAXE)
         // Create the lines of your pattern. Each call to #pattern adds a new line.
         // Patterns will be validated, i.e. their shape will be checked.
         .pattern("XXX")
