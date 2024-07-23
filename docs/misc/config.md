@@ -85,7 +85,9 @@ The values themselves can be obtained using `ConfigValue#get`. The values are ad
     - Class Type: `List<T>`
     - Method Name: `#defineList`, `#defineListAllowEmpty` if list can be empty
     - Additional Components:
+        - A supplier that returns a default value to use when a new entry is added in configuration screens.
         - A validator to make sure a deserialized element from the list is valid
+        - (optional) A vaidator to make sure the list does not get too little or too many entries
 
 - **Enum Values**
     - Description: An enum value in the supplied collection
@@ -158,9 +160,39 @@ Operations that occur whenever a config is loaded or reloaded can be done using 
 :::caution
 These events are called for all configurations for the mod; the `ModConfig` object provided should be used to denote which configuration is being loaded or reloaded.
 :::
+## Configuration Screen
+
+A configuration screen allows users to edit the config values for a mod while in-game without needing to open any files. The screen will automatically parse your registered config files and populate the screen. 
+
+A mod can use the built-in configuration screen that NeoForge provides. Mods can extend `ConfigurationScreen` to change the behavior of the default screen or make their own configuration screen. Mods can also create their own screen from scratch and provide that custom screen to NeoForge through the below extension point.
+
+A configuration screen can be registered for a mod by registering a `IConfigScreenFactory` extension point during mod construction on the [client]:
+```java
+// In the main client mod file
+public ExampleModClient(ModContainer container) {
+    // This will use NeoForge's ConfigurationScreen to display this mod's configs
+    container.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
+}
+```
+
+The configuration screen can be accessed in game by going to the 'Mods' page, selecting the mod from the sidebar, and clicking the 'Config' button. Startup, Common, and Client config options will always be editable at any point. Server configs are only editable in the screen when playing on a world locally. If connected to a server or to another person's LAN world, Server config option will be disabled in the screen. The first page of the config screen for the mod will show every registered config file for players to pick which one to edit.
+
+:::warning
+Translation keys should be added and specified within the lang JSON for all config entries.
+
+You can specify a translation key for a config by using the `ModConfigSpec$Builder#translation` method:
+```java
+ConfigValue<T> value = builder.comment("Comment")
+    .translation("modid.configuration.config_value_name")
+    .define("config_value_name", defaultValue);
+```
+
+To make translating easier, open the configuration screen and visit all of the configs and their subsections. Then back out to the mod list screen. All untranslated config entries that were encountered will be printed to the console at this point. This makes it easier to know what to translate and what the translation keys are. 
+:::
 
 [toml]: https://toml.io/
 [nightconfig]: https://github.com/TheElectronWill/night-config
 [configtype]: #configuration-types
 [type]: https://github.com/neoforged/FancyModLoader/blob/1b6af92893464a4f477cab310256639f39d41ea7/loader/src/main/java/net/neoforged/fml/config/ModConfig.java#L81-L114
 [events]: ../concepts/events.md#registering-an-event-handler
+[client]: ../concepts/sides.md#mod
