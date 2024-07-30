@@ -120,10 +120,14 @@ Finally, we must associate our particle type with a texture. Similar to how item
 }
 ```
 
-Note that a particle definition file is only necessary when using a sprite set particle. Single sprite particles directly map to the texture file at `assets/<namespace>/textures/particle/<particle_name>.png`, and special particle providers can do whatever you want anyway.
+A particle definition are required when using a particle that takes in a `SpriteSet`, which is done when registering a particle provider via `registerSpriteSet` or `registerSprite`. They must **not** be provided for particle providers registered via `#registerSpecial`.
 
 :::danger
 A mismatched list of sprite set particle factories and particle definition files, i.e. a particle description without a corresponding particle factory, or vice versa, will throw an exception!
+:::
+
+:::note
+While particle descriptions must have providers registered a certain way, they are only used if the `ParticleRenderType` (set via `Particle#getRenderType`) uses the `TextureAtlas#LOCATION_PARTICLES` as the shader texture. For vanilla render types, these are `PARTICLE_SHEET_OPAQUE`, `PARTICLE_SHEET_TRANSLUCENT`, and `PARTICLE_SHEET_LIT`.
 :::
 
 ### Datagen
