@@ -57,12 +57,12 @@ Each menu should contain two constructors: one used to initialize the menu on th
 
 ```java
 // Client menu constructor
-public MyMenu(int containerId, Inventory playerInventory) {
-  this(containerId, playerInventory);
+public MyMenu(int containerId, Inventory playerInventory) { // optional FriendlyByteBuf parameter if reading data from server
+  this(containerId, playerInventory, /* Any default parameters here */);
 }
 
 // Server menu constructor
-public MyMenu(int containerId, Inventory playerInventory) {
+public MyMenu(int containerId, Inventory playerInventory, /* Any additional parameters here. */) {
   // ...
 }
 ```
