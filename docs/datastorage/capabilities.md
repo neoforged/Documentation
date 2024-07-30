@@ -1,3 +1,6 @@
+---
+sidebar_position: 5
+---
 # Capabilities
 
 Capabilities allow exposing features in a dynamic and flexible way without having to resort to directly implementing many interfaces.

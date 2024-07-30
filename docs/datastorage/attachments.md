@@ -1,3 +1,6 @@
+---
+sidebar_position: 3
+---
 # Data Attachments
 
 The data attachment system allows mods to attach and store additional data on block entities, chunks, and entities.
