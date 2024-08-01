@@ -1,3 +1,6 @@
+---
+sidebar_position: 3
+---
 # Tools & Armor
 
 Tools are [items][item] whose primary use is to break [blocks][block]. Many mods add new tool sets (for example copper tools) or new tool types (for example hammers).

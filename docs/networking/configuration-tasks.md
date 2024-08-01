@@ -1,3 +1,6 @@
+---
+sidebar_position: 3
+---
 # Using Configuration Tasks
 
 The networking protocol for the client and server has a specific phase where the server can configure the client before the player actually joins the game. This phase is called the configuration phase, and is for example used by the vanilla server to send the resource pack information to the client.

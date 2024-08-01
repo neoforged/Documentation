@@ -1,3 +1,6 @@
+---
+sidebar_position: 5
+---
 # BlockEntityWithoutLevelRenderer
 
 `BlockEntityWithoutLevelRenderer` is a method to handle dynamic rendering on items.

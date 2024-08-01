@@ -1,3 +1,6 @@
+---
+sidebar_position: 1
+---
 # Named Binary Tag (NBT)
 
 NBT is a format introduced in the earliest days of Minecraft, written by Notch himself. It is widely used throughout the Minecraft codebase for data storage.

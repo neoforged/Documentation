@@ -1,3 +1,6 @@
+---
+sidebar_position: 4
+---
 # Entities
 
 In addition to regular network messages, there are various other systems provided to handle synchronizing entity data.

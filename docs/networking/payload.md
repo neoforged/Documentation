@@ -1,3 +1,6 @@
+---
+sidebar_position: 1
+---
 # Registering Payloads
 
 Payloads are a way to send arbitrary data between the client and the server. They are registered using the `PayloadRegistrar` from the `RegisterPayloadHandlersEvent` event.
