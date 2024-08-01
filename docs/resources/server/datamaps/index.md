@@ -325,7 +325,7 @@ public class MyDataMapProvider extends DataMapProvider {
                 // the "replace" field, which should always be false in a mod.
                 .add(ItemTags.SLABS, new ExampleData(10, 1), false)
                 // We add the value "amount": 5, "chance": 0.2 for apples.
-                .add(Items.APPLE, new ExampleData(5, 0.2f), false)
+                .add(Items.APPLE.builtInRegistryHolder(), new ExampleData(5, 0.2f), false) // Can also use Registry#wrapAsHolder to get the holder of a registry object
                 // We remove wooden slabs again.
                 .remove(ItemTags.WOODEN_SLABS)
                 // We add a mod loaded condition for Botania, because why not.
