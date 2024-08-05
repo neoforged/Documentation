@@ -120,7 +120,7 @@ Finally, we must associate our particle type with a texture. Similar to how item
 }
 ```
 
-A particle definition are required when using a particle that takes in a `SpriteSet`, which is done when registering a particle provider via `registerSpriteSet` or `registerSprite`. They must **not** be provided for particle providers registered via `#registerSpecial`.
+A particle definition is required when using a particle that takes in a `SpriteSet`, which is done when registering a particle provider via `registerSpriteSet` or `registerSprite`. They must **not** be provided for particle providers registered via `#registerSpecial`.
 
 :::danger
 A mismatched list of sprite set particle factories and particle definition files, i.e. a particle description without a corresponding particle factory, or vice versa, will throw an exception!
