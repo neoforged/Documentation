@@ -30,8 +30,7 @@ public static ModConfigSpec configSpec;
 //Configure the config once the class is loaded
 static {
     Pair<ExampleConfig, ModConfigSpec> pair =
-        new ModConfigSpec.Builder()
-            .configure(ExampleConfig::new);
+            new ModConfigSpec.Builder().configure(ExampleConfig::new);
         
     //Store the resulting values
     config = pair.getLeft();
