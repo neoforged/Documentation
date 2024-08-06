@@ -336,7 +336,7 @@ public class MyBlockLootSubProvider extends BlockLootSubProvider {
         // we use our block registry and just pass an empty set here.
         // The second parameter is the feature flag set, this will be the default flags
         // unless you are adding custom flags (which is beyond the scope of this article).
-        super(Set.of(), FeatureFlags.DEFAULT_FLAGS);
+        super(Set.of(), FeatureFlags.DEFAULT_FLAGS, lookupProvider);
     }
 
     // The contents of this Iterable are used for validation.
