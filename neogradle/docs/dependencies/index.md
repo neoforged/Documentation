@@ -1,44 +1,23 @@
-Dependencies
-============
+# Dependencies
 
 Dependencies are not only used to develop interoperability between mods or add additional libraries to the game, but it also determines what version of Minecraft to develop for. This will provide a quick overview on how to modify the `repositories` and `dependencies` block to add dependencies to your development environment.
 
 > This will not explain Gradle concepts in depth. It is highly recommended to read the [Gradle Dependency Management guide][guide] before continuing.
 
-`minecraft`
------------
+## Mod Dependencies
 
-The `minecraft` dependency specifies the version of Minecraft to use and must be included in the `dependencies` block. Any artifact, except artifacts which have the group `net.minecraft`, will apply any patches provided with the dependency. This typically only specifies the `net.minecraftforge:forge` artifact.
-
-```gradle
-dependencies {
-    // Version of Forge artifact is in the form '<mc_version>-<forge_version>'
-    // 'mc_version' is the version of Minecraft to load (e.g., 1.19.4)
-    // 'forge_version' is the version of Forge wanted for that Minecraft version (e.g., 45.0.23)
-    // Vanilla can be compiled against using 'net.minecraft:joined:<mc_version>' instead
-    minecraft 'net.minecraftforge:forge:1.19.4-45.0.23'
-}
-```
-
-Mod Dependencies
-----------------
-
-In a typical development environment, Minecraft is deobfuscated to intermediate mappings, used in production, and then transformed into whatever [human-readable mappings][mappings] the modder specified. Mod artifacts, when built, are obfuscated to production mappings (SRG), and as such, are unable to be used directly as a Gradle dependency.
-
-As such, all mod dependencies need to be wrapped with `fg.deobf` before being added to the intended configuration.
+All mod dependencies are added the same way as any other artifacts.
 
 ```gradle
 dependencies {
-    // Assume we have already specified the 'minecraft' dependency
-
     // Assume we have some artifact 'examplemod' that can be obtained from a specified repository
-    implementation fg.deobf('com.example:examplemod:1.0')
+    implementation 'com.example:examplemod:1.0'
 }
 ```
 
 ### Local Mod Dependencies
 
-If the mod you are trying to depend on is not available on a maven repository (e.g., [Maven Central][central], [CurseMaven], [Modrinth]), you can add a mod dependency using a [flat directory] instead:
+If the mod you are trying to depend on is not available on a maven repository (e.g., [Maven Central][central], [CurseMaven], [Modrinth]), you can add a mod dependency using a [flat directory][flat] instead:
 
 ```gradle
 repositories {
@@ -65,7 +44,7 @@ dependencies {
     // - examplemod-api.jar
     // - examplemod-1.0.jar
     // - examplemod.jar
-    implementation fg.deobf('com.example:examplemod:1.0:api')
+    implementation 'com.example:examplemod:1.0:api'
 }
 ```
 
@@ -73,29 +52,10 @@ dependencies {
 The group name can be anything but must not be empty for flat directory entries as they are not checked when resolving the artifact file.
 :::
 
-Non-Minecraft Dependencies
---------------------------
-
-Non-Minecraft dependencies are not loaded by Forge by default in the development environment. To get Forge to recognize the non-Minecraft dependency, they must be added to the `minecraftLibrary` configuration. `minecraftLibrary` works similarly to the `implementation` configuration within Gradle, being applied during compile time and runtime.
-
-```gradle
-dependencies {
-    // ...
-
-    // Assume there is some non-Minecraft library 'dummy-lib'
-    minecraftLibrary 'com.dummy:dummy-lib:1.0'
-}
-```
-
-> Non-Minecraft dependencies added to the development environment will not be included in built artifact by default! You must use [Jar-In-Jar][jij] to include the dependencies within the artifact on build.
-
 [guide]: https://docs.gradle.org/8.1.1/userguide/dependency_management.html
-[mappings]: ../configuration/index.md#human-readable-mappings
 
 [central]: https://central.sonatype.com/
 [CurseMaven]: https://cursemaven.com/
 [Modrinth]: https://docs.modrinth.com/docs/tutorials/maven/
 
 [flat]: https://docs.gradle.org/8.1.1/userguide/declaring_repositories.html#sub:flat_dir_resolver
-
-[jij]: ./jarinjar.md

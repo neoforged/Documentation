@@ -24,7 +24,7 @@ Similarly, when the pre-release cycle completes, Mojang releases Release Candida
 
 NeoForge uses an adapted semver system: The major version is Minecraft's minor version, the minor version is Minecraft's patch version, and the patch version is the "actual" NeoForge version. So for example, NeoForge 20.2.59 is the 60th version (we start at 0) for Minecraft 1.20.2. The `1` at the beginning is omitted because it is very unlikely that it will ever change, see [above][minecraft] for why that is the case.
 
-A few places in NeoForge also use [Maven version ranges][mvr], for example the Minecraft and NeoForge version ranges in the [`mods.toml`][modstoml] file. These are mostly, but not fully compatible with semver (the `pre`-tag is not considered by it, for example).
+A few places in NeoForge also use [Maven version ranges][mvr], for example the Minecraft and NeoForge version ranges in the [`neoforge.mods.toml`][neoforgemodstoml] file. These are mostly, but not fully compatible with semver (the `pre`-tag is not considered by it, for example).
 
 ## Mods
 
@@ -38,7 +38,7 @@ Versioning systems are suggestions, rather than strictly enforced rules. This is
 
 ### Semantic Versioning
 
-Semantic versioning ("semver") consists of three parts: `major.minor.patch`. The major version is bumped when major changes are made to the codebase, which usually correlates with major new features and bugfixes. The minor version is bumped when minor features are introduced, and patch bumps happen when an update only includes bugs.
+Semantic versioning ("semver") consists of three parts: `major.minor.patch`. The major version is bumped when major changes are made to the codebase, which usually correlates with major new features and bugfixes. The minor version is bumped when minor features are introduced, and patch bumps happen when an update only includes bug-fixes.
 
 It is generally agreed upon that any version `0.x.x` is a development version, and with the first (full) release, the version should be bumped to `1.0.0`.
 
@@ -86,7 +86,7 @@ Maven, the system used for dependency hosting, uses a versioning system that dif
 [mekanism]: https://www.curseforge.com/minecraft/mc-mods/mekanism
 [minecolonies]: https://www.curseforge.com/minecraft/mc-mods/minecolonies
 [minecraft]: #minecraft
-[modstoml]: modfiles.md#modstoml
+[neoforgemodstoml]: modfiles.md#neoforgemodstoml
 [mvr]: https://maven.apache.org/enforcer/enforcer-rules/versionRanges.html
 [mvr]: https://maven.apache.org/ref/3.5.2/maven-artifact/apidocs/org/apache/maven/artifact/versioning/ComparableVersion.html
 [neoforge]: #neoforge

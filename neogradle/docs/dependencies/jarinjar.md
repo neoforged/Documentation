@@ -1,16 +1,14 @@
-Jar-in-Jar
-==========
+# Jar-in-Jar
 
 Jar-in-Jar is a way to load dependencies for mods from within the jars of the mods. To accomplish this, Jar-in-Jar generates a metadata json within `META-INF/jarjar/metadata.json` on build containing the artifacts to load from within the jar.
 
-Jar-in-Jar is a completely optional system which can be enabled using `jarJar#enable` before the `minecraft` block. This will include all dependencies from the `jarJar` configuration into the `jarJar` task. You can configure the task similarly to other jar tasks:
+Jar-in-Jar is a completely optional system which can be enabled using `jarJar#enable`. This will include all dependencies from the `jarJar` configuration into the `jarJar` task. You can configure the task similarly to other jar tasks:
 
 ```gradle
 // In build.gradle
 
 // Enable the Jar-in-Jar system for your mod
 jarJar.enable()
-
 
 // Configure the 'jarJar' task
 // 'all' is the default classifier
@@ -19,8 +17,7 @@ tasks.named('jarJar') {
 }
 ```
 
-Adding Dependencies
--------------------
+## Adding Dependencies
 
 You can add dependencies to be included inside your jar using the `jarJar` configuration. As Jar-in-Jar is a negotiation system, all versions should supply a supported range.
 
@@ -63,7 +60,7 @@ dependencies {
 
 ### Using Runtime Dependencies
 
-If you would like to include the runtime dependencies of your mod inside your jar, you can invoke `jarJar#fromRuntimeConfiguration` within your buildscript. If you decide to use this option, it is highly suggested to include dependency filters; otherwise, every single dependency -- including Minecraft and Forge -- will be bundled in the jar as well. To support more flexible statements, the `dependency` configuration has been added to the `jarJar` extension and task. Using this, you can specify patterns to include or exclude from the configuration:
+If you would like to include the runtime dependencies of your mod inside your jar, you can invoke `jarJar#fromRuntimeConfiguration` within your buildscript. If you decide to use this option, it is highly suggested to include dependency filters; otherwise, every single dependency -- including Minecraft and NeoForge -- will be bundled in the jar as well. To support more flexible statements, the `dependency` configuration has been added to the `jarJar` extension and task. Using this, you can specify patterns to include or exclude from the configuration:
 
 ```gradle
 // In build.gradle
@@ -86,10 +83,9 @@ jarJar {
 It is generally recommended to set at least one `include` filter when using `#fromRuntimeConfiguration`.
 :::
 
-Publishing a Jar-in-Jar to Maven
---------------------------------
+## Publishing a Jar-in-Jar to Maven
 
-For archival reasons, ForgeGradle supports publishing Jar-in-Jar artifacts to a maven of choice, similar to how the [Shadow plugin][shadow] handles it. In practices, this is not useful or recommended.
+For archival reasons, NeoGradle supports publishing Jar-in-Jar artifacts to a maven of choice, similar to how the [Shadow plugin][shadow] handles it. In practices, this is not useful or recommended.
 
 ```gradle
 // In build.gradle (has 'maven-publish' plugin)
@@ -104,6 +100,5 @@ publications {
     }
 }
 ```
-
 
 [shadow]: https://imperceptiblethoughts.com/shadow/getting-started/

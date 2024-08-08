@@ -6,9 +6,9 @@ Screens are made up of numerous parts, making it difficult to fully understand w
 
 ## Relative Coordinates
 
-Whenever anything is rendered, there needs to be some identifier which specifies where it will appear. With numerous abstractions, most of Minecraft's rendering calls takes in an x, y, and z value in a coordinate plane. X values increase from left to right, y from top to bottom, and z from far to near. However, the coordinates are not fixed to a specified range. They can change depending on the size of the screen and the scale at which is specified within the options. As such, extra care must be taken to make sure the values of the coordinates while rendering scale properly to the changeable screen size.
+Whenever anything is rendered, there needs to be some identifier which specifies where it will appear. With numerous abstractions, most of Minecraft's rendering calls take x, y, and z values in a coordinate plane. X values increase from left to right, y from top to bottom, and z from far to near. However, the coordinates are not fixed to a specified range. Their range can change depending on the size of the screen and the “GUI scale” specified within the game’s options. As such, extra care must be taken to ensure the coordinates values passed to rendering calls scale properly—are relativized correctly—to the changeable screen size.
 
-Information on how to relativize your coordinates will be within the [screen] section.
+Information on how to relativize your coordinates is in the [screen] section.
 
 :::caution
 If you choose to use fixed coordinates or incorrectly scale the screen, the rendered objects may look strange or misplaced. An easy way to check if you relativized your coordinates correctly is to click the 'Gui Scale' button in your video settings. This value is used as the divisor to the width and height of your display when determining the scale at which a GUI should render.
@@ -16,15 +16,15 @@ If you choose to use fixed coordinates or incorrectly scale the screen, the rend
 
 ## Gui Graphics
 
-Any GUI rendered by Minecraft is typically done using `GuiGraphics`. `GuiGraphics` is the first parameter to almost all rendering methods; it contains basic methods to render commonly used objects. These fall into five categories: colored rectangles, strings, and textures, items, and tooltips. There is also an additional method for rendering a snippet of a component (`#enableScissor` / `#disableScissor`). `GuiGraphics` also exposes the `PoseStack` which applies the transformations necessary to properly render where the component should be rendered. Additionally, colors are in the [ARGB][argb] format.
+Any GUI rendered by Minecraft is typically done using `GuiGraphics`. `GuiGraphics` is the first parameter to almost all rendering methods; it contains basic methods to render commonly used objects. These fall into five categories: colored rectangles, strings, textures, items, and tooltips. There is also an additional method for rendering a snippet of a component (`#enableScissor` / `#disableScissor`). `GuiGraphics` also exposes the `PoseStack` which applies the transformations necessary to properly render where the component should be rendered. Additionally, colors are in the [ARGB][argb] format.
 
 ### Colored Rectangles
 
-Colored rectangles are drawn through a position color shader. There are three types of colored rectangles that can be drawn.
+Colored rectangles are drawn through a position color shader. All fill methods can take in an optional `RenderType` to specify how the rectangle should be rendered. There are three types of colored rectangles that can be drawn.
 
 First, there is a colored horizontal and vertical one-pixel wide line, `#hLine` and `#vLine` respectively. `#hLine` takes in two x coordinates defining the left and right (inclusively), the top y coordinate, and the color. `#vLine` takes in the left x coordinate, two y coordinates defining the top and bottom (inclusively), and the color.
 
-Second, there is the `#fill` method, which draws a rectangle to the screen. The line methods internally call this method. This takes in the left x coordinate, the top y coordinate, the right x coordinate, the bottom y coordinate, and the color.
+Second, there is the `#fill` method, which draws a rectangle to the screen. The line methods internally call this method. This takes in the left x coordinate, the top y coordinate, the right x coordinate, the bottom y coordinate, and the color. `#fillRenderType` also does the same; however, it draws the vertices without correcting the coordinate locations.
 
 Finally, there is the `#fillGradient` method, which draws a rectangle with a vertical gradient. This takes in the right x coordinate, the bottom y coordinate, the left x coordinate, the top y coordinate, the z coordinate, and the bottom and top colors.
 
@@ -32,21 +32,96 @@ Finally, there is the `#fillGradient` method, which draws a rectangle with a ver
 
 Strings are drawn through its `Font`, typically consisting of their own shaders for normal, see through, and offset mode. There are two alignment of strings that can be rendered, each with a back shadow: a left-aligned string (`#drawString`) and a center-aligned string (`#drawCenteredString`). These both take in the font the string will be rendered in, the string to draw, the x coordinate representing the left or center of the string respectively, the top y coordinate, and the color.
 
+If the text should be wrapped within a given bounds, then `#drawWordWrap` can be used instead. This renders a left-aligned string by default.
+
 :::note
 Strings should typically be passed in as [`Component`s][component] as they handle a variety of usecases, including the two other overloads of the method.
 :::
 
 ### Textures
 
-Textures are drawn through blitting, hence the method name `#blit`, which, for this purpose, copies the bits of an image and draws them directly to the screen. These are drawn through a position texture shader. While there are many different `#blit` overloads, we will only discuss two static `#blit`s.
+Textures are drawn through blitting, hence the method name `#blit`, which, for this purpose, copies the bits of an image and draws them directly to the screen. These are drawn through a position texture shader.
 
-The first static `#blit` takes in six integers and assumes the texture being rendered is on a 256 x 256 PNG file. It takes in the left x and top y screen coordinate, the left x and top y coordinate within the PNG, and the width and height of the image to render.
+Each `#blit` method takes in a `ResourceLocation`, which represents the absolute location of the texture:
+
+```java
+// Points to 'assets/examplemod/textures/gui/container/example_container.png'
+private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath("examplemod", "textures/gui/container/example_container.png");
+```
+
+While there are many different `#blit` overloads, we will only discuss two of them.
+
+The first `#blit` takes in six integers and assumes the texture being rendered is on a 256 x 256 PNG file. It takes in the left x and top y screen coordinate, the left x and top y coordinate within the PNG, and the width and height of the image to render.
 
 :::tip
 The size of the PNG file must be specified so that the coordinates can be normalized to obtain the associated UV values.
 :::
 
-The static `#blit` which the first calls expands this to nine integers, only assuming the image is on a PNG file. It takes in the left x and top y screen coordinate, the z coordinate (referred to as the blit offset), the left x and top y coordinate within the PNG, the width and height of the image to render, and the width and height of the PNG file.
+The second `#blit` which the first calls expands this to seven integers and two floats for the PNG coordinates, only assuming the image is on a PNG file. It takes in the left x and top y screen coordinate, the z coordinate (referred to as the blit offset), the left x and top y coordinate within the PNG, the width and height of the image to render, and the width and height of the PNG file.
+
+#### `blitSprite`
+
+`#blitSprite` is a special implementation of `#blit` where the texture is written to the GUI texture atlas. Most textures that overlay the background, such as the 'burn progress' overlay in furnace GUIs, are sprites. All sprite textures are relative to `textures/gui/sprites` and do not need to specify the file extension.
+
+```java
+// Points to 'assets/examplemod/textures/gui/sprites/container/example_container/example_sprite.png'
+private static final ResourceLocation SPRITE = ResourceLocation.fromNamespaceAndPath("examplemod", "container/example_container/example_sprite");
+```
+
+One set of `#blitSprite` methods have the same parameters as `#blit`, except for the x and y coordinate within the sprite.
+
+The other `#blitSprite` methods take in more texture information to allow for rendering part of the sprite. These methods take in the texture width and height, the x and y coordinate in the sprite, the left x and top y screen coordinate, the z coordinate (referred to as the blit offset), and the width and height of the image to render.
+
+If the sprite size does not match the texture size, then the sprite can be scaled in one of three ways: `stretch`, `tile`, and `nine_slice`. `stretch` stretches the image from the texture size to the screen size. `tile` renders the texture over and over again until it reaches the screen size. `nine_slice` divides the texture into one center, four edges, and four corners to tile the texture to the required screen size.
+
+This is set by adding the `gui.scaling` JSON object in an mcmeta file with the same name of the texture file.
+
+```json5
+// For some texture file example_sprite.png
+// In example_sprite.png.mcmeta
+
+// Stretch example
+{
+    "gui": {
+        "scaling": {
+            "type": "stretch"
+        }
+    }
+}
+
+// Tile example
+{
+    "gui": {
+        "scaling": {
+            "type": "tile",
+            // The size to begin tiling at
+            // This is usually the size of the texture
+            "width": 40,
+            "height": 40
+        }
+    }
+}
+
+// Nine slice example
+{
+    "gui": {
+        "scaling": {
+            "type": "nine_slice",
+            // The size to begin tiling at
+            // This is usually the size of the texture
+            "width": 40,
+            "height": 40,
+            "border": {
+                // The padding of the texture that will be sliced into the border texture
+                "left": 1,
+                "right": 1,
+                "top": 1,
+                "bottom": 1
+            }
+        }
+    }
+}
+```
 
 #### Blit Offset
 
@@ -105,7 +180,7 @@ public MyScreen(Component title) {
 
 ### Initialization
 
-Once a screen has been initialized, the `#init` method is called. The `#init` method sets the initial settings inside the screen from the `ItemRenderer` and `Minecraft` instance to the relative width and height as scaled by the game. Any setup such as adding widgets or precomputing relative coordinates should be done in this method. If the game window is resized, the screen will be reinitialized by calling the `#init` method.
+Once a screen has been initialized, the `#init` method is called. The `#init` method sets the initial settings inside the screen from the `Minecraft` instance to the relative width and height as scaled by the game. Any setup such as adding widgets or precomputing relative coordinates should be done in this method. If the game window is resized, the screen will be reinitialized by calling the `#init` method.
 
 There are three ways to add a widget to a screen, each serving a separate purpose:
 
@@ -130,7 +205,7 @@ protected void init() {
 
 ### Ticking Screens
 
-Screens also tick using the `#tick` method to perform some level of client side logic for rendering purposes. The most common example is the `EditBox` for the blinking cursor.
+Screens also tick using the `#tick` method to perform some level of client side logic for rendering purposes.
 
 ```java
 // In some Screen subclass
@@ -138,8 +213,7 @@ Screens also tick using the `#tick` method to perform some level of client side 
 public void tick() {
     super.tick();
 
-    // Add ticking logic for EditBox in editBox
-    this.editBox.tick();
+    // Execute some logic every frame
 }
 ```
 
@@ -224,7 +298,7 @@ In a previous section, it mentioned that precomputed relative coordinates should
 The image values are static and non changing as they represent the background texture size. To make things easier when rendering, two additional values (`leftPos` and `topPos`) are precomputed in the `#init` method which marks the top left corner of where the background will be rendered. The label coordinates are relative to these values.
 
 The `leftPos` and `topPos` is also used as a convenient way to render the background as they already represent the position to pass into the `#blit` method.
-:::caution
+:::
 
 ```java
 // In some AbstractContainerScreen subclass
@@ -286,17 +360,10 @@ Within the super, `#renderBg` is called to render the background of the screen. 
 // In some AbstractContainerScreen subclass
 
 // The location of the background texture (assets/<namespace>/<path>)
-private static final ResourceLocation BACKGROUND_LOCATION = new ResourceLocation(MOD_ID, "textures/gui/container/my_container_screen.png");
+private static final ResourceLocation BACKGROUND_LOCATION = ResourceLocation.fromNamespaceAndPath(MOD_ID, "textures/gui/container/my_container_screen.png");
 
 @Override
 protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
-    /*
-     * Sets the texture location for the shader to use. While up to
-     * 12 textures can be set, the shader used within 'blit' only
-     * looks at the first texture index.
-     */
-    RenderSystem.setShaderTexture(0, BACKGROUND_LOCATION);
-
     /*
      * Renders the background texture to the screen. 'leftPos' and
      * 'topPos' should already represent the top left corner of where
@@ -341,6 +408,6 @@ private void registerScreens(RegisterMenuScreensEvent event) {
 [network]: ../networking/index.md
 [screen]: #the-screen-subtype
 [argb]: https://en.wikipedia.org/wiki/RGBA_color_model#ARGB32
-[component]: ../concepts/internationalization.md#translatablecontents
+[component]: ../resources/client/i18n.md#components
 [keymapping]: ../misc/keymappings.md#inside-a-gui
 [modbus]: ../concepts/events.md#event-buses

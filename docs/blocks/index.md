@@ -26,7 +26,7 @@ After registering the block, all references to the new `my_block` should use thi
 ```java
 level.getBlockState(position) // returns the blockstate placed in the given level (world) at the given position
         //highlight-next-line
-        .is(MyBlockRegistrationClass.MY_BLOCK.get());
+        .is(MyBlockRegistrationClass.MY_BLOCK);
 ```
 
 This approach also has the convenient effect that `block1 == block2` works and can be used instead of Java's `equals` method (using `equals` still works, of course, but is pointless since it compares by reference anyway).
@@ -92,6 +92,73 @@ Directly using `Block` only allows for very basic blocks. If you want to add fun
 
 If you want to make a block that has different variants (think a slab that has a bottom, top, and double variant), you should use [blockstates]. And finally, if you want a block that stores additional data (think a chest that stores its inventory), a [block entity][blockentities] should be used. The rule of thumb here is that if you have a finite and reasonably small amount of states (= a few hundred states at most), use blockstates, and if you have an infinite or near-infinite amount of states, use a block entity.
 
+#### Block Types
+
+Block types are [`MapCodec`s][codec] used to serialize and deserialize a block object. This `MapCodec` is set via `BlockBehaviour#codec` and [registered][registration] to the block type registry. Currently, its only use is when the block list report is being generated. A block type should be created once for every subclass of `Block`. For example, `FlowerBlock#CODEC` represents the block type for most flowers while its subclass `WitherRoseBlock` has a separate block type.
+
+If the block subclass only takes in the `BlockBehaviour.Properties`, then `BlockBehaviour#simpleCodec` can be used to create the `MapCodec`.
+
+```java
+// For some block subclass
+public class SimpleBlock extends Block {
+
+    public SimpleBlock(BlockBehavior.Properties properties) {
+        // ...
+    }
+
+    @Override
+    public MapCodec<SimpleBlock> codec() {
+        return SIMPLE_CODEC.value();
+    }
+}
+
+// In some registration class
+public static final DeferredRegister<MapCodec<? extends Block>> REGISTRAR = DeferredRegister.create(BuiltInRegistries.BLOCK_TYPE, "yourmodid");
+
+public static final DeferredHolder<MapCodec<? extends Block>, MapCodec<SimpleBlock>> SIMPLE_CODEC = REGISTRAR.register(
+    "simple",
+    () -> simpleCodec(SimpleBlock::new)
+);
+```
+
+If the block subclass contains more parameters, then [`RecordCodecBuilder#mapCodec`][codec] should be used to create the `MapCodec`, passing in `BlockBehaviour#propertiesCodec` for the `BlockBehaviour.Properties` parameter.
+
+```java
+// For some block subclass
+public class ComplexBlock extends Block {
+
+    public ComplexBlock(int value, BlockBehavior.Properties properties) {
+        // ...
+    }
+
+    @Override
+    public MapCodec<ComplexBlock> codec() {
+        return COMPLEX_CODEC.value();
+    }
+
+    public int getValue() {
+        return this.value;
+    }
+}
+
+// In some registration class
+public static final DeferredRegister<MapCodec<? extends Block>> REGISTRAR = DeferredRegister.create(BuiltInRegistries.BLOCK_TYPE, "yourmodid");
+
+public static final DeferredHolder<MapCodec<? extends Block>, MapCodec<ComplexBlock>> COMPLEX_CODEC = REGISTRAR.register(
+    "simple",
+    () -> RecordCodecBuilder.mapCodec(instance ->
+        instance.group(
+            Codec.INT.fieldOf("value").forGetter(ComplexBlock::getValue),
+            BlockBehaviour.propertiesCodec() // represents the BlockBehavior.Properties parameter
+        ).apply(instance, ComplexBlock::new)
+    );
+);
+```
+
+:::note
+Although block types are basically unused at the moment, it is expected to become more important in the future as Mojang continues moving towards a codec-centered structure.
+:::
+
 ### `DeferredRegister.Blocks` helpers
 
 We already discussed how to create a `DeferredRegister.Blocks` [above], as well as that it returns `DeferredBlock`s. Now, let's have a look at what other utilities the specialized `DeferredRegister` has to offer. Let's start with `#registerBlock`:
@@ -121,9 +188,7 @@ This does the exact same as the previous example, but is slightly shorter. Of co
 
 ### Resources
 
-If you register your block and place it in the world, you will find it to be missing things like a texture. This is because textures, among others, are handled by Minecraft's resource system.
-
-To apply a simple texture to a block, you must add a blockstate JSON, a model JSON, and a texture PNG. See the section on [resources] for more information.
+If you register your block and place it in the world, you will find it to be missing things like a texture. This is because [textures], among others, are handled by Minecraft's resource system. To apply the texture to the block, you must provide a [model] and a [blockstate file][bsfile] that associates the block with the texture and a shape. Give the linked articles a read for more information.
 
 ## Using Blocks
 
@@ -136,11 +201,11 @@ In several situations, multiple methods of `Block` are used at different times. 
 Block placement logic is called from `BlockItem#useOn` (or some subclass's implementation thereof, such as in `PlaceOnWaterBlockItem`, which is used for lily pads). For more information on how the game gets there, see the [Interaction Pipeline][interactionpipeline]. In practice, this means that as soon as a `BlockItem` is right-clicked (for example a cobblestone item), this behavior is called.
 
 - Several prerequisites are checked, for example that you are not in spectator mode, that all required feature flags for the block are enabled or that the target position is not outside the world border. If at least one of these checks fails, the pipeline ends.
-- `Block#canBeReplaced` is called for the block currently at the position where the block is attempted to be placed. If it returns `false`, the pipeline ends. Prominent cases that return `true` here are tall grass or snow layers.
+- `BlockBehaviour#canBeReplaced` is called for the block currently at the position where the block is attempted to be placed. If it returns `false`, the pipeline ends. Prominent cases that return `true` here are tall grass or snow layers.
 - `Block#getStateForPlacement` is called. This is where, depending on the context (which includes information like the position, the rotation and the side the block is placed on), different block states can be returned. This is useful for example for blocks that can be placed in different directions.
-- `Block#canSurvive` is called with the blockstate obtained in the previous step. If it returns `false`, the pipeline ends.
+- `BlockBehaviour#canSurvive` is called with the blockstate obtained in the previous step. If it returns `false`, the pipeline ends.
 - The blockstate is set into the level via a `Level#setBlock` call.
-  - In that `Level#setBlock` call, `Block#onPlace` is called.
+    - In that `Level#setBlock` call, `BlockBehaviour#onPlace` is called.
 - `Block#setPlacedBy` is called.
 
 ### Breaking a Block
@@ -188,15 +253,21 @@ The following subsections further break down these stages into actual method cal
 
 #### The "Actually Breaking" Stage
 
-- `Item#onBlockStartBreak` is called. If it returns `true` (determining that the block should not be broken), the pipeline moves to the "finishing" stage.
+- `Item#canAttackBlock` is called. If it returns `false` (determining that the block should not be broken), the pipeline moves to the "finishing" stage.
+- `Player#canUseGameMasterBlocks` is called if the block is an instance of `GameMasterBlock`. This determines whether the player has the ability to destroy creative-only blocks. If `false`, the pipeline moves to the "finishing" stage.
+- Server-only: `Player#blockActionRestricted` is called. This determines whether the current player cannot break the block. If `true`, the pipeline moves to the "finishing" stage.
+- Server-only: `BlockEvent.BreakEvent` is fired. If canceled or `getExpToDrop` returns -1, the pipeline moves to the "finishing" stage. The initial canceled state is determined by the above three methods.
+    - Server-only: `PlayerEvent.HarvestCheck` is fired. If `canHarvest` returns `false` or the `BlockState` passed into the break event is null, then the initial exp for the event will be 0.
+    - Server-only: `IBlockExtension#getExpDrop` is called if `PlayerEvent.HarvestCheck#canHarvest` returns `true`. This value is passed to `BlockEvent.BreakEvent#getExpToDrop` to be used later in the pipeline.
 - Server-only: `IBlockExtension#canHarvestBlock` is called. This determines whether the block can be harvested, i.e. broken with drops.
-- `Block#onDestroyedByPlayer` is called. If it returns `false`, the pipeline moves to the "finishing" stage. In that `Block#onDestroyedByPlayer` call:
+- `IBlockExtension#onDestroyedByPlayer` is called. If it returns `false`, the pipeline moves to the "finishing" stage. In that `IBlockExtension#onDestroyedByPlayer` call:
     - `Block#playerWillDestroy` is called.
     - The blockstate is removed from the level via a `Level#setBlock` call with `Blocks.AIR.defaultBlockState()` as the blockstate parameter.
         - In that `Level#setBlock` call, `Block#onRemove` is called.
 - `Block#destroy` is called.
 - Server-only: If the previous call to `IBlockExtension#canHarvestBlock` returned `true`, `Block#playerDestroy` is called.
-- Server-only: `IBlockExtension#getExpDrop` is called.
+    - Server-only: `Block#dropResources` is called. This determines what drops from the block when mined.
+        - Server-only: `BlockDropsEvent` is fired. If the event is canceled, then nothing is dropped when the block breaks. Otherwise, every `ItemEntity` in `BlockDropsEvent#getDrops` is added to the current level.
 - Server-only: `Block#popExperience` is called with the result of the previous `IBlockExtension#getExpDrop` call, if that call returned a value greater than 0.
 
 ### Ticking
@@ -205,7 +276,7 @@ Ticking is a mechanism that updates (ticks) parts of the game every 1 / 20 secon
 
 #### Server Ticking and Tick Scheduling
 
-`Block#tick` is called in two occasions: either through default [random ticking][randomtick] (see below), or through scheduled ticks. Scheduled ticks can be created through `Level#scheduleTick(BlockPos, Block, int)`, where the `int` denotes a delay. This is used in various places by vanilla, for example, the tilting mechanism of big dripleaves heavily relies on this system. Other prominent users are various redstone components.
+`BlockBehaviour#tick` is called in two occasions: either through default [random ticking][randomtick] (see below), or through scheduled ticks. Scheduled ticks can be created through `Level#scheduleTick(BlockPos, Block, int)`, where the `int` denotes a delay. This is used in various places by vanilla, for example, the tilting mechanism of big dripleaves heavily relies on this system. Other prominent users are various redstone components.
 
 #### Client Ticking
 
@@ -219,9 +290,7 @@ Weather ticking is handled by `Block#handlePrecipitation` and runs independent o
 
 The random tick system runs independent of regular ticking. Random ticks must be enabled through the `BlockBehaviour.Properties` of the block by calling the `BlockBehaviour.Properties#randomTicks()` method. This enables the block to be part of the random ticking mechanic.
 
-Random ticks occur every tick for a set amount of blocks in a chunk. That set amount is defined through the `randomTickSpeed` gamerule. With its default value of 3, every tick, 3 random blocks from the chunk are chosen. If these blocks have random ticking enabled, then their respective `Block#randomTick` methods are called.
-
-`Block#randomTick` by default calls `Block#tick`, which is what should normally be overridden. `Block#randomTick` should only be overridden if you specifically want different behavior for random ticking and regular (scheduled) ticking.
+Random ticks occur every tick for a set amount of blocks in a chunk. That set amount is defined through the `randomTickSpeed` gamerule. With its default value of 3, every tick, 3 random blocks from the chunk are chosen. If these blocks have random ticking enabled, then their respective `BlockBehaviour#randomTick` methods are called.
 
 Random ticking is used by a wide range of mechanics in Minecraft, such as plant growth, ice and snow melting, or copper oxidizing.
 
@@ -229,12 +298,16 @@ Random ticking is used by a wide range of mechanics in Minecraft, such as plant 
 [below]: #deferredregisterblocks-helpers
 [blockentities]: ../blockentities/index.md
 [blockstates]: states.md
+[bsfile]: ../resources/client/models/index.md#blockstate-files
+[codec]: ../datastorage/codecs.md#records
 [events]: ../concepts/events.md
 [interactionpipeline]: ../items/interactionpipeline.md
 [item]: ../items/index.md
+[model]: ../resources/client/models/index.md
 [randomtick]: #random-ticking
 [registration]: ../concepts/registries.md#methods-for-registering
-[resources]: ../resources/client/index.md
-[sounds]: ../gameeffects/sounds.md
+[resources]: ../resources/index.md#assets
+[sounds]: ../resources/client/sounds.md
+[textures]: ../resources/client/textures.md
 [usingblocks]: #using-blocks
 [usingblockstates]: states.md#using-blockstates
