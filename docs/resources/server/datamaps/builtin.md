@@ -101,6 +101,7 @@ Example:
 ```
 
 ## `neoforge:oxidizables`
+
 Allows configuring oxidation stages, as a replacement for `WeatheringCopper#NEXT_BY_BLOCK` (which will be ignored in 1.21.2). This data map is also used to build a reverse deoxidation map (for scraping with an axe). It is located at `neoforge/data_maps/block/oxidizables.json` and its objects have the following structure:
 ```json5
 {
@@ -199,6 +200,7 @@ Example:
 ```
 
 ## `neoforge:waxables`
+
 Allows configuring the block a block will turn into when waxed (right clicked with a honeycomb), as a replacement for `HoneycombItem#WAXABLES` (which will be ignored in 1.21.2). This data map is also used to build a reverse dewaxing map (for scraping with an axe). It is located at `neoforge/data_maps/block/waxables.json` and its objects have the following structure:
 
 ```json5
