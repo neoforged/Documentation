@@ -9,7 +9,9 @@ Allows configuring composter values, as a replacement for `ComposterBlock.COMPOS
 ```json5
 {
   // A 0 to 1 (inclusive) float representing the chance that the item will update the level of the composter
-  "chance": 1
+  "chance": 1,
+  // Optional, defaults to false - whether farmer villagers can compost this item
+  "can_villager_compost": false
 }
 ```
 
@@ -98,6 +100,32 @@ Example:
 }
 ```
 
+## `neoforge:oxidizables`
+Allows configuring oxidation stages, as a replacement for `WeatheringCopper#NEXT_BY_BLOCK` (which will be ignored in 1.21.2). This data map is also used to build a reverse deoxidation map (for scraping with an axe). It is located at `neoforge/data_maps/block/oxidizables.json` and its objects have the following structure:
+```json5
+{
+  // The block this block will turn into once oxidized
+  "next_oxidized_stage": "examplemod:oxidized_block"
+}
+```
+
+:::note
+Custom blocks must implement `WeatheringCopperFullBlock` or `WeatheringCopper` and call `changeOverTime` in `randomTick` to oxidize naturally.
+:::
+
+Example:
+
+```json5
+{
+  "values": {
+    "mymod:custom_copper": {
+      // Make a custom copper block oxidize into custom oxidized copper
+      "next_oxidized_stage": "mymod:custom_oxidized_copper"
+    }
+  }
+}
+```
+
 ## `neoforge:parrot_imitations`
 
 Allows configuring the sounds produced by parrots when they want to imitate a mob, as a replacement for `Parrot#MOB_SOUND_MAP` (which is now ignored). This data map is located at `neoforge/data_maps/entity_type/parrot_imitations.json` and its objects have the following structure:
@@ -141,7 +169,7 @@ Example:
     "minecraft:armorer": {
       // Make armorers give the raid hero the armorer gift loot table
       "loot_table": "minecraft:gameplay/hero_of_the_village/armorer_gift"
-    },
+    }
   }
 }
 ```
@@ -165,6 +193,29 @@ Example:
     // Make the splash in water game event vibrate on the second frequency
     "minecraft:splash": {
       "frequency": 2
+    }
+  }
+}
+```
+
+## `neoforge:waxables`
+Allows configuring the block a block will turn into when waxed (right clicked with a honeycomb), as a replacement for `HoneycombItem#WAXABLES` (which will be ignored in 1.21.2). This data map is also used to build a reverse dewaxing map (for scraping with an axe). It is located at `neoforge/data_maps/block/waxables.json` and its objects have the following structure:
+
+```json5
+{
+  // The waxed variant of this block
+  "waxed": "minecraft:iron_block"
+}
+```
+
+Example:
+
+```json5
+{
+  "values": {
+    // Make gold blocks turn into iron blocks once waxed
+    "minecraft:gold_block": {
+      "waxed": "minecraft:iron_block"
     }
   }
 }
