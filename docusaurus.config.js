@@ -21,8 +21,8 @@ const config = {
   organizationName: "neoforged", // Usually your GitHub org/user name.
   projectName: "documentation", // Usually your repo name.
 
-  onBrokenLinks: "ignore", // Yay multi versioned-docs sites
-  onBrokenMarkdownLinks: "warn",
+  onBrokenLinks: "throw", // Yay multi versioned-docs sites
+  onBrokenMarkdownLinks: "throw",
 
   // Even if you don't use internalization, you can use this field to set useful
   // metadata like html lang. For example, if your site is Chinese, you may want
@@ -47,7 +47,7 @@ const config = {
           includeCurrentVersion: true,
           versions: {
             current: {
-              label: "1.20.x",
+              label: "1.21.x",
             },
           },
         },
@@ -70,7 +70,11 @@ const config = {
         includeCurrentVersion: true,
         versions: {
           current: {
+            label: "NG7",
+          },
+          "6.x": {
             label: "FG6",
+            path: "6.x",
           },
           "5.x": {
             label: "FG5",

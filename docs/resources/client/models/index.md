@@ -12,29 +12,29 @@ A model is a JSON file with the following optional properties in the root tag:
 
 - `loader`: NeoForge-added. Sets a custom model loader. See [Custom Model Loaders][custommodelloader] for more information.
 - `parent`: Sets a parent model, in the form of a [resource location][rl] relative to the `models` folder. All parent properties will be applied and then overridden by the properties set in the declaring model. Common parents include:
-  - `minecraft:block/block`: The common parent of all block models.
-  - `minecraft:block/cube`: Parent of all models that use a 1x1x1 cube model.
-  - `minecraft:block/cube_all`: Variant of the cube model that uses the same texture on all six sides, for example cobblestone or planks.
-  - `minecraft:block/cube_bottom_top`: Variant of the cube model that uses the same texture on all four horizontal sides, and separate textures on the top and the bottom. Common examples include sandstone or chiseled quartz.
-  - `minecraft:block/cube_column`: Variant of the cube model that has a side texture and a bottom and top texture. Examples include wooden logs, as well as quartz and purpur pillars.
-  - `minecraft:block/cross`: Model that uses two planes with the same texture, one rotated 45° clockwise and the other rotated 45° counter-clockwise, forming an X when viewed from above (hence the name). Examples include most plants, e.g. grass, saplings and flowers.
-  - `minecraft:item/generated`: Parent for classic 2D flat item models. Used by most items in the game. Ignores an `elements` block since its quads are generated from the textures.
-  - `minecraft:item/handheld`: Parent for 2D flat item models that appear to be actually held by the player. Used predominantly by tools. Submodel of `item/generated`, which causes it to ignore the `elements` block as well.
-  - `minecraft:builtin/entity`: Specifies no textures other than `particle`. If this is the parent, [`BakedModel#isCustomRenderer()`][iscustomrenderer] returns `true` to allow use of a [`BlockEntityWithoutLevelRenderer`][bewlr].
-  - Block items commonly (but not always) use their corresponding block models as parent. For example, the cobblestone item model uses the parent `minecraft:block/cobblestone`.
+    - `minecraft:block/block`: The common parent of all block models.
+    - `minecraft:block/cube`: Parent of all models that use a 1x1x1 cube model.
+    - `minecraft:block/cube_all`: Variant of the cube model that uses the same texture on all six sides, for example cobblestone or planks.
+    - `minecraft:block/cube_bottom_top`: Variant of the cube model that uses the same texture on all four horizontal sides, and separate textures on the top and the bottom. Common examples include sandstone or chiseled quartz.
+    - `minecraft:block/cube_column`: Variant of the cube model that has a side texture and a bottom and top texture. Examples include wooden logs, as well as quartz and purpur pillars.
+    - `minecraft:block/cross`: Model that uses two planes with the same texture, one rotated 45° clockwise and the other rotated 45° counter-clockwise, forming an X when viewed from above (hence the name). Examples include most plants, e.g. grass, saplings and flowers.
+    - `minecraft:item/generated`: Parent for classic 2D flat item models. Used by most items in the game. Ignores an `elements` block since its quads are generated from the textures.
+    - `minecraft:item/handheld`: Parent for 2D flat item models that appear to be actually held by the player. Used predominantly by tools. Submodel of `item/generated`, which causes it to ignore the `elements` block as well.
+    - `minecraft:builtin/entity`: Specifies no textures other than `particle`. If this is the parent, [`BakedModel#isCustomRenderer()`][iscustomrenderer] returns `true` to allow use of a [`BlockEntityWithoutLevelRenderer`][bewlr].
+    - Block items commonly (but not always) use their corresponding block models as parent. For example, the cobblestone item model uses the parent `minecraft:block/cobblestone`.
 - `ambientocclusion`: Whether to enable [ambient occlusion][ao] or not. Only effective on block models. Defaults to `true`. If your custom block model has weird shading, try setting this to `false`.
 - `render_type`: See [Render Types][rendertype].
 - `gui_light`: Can be `"front"` or `"side"`. If `"front"`, light will come from the front, useful for flat 2D models. If `"side"`, light will come from the side, useful for 3D models (especially block models). Defaults to `"side"`. Only effective on item models.
 - `textures`: A sub-object that maps names (known as texture variables) to [texture locations][textures]. Texture variables can then be used in [elements]. They can also be specified in elements, but left unspecified in order for child models to specify them.
-  - Block models should additionally specify a `particle` texture. This texture is used when falling on, running across, or breaking the block.
-  - Item models can also use layer textures, named `layer0`, `layer1`, etc., where layers with a higher index are rendered above those with a lower index (e.g. `layer1` would be rendered above `layer0`). Only works if the parent is `item/generated`, and only works for up to 5 layers (`layer0` through `layer4`).
+    - Block models should additionally specify a `particle` texture. This texture is used when falling on, running across, or breaking the block.
+    - Item models can also use layer textures, named `layer0`, `layer1`, etc., where layers with a higher index are rendered above those with a lower index (e.g. `layer1` would be rendered above `layer0`). Only works if the parent is `item/generated`, and only works for up to 5 layers (`layer0` through `layer4`).
 - `elements`: A list of cuboid [elements].
 - `overrides`: A list of [override models][overrides]. Only effective on item models.
 - `display`: A sub-object that holds the different display options for different [perspectives], see linked article for possible keys. Only effective on item models, but often specified in block models so that item models can inherit the display options. Every perspective is an optional sub-object that may contain the following options, which are applied in that order:
-  - `translation`: The translation of the model, specified as `[x, y, z]`.
-  - `rotation`: The rotation of the model, specified as `[x, y, z]`.
-  - `scale`: The scale of the model, specified as `[x, y, z]`.
-  - `right_rotation`: NeoForge-added. A second rotation that is applied after scaling, specified as `[x, y, z]`.
+    - `translation`: The translation of the model, specified as `[x, y, z]`.
+    - `rotation`: The rotation of the model, specified as `[x, y, z]`.
+    - `scale`: The scale of the model, specified as `[x, y, z]`.
+    - `right_rotation`: NeoForge-added. A second rotation that is applied after scaling, specified as `[x, y, z]`.
 - `transform`: See [Root Transforms][roottransforms].
 
 :::tip
@@ -74,20 +74,20 @@ Values in `from` and `to` are limited by Minecraft to the range `[-16, 32]`. How
 
 - `neoforge_data`: See [Extra Face Data][extrafacedata].
 - `faces`: An object containing data for of up to 6 faces, named `north`, `south`, `east`, `west`, `up` and `down`, respectively. Every face has the following data:
-  - `uv`: The uv of the face, specified as `[u1, v1, u2, v2]`, where `u1, v1` is the top left uv coordinates and `u2, v2` is the bottom right uv coordinates.
-  - `texture`: The texture to use for the face. Must be a texture variable prefixed with a `#`. For example, if your model had a texture named `wood`, you would use `#wood` to reference that texture. Technically optional, will use the missing texture if absent.
-  - `rotation`: Optional. Rotates the texture clockwise by 90, 180 or 270 degrees.
-  - `cullface`: Optional. Tells the render engine to skip rendering the face when there is a full block touching it in the specified direction. The direction can be `north`, `south`, `east`, `west`, `up` or `down`.
-  - `tintindex`: Optional. Specifies a tint index that may be used by a color handler, see [Tinting][tinting] for more information. Defaults to -1, which means no tinting.
-  - `neoforge_data`: See [Extra Face Data][extrafacedata].
+    - `uv`: The uv of the face, specified as `[u1, v1, u2, v2]`, where `u1, v1` is the top left uv coordinates and `u2, v2` is the bottom right uv coordinates.
+    - `texture`: The texture to use for the face. Must be a texture variable prefixed with a `#`. For example, if your model had a texture named `wood`, you would use `#wood` to reference that texture. Technically optional, will use the missing texture if absent.
+    - `rotation`: Optional. Rotates the texture clockwise by 90, 180 or 270 degrees.
+    - `cullface`: Optional. Tells the render engine to skip rendering the face when there is a full block touching it in the specified direction. The direction can be `north`, `south`, `east`, `west`, `up` or `down`.
+    - `tintindex`: Optional. Specifies a tint index that may be used by a color handler, see [Tinting][tinting] for more information. Defaults to -1, which means no tinting.
+    - `neoforge_data`: See [Extra Face Data][extrafacedata].
 
 Additionally, it can specify the following optional properties:
 
 - `shade`: Only for block models. Optional. Whether the faces of this element should have direction-dependent shading on it or not. Defaults to true.
 - `rotation`: A rotation of the object, specified as a sub object containing the following data:
-  - `angle`: The rotation angle, in degrees. Can be -45 through 45 in steps of 22.5 degrees.
-  - `axis`: The axis to rotate around. It is currently not possible to rotate an object around more than one axis.
-  - `origin`: Optional. The origin point to rotate around, specified as `[x, y, z]`. Note that these are absolute values, i.e. they are not relative to the cube's position. If unspecified, will use `[0, 0, 0]`.
+    - `angle`: The rotation angle, in degrees. Can be -45 through 45 in steps of 22.5 degrees.
+    - `axis`: The axis to rotate around. It is currently not possible to rotate an object around more than one axis.
+    - `origin`: Optional. The origin point to rotate around, specified as `[x, y, z]`. Note that these are absolute values, i.e. they are not relative to the cube's position. If unspecified, will use `[0, 0, 0]`.
 
 #### Extra Face Data
 
@@ -102,20 +102,20 @@ Using the custom `neoforge:item_layers` loader, you can also specify extra face 
 
 ```json5
 {
-  "loader": "neoforge:item_layers",
-  "parent": "minecraft:item/generated",
-  "textures": {
-    "layer0": "minecraft:item/stick",
-    "layer1": "minecraft:item/glowstone_dust"
-  },
-  "neoforge_data": {
-    "1": {
-      "color": "0xFFFF0000",
-      "block_light": 15,
-      "sky_light": 15,
-      "ambient_occlusion": false
+    "loader": "neoforge:item_layers",
+    "parent": "minecraft:item/generated",
+    "textures": {
+        "layer0": "minecraft:item/stick",
+        "layer1": "minecraft:item/glowstone_dust"
+    },
+    "neoforge_data": {
+        "1": {
+            "color": "0xFFFF0000",
+            "block_light": 15,
+            "sky_light": 15,
+            "ambient_occlusion": false
+        }
     }
-  }
 }
 ```
 
@@ -127,32 +127,32 @@ The model can specify one or multiple override models that should be used when t
 
 ```json5
 {
-  // other stuff here
-  "overrides": [
-    {
-      // pulling = 1
-      "predicate": {
-        "pulling": 1
-      },
-      "model": "item/bow_pulling_0"
-    },
-    {
-      // pulling = 1, pull >= 0.65
-      "predicate": {
-        "pulling": 1,
-        "pull": 0.65
-      },
-      "model": "item/bow_pulling_1"
-    },
-    // pulling = 1, pull >= 0.9
-    {
-      "predicate": {
-        "pulling": 1,
-        "pull": 0.9
-      },
-      "model": "item/bow_pulling_2"
-    }
-  ]
+    // other stuff here
+    "overrides": [
+        {
+            // pulling = 1
+            "predicate": {
+                "pulling": 1
+            },
+            "model": "item/bow_pulling_0"
+        },
+        {
+            // pulling = 1, pull >= 0.65
+            "predicate": {
+                "pulling": 1,
+                "pull": 0.65
+            },
+            "model": "item/bow_pulling_1"
+        },
+        // pulling = 1, pull >= 0.9
+        {
+            "predicate": {
+                "pulling": 1,
+                "pull": 0.9
+            },
+            "model": "item/bow_pulling_2"
+        }
+    ]
 }
 ```
 
@@ -163,14 +163,14 @@ The code side of things is pretty simple. Assuming that we want to add a propert
 public static void onClientSetup(FMLClientSetupEvent event) {
     event.enqueueWork(() -> { // ItemProperties#register is not threadsafe, so we need to call it on the main thread
         ItemProperties.register(
-                // The item to apply the property to.
-                ExampleItems.EXAMPLE_ITEM,
-                // The id of the property.
-                new ResourceLocation("examplemod", "property"),
-                // A reference to a method that calculates the override value.
-                // Parameters are the used item stack, the level context, the player using the item,
-                // and a random seed you can use.
-                (stack, level, player, seed) -> someMethodThatReturnsAFloat()
+            // The item to apply the property to.
+            ExampleItems.EXAMPLE_ITEM,
+            // The id of the property.
+            ResourceLocation.fromNamespaceAndPath("examplemod", "property"),
+            // A reference to a method that calculates the override value.
+            // Parameters are the used item stack, the level context, the player using the item,
+            // and a random seed you can use.
+            (stack, level, player, seed) -> someMethodThatReturnsAFloat()
         );
     });
 }
@@ -188,14 +188,14 @@ The root transforms can be specified in two ways. The first way would be as a si
 
 ```json5
 {
-  // ...
-  "transform": {
-    "matrix": [
-      [0, 0, 0, 0],
-      [0, 0, 0, 0],
-      [0, 0, 0, 0]
-    ]
-  }
+    // ...
+    "transform": {
+        "matrix": [
+            [0, 0, 0, 0],
+            [0, 0, 0, 0],
+            [0, 0, 0, 0]
+        ]
+    }
 }
 ```
 
@@ -203,10 +203,10 @@ The second way is to specify a JSON object containing any combination of the fol
 
 - `translation`: The relative translation. Specified as a three-dimensional vector (`[x, y, z]`) and defaults to `[0, 0, 0]` if absent.
 - `rotation` or `left_rotation`: Rotation around the translated origin to be applied before scaling. Defaults to no rotation. Specified in one of the following ways:
-  - A JSON object with a single axis to rotation mapping, e.g. `{"x": 90}`
-  - An array of JSON objects with a single axis to rotation mapping each, applied in the order they are specified in, e.g. `[{"x": 90}, {"y": 45}, {"x": -22.5}]`
-  - An array with three values that each specify the rotation around each axis, e.g. `[90, 45, -22.5]`
-  - An array with four values directly specifying a quaternion, e.g. `[0.38268346, 0, 0, 0.9238795]` (= 45 degrees around the X axis)
+    - A JSON object with a single axis to rotation mapping, e.g. `{"x": 90}`
+    - An array of JSON objects with a single axis to rotation mapping each, applied in the order they are specified in, e.g. `[{"x": 90}, {"y": 45}, {"x": -22.5}]`
+    - An array with three values that each specify the rotation around each axis, e.g. `[90, 45, -22.5]`
+    - An array with four values directly specifying a quaternion, e.g. `[0.38268346, 0, 0, 0.9238795]` (= 45 degrees around the X axis)
 - `scale`: The scale relative to the translated origin. Specified as a three-dimensional vector (`[x, y, z]`) and defaults to `[1, 1, 1]` if absent.
 - `post_rotation` or `right_rotation`: Rotation around the translated origin to be applied after scaling. Defaults to no rotation. Specified the same as `rotation`.
 - `origin`: Origin point used for rotation and scaling. The transformation is also moved here as a final step. Specified either as a three-dimensional vector (`[x, y, z]`) or using one of the three builtin values `"corner"` (= `[0, 0, 0]`), `"center"` (= `[0.5, 0.5, 0.5]`) or `"opposing-corner"` (= `[1, 1, 1]`, default).
@@ -220,10 +220,10 @@ Blockstate files are used by the game to assign different models to different [b
 Inside a `variants` block, there is an element for each blockstate. This is the predominant way of associating blockstates with models, used by the vast majority of blocks.
 - The key is the string representation of the blockstate without the block name, so for example `"type=top,waterlogged=false"` for a non-waterlogged top slab, or `""` for a block with no properties. It is worth noting that unused properties may be omitted. For example, if the `waterlogged` property has no influence on the model chosen, two objects `type=top,waterlogged=false` and `type=top,waterlogged=true` may be collapsed into one `type=top` object. This also means that an empty string is valid for every block.
 - The value is either a single model object or an array of model objects. If an array of model objects is used, a model will be randomly chosen from it. A model object consists of the following data:
-  - `model`: A path to a model file location, relative to the namespace's `models` folder, for example `minecraft:block/cobblestone`.
-  - `x` and `y`: Rotation of the model on the x-axis/y-axis. Limited to steps of 90 degrees. Optional each, defaults to 0.
-  - `uvlock`: Whether to lock the UVs of the model when rotating or not. Optional, defaults to false.
-  - `weight`: Only useful with arrays of model objects. Gives the object a weight, used when choosing a random model object. Optional, defaults to 1.
+    - `model`: A path to a model file location, relative to the namespace's `models` folder, for example `minecraft:block/cobblestone`.
+    - `x` and `y`: Rotation of the model on the x-axis/y-axis. Limited to steps of 90 degrees. Optional each, defaults to 0.
+    - `uvlock`: Whether to lock the UVs of the model when rotating or not. Optional, defaults to false.
+    - `weight`: Only useful with arrays of model objects. Gives the object a weight, used when choosing a random model object. Optional, defaults to 1.
 
 In contrast, inside a `multipart` block, elements are combined depending on the properties of the blockstate. This method is mainly used by fences and walls, who enable the four directional parts based on boolean properties. A multipart element consists of two parts: a `when` block and an `apply` block.
 
@@ -235,31 +235,36 @@ In contrast, inside a `multipart` block, elements are combined depending on the 
 Some blocks, such as grass or leaves, change their texture color based on their location and/or properties. [Model elements][elements] can specify a tint index on their faces, which will allow a color handler to handle the respective faces. The code side of things works through two events, one for block color handlers and one for item color handlers. They both work pretty similar, so let's have a look at a block handler first:
 
 ```java
+// Client-side mod bus event handler
 @SubscribeEvent
 public static void registerBlockColorHandlers(RegisterColorHandlersEvent.Block event) {
     // Parameters are the block's state, the level the block is in, the block's position, and the tint index.
     // The level and position may be null.
     event.register((state, level, pos, tintIndex) -> {
-            // Replace with your own calculation. See the BlockColors class for vanilla references.
-            // All vanilla uses assume alpha 255 (= 1f), but modded consumers may also account
-            // for alpha values specified here. Generally, if the tint index is -1,
-            // it means that no tinting should take place and a default value should be used instead.
-            return 0xFFFFFF;
-    });
+        // Replace with your own calculation. See the BlockColors class for vanilla references.
+        // Colors are in ARGB format. Generally, if the tint index is -1, it means that no tinting
+        // should take place and a default value should be used instead.
+        return 0xFFFFFFFF;
+    },
+    // A varargs of blocks to apply the tinting to
+    EXAMPLE_BLOCK.value(), ...);
 }
 ```
 
 Item handlers work pretty much the same, except for some naming and the lambda parameters:
 
 ```java
+// Client-side mod bus event handler
 @SubscribeEvent
 public static void registerItemColorHandlers(RegisterColorHandlersEvent.Item event) {
     // Parameters are the item stack and the tint index.
     event.register((stack, tintIndex) -> {
-            // Like above, replace with your own calculation. Vanilla values are in the ItemColors class.
-            // Also like above, tint index -1 means no tint and should use a default value instead.
-            return 0xFFFFFF;
-    });
+        // Like above, replace with your own calculation. Vanilla values are in the ItemColors class.
+        // Also like above, tint index -1 means no tint and should use a default value instead.
+        return 0xFFFFFFFF;
+    },
+    // A varargs of items to apply the tinting to
+    EXAMPLE_ITEM.value(), ...);
 }
 ```
 
@@ -273,7 +278,26 @@ Models that are not associated with a block or item in some way, but are still r
 // Client-side mod bus event handler
 @SubscribeEvent
 public static void registerAdditional(ModelEvent.RegisterAdditional event) {
-    event.register(new ResourceLocation("examplemod", "block/example_unused_model"));
+    event.register(new ModelResourceLocation(
+        // The id of the model
+        ResourceLocation.fromNamespaceAndPath("examplemod", "block/example_unused_model"),
+        // The string representing what variant of the model this is for
+        // In normal vanilla, this would be one of three values:
+        // - Blocks: The stringified block state
+        // - Items: 'inventory' as it is the inventory model
+        // - Standalone: 'standalone' as this does not refer to any other model
+        "variant_type=true"
+    ));
+
+    // An inventory model example
+    event.register(ModelResourceLocation.inventory(
+        ResourceLocation.fromNamespaceAndPath("examplemod", "item/example_unused_inventory_model")
+    ));
+
+    // A standalone model example
+    event.register(ModelResourceLocation.standalone(
+        ResourceLocation.fromNamespaceAndPath("examplemod", "block/example_unused_standalone_model")
+    ));
 }
 ```
 

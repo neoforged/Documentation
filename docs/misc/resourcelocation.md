@@ -12,7 +12,7 @@ The path is a reference to whatever object you want, inside your namespace. For 
 A `ResourceLocation` on its own says nothing about what kind of objects we are using it for. Objects named `minecraft:dirt` exist in multiple places, for example. It is up to whatever receives the `ResourceLocation` to associate an object with it.
 :::
 
-A new `ResourceLocation` can be created by calling `new ResourceLocation("examplemod", "example_item")` or `new ResourceLocation("examplemod:example_item")`. If the latter is used with a string that does not contain a `:`, the entire string will be used as the path, and `minecraft` will be used as the namespace. So for example, `new ResourceLocation("example_item")` will result in `minecraft:example_item`.
+A new `ResourceLocation` can be created by calling `ResourceLocation.fromNamespaceAndPath("examplemod", "example_item")` or `ResourceLocation.parse("examplemod:example_item")`. If `withDefaultNamespace` is used, the string will be used as the path, and `minecraft` will be used as the namespace. So for example, `ResourceLocation.withDefaultNamespace("example_item")` will result in `minecraft:example_item`.
 
 The namespace and path of a `ResourceLocation` can be retrieved using `ResourceLocation#getNamespace()` and `#getPath()`, respectively, and the combined form can be retrieved through `ResourceLocation#toString`.
 
@@ -24,7 +24,7 @@ Some places, for example registries, use `ResourceLocation`s directly. Some othe
 
 - `ResourceLocation`s are used as identifiers for GUI background. For example, the furnace GUI uses the resource location `minecraft:textures/gui/container/furnace.png`. This maps to the file `assets/minecraft/textures/gui/container/furnace.png` on disk. Note that the `.png` suffix is required in this resource location.
 - `ResourceLocation`s are used as identifiers for block models. For example, the block model of dirt uses the resource location `minecraft:block/dirt`. This maps to the file `assets/minecraft/models/block/dirt.json` on disk. Note that the `.json` suffix is not required here. Note as well that this resource location automatically maps into the `models` subfolder.
-- `ResourceLocation`s are used as identifiers for recipes. For example, the iron block crafting recipe uses the resource location `minecraft:iron_block`. This maps to the file `data/minecraft/recipes/iron_block.json` on disk. Note that the `.json` suffix is not required here. Note as well that this resource location automatically maps into the `recipes` subfolder.
+- `ResourceLocation`s are used as identifiers for recipes. For example, the iron block crafting recipe uses the resource location `minecraft:iron_block`. This maps to the file `data/minecraft/recipe/iron_block.json` on disk. Note that the `.json` suffix is not required here. Note as well that this resource location automatically maps into the `recipe` subfolder.
 
 Whether the `ResourceLocation` expects a file suffix, or what exactly the resource location resolves to, depends on the use case.
 

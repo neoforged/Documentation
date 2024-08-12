@@ -1,3 +1,6 @@
+---
+sidebar_position: 1
+---
 # Registries
 
 Registration is the process of taking the objects of a mod (such as [items][item], [blocks][block], entities, etc.) and making them known to the game. Registering things is important, as without registration the game will simply not know about these objects, which will cause unexplainable behaviors and crashes.
@@ -61,9 +64,9 @@ Finally, since the entire system is a wrapper around registry events, we need to
 
 ```java
 //This is our mod constructor
-public ExampleMod(IModEventBus bus) {
+public ExampleMod(IEventBus modBus) {
     //highlight-next-line
-    ExampleBlocksClass.BLOCKS.register(bus);
+    ExampleBlocksClass.BLOCKS.register(modBus);
     //Other stuff here
 }
 ```
@@ -86,9 +89,9 @@ public void register(RegisterEvent event) {
             BuiltInRegistries.BLOCKS,
             // Register your objects here.
             registry -> {
-                registry.register(new ResourceLocation(MODID, "example_block_1"), new Block(...));
-                registry.register(new ResourceLocation(MODID, "example_block_2"), new Block(...));
-                registry.register(new ResourceLocation(MODID, "example_block_3"), new Block(...));
+                registry.register(ResourceLocation.fromNamespaceAndPath(MODID, "example_block_1"), new Block(...));
+                registry.register(ResourceLocation.fromNamespaceAndPath(MODID, "example_block_2"), new Block(...));
+                registry.register(ResourceLocation.fromNamespaceAndPath(MODID, "example_block_3"), new Block(...));
             }
     );
 }
@@ -99,19 +102,19 @@ public void register(RegisterEvent event) {
 Sometimes, you will find yourself in situations where you want to get a registered object by a given id. Or, you want to get the id of a certain registered object. Since registries are basically maps of ids (`ResourceLocation`s) to distinct objects, i.e. a reversible map, both of these operations work:
 
 ```java
-BuiltInRegistries.BLOCKS.get(new ResourceLocation("minecraft", "dirt")); // returns the dirt block
+BuiltInRegistries.BLOCKS.get(ResourceLocation.fromNamespaceAndPath("minecraft", "dirt")); // returns the dirt block
 BuiltInRegistries.BLOCKS.getKey(Blocks.DIRT); // returns the resource location "minecraft:dirt"
 
 // Assume that ExampleBlocksClass.EXAMPLE_BLOCK.get() is a Supplier<Block> with the id "yourmodid:example_block"
-BuiltInRegistries.BLOCKS.get(new ResourceLocation("yourmodid", "example_block")); // returns the example block
+BuiltInRegistries.BLOCKS.get(ResourceLocation.fromNamespaceAndPath("yourmodid", "example_block")); // returns the example block
 BuiltInRegistries.BLOCKS.getKey(ExampleBlocksClass.EXAMPLE_BLOCK.get()); // returns the resource location "yourmodid:example_block"
 ```
 
 If you just want to check for the presence of an object, this is also possible, though only with keys:
 
 ```java
-BuiltInRegistries.BLOCKS.containsKey(new ResourceLocation("minecraft", "dirt")); // true
-BuiltInRegistries.BLOCKS.containsKey(new ResourceLocation("create", "brass_ingot")); // true only if Create is installed
+BuiltInRegistries.BLOCKS.containsKey(ResourceLocation.fromNamespaceAndPath("minecraft", "dirt")); // true
+BuiltInRegistries.BLOCKS.containsKey(ResourceLocation.fromNamespaceAndPath("create", "brass_ingot")); // true only if Create is installed
 ```
 
 As the last example shows, this is possible with any mod id, and thus a perfect way to check if a certain item from another mod exists.
@@ -122,7 +125,7 @@ Finally, we can also iterate over all entries in a registry, either over the key
 for (ResourceLocation id : BuiltInRegistries.BLOCKS.keySet()) {
     // ...
 }
-for (Map.Entry<ResourceLocation, Block> entry : BuiltInRegistries.BLOCKS.entrySet()) {
+for (Map.Entry<ResourceKey<Block>, Block> entry : BuiltInRegistries.BLOCKS.entrySet()) {
     // ...
 }
 ```
@@ -144,13 +147,13 @@ Let's start by creating the [registry key][resourcekey] and the registry itself:
 ```java
 // We use spells as an example for the registry here, without any details about what a spell actually is (as it doesn't matter).
 // Of course, all mentions of spells can and should be replaced with whatever your registry actually is.
-public static final ResourceKey<Registry<Spell>> SPELL_REGISTRY_KEY = ResourceKey.createRegistryKey(new ResourceLocation("yourmodid", "spells"));
+public static final ResourceKey<Registry<Spell>> SPELL_REGISTRY_KEY = ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath("yourmodid", "spells"));
 public static final Registry<YourRegistryContents> SPELL_REGISTRY = new RegistryBuilder<>(SPELL_REGISTRY_KEY)
         // If you want to enable integer id syncing, for networking.
         // These should only be used in networking contexts, for example in packets or purely networking-related NBT data.
         .sync(true)
         // The default key. Similar to minecraft:air for blocks. This is optional.
-        .defaultKey(new ResourceLocation("yourmodid", "empty"))
+        .defaultKey(ResourceLocation.fromNamespaceAndPath("yourmodid", "empty"))
         // Effectively limits the max count. Generally discouraged, but may make sense in settings such as networking.
         .maxId(256)
         // Build the registry.
@@ -175,8 +178,8 @@ public static final Supplier<Spell> EXAMPLE_SPELL = SPELLS.register("example_spe
 // Alternatively:
 @SubscribeEvent
 public static void register(RegisterEvent event) {
-    event.register(SPELL_REGISTRY, registry -> {
-        registry.register(new ResourceLocation("yourmodid", "example_spell"), () -> new Spell(...));
+    event.register(SPELL_REGISTRY_KEY, registry -> {
+        registry.register(ResourceLocation.fromNamespaceAndPath("yourmodid", "example_spell"), () -> new Spell(...));
     });
 }
 ```
@@ -187,17 +190,17 @@ A datapack registry (also known as a dynamic registry or, after its main use cas
 
 Datapack registries allow their contents to be specified in JSON files. This means that no code (other than [datagen][datagen] if you don't want to write the JSON files yourself) is necessary. Every datapack registry has a [`Codec`][codec] associated with it, which is used for serialization, and each registry's id determines its datapack path:
 
-- Minecraft's datapack registries use the format `data/yourmodid/registrypath` (for example `data/yourmodid/worldgen/biomes`, where `worldgen/biomes` is the registry path).
-- All other datapack registries (NeoForge or modded) use the format `data/yourmodid/registrynamespace/registrypath` (for example `data/yourmodid/neoforge/loot_modifiers`, where `neoforge` is the registry namespace and `loot_modifiers` is the registry path).
+- Minecraft's datapack registries use the format `data/yourmodid/registrypath` (for example `data/yourmodid/worldgen/biome`, where `worldgen/biome` is the registry path).
+- All other datapack registries (NeoForge or modded) use the format `data/yourmodid/registrynamespace/registrypath` (for example `data/yourmodid/neoforge/biome_modifier`, where `neoforge` is the registry namespace and `biome_modifier` is the registry path).
 
-Datapack registries can be obtained from a `RegistryAccess`. This `RegistryAccess` can be retrieved by calling `ServerLevel#registryAccess()` if on the server, or `Minecraft.getInstance().connection#registryAccess()` if on the client (the latter only works if you are actually connected to a world, as otherwise the connection will be null). The result of these calls can then be used like any other registry to get specific elements, or to iterate over the contents.
+Datapack registries can be obtained from a `RegistryAccess`. This `RegistryAccess` can be retrieved by calling `ServerLevel#registryAccess()` if on the server, or `Minecraft.getInstance().getConnection()#registryAccess()` if on the client (the latter only works if you are actually connected to a world, as otherwise the connection will be null). The result of these calls can then be used like any other registry to get specific elements, or to iterate over the contents.
 
 ### Custom Datapack Registries
 
 Custom datapack registries do not require a `Registry` to be constructed. Instead, they just need a registry key and at least one [`Codec`][codec] to (de-)serialize its contents. Reiterating on the spells example from before, registering our spell registry as a datapack registry looks something like this:
 
 ```java
-public static final ResourceKey<Registry<Spell>> SPELL_REGISTRY_KEY = ResourceKey.createRegistryKey(new ResourceLocation("yourmodid", "spells"));
+public static final ResourceKey<Registry<Spell>> SPELL_REGISTRY_KEY = ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath("yourmodid", "spells"));
 
 @SubscribeEvent
 public static void registerDatapackRegistries(DataPackRegistryEvent.NewRegistry event) {
@@ -238,7 +241,7 @@ The `bootstrap` lambda parameter is what we actually use to register our objects
 // The resource key of our object.
 public static final ResourceKey<ConfiguredFeature<?, ?>> EXAMPLE_CONFIGURED_FEATURE = ResourceKey.create(
     Registries.CONFIGURED_FEATURE,
-    new ResourceLocation(MOD_ID, "example_configured_feature")
+    ResourceLocation.fromNamespaceAndPath(MOD_ID, "example_configured_feature")
 );
 
 new RegistrySetBuilder()
@@ -255,16 +258,16 @@ new RegistrySetBuilder()
     });
 ```
 
-The `BootstrapContext` (name is typoed as `BootstapContext` in 1.20.4 and below) can also be used to lookup entries from another registry if needed:
+The `BootstrapContext` can also be used to lookup entries from another registry if needed:
 
 ```java
 public static final ResourceKey<ConfiguredFeature<?, ?>> EXAMPLE_CONFIGURED_FEATURE = ResourceKey.create(
     Registries.CONFIGURED_FEATURE,
-    new ResourceLocation(MOD_ID, "example_configured_feature")
+    ResourceLocation.fromNamespaceAndPath(MOD_ID, "example_configured_feature")
 );
 public static final ResourceKey<PlacedFeature> EXAMPLE_PLACED_FEATURE = ResourceKey.create(
     Registries.PLACED_FEATURE,
-    new ResourceLocation(MOD_ID, "example_placed_feature")
+    ResourceLocation.fromNamespaceAndPath(MOD_ID, "example_placed_feature")
 );
 
 new RegistrySetBuilder()
@@ -306,7 +309,7 @@ static void onGatherData(GatherDataEvent event) {
 [codec]: ../datastorage/codecs.md
 [datagen]: #data-generation-for-datapack-registries
 [datagenindex]: ../resources/index.md#data-generation
-[datapack]: ../resources/server/index.md
+[datapack]: ../resources/index.md#data
 [defregblocks]: ../blocks/index.md#deferredregisterblocks-helpers
 [defregitems]: ../items/index.md#deferredregisteritems
 [event]: ./events.md

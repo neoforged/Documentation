@@ -14,7 +14,7 @@ A `MenuType` is created by passing in a `MenuSupplier` and a `FeatureFlagSet` to
 
 ```java
 // For some DeferredRegister<MenuType<?>> REGISTER
-public static final RegistryObject<MenuType<MyMenu>> MY_MENU = REGISTER.register("my_menu", () -> new MenuType(MyMenu::new, FeatureFlags.DEFAULT_FLAGS));
+public static final Supplier<MenuType<MyMenu>> MY_MENU = REGISTER.register("my_menu", () -> new MenuType(MyMenu::new, FeatureFlags.DEFAULT_FLAGS));
 
 // In MyMenu, an AbstractContainerMenu subclass
 public MyMenu(int containerId, Inventory playerInv) {
@@ -31,11 +31,11 @@ The `MenuSupplier` is usually responsible for creating a menu on the client with
 
 ### `IContainerFactory`
 
-If additional information is needed on the client (e.g. the position of the data holder in the world), then the subclass `IContainerFactory` can be used instead. In addition to the container id and the player inventory, this also provides a `FriendlyByteBuf` which can store additional information that was sent from the server. A `MenuType` can be created using an `IContainerFactory` via `IForgeMenuType#create`.
+If additional information is needed on the client (e.g. the position of the data holder in the world), then the subclass `IContainerFactory` can be used instead. In addition to the container id and the player inventory, this also provides a `RegistryFriendlyByteBuf` which can store additional information that was sent from the server. A `MenuType` can be created using an `IContainerFactory` via `IMenuTypeExtension#create`.
 
 ```java
 // For some DeferredRegister<MenuType<?>> REGISTER
-public static final RegistryObject<MenuType<MyMenuExtra>> MY_MENU_EXTRA = REGISTER.register("my_menu_extra", () -> IForgeMenuType.create(MyMenu::new));
+public static final Supplier<MenuType<MyMenuExtra>> MY_MENU_EXTRA = REGISTER.register("my_menu_extra", () -> IMenuTypeExtension.create(MyMenu::new));
 
 // In MyMenuExtra, an AbstractContainerMenu subclass
 public MyMenuExtra(int containerId, Inventory playerInv, FriendlyByteBuf extraData) {
@@ -57,12 +57,12 @@ Each menu should contain two constructors: one used to initialize the menu on th
 
 ```java
 // Client menu constructor
-public MyMenu(int containerId, Inventory playerInventory) {
-  this(containerId, playerInventory);
+public MyMenu(int containerId, Inventory playerInventory) { // optional FriendlyByteBuf parameter if reading data from server
+  this(containerId, playerInventory, /* Any default parameters here */);
 }
 
 // Server menu constructor
-public MyMenu(int containerId, Inventory playerInventory) {
+public MyMenu(int containerId, Inventory playerInventory, /* Any additional parameters here. */) {
   // ...
 }
 ```
@@ -73,7 +73,7 @@ Each menu implementation must implement two methods: `#stillValid` and [`#quickM
 
 `#stillValid` determines whether the menu should remain open for a given player. This is typically directed to the static `#stillValid` which takes in a `ContainerLevelAccess`, the player, and the `Block` this menu is attached to. The client menu must always return `true` for this method, which the static `#stillValid` does default to. This implementation checks whether the player is within eight blocks of where the data storage object is located.
 
-A `ContainerLevelAccess` supplies the current level and location of the block within an enclosed scope. When constructing the menu on the server, a new access can be created by calling `ContainerLevelAccess#create`. The client menu constructor can pass in `ContainerLevelAccess#NULL`, which will do nothing.
+A `ContainerLevelAccess` supplies the current level and block position within an enclosed scope. When constructing the menu on the server, a new access can be created by calling `ContainerLevelAccess#create`. The client menu constructor can pass in `ContainerLevelAccess#NULL`, which will do nothing.
 
 ```java
 // Client menu constructor
@@ -86,7 +86,7 @@ public MyMenuAccess(int containerId, Inventory playerInventory, ContainerLevelAc
   // ...
 }
 
-// Assume this menu is attached to RegistryObject<Block> MY_BLOCK
+// Assume this menu is attached to Supplier<Block> MY_BLOCK
 @Override
 public boolean stillValid(Player player) {
   return AbstractContainerMenu.stillValid(this.access, player, MY_BLOCK.get());
@@ -111,8 +111,10 @@ A `DataSlot` is an abstract class which should implement a getter and setter to 
 
 These, along with slots, should be recreated every time a new menu is initialized.
 
-:::caution
+:::note
 Although a `DataSlot` stores an integer, it is effectively limited to a **short** (-32768 to 32767) because of how it sends the value across the network. The 16 high-order bits of the integer are ignored.
+
+NeoForge patches the packet to provide the full integer to the client.
 :::
 
 ```java
@@ -163,10 +165,6 @@ public MyMenuAccess(int containerId, Inventory playerInventory, ContainerData da
   // ...
 }
 ```
-
-:::caution
-As `ContainerData` delegates to `DataSlot`s, these are also limited to a **short** (-32768 to 32767).
-:::
 
 #### `#quickMoveStack`
 
@@ -266,10 +264,10 @@ public ItemStack quickMoveStack(Player player, int quickMovedSlotIndex) {
 
 ## Opening a Menu
 
-Once a menu type has been registered, the menu itself has been finished, and a [screen] has been attached, a menu can then be opened by the player. Menus can be opened by calling `NetworkHooks#openScreen` on the logical server. The method takes in the player opening the menu, the `MenuProvider` of the server side menu, and optionally a `FriendlyByteBuf` if extra data needs to be synced to the client.
+Once a menu type has been registered, the menu itself has been finished, and a [screen] has been attached, a menu can then be opened by the player. Menus can be opened by calling `IPlayerExtension#openMenu` on the logical server. The method takes in the `MenuProvider` of the server side menu and optionally a `Consumer<RegistryFriendlyByteBuf>` if extra data needs to be synced to the client.
 
 :::note
-`NetworkHooks#openScreen` with the `FriendlyByteBuf` parameter should only be used if a menu type was created using an [`IContainerFactory`][icf].
+`IPlayerExtension#openMenu` with the `Consumer<RegistryFriendlyByteBuf>` parameter should only be used if a menu type was created using an [`IContainerFactory`][icf].
 :::
 
 #### `MenuProvider`
@@ -279,8 +277,9 @@ A `MenuProvider` is an interface that contains two methods: `#createMenu`, which
 A `MenuProvider` can easily be created using `SimpleMenuProvider`, which takes in a method reference to create the server menu and the title of the menu.
 
 ```java
-// In some implementation
-NetworkHooks.openScreen(serverPlayer, new SimpleMenuProvider(
+// In some implementation with access to the Player on the logical server (e.g. ServerPlayer instance)
+// Assume we have ServerPlayer serverPlayer
+serverPlayer.openMenu(new SimpleMenuProvider(
   (containerId, playerInventory, player) -> new MyMenu(containerId, playerInventory),
   Component.translatable("menu.title.examplemod.mymenu")
 ));
@@ -292,7 +291,7 @@ Menus are typically opened on a player interaction of some kind (e.g. when a blo
 
 #### Block Implementation
 
-Blocks typically implement a menu by overriding `BlockBehaviour#use`. If on the logical client, the interaction returns `InteractionResult#SUCCESS`. Otherwise, it opens the menu and returns `InteractionResult#CONSUME`.
+Blocks typically implement a menu by overriding `BlockBehaviour#useWithoutItem`. If on the [logical client][side], the [interaction] returns `InteractionResult#SUCCESS`. Otherwise, it opens the menu and returns `InteractionResult#CONSUME`.
 
 The `MenuProvider` should be implemented by overriding `BlockBehaviour#getMenuProvider`. Vanilla methods use this to view the menu in spectator mode.
 
@@ -304,9 +303,9 @@ public MenuProvider getMenuProvider(BlockState state, Level level, BlockPos pos)
 }
 
 @Override
-public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult result) {
+public InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult result) {
   if (!level.isClientSide && player instanceof ServerPlayer serverPlayer) {
-    NetworkHooks.openScreen(serverPlayer, state.getMenuProvider(level, pos));
+    serverPlayer.openMenu(state.getMenuProvider(level, pos));
   }
   return InteractionResult.sidedSuccess(level.isClientSide);
 }
@@ -327,7 +326,7 @@ public class MyMob extends Mob implements MenuProvider {
   @Override
   public InteractionResult mobInteract(Player player, InteractionHand hand) {
     if (!this.level.isClientSide && player instanceof ServerPlayer serverPlayer) {
-      NetworkHooks.openScreen(serverPlayer, this);
+      serverPlayer.openMenu(this);
     }
     return InteractionResult.sidedSuccess(this.level.isClientSide);
   }
@@ -345,3 +344,5 @@ Once again, this is the simplest way to implement the logic, not the only way.
 [cap]: ../datastorage/capabilities.md#neoforge-provided-capabilities
 [screen]: ./screens.md
 [icf]: #icontainerfactory
+[side]: ../concepts/sides.md#the-logical-side
+[interaction]: ../items/interactionpipeline.md
