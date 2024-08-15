@@ -2,7 +2,7 @@
 
 Recipes are a way to transform a set of objects into other objects within a Minecraft world. Although Minecraft uses this system purely for item transformations, the system is built in a way that allows any kind of objects - blocks, entities, etc. - to be transformed. Almost all recipes use recipe data files; a "recipe" is assumed to be a data-driven recipe in this article unless explicitly stated otherwise.
 
-Recipe data files are located at `data/<namespace>/recipes/<path>.json`. For example, the recipe `minecraft:diamond_block` is located at `data/minecraft/recipes/diamond_block.json`.
+Recipe data files are located at `data/<namespace>/recipe/<path>.json`. For example, the recipe `minecraft:diamond_block` is located at `data/minecraft/recipe/diamond_block.json`.
 
 ## Terminology
 
