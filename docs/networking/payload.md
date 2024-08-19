@@ -57,8 +57,8 @@ public static void register(final RegisterPayloadHandlersEvent event) {
         MyData.TYPE,
         MyData.STREAM_CODEC,
         new DirectionalPayloadHandler<>(
-            ClientPayloadHandler::handleData,
-            ServerPayloadHandler::handleData
+            ClientPayloadHandler::handleDataOnMain,
+            ServerPayloadHandler::handleDataOnMain
         )
     );
 }
@@ -79,7 +79,48 @@ Now that we have registered the payload we need to implement a handler. For this
 ```java
 public class ClientPayloadHandler {
     
-    public static void handleData(final MyData data, final IPayloadContext context) {
+    public static void handleDataOnMain(final MyData data, final IPayloadContext context) {
+        // Do something with the data, on the main thread
+        blah(data.age());
+    }
+}
+```
+
+Here a couple of things are of note:
+
+- The handling method here gets the payload, and a contextual object.
+- The handler of the payload method is, by default, invoked on the main thread.
+
+
+If you need to do some computation that is resource intensive, then the work should be done on the network thread, instead of blocking the main thread. This is done by setting the `HandlerThread` of the `PayloadRegistrar` to `HandlerThread#NETWORK` via `PayloadRegistrar#executesOn` before registering the payload.
+
+```java
+@SubscribeEvent
+public static void register(final RegisterPayloadHandlersEvent event) {
+    final PayloadRegistrar registrar = event.registrar("1")
+        .executesOn(HandlerThread.NETWORK); // All subsequent payloads will register on the network thread
+    registrar.playBidirectional(
+        MyData.TYPE,
+        MyData.STREAM_CODEC,
+        new DirectionalPayloadHandler<>(
+            ClientPayloadHandler::handleDataOnNetwork,
+            ServerPayloadHandler::handleDataOnNetwork
+        )
+    );
+}
+```
+
+Here a couple of things are of note:
+
+- If you want to run code on the main game thread you can use `enqueueWork` to submit a task to the main thread.
+    - The method will return a `CompletableFuture` that will be completed on the main thread.
+    - Notice: A `CompletableFuture` is returned, this means that you can chain multiple tasks together, and handle exceptions in a single place.
+    - If you do not handle the exception in the `CompletableFuture` then it will be swallowed, **and you will not be notified of it**.
+
+```java
+public class ClientPayloadHandler {
+    
+    public static void handleDataOnNetwork(final MyData data, final IPayloadContext context) {
         // Do something with the data, on the network thread
         blah(data.name());
         
@@ -95,15 +136,6 @@ public class ClientPayloadHandler {
     }
 }
 ```
-
-Here a couple of things are of note:
-
-- The handling method here gets the payload, and a contextual object.
-- The handler of the payload method is invoked on the networking thread, so it is important to do all the heavy work here, instead of blocking the main game thread.
-- If you want to run code on the main game thread you can use `enqueueWork` to submit a task to the main thread.
-    - The method will return a `CompletableFuture` that will be completed on the main thread.
-    - Notice: A `CompletableFuture` is returned, this means that you can chain multiple tasks together, and handle exceptions in a single place.
-    - If you do not handle the exception in the `CompletableFuture` then it will be swallowed, **and you will not be notified of it**.
 
 With your own payloads you can then use those to configure the client and server using [Configuration Tasks][configuration].
 
