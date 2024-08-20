@@ -363,7 +363,7 @@ public static void useItemOnBlock(UseItemOnBlockEvent event) {
             level.addFreshEntity(entity);
         }
         // Cancel the event to stop the interaction pipeline.
-        event.setCanceled(true);
+        event.cancelWithResult(ItemInteractionResult.sidedSuccess(level.isClientSide));
     }
 }
 ```
