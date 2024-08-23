@@ -110,6 +110,29 @@ public static void register(final RegisterPayloadHandlersEvent event) {
 }
 ```
 
+:::note
+All payloads registered after an `executesOn` call will retain the same thread execution location until `executesOn` is called again.
+
+```java
+PayloadRegistrar registrar = event.registrar("1");
+
+registrar.playBidirectional(...); // On the main thread
+registrar.playBidirectional(...); // On the main thread
+
+// All registrar methods create a new instance, so the change
+// needs to be updated by storing the result
+registrar = registrar.executesOn(HandlerThread.NETWORK);
+
+registrar.playBidirectional(...); // On the network thread
+registrar.playBidirectional(...); // On the network thread
+
+registrar = registrar.executesOn(HandlerThread.MAIN);
+
+registrar.playBidirectional(...); // On the main thread
+registrar.playBidirectional(...); // On the main thread
+```
+:::
+
 Here a couple of things are of note:
 
 - If you want to run code on the main game thread you can use `enqueueWork` to submit a task to the main thread.
