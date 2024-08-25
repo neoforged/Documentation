@@ -138,7 +138,7 @@ The process of creating [mods][mod].
 
 ### Modding API
 
-An API created to help [modders][modder] in [modding]. Generally includes ways to make integrating with vanilla systems easier. All modern modding frameworks for Minecraft include a modding API and a [mod loader][modloader].
+An [API](https://en.wikipedia.org/wiki/API) created to help [modders][modder] in [modding]. Generally includes ways to make integrating with vanilla systems easier. All modern modding frameworks for Minecraft include a modding API and a [mod loader][modloader].
 
 ### Modpack
 
