@@ -336,10 +336,9 @@ public static void useItemOnBlock(UseItemOnBlockEvent event) {
     UseOnContext context = event.getUseOnContext();
     Level level = context.getLevel();
     BlockPos pos = context.getClickedPos();
-    BlockState blockState = context.getLevel().getBlockState(pos);
+    BlockState blockState = level.getBlockState(pos);
     ItemStack itemStack = context.getItemInHand();
-    // If the level is not a server level, return.
-    if (level.isClientSide()) return;
+    RecipeManager recipes = level.getRecipeManager();
     // Create an input and query the recipe.
     RightClickBlockInput input = new RightClickBlockInput(blockState, itemStack);
     Optional<RecipeHolder<? extends Recipe<CraftingInput>>> optional = recipes.getRecipeFor(
@@ -354,14 +353,17 @@ public static void useItemOnBlock(UseItemOnBlockEvent event) {
             .orElse(ItemStack.EMPTY);
     // If there is a result, break the block and drop the result in the world.
     if (!result.isEmpty()) {
-        level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
-        ItemEntity entity = new ItemEntity(level,
-                // Center of pos.
-                pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5,
-                result);
-        level.addFreshEntity(entity);
+        level.removeBlock(pos, false);
+        // If the level is not a server level, don't spawn the entity.
+        if (!level.isClientSide()) {
+            ItemEntity entity = new ItemEntity(level,
+                    // Center of pos.
+                    pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5,
+                    result);
+            level.addFreshEntity(entity);
+        }
         // Cancel the event to stop the interaction pipeline.
-        event.setCanceled(true);
+        event.cancelWithResult(ItemInteractionResult.sidedSuccess(level.isClientSide));
     }
 }
 ```
