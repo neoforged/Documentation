@@ -89,7 +89,7 @@ public class ClientPayloadHandler {
 Here a couple of things are of note:
 
 - The handling method here gets the payload, and a contextual object.
-- The handler of the payload method is, by default, invoked on the main thread.
+- The handling method of the payload is, by default, invoked on the main thread.
 
 
 If you need to do some computation that is resource intensive, then the work should be done on the network thread, instead of blocking the main thread. This is done by setting the `HandlerThread` of the `PayloadRegistrar` to `HandlerThread#NETWORK` via `PayloadRegistrar#executesOn` before registering the payload.
