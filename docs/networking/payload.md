@@ -119,8 +119,9 @@ PayloadRegistrar registrar = event.registrar("1");
 registrar.playBidirectional(...); // On the main thread
 registrar.playBidirectional(...); // On the main thread
 
-// All registrar methods create a new instance, so the change
-// needs to be updated by storing the result
+// Configuration methods modify the state of the registrar
+// by creating a new instance, so the change needs to be
+/// updated by storing the result
 registrar = registrar.executesOn(HandlerThread.NETWORK);
 
 registrar.playBidirectional(...); // On the network thread
