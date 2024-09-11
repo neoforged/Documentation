@@ -98,7 +98,9 @@ public class MyBlockEntity extends BlockEntity {
     @Override
     public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
-        value = tag.getInt("value");
+        if (tag.has("value")) {
+            value = tag.getInt("value");
+        }
     }
 
     // Save values into the passed CompoundTag here.
@@ -116,97 +118,116 @@ In both methods, it is important that you call super, as that adds basic informa
 It is expected that Mojang will adapt the [Data Components][datacomponents] system to also work with block entities sometime during the next few updates. Once that happens, both saving to NBT and data attachments will be removed in favor of data components.
 :::
 
-## Ticking `BlockEntities`
+Of course, you will want to set other values and not just work with defaults. You can do so freely, like with any other field. However, if you want the game to save those changes, you must call `#setChanged()` afterward, otherwise the block entity might get skipped during saving.
 
-If you need a ticking `BlockEntity`, for example to keep track of the progress during a smelting process, another method must be implemented and overridden within `EntityBlock`: `EntityBlock#getTicker(Level, BlockState, BlockEntityType)`. This can implement different tickers depending on which logical side the user is on, or just implement one general ticker. In either case, a `BlockEntityTicker` must be returned. Since this is a functional interface, it can just take in a method representing the ticker instead:
+## Tickers
+
+Another very common use of block entities, often in combination with some stored data, is ticking. Ticking means executing some code every game tick. This is done by overriding `EntityBlock#getTicker` and returning a `BlockEntityTicker`, which is basically a consumer with four arguments (level, position, blockstate and block entity), like so:
 
 ```java
-// Inside some Block subclass
-@Nullable
-@Override
-public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-  return type == MyBlockEntityTypes.MYBE.get() ? MyBlockEntity::tick : null;
+// Note: The ticker is defined in the block, not the block entity. However, it is good practice to
+// keep the ticking logic in the block entity in some way, for example by defining a static #tick method.
+public class MyEntityBlock extends Block implements EntityBlock {
+    // other stuff here
+
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
+        // You can return different tickers here, depending on whatever factors you want. A common use case would be
+        // to return different tickers on the client or server, or only tick one side to begin with.
+        return type == MY_BLOCK_ENTITY.get() ? MyBlockEntity::tick : null;
+    }
 }
 
-// Inside MyBlockEntity
-public static void tick(Level level, BlockPos pos, BlockState state, MyBlockEntity blockEntity) {
-  // Do stuff
+public class MyBlockEntity extends BlockEntity {
+    // other stuff here
+
+    // The signature of this method matches the signature of the BlockEntityTicker functional interface.
+    public static void tick(Level level, BlockPos pos, BlockState state, MyBlockEntity blockEntity) {
+        // Whatever you want to do during ticking.
+        // For example, you could change a crafting progress value or consume power here.
+    }
 }
 ```
 
-:::note
-This method is called each tick; therefore, you should avoid having complicated calculations in here. If possible, you should make more complex calculations every X ticks. (The amount of ticks in a second may be lower then 20 (twenty) but won't be higher)
-:::
+Be aware that the `#tick` method is actually called every tick. Due to this, you should avoid doing a lot of complex calculations in here if you can, for example by only calculating things every X ticks, or by caching the results.
 
-## Synchronizing the Data to the Client
+## Syncing
 
-There are three ways of syncing data to the client: synchronizing on chunk load, on block updates, and with a custom network message.
+Block entity logic is usually run on the server. As such, we need to tell the client what we are doing. There are three ways to do just that: on chunk load, on block update, or by using a custom packet. You should generally only sync information when it is necessary, to not needlessly clog up the network. 
 
-### Synchronizing on LevelChunk Load
+### Syncing on Chunk Load
 
-For this you need to override
+A chunk is loaded (and by extension, this method is utilized) each time it is read from either network or disk. To send your data here, you need to override the following methods:
+
 ```java
-BlockEntity#getUpdateTag(HolderLookup.Provider registries)
+public class MyBlockEntity extends BlockEntity {
+    // ...
 
-IBlockEntityExtension#handleUpdateTag(CompoundTag tag, HolderLookup.Provider registries)
+    // Create an update tag here. For block entities with only a few fields, this can just call #saveAdditional.
+    @Override
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+        CompoundTag tag = new CompoundTag();
+        // You can also opt to only save the data that has actually changed here.
+        // This makes sense especially for block entities with larger amounts of data.
+        saveAdditional(tag, registries);
+        return tag;
+    }
+
+    // Handle a received update tag here. The default implementation calls #loadAdditional here,
+    // so you do not need to override this method if you don't plan to do anything beyond that.
+    @Override
+    public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
+        super.handleUpdateTag(tag, registries);
+    }
+}
 ```
 
-The first method collects the data that should be sent to the client while the second one processes that data. If your `BlockEntity` doesn't contain much data, you might be able to use the methods out of the [Storing Data within your `BlockEntity`][storing-data] section.
+### Syncing on Block Update
+
+This method is used whenever a block update occurs. Block updates must be triggered manually, but are generally processed faster than chunk syncing.
+
+```java
+public class MyBlockEntity extends BlockEntity {
+    // ...
+
+    // Create an update tag here, like above.
+    @Override
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+        CompoundTag tag = new CompoundTag();
+        saveAdditional(tag, registries);
+        return tag;
+    }
+
+    // Return our packet here. This method returning a non-null result tells the game to use this packet for syncing.
+    @Override
+    public Packet<ClientGamePacketListener> getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    // Optionally: Run some custom logic when the packet is received.
+    // The super/default implementation forwards to #loadAdditional.
+    @Override
+    public void onDataPacket(Connection connection, ClientboundBlockEntityDataPacket packet, HolderLookup.Provider registries) {
+        super.onDataPacket(connection, packet, registries);
+        // Do whatever you need to do here.
+    }
+}
+```
+
+To actually send the packet, an update notification must be triggered on the server by calling `Level#sendBlockUpdated(BlockPos pos, BlockState oldState, BlockState newState, int flags)`. The position should be the block entity's position, obtainable via `BlockEntity#getBlockPos`. Both blockstate parameters can be the blockstate at the block entity's position, obtainable via `BlockEntity#getBlockState`. Finally, the `flags` parameter is an update mask, as used in [`Level#setBlock`][setblock].
+
+### Using a Custom Packet
+
+By using a dedicated update packet, you can send packets yourself whenever you need to. This is the most versatile, but also the most complex variant, as it requires setting up a network handler. You can send a packet to all players tracking the block entity by using `PacketDistrubtor#sendToPlayersTrackingChunk`. Please see the [Networking][networking] section for more information.
 
 :::caution
-Synchronizing excessive/useless data for block entities can lead to network congestion. You should optimize your network usage by sending only the information the client needs when the client needs it. For instance, it is more often than not unnecessary to send the inventory of a block entity in the update tag, as this can be synchronized via its [`AbstractContainerMenu`][menu].
-:::
-
-### Synchronizing on Block Update
-
-This method is a bit more complicated, but again you just need to override two or three methods. Here is a tiny example implementation of it:
-
-```java
-// In some subclass of BlockEntity
-@Override
-public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-  CompoundTag tag = new CompoundTag();
-  //Write your data into the tag
-  return tag;
-}
-
-@Override
-public Packet<ClientGamePacketListener> getUpdatePacket() {
-  // Will get tag from #getUpdateTag
-  return ClientboundBlockEntityDataPacket.create(this);
-}
-
-// Can override IBlockEntityExtension#onDataPacket. By default, this will defer to  BlockEntity#loadWithComponents.
-```
-The static constructors `ClientboundBlockEntityDataPacket#create` takes:
-
-- The `BlockEntity`.
-- An optional function to get the `CompoundTag` from the `BlockEntity` and a `RegistryAccess`. By default, this uses `BlockEntity#getUpdateTag`.
-
-Now, to send the packet, an update notification must be given on the server.
-
-```java
-Level#sendBlockUpdated(BlockPos pos, BlockState oldState, BlockState newState, int flags)
-```
-
-- The `pos` should be your `BlockEntity`'s position.
-- For `oldState` and `newState`, you can pass the current `BlockState` at that position.
-- `flags` is a bitmask that should contain `2`, which will sync the changes to the client. See `Block` for more info as well as the rest of the flags. The flag `2` is equivalent to `Block#UPDATE_CLIENTS`.
-
-### Synchronizing Using a Custom Network Message
-
-This way of synchronizing is probably the most complicated but is usually the most optimized, as you can make sure that only the data you need to be synchronized is actually synchronized. You should first check out the [`Networking`][networking] section and especially [`PayloadRegistrar`][payload] before attempting this. Once you've created your custom network message, you can send it to all users that have the `BlockEntity` loaded with `PacketDistrubtor#sendToPlayersTrackingChunk`.
-
-:::caution
-It is important that you do safety checks, the `BlockEntity` might already be destroyed/replaced when the message arrives at the player! You should also check if the chunk is loaded (`Level#hasChunkAt(BlockPos)`).
+It is important that you do safety checks, as the `BlockEntity` might already be destroyed/replaced when the message arrives at the player. You should also check if the chunk is loaded via `Level#hasChunkAt`.
 :::
 
 [blockstates]: ../blocks/states.md
 [dataattachments]: ../datastorage/attachments.md
 [datacomponents]: ../items/datacomponents.md
 [nbt]: ../datastorage/nbt.md
-[menu]: ../gui/menus.md
 [networking]: ../networking/index.md
-[payload]: ../networking/payload.md
 [registration]: ../concepts/registries.md#methods-for-registering
-[storing-data]: #storing-data-within-your-blockentity
+[setblock]: ../blocks/states.md#levelsetblock
