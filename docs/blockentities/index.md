@@ -1,52 +1,119 @@
 # Block Entities
 
-`BlockEntities` are like simplified `Entities` that are bound to a Block. They are used to store dynamic data, execute tick based tasks, and dynamic rendering. Some examples from vanilla Minecraft would be handling of inventories on chests, smelting logic on furnaces, or area effects on beacons. More advanced examples exist in mods, such as quarries, sorting machines, pipes, and displays.
+Block entities allow the storage of data on blocks in cases where [block states][blockstates] are not suited. This is especially the case for data with a non-finite amount of options, such as inventories. Block entities are stationary and bound to a block, but otherwise share many similarities with entities, hence the name.
 
 :::note
-`BlockEntities` aren't a solution for everything and they can cause lag when used incorrectly. When possible, try to avoid them.
+If you have a finite and reasonably small amount (= a few hundred at most) of possible states for your block, you might want to consider using [block states][blockstates] instead.
 :::
 
-## Registering
+## Creating and Registering Block Entities
 
-Block Entities are created and removed dynamically and as such are not registry objects on their own.
+Like entities and unlike blocks, the `BlockEntity` class represents the block entity instance, not the [registered][registration] singleton object. The singleton is expressed through the `BlockEntityType<?>` class instead. We will need both to create a new block entity.
 
-In order to create a `BlockEntity`, you need to extend the `BlockEntity` class. As such, another object is registered instead to easily create and refer to the *type* of the dynamic object. For a `BlockEntity`, these are known as `BlockEntityType`s.
-
-A `BlockEntityType` can be [registered][registration] like any other registry object. To construct a `BlockEntityType`, its builder form can be used via `BlockEntityType$Builder#of`. This takes in two arguments: a `BlockEntityType.BlockEntitySupplier` which takes in a `BlockPos` and `BlockState` to create a new instance of the associated `BlockEntity`, and a varargs of `Block`s which this `BlockEntity` can be attached to. Building the `BlockEntityType` is done by calling `BlockEntityType$Builder#build`. This takes in a `Type` which represents the type-safe reference used to refer to this registry object in a `DataFixer`. Since `DataFixer`s are an optional system to use for mods, this can be passed as `null`.
+Let's begin by creating our block entity class:
 
 ```java
-// For some DeferredRegister<BlockEntityType<?>> REGISTER
-public static final Supplier<BlockEntityType<MyBE>> MY_BE = REGISTER.register("mybe", () -> BlockEntityType.Builder.of(MyBE::new, validBlocks).build(null));
-
-// In MyBE, a BlockEntity subclass
-public MyBE(BlockPos pos, BlockState state) {
-  super(MY_BE.get(), pos, state);
+public class MyBlockEntity extends BlockEntity {
+    public MyBlockEntity(BlockPos pos, BlockState state) {
+        super(type, pos, state);
+    }
 }
 ```
 
-## Creating a `BlockEntity`
+As you may have noticed, we pass an undefined variable `type` to the super constructor. Let's leave that undefined variable there for a moment and instead move to registration.
 
-To create a `BlockEntity` and attach it to a `Block`, the `EntityBlock` interface must be implemented on your `Block` subclass. The method `EntityBlock#newBlockEntity(BlockPos, BlockState)` must be implemented and return a new instance of your `BlockEntity`.
+Registration happens in a similar fashion to entities. We create an instance of the associated singleton class `BlockEntityType<?>` and register it to the block entity type registry, like so:
 
-## Storing Data within your `BlockEntity`
-
-In order to save data, override the following two methods:
 ```java
-BlockEntity#saveAdditional(CompoundTag tag, HolderLookup.Provider registries)
+public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITY_TYPES =
+        DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, ExampleMod.MOD_ID);
 
-BlockEntity#loadAdditional(CompoundTag tag, HolderLookup.Provider registries)
+public static final Supplier<BlockEntityType<MyBlockEntity>> MY_BLOCK_ENTITY =
+        BLOCK_ENTITY_TYPES.register(
+                "my_block_entity",
+                // The block entity type, created using a builder.
+                () -> BlockEntityType.Builder.of(
+                        // The supplier to use for constructing the block entity instances.
+                        MyBlockEntity::new,
+                        // A vararg of blocks that can have this block entity.
+                        // This assumes the existence of the referenced blocks as DeferredBlock<Block>s.
+                        MyBlocks.MY_BLOCK_1, MyBlocks.MY_BLOCK_2
+                )
+                // Build using null; vanilla does some datafixer shenanigans with the parameter that we don't need.
+                .build(null);
+        );
 ```
-These methods are called whenever the `LevelChunk` containing the `BlockEntity` gets loaded from/saved to a tag.
-Use them to read and write to the fields in your block entity class.
 
-:::note
-Whenever your data changes, you need to call `BlockEntity#setChanged`; otherwise, the `LevelChunk` containing your `BlockEntity` might be skipped while the level is saved.
+Now that we have our block entity type, we can use it in place of the `type` variable we left earlier:
+
+```java
+public class MyBlockEntity extends BlockEntity {
+    public MyBlockEntity(BlockPos pos, BlockState state) {
+        super(MY_BLOCK_ENTITY.get(), pos, state);
+    }
+}
+```
+
+Finally, we need to modify the block class associated with the block entity. This means that we will not be able to attach block entities to simple instances of `Block`, instead, we need a subclass:
+
+```java
+// The important part is implementing the EntityBlock interface and overriding the #newBlockEntity method.
+public class MyEntityBlock extends Block implements EntityBlock {
+    // Constructor deferring to super.
+    public MyEntityBlock(BlockBehaviour.Properties properties) {
+        super(properties);
+    }
+
+    // Return a new instance of our block entity here.
+    @Override
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return new MyBlockEntity(pos, state);
+    }
+}
+```
+
+And then, you of course need to use this class as the type in your block registration.
+
+:::info
+The reason for this rather confusing setup process is that `BlockEntityType.Builder#of` expects a `BlockEntityType.BlockEntitySupplier<T extends BlockEntity>`, which is basically a `BiFunction<BlockPos, BlockState, T extends BlockEntity>`. As such, having a constructor we can directly reference using `::new` is highly beneficial. However, we also need to provide the constructed block entity type to the default and only constructor of `BlockEntity`, so we need to pass references around a bit.
 :::
 
-:::danger
-It is important that you call the `super` methods!
+## Storing Data
 
-The tag names `id`, `x`, `y`, `z`, `NeoForgeData` and `neoforge:attachments` are reserved by the `super` methods.
+One of the main purposes of `BlockEntity`s is to store data. Data storage on block entities can happen in two ways: directly reading and writing [NBT][nbt], or using [data attachments][dataattachments]. This section will cover reading and writing NBT directly; for data attachments, please refer to the linked article.
+
+Data can be read from and written to a `CompoundTag` using the `#loadAdditional` and `#saveAdditional` methods, respectively. These methods are called when the block entity is synced to disk or over the network.
+
+```java
+public class MyBlockEntity extends BlockEntity {
+    // This can be any value of any type you want, so long as you can somehow serialize it to NBT.
+    // We will use an int for the sake of example.
+    private int value;
+
+    public MyBlockEntity(BlockPos pos, BlockState state) {
+        super(MY_BLOCK_ENTITY.get(), pos, state);
+    }
+
+    // Read values from the passed CompoundTag here.
+    @Override
+    public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.loadAdditional(tag, registries);
+        value = tag.getInt("value");
+    }
+
+    // Save values into the passed CompoundTag here.
+    @Override
+    public void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.saveAdditional(tag, registries);
+        tag.putInt("value", value);
+    }
+}
+```
+
+In both methods, it is important that you call super, as that adds basic information such as the position. The tag names `id`, `x`, `y`, `z`, `NeoForgeData` and `neoforge:attachments` are reserved by the super methods, and as such, you should not use them yourself.
+
+:::info
+It is expected that Mojang will adapt the [Data Components][datacomponents] system to also work with block entities sometime during the next few updates. Once that happens, both saving to NBT and data attachments will be removed in favor of data components.
 :::
 
 ## Ticking `BlockEntities`
@@ -134,8 +201,12 @@ This way of synchronizing is probably the most complicated but is usually the mo
 It is important that you do safety checks, the `BlockEntity` might already be destroyed/replaced when the message arrives at the player! You should also check if the chunk is loaded (`Level#hasChunkAt(BlockPos)`).
 :::
 
-[registration]: ../concepts/registries.md#methods-for-registering
-[storing-data]: #storing-data-within-your-blockentity
+[blockstates]: ../blocks/states.md
+[dataattachments]: ../datastorage/attachments.md
+[datacomponents]: ../items/datacomponents.md
+[nbt]: ../datastorage/nbt.md
 [menu]: ../gui/menus.md
 [networking]: ../networking/index.md
 [payload]: ../networking/payload.md
+[registration]: ../concepts/registries.md#methods-for-registering
+[storing-data]: #storing-data-within-your-blockentity
