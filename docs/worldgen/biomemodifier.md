@@ -2,7 +2,7 @@
 
 Biome Modifiers are a data-driven system that allows for changing many aspects of a biome. Ranging from injecting or removing PlacedFeatures, adding or deleting mob spawns, changing the climate, and adjusting foliage and water color. NeoForge provides several default Biome Modifiers that covers the majority of use cases for both players and modders.
 
-For players, you will want to see the [#Builtin-Neoforge-Biome-Modifiers](#Builtin-Neoforge-Biome-Modifiers) section and [#Applying-Biome-Modifiers](#Applying-Biome-Modifiers) section.
+For players and pack makers, you will want to see the [#Builtin-Neoforge-Biome-Modifiers](#Builtin-Neoforge-Biome-Modifiers) section and [#Applying-Biome-Modifiers](#Applying-Biome-Modifiers) section.
 
 For modders looking to do basic goals, you will want to see the [#Builtin-Neoforge-Biome-Modifiers](#Builtin-Neoforge-Biome-Modifiers), [#Applying-Biome-Modifiers](#Applying-Biome-Modifiers) and possibly [#Datagenning-Biome-Modifiers](#Datagenning-Biome-Modifiers) sections for your mods.
 
