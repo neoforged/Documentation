@@ -36,7 +36,7 @@ These Biome Modifiers are registered by NeoForge for anyone to use. The JSON exa
 
 ### None
 
-This Biome Modifier has no operation and will do no modification. Pack makers and players can use this in a Datapack to disable mods' Biome Modifiers by overriding their Biome Modifier jsons with the below. There is no Datagen code to make this modifier.
+This Biome Modifier has no operation and will do no modification. Pack makers and players can use this in a Datapack to disable mods' Biome Modifiers by overriding their Biome Modifier jsons with the below.
 
 <Tabs>
   <TabItem value="json" label="JSON" default>
@@ -45,6 +45,27 @@ This Biome Modifier has no operation and will do no modification. Pack makers an
 {
   "type": "neoforge:none"
 }
+```
+
+  </TabItem>
+  <TabItem value="datagen" label="Datagen">
+
+```java
+// Define keys for Datapack registry objects
+public static final ResourceKey<BiomeModifier> NO_OP_EXAMPLE =
+    ResourceKey.create(
+        NeoForgeRegistries.Keys.BIOME_MODIFIERS, // The registry this key is for
+        ResourceLocation.fromNamespaceAndPath(MOD_ID, "no_op_example") // The registry name
+    );
+
+// For some RegistrySetBuilder BUILDER
+// being passed to DatapackBuiltinEntriesProvider
+// in a listener for GatherDataEvent
+BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
+    
+    // Register the Biome Modifiers
+    bootstrap.register(NO_OP_EXAMPLE, NoneBiomeModifier.INSTANCE);
+})
 ```
 
   </TabItem>
@@ -92,8 +113,8 @@ public static final ResourceKey<BiomeModifier> ADD_FEATURES_EXAMPLE =
     );
 
 // For some RegistrySetBuilder BUILDER
-//   being passed to DatapackBuiltinEntriesProvider
-//   in a listener for GatherDataEvent
+// being passed to DatapackBuiltinEntriesProvider
+// in a listener for GatherDataEvent
 BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
     // Lookup any necessary registries
     // Static registries only need to be looked up if you need to grab the tag data
@@ -166,8 +187,8 @@ public static final ResourceKey<BiomeModifier> REMOVE_FEATURES_EXAMPLE =
     );
 
 // For some RegistrySetBuilder BUILDER
-//   being passed to DatapackBuiltinEntriesProvider
-//   in a listener for GatherDataEvent
+// being passed to DatapackBuiltinEntriesProvider
+// in a listener for GatherDataEvent
 BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
     // Lookup any necessary registries
     // Static registries only need to be looked up if you need to grab the tag data
@@ -247,8 +268,8 @@ public static final ResourceKey<BiomeModifier> ADD_SPAWNS_EXAMPLE =
     );
 
 // For some RegistrySetBuilder BUILDER
-//   being passed to DatapackBuiltinEntriesProvider
-//   in a listener for GatherDataEvent
+// being passed to DatapackBuiltinEntriesProvider
+// in a listener for GatherDataEvent
 BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
     // Lookup any necessary registries
     // Static registries only need to be looked up if you need to grab the tag data
@@ -310,8 +331,8 @@ public static final ResourceKey<BiomeModifier> REMOVE_SPAWNS_EXAMPLE =
     );
 
 // For some RegistrySetBuilder BUILDER
-//   being passed to DatapackBuiltinEntriesProvider
-//   in a listener for GatherDataEvent
+// being passed to DatapackBuiltinEntriesProvider
+// in a listener for GatherDataEvent
 BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
     // Lookup any necessary registries
     // Static registries only need to be looked up if you need to grab the tag data
@@ -379,8 +400,8 @@ public static final ResourceKey<BiomeModifier> ADD_SPAWN_COSTS_EXAMPLE =
     );
 
 // For some RegistrySetBuilder BUILDER
-//   being passed to DatapackBuiltinEntriesProvider
-//   in a listener for GatherDataEvent
+// being passed to DatapackBuiltinEntriesProvider
+// in a listener for GatherDataEvent
 BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
     // Lookup any necessary registries
     // Static registries only need to be looked up if you need to grab the tag data
@@ -442,8 +463,8 @@ public static final ResourceKey<BiomeModifier> REMOVE_SPAWN_COSTS_EXAMPLE =
     );
 
 // For some RegistrySetBuilder BUILDER
-//   being passed to DatapackBuiltinEntriesProvider
-//   in a listener for GatherDataEvent
+// being passed to DatapackBuiltinEntriesProvider
+// in a listener for GatherDataEvent
 BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
     // Lookup any necessary registries
     // Static registries only need to be looked up if you need to grab the tag data
@@ -506,8 +527,8 @@ public static final ResourceKey<BiomeModifier> ADD_CARVERS_EXAMPLE =
     );
 
 // For some RegistrySetBuilder BUILDER
-//   being passed to DatapackBuiltinEntriesProvider
-//   in a listener for GatherDataEvent
+// being passed to DatapackBuiltinEntriesProvider
+// in a listener for GatherDataEvent
 BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
     // Lookup any necessary registries
     // Static registries only need to be looked up if you need to grab the tag data
@@ -573,8 +594,8 @@ public static final ResourceKey<BiomeModifier> REMOVE_CARVERS_EXAMPLE =
     );
 
 // For some RegistrySetBuilder BUILDER
-//   being passed to DatapackBuiltinEntriesProvider
-//   in a listener for GatherDataEvent
+// being passed to DatapackBuiltinEntriesProvider
+// in a listener for GatherDataEvent
 BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
     // Lookup any necessary registries
     // Static registries only need to be looked up if you need to grab the tag data
