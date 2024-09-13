@@ -2,17 +2,17 @@
 
 Biome Modifiers are a data-driven system that allows for changing many aspects of a biome. Ranging from injecting or removing PlacedFeatures, adding or deleting mob spawns, changing the climate, and adjusting foliage and water color. NeoForge provides several default Biome Modifiers that covers the majority of use cases for both players and modders.
 
-For players and pack makers, you will want to see the [#Applying-Biome-Modifiers](#Applying-Biome-Modifiers) section and [#Builtin-Neoforge-Biome-Modifiers](#Builtin-Neoforge-Biome-Modifiers) section.
+For players and pack makers, you will want to see the '[Applying Biome Modifiers](#Applying-Biome-Modifiers)' section and '[Built-in Neoforge Biome Modifiers](#Builtin-Neoforge-Biome-Modifiers)' section.
 
-For modders looking to do basic goals, you will want to see the [#Applying-Biome-Modifiers](#Applying-Biome-Modifiers) section, [#Builtin-Neoforge-Biome-Modifiers](#Builtin-Neoforge-Biome-Modifiers) section, and possibly the [#Datagenning-Biome-Modifiers](#Datagenning-Biome-Modifiers) section if you prefer to datagen.
+For modders looking to do basic goals, you will want to see the '[Applying Biome Modifiers](#Applying-Biome-Modifiers)' section, '[Built-in Neoforge Biome Modifiers](#Builtin-Neoforge-Biome-Modifiers)' section, and possibly the '[Datagenning Biome Modifiers](#Datagenning-Biome-Modifiers)' section if you prefer to datagen.
 
-For modders looking to do advance custom Biome Modifiers, check out the [#Applying-Biome-Modifiers](#Applying-Biome-Modifiers) section and [#Creating-Custom-Biome-Modifiers](#Creating-Custom-Biome-Modifiers) section.
+For modders looking to do advanced custom Biome Modifiers, check out the '[Applying Biome Modifiers](#Applying-Biome-Modifiers)' section and '[Creating Custom Biome Modifiers](#Creating-Custom-Biome-Modifiers)' section.
 
 ## Applying Biome Modifiers:
 
 Biome Modifiers are like a set of modifications to apply to a biome when the game loads. To have NeoForge load a Biome Modifier JSON file into the game, the file will need to be under `data/<modid>/neoforge/biome_modifier/<path>.json` folder in the mod's resources or in a datapack. Then once NeoForge loads the Biome Modifier, it'll read its instructions and apply the described modifications to all target biomes when the world is loaded up. Pre-existing Biome Modifiers from mods can be overridden by datapacks having a new JSON file at the exact same location and name.
 
-The JSON file can be created by hand following the examples in [#Builtin-Neoforge-Biome-Modifiers](#Builtin-Neoforge-Biome-Modifiers) section or be datagenned as shown in [#Datagenning-Biome-Modifiers](#Datagenning-Biome-Modifiers) section.
+The JSON file can be created by hand following the examples in the '[Built-in NeoForge Biome Modifiers](#Builtin-Neoforge-Biome-Modifiers)' section or be datagenned as shown in the '[Datagenning Biome Modifiers](#Datagenning-Biome-Modifiers)' section.
 
 ## Builtin Neoforge Biome Modifiers:
 
