@@ -26,21 +26,29 @@ Biome Modifiers are a data-driven system that allows for changing many aspects o
 
 ## Applying Biome Modifiers:
 
-Biome Modifiers are like a set of modifications to apply to a biome when the game loads. To have NeoForge load a Biome Modifier JSON file into the game, the file will need to be under `data/<modid>/neoforge/biome_modifier/<path>.json` folder in the mod's resources or in a datapack. Then once NeoForge loads the Biome Modifier, it'll read its instructions and apply the described modifications to all target biomes when the world is loaded up. Pre-existing Biome Modifiers from mods can be overridden by datapacks having a new JSON file at the exact same location and name.
+Biome Modifiers are like a set of modifications to apply to a biome when the game loads. To have NeoForge load a Biome Modifier JSON file into the game, the file will need to be under `data/<modid>/neoforge/biome_modifier/<path>.json` folder in the mod's resources or in a Datapack. Then once NeoForge loads the Biome Modifier, it'll read its instructions and apply the described modifications to all target biomes when the world is loaded up. Pre-existing Biome Modifiers from mods can be overridden by Datapacks having a new JSON file at the exact same location and name.
 
 The JSON file can be created by hand following the examples in the '[Built-in NeoForge Biome Modifiers](#Builtin-Neoforge-Biome-Modifiers)' section or be datagenned as shown in the '[Datagenning Biome Modifiers](#Datagenning-Biome-Modifiers)' section.
 
 ## Builtin Neoforge Biome Modifiers:
 
+These Biome Modifiers are registered by NeoForge for anyone to use. The JSON example and the Datagen code are provided as well as a brief explanation on what the modifier does.
+
 ### None
 
-This Biome Modifier has no operation and will do no modification. Pack makers and players can use this in a datapack to disable mods' Biome Modifiers by overriding their Biome Modifier jsons with the below:
+This Biome Modifier has no operation and will do no modification. Pack makers and players can use this in a Datapack to disable mods' Biome Modifiers by overriding their Biome Modifier jsons with the below. There is no Datagen code to make this modifier.
+
+<Tabs>
+  <TabItem value="json" label="JSON" default>
 
 ```json5
 {
   "type": "neoforge:none"
 }
 ```
+
+  </TabItem>
+</Tabs>
 
 ### Add Features
 
@@ -75,7 +83,7 @@ This Biome Modifier type adds features (such as trees or ores) to biomes so that
 ```java
 // Assume we have some PlacedFeature EXAMPLE_PLACED_FEATURE
 
-// Define keys for datapack registry objects
+// Define keys for Datapack registry objects
 
 public static final ResourceKey<BiomeModifier> ADD_FEATURES_EXAMPLE =
     ResourceKey.create(
@@ -149,7 +157,7 @@ This Biome Modifier type removes features (such as trees or ores) from biomes so
   <TabItem value="datagen" label="Datagen">
 
 ```java
-// Define keys for datapack registry objects
+// Define keys for Datapack registry objects
 
 public static final ResourceKey<BiomeModifier> REMOVE_FEATURES_EXAMPLE =
     ResourceKey.create(
@@ -230,7 +238,7 @@ This Biome Modifier type adds mob spawns to biomes. The modifier takes in the `B
 ```java
 // Assume we have some EntityType EXAMPLE_ENTITY
 
-// Define keys for datapack registry objects
+// Define keys for Datapack registry objects
 
 public static final ResourceKey<BiomeModifier> ADD_SPAWNS_EXAMPLE =
     ResourceKey.create(
@@ -293,7 +301,7 @@ This Biome Modifier type removes mob spawns from biomes. The modifier takes in t
   <TabItem value="datagen" label="Datagen">
 
 ```java
-// Define keys for datapack registry objects
+// Define keys for Datapack registry objects
 
 public static final ResourceKey<BiomeModifier> REMOVE_SPAWNS_EXAMPLE =
     ResourceKey.create(
@@ -362,7 +370,7 @@ The modifier takes in the `Biome` id or tag of the biomes the spawn costs are ad
   <TabItem value="datagen" label="Datagen">
 
 ```java
-// Define keys for datapack registry objects
+// Define keys for Datapack registry objects
 
 public static final ResourceKey<BiomeModifier> ADD_SPAWN_COSTS_EXAMPLE =
     ResourceKey.create(
@@ -425,7 +433,7 @@ Allows for removing a Spawn Cost from a biome. Spawn Costs are a newer way of ma
   <TabItem value="datagen" label="Datagen">
 
 ```java
-// Define keys for datapack registry objects
+// Define keys for Datapack registry objects
 
 public static final ResourceKey<BiomeModifier> REMOVE_SPAWN_COSTS_EXAMPLE =
     ResourceKey.create(
@@ -489,7 +497,7 @@ This Biome Modifier type allows adding Carver Caves and Ravines to biomes. (Thin
 ```java
 // Assume we have some ConfiguredWorldCarver EXAMPLE_CARVER
 
-// Define keys for datapack registry objects
+// Define keys for Datapack registry objects
 
 public static final ResourceKey<BiomeModifier> ADD_CARVERS_EXAMPLE =
     ResourceKey.create(
@@ -556,7 +564,7 @@ This Biome Modifier type allows removing Carver Caves and Ravines from biomes. (
   <TabItem value="datagen" label="Datagen">
 
 ```java
-// Define keys for datapack registry objects
+// Define keys for Datapack registry objects
 
 public static final ResourceKey<BiomeModifier> REMOVE_CARVERS_EXAMPLE =
     ResourceKey.create(
@@ -618,7 +626,7 @@ The `step` field in many of these JSONs are referring to GenerationStep.Decorati
 A `BiomeModifier` JSON can be created with [data generation][datagen] by passing a `RegistrySetBuilder` to `DatapackBuiltinEntriesProvider`. The JSON will be placed at `data/<modid>/neoforge/biome_modifier/<path>.json`.
 
 ```java
-// Define keys for datapack registry objects
+// Define keys for Datapack registry objects
 
 public static final ResourceKey<BiomeModifier> EXAMPLE_MODIFIER =
     ResourceKey.create(
