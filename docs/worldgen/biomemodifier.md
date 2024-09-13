@@ -12,7 +12,7 @@ For modders looking to do advanced custom Biome Modifiers, check out the '[Apply
 
 To apply a Biome Modifier, the JSON file will need to be under `data/<modid>/neoforge/biome_modifier/<path>.json` folder in the mod's resources or in a datapack. Neoforge will automatically detect and load the Biome Modifier and apply it to the game. Existing Biome Modifiers can be overridden by having a new JSON file at the exact same location and name.
 
-The JSON file can be created by hand following the examples in [#Builtin-Neoforge-Biome-Modifiers](#Builtin-Neoforge-Biome-Modifiers) section or be datagenned as shown in [#Datagenning-Biome-Modifiers](#Datagenning-Biome-Modifiers) section.
+The JSON file can be created by hand following the examples in the '[Built-in NeoForge Biome Modifiers](#Builtin-Neoforge-Biome-Modifiers)' section or be datagenned as shown in the '[Datagenning Biome Modifiers](#Datagenning-Biome-Modifiers)' section.
 
 ## Builtin Neoforge Biome Modifiers:
 
