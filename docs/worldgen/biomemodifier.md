@@ -10,7 +10,7 @@ For modders looking to do advance custom Biome Modifiers, check out the [#Applyi
 
 ## Applying Biome Modifiers:
 
-To apply a Biome Modifier, the JSON file will need to be under `data/<modid>/neoforge/biome_modifier/<path>.json` folder in the mod's resources or in a datapack. Neoforge will automatically detect and load the Biome Modifier and apply it to the game. Existing Biome Modifiers can be overridden by having a new JSON file at the exact same location and name.
+Biome Modifiers are like a set of modifications to apply to a biome when the game loads. To have NeoForge load a Biome Modifier JSON file into the game, the file will need to be under `data/<modid>/neoforge/biome_modifier/<path>.json` folder in the mod's resources or in a datapack. Then once NeoForge loads the Biome Modifier, it'll read its instructions and apply the described modifications to all target biomes when the world is loaded up. Pre-existing Biome Modifiers from mods can be overridden by datapacks having a new JSON file at the exact same location and name.
 
 The JSON file can be created by hand following the examples in [#Builtin-Neoforge-Biome-Modifiers](#Builtin-Neoforge-Biome-Modifiers) section or be datagenned as shown in [#Datagenning-Biome-Modifiers](#Datagenning-Biome-Modifiers) section.
 
@@ -18,18 +18,17 @@ The JSON file can be created by hand following the examples in [#Builtin-Neoforg
 
 ### None
 
-A no-op Biome Modifier type, whose jsons have the following format:
+This Biome Modifier has no operation and will do no modification. Pack makers and players can use this in a datapack to disable mods' Biome Modifiers by overriding their Biome Modifier jsons with the below:
+
 ```json5
 {
   "type": "neoforge:none"
 }
 ```
 
-This allows pack devs or server operators to disable mods' Biome Modifiers by overriding their Biome Modifier jsons with the above.
-
 ### Add Features
 
-This Biome Modifier type adds placed features to biomes. The modifier takes in the `Biome` id or tag of the biomes the features are added to, a `PlacedFeature` id or tag of the features to add to the selected biomes, and the [`GenerationStep.Decoration`](#The-available-values-for-the-Decoration-steps) the features will be generated within.
+This Biome Modifier type adds features (such as trees or ores) to biomes so that they can spawn during world generation. The modifier takes in the `Biome` id or tag of the biomes the features are added to, a `PlacedFeature` id or tag of the features to add to the selected biomes, and the [`GenerationStep.Decoration`](#The-available-values-for-the-Decoration-steps) the features will be generated within.
 
 ```json5
 {
@@ -51,9 +50,16 @@ This Biome Modifier type adds placed features to biomes. The modifier takes in t
 }
 ```
 
+#### Word of Warning
+
+- Avoid using Biome Modifiers to add vanilla placed features to biomes, as this may cause a feature cycle violation (the game will crash if two biomes have the same two features in their feature lists but in different orders within same GenerationStep). Placed features can be referenced in biome jsons or added via Biome Modifiers, but should not be used in both. Make a new copy of a vanilla Placed Feature is ideal for adding it safely to biomes.
+
+- Avoid adding the same placed feature with more than one Biome Modifier, as this can cause feature cycle violations.
+
+
 ### Remove Features
 
-This Biome Modifier type removes features from biomes. The modifier takes in the `Biome` id or tag of the biomes the features are removed from, a PlacedFeature id or tag of the features to remove from the selected biomes, and the [`GenerationStep.Decoration`](#The-available-values-for-the-Decoration-steps)s that the features will be removed from.
+This Biome Modifier type removes features (such as trees or ores) from biomes so that they will no longer spawn during world generation. The modifier takes in the `Biome` id or tag of the biomes the features are removed from, a `PlacedFeature` id or tag of the features to remove from the selected biomes, and the [`GenerationStep.Decoration`](#The-available-values-for-the-Decoration-steps)s that the features will be removed from.
 
 ```json5
 {
@@ -67,7 +73,7 @@ This Biome Modifier type removes features from biomes. The modifier takes in the
     // Can either be an id "minecraft:plains"
     // List of ids ["minecraft:plains", "minecraft:badlands", ...]
     // Or a tag "#c:is_overworld"
-    "features": "namespace:your_feature",
+    "features": "namespace:problematic_feature",
   
     // Optional field specifying a GenerationStep or list of GenerationSteps to remove features from, defaults to all if not specified.
     // See GenerationStep.Decoration enum in code for a list of valid enum names.
@@ -129,7 +135,9 @@ This Biome Modifier type removes mob spawns from biomes. The modifier takes in t
 
 ### Add Spawn Costs
 
-Allows for adding new Spawn Costs to biomes. Spawn Costs are a newer way of making mobs spawn spread out in a biome to reduce clustering. The modifier takes in the `Biome` id or tag of the biomes the spawn costs are added to, the `EntityType` id or tag of the mobs to add spawn costs for, and the `MobSpawnSettings.MobSpawnCost` of the mob. The `MobSpawnCost` contains the energy budget, which indicates the maximum number of entities that can spawn in a location based upon the charge provided for each entity spawned.
+Allows for adding new Spawn Costs to biomes. Spawn Costs are a newer way of making mobs spawn spread out in a biome to reduce clustering. It works by having the entities give off a `charge` that surrounds them and adds up with other entity's `charge`. Then when spawning, it looks for a spot where the total `charge` field at the location multiplied by the spawning entity's `charge` value is less than the spawning entity's `energy_budget`. This is an advanced way of spawning mobs so it is a good idea to reference the Soul Sand Valley Biome for existing values to borrow.
+
+The modifier takes in the `Biome` id or tag of the biomes the spawn costs are added to, the `EntityType` id or tag of the mobs to add spawn costs for, and the `MobSpawnSettings.MobSpawnCost` of the mob. The `MobSpawnCost` contains the energy budget, which indicates the maximum number of entities that can spawn in a location based upon the charge provided for each entity spawned.
 
 ```json5
 {
@@ -171,7 +179,7 @@ Allows for removing a Spawn Cost from a biome. Spawn Costs are a newer way of ma
 
 ### Add Legacy Carvers
 
-This Biome Modifier type allows adding old caves and ravines to biomes. This CANNOT add Noise Caves to biomes because Noise Caves are baked into the dimension's Noise Setting system and not actually tied to biomes. The legacy carvers are specifically ravines and old caves.
+This Biome Modifier type allows adding Carver Caves and Ravines to biomes. (Think of what caves looked like pre-Caves and Cliffs update) This CANNOT add Noise Caves to biomes because Noise Caves are baked into the dimension's Noise Setting system and not actually tied to biomes. The legacy carvers are specifically Ravines and Carver Caves.
 
 ```json5
 {
@@ -192,7 +200,7 @@ This Biome Modifier type allows adding old caves and ravines to biomes. This CAN
 
 ### Removing Legacy Carvers
 
-This Biome Modifier type allows removing old caves and ravines from biomes. This CANNOT remove Noise Caves to biomes because Noise Caves are baked into the dimension's Noise Setting system and not actually tied to biomes. The legacy carvers are specifically ravines and old caves.
+This Biome Modifier type allows removing Carver Caves and Ravines from biomes. (Think of what caves looked like pre-Caves and Cliffs update) This CANNOT remove Noise Caves to biomes because Noise Caves are baked into the dimension's Noise Setting system and not actually tied to biomes. The legacy carvers are specifically Ravines and Carver Caves.
 
 ```json5
 {
@@ -215,33 +223,34 @@ This Biome Modifier type allows removing old caves and ravines from biomes. This
 }
 ```
 
-### Word of Warning
-
-- Avoid using Biome Modifiers to add vanilla placed features to biomes, as this may cause a feature cycle violation (the game will crash if two biomes have the same two features in their feature lists but in different orders within same GenerationStep). Placed features can be referenced in biome jsons or added via Biome Modifiers, but should not be used in both. Make a new copy of a vanilla Placed Feature is ideal for adding it safely to biomes.
-
-
-- Avoid adding the same placed feature with more than one Biome Modifier, as this can cause feature cycle violations.
-
 ### The available values for the Decoration steps
 
-The `step` field in many of these JSONs are referring to GenerationStep.Decoration enum. This enum has the steps listed out in this order which is the same order that the game uses for generating during worldgen:
+The `step` field in many of these JSONs are referring to GenerationStep.Decoration enum. This enum has the steps listed out in this order which is the same order that the game uses for generating during worldgen. Try to put features in the stage that makes the most sense for them.
 
-    raw_generation
-    lakes
-    local_modifications
-    underground_structures
-    surface_structures
-    strongholds
-    underground_ores
-    underground_decoration
-    fluid_springs
-    vegetal_decoration
-    top_layer_modification
+|           Step           | Description                                                                             |
+|:------------------------:|:----------------------------------------------------------------------------------------|
+|     `raw_generation`     | First to run. This is used for special terrain-like features such as Small End Islands. |
+|         `lakes`          | Dedicated to spawning pond-like feature such as Lava Lakes.                             |
+|  `local_modifications`   | For modifications to terrain such as Geodes, Icebergs, Boulders, or Dripstone.          |
+| `underground_structures` | Used for small underground structure-like features such as Dungeons or Fossils.         |
+|   `surface_structures`   | For small surface only structure-like features such as Desert Wells.                    |
+|      `strongholds`       | Dedicated for Stronghold structures. No feature is added here in unmodified Minecraft.  |
+|    `underground_ores`    | The step for all Ores and Veins to be added to. This includes Gold, Dirt, Granite, etc. |
+| `underground_decoration` | Used typically for decorating caves. Dripstone Cluster and Sculk Vein are here.         |
+|     `fluid_springs`      | The small Lavafalls and Waterfalls comes from features in this stage.                   |
+|   `vegetal_decoration`   | Nearly all plants (flowers, trees, vines, and more) are added to this stage.            |
+| `top_layer_modification` | Last to run. Used for placing Snow and Ice on the surface of cold biomes.               |
 
 
 ## Datagenning Biome Modifiers:
 
 A `BiomeModifier` can be with [data generation][datagen] by passing a `RegistrySetBuilder` to `DatapackBuiltinEntriesProvider`. Biome Modifiers are located within `data/<modid>/neoforge/biome_modifier/<path>.json` All Biome Modifiers contain a `type` key that references the id of the `MapCodec` used for the Biome Modifier. All other settings provided by the Biome Modifier are added as additional keys on the root object.
+
+Biome Modifiers are made up of three parts:
+
+- The [datapack registered][datareg] `BiomeModifier` used to modify the biome builder.
+- The [statically registered][staticreg] `MapCodec` that encodes and decodes the modifiers.
+- The JSON that constructs the `BiomeModifier`, using the registered id of the `MapCodec` as the indexable type.
 
 ```java
 // Define keys for datapack registry objects
@@ -593,12 +602,6 @@ BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
 ```
 
 ## Creating Custom Biome Modifiers:
-
-Biome Modifiers are made up of three parts:
-
-- The [datapack registered][datareg] `BiomeModifier` used to modify the biome builder.
-- The [statically registered][staticreg] `MapCodec` that encodes and decodes the modifiers.
-- The JSON that constructs the `BiomeModifier`, using the registered id of the `MapCodec` as the indexable type.
 
 ### The `BiomeModifier` Implementation
 
