@@ -1,3 +1,6 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 # Biome Modifiers
 
 Biome Modifiers are a data-driven system that allows for changing many aspects of a biome. Ranging from injecting or removing PlacedFeatures, adding or deleting mob spawns, changing the climate, and adjusting foliage and water color. NeoForge provides several default Biome Modifiers that covers the majority of use cases for both players and modders.
