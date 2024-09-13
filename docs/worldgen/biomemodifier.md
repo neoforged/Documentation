@@ -4,7 +4,7 @@ Biome Modifiers are a data-driven system that allows for changing many aspects o
 
 For players and pack makers, you will want to see the '[Applying Biome Modifiers](#Applying-Biome-Modifiers)' section and '[Built-in Neoforge Biome Modifiers](#Builtin-Neoforge-Biome-Modifiers)' section.
 
-For modders looking to do basic goals, you will want to see the '[Applying Biome Modifiers](#Applying-Biome-Modifiers)' section, '[Built-in Neoforge Biome Modifiers](#Builtin-Neoforge-Biome-Modifiers)' section, and possibly the '[Datagenning Biome Modifiers](#Datagenning-Biome-Modifiers)' section if you prefer to datagen.
+For modders looking to do simple additions or removals, you will want to see the '[Applying Biome Modifiers](#Applying-Biome-Modifiers)' section, '[Built-in Neoforge Biome Modifiers](#Builtin-Neoforge-Biome-Modifiers)' section, and possibly the '[Datagenning Biome Modifiers](#Datagenning-Biome-Modifiers)' section if you prefer to datagen.
 
 For modders looking to do advanced custom Biome Modifiers, check out the '[Applying Biome Modifiers](#Applying-Biome-Modifiers)' section and '[Creating Custom Biome Modifiers](#Creating-Custom-Biome-Modifiers)' section.
 
