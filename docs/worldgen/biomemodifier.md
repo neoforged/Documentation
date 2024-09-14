@@ -8,25 +8,25 @@ Biome Modifiers are a data-driven system that allows for changing many aspects o
 ### Recommended Section To Read:
 
 - Players or Pack Makers:
-  - '[Applying Biome Modifiers](#Applying-Biome-Modifiers)'
-  - '[Built-in Neoforge Biome Modifiers](#Builtin-Neoforge-Biome-Modifiers)'
+  - [Applying Biome Modifiers](#Applying-Biome-Modifiers)
+  - [Built-in Neoforge Biome Modifiers](#Builtin-Neoforge-Biome-Modifiers)
 
 
 - Modders doing simple additions or removal biome modifications:
-  - '[Applying Biome Modifiers](#Applying-Biome-Modifiers)'
-  - '[Built-in Neoforge Biome Modifiers](#Builtin-Neoforge-Biome-Modifiers)'
-  - '[Datagenning Biome Modifiers](#Datagenning-Biome-Modifiers)'
+  - [Applying Biome Modifiers](#Applying-Biome-Modifiers)
+  - [Built-in Neoforge Biome Modifiers](#Builtin-Neoforge-Biome-Modifiers)
+  - [Datagenning Biome Modifiers](#Datagenning-Biome-Modifiers)
 
 
 - Modders who want to do custom or complex biome modifications:
-  - '[Applying Biome Modifiers](#Applying-Biome-Modifiers)'
-  - '[Creating Custom Biome Modifiers](#Creating-Custom-Biome-Modifiers)'
-  - '[Datagenning Biome Modifiers](#Datagenning-Biome-Modifiers)'
+  - [Applying Biome Modifiers](#Applying-Biome-Modifiers)
+  - [Creating Custom Biome Modifiers](#Creating-Custom-Biome-Modifiers)
+  - [Datagenning Biome Modifiers](#Datagenning-Biome-Modifiers)
 
 
 ## Applying Biome Modifiers:
 
-Biome Modifiers are like a set of modifications to apply to a biome when the game loads. To have NeoForge load a Biome Modifier JSON file into the game, the file will need to be under `data/<modid>/neoforge/biome_modifier/<path>.json` folder in the mod's resources or in a Datapack. Then once NeoForge loads the Biome Modifier, it'll read its instructions and apply the described modifications to all target biomes when the world is loaded up. Pre-existing Biome Modifiers from mods can be overridden by Datapacks having a new JSON file at the exact same location and name.
+To have NeoForge load a Biome Modifier JSON file into the game, the file will need to be under `data/<modid>/neoforge/biome_modifier/<path>.json` folder in the mod's resources or in a Datapack. Then once NeoForge loads the Biome Modifier, it'll read its instructions and apply the described modifications to all target biomes when the world is loaded up. Pre-existing Biome Modifiers from mods can be overridden by Datapacks having a new JSON file at the exact same location and name.
 
 The JSON file can be created by hand following the examples in the '[Built-in NeoForge Biome Modifiers](#Builtin-Neoforge-Biome-Modifiers)' section or be datagenned as shown in the '[Datagenning Biome Modifiers](#Datagenning-Biome-Modifiers)' section.
 
@@ -221,7 +221,7 @@ BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
 
 This Biome Modifier type adds mob spawns to biomes. The modifier takes in the `Biome` id or tag of the biomes the spawning information are added to and the `SpawnerData` of the mobs to add. Each `SpawnerData` contains the mob id, the spawn weight, and the minimum/maximum number of mobs to spawn at a given time.
 
-**NOTE:** If you are a modder adding a new mob, make sure the mob has a spawn restriction registered to RegisterSpawnPlacementsEvent event.
+**NOTE:** If you are a modder adding a new mob, make sure the mob has a spawn restriction registered to RegisterSpawnPlacementsEvent event. If you do not register a spawn restriction, your mob could spawn in mid-air, fall and die. Spawn restrictions are used to make mobs spawn on surfaces or in water safely.
 
 <Tabs>
   <TabItem value="json" label="JSON" default>
@@ -642,49 +642,6 @@ The `step` field in many of these JSONs are referring to GenerationStep.Decorati
 | `top_layer_modification` | Last to run. Used for placing Snow and Ice on the surface of cold biomes.               |
 
 
-## Datagenning Biome Modifiers:
-
-A `BiomeModifier` JSON can be created with [data generation][datagen] by passing a `RegistrySetBuilder` to `DatapackBuiltinEntriesProvider`. The JSON will be placed at `data/<modid>/neoforge/biome_modifier/<path>.json`.
-
-```java
-// Define keys for Datapack registry objects
-
-public static final ResourceKey<BiomeModifier> EXAMPLE_MODIFIER =
-    ResourceKey.create(
-        NeoForgeRegistries.Keys.BIOME_MODIFIERS, // The registry this key is for
-        ResourceLocation.fromNamespaceAndPath(MOD_ID, "example_modifier") // The registry name
-    );
-
-// For some RegistrySetBuilder BUILDER
-// being passed to DatapackBuiltinEntriesProvider
-// in a listener for GatherDataEvent
-BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
-    // Lookup any necessary registries
-    // Static registries only need to be looked up if you need to grab the tag data
-    HolderGetter<Biome> biomes = bootstrap.lookup(Registries.BIOME);
-
-    // Register the Biome Modifiers
-
-    bootstrap.register(EXAMPLE_MODIFIER,
-        new ExampleBiomeModifier(
-            biomes.getOrThrow(Tags.Biomes.IS_OVERWORLD),
-            20
-        )
-    );
-})
-```
-
-```json5
-// In data/examplemod/neoforge/biome_modifier/example_modifier.json
-{
-    // The registy key of the MapCodec for the modifier
-    "type": "examplemod:example_biome_modifier",
-    // All additional settings are applied to the root object
-    "biomes": "#c:is_overworld",
-    "value": 20
-}
-```
-
 ## Creating Custom Biome Modifiers:
 
 ### The `BiomeModifier` Implementation
@@ -734,6 +691,50 @@ public static final Holder<MapCodec<? extends BiomeModifier>> EXAMPLE_BIOME_MODI
             Codec.INT.fieldOf("value").forGetter(ExampleBiomeModifier::value)
         ).apply(instance, ExampleBiomeModifier::new)
     ));
+```
+
+
+## Datagenning Biome Modifiers:
+
+A `BiomeModifier` JSON can be created with [data generation][datagen] by passing a `RegistrySetBuilder` to `DatapackBuiltinEntriesProvider`. The JSON will be placed at `data/<modid>/neoforge/biome_modifier/<path>.json`.
+
+```java
+// Define keys for Datapack registry objects
+
+public static final ResourceKey<BiomeModifier> EXAMPLE_MODIFIER =
+    ResourceKey.create(
+        NeoForgeRegistries.Keys.BIOME_MODIFIERS, // The registry this key is for
+        ResourceLocation.fromNamespaceAndPath(MOD_ID, "example_modifier") // The registry name
+    );
+
+// For some RegistrySetBuilder BUILDER
+// being passed to DatapackBuiltinEntriesProvider
+// in a listener for GatherDataEvent
+BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
+    // Lookup any necessary registries
+    // Static registries only need to be looked up if you need to grab the tag data
+    HolderGetter<Biome> biomes = bootstrap.lookup(Registries.BIOME);
+
+    // Register the Biome Modifiers
+
+    bootstrap.register(EXAMPLE_MODIFIER,
+        new ExampleBiomeModifier(
+            biomes.getOrThrow(Tags.Biomes.IS_OVERWORLD),
+            20
+        )
+    );
+})
+```
+
+```json5
+// In data/examplemod/neoforge/biome_modifier/example_modifier.json
+{
+    // The registy key of the MapCodec for the modifier
+    "type": "examplemod:example_biome_modifier",
+    // All additional settings are applied to the root object
+    "biomes": "#c:is_overworld",
+    "value": 20
+}
 ```
 
 [datareg]: ../concepts/registries.md#datapack-registries
