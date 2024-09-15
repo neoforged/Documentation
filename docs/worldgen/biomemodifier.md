@@ -26,7 +26,7 @@ Biome Modifiers are a data-driven system that allows for changing many aspects o
 
 ## Applying Biome Modifiers
 
-To have NeoForge load a Biome Modifier JSON file into the game, the file will need to be under `data/<modid>/neoforge/biome_modifier/<path>.json` folder in the mod's resources or in a Datapack. Then once NeoForge loads the Biome Modifier, it'll read its instructions and apply the described modifications to all target biomes when the world is loaded up. Pre-existing Biome Modifiers from mods can be overridden by Datapacks having a new JSON file at the exact same location and name.
+To have NeoForge load a biome modifier JSON file into the game, the file will need to be under `data/<modid>/neoforge/biome_modifier/<path>.json` folder in the mod's resources, or in a [Datapack][datapacks]. Then, once NeoForge loads the biome modifier, it will read its instructions and apply the described modifications to all target biomes when the world is loaded up. Pre-existing biome modifiers from mods can be overridden by datapacks having a new JSON file at the exact same location and name.
 
 The JSON file can be created by hand following the examples in the '[Built-in NeoForge Biome Modifiers](#Builtin-Neoforge-Biome-Modifiers)' section or be datagenned as shown in the '[Datagenning Biome Modifiers](#Datagenning-Biome-Modifiers)' section.
 
@@ -697,5 +697,6 @@ This will then result in the following JSON being created:
 
 [datareg]: ../concepts/registries.md#datapack-registries
 [staticreg]: ../concepts/registries.md#methods-for-registering
+[datapacks]: ../resources/index.md#data
 [datagen]: ../resources/index.md#data-generation
 [datapackdatagen]: ../concepts/registries#data-generation-for-datapack-registries
