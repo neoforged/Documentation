@@ -202,7 +202,7 @@ BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
 
 ### Add Spawns 
 
-This Biome Modifier type adds mob spawns to biomes. The modifier takes in the `Biome` id or tag of the biomes the spawning information are added to and the `SpawnerData` of the mobs to add. Each `SpawnerData` contains the mob id, the spawn weight, and the minimum/maximum number of mobs to spawn at a given time.
+This biome modifier type adds entity spawns to biomes. The modifier takes in the biome id or tag of the biomes the entity spawns are added to, and the `SpawnerData` of the entities to add. Each `SpawnerData` contains the entity id, the spawn weight, and the minimum/maximum number of entities to spawn at a given time.
 
 :::note
 If you are a modder adding a new entity, make sure the entity has a spawn restriction registered to `RegisterSpawnPlacementsEvent`. If you do not register a spawn restriction, your entity could spawn in mid-air, fall and die. Spawn restrictions are used to make entities spawn on surfaces or in water safely.
@@ -408,15 +408,15 @@ Allows for removing a spawn cost from a biome. Spawn costs are a newer way of ma
 
 ```json5
 {
-    "type": "neoforge:remove_spawn_costs",
-    // Can either be an id "minecraft:plains"
-    // List of ids ["minecraft:plains", "minecraft:badlands", ...]
-    // Or a tag "#c:is_overworld"
-    "biomes": "#c:is_overworld",
-    // Can either be an id "minecraft:ghast"
-    // List of ids ["minecraft:ghast", "minecraft:skeleton", ...]
-    // Or a tag "#minecraft:skeletons"
-    "entity_types": "#minecraft:skeletons"
+  "type": "neoforge:remove_spawn_costs",
+  // Can either be a biome id, such as "minecraft:plains",
+  // or a list of biome ids, such as ["minecraft:plains", "minecraft:badlands", ...],
+  // or a biome tag, such as "#c:is_overworld".
+  "biomes": "#namespace:biome_tag",
+  // Can either be an entity type id, such as "minecraft:ghast",
+  // or a list of entity type ids, such as ["minecraft:ghast", "minecraft:skeleton", ...],
+  // or an entity type tag, such as "#minecraft:skeletons".
+  "entity_types": "#minecraft:skeletons"
 }
 ```
 
@@ -681,6 +681,8 @@ BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
     );
 });
 ```
+
+This will then result in the following JSON being created:
 
 This will then result in the following JSON being created:
 
