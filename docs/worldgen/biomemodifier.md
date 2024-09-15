@@ -684,8 +684,6 @@ BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
 
 This will then result in the following JSON being created:
 
-This will then result in the following JSON being created:
-
 ```json5
 // In data/examplemod/neoforge/biome_modifier/example_modifier.json
 {
