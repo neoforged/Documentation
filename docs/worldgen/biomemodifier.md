@@ -9,12 +9,12 @@ Biome Modifiers are a data-driven system that allows for changing many aspects o
 
 - Players or pack developers:
   - [Applying Biome Modifiers](#Applying-Biome-Modifiers)
-  - [Built-in Neoforge Biome Modifiers](#Builtin-Neoforge-Biome-Modifiers)
+  - [Built-in Neoforge Biome Modifiers](#Built-in-Biome-Modifiers)
 
 
 - Modders doing simple additions or removal biome modifications:
   - [Applying Biome Modifiers](#Applying-Biome-Modifiers)
-  - [Built-in Neoforge Biome Modifiers](#Builtin-Neoforge-Biome-Modifiers)
+  - [Built-in Neoforge Biome Modifiers](#Built-in-Biome-Modifiers)
   - [Datagenning Biome Modifiers](#Datagenning-Biome-Modifiers)
 
 
@@ -28,7 +28,7 @@ Biome Modifiers are a data-driven system that allows for changing many aspects o
 
 To have NeoForge load a biome modifier JSON file into the game, the file will need to be under `data/<modid>/neoforge/biome_modifier/<path>.json` folder in the mod's resources, or in a [Datapack][datapacks]. Then, once NeoForge loads the biome modifier, it will read its instructions and apply the described modifications to all target biomes when the world is loaded up. Pre-existing biome modifiers from mods can be overridden by datapacks having a new JSON file at the exact same location and name.
 
-The JSON file can be created by hand following the examples in the '[Built-in NeoForge Biome Modifiers](#Builtin-Neoforge-Biome-Modifiers)' section or be datagenned as shown in the '[Datagenning Biome Modifiers](#Datagenning-Biome-Modifiers)' section.
+The JSON file can be created by hand following the examples in the '[Built-in NeoForge Biome Modifiers](#Built-in-Biome-Modifiers)' section or be datagenned as shown in the '[Datagenning Biome Modifiers](#Datagenning-Biome-Modifiers)' section.
 
 ## Built-in Biome Modifiers
 
@@ -70,7 +70,7 @@ BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
 
 ### Add Features
 
-This biome modifier type adds `PlacedFeature`s (such as trees or ores) to biomes so that they can spawn during world generation. The modifier takes in the biome id or tag of the biomes the features are added to, a `PlacedFeature` id or tag to add to the selected biomes, and the [`GenerationStep.Decoration`](#The-available-values-for-the-Decoration-steps) the features will be generated within.
+This biome modifier type adds `PlacedFeature`s (such as trees or ores) to biomes so that they can spawn during world generation. The modifier takes in the biome id or tag of the biomes the features are added to, a `PlacedFeature` id or tag to add to the selected biomes, and the [`GenerationStep.Decoration`](#Available-Values-for-Decoration-Steps) the features will be generated within.
 
 <Tabs>
   <TabItem value="json" label="JSON" default>
@@ -137,7 +137,7 @@ Vanilla `PlacedFeature`s can be referenced in biome JSONs or added via biome mod
 
 ### Remove Features
 
-This biome modifier type removes features (such as trees or ores) from biomes so that they will no longer spawn during world generation. The modifier takes in the biome id or tag of the biomes the features are removed from, a `PlacedFeature` id or tag to remove from the selected biomes, and the [`GenerationStep.Decoration`](#The-available-values-for-the-Decoration-steps)s that the features will be removed from.
+This biome modifier type removes features (such as trees or ores) from biomes so that they will no longer spawn during world generation. The modifier takes in the biome id or tag of the biomes the features are removed from, a `PlacedFeature` id or tag to remove from the selected biomes, and the [`GenerationStep.Decoration`](#Available-Values-for-Decoration-Steps)s that the features will be removed from.
 
 <Tabs>
   <TabItem value="json" label="JSON" default>
