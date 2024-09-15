@@ -1,6 +1,6 @@
 # BlockEntityRenderer
 
-A `BlockEntityRenderer`, often abbreviated as BER, is used to render blocks in a way that cannot be represented with a static baked model (JSON, OBJ, B3D, others). For example, this could be used to dynamically render container contents of a chest-like block. A block entity renderer requires the block to have a `BlockEntity`, even if the block does not store any data otherwise.
+A `BlockEntityRenderer`, often abbreviated as BER, is used to render [blocks][block] in a way that cannot be represented with a [static baked model][model] (JSON, OBJ, others). For example, this could be used to dynamically render container contents of a chest-like block. A block entity renderer requires the block to have a [`BlockEntity`][blockentity], even if the block does not store any data otherwise.
 
 To create a BER, create a class that inherits from `BlockEntityRenderer`. It takes a generic argument specifying the block's `BlockEntity` class, which is used as a parameter type in the BER's `render` method.
 
@@ -42,7 +42,7 @@ public static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderer
 
 ## `BlockEntityWithoutLevelRenderer`
 
-`BlockEntityWithoutLevelRenderer`, colloquially known as BEWLR, is an adaptation of the regular `BlockEntityRenderer` for special item rendering (hence "without level", as items do not have level context). Its overall purpose is the same: do special rendering for cases where static models aren't enough.
+`BlockEntityWithoutLevelRenderer`, colloquially known as BEWLR, is an adaptation of the regular `BlockEntityRenderer` for special [item] rendering (hence "without level", as items do not have level context). Its overall purpose is the same: do special rendering for cases where static models aren't enough.
 
 To add a BEWLR, create a class that extends `BlockEntityWithoutLevelRenderer` and overrides `#renderByItem`. It also requires some additional constructor setup:
 
@@ -94,5 +94,9 @@ public static void registerClientExtensions(RegisterClientExtensionsEvent event)
 }
 ```
 
+[block]: ../blocks/index.md
+[blockentity]: index.md
 [event]: ../concepts/events.md#registering-an-event-handler
 [eventbus]: ../concepts/events.md#event-buses
+[item]: ../items/index.md
+[model]: ../resources/client/models/index.md

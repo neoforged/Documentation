@@ -1,10 +1,10 @@
 # Containers
 
-A popular use case of block entities is to store items of some kind. Some of the most essential blocks in Minecraft, such as the furnace or the chest, use block entities for this purpose. To store items on something, Minecraft uses `Container`s.
+A popular use case of [block entities][blockentity] is to store items of some kind. Some of the most essential [blocks][block] in Minecraft, such as the furnace or the chest, use block entities for this purpose. To store items on something, Minecraft uses `Container`s.
 
 The `Container` interface defines methods such as `#getItem`, `#setItem` and `#removeItem` that can be used to query and update the container. Since it is an interface, it does not actually contain a backing list or other data structure, that is up to the implementing system.
 
-Due to this, `Container`s can not only be implemented on block entities, but any other class as well. Notable examples include entity inventories, as well as common modded items such as backpacks.
+Due to this, `Container`s can not only be implemented on block entities, but any other class as well. Notable examples include entity inventories, as well as common modded [items][item] such as backpacks.
 
 ## Basic Container Implementation
 
@@ -90,8 +90,8 @@ The `BaseContainerBlockEntity` class is the base class of many important block e
 
 Aside from `Container`, it also implements the `MenuProvider` and `Nameable` interfaces:
 
-- `Nameable` defines a few methods related to setting (custom) names and, aside from many block entities, is implemented by classes such as `Entity`. This uses the [`Component` system][components].
-- `MenuProvider`, on the other hand, defines the `#createMenu` method, which allows an `AbstractContainerMenu` to be constructed from the container. This means that using this class is not desirable if you want a container without an associated GUI, for example in jukeboxes.
+- `Nameable` defines a few methods related to setting (custom) names and, aside from many block entities, is implemented by classes such as `Entity`. This uses the [`Component` system][component].
+- `MenuProvider`, on the other hand, defines the `#createMenu` method, which allows an [`AbstractContainerMenu`][menu] to be constructed from the container. This means that using this class is not desirable if you want a container without an associated GUI, for example in jukeboxes.
 
 `BaseContainerBlockEntity` bundles all calls we would normally make to our `NonNullList<ItemStack>` through two methods `#getItems` and `#setItems`, drastically reducing the amount of boilerplate we need to write. An example implementation of a `BaseContainerBlockEntity` could look like this:
 
@@ -172,7 +172,7 @@ A container may throw an exception if trying to access a slot that is beyond its
 
 ## `Container`s on `ItemStack`s
 
-Until now, we mainly discussed `Container`s on `BlockEntity`s. However, they can also be applied to `ItemStack`s using the `minecraft:container` [data component][datacomponents]:
+Until now, we mainly discussed `Container`s on `BlockEntity`s. However, they can also be applied to [`ItemStack`s][itemstack] using the `minecraft:container` [data component][datacomponent]:
 
 ```java
 // We use SimpleContainer as the superclass here so we don't have to reimplement the item handling logic ourselves.
@@ -241,5 +241,10 @@ The inventory contents are stored in three `public final NonNullList<ItemStack>`
 
 When iterating over the inventory contents, it is recommended to iterate over `items`, then over `armor` and then over `offhand`, to be consistent with vanilla behavior.
 
-[components]: ../resources/client/i18n.md#components
-[datacomponents]: ../items/datacomponents.md
+[block]: ../blocks/index.md
+[blockentity]: index.md
+[component]: ../resources/client/i18n.md#components
+[datacomponent]: ../items/datacomponents.md
+[item]: ../items/index.md
+[itemstack]: ../items/index.md#itemstacks
+[menu]: ../gui/menus.md

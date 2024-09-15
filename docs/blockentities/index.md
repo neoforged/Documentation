@@ -1,9 +1,9 @@
 # Block Entities
 
-Block entities allow the storage of data on blocks in cases where [block states][blockstates] are not suited. This is especially the case for data with a non-finite amount of options, such as inventories. Block entities are stationary and bound to a block, but otherwise share many similarities with entities, hence the name.
+Block entities allow the storage of data on [blocks][block] in cases where [block states][blockstate] are not suited. This is especially the case for data with a non-finite amount of options, such as inventories. Block entities are stationary and bound to a block, but otherwise share many similarities with entities, hence the name.
 
 :::note
-If you have a finite and reasonably small amount (= a few hundred at most) of possible states for your block, you might want to consider using [block states][blockstates] instead.
+If you have a finite and reasonably small amount (= a few hundred at most) of possible states for your block, you might want to consider using [block states][blockstate] instead.
 :::
 
 ## Creating and Registering Block Entities
@@ -224,7 +224,8 @@ By using a dedicated update packet, you can send packets yourself whenever you n
 It is important that you do safety checks, as the `BlockEntity` might already be destroyed/replaced when the message arrives at the player. You should also check if the chunk is loaded via `Level#hasChunkAt`.
 :::
 
-[blockstates]: ../blocks/states.md
+[block]: ../blocks/index.md
+[blockstate]: ../blocks/states.md
 [dataattachments]: ../datastorage/attachments.md
 [datacomponents]: ../items/datacomponents.md
 [nbt]: ../datastorage/nbt.md
