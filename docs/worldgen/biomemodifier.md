@@ -408,15 +408,15 @@ Allows for removing a spawn cost from a biome. Spawn costs are a newer way of ma
 
 ```json5
 {
-    "type": "neoforge:remove_spawn_costs",
-    // Can either be an id "minecraft:plains"
-    // List of ids ["minecraft:plains", "minecraft:badlands", ...]
-    // Or a tag "#c:is_overworld"
-    "biomes": "#c:is_overworld",
-    // Can either be an id "minecraft:ghast"
-    // List of ids ["minecraft:ghast", "minecraft:skeleton", ...]
-    // Or a tag "#minecraft:skeletons"
-    "entity_types": "#minecraft:skeletons"
+  "type": "neoforge:remove_spawn_costs",
+  // Can either be a biome id, such as "minecraft:plains",
+  // or a list of biome ids, such as ["minecraft:plains", "minecraft:badlands", ...],
+  // or a biome tag, such as "#c:is_overworld".
+  "biomes": "#namespace:biome_tag",
+  // Can either be an entity type id, such as "minecraft:ghast",
+  // or a list of entity type ids, such as ["minecraft:ghast", "minecraft:skeleton", ...],
+  // or an entity type tag, such as "#minecraft:skeletons".
+  "entity_types": "#minecraft:skeletons"
 }
 ```
 
@@ -681,6 +681,8 @@ BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
     );
 });
 ```
+
+This will then result in the following JSON being created:
 
 This will then result in the following JSON being created:
 
