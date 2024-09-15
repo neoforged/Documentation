@@ -3,11 +3,11 @@ import TabItem from '@theme/TabItem';
 
 # Biome Modifiers
 
-Biome Modifiers are a data-driven system that allows for changing many aspects of a biome. Ranging from injecting or removing PlacedFeatures, adding or deleting mob spawns, changing the climate, and adjusting foliage and water color. NeoForge provides several default Biome Modifiers that covers the majority of use cases for both players and modders.
+Biome Modifiers are a data-driven system that allows for changing many aspects of a biome, including the ability to inject or remove PlacedFeatures, add or remove mob spawns, change the climate, and adjust foliage and water color. NeoForge provides several default biome modifiers that cover the majority of use cases for both players and modders.
 
 ### Recommended Section To Read:
 
-- Players or Pack Makers:
+- Players or pack developers:
   - [Applying Biome Modifiers](#Applying-Biome-Modifiers)
   - [Built-in Neoforge Biome Modifiers](#Builtin-Neoforge-Biome-Modifiers)
 
@@ -24,19 +24,19 @@ Biome Modifiers are a data-driven system that allows for changing many aspects o
   - [Datagenning Biome Modifiers](#Datagenning-Biome-Modifiers)
 
 
-## Applying Biome Modifiers:
+## Applying Biome Modifiers
 
 To have NeoForge load a Biome Modifier JSON file into the game, the file will need to be under `data/<modid>/neoforge/biome_modifier/<path>.json` folder in the mod's resources or in a Datapack. Then once NeoForge loads the Biome Modifier, it'll read its instructions and apply the described modifications to all target biomes when the world is loaded up. Pre-existing Biome Modifiers from mods can be overridden by Datapacks having a new JSON file at the exact same location and name.
 
 The JSON file can be created by hand following the examples in the '[Built-in NeoForge Biome Modifiers](#Builtin-Neoforge-Biome-Modifiers)' section or be datagenned as shown in the '[Datagenning Biome Modifiers](#Datagenning-Biome-Modifiers)' section.
 
-## Builtin Neoforge Biome Modifiers:
+## Built-in Biome Modifiers
 
-These Biome Modifiers are registered by NeoForge for anyone to use. The JSON example and the Datagen code are provided as well as a brief explanation on what the modifier does.
+These biome modifiers are registered by NeoForge for anyone to use.
 
 ### None
 
-This Biome Modifier has no operation and will do no modification. Pack makers and players can use this in a Datapack to disable mods' Biome Modifiers by overriding their Biome Modifier jsons with the below.
+This biome modifier has no operation and will do no modification. Pack makers and players can use this in a datapack to disable mods' biome modifiers by overriding their biome modifier JSONs with the JSON below.
 
 <Tabs>
   <TabItem value="json" label="JSON" default>
@@ -51,21 +51,18 @@ This Biome Modifier has no operation and will do no modification. Pack makers an
   <TabItem value="datagen" label="Datagen">
 
 ```java
-// Define keys for Datapack registry objects
-public static final ResourceKey<BiomeModifier> NO_OP_EXAMPLE =
-    ResourceKey.create(
-        NeoForgeRegistries.Keys.BIOME_MODIFIERS, // The registry this key is for
-        ResourceLocation.fromNamespaceAndPath(MOD_ID, "no_op_example") // The registry name
-    );
+// Define the ResourceKey for our BiomeModifier.
+public static final ResourceKey<BiomeModifier> NO_OP_EXAMPLE = ResourceKey.create(
+    NeoForgeRegistries.Keys.BIOME_MODIFIERS, // The registry this key is for
+    ResourceLocation.fromNamespaceAndPath(MOD_ID, "no_op_example") // The registry name
+);
 
-// For some RegistrySetBuilder BUILDER
-// being passed to DatapackBuiltinEntriesProvider
-// in a listener for GatherDataEvent
+// BUILDER is a RegistrySetBuilder passed to DatapackBuiltinEntriesProvider
+// in a listener for GatherDataEvent.
 BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
-    
-    // Register the Biome Modifiers
+    // Register the biome modifiers.
     bootstrap.register(NO_OP_EXAMPLE, NoneBiomeModifier.INSTANCE);
-})
+});
 ```
 
   </TabItem>
@@ -73,28 +70,25 @@ BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
 
 ### Add Features
 
-This Biome Modifier type adds features (such as trees or ores) to biomes so that they can spawn during world generation. The modifier takes in the `Biome` id or tag of the biomes the features are added to, a `PlacedFeature` id or tag of the features to add to the selected biomes, and the [`GenerationStep.Decoration`](#The-available-values-for-the-Decoration-steps) the features will be generated within.
+This biome modifier type adds `PlacedFeature`s (such as trees or ores) to biomes so that they can spawn during world generation. The modifier takes in the biome id or tag of the biomes the features are added to, a `PlacedFeature` id or tag to add to the selected biomes, and the [`GenerationStep.Decoration`](#The-available-values-for-the-Decoration-steps) the features will be generated within.
 
 <Tabs>
   <TabItem value="json" label="JSON" default>
 
 ```json5
 {
-    "type": "neoforge:add_features",
-
-    // Can either be an id "minecraft:plains"
-    // List of ids ["minecraft:plains", "minecraft:badlands", ...]
-    // Or a tag "#c:is_overworld"
-    "biomes": "#namespace:your_biome_tag",
-
-    // Can either be an id "examplemod:add_features_example"
-    // List of ids ["examplemod:add_features_example", "minecraft:ice_spike", ...]
-    // Or a tag "#examplemod:placed_feature_tag"
-    "features": "namespace:your_feature",
-
-    // See GenerationStep.Decoration enum in code for a list of valid enum names.
-    // The Decoration step section further down also has the list of values for reference.
-    "step": "underground_ores"
+  "type": "neoforge:add_features",
+  // Can either be a biome id, such as "minecraft:plains",
+  // or a list of biome ids, such as ["minecraft:plains", "minecraft:badlands", ...],
+  // or a biome tag, such as "#c:is_overworld".
+  "biomes": "#namespace:your_biome_tag",
+  // Can either be a placed feature id, such as "examplemod:add_features_example",
+  // or a list of placed feature ids, such as ["examplemod:add_features_example", minecraft:ice_spike", ...],
+  // or a placed feature tag, such as "#examplemod:placed_feature_tag".
+  "features": "namespace:your_feature",
+  // See the GenerationStep.Decoration enum in code for a list of valid enum names.
+  // The decoration step section further down also has the list of values for reference.
+  "step": "underground_ores"
 }
 ```
 
@@ -102,27 +96,22 @@ This Biome Modifier type adds features (such as trees or ores) to biomes so that
   <TabItem value="datagen" label="Datagen">
 
 ```java
-// Assume we have some PlacedFeature EXAMPLE_PLACED_FEATURE
+// Assume we have some PlacedFeature named EXAMPLE_PLACED_FEATURE.
+// Define the ResourceKey for our BiomeModifier.
+public static final ResourceKey<BiomeModifier> ADD_FEATURES_EXAMPLE = ResourceKey.create(
+    NeoForgeRegistries.Keys.BIOME_MODIFIERS, // The registry this key is for
+    ResourceLocation.fromNamespaceAndPath(MOD_ID, "add_features_example") // The registry name
+);
 
-// Define keys for Datapack registry objects
-
-public static final ResourceKey<BiomeModifier> ADD_FEATURES_EXAMPLE =
-    ResourceKey.create(
-        NeoForgeRegistries.Keys.BIOME_MODIFIERS, // The registry this key is for
-        ResourceLocation.fromNamespaceAndPath(MOD_ID, "add_features_example") // The registry name
-    );
-
-// For some RegistrySetBuilder BUILDER
-// being passed to DatapackBuiltinEntriesProvider
-// in a listener for GatherDataEvent
+// BUILDER is a RegistrySetBuilder passed to DatapackBuiltinEntriesProvider
+// in a listener for GatherDataEvent.
 BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
-    // Lookup any necessary registries
-    // Static registries only need to be looked up if you need to grab the tag data
+    // Lookup any necessary registries.
+    // Static registries only need to be looked up if you need to grab the tag data.
     HolderGetter<Biome> biomes = bootstrap.lookup(Registries.BIOME);
     HolderGetter<PlacedFeature> placedFeatures = bootstrap.lookup(Registries.PLACED_FEATURE);
 
-    // Register the Biome Modifiers
-
+    // Register the biome modifiers.
     bootstrap.register(ADD_FEATURES_EXAMPLE,
         new AddFeaturesBiomeModifier(
             // The biome(s) to generate within
@@ -141,14 +130,14 @@ BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
 
 
 :::warning
-- Avoid using Biome Modifiers to add vanilla placed features to biomes, as this may cause a feature cycle violation (the game will crash if two biomes have the same two features in their feature lists but in different orders within same GenerationStep). Placed features can be referenced in biome jsons or added via Biome Modifiers, but should not be used in both. Make a new copy of a vanilla Placed Feature is ideal for adding it safely to biomes.
+Care should be taken when adding vanilla `PlacedFeature`s to biomes, as doing so may cause what is known as a feature cycle violation (two biomes having the same two features in their feature lists, but in different orders within the same `GenerationStep`), leading to a crash. For similar reasons, you should not use the same `PlacedFeature` in more than one biome modifier.
 
-- Avoid adding the same placed feature with more than one Biome Modifier, as this can cause feature cycle violations.
+Vanilla `PlacedFeature`s can be referenced in biome JSONs or added via biome modifiers, but should not be used in both. If you still need to add them this way, making a copy of the vanilla `PlacedFeature` is the easiest solution to avoid these problems.
 :::
 
 ### Remove Features
 
-This Biome Modifier type removes features (such as trees or ores) from biomes so that they will no longer spawn during world generation. The modifier takes in the `Biome` id or tag of the biomes the features are removed from, a `PlacedFeature` id or tag of the features to remove from the selected biomes, and the [`GenerationStep.Decoration`](#The-available-values-for-the-Decoration-steps)s that the features will be removed from.
+This biome modifier type removes features (such as trees or ores) from biomes so that they will no longer spawn during world generation. The modifier takes in the biome id or tag of the biomes the features are removed from, a `PlacedFeature` id or tag to remove from the selected biomes, and the [`GenerationStep.Decoration`](#The-available-values-for-the-Decoration-steps)s that the features will be removed from.
 
 <Tabs>
   <TabItem value="json" label="JSON" default>
@@ -156,21 +145,19 @@ This Biome Modifier type removes features (such as trees or ores) from biomes so
 ```json5
 {
     "type": "neoforge:remove_features",
-
-    // Can either be an id "minecraft:plains"
-    // List of ids ["minecraft:plains", "minecraft:badlands", ...]
-    // Or a tag "#c:is_overworld"
+    // Can either be a biome id, such as "minecraft:plains",
+    // or a list of biome ids, such as ["minecraft:plains", "minecraft:badlands", ...],
+    // or a biome tag, such as "#c:is_overworld".
     "biomes": "#namespace:your_biome_tag",
-
-    // Can either be an id "minecraft:plains"
-    // List of ids ["minecraft:plains", "minecraft:badlands", ...]
-    // Or a tag "#c:is_overworld"
+    // Can either be a placed feature id, such as "examplemod:add_features_example",
+    // or a list of placed feature ids, such as ["examplemod:add_features_example", "minecraft:ice_spike", ...],
+    // or a placed feature tag, such as "#examplemod:placed_feature_tag".
     "features": "namespace:problematic_feature",
-  
-    // Optional field specifying a GenerationStep or list of GenerationSteps to remove features from, defaults to all if not specified.
-    // See GenerationStep.Decoration enum in code for a list of valid enum names.
-    // The Decoration step section further down also has the list of values for reference.
-    "steps": [ "underground_ores", "underground_ores" ] 
+    // Optional field specifying a GenerationStep, or a list of GenerationSteps, to remove features from.
+    // If omitted, defaults to all GenerationSteps.
+    // See the GenerationStep.Decoration enum in code for a list of valid enum names.
+    // The decoration step section further down also has the list of values for reference.
+    "steps": ["underground_ores", "underground_decoration"]
 }
 ```
 
@@ -178,25 +165,21 @@ This Biome Modifier type removes features (such as trees or ores) from biomes so
   <TabItem value="datagen" label="Datagen">
 
 ```java
-// Define keys for Datapack registry objects
+// Define the ResourceKey for our BiomeModifier.
+public static final ResourceKey<BiomeModifier> REMOVE_FEATURES_EXAMPLE = ResourceKey.create(
+    NeoForgeRegistries.Keys.BIOME_MODIFIERS, // The registry this key is for
+    ResourceLocation.fromNamespaceAndPath(MOD_ID, "remove_features_example") // The registry name
+);
 
-public static final ResourceKey<BiomeModifier> REMOVE_FEATURES_EXAMPLE =
-    ResourceKey.create(
-        NeoForgeRegistries.Keys.BIOME_MODIFIERS, // The registry this key is for
-        ResourceLocation.fromNamespaceAndPath(MOD_ID, "remove_features_example") // The registry name
-    );
-
-// For some RegistrySetBuilder BUILDER
-// being passed to DatapackBuiltinEntriesProvider
-// in a listener for GatherDataEvent
+// BUILDER is a RegistrySetBuilder passed to DatapackBuiltinEntriesProvider
+// in a listener for GatherDataEvent.
 BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
-    // Lookup any necessary registries
-    // Static registries only need to be looked up if you need to grab the tag data
+    // Lookup any necessary registries.
+    // Static registries only need to be looked up if you need to grab the tag data.
     HolderGetter<Biome> biomes = bootstrap.lookup(Registries.BIOME);
     HolderGetter<PlacedFeature> placedFeatures = bootstrap.lookup(Registries.PLACED_FEATURE);
 
-    // Register the Biome Modifiers
-
+    // Register the biome modifiers.
     bootstrap.register(REMOVE_FEATURES_EXAMPLE,
         new RemoveFeaturesBiomeModifier(
             // The biome(s) to remove from
@@ -210,7 +193,7 @@ BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
             )
         )
     );
-})
+});
 ```
 
   </TabItem>
@@ -221,35 +204,35 @@ BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
 
 This Biome Modifier type adds mob spawns to biomes. The modifier takes in the `Biome` id or tag of the biomes the spawning information are added to and the `SpawnerData` of the mobs to add. Each `SpawnerData` contains the mob id, the spawn weight, and the minimum/maximum number of mobs to spawn at a given time.
 
-**NOTE:** If you are a modder adding a new mob, make sure the mob has a spawn restriction registered to RegisterSpawnPlacementsEvent event. If you do not register a spawn restriction, your mob could spawn in mid-air, fall and die. Spawn restrictions are used to make mobs spawn on surfaces or in water safely.
+:::note
+If you are a modder adding a new entity, make sure the entity has a spawn restriction registered to `RegisterSpawnPlacementsEvent`. If you do not register a spawn restriction, your entity could spawn in mid-air, fall and die. Spawn restrictions are used to make entities spawn on surfaces or in water safely.
+:::
 
 <Tabs>
   <TabItem value="json" label="JSON" default>
 
 ```json5
 {
-    "type": "neoforge:add_spawns",
-
-    // Can either be an id "minecraft:plains"
-    // List of ids ["minecraft:plains", "minecraft:badlands", ...]
-    // Or a tag "#c:is_overworld"
-    "biomes": "#namespace:biome_tag", 
-  
-    // Can be either a single object or a list of objects
-    "spawners": [
-      {
-        "type": "namespace:entity_type", // Type of mob to spawn
-        "weight": 100, // int, spawn weighting
-        "minCount": 1, // int, minimum pack size
-        "maxCount": 4 // int, maximum pack size
-      },
-      {
-        "type": "minecraft:ghast",
-        "weight": 1,
-        "minCount": 5,
-        "maxCount": 10
-      }
-    ]
+  "type": "neoforge:add_spawns",
+  // Can either be a biome id, such as "minecraft:plains",
+  // or a list of biome ids, such as ["minecraft:plains", "minecraft:badlands", ...],
+  // or a biome tag, such as "#c:is_overworld".
+  "biomes": "#namespace:biome_tag",
+  // Can be either a single object or a list of objects.
+  "spawners": [
+    {
+      "type": "namespace:entity_type", // The id of the entity type to spawn
+      "weight": 100, // int, spawn weight
+      "minCount": 1, // int, minimum group size
+      "maxCount": 4 // int, maximum group size
+    },
+    {
+      "type": "minecraft:ghast",
+      "weight": 1,
+      "minCount": 5,
+      "maxCount": 10
+    }
+  ]
 }
 ```
 
@@ -257,26 +240,21 @@ This Biome Modifier type adds mob spawns to biomes. The modifier takes in the `B
   <TabItem value="datagen" label="Datagen">
 
 ```java
-// Assume we have some EntityType EXAMPLE_ENTITY
+// Assume we have some EntityType<?> named EXAMPLE_ENTITY.
+// Define the ResourceKey for our BiomeModifier.
+public static final ResourceKey<BiomeModifier> ADD_SPAWNS_EXAMPLE = ResourceKey.create(
+    NeoForgeRegistries.Keys.BIOME_MODIFIERS, // The registry this key is for
+    ResourceLocation.fromNamespaceAndPath(MOD_ID, "add_spawns_example") // The registry name
+);
 
-// Define keys for Datapack registry objects
-
-public static final ResourceKey<BiomeModifier> ADD_SPAWNS_EXAMPLE =
-    ResourceKey.create(
-        NeoForgeRegistries.Keys.BIOME_MODIFIERS, // The registry this key is for
-        ResourceLocation.fromNamespaceAndPath(MOD_ID, "add_spawns_example") // The registry name
-    );
-
-// For some RegistrySetBuilder BUILDER
-// being passed to DatapackBuiltinEntriesProvider
-// in a listener for GatherDataEvent
+// BUILDER is a RegistrySetBuilder passed to DatapackBuiltinEntriesProvider
+// in a listener for GatherDataEvent.
 BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
-    // Lookup any necessary registries
-    // Static registries only need to be looked up if you need to grab the tag data
+    // Lookup any necessary registries.
+    // Static registries only need to be looked up if you need to grab the tag data.
     HolderGetter<Biome> biomes = bootstrap.lookup(Registries.BIOME);
 
-    // Register the Biome Modifiers
-
+    // Register the biome modifiers.
     bootstrap.register(ADD_SPAWNS_EXAMPLE,
         new AddSpawnsBiomeModifier(
             // The biome(s) to spawn the mobs within
@@ -288,7 +266,7 @@ BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
             )
         )
     );
-})
+});
 ```
 
   </TabItem>
@@ -297,24 +275,22 @@ BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
 
 ### Remove Spawns
 
-This Biome Modifier type removes mob spawns from biomes. The modifier takes in the `Biome` id or tag of the biomes the spawning information are removed from and the `EntityType` id or tag of the mobs to remove.
+This biome modifier type removes entity spawns from biomes. The modifier takes in the biome id or tag of the biomes the entity spawns are removed from, and the `EntityType` id or tag of the entities to remove.
 
 <Tabs>
   <TabItem value="json" label="JSON" default>
 
 ```json5
 {
-    "type": "neoforge:remove_spawns",
-
-    // Can either be an id "minecraft:plains"
-    // List of ids ["minecraft:plains", "minecraft:badlands", ...]
-    // Or a tag "#c:is_overworld"
-    "biomes": "#namespace:biome_tag",
-
-    // Can either be an id "minecraft:ghast"
-    // List of ids ["minecraft:ghast", "minecraft:skeleton", ...]
-    // Or a tag "#minecraft:skeletons"
-    "entity_types": "#namespace:entitytype_tag"
+  "type": "neoforge:remove_spawns",
+  // Can either be a biome id, such as "minecraft:plains",
+  // or a list of biome ids, such as ["minecraft:plains", "minecraft:badlands", ...],
+  // or a biome tag, such as "#c:is_overworld".
+  "biomes": "#namespace:biome_tag",
+  // Can either be an entity type id, such as "minecraft:ghast",
+  // or a list of entity type ids, such as ["minecraft:ghast", "minecraft:skeleton", ...],
+  // or an entity type tag, such as "#minecraft:skeletons".
+  "entity_types": "#namespace:entitytype_tag"
 }
 ```
 
@@ -322,25 +298,21 @@ This Biome Modifier type removes mob spawns from biomes. The modifier takes in t
   <TabItem value="datagen" label="Datagen">
 
 ```java
-// Define keys for Datapack registry objects
+// Define the ResourceKey for our BiomeModifier.
+public static final ResourceKey<BiomeModifier> REMOVE_SPAWNS_EXAMPLE = ResourceKey.create(
+    NeoForgeRegistries.Keys.BIOME_MODIFIERS, // The registry this key is for
+    ResourceLocation.fromNamespaceAndPath(MOD_ID, "remove_spawns_example") // The registry name
+);
 
-public static final ResourceKey<BiomeModifier> REMOVE_SPAWNS_EXAMPLE =
-    ResourceKey.create(
-        NeoForgeRegistries.Keys.BIOME_MODIFIERS, // The registry this key is for
-        ResourceLocation.fromNamespaceAndPath(MOD_ID, "remove_spawns_example") // The registry name
-    );
-
-// For some RegistrySetBuilder BUILDER
-// being passed to DatapackBuiltinEntriesProvider
-// in a listener for GatherDataEvent
+// BUILDER is a RegistrySetBuilder passed to DatapackBuiltinEntriesProvider
+// in a listener for GatherDataEvent.
 BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
-    // Lookup any necessary registries
-    // Static registries only need to be looked up if you need to grab the tag data
+    // Lookup any necessary registries.
+    // Static registries only need to be looked up if you need to grab the tag data.
     HolderGetter<Biome> biomes = bootstrap.lookup(Registries.BIOME);
     HolderGetter<EntityType<?>> entities = bootstrap.lookup(Registries.ENTITY_TYPE);
 
-    // Register the Biome Modifiers
-
+    // Register the biome modifiers.
     bootstrap.register(REMOVE_SPAWNS_EXAMPLE,
         new RemoveSpawnsBiomeModifier(
             // The biome(s) to remove the spawns from
@@ -349,7 +321,7 @@ BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
             entities.getOrThrow(EntityTypeTags.SKELETONS)
         )
     );
-})
+});
 ```
 
   </TabItem>
@@ -358,32 +330,34 @@ BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
 
 ### Add Spawn Costs
 
-Allows for adding new Spawn Costs to biomes. Spawn Costs are a newer way of making mobs spawn spread out in a biome to reduce clustering. It works by having the entities give off a `charge` that surrounds them and adds up with other entity's `charge`. Then when spawning, it looks for a spot where the total `charge` field at the location multiplied by the spawning entity's `charge` value is less than the spawning entity's `energy_budget`. This is an advanced way of spawning mobs so it is a good idea to reference the Soul Sand Valley Biome for existing values to borrow.
+Allows for adding new spawn costs to biomes. Spawn costs are a newer way of making mobs spawn spread out in a biome to reduce clustering. It works by having the entities give off a `charge` that surrounds them and adds up with other entities' `charge`. When spawning a new entity, the spawning algorithm looks for a spot where the total `charge` field at the location multiplied by the spawning entity's `charge` value is less than the spawning entity's `energy_budget`. This is an advanced way of spawning mobs, so it is a good idea to reference the Soul Sand Valley biome (which is the most prominent user of this system) for existing values to borrow.
 
-The modifier takes in the `Biome` id or tag of the biomes the spawn costs are added to, the `EntityType` id or tag of the mobs to add spawn costs for, and the `MobSpawnSettings.MobSpawnCost` of the mob. The `MobSpawnCost` contains the energy budget, which indicates the maximum number of entities that can spawn in a location based upon the charge provided for each entity spawned.
+The modifier takes in the biome id or tag of the biomes the spawn costs are added to, the `EntityType` id or tag of the entity types to add spawn costs for, and the `MobSpawnSettings.MobSpawnCost` of the entity. The `MobSpawnCost` contains the energy budget, which indicates the maximum number of entities that can spawn in a location based on the charge provided for each entity spawned.
 
-**NOTE:** If you are a modder adding a new mob, make sure the mob has a spawn restriction registered to RegisterSpawnPlacementsEvent event.
+:::note
+If you are a modder adding a new entity, make sure the entity has a spawn restriction registered to `RegisterSpawnPlacementsEvent`.
+:::
 
 <Tabs>
   <TabItem value="json" label="JSON" default>
 
 ```json5
 {
-    "type": "neoforge:add_spawn_costs",
-    // Can either be an id "minecraft:plains"
-    // List of ids ["minecraft:plains", "minecraft:badlands", ...]
-    // Or a tag "#c:is_overworld"
-    "biomes": "#c:is_overworld",
-    // Can either be an id "minecraft:ghast"
-    // List of ids ["minecraft:ghast", "minecraft:skeleton", ...]
-    // Or a tag "#minecraft:skeletons"
-    "entity_types": "#minecraft:skeletons",
-    "spawn_cost": {
-        // The energy budget
-        "energy_budget": 1.0,
-        // The amount of charge each entity takes up from the budget
-        "charge": 0.1
-    }
+  "type": "neoforge:add_spawn_costs",
+  // Can either be a biome id, such as "minecraft:plains",
+  // or a list of biome ids, such as ["minecraft:plains", "minecraft:badlands", ...],
+  // or a biome tag, such as "#c:is_overworld".
+  "biomes": "#namespace:biome_tag",
+  // Can either be an entity type id, such as "minecraft:ghast",
+  // or a list of entity type ids, such as ["minecraft:ghast", "minecraft:skeleton", ...],
+  // or an entity type tag, such as "#minecraft:skeletons".
+  "entity_types": "#minecraft:skeletons",
+  "spawn_cost": {
+    // The energy budget
+    "energy_budget": 1.0,
+    // The amount of charge each entity takes up from the budget
+    "charge": 0.1
+  }
 }
 ```
 
@@ -391,25 +365,21 @@ The modifier takes in the `Biome` id or tag of the biomes the spawn costs are ad
   <TabItem value="datagen" label="Datagen">
 
 ```java
-// Define keys for Datapack registry objects
+// Define the ResourceKey for our BiomeModifier.
+public static final ResourceKey<BiomeModifier> ADD_SPAWN_COSTS_EXAMPLE = ResourceKey.create(
+    NeoForgeRegistries.Keys.BIOME_MODIFIERS, // The registry this key is for
+    ResourceLocation.fromNamespaceAndPath(MOD_ID, "add_spawn_costs_example") // The registry name
+);
 
-public static final ResourceKey<BiomeModifier> ADD_SPAWN_COSTS_EXAMPLE =
-    ResourceKey.create(
-        NeoForgeRegistries.Keys.BIOME_MODIFIERS, // The registry this key is for
-        ResourceLocation.fromNamespaceAndPath(MOD_ID, "add_spawn_costs_example") // The registry name
-    );
-
-// For some RegistrySetBuilder BUILDER
-// being passed to DatapackBuiltinEntriesProvider
-// in a listener for GatherDataEvent
+// BUILDER is a RegistrySetBuilder passed to DatapackBuiltinEntriesProvider
+// in a listener for GatherDataEvent.
 BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
-    // Lookup any necessary registries
-    // Static registries only need to be looked up if you need to grab the tag data
+    // Lookup any necessary registries.
+    // Static registries only need to be looked up if you need to grab the tag data.
     HolderGetter<Biome> biomes = bootstrap.lookup(Registries.BIOME);
     HolderGetter<EntityType<?>> entities = bootstrap.lookup(Registries.ENTITY_TYPE);
 
-    // Register the Biome Modifiers
-
+    // Register the biome modifiers.
     bootstrap.register(ADD_SPAWN_COSTS_EXAMPLE,
         new AddSpawnCostsBiomeModifier(
             // The biome(s) to add the spawn costs to
@@ -422,7 +392,7 @@ BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
             )
         )
     );
-})
+});
 ```
 
   </TabItem>
@@ -431,7 +401,7 @@ BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
 
 ### Remove Spawn Costs
 
-Allows for removing a Spawn Cost from a biome. Spawn Costs are a newer way of making mobs spawn spread out in a biome to reduce clustering. The modifier takes in the `Biome` id or tag of the biomes the spawn costs are removed from and the `EntityType` id or tag of the mobs to remove the spawn cost for.
+Allows for removing a spawn cost from a biome. Spawn costs are a newer way of making mobs spawn spread out in a biome to reduce clustering. The modifier takes in the biome id or tag of the biomes the spawn costs are removed from, and the `EntityType` id or tag of the entities to remove the spawn cost for.
 
 <Tabs>
   <TabItem value="json" label="JSON" default>
@@ -454,34 +424,30 @@ Allows for removing a Spawn Cost from a biome. Spawn Costs are a newer way of ma
   <TabItem value="datagen" label="Datagen">
 
 ```java
-// Define keys for Datapack registry objects
+// Define the ResourceKey for our BiomeModifier.
+public static final ResourceKey<BiomeModifier> REMOVE_SPAWN_COSTS_EXAMPLE = ResourceKey.create(
+    NeoForgeRegistries.Keys.BIOME_MODIFIERS, // The registry this key is for
+    ResourceLocation.fromNamespaceAndPath(MOD_ID, "remove_spawn_costs_example") // The registry name
+);
 
-public static final ResourceKey<BiomeModifier> REMOVE_SPAWN_COSTS_EXAMPLE =
-    ResourceKey.create(
-        NeoForgeRegistries.Keys.BIOME_MODIFIERS, // The registry this key is for
-        ResourceLocation.fromNamespaceAndPath(MOD_ID, "remove_spawn_costs_example") // The registry name
-    );
-
-// For some RegistrySetBuilder BUILDER
-// being passed to DatapackBuiltinEntriesProvider
-// in a listener for GatherDataEvent
+// BUILDER is a RegistrySetBuilder passed to DatapackBuiltinEntriesProvider
+// in a listener for GatherDataEvent.
 BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
-    // Lookup any necessary registries
-    // Static registries only need to be looked up if you need to grab the tag data
+    // Lookup any necessary registries.
+    // Static registries only need to be looked up if you need to grab the tag data.
     HolderGetter<Biome> biomes = bootstrap.lookup(Registries.BIOME);
     HolderGetter<EntityType<?>> entities = bootstrap.lookup(Registries.ENTITY_TYPE);
 
-    // Register the Biome Modifiers
-
+    // Register the biome modifiers.
     bootstrap.register(REMOVE_SPAWN_COSTS_EXAMPLE,
         new RemoveSpawnCostsBiomeModifier(
-            // The biome(s) to remove the spawnc costs from
+            // The biome(s) to remove the spawn costs from
             biomes.getOrThrow(Tags.Biomes.IS_OVERWORLD),
             // The entities to remove spawn costs for
             entities.getOrThrow(EntityTypeTags.SKELETONS)
         )
     );
-})
+});
 ```
 
   </TabItem>
@@ -490,25 +456,25 @@ BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
 
 ### Add Legacy Carvers
 
-This Biome Modifier type allows adding Carver Caves and Ravines to biomes. (Think of what caves looked like pre-Caves and Cliffs update) This CANNOT add Noise Caves to biomes because Noise Caves are baked into the dimension's Noise Setting system and not actually tied to biomes. The legacy carvers are specifically Ravines and Carver Caves.
+This biome modifier type allows adding carver caves and ravines to biomes. These are what was used for cave generation before the Caves and Cliffs update. It CANNOT add noise caves to biomes, because noise caves are baked into the dimension's noise settings system and not actually tied to biomes.
 
 <Tabs>
   <TabItem value="json" label="JSON" default>
 
 ```json5
 {
-    "type": "neoforge:add_carvers",
-    // Can either be an id "minecraft:plains"
-    // List of ids ["minecraft:plains", "minecraft:badlands", ...]
-    // Or a tag "#c:is_overworld"
-    "biomes": "minecraft:plains",
-    // Can either be an id "examplemod:add_carvers_example"
-    // List of ids ["examplemod:add_carvers_example", "minecraft:canyon", ...]
-    // Or a tag "#examplemod:configured_carver_tag"
-    "carvers": "examplemod:add_carvers_example",
-    // See GenerationStep.Carving in code for a list of valid enum names.
-    // Only `air` and `liquid` are available.
-    "step": "air"
+  "type": "neoforge:add_carvers",
+  // Can either be a biome id, such as "minecraft:plains",
+  // or a list of biome ids, such as ["minecraft:plains", "minecraft:badlands", ...],
+  // or a biome tag, such as "#c:is_overworld".
+  "biomes": "minecraft:plains",
+  // Can either be a carver id, such as "examplemod:add_carvers_example",
+  // or a list of carver ids, such as ["examplemod:add_carvers_example", "minecraft:canyon", ...],
+  // or a carver tag, such as "#examplemod:configured_carver_tag".
+  "carvers": "examplemod:add_carvers_example",
+  // See GenerationStep.Carving in code for a list of valid enum names.
+  // Only "air" and "liquid" are available.
+  "step": "air"
 }
 ```
 
@@ -516,27 +482,22 @@ This Biome Modifier type allows adding Carver Caves and Ravines to biomes. (Thin
   <TabItem value="datagen" label="Datagen">
 
 ```java
-// Assume we have some ConfiguredWorldCarver EXAMPLE_CARVER
+// Assume we have some ConfiguredWorldCarver named EXAMPLE_CARVER.
+// Define the ResourceKey for our BiomeModifier.
+public static final ResourceKey<BiomeModifier> ADD_CARVERS_EXAMPLE = ResourceKey.create(
+    NeoForgeRegistries.Keys.BIOME_MODIFIERS, // The registry this key is for
+    ResourceLocation.fromNamespaceAndPath(MOD_ID, "add_carvers_example") // The registry name
+);
 
-// Define keys for Datapack registry objects
-
-public static final ResourceKey<BiomeModifier> ADD_CARVERS_EXAMPLE =
-    ResourceKey.create(
-        NeoForgeRegistries.Keys.BIOME_MODIFIERS, // The registry this key is for
-        ResourceLocation.fromNamespaceAndPath(MOD_ID, "add_carvers_example") // The registry name
-    );
-
-// For some RegistrySetBuilder BUILDER
-// being passed to DatapackBuiltinEntriesProvider
-// in a listener for GatherDataEvent
+// BUILDER is a RegistrySetBuilder passed to DatapackBuiltinEntriesProvider
+// in a listener for GatherDataEvent.
 BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
-    // Lookup any necessary registries
-    // Static registries only need to be looked up if you need to grab the tag data
+    // Lookup any necessary registries.
+    // Static registries only need to be looked up if you need to grab the tag data.
     HolderGetter<Biome> biomes = bootstrap.lookup(Registries.BIOME);
     HolderGetter<ConfiguredWorldCarver<?>> carvers = bootstrap.lookup(Registries.CONFIGURED_CARVER);
 
-    // Register the Biome Modifiers
-
+    // Register the biome modifiers.
     bootstrap.register(ADD_CARVERS_EXAMPLE,
         new AddCarversBiomeModifier(
             // The biome(s) to generate within
@@ -547,7 +508,7 @@ BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
             GenerationStep.Carving.AIR
         )
     );
-})
+});
 ```
 
   </TabItem>
@@ -555,29 +516,30 @@ BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
 
 ### Removing Legacy Carvers
 
-This Biome Modifier type allows removing Carver Caves and Ravines from biomes. (Think of what caves looked like pre-Caves and Cliffs update) This CANNOT remove Noise Caves to biomes because Noise Caves are baked into the dimension's Noise Setting system and not actually tied to biomes. The legacy carvers are specifically Ravines and Carver Caves.
+This biome modifier type allows removing carver caves and ravines from biomes. These are what was used for cave generation before the Caves and Cliffs update. It CANNOT remove noise caves from biomes, because noise caves are baked into the dimension's noise settings system and not actually tied to biomes.
 
 <Tabs>
   <TabItem value="json" label="JSON" default>
 
 ```json5
 {
-    "type": "neoforge:remove_carvers",
-    // Can either be an id "minecraft:plains"
-    // List of ids ["minecraft:plains", "minecraft:badlands", ...]
-    // Or a tag "#c:is_overworld"
-    "biomes": "#c:is_overworld",
-    // Can either be an id "minecraft:cave"
-    // List of ids ["minecraft:cave", "minecraft:canyon", ...]
-    // Or a tag "#examplemod:configured_carver_tag"
-    "carvers": "minecraft:cave",
-    // Can either be a single step "air"
-    // Or a list ["air", "liquid"]
-    // See GenerationStep.Carving for a list of valid enum names.
-    "steps": [
-        "air",
-        "liquid"
-    ]
+  "type": "neoforge:remove_carvers",
+  // Can either be a biome id, such as "minecraft:plains",
+  // or a list of biome ids, such as ["minecraft:plains", "minecraft:badlands", ...],
+  // or a biome tag, such as "#c:is_overworld".
+  "biomes": "minecraft:plains",
+  // Can either be a carver id, such as "examplemod:add_carvers_example",
+  // or a list of carver ids, such as ["examplemod:add_carvers_example", "minecraft:canyon", ...],
+  // or a carver tag, such as "#examplemod:configured_carver_tag".
+  "carvers": "examplemod:add_carvers_example",
+  // Can either be a single generation step, such as "air",
+  // or a list of generation steps, such as ["air", "liquid"].
+  // See GenerationStep.Carving for a list of valid enum names.
+  // Only "air" and "liquid" are available.
+  "steps": [
+    "air",
+    "liquid"
+  ]
 }
 ```
 
@@ -585,25 +547,21 @@ This Biome Modifier type allows removing Carver Caves and Ravines from biomes. (
   <TabItem value="datagen" label="Datagen">
 
 ```java
-// Define keys for Datapack registry objects
+// Define the ResourceKey for our BiomeModifier.
+public static final ResourceKey<BiomeModifier> REMOVE_CARVERS_EXAMPLE = ResourceKey.create(
+    NeoForgeRegistries.Keys.BIOME_MODIFIERS, // The registry this key is for
+    ResourceLocation.fromNamespaceAndPath(MOD_ID, "remove_carvers_example") // The registry name
+);
 
-public static final ResourceKey<BiomeModifier> REMOVE_CARVERS_EXAMPLE =
-    ResourceKey.create(
-        NeoForgeRegistries.Keys.BIOME_MODIFIERS, // The registry this key is for
-        ResourceLocation.fromNamespaceAndPath(MOD_ID, "remove_carvers_example") // The registry name
-    );
-
-// For some RegistrySetBuilder BUILDER
-// being passed to DatapackBuiltinEntriesProvider
-// in a listener for GatherDataEvent
+// BUILDER is a RegistrySetBuilder passed to DatapackBuiltinEntriesProvider
+// in a listener for GatherDataEvent.
 BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
-    // Lookup any necessary registries
-    // Static registries only need to be looked up if you need to grab the tag data
+    // Lookup any necessary registries.
+    // Static registries only need to be looked up if you need to grab the tag data.
     HolderGetter<Biome> biomes = bootstrap.lookup(Registries.BIOME);
     HolderGetter<ConfiguredWorldCarver<?>> carvers = bootstrap.lookup(Registries.CONFIGURED_CARVER);
 
-    // Register the Biome Modifiers
-
+    // Register the biome modifiers.
     bootstrap.register(REMOVE_CARVERS_EXAMPLE,
         new AddFeaturesBiomeModifier(
             // The biome(s) to remove from
@@ -617,15 +575,15 @@ BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
             )
         )
     );
-})
+});
 ```
 
   </TabItem>
 </Tabs>
 
-### The available values for the Decoration steps
+### Available Values for Decoration Steps
 
-The `step` field in many of these JSONs are referring to GenerationStep.Decoration enum. This enum has the steps listed out in this order which is the same order that the game uses for generating during worldgen. Try to put features in the stage that makes the most sense for them.
+The `step` or `steps` fields in many of the aforementioned JSONs are referring to the `GenerationStep.Decoration` enum. This enum has the steps listed out in the following order, which is the same order that the game uses for generating during worldgen. Try to put features in the step that makes the most sense for them.
 
 |           Step           | Description                                                                             |
 |:------------------------:|:----------------------------------------------------------------------------------------|
@@ -637,12 +595,12 @@ The `step` field in many of these JSONs are referring to GenerationStep.Decorati
 |      `strongholds`       | Dedicated for Stronghold structures. No feature is added here in unmodified Minecraft.  |
 |    `underground_ores`    | The step for all Ores and Veins to be added to. This includes Gold, Dirt, Granite, etc. |
 | `underground_decoration` | Used typically for decorating caves. Dripstone Cluster and Sculk Vein are here.         |
-|     `fluid_springs`      | The small Lavafalls and Waterfalls comes from features in this stage.                   |
+|     `fluid_springs`      | The small Lavafalls and Waterfalls come from features in this stage.                    |
 |   `vegetal_decoration`   | Nearly all plants (flowers, trees, vines, and more) are added to this stage.            |
 | `top_layer_modification` | Last to run. Used for placing Snow and Ice on the surface of cold biomes.               |
 
 
-## Creating Custom Biome Modifiers:
+## Creating Custom Biome Modifiers
 
 ### The `BiomeModifier` Implementation
 
@@ -652,7 +610,7 @@ Under the hood, Biome Modifiers are made up of three parts:
 - The [statically registered][staticreg] `MapCodec` that encodes and decodes the modifiers.
 - The JSON that constructs the `BiomeModifier`, using the registered id of the `MapCodec` as the indexable type.
 
-A `BiomeModifier` contains two methods: `#modify` and `#codec`. `modify` takes in the current `Biome` being constructor, the modifier `BiomeModifier.Phase`, and the builder of the biome to modify. Every `BiomeModifier` is called once per `Phase` to organize when certain modifications to the biome should occur:
+A `BiomeModifier` contains two methods: `#modify` and `#codec`. `modify` takes in a `Holder` of the current `Biome`, the current `BiomeModifier.Phase`, and the builder of the biome to modify. Every `BiomeModifier` is called once per `Phase` to organize when certain modifications to the biome should occur:
 
 | Phase               | Description                                                              |
 |:-------------------:|:-------------------------------------------------------------------------|
@@ -662,7 +620,7 @@ A `BiomeModifier` contains two methods: `#modify` and `#codec`. `modify` takes i
 | `MODIFY`            | Modifying single values (e.g., climate, colors).                         |
 | `AFTER_EVERYTHING`  | A catch-all for everything that needs to run after the standard phases.  |
 
-All Biome Modifiers contain a `type` key that references the id of the `MapCodec` used for the Biome Modifier. The `codec` takes in the `MapCodec` that encodes and decodes the modifiers. This `MapCodec` is [statically registered][staticreg], with its id used as the type of the Biome Modifier.
+All `BiomeModifier`s contain a `type` key that references the id of the `MapCodec` used for the `BiomeModifier`. The `codec` takes in the `MapCodec` that encodes and decodes the modifiers. This `MapCodec` is [statically registered][staticreg], with its id used as the `type` of the `BiomeModifier`.
 
 ```java
 public record ExampleBiomeModifier(HolderSet<Biome> biomes, int value) implements BiomeModifier {
@@ -681,11 +639,11 @@ public record ExampleBiomeModifier(HolderSet<Biome> biomes, int value) implement
 }
 
 // In some registration class
-private static final DeferredRegister<MapCodec<? extends BiomeModifier>> REGISTRAR =
+private static final DeferredRegister<MapCodec<? extends BiomeModifier>> BIOME_MODIFIERS =
     DeferredRegister.create(NeoForgeRegistries.Keys.BIOME_MODIFIER_SERIALIZERS, MOD_ID);
 
 public static final Holder<MapCodec<? extends BiomeModifier>> EXAMPLE_BIOME_MODIFIER =
-    REGISTRAR.register("example_biome_modifier", () -> RecordCodecBuilder.mapCodec(instance ->
+    BIOME_MODIFIERS.register("example_biome_modifier", () -> RecordCodecBuilder.mapCodec(instance ->
         instance.group(
             Biome.LIST_CODEC.fieldOf("biomes").forGetter(ExampleBiomeModifier::biomes),
             Codec.INT.fieldOf("value").forGetter(ExampleBiomeModifier::value)
@@ -694,37 +652,37 @@ public static final Holder<MapCodec<? extends BiomeModifier>> EXAMPLE_BIOME_MODI
 ```
 
 
-## Datagenning Biome Modifiers:
+## Datagenning Biome Modifiers
 
-A `BiomeModifier` JSON can be created with [data generation][datagen] by passing a `RegistrySetBuilder` to `DatapackBuiltinEntriesProvider`. The JSON will be placed at `data/<modid>/neoforge/biome_modifier/<path>.json`.
+A `BiomeModifier` JSON can be created through [data generation][datagen] by passing a `RegistrySetBuilder` to `DatapackBuiltinEntriesProvider`. The JSON will be placed at `data/<modid>/neoforge/biome_modifier/<path>.json`.
+
+For more information on how `RegistrySetBuilder` and `DatapackBuiltinEntriesProvider` work, please see the article on [Data Generation for Datapack Registries][datapackdatagen].
 
 ```java
-// Define keys for Datapack registry objects
+// Define the ResourceKey for our BiomeModifier.
+public static final ResourceKey<BiomeModifier> EXAMPLE_MODIFIER = ResourceKey.create(
+    NeoForgeRegistries.Keys.BIOME_MODIFIERS, // The registry this key is for
+    ResourceLocation.fromNamespaceAndPath(MOD_ID, "example_modifier") // The registry name
+);
 
-public static final ResourceKey<BiomeModifier> EXAMPLE_MODIFIER =
-    ResourceKey.create(
-        NeoForgeRegistries.Keys.BIOME_MODIFIERS, // The registry this key is for
-        ResourceLocation.fromNamespaceAndPath(MOD_ID, "example_modifier") // The registry name
-    );
-
-// For some RegistrySetBuilder BUILDER
-// being passed to DatapackBuiltinEntriesProvider
-// in a listener for GatherDataEvent
+// BUILDER is a RegistrySetBuilder passed to DatapackBuiltinEntriesProvider
+// in a listener for GatherDataEvent.
 BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
-    // Lookup any necessary registries
-    // Static registries only need to be looked up if you need to grab the tag data
+    // Lookup any necessary registries.
+    // Static registries only need to be looked up if you need to grab the tag data.
     HolderGetter<Biome> biomes = bootstrap.lookup(Registries.BIOME);
 
-    // Register the Biome Modifiers
-
+    // Register the biome modifiers.
     bootstrap.register(EXAMPLE_MODIFIER,
         new ExampleBiomeModifier(
             biomes.getOrThrow(Tags.Biomes.IS_OVERWORLD),
             20
         )
     );
-})
+});
 ```
+
+This will then result in the following JSON being created:
 
 ```json5
 // In data/examplemod/neoforge/biome_modifier/example_modifier.json
@@ -740,3 +698,4 @@ BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
 [datareg]: ../concepts/registries.md#datapack-registries
 [staticreg]: ../concepts/registries.md#methods-for-registering
 [datagen]: ../resources/index.md#data-generation
+[datapackdatagen]: ../concepts/registries#data-generation-for-datapack-registries
