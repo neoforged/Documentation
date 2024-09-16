@@ -28,20 +28,19 @@ Registration happens in a similar fashion to entities. We create an instance of 
 public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITY_TYPES =
         DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, ExampleMod.MOD_ID);
 
-public static final Supplier<BlockEntityType<MyBlockEntity>> MY_BLOCK_ENTITY =
-        BLOCK_ENTITY_TYPES.register(
-                "my_block_entity",
-                // The block entity type, created using a builder.
-                () -> BlockEntityType.Builder.of(
-                        // The supplier to use for constructing the block entity instances.
-                        MyBlockEntity::new,
-                        // A vararg of blocks that can have this block entity.
-                        // This assumes the existence of the referenced blocks as DeferredBlock<Block>s.
-                        MyBlocks.MY_BLOCK_1, MyBlocks.MY_BLOCK_2
-                )
-                // Build using null; vanilla does some datafixer shenanigans with the parameter that we don't need.
-                .build(null);
-        );
+public static final Supplier<BlockEntityType<MyBlockEntity>> MY_BLOCK_ENTITY = BLOCK_ENTITY_TYPES.register(
+        "my_block_entity",
+        // The block entity type, created using a builder.
+        () -> BlockEntityType.Builder.of(
+                // The supplier to use for constructing the block entity instances.
+                MyBlockEntity::new,
+                // A vararg of blocks that can have this block entity.
+                // This assumes the existence of the referenced blocks as DeferredBlock<Block>s.
+                MyBlocks.MY_BLOCK_1, MyBlocks.MY_BLOCK_2
+        )
+        // Build using null; vanilla does some datafixer shenanigans with the parameter that we don't need.
+        .build(null)
+);
 ```
 
 Now that we have our block entity type, we can use it in place of the `type` variable we left earlier:
@@ -53,6 +52,10 @@ public class MyBlockEntity extends BlockEntity {
     }
 }
 ```
+
+:::info
+The reason for this rather confusing setup process is that `BlockEntityType.Builder#of` expects a `BlockEntityType.BlockEntitySupplier<T extends BlockEntity>`, which is basically a `BiFunction<BlockPos, BlockState, T extends BlockEntity>`. As such, having a constructor we can directly reference using `::new` is highly beneficial. However, we also need to provide the constructed block entity type to the default and only constructor of `BlockEntity`, so we need to pass references around a bit.
+:::
 
 Finally, we need to modify the block class associated with the block entity. This means that we will not be able to attach block entities to simple instances of `Block`, instead, we need a subclass:
 
@@ -72,11 +75,12 @@ public class MyEntityBlock extends Block implements EntityBlock {
 }
 ```
 
-And then, you of course need to use this class as the type in your block registration.
+And then, you of course need to use this class as the type in your block registration:
 
-:::info
-The reason for this rather confusing setup process is that `BlockEntityType.Builder#of` expects a `BlockEntityType.BlockEntitySupplier<T extends BlockEntity>`, which is basically a `BiFunction<BlockPos, BlockState, T extends BlockEntity>`. As such, having a constructor we can directly reference using `::new` is highly beneficial. However, we also need to provide the constructed block entity type to the default and only constructor of `BlockEntity`, so we need to pass references around a bit.
-:::
+```java
+public static final DeferredBlock<MyEntityBlock> MY_ENTITY_BLOCK =
+        BLOCKS.register("my_entity_block", () -> new MyEntityBlock( /* ... */ ));
+```
 
 ## Storing Data
 
@@ -98,16 +102,15 @@ public class MyBlockEntity extends BlockEntity {
     @Override
     public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
-        if (tag.has("value")) {
-            value = tag.getInt("value");
-        }
+        // Will default to 0 if absent. See the NBT article for more information.
+        this.value = tag.getInt("value");
     }
 
     // Save values into the passed CompoundTag here.
     @Override
     public void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
-        tag.putInt("value", value);
+        tag.putInt("value", this.value);
     }
 }
 ```
@@ -118,7 +121,7 @@ In both methods, it is important that you call super, as that adds basic informa
 It is expected that Mojang will adapt the [Data Components][datacomponents] system to also work with block entities sometime during the next few updates. Once that happens, both saving to NBT and data attachments will be removed in favor of data components.
 :::
 
-Of course, you will want to set other values and not just work with defaults. You can do so freely, like with any other field. However, if you want the game to save those changes, you must call `#setChanged()` afterward, otherwise the block entity might get skipped during saving.
+Of course, you will want to set other values and not just work with defaults. You can do so freely, like with any other field. However, if you want the game to save those changes, you must call `#setChanged()` afterward, which marks the block entity's chunk as dirty (= in need of being saved). If you do not call that method, the block entity might get skipped during saving, as Minecraft's saving system only saves chunks that have been marked as dirty.
 
 ## Tickers
 

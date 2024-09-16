@@ -30,36 +30,38 @@ public class MyContainer implements Container {
     // Whether the container is considered empty.
     @Override
     public boolean isEmpty() {
-        return items.stream().allMatch(ItemStack::isEmpty);
+        return this.items.stream().allMatch(ItemStack::isEmpty);
     }
 
     // Return the item stack in the specified slot.
     @Override
     public ItemStack getItem(int slot) {
-        return items.get(slot);
+        return this.items.get(slot);
     }
 
     // Remove the specified amount of items from the given slot, returning the stack that was just removed.
     // We defer to ContainerHelper here, which does this as expected for us.
     @Override
     public ItemStack removeItem(int slot, int amount) {
-        return ContainerHelper.removeItem(items, slot, amount);
+        return ContainerHelper.removeItem(this.items, slot, amount);
     }
 
     // Remove all items from the specified slot, returning the stack that was just removed.
     // We again defer to ContainerHelper here.
     @Override
     public ItemStack removeItemNoUpdate(int slot) {
-        return ContainerHelper.takeItem(items, slot);
+        return ContainerHelper.takeItem(this.items, slot);
     }
 
-    // Set the given item stack in the given slot.
+    // Set the given item stack in the given slot. Limit to the max stack size of the container first.
     @Override
     public void setItem(int slot, ItemStack stack) {
-        items.set(slot, stack);
+        stack.limitSize(this.getMaxStackSize(stack));
+        this.items.set(slot, stack);
     }
 
-    // Do something when changes are done to the container. For example, you could call BlockEntity#setChanged here.
+    // Do something when changes are done to the container, i.e. when item stacks are added, modified, or removed.
+    // For example, you could call BlockEntity#setChanged here.
     @Override
     public void setChanged() {
 
@@ -141,6 +143,43 @@ public class MyBlockEntity extends BaseContainerBlockEntity {
 
 Keep in mind that this class is a `BlockEntity` and a `Container` at the same time. This means that you can use the class as a supertype for your block entity to get a functioning block entity with a pre-implemented container.
 
+### `WorldlyContainer`
+
+`WorldlyContainer` is a sub-interface of `Container` that allows accessing slots of the given `Container` by `Direction`. It is mainly intended for block entities that only expose parts of their container to a particular side. For example, this could be used by a machine that outputs to one side and takes inputs from all other sides, or vice-versa. A simple implementation of the interface could look like this:
+
+```java
+// See BaseContainerBlockEntity methods above. You can of course extend BlockEntity directly
+// and implement Container yourself if needed.
+public class MyBlockEntity extends BaseContainerBlockEntity implements WorldlyContainer {
+    // other stuff here
+    
+    // Assume that slot 0 is our output and slots 1-8 are our inputs.
+    // Further assume that we output to the top and take inputs from all other sides.
+    private static final int[] OUTPUTS = new int[]{0};
+    private static final int[] INPUTS = new int[]{1, 2, 3, 4, 5, 6, 7, 8};
+
+    // Return an array of exposed slot indices based on the passed Direction.
+    @Override
+    public int[] getSlotsForFace(Direction side) {
+        return side == Direction.UP ? OUTPUTS : INPUTS;
+    }
+
+    // Whether items can be placed through the given side at the given slot.
+    // For our example, we return true only if we're not inputing from above and are in the index range [1, 8].
+    @Override
+    public boolean canPlaceItemThroughFace(int index, ItemStack itemStack, @Nullable Direction direction) {
+        return direction != Direction.UP && index > 0 && index < 9;
+    }
+
+    // Whether items can be taken from the given side and the given slot.
+    // For our example, we return true only if we're pulling from above and from slot index 0.
+    @Override
+    public boolean canTakeItemThroughFace(int index, ItemStack stack, Direction direction) {
+        return direction == Direction.UP && index == 0;
+    }
+}
+```
+
 ## Using Containers
 
 Now that we have created containers, let's use them!
@@ -167,7 +206,7 @@ container.removeItem(2, 16);
 ```
 
 :::warning
-A container may throw an exception if trying to access a slot that is beyond its container size.
+A container may throw an exception if trying to access a slot that is beyond its container size. Alternatively, they may return `ItemStack.EMPTY`, as is the case with (for example) `SimpleContainer`.
 :::
 
 ## `Container`s on `ItemStack`s
@@ -176,7 +215,9 @@ Until now, we mainly discussed `Container`s on `BlockEntity`s. However, they can
 
 ```java
 // We use SimpleContainer as the superclass here so we don't have to reimplement the item handling logic ourselves.
-// You may of course use a different base implementation of Container (or implement Container yourself) if needed.
+// Due to implementation details of SimpleContainer, this may lead to race conditions if multiple parties
+// can access the container at the same time, so we're just going to assume our mod doesn't allow that.
+// You may of course use a different implementation of Container (or implement Container yourself) if needed.
 public class MyBackpackContainer extends SimpleContainer {
     // The item stack this container is for. Passed into and set in the constructor.
     private final ItemStack stack;
@@ -190,7 +231,7 @@ public class MyBackpackContainer extends SimpleContainer {
         // by the ItemContainerContents class. If absent, we use ItemContainerContents.EMPTY.
         ItemContainerContents contents = stack.getOrDefault(DataComponents.CONTAINER, ItemContainerContents.EMPTY);
         // Copy the data component contents into our item stack list.
-        contents.copyInfo(this.getItems());
+        contents.copyInto(this.getItems());
     }
 
     // When the contents are changed, we save the data component on the stack.

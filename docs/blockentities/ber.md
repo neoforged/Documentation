@@ -7,6 +7,11 @@ To create a BER, create a class that inherits from `BlockEntityRenderer`. It tak
 ```java
 // Assumes the existence of MyBlockEntity as a subclass of BlockEntity.
 public class MyBlockEntityRenderer implements BlockEntityRenderer<MyBlockEntity> {
+    // Add the constructor parameter for the lambda below. You may also use it to get some context
+    // to be stored in local fields, such as the entity renderer dispatcher, if needed.
+    public MyBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
+    }
+    
     // This method is called every frame in order to render the block entity. Parameters are:
     // - blockEntity:   The block entity instance being rendered. Uses the generic type passed to the super interface.
     // - partialTick:   The amount of time, in fractions of a tick (0.0 to 1.0), that has passed since the last tick.
@@ -32,9 +37,24 @@ public static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderer
             // The block entity type to register the renderer for.
             MyBlockEntities.MY_BLOCK_ENTITY.get(),
             // A function of BlockEntityRendererProvider.Context to BlockEntityRenderer.
-            // You may retrieve and store values from the context in your BER's constructor if needed.
-            // For example, the context contains entity, item and font renderers.
-            // If you don't need that, you can simply not use the context and just call new.
+            MyBlockEntityRenderer::new
+    );
+}
+```
+
+In the event that you do not need the BER provider context in your BER, you can also remove the constructor:
+
+```java
+public class MyBlockEntityRenderer implements BlockEntityRenderer<MyBlockEntity> {
+    @Override
+    public void render( /* ... */ ) { /* ... */ }
+}
+
+// In your event handler class
+@SubscribeEvent
+public static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
+    event.registerBlockEntityRenderer(MyBlockEntities.MY_BLOCK_ENTITY.get(),
+            // Pass the context to an empty (default) constructor call
             context -> new MyBlockEntityRenderer()
     );
 }
