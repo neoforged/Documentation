@@ -74,7 +74,7 @@ Custom `EnchantmentEntityEffect` extensions can be registered through `BuiltInRe
 ### Location Based Effects
 [Location Based Effects] are used for effects that need to reference specific places in the world relative to the player. Frost Walker is a prime example of a Location Based Effect, and Entity Effects are a subclass of Location Based Effects.
 
-Custom `EnchantmentLocationBasedEffect` extensions can be registered through `BuiltInRegistries.ENCHANTMENT_LOCATION_BASED_EFFECT_TYPE`. Overriding `EnchantmentEntityEffect#onChangedBlock` allows for your subclass to do something whenever the wielder's BlockPos changes.
+Custom `EnchantmentLocationBasedEffect` extensions can be registered through `BuiltInRegistries.ENCHANTMENT_LOCATION_BASED_EFFECT_TYPE`. Overriding `EnchantmentEntityEffect#onChangedBlock` allows for the subclass to do something whenever the wielder's BlockPos changes.
 
 [Data Components]: /docs/items/datacomponents
 [Enchantment definition Minecraft wiki page]: https://minecraft.wiki/w/Enchantment_definition
