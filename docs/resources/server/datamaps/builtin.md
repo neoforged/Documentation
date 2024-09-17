@@ -224,5 +224,5 @@ Example:
 }
 ```
 
-[datacomponent]: ../../../items/datacomponents.md
+[datacomponent]: ../../../items/datacomponents.mdx
 [datamap]: index.md

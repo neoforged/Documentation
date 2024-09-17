@@ -848,7 +848,7 @@ During datagen, call `SequenceFunction#of` with the other functions to construct
 [component]: ../../client/i18n.md#components
 [conditions]: lootconditions
 [custom]: custom.md#custom-loot-functions
-[datacomponent]: ../../../items/datacomponents.md
+[datacomponent]: ../../../items/datacomponents.mdx
 [entitytarget]: index.md#entity-targets
 [entry]: index.md#loot-entry
 [itemmodifiers]: https://minecraft.wiki/w/Item_modifier#JSON_format
