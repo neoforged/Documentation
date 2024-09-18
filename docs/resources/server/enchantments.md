@@ -49,14 +49,34 @@ The parameters to `ConditionalEffect.codec` are the codec for the template type 
 
 Whether a given item stack has a specific Enchantment Effect Component can be tested for with `EnchantmentHelper#has`.
 
+
+### Attribute Effect Component
+The [Attribute Effect Component], `minecraft:attributes`, is used to apply attribute modifiers to the entity who has the item equipped. The JSON format is as follows:
+```json
+"minecraft:attributes": [
+    {
+        "amount": {
+            "type": "minecraft:linear",
+            "base": 1,
+            "per_level_above_first": 1
+        },
+        "attribute": "namespace:class.attribute_name",
+        "id": "examplemod:enchantment.example",
+        "operation": "add_multiplied_base"
+    }
+],
+```
+
+The object within the `amount` block is a [Level Based Value], which can be used to have a Value Effect Component that changes the intensity of its effect by level. The `operation` is one of `add_value`, `add_multiplied_base` or `add_multiplied_total`. See [Attribute Operations] for details.
+
 ### Value Effect Components
 [Value Effect Components] are used for enchantments that alter a numerical value somewhere in the game, and are implemented by the class `EnchantmentValueEffect`. Enchantments like Knockback, Looting, and Sharpness use this kind of component. 
 
 Value Effect Components can be set to use any of these operations on their given values:
-- `minecraft:set`: Overwrites the value.
-- `minecraft:add`: Adds the specified value to the old one.
-- `minecraft:multiply`: Multiplies the specified factor by the old one.
-- `minecraft:remove_binomial`: Polls a given probability using a binomial distibution. If it works, subtracts 1 from the value. Note that many values are effectively flags, being fully on at 1 and fully off at 0.
+- `minecraft:set`: Overwrites the given level-based value.
+- `minecraft:add`: Adds the specified level-based value to the old one.
+- `minecraft:multiply`: Multiplies the specified level-based factor by the old one.
+- `minecraft:remove_binomial`: Polls a given (level-based) chance using a binomial distibution. If it works, subtracts 1 from the value. Note that many values are effectively flags, being fully on at 1 and fully off at 0.
 - `minecraft:all_of`: Accepts a list of other value effects and applies them in the stated sequence.
 
 An example from Vanilla is `minecraft:damage`, which allows for an enchantment to modify the attack damage done to an entity when an enchanted item is used as a weapon. The Sharpness enchantment uses this component as follows to achieve its effect:
@@ -77,8 +97,6 @@ An example from Vanilla is `minecraft:damage`, which allows for an enchantment t
   }
 ```
 
-The object within the `value` block is a [Level Based Value], which can be used to have a Value Effect Component that changes the intensity of its effect by level. In this case, level 1 Sharpness increases damage dealt by 1, and each additional level adds another 0.5. See the wiki link for a full list of the available values.
-
 One way to adjust values based on custom Value Effect components is to invoke one of the overloads of `EnchantmentHelper#runIterationOnItem`. This function accepts an `EnchantmentHelper.EnchantmentVisitor`, which is a functional interface that accepts an enchantment and its level, and is invoked on all of the enchantments that the given itemstack has. While any consumer of those two values will work, the `Enchantment` class provides a handy function that fits this interface (and is used often by vanilla) -- `Enchantment#applyEffects`. This function takes a `List<ConditionalEffect<EnchantmentValueEffect>>`, a `LootContext`, and a function that consumes a value effect. The function verifies that all of the `ConditionalEffect`s are satisfied given the provided `LootContext`, and if so, invokes the provided function.
 
 To actually perform the adjustment, use `EnchantmentValueEffect#process`, which takes the enchantment level, a random value (in case the binomial_random Level Based Value was asked for), and a float, then returns the adjusted float based on the settings provided to the `EnchantmentValueEffect` instance. A convenient trick is to invoke this method inside a lambda argument to the aforementioned `Enchantment#applyEffects` method, and to have it update a `MutableFloat` with the value to allow it to escape the lambda and be put to use elsewhere.
@@ -94,13 +112,39 @@ EnchantmentHelper.runIterationOnItem(itemStack, (enchantment, enchantLevel) -> E
 
 Custom numerical operations for use in Value Enchantment blocks can be added by registering a subclass of `EnchantmentValueEffect` through `BuiltInRegistries.ENCHANTMENT_VALUE_EFFECT_TYPE`.
 
-### Entity Effects
-[Entity Effects] are used for enchantments that cause special effects to either the wielder or (if applicable) the target of an attack when the enchanted item is used to attack another entity. Enchantments like Flame, Fire Aspect, and Channeling use this kind of component.
+### Entity Effect Components
+[Entity Effect Components] are components that contain an `EnchantmentEntityEffect`, and are used to implement enchantments that directly affect an entity or the level. Enchantments like Flame, Fire Aspect, and Channeling use this kind of component. 
 
-Custom `EnchantmentEntityEffect` extensions can be registered through `BuiltInRegistries.ENCHANTMENT_ENTITY_EFFECT_TYPE`.
+Custom `EnchantmentEntityEffect` extensions can be registered through `BuiltInRegistries.ENCHANTMENT_ENTITY_EFFECT_TYPE`, and their behavior is dictated by the implementation of their `EnchantmentEntityEffect#apply` method.
+
+Here is an example of the JSON definition of one such component from the Fire Aspect enchantment:
+```json
+"minecraft:post_attack": [
+    {
+        "affected": "victim",
+        "effect": {
+            "type": "minecraft:ignite",
+            "duration": {
+                "type": "minecraft:linear",
+                "base": 4.0,
+                "per_level_above_first": 4.0
+            }
+        },
+        "enchanted": "attacker",
+        "requirements": {
+            "condition": "minecraft:damage_source_properties",
+            "predicate": {
+                "is_direct": true
+            }
+        }
+    }
+]
+```
+
+Here, the Entity Effect Component is `minecraft:post_attack`. Its effect is `minecraft:ignite`, which is implemented by the `Ignite` record. This record's implementation of `EnchantmentEntityEffect#apply` sets the target entity on fire.
 
 ### Location Based Effects
-[Location Based Effects] are used for effects that need to reference specific places in the world relative to the player. Frost Walker is a prime example of a Location Based Effect, and Entity Effects are a subclass of Location Based Effects.
+[Location Based Effect Components] are like Entity Effect Components, but they instead contain Location Based Effects. These are used for effects that need to reference specific places in the world relative to the wielder. Frost Walker is a prime example of an enchantment implemented using a Location Based Effect Component. Entity Effects are a subclass of Location Based Effects.
 
 Custom `EnchantmentLocationBasedEffect` extensions can be registered through `BuiltInRegistries.ENCHANTMENT_LOCATION_BASED_EFFECT_TYPE`. Overriding `EnchantmentEntityEffect#onChangedBlock` allows for the subclass to do something whenever the wielder's BlockPos changes.
 
@@ -110,7 +154,9 @@ Custom `EnchantmentLocationBasedEffect` extensions can be registered through `Bu
 [registered]: /docs/concepts/registries
 [predicates]: https://minecraft.wiki/w/Predicate
 [Value Effect Components]: https://minecraft.wiki/w/Enchantment_definition#Value_effects
-[Entity Effects]: https://minecraft.wiki/w/Enchantment_definition#Entity_effects
-[Location Based Effects]: https://minecraft.wiki/w/Enchantment_definition#Location-based_effects
+[Entity Effects Components]: https://minecraft.wiki/w/Enchantment_definition#Entity_effects
+[Location Based Effect Components]: https://minecraft.wiki/w/Enchantment_definition#Location-based_effects
 [text component]: /docs/resources/client/i18n.md
 [Level Based Value]: https://minecraft.wiki/w/Enchantment_definition#Level-based_value
+[Attribute Effect Component]: https://minecraft.wiki/w/Enchantment_definition#Attribute_effects
+[Attribute Operations]: https://minecraft.wiki/w/Attribute#Operations
