@@ -1,0 +1,49 @@
+---
+sidebar_position: 1
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Checking for and Installing Java
+
+This section provides instructions on how to check whether you already have Java installed and how where to obtain a copy when it is not already installed.
+
+If you are sure that you do not already have Java installed, proceed the final section entitled [Installing Java] below.
+
+## Checking for Existing Java Installation
+
+To find out if you already have Java, you will need to locate and run the terminal application that is provided by your OS.
+
+### Location Terminal Application
+
+The name of the applications to use differs based on the OS that is running:
+
+<Tabs defaultValue="windows">
+  <TabItem value="windows" label="Windows">
+    On Windows, one of the following should be available:
+    - Windows Terminal
+    - PowerShell
+    - Command Prompt (aka `cmd`)
+  </TabItem>
+  <TabItem value="macos" label="macOS">
+    On macOS there is the `Terminal.app` often found on the Finder dock.
+  </TabItem>
+  <TabItem value="linux" label="Linux">
+    On Linux, using your window manager's main menu, you should have at least one such application, usually named just `Terminal` though could have other names such as `Console, `Konsole` or similar.
+  </TabItem>
+</Tabs>
+
+### Testing for Installed Java Version
+
+Once you have located your OS's terminal application, run the command `java -version` which should present you with information similar to the following:
+
+```
+openjdk version "21.0.4" 2024-07-16 LTS
+OpenJDK Runtime Environment Temurin-21.0.4+7 (build 21.0.4+7-LTS)
+OpenJDK 64-Bit Server VM Temurin-21.0.4+7 (build 21.0.4+7-LTS, mixed mode, sharing)
+```
+
+## Installing Java
+
+[Installing Java]: ./java.mdx#installing-java
