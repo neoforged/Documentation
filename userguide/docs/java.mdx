@@ -9,34 +9,34 @@ import TabItem from '@theme/TabItem';
 
 This section provides instructions on how to check your computer for an existing Java installation.
 
-If you are sure that you do not already have Java installed, you can skip to the [Installing Java] section of this article below.
+If you are sure that you do not already have Java installed, you can skip to the [Installing Java] section below.
 
 ## Checking for Existing Java Installation
 
-To find out if you already have Java, you will need to locate and run the terminal application that is provided by your OS.
+To find out if you already have Java you can use the terminal application provided by your OS.
 
-### Location Terminal Application
-
-The name of the application to use differs based on the OS that is running:
+### Locating a Terminal Application
 
 <Tabs defaultValue="windows">
   <TabItem value="windows" label="Windows">
-    On Windows, one of the following should be available:
+    Windows has three options depending on version:
     - Windows Terminal
     - PowerShell
     - Command Prompt (aka `cmd`)
   </TabItem>
   <TabItem value="macos" label="macOS">
-    On macOS there is the `Terminal.app` often found on the Finder dock.
+    macOS has Terminal which is often found on the Finder dock.
   </TabItem>
   <TabItem value="linux" label="Linux">
-    On Linux, using your window manager's main menu, you should have at least one such application, usually named just `Terminal` though could have other names such as `Console, `Konsole` or similar.
+    The names for terminal applications vary on Linux but one of the following should be available from your distribution's main menu:
+    - GNOME Terminal (or just Terminal)
+    - Konsole
   </TabItem>
 </Tabs>
 
 ### Testing for Installed Java Version
 
-Once you have located your OS's terminal application, run the command `java -version` which should present you with information similar to the following:
+Once you have located the terminal application for your OS, run the command `java -version`, which should present you with information similar to the following:
 
 ```
 openjdk version "21.0.4" 2024-07-16 LTS
@@ -46,4 +46,25 @@ OpenJDK 64-Bit Server VM Temurin-21.0.4+7 (build 21.0.4+7-LTS, mixed mode, shari
 
 ## Installing Java
 
+Minecraft itself recommends the [Microsoft Build of OpenJDK] (Microsoft JDK) for running Minecraft.
+
+<!-- With Windows being the common case, should there be a `WinGet` example? -->
+
+If you do not want to use the Microsoft JDK, you can instead donwload an installer for, e.g. Temurin from the Eclipse Foundation, from [Adoptium].
+
+### Which Version of Java to Install
+
+You will need to install a specific version of Java depending on the version of NeoForge you are installing.
+
+The following table lists the versions of Java that are recommended for a particular version of minecraft:
+
+| Minecraft version | Java version |
+|-------------------|--------------|
+| 1.20.2 - 1.20.4   | 17           |
+| 1.20.5 and above  | 21           |
+
+<!-- Above are minumium versions from the MC Wiki; check that these are optimal -->
+
 [Installing Java]: ./java.mdx#installing-java
+[Microsoft Build of OpenJDK]: https://www.microsoft.com/openjdk
+[Adoptium]: https://adoptium.net/temurin/releases/

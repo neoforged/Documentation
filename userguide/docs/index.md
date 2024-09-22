@@ -24,4 +24,4 @@ The NeoForged project has a [Discord] server, including a `#user-support` channe
 
 [Discord]: https://discord.neoforged.net/
 [Checking for and Installing Java]: ./java.mdx
-[Installing NeoForge]: ./installer.mdx
+[Installing NeoForge]: ./installer
