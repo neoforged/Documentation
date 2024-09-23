@@ -148,6 +148,78 @@ Here, the Entity Effect Component is `minecraft:post_attack`. Its effect is `min
 
 Custom `EnchantmentLocationBasedEffect` extensions can be registered through `BuiltInRegistries.ENCHANTMENT_LOCATION_BASED_EFFECT_TYPE`. Overriding `EnchantmentEntityEffect#onChangedBlock` allows for the subclass to do something whenever the wielder's BlockPos changes.
 
+## Enchantment Data Generating
+Enchantment JSON files can be created automatically using the [data generation] system by passing a `RegistrySetBuilder` into `DatapackBuiltInEntriesProvider`. The JSON will be placed in `<project root>/src/generated/data/<modid>/enchantment/<path>.json`.
+
+For more information on how RegistrySetBuilder and DatapackBuiltinEntriesProvider work, please see the article on [Data Generation for Datapack Registries]. 
+
+```java
+// This RegistrySetBuilder should be passed into a DatapackBuiltinEntriesProvider in your GatherDataEvent handler.
+public static RegistrySetBuilder BUILDER = new RegistrySetBuilder();
+
+// Define the ResourceKey for our enchantment.
+static ResourceKey<Enchantment> EXAMPLE_ENCHANTMENT_KEY = ResourceKey.create(
+        Registries.ENCHANTMENT,
+        ResourceLocation.fromNamespaceAndPath("examplemod", "example_enchantment")
+);
+
+// Specify the enchantment definition of for our enchantment. 
+static Enchantment.EnchantmentDefinition EXAMPLE_ENCHANTMENT_DEFINITION = new Enchantment.EnchantmentDefinition(
+    HolderSet.direct(...), // A HolderSet of Items that the enchantment will be compatible with.
+    Optional.empty(), // An Optional HolderSet of Items that the enchantment considers "primary".
+    30, // The weight of the enchantment.
+    3, // The maximum number of levels.
+    new Enchantment.Cost(3, 1), // The minimum cost of the enchantment. The first parameter is base cost, the second is cost per level.
+    new Enchantment.Cost(4, 2), // The maximum cost of the enchantment. As above.
+    2, // The anvil cost of the enchantment.
+    List.of(EquipmentSlotGroup.ANY) // A list of EquipmentSlotGroups that this enchantment has effects in.
+);
+
+// Add the enchantment itself to the builder.
+BUILDER.add(
+    Registries.ENCHANTMENT,
+    bootstrap -> bootstrap.register(
+        EXAMPLE_ENCHANTMENT_KEY,
+        new Enchantment(
+                Component.literal("Example Enchantment"), // The Text Component that specifies the enchantment's name.
+                EXAMPLE_ENCHANTMENT_DEFINITION,
+                HolderSet.empty(), // A HolderSet of incompatible other enchantments.
+                DataComponentMap.builder() // A DataComponentMap of the Enchantment Effect Components associated with this enchantment and their values.
+                    .set(MY_ENCHANTMENT_EFFECT_COMPONENT_TYPE, new ExampleData())
+                    .build()
+        )
+    )
+);
+
+```
+
+This will produce the following JSON data when the data generator runs:
+
+```json
+{
+  "anvil_cost": 2,
+  "description": "Example Enchantment",
+  "effects": {
+    <effect components>
+  },
+  "max_cost": {
+    "base": 4,
+    "per_level_above_first": 2
+  },
+  "max_level": 3,
+  "min_cost": {
+    "base": 3,
+    "per_level_above_first": 1
+  },
+  "slots": [
+    "any"
+  ],
+  "supported_items": <supported item list>,
+  "weight": 30
+}
+```
+
+
 [Data Components]: /docs/items/datacomponents
 [Codec]: /docs/datastorage/codecs
 [Enchantment definition Minecraft wiki page]: https://minecraft.wiki/w/Enchantment_definition
@@ -160,3 +232,5 @@ Custom `EnchantmentLocationBasedEffect` extensions can be registered through `Bu
 [Level Based Value]: https://minecraft.wiki/w/Enchantment_definition#Level-based_value
 [Attribute Effect Component]: https://minecraft.wiki/w/Enchantment_definition#Attribute_effects
 [Attribute Operations]: https://minecraft.wiki/w/Attribute#Operations
+[data generation]: /docs/resources/#data-generation
+[Data Generation for Datapack Registries]: https://docs.neoforged.net/docs/concepts/registries/#data-generation-for-datapack-registries
