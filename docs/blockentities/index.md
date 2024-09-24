@@ -78,8 +78,10 @@ public class MyEntityBlock extends Block implements EntityBlock {
 And then, you of course need to use this class as the type in your block registration:
 
 ```java
-public static final DeferredBlock<MyEntityBlock> MY_ENTITY_BLOCK =
-        BLOCKS.register("my_entity_block", () -> new MyEntityBlock( /* ... */ ));
+public static final DeferredBlock<MyEntityBlock> MY_BLOCK_1 =
+        BLOCKS.register("my_block_1", () -> new MyEntityBlock( /* ... */ ));
+public static final DeferredBlock<MyEntityBlock> MY_BLOCK_2 =
+        BLOCKS.register("my_block_2", () -> new MyEntityBlock( /* ... */ ));
 ```
 
 ## Storing Data

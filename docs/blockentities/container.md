@@ -6,6 +6,10 @@ The `Container` interface defines methods such as `#getItem`, `#setItem` and `#r
 
 Due to this, `Container`s can not only be implemented on block entities, but any other class as well. Notable examples include entity inventories, as well as common modded [items][item] such as backpacks.
 
+:::info
+NeoForge provides the `ItemStackHandler` class as a replacement for `Container`s in many places. It should be used wherever possible in favor of `Container`, as it allows for cleaner interaction with other `Container`s/`ItemStackHandler`s.
+:::
+
 ## Basic Container Implementation
 
 Containers can be implemented in any way you like, so long as you satisfy the dictated methods (as with any other interface in Java). However, it is common to use a `NonNullList<ItemStack>` with a fixed length as a backing structure. Single-slot containers may also simply use an `ItemStack` field instead.
@@ -39,18 +43,30 @@ public class MyContainer implements Container {
         return this.items.get(slot);
     }
 
+    // Call this when changes are done to the container, i.e. when item stacks are added, modified, or removed.
+    // For example, you could call BlockEntity#setChanged here.
+    @Override
+    public void setChanged() {
+
+    }
+
     // Remove the specified amount of items from the given slot, returning the stack that was just removed.
     // We defer to ContainerHelper here, which does this as expected for us.
+    // However, we must call #setChanged manually.
     @Override
     public ItemStack removeItem(int slot, int amount) {
-        return ContainerHelper.removeItem(this.items, slot, amount);
+        ItemStack stack = ContainerHelper.removeItem(this.items, slot, amount);
+        this.setChanged();
+        return stack;
     }
 
     // Remove all items from the specified slot, returning the stack that was just removed.
-    // We again defer to ContainerHelper here.
+    // We again defer to ContainerHelper here, and we again have to call #setChanged manually.
     @Override
     public ItemStack removeItemNoUpdate(int slot) {
-        return ContainerHelper.takeItem(this.items, slot);
+        ItemStack stack = ContainerHelper.takeItem(this.items, slot);
+        this.setChanged();
+        return stack;
     }
 
     // Set the given item stack in the given slot. Limit to the max stack size of the container first.
@@ -58,17 +74,11 @@ public class MyContainer implements Container {
     public void setItem(int slot, ItemStack stack) {
         stack.limitSize(this.getMaxStackSize(stack));
         this.items.set(slot, stack);
+        this.setChanged();
     }
 
-    // Do something when changes are done to the container, i.e. when item stacks are added, modified, or removed.
-    // For example, you could call BlockEntity#setChanged here.
-    @Override
-    public void setChanged() {
-
-    }
-
-    // Whether the container is considered "still valid" for the given player.
-    // For example, chests and similar blocks check if the player is still within a given distance of the block.
+    // Whether the container is considered "still valid" for the given player. For example, chests and
+    // similar blocks check if the player is still within a given distance of the block here.
     @Override
     public boolean stillValid(Player player) {
         return true;
@@ -78,6 +88,7 @@ public class MyContainer implements Container {
     @Override
     public void clearContent() {
         items.clear();
+        this.setChanged();
     }
 }
 ```
