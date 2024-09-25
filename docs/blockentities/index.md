@@ -1,6 +1,6 @@
 # Block Entities
 
-Block entities allow the storage of data on [blocks][block] in cases where [block states][blockstate] are not suited. This is especially the case for data with a non-finite amount of options, such as inventories. Block entities are stationary and bound to a block, but otherwise share many similarities with entities, hence the name.
+Block entities allow the storage of data on [blocks][block] in cases where [block states][blockstate] are not suitable. This is especially the case for data with a non-finite amount of options, such as inventories. Block entities are stationary and bound to a block, but otherwise share many similarities with entities, hence the name.
 
 :::note
 If you have a finite and reasonably small amount (= a few hundred at most) of possible states for your block, you might want to consider using [block states][blockstate] instead.
@@ -88,6 +88,10 @@ public static final DeferredBlock<MyEntityBlock> MY_BLOCK_2 =
 
 One of the main purposes of `BlockEntity`s is to store data. Data storage on block entities can happen in two ways: directly reading and writing [NBT][nbt], or using [data attachments][dataattachments]. This section will cover reading and writing NBT directly; for data attachments, please refer to the linked article.
 
+:::info
+The main purpose of data attachments is, as the name suggests, attaching data to existing block entities, such as those provided by vanilla or other mods. For your own mod's block entities, saving and loading directly to and from NBT is preferred.
+:::
+
 Data can be read from and written to a `CompoundTag` using the `#loadAdditional` and `#saveAdditional` methods, respectively. These methods are called when the block entity is synced to disk or over the network.
 
 ```java
@@ -119,10 +123,6 @@ public class MyBlockEntity extends BlockEntity {
 
 In both methods, it is important that you call super, as that adds basic information such as the position. The tag names `id`, `x`, `y`, `z`, `NeoForgeData` and `neoforge:attachments` are reserved by the super methods, and as such, you should not use them yourself.
 
-:::info
-It is expected that Mojang will adapt the [Data Components][datacomponents] system to also work with block entities sometime during the next few updates. Once that happens, both saving to NBT and data attachments will be removed in favor of data components.
-:::
-
 Of course, you will want to set other values and not just work with defaults. You can do so freely, like with any other field. However, if you want the game to save those changes, you must call `#setChanged()` afterward, which marks the block entity's chunk as dirty (= in need of being saved). If you do not call that method, the block entity might get skipped during saving, as Minecraft's saving system only saves chunks that have been marked as dirty.
 
 ## Tickers
@@ -135,11 +135,13 @@ Another very common use of block entities, often in combination with some stored
 public class MyEntityBlock extends Block implements EntityBlock {
     // other stuff here
 
+    @SuppressWarnings("unchecked") // Due to generics, an unchecked cast is necessary here.
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
         // You can return different tickers here, depending on whatever factors you want. A common use case would be
-        // to return different tickers on the client or server, or only tick one side to begin with.
-        return type == MY_BLOCK_ENTITY.get() ? MyBlockEntity::tick : null;
+        // to return different tickers on the client or server, only tick one side to begin with,
+        // or only return a ticker for some blockstates (e.g. when using a "my machine is working" blockstate property).
+        return type == MY_BLOCK_ENTITY.get() ? (BlockEntityTicker<T>) MyBlockEntity::tick : null;
     }
 }
 
@@ -172,8 +174,6 @@ public class MyBlockEntity extends BlockEntity {
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = new CompoundTag();
-        // You can also opt to only save the data that has actually changed here.
-        // This makes sense especially for block entities with larger amounts of data.
         saveAdditional(tag, registries);
         return tag;
     }
@@ -206,6 +206,8 @@ public class MyBlockEntity extends BlockEntity {
     // Return our packet here. This method returning a non-null result tells the game to use this packet for syncing.
     @Override
     public Packet<ClientGamePacketListener> getUpdatePacket() {
+        // The packet uses the CompoundTag returned by #getUpdateTag. An alternative overload of #create exists
+        // that allows you to specify a custom update tag, including the ability to omit data the client might not need.
         return ClientboundBlockEntityDataPacket.create(this);
     }
 
@@ -232,7 +234,6 @@ It is important that you do safety checks, as the `BlockEntity` might already be
 [block]: ../blocks/index.md
 [blockstate]: ../blocks/states.md
 [dataattachments]: ../datastorage/attachments.md
-[datacomponents]: ../items/datacomponents.md
 [nbt]: ../datastorage/nbt.md
 [networking]: ../networking/index.md
 [registration]: ../concepts/registries.md#methods-for-registering

@@ -68,8 +68,7 @@ To add a BEWLR, create a class that extends `BlockEntityWithoutLevelRenderer` an
 
 ```java
 public class MyBlockEntityWithoutLevelRenderer extends BlockEntityWithoutLevelRenderer {
-    // We need some boilerplate in the constructor, telling the superclass where to find
-    // the central block entity and entity renderers.
+    // We need some boilerplate in the constructor, telling the superclass where to find the central block entity and entity renderers.
     public MyBlockEntityWithoutLevelRenderer() {
         super(Minecraft.getInstance().getBlockEntityRenderDispatcher(), Minecraft.getInstance().getEntityModels());
     }
@@ -83,31 +82,29 @@ public class MyBlockEntityWithoutLevelRenderer extends BlockEntityWithoutLevelRe
 
 Keep in mind that, like with BERs, there is only one instance of your BEWLR. Stack-specific properties should therefore be stored in the stack, not the BEWLR.
 
-Unlike BERs, we do not register BEWLRs directly. Instead, we register an instance of `IClientItemExtensions` to the `RegisterClientExtensionsEvent`. `IClientItemExtensions` allows us to specify a number of rendering-related behaviors on items, but since we're only interested in replacing the renderer with our newly-made BEWLR, we will just slap the `IClientItemExtensions` interface onto our BEWLR, like so:
+Unlike BERs, we do not register BEWLRs directly. Instead, we register an instance of `IClientItemExtensions` to the `RegisterClientExtensionsEvent`. `IClientItemExtensions` is an interface that allows us to specify a number of rendering-related behaviors on items, such as (but not limited to) a BEWLR. As such, our implementation of that interface could look like so:
 
 ```java
-public class MyBlockEntityWithoutLevelRenderer extends BlockEntityWithoutLevelRenderer implements IClientItemExtensions {
-    public MyBlockEntityWithoutLevelRenderer() { /* ... */ }
-    
-    @Override
-    public void renderByItem( /* ... */ ) { /* ... */ }
+public class MyClientItemExtensions implements IClientItemExtensions {
+    // Cache our BEWLR in a field.
+    private final MyBlockEntityWithoutLevelRenderer myBEWLR = new MyBlockEntityWithoutLevelRenderer();
 
-    // Defined by IClientItemExtensions. Return ourselves here.
+    // Return our BEWLR here.
     @Override
     public BlockEntityWithoutLevelRenderer getCustomRenderer() {
-        return this;
+        return myBEWLR;
     }
 }
 ```
 
-And then, we can register the BEWLR as an `IClientItemExtensions` to the event:
+And then, we can register our `IClientItemExtensions` to the event:
 
 ```java
 @SubscribeEvent
 public static void registerClientExtensions(RegisterClientExtensionsEvent event) {
     event.registerItem(
             // The only instance of your BEWLR.
-            new MyBlockEntityWithoutLevelRenderer(),
+            new MyClientItemExtensions(),
             // A vararg list of items that use this BEWLR.
             MyItems.ITEM_1, MyItems.ITEM_2
     );

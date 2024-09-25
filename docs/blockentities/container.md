@@ -6,8 +6,10 @@ The `Container` interface defines methods such as `#getItem`, `#setItem` and `#r
 
 Due to this, `Container`s can not only be implemented on block entities, but any other class as well. Notable examples include entity inventories, as well as common modded [items][item] such as backpacks.
 
-:::info
+:::warning
 NeoForge provides the `ItemStackHandler` class as a replacement for `Container`s in many places. It should be used wherever possible in favor of `Container`, as it allows for cleaner interaction with other `Container`s/`ItemStackHandler`s.
+
+The main reason this article exists is for reference in vanilla code, or if you are developing mods on multiple loaders. Always use `ItemStackHandler` in your own code if possible! Docs on that are a work in progress.
 :::
 
 ## Basic Container Implementation
@@ -254,7 +256,11 @@ public class MyBackpackContainer extends SimpleContainer {
 }
 ```
 
-And voilà, you have created an item-backed container! Simply call `new MyBackpackContainer(stack)` to create a container for a menu or other use case.
+And voilà, you have created an item-backed container! Call `new MyBackpackContainer(stack)` to create a container for a menu or other use case.
+
+:::warning
+Be aware that `Menu`s that directly interface with `Container`s must `#copy()` their `ItemStack`s when modifying them, as otherwise the immutability contract on data components is broken.
+:::
 
 ## `Container`s on `Entity`s
 
@@ -281,6 +287,10 @@ mob.setItemSlot(EquipmentSlot.FEET, new ItemStack(Items.BEDROCK));
 mob.setDropChance(EquipmentSlot.FEET, 1f);
 ```
 
+### `InventoryCarrier`
+
+`InventoryCarrier` is an interface implemented by some living entities, such as villagers. It declares a method `#getInventory`, which returns a `SimpleContainer`. This interface is used by non-player entities that need an actual inventory instead of just the equipment slots provided by `EquipmentUser`.
+
 ### `Container`s on `Player`s (Player Inventory)
 
 The player's inventory is implemented through the `Inventory` class, a class implementing `Container` as well as the `Nameable` interface mentioned earlier. An instance of that `Inventory` is then stored as a field named `inventory` on the `Player`, accessible via `Player#getInventory`. The inventory can be interacted with like any other container.
@@ -296,7 +306,7 @@ When iterating over the inventory contents, it is recommended to iterate over `i
 [block]: ../blocks/index.md
 [blockentity]: index.md
 [component]: ../resources/client/i18n.md#components
-[datacomponent]: ../items/datacomponents.md
+[datacomponent]: ../items/datacomponents.mdx
 [item]: ../items/index.md
 [itemstack]: ../items/index.md#itemstacks
 [menu]: ../gui/menus.md
