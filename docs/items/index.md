@@ -214,7 +214,7 @@ It is also possible to implement `ItemLike` on your custom objects. Simply overr
 [blockstates]: ../blocks/states.md
 [breaking]: ../blocks/index.md#breaking-a-block
 [creativetabs]: #creative-tabs
-[datacomponents]: ./datacomponents.md
+[datacomponents]: ./datacomponents.mdx
 [datagen]: ../resources/index.md#data-generation
 [food]: #food
 [hunger]: https://minecraft.wiki/w/Hunger#Mechanics

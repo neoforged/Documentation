@@ -233,7 +233,7 @@ public static final Supplier<ArmorItem> COPPER_BOOTS = ITEMS.register("copper_bo
 When creating your armor texture, it is a good idea to work on top of the vanilla armor texture to see which part goes where.
 
 [block]: ../blocks/index.md
-[datacomponents]: ./datacomponents.md
+[datacomponents]: ./datacomponents.mdx
 [item]: index.md
 [itemability]: #itemabilitys
 [tags]: ../resources/server/tags.md
