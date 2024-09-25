@@ -20,7 +20,7 @@ Biome Modifiers are a data-driven system that allows for changing many aspects o
 
 - Modders who want to do custom or complex biome modifications:
   - [Applying Biome Modifiers](#applying-biome-modifiers)
-  - [Creating Custom Biome Modifiers](#Creating-Custom-Biome-Modifiers)
+  - [Creating Custom Biome Modifiers](#creating-custom-biome-modifiers)
   - [Datagenning Biome Modifiers](#datagenning-biome-modifiers)
 
 
