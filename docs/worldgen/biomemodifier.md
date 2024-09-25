@@ -8,27 +8,27 @@ Biome Modifiers are a data-driven system that allows for changing many aspects o
 ### Recommended Section To Read:
 
 - Players or pack developers:
-  - [Applying Biome Modifiers](#Applying-Biome-Modifiers)
-  - [Built-in Neoforge Biome Modifiers](#Built-in-Biome-Modifiers)
+  - [Applying Biome Modifiers](#applying-biome-modifiers)
+  - [Built-in Neoforge Biome Modifiers](#built-in-biome-modifiers)
 
 
 - Modders doing simple additions or removal biome modifications:
-  - [Applying Biome Modifiers](#Applying-Biome-Modifiers)
-  - [Built-in Neoforge Biome Modifiers](#Built-in-Biome-Modifiers)
-  - [Datagenning Biome Modifiers](#Datagenning-Biome-Modifiers)
+  - [Applying Biome Modifiers](#applying-biome-modifiers)
+  - [Built-in Neoforge Biome Modifiers](#built-in-biome-modifiers)
+  - [Datagenning Biome Modifiers](#datagenning-biome-modifiers)
 
 
 - Modders who want to do custom or complex biome modifications:
-  - [Applying Biome Modifiers](#Applying-Biome-Modifiers)
-  - [Creating Custom Biome Modifiers](#Creating-Custom-Biome-Modifiers)
-  - [Datagenning Biome Modifiers](#Datagenning-Biome-Modifiers)
+  - [Applying Biome Modifiers](#applying-biome-modifiers)
+  - [Creating Custom Biome Modifiers](#creating-custom-biome-modifiers)
+  - [Datagenning Biome Modifiers](#datagenning-biome-modifiers)
 
 
 ## Applying Biome Modifiers
 
 To have NeoForge load a biome modifier JSON file into the game, the file will need to be under `data/<modid>/neoforge/biome_modifier/<path>.json` folder in the mod's resources, or in a [Datapack][datapacks]. Then, once NeoForge loads the biome modifier, it will read its instructions and apply the described modifications to all target biomes when the world is loaded up. Pre-existing biome modifiers from mods can be overridden by datapacks having a new JSON file at the exact same location and name.
 
-The JSON file can be created by hand following the examples in the '[Built-in NeoForge Biome Modifiers](#Built-in-Biome-Modifiers)' section or be datagenned as shown in the '[Datagenning Biome Modifiers](#Datagenning-Biome-Modifiers)' section.
+The JSON file can be created by hand following the examples in the '[Built-in NeoForge Biome Modifiers](#built-in-biome-modifiers)' section or be datagenned as shown in the '[Datagenning Biome Modifiers](#datagenning-biome-modifiers)' section.
 
 ## Built-in Biome Modifiers
 
