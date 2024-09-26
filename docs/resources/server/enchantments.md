@@ -187,6 +187,23 @@ Defined as `DataComponentType<List<TargetedConditionalEffect<EnchantmentEntityEf
 
 Custom `EnchantmentLocationBasedEffect` extensions can be registered through `BuiltInRegistries.ENCHANTMENT_LOCATION_BASED_EFFECT_TYPE`. Overriding `EnchantmentEntityEffect#onChangedBlock` allows for the subclass to do something whenever the wielder's BlockPos changes.
 
+#### Other Vanilla Enchantment Component Types
+Defined as `DataComponentType<List<ConditionalEffect<EnchantmentLocationBasedEffect>>>`:
+- `minecraft:location_changed`: Runs a Location Based Effect when the wielder's Block Position changes and when this item is equipped. Used by Frost Walker and Soul Speed.
+
+Defined as `DataComponentType<List<ConditionalEffect<DamageImmunity>>>`:
+- `minecraft:damage_immunity`: Applies immunity to a specified damage type. Used by Frost Walker.
+
+Defined as `DataComponentType<Unit>`:
+- `minecraft:prevent_equipment_drop`: Prevents this item from being dropped by a player when dying. Used by Curse of Vanishing.
+- `minecraft:prevent_armor_change`: Prevents this item from being unequipped from an armor slot. Used by Curse of Binding.
+
+Defined as `DataComponentType<List<CrossbowItem.ChargingSounds>>`:
+- `minecraft:crossbow_charge_sounds`: Determines the sound events that occur when charging a crossbow. Each entry represents one level of the enchantment.
+
+Defined as `DataComponentType<List<Holder<SoundEvent>>>`:
+- `minecraft:trident_sound`: Determines the sound events that occur when using a trident. Each entry represents one level of the enchantment.
+
 ## Enchantment Data Generating
 Enchantment JSON files can be created automatically using the [data generation] system by passing a `RegistrySetBuilder` into `DatapackBuiltInEntriesProvider`. The JSON will be placed in `<project root>/src/generated/data/<modid>/enchantment/<path>.json`.
 
