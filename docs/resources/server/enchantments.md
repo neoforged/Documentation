@@ -97,6 +97,33 @@ An example from Vanilla is `minecraft:damage`, which allows for an enchantment t
   }
 ```
 
+#### Vanilla Enchantment Value Effects Component Types
+Defined as `DataComponentType<EnchantmentValueEffect>`:
+- `minecraft:crossbow_charge_time`: Modifies the charge-up time of this crossbow in seconds. Used by Quick Charge.
+- `minecraft:trident_spin_attack_strength`: Modifies the 'strength' of the spin attack of a trident (see `TridentItem#releaseUsing`). Used by Riptide.
+
+Defined as `DataComponentType<List<ConditionalEffect<EnchantmentValueEffect>>>`:
+- `minecraft:armor_effectiveness`: Determines effectiveness of armor against this weapon on a scale of 0 (no protection) to 1 (normal protection). Used by Breach.
+- `minecraft:damage`: Modifies attack damage with this weapon. Used by Sharpness, Impaling, Bane of Arthropods, Power, and Smite. 
+- `minecraft:damage_protection`: Each "point" of damage reduction reduces damage taken while wielding this item by 4%, to a a maximum reduction of 80%. Used by Blast Protection, Feather Falling, Fire Protection, Protection, and Projectile Protection.
+- `minecraft:smash_damage_per_fallen_block`: Adds damage per block fallen to a mace. Used by Density.
+- `minecraft:knockback`: Modifies the amount of knockback caused while wielding this weapon, measured in game units. Used by Knockback and Punch.
+- `minecraft:ammo_use`: Modifies the amount of ammo used when firing a bow or crossbow. The value is clamped to an integer, so values below 1 will result in 0 ammo use. Used by Infinity.
+- `minecraft:projectile_piercing`: Modifies the number of entities pierced by a projectile from this weapon. Used by Piercing.
+- `minecraft:block_experience`: Modifies the amount of XP from breaking a block. Used by Silk Touch.
+- `minecraft:repair_with_xp`: Causes the item to repair itself using XP gain, and determines how effective this is. Used by Mending.
+- `minecraft:item_damage`: Modifies the durability damage taken by the item. Values below 1 act as a chance that the item takes damage. Used by Unbreaking.
+- `minecraft:projectile_count`: Modifies the number of projectiles spawned when shooting this bow. Used by Multishot.
+- `minecraft:projectile_spread`: Modifies the maximum spread of projectiles in degrees from the direction they were fired. Used by Multishot.
+- `minecraft:trident_return_acceleration`: Causes the trident to return to its owner, and modifies the acceleration applied to this trident while doing so. Used by Loyalty.
+- `minecraft:fishing_time_reduction`: Reduces the time it takes for the bobber to sink while fishing with this rod by the given number of seconds. Used by Lure.
+- `minecraft:fishing_luck_bonus`: Modifies the amount of [luck] used in the fishing loot table. Used by Luck of the Sea.
+- `minecraft:mob_experience`: Modifies the amount of experience for killing a mob. Unused.
+
+Defined as `DataComponentType<List<TargetedConditionalEffect<EnchantmentValueEffect>>>`:
+- `minecraft:equipmentment_drops`: Modifies the chance of equipment dropping from an entity killed by this weapon. Used by Looting.
+
+#### Using Enchantment Value Effect Components
 One way to adjust values based on custom Value Effect components is to invoke one of the overloads of `EnchantmentHelper#runIterationOnItem`. This function accepts an `EnchantmentHelper.EnchantmentVisitor`, which is a functional interface that accepts an enchantment and its level, and is invoked on all of the enchantments that the given itemstack has. While any consumer of those two values will work, the `Enchantment` class provides a handy function that fits this interface (and is used often by vanilla) -- `Enchantment#applyEffects`. This function takes a `List<ConditionalEffect<EnchantmentValueEffect>>`, a `LootContext`, and a function that consumes a value effect. The function verifies that all of the `ConditionalEffect`s are satisfied given the provided `LootContext`, and if so, invokes the provided function.
 
 To actually perform the adjustment, use `EnchantmentValueEffect#process`, which takes the enchantment level, a random value (in case the binomial_random Level Based Value was asked for), and a float, then returns the adjusted float based on the settings provided to the `EnchantmentValueEffect` instance. A convenient trick is to invoke this method inside a lambda argument to the aforementioned `Enchantment#applyEffects` method, and to have it update a `MutableFloat` with the value to allow it to escape the lambda and be put to use elsewhere.
@@ -234,3 +261,4 @@ This will produce the following JSON data when the data generator runs:
 [Attribute Operations]: https://minecraft.wiki/w/Attribute#Operations
 [data generation]: /docs/resources/#data-generation
 [Data Generation for Datapack Registries]: https://docs.neoforged.net/docs/concepts/registries/#data-generation-for-datapack-registries
+[luck]: https://minecraft.wiki/w/Luck
