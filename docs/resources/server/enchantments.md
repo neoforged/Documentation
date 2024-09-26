@@ -36,7 +36,7 @@ public static final DeferredHolder<DataComponentType<?>, DataComponentType<Examp
 ```
 
 ### `ConditionalEffect`
-Wrapping the type in `ConditionalEffect<?>` permits the use of [predicates] when defining enchantments. This allows some effects to activate situationally. Most vanilla enchantments use this.
+Wrapping the type in `ConditionalEffect<?>` permits the use of [predicates] when defining enchantments. This allows some effects to activate situationally.
 Registering such an effect can be done as follows:
 ```java
 public static final DeferredHolder<DataComponentType<?>, DataComponentType<ConditionalEffect<Unit>>> EXAMPLE_CONDITIONAL_EFFECT =
@@ -70,7 +70,7 @@ The [Attribute Effect Component], `minecraft:attributes`, is used to apply attri
 The object within the `amount` block is a [Level Based Value], which can be used to have a Value Effect Component that changes the intensity of its effect by level. The `operation` is one of `add_value`, `add_multiplied_base` or `add_multiplied_total`. See [Attribute Operations] for details.
 
 ### Value Effect Components
-[Value Effect Components] are used for enchantments that alter a numerical value somewhere in the game, and are implemented by the class `EnchantmentValueEffect`. Enchantments like Knockback, Looting, and Sharpness use this kind of component. 
+[Value Effect Components] are used for enchantments that alter a numerical value somewhere in the game, and are implemented by the class `EnchantmentValueEffect`. 
 
 Value Effect Components can be set to use any of these operations on their given values:
 - `minecraft:set`: Overwrites the given level-based value.
@@ -105,7 +105,7 @@ Defined as `DataComponentType<EnchantmentValueEffect>`:
 Defined as `DataComponentType<List<ConditionalEffect<EnchantmentValueEffect>>>`:
 - `minecraft:armor_effectiveness`: Determines effectiveness of armor against this weapon on a scale of 0 (no protection) to 1 (normal protection). Used by Breach.
 - `minecraft:damage`: Modifies attack damage with this weapon. Used by Sharpness, Impaling, Bane of Arthropods, Power, and Smite. 
-- `minecraft:damage_protection`: Each "point" of damage reduction reduces damage taken while wielding this item by 4%, to a a maximum reduction of 80%. Used by Blast Protection, Feather Falling, Fire Protection, Protection, and Projectile Protection.
+- `minecraft:damage_protection`: Each "point" of damage reduction reduces damage taken while wielding this item by 4%, to a maximum reduction of 80%. Used by Blast Protection, Feather Falling, Fire Protection, Protection, and Projectile Protection.
 - `minecraft:smash_damage_per_fallen_block`: Adds damage per block fallen to a mace. Used by Density.
 - `minecraft:knockback`: Modifies the amount of knockback caused while wielding this weapon, measured in game units. Used by Knockback and Punch.
 - `minecraft:ammo_use`: Modifies the amount of ammo used when firing a bow or crossbow. The value is clamped to an integer, so values below 1 will result in 0 ammo use. Used by Infinity.
@@ -140,7 +140,7 @@ EnchantmentHelper.runIterationOnItem(itemStack, (enchantment, enchantLevel) -> E
 Custom numerical operations for use in Value Enchantment blocks can be added by registering a subclass of `EnchantmentValueEffect` through `BuiltInRegistries.ENCHANTMENT_VALUE_EFFECT_TYPE`.
 
 ### Entity Effect Components
-[Entity Effect Components] are components that contain an `EnchantmentEntityEffect`, and are used to implement enchantments that directly affect an entity or the level. Enchantments like Flame, Fire Aspect, and Channeling use this kind of component. 
+[Entity Effect Components] are components that contain an `EnchantmentEntityEffect`, and are used to implement enchantments that directly affect an entity or the level.
 
 Custom `EnchantmentEntityEffect` extensions can be registered through `BuiltInRegistries.ENCHANTMENT_ENTITY_EFFECT_TYPE`, and their behavior is dictated by the implementation of their `EnchantmentEntityEffect#apply` method.
 
@@ -180,17 +180,32 @@ Defined as `DataComponentType<List<TargetedConditionalEffect<EnchantmentEntityEf
 - `minecraft:post_attack`: Runs an entity effect after an attack damages an entity. Used by Bane of Arthropods, Channeling, Fire Aspect, Thorns, and Wind Burst.
 
 #### Vanilla Enchantment Entity Effects
+- `minecraft:all_of`: Runs a list of entity effects in sequence.
+- `minecraft:apply_mob_effect`: Applies a status effect to the affected mob.
+- `minecraft:damage_entity`: Does damage to the affected entity. This stacks with attack damage if in an attacking context.
+- `damage_item`: Damages this item's durability.
+- `explode`: Summons an explosion. 
+- `ignite`: Sets the entity on fire.
+- `play_sound`: Plays a specified sound.
+- `replace_block`: Replaces a block at a given offset.
+- `replace_disk`: Replaces a disk of blocks.
+- `run_function`: Runs a specified [datapack funcion].
+- `set_block_properies`: Modifies the block state properties of the specified block.
+- `spawn_particles`: Spawns a particle.
+- `summon_entity`: Summons an entity.
 
+For more detail on each of these, please look at the [relevant minecraft wiki page].
 
 ### Location Based Effects
-[Location Based Effect Components] are like Entity Effect Components, but they instead contain Location Based Effects. These are used for effects that need to reference specific places in the world relative to the wielder. Frost Walker is a prime example of an enchantment implemented using a Location Based Effect Component. Entity Effects are a subclass of Location Based Effects.
+[Location Based Effect Components] are like Entity Effect Components, but they instead contain Location Based Effects. These are used for effects that need to reference specific places in the world relative to the wielder. Entity Effects are a subclass of Location Based Effects.
 
 Custom `EnchantmentLocationBasedEffect` extensions can be registered through `BuiltInRegistries.ENCHANTMENT_LOCATION_BASED_EFFECT_TYPE`. Overriding `EnchantmentEntityEffect#onChangedBlock` allows for the subclass to do something whenever the wielder's BlockPos changes.
 
-#### Other Vanilla Enchantment Component Types
+#### Vanilla Location Based Effect Component Types
 Defined as `DataComponentType<List<ConditionalEffect<EnchantmentLocationBasedEffect>>>`:
 - `minecraft:location_changed`: Runs a Location Based Effect when the wielder's Block Position changes and when this item is equipped. Used by Frost Walker and Soul Speed.
 
+### Other Vanilla Enchantment Component Types
 Defined as `DataComponentType<List<ConditionalEffect<DamageImmunity>>>`:
 - `minecraft:damage_immunity`: Applies immunity to a specified damage type. Used by Frost Walker.
 
@@ -281,9 +296,9 @@ This will produce the following JSON data when the data generator runs:
 [Enchantment definition Minecraft wiki page]: https://minecraft.wiki/w/Enchantment_definition
 [registered]: /docs/concepts/registries
 [predicates]: https://minecraft.wiki/w/Predicate
-[Value Effect Components]: https://minecraft.wiki/w/Enchantment_definition#Value_effects
-[Entity Effects Components]: https://minecraft.wiki/w/Enchantment_definition#Entity_effects
-[Location Based Effect Components]: https://minecraft.wiki/w/Enchantment_definition#Location-based_effects
+[Value Effect Components]: https://minecraft.wiki/w/Enchantment_definition#Components_with_value_effects
+[Entity Effect Components]: https://minecraft.wiki/w/Enchantment_definition#Components_with_entity_effects
+[Location Based Effect Components]: https://minecraft.wiki/w/Enchantment_definition#location_changed
 [text component]: /docs/resources/client/i18n.md
 [Level Based Value]: https://minecraft.wiki/w/Enchantment_definition#Level-based_value
 [Attribute Effect Component]: https://minecraft.wiki/w/Enchantment_definition#Attribute_effects
@@ -291,3 +306,5 @@ This will produce the following JSON data when the data generator runs:
 [data generation]: /docs/resources/#data-generation
 [Data Generation for Datapack Registries]: https://docs.neoforged.net/docs/concepts/registries/#data-generation-for-datapack-registries
 [luck]: https://minecraft.wiki/w/Luck
+[datapack function]: https://minecraft.wiki/w/Function_(Java_Edition)
+[relevant minecraft wiki page]: https://minecraft.wiki/w/Enchantment_definition#Entity_effects
