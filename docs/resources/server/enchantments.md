@@ -97,7 +97,7 @@ An example from Vanilla is `minecraft:damage`, which allows for an enchantment t
   }
 ```
 
-#### Vanilla Enchantment Value Effects Component Types
+#### Vanilla Enchantment Value Effect Component Types
 Defined as `DataComponentType<EnchantmentValueEffect>`:
 - `minecraft:crossbow_charge_time`: Modifies the charge-up time of this crossbow in seconds. Used by Quick Charge.
 - `minecraft:trident_spin_attack_strength`: Modifies the 'strength' of the spin attack of a trident (see `TridentItem#releaseUsing`). Used by Riptide.
@@ -169,6 +169,18 @@ Here is an example of the JSON definition of one such component from the Fire As
 ```
 
 Here, the Entity Effect Component is `minecraft:post_attack`. Its effect is `minecraft:ignite`, which is implemented by the `Ignite` record. This record's implementation of `EnchantmentEntityEffect#apply` sets the target entity on fire.
+
+#### Vanilla Enchantment Entity Effect Component Types
+Defined as `DataComponentType<List<ConditionalEffect<EnchantmentEntityEffect>>>`:
+- `minecraft:hit_block`: Runs an entity effect when an entity (for example, a projectile) hits a block. Used by Channeling.
+- `minecraft:tick`: Runs an entity effect each tick. Used by Soul Speed.
+- `minecraft:projectile_spawned`: Runs an entity effect after a projectile entity has been spawned from a bow or crossbow. Used by Flame.
+
+Defined as `DataComponentType<List<TargetedConditionalEffect<EnchantmentEntityEffect>>>`:
+- `minecraft:post_attack`: Runs an entity effect after an attack damages an entity. Used by Bane of Arthropods, Channeling, Fire Aspect, Thorns, and Wind Burst.
+
+#### Vanilla Enchantment Entity Effects
+
 
 ### Location Based Effects
 [Location Based Effect Components] are like Entity Effect Components, but they instead contain Location Based Effects. These are used for effects that need to reference specific places in the world relative to the wielder. Frost Walker is a prime example of an enchantment implemented using a Location Based Effect Component. Entity Effects are a subclass of Location Based Effects.
