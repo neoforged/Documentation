@@ -103,7 +103,7 @@ And then, we can register our `IClientItemExtensions` to the event:
 @SubscribeEvent
 public static void registerClientExtensions(RegisterClientExtensionsEvent event) {
     event.registerItem(
-            // The only instance of your BEWLR.
+            // The only instance of our IClientItemExtensions, and as such, the only instance of our BEWLR.
             new MyClientItemExtensions(),
             // A vararg list of items that use this BEWLR.
             MyItems.ITEM_1, MyItems.ITEM_2
