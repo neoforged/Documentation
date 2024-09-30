@@ -103,7 +103,7 @@ One way to adjust values based on custom Value Effect components is to invoke on
 To actually perform the adjustment, use `EnchantmentValueEffect#process`, which takes the enchantment level, a random value (in case the binomial_random Level Based Value was asked for), and a float, then returns the adjusted float based on the settings provided to the `EnchantmentValueEffect` instance. A convenient trick is to invoke this method inside a lambda argument to the aforementioned `Enchantment#applyEffects` method, and to have it update a `MutableFloat` with the value to allow it to escape the lambda and be put to use elsewhere.
 
 ```java
-MutableFloat mutableValue = new MutableFloat(unmodified_value);
+MutableFloat mutableValue = new MutableFloat(unmodifiedValue);
 EnchantmentHelper.runIterationOnItem(itemStack, (enchantment, enchantLevel) -> Enchantment.applyEffects(
     enchantment.value().getEffects(MY_ENCHANTMENT_COMPONENT_TYPE_HOLDER.value()),
     // Provide a loot context,
