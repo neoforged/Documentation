@@ -111,6 +111,10 @@ public static void registerClientExtensions(RegisterClientExtensionsEvent event)
 }
 ```
 
+:::info
+`IClientItemExtensions` are generally expected to be treated as singletons. Do not construct them outside `RegisterClientExtensionsEvent`!
+:::
+
 [block]: ../blocks/index.md
 [blockentity]: index.md
 [event]: ../concepts/events.md#registering-an-event-handler
