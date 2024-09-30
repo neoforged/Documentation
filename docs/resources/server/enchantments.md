@@ -22,7 +22,7 @@ A new enchantment can be added by creating a JSON file in your namespace's `ench
 - `effects`: The effects this enchantment provides as a map of Enchantment Effect Components.
 
 ## Enchantment Effect Components
-Enchantment Effect Components are specially-registered [Data Components] that determine what an enchantment does. Enchantment Effect Component Types must be [registered] to `BuiltInRegistries.ENCHANTMENT_EFFECT_COMPONENT_TYPE`, but are otherwise identical to other Data Components. For example, one could register an Enchantment Effect Component that can store an `ExampleEffectData` object as follows:
+Enchantment Effect Components are specially-registered [Data Components] that determine how an enchantment functions. Enchantment Effect Component Types must be [registered] to `BuiltInRegistries.ENCHANTMENT_EFFECT_COMPONENT_TYPE`, but are otherwise identical to other Data Components. For example, one could register an Enchantment Effect Component that can store an `ExampleEffectData` object as follows:
 
 ```java
 // In some registration class
