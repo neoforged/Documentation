@@ -2,25 +2,6 @@
 
 Vanilla Minecraft provides mumerous different types of Enchantment Effect Components for use in [enchantment] definitions. This article will explain each, including their usage and in-code definition.
 
-## Attribute Effect Component
-The [Attribute Effect Component], `minecraft:attributes`, is used to apply attribute modifiers to the entity who has the item equipped. The JSON format is as follows:
-```json5
-"minecraft:attributes": [
-    {
-        "amount": {
-            "type": "minecraft:linear",
-            "base": 1,
-            "per_level_above_first": 1
-        },
-        "attribute": "namespace:class.attribute_name",
-        "id": "examplemod:enchantment.example",
-        "operation": "add_multiplied_base"
-    }
-],
-```
-
-The object within the `amount` block is a [Level Based Value], which can be used to have a Value Effect Component that changes the intensity of its effect by level. The `operation` is one of `add_value`, `add_multiplied_base` or `add_multiplied_total`. See [Attribute Operations] for details.
-
 ## Value Effect Components
 [Value Effect Components] are used for enchantments that alter a numerical value somewhere in the game, and are implemented by the class `EnchantmentValueEffect`. 
 
@@ -48,6 +29,8 @@ The Sharpness enchantment uses `minecraft:damage`, a Value Effect Component, as 
     ]
   }
 ```
+
+The object within the `value` block is a [Level Based Value], which can be used to have a Value Effect Component that changes the intensity of its effect by level.
 
 Custom numerical operations for use in Value Enchantment blocks can be added by registering a subclass of `EnchantmentValueEffect` through `BuiltInRegistries.ENCHANTMENT_VALUE_EFFECT_TYPE`.
 
@@ -95,18 +78,33 @@ Other:
 - `minecraft:equipmentment_drops`: Modifies the chance of equipment dropping from an entity killed by this weapon. Used by Looting.
 
 ## Location Based Effect Components
-[Location Based Effect Components] are components that define behavior that requires context from the level. 
+[Location Based Effect Components] are components that contain an `EnchantmentLocationBasedEffect`. These components define actions to take that need to know where in the level the wielder of the enchantment is. They operate using two major methods: `EnchantmentEntityEffect#onChangedBlock`, which is called when the enchanted item is equipped and when the wielder changes their `BlockPos`, and `onDeactivate`, which is called when the enchanted item is removed.
 
-Custom `EnchantmentLocationBasedEffect` extensions can be registered through `BuiltInRegistries.ENCHANTMENT_LOCATION_BASED_EFFECT_TYPE`. Overriding `EnchantmentEntityEffect#onChangedBlock` allows for the subclass to do something whenever the wielder's BlockPos changes.
+Custom `EnchantmentLocationBasedEffect` extensions can be registered through `BuiltInRegistries.ENCHANTMENT_LOCATION_BASED_EFFECT_TYPE`. 
+
+### Vanilla Enchantment Location Based Effects
+- `minecraft:all_of`: Runs a list of entity effects in sequence.
+- `minecraft:apply_mob_effect`: Applies a status effect to the affected mob.
+- `minecraft:damage_entity`: Does damage to the affected entity. This stacks with attack damage if in an attacking context.
+- `minecraft:damage_item`: Damages this item's durability.
+- `minecraft:explode`: Summons an explosion. 
+- `minecraft:ignite`: Sets the entity on fire.
+- `minecraft:play_sound`: Plays a specified sound.
+- `minecraft:replace_block`: Replaces a block at a given offset.
+- `minecraft:replace_disk`: Replaces a disk of blocks.
+- `minecraft:run_function`: Runs a specified [datapack funcion].
+- `minecraft:set_block_properies`: Modifies the block state properties of the specified block.
+- `minecraft:spawn_particles`: Spawns a particle.
+- `minecraft:summon_entity`: Summons an entity.
 
 ### Vanilla Location Based Effect Component Types
 #### Defined as `DataComponentType<List<ConditionalEffect<EnchantmentLocationBasedEffect>>>`
 - `minecraft:location_changed`: Runs a Location Based Effect when the wielder's Block Position changes and when this item is equipped. Used by Frost Walker and Soul Speed.
 
 ### Entity Effect Components
-[Entity Effect Components] are components that contain an `EnchantmentEntityEffect`, and are used to implement enchantments that directly affect an entity or the level.
+[Entity Effect Components] are Location Based Effect Components that contain an `EnchantmentEntityEffect` (an extension of `EnchantmentLocationBasedEffect`). These are used to implement enchantments that directly affect an entity or the level. These override `EnchantmentLocationBasedEffect#onChangedBlock` to run `EnchantmentEntityEffect#apply` instead; this `apply` method is also directly invoked in various parts of the codebase.
 
-Custom `EnchantmentEntityEffect` extensions can be registered through `BuiltInRegistries.ENCHANTMENT_ENTITY_EFFECT_TYPE`, and their behavior is dictated by the implementation of their `EnchantmentEntityEffect#apply` method.
+Custom `EnchantmentEntityEffect` extensions can be registered through `BuiltInRegistries.ENCHANTMENT_ENTITY_EFFECT_TYPE`.
 
 Here is an example of the JSON definition of one such component from the Fire Aspect enchantment:
 ```json5
@@ -143,22 +141,24 @@ Here, the Entity Effect Component is `minecraft:post_attack`. Its effect is `min
 #### Defined as `DataComponentType<List<TargetedConditionalEffect<EnchantmentEntityEffect>>>`
 - `minecraft:post_attack`: Runs an entity effect after an attack damages an entity. Used by Bane of Arthropods, Channeling, Fire Aspect, Thorns, and Wind Burst.
 
-### Vanilla Enchantment Entity Effects
-- `minecraft:all_of`: Runs a list of entity effects in sequence.
-- `minecraft:apply_mob_effect`: Applies a status effect to the affected mob.
-- `minecraft:damage_entity`: Does damage to the affected entity. This stacks with attack damage if in an attacking context.
-- `minecraft:damage_item`: Damages this item's durability.
-- `minecraft:explode`: Summons an explosion. 
-- `minecraft:ignite`: Sets the entity on fire.
-- `minecraft:play_sound`: Plays a specified sound.
-- `minecraft:replace_block`: Replaces a block at a given offset.
-- `minecraft:replace_disk`: Replaces a disk of blocks.
-- `minecraft:run_function`: Runs a specified [datapack funcion].
-- `minecraft:set_block_properies`: Modifies the block state properties of the specified block.
-- `minecraft:spawn_particles`: Spawns a particle.
-- `minecraft:summon_entity`: Summons an entity.
-
 For more detail on each of these, please look at the [relevant minecraft wiki page].
+
+### Attribute Effect Component
+The [Attribute Effect Component], `minecraft:attributes`, is a unique Enchantment Entity Effect Component of type `EnchantmentAttributeEffect` that is not registered as a Location Based Effect Component. It is used to apply attribute modifiers to the wielder of the enchantment, which are then removed when the enchanted item is no longer equipped. The JSON format is as follows:
+```json5
+"minecraft:attributes": [
+    {
+        "amount": {
+            "type": "minecraft:linear",
+            "base": 1,
+            "per_level_above_first": 1
+        },
+        "attribute": "namespace:class.attribute_name",
+        "id": "examplemod:enchantment.example",
+        "operation": "add_multiplied_base"
+    }
+],
+```
 
 ## Other Vanilla Enchantment Component Types
 ### Defined as `DataComponentType<List<ConditionalEffect<DamageImmunity>>>`
