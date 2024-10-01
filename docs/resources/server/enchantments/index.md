@@ -111,7 +111,7 @@ Specifically, each `ConditionalEffect` contains another effect component, along 
 
 `ConditionalEffect` wraps this behavior, allowing one to simply call `ConditionalEffect#matches(LootContext context)` to determine if the effect should be allowed to run.
 
-Vanilla adds an additional helper method to further streamline the process of checking these conditions: `Enchantment#applyEffects()`. This method takes a `List<ConditionalEffect<T>>` evaluates the conditions, and runs a `Consumer<T>` on each `T` contained by a `ConditionalEffect` whose condition was met. Since many of Vanilla Enchantment Effect Components are defined as `List<ConditionalEffect<?>>`, these can be directly plugged into the helper method like so:
+Vanilla adds an additional helper method to further streamline the process of checking these conditions: `Enchantment#applyEffects()`. This method takes a `List<ConditionalEffect<T>>`, evaluates the conditions, and runs a `Consumer<T>` on each `T` contained by a `ConditionalEffect` whose condition was met. Since many of Vanilla Enchantment Effect Components are defined as `List<ConditionalEffect<?>>`, these can be directly plugged into the helper method like so:
 ```java
 // `enchant` is an Enchantment instance.
 // `lootContext` is a LootContext instance.
@@ -151,7 +151,9 @@ public record Increment(int value){
         return value() + x;
     }
 }
+```
 
+```java
 // Register an Enchantment Effect Component to carry this record.
 public static final DeferredHolder<DataComponentType<?>, DataComponentType<ConditionalEffect<Increment>>> INCREMENT =
     ENCHANTMENT_COMPONENT_TYPES.register("increment",
@@ -197,7 +199,7 @@ Note that in this example, the level of the enchantment does not affect the outc
 ## Enchantment Data Generation
 Enchantment JSON files can be created automatically using the [data generation] system by passing a `RegistrySetBuilder` into `DatapackBuiltInEntriesProvider`. The JSON will be placed in `<project root>/src/generated/data/<modid>/enchantment/<path>.json`.
 
-For more information on how RegistrySetBuilder and DatapackBuiltinEntriesProvider work, please see the article on [Data Generation for Datapack Registries]. 
+For more information on how `RegistrySetBuilder` and `DatapackBuiltinEntriesProvider` work, please see the article on [Data Generation for Datapack Registries]. 
 
 <Tabs>
   <TabItem value="datagen" label="Datagen">

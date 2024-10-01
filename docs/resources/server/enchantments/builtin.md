@@ -1,6 +1,6 @@
 # Built-In Enchantment Effect Components
 
-Vanilla Minecraft provides mumerous different types of Enchantment Effect Components for use in [enchantment] definitions. This article will explain each, including their usage and in-code definition.
+Vanilla Minecraft provides numerous different types of Enchantment Effect Components for use in [enchantment] definitions. This article will explain each, including their usage and in-code definition.
 
 ## Value Effect Components
 [Value Effect Components] are used for enchantments that alter a numerical value somewhere in the game, and are implemented by the class `EnchantmentValueEffect`. 
