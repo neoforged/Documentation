@@ -102,7 +102,7 @@ Custom `EnchantmentLocationBasedEffect` extensions can be registered through `Bu
 - `minecraft:location_changed`: Runs a Location Based Effect when the wielder's Block Position changes and when this item is equipped. Used by Frost Walker and Soul Speed.
 
 ### Entity Effect Components
-[Entity Effect Components] are Location Based Effect Components that contain an `EnchantmentEntityEffect` (an extension of `EnchantmentLocationBasedEffect`). These are used to implement enchantments that directly affect an entity or the level. These override `EnchantmentLocationBasedEffect#onChangedBlock` to run `EnchantmentEntityEffect#apply` instead; this `apply` method is also directly invoked in various parts of the codebase.
+[Entity Effect Components] are components that contain an `EnchantmentEntityEffect`, an extension of `EnchantmentLocationBasedEffect`. These override `EnchantmentLocationBasedEffect#onChangedBlock` to run `EnchantmentEntityEffect#apply` instead; this `apply` method is also directly invoked somewhere else in the codebase depending on the specific type of Entity Effect Component.
 
 Custom `EnchantmentEntityEffect` extensions can be registered through `BuiltInRegistries.ENCHANTMENT_ENTITY_EFFECT_TYPE`.
 
