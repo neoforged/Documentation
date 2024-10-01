@@ -135,19 +135,38 @@ The parameters to `ConditionalEffect.codec` are the codec for the generic `Condi
 ### Using Enchantment Effect Components
 Here is a full example using vanilla helper methods to work with a custom Enchantment Effect Component.
 
-For exmaple, consider an Enchantment Effect Component called `INCREMENT`, defined as `List<ConditionalEffect<IncrementData>>`. Let the `IncrementData` object it contains be a wrapper around an integer that defined a method `add(int x)`, which adds its internal value to the provided integer and returns the result. Imagine that you want to use this object to increase the count of another integer value within your item's `use` method -- say, to increase the number of times it performs some repeated effect.
+<Tabs>
+  <TabItem value="useexample" label="Example">
 
-First, invoke one of the overloads of `EnchantmentHelper#runIterationOnItem`. This function accepts an `EnchantmentHelper.EnchantmentVisitor`, which is a functional interface that accepts an enchantment and its level, and is invoked on all of the enchantments that the given itemstack has. While any consumer of those two values will work, the `Enchantment` class provides a handy function that fits this interface (and is used often by vanilla) -- `Enchantment#applyEffects`. This method is used as above to test the conditions of the `ConditionalEffect`s.
+```java
+// Define an example data-bearing record.
+public record Increment(int value){
+    public static final Codec<BoundEntity> CODEC = RecordCodecBuilder.create((instance) ->
+            instance.group(
+                    Codec.INT.fieldOf("value").forGetter(Increment::value),
+            ).apply(instance, Increment::new)
+    );
 
-To actually perform the adjustment, use the provided `ExampleData#add` method.
+    public int add(int x){
+        return value() + x;
+    }
+}
+
+// Register an Enchantment Effect Component to carry this record.
+public static final DeferredHolder<DataComponentType<?>, DataComponentType<ConditionalEffect<Increment>>> INCREMENT =
+    ENCHANTMENT_COMPONENT_TYPES.register("increment",
+        () -> DataComponentType.ConditionalEffect<Increment>>builder()
+            .persistent(ConditionalEffect.codec(Increment.CODEC, LootContextParamSets.EMPTY))
+            .build());
+```
 
 ```java
 // Somewhere in game logic where an `itemStack` is available.
 // `unmodifiedValue` is an integer.
 MutableInt mutableValue = new MutableInt(unmodifiedValue);
 EnchantmentHelper.runIterationOnItem(itemStack, (enchantmentHolder, enchantLevel) -> Enchantment.applyEffects(
-    enchantmentHolder.value().getEffects(EXAMPLE_CONDITIONAL_EFFECT.value()),
-    // Isolates the ConditionalEffect<ExampleData> from the provided holder and wraps it in a list for applyEffects.
+    enchantmentHolder.value().getEffects(INCREMENT.value()),
+    // Isolates the ConditionalEffect<Increment> from the provided holder and wraps it in a list for applyEffects.
 
     Enchantment.damageContext(server, enchantLevel, target, damageSource), 
     // Produces a LootContext. 
@@ -155,15 +174,25 @@ EnchantmentHelper.runIterationOnItem(itemStack, (enchantmentHolder, enchantLevel
 
     (exampleData) -> mutableValue.setValue(exampleData.add(mutableValue.getValue()))
     // Runs for each successful <ConditionalEffect<T>>.
-    // `exampleData` is an ExampleData instance.
+    // `exampleData` is an Increment instance.
     // This line actually performs the value adjustment.
-    // Each time it runs, mutableValue is set to (exampleData's internal value) + mutableValue + enchantLevel.
+    // Each time it runs, mutableValue is set to (exampleData's value) + mutableValue + enchantLevel.
 ));
 
 // Use mutableValue elsewhere in your game logic.
 ```
+</TabItem>
+
+<TabItem value="explainer" label="Explanation">
+Consider an Enchantment Effect Component called `INCREMENT`, defined as `List<ConditionalEffect<Increment>>`. Let the `Increment` object it contains be a wrapper around an integer that defined a method `add(int x)`, which adds its internal value to the provided integer and returns the result. Imagine that you want to use this object to increase the count of another integer value within your item's `use` method -- say, to increase the number of times it performs some repeated effect.
+
+First, invoke one of the overloads of `EnchantmentHelper#runIterationOnItem`. This function accepts an `EnchantmentHelper.EnchantmentVisitor`, which is a functional interface that accepts an enchantment and its level, and is invoked on all of the enchantments that the given itemstack has. While any consumer of those two values will work, the `Enchantment` class provides a handy function that fits this interface (and is used often by vanilla) -- `Enchantment#applyEffects`. This method is used as above to test the conditions of the `ConditionalEffect`s.
+
+To actually perform the adjustment, use the provided `Increment#add` method.
 
 Note that in this example, the level of the enchantment does not affect the outcome. This can be changed by using `enchantLevel` somewhere in the `Consumer<T>` lambda expression (the last line with code in the example). Any other information stored in the `ItemStack` can also be accessed from here, so other Data Components could be used to inform how the adjustment goes.
+</TabItem>
+</Tabs>
 
 ## Enchantment Data Generation
 Enchantment JSON files can be created automatically using the [data generation] system by passing a `RegistrySetBuilder` into `DatapackBuiltInEntriesProvider`. The JSON will be placed in `<project root>/src/generated/data/<modid>/enchantment/<path>.json`.

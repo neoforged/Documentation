@@ -30,7 +30,7 @@ The Sharpness enchantment uses `minecraft:damage`, a Value Effect Component, as 
   }
 ```
 
-The object within the `value` block is a [Level Based Value], which can be used to have a Value Effect Component that changes the intensity of its effect by level.
+The object within the `value` block is a [LevelBasedValue], which can be used to have a Value Effect Component that changes the intensity of its effect by level.
 
 Custom numerical operations for use in Value Enchantment blocks can be added by registering a subclass of `EnchantmentValueEffect` through `BuiltInRegistries.ENCHANTMENT_VALUE_EFFECT_TYPE`.
 
@@ -179,5 +179,5 @@ The [Attribute Effect Component], `minecraft:attributes`, is a unique Enchantmen
 [Entity Effect Components]: https://minecraft.wiki/w/Enchantment_definition#Components_with_entity_effects
 [Location Based Effect Components]: https://minecraft.wiki/w/Enchantment_definition#location_changed
 [text component]: /docs/resources/client/i18n.md
-[Level Based Value]: https://minecraft.wiki/w/Enchantment_definition#Level-based_value
+[LevelBasedValue]: https://minecraft.wiki/w/Enchantment_definition#Level-based_value
 [Attribute Effect Component]: https://minecraft.wiki/w/Enchantment_definition#Attribute_effects
