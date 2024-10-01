@@ -161,17 +161,17 @@ The [Attribute Effect Component], `minecraft:attributes`, is a unique Enchantmen
 ```
 
 ## Other Vanilla Enchantment Component Types
-### Defined as `DataComponentType<List<ConditionalEffect<DamageImmunity>>>`
+#### Defined as `DataComponentType<List<ConditionalEffect<DamageImmunity>>>`
 - `minecraft:damage_immunity`: Applies immunity to a specified damage type. Used by Frost Walker.
 
-### Defined as `DataComponentType<Unit>`
+#### Defined as `DataComponentType<Unit>`
 - `minecraft:prevent_equipment_drop`: Prevents this item from being dropped by a player when dying. Used by Curse of Vanishing.
 - `minecraft:prevent_armor_change`: Prevents this item from being unequipped from an armor slot. Used by Curse of Binding.
 
-### Defined as `DataComponentType<List<CrossbowItem.ChargingSounds>>`
+#### Defined as `DataComponentType<List<CrossbowItem.ChargingSounds>>`
 - `minecraft:crossbow_charge_sounds`: Determines the sound events that occur when charging a crossbow. Each entry represents one level of the enchantment.
 
-### Defined as `DataComponentType<List<Holder<SoundEvent>>>`
+#### Defined as `DataComponentType<List<Holder<SoundEvent>>>`
 - `minecraft:trident_sound`: Determines the sound events that occur when using a trident. Each entry represents one level of the enchantment.
 
 [enchantment]: index.md
