@@ -2,7 +2,7 @@
 
 Recipes are a way to transform a set of objects into other objects within a Minecraft world. Although Minecraft uses this system purely for item transformations, the system is built in a way that allows any kind of objects - blocks, entities, etc. - to be transformed. Almost all recipes use recipe data files; a "recipe" is assumed to be a data-driven recipe in this article unless explicitly stated otherwise.
 
-Recipe data files are located at `data/<namespace>/recipes/<path>.json`. For example, the recipe `minecraft:diamond_block` is located at `data/minecraft/recipes/diamond_block.json`.
+Recipe data files are located at `data/<namespace>/recipe/<path>.json`. For example, the recipe `minecraft:diamond_block` is located at `data/minecraft/recipe/diamond_block.json`.
 
 ## Terminology
 
@@ -336,10 +336,9 @@ public static void useItemOnBlock(UseItemOnBlockEvent event) {
     UseOnContext context = event.getUseOnContext();
     Level level = context.getLevel();
     BlockPos pos = context.getClickedPos();
-    BlockState blockState = context.getLevel().getBlockState(pos);
+    BlockState blockState = level.getBlockState(pos);
     ItemStack itemStack = context.getItemInHand();
-    // If the level is not a server level, return.
-    if (level.isClientSide()) return;
+    RecipeManager recipes = level.getRecipeManager();
     // Create an input and query the recipe.
     RightClickBlockInput input = new RightClickBlockInput(blockState, itemStack);
     Optional<RecipeHolder<? extends Recipe<CraftingInput>>> optional = recipes.getRecipeFor(
@@ -354,14 +353,17 @@ public static void useItemOnBlock(UseItemOnBlockEvent event) {
             .orElse(ItemStack.EMPTY);
     // If there is a result, break the block and drop the result in the world.
     if (!result.isEmpty()) {
-        level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
-        ItemEntity entity = new ItemEntity(level,
-                // Center of pos.
-                pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5,
-                result);
-        level.addFreshEntity(entity);
+        level.removeBlock(pos, false);
+        // If the level is not a server level, don't spawn the entity.
+        if (!level.isClientSide()) {
+            ItemEntity entity = new ItemEntity(level,
+                    // Center of pos.
+                    pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5,
+                    result);
+            level.addFreshEntity(entity);
+        }
         // Cancel the event to stop the interaction pipeline.
-        event.setCanceled(true);
+        event.cancelWithResult(ItemInteractionResult.sidedSuccess(level.isClientSide));
     }
 }
 ```

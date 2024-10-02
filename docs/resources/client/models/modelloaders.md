@@ -456,7 +456,7 @@ public class MyDynamicModel implements IDynamicBakedModel {
 
 [bakedmodel]: bakedmodel.md
 [ber]: ../../../blockentities/ber.md
-[bewlr]: ../../../items/bewlr.md
+[bewlr]: ../../../blockentities/ber.md#blockentitywithoutlevelrenderer
 [composite]: #composite-model
 [datagen]: ../../index.md#data-generation
 [elements]: index.md#elements
