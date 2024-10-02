@@ -303,7 +303,7 @@ public static void registerAdditional(ModelEvent.RegisterAdditional event) {
 
 [ao]: https://en.wikipedia.org/wiki/Ambient_occlusion
 [ber]: ../../../blockentities/ber.md
-[bewlr]: ../../../items/bewlr.md
+[bewlr]: ../../../blockentities/ber.md#blockentitywithoutlevelrenderer
 [bsfile]: #blockstate-files
 [custommodelloader]: modelloaders.md
 [elements]: #elements

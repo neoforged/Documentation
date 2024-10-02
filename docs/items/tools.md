@@ -123,7 +123,7 @@ If you want to check if a tool can make a block state drop its blocks, call `Too
 
 ## Custom Tools
 
-Custom tools can be created by adding a `Tool` [data component][datacomponents] (via `DataComponents#TOOL`) to the list of default components on your item via `Item.Properties#component`. `DiggerItem` is an implementation which takes in a `Tier`, as explained above, to construct the `Tool`. `DiggerItem` also provides a convience method called `#createAttributes` to supply to `Item.Properties#attributes` for your tool, such as the modified attack damage and attack speed.
+Custom tools can be created by adding a `Tool` [data component][datacomponents] (via `DataComponents#TOOL`) to the list of default components on your item via `Item.Properties#component`. `DiggerItem` is an implementation which takes in a `Tier`, as explained above, to construct the `Tool`. `DiggerItem` also provides a convenience method called `#createAttributes` to supply to `Item.Properties#attributes` for your tool, such as the modified attack damage and attack speed.
 
 A `Tool` contains a list of `Tool.Rule`s, the default mining speed when holding the tool (`1` by default), and the amount of damage the tool should take when mining a block (`1` by default). A `Tool.Rule` contains three pieces of information: a `HolderSet` of blocks to apply the rule to, an optional speed at which to mine the blocks in the set, and an optional boolean at which to determine whether these blocks can drop from this tool. If the optional are not set, then the other rules will be checked. The default behavior if all rules fail is the default mining speed and that the block cannot be dropped.
 
@@ -233,7 +233,7 @@ public static final Supplier<ArmorItem> COPPER_BOOTS = ITEMS.register("copper_bo
 When creating your armor texture, it is a good idea to work on top of the vanilla armor texture to see which part goes where.
 
 [block]: ../blocks/index.md
-[datacomponents]: ./datacomponents.md
+[datacomponents]: ./datacomponents.mdx
 [item]: index.md
 [itemability]: #itemabilitys
 [tags]: ../resources/server/tags.md

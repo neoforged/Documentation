@@ -121,7 +121,7 @@ Like many other things, data maps are serialized and deserialized using [codecs]
 
 ```java
 public record ExampleData(float amount, float chance) {
-    public static final Codec<ExampleData> CODEC = RecordCodecBuilder(instance -> instance.group(
+    public static final Codec<ExampleData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.FLOAT.fieldOf("amount").forGetter(ExampleData::amount),
             Codec.floatRange(0, 1).fieldOf("chance").forGetter(ExampleData::chance)
     ).apply(instance, ExampleData::new));
