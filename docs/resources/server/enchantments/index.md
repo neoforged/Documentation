@@ -3,7 +3,7 @@ import TabItem from '@theme/TabItem';
 
 # Enchantments
 
-Enchantments are special effects that can be applied to tools and other items. As of 1.21, enchantments are stored on items as [Data Components], are defined in JSON, and are comprised of Enchantment Effect Components. During the game, the enchantments on a particular item are contained within the `DataComponentTypes.ENCHANTMENT` component, in an `ItemEnchantment` instance.
+Enchantments are special effects that can be applied to tools and other items. As of 1.21, enchantments are stored on items as [Data Components], are defined in JSON, and are comprised of so-called enchantment effect components. During the game, the enchantments on a particular item are contained within the `DataComponentTypes.ENCHANTMENT` component, in an `ItemEnchantment` instance.
 
 A new enchantment can be added by creating a JSON file in your namespace's `enchantment` datapack subfolder. For example, to create an enchantment called `examplemod:example_enchant`, one would create a file `data/examplemod/enchantment/example_enchantment.json`. 
 
@@ -89,7 +89,7 @@ Enchantment Effect Components are specially-registered [Data Components] that de
 Vanilla defines various [built-in enchantment effect components], which are used to implement all vanilla enchantments.
 
 ### Custom Enchantment Effect Components
-Enchantment Effect Component Types must be [registered] to `BuiltInRegistries.ENCHANTMENT_EFFECT_COMPONENT_TYPE`, which takes a `DataComponentType<?>`. For example, one could register an Enchantment Effect Component that can store an `ExampleEffectData` object as follows:
+Enchantment Effect Component Types must be [registered] to `BuiltInRegistries.ENCHANTMENT_EFFECT_COMPONENT_TYPE`, which takes a `DataComponentType<?>`. For example, you could register an Enchantment Effect Component that can store an `ExampleEffectData` object as follows:
 
 ```java
 // In some registration class
@@ -111,7 +111,7 @@ Specifically, each `ConditionalEffect` contains another effect component, along 
 
 `ConditionalEffect` wraps this behavior, allowing one to simply call `ConditionalEffect#matches(LootContext context)` to determine if the effect should be allowed to run.
 
-Vanilla adds an additional helper method to further streamline the process of checking these conditions: `Enchantment#applyEffects()`. This method takes a `List<ConditionalEffect<T>>`, evaluates the conditions, and runs a `Consumer<T>` on each `T` contained by a `ConditionalEffect` whose condition was met. Since many of Vanilla Enchantment Effect Components are defined as `List<ConditionalEffect<?>>`, these can be directly plugged into the helper method like so:
+Vanilla adds an additional helper method to further streamline the process of checking these conditions: `Enchantment#applyEffects()`. This method takes a `List<ConditionalEffect<T>>`, evaluates the conditions, and runs a `Consumer<T>` on each `T` contained by a `ConditionalEffect` whose condition was met. Since many vanilla enchantment effect components are defined as a `List<ConditionalEffect<?>>`, these can be directly plugged into the helper method like so:
 ```java
 // `enchant` is an Enchantment instance.
 // `lootContext` is a LootContext instance.
@@ -119,7 +119,7 @@ Enchantment.applyEffects(
     enchant.getEffects(EnchantmentEffectComponents.KNOCKBACK), // Or whichever other List<ConditionalEffect<T>> you want
     lootContext,
     (effectData) -> // Use the effectData (in this example, an EnchantmentValueEffect) however you want.
-)
+);
 ```
 
 Registering a custom `ConditionalEffect`-wrapped Enchantment Effect Component Type can be done as follows:
@@ -140,14 +140,14 @@ Here is a full example using vanilla helper methods to work with a custom Enchan
 
 ```java
 // Define an example data-bearing record.
-public record Increment(int value){
-    public static final Codec<BoundEntity> CODEC = RecordCodecBuilder.create((instance) ->
+public record Increment(int value) {
+    public static final Codec<BoundEntity> CODEC = RecordCodecBuilder.create(instance ->
             instance.group(
                     Codec.INT.fieldOf("value").forGetter(Increment::value),
             ).apply(instance, Increment::new)
     );
 
-    public int add(int x){
+    public int add(int x) {
         return value() + x;
     }
 }
@@ -171,10 +171,10 @@ EnchantmentHelper.runIterationOnItem(itemStack, (enchantmentHolder, enchantLevel
     // Isolates the ConditionalEffect<Increment> from the provided holder and wraps it in a list for applyEffects.
 
     Enchantment.damageContext(server, enchantLevel, target, damageSource), 
-    // Produces a LootContext. 
-    // Other contexts from the Enchantment class include itemContext, locationContext, entityContext, and blockHitContext.
+    // Produces a LootContext. Other context helpers from the Enchantment class
+    // include itemContext, locationContext, entityContext, and blockHitContext.
 
-    (exampleData) -> mutableValue.setValue(exampleData.add(mutableValue.getValue()))
+    exampleData -> mutableValue.setValue(exampleData.add(mutableValue.getValue()))
     // Runs for each successful <ConditionalEffect<T>>.
     // `exampleData` is an Increment instance.
     // This line actually performs the value adjustment.
@@ -217,7 +217,7 @@ static ResourceKey<Enchantment> EXAMPLE_ENCHANTMENT_KEY = ResourceKey.create(
 // Specify the enchantment definition of for our enchantment. 
 static Enchantment.EnchantmentDefinition EXAMPLE_ENCHANTMENT_DEFINITION = new Enchantment.EnchantmentDefinition(
     HolderSet.direct(...), // A HolderSet of Items that the enchantment will be compatible with.
-    Optional.empty(), // An Optional HolderSet of Items that the enchantment considers "primary".
+    Optional.empty(), // An Optional<HolderSet> of items that the enchantment considers "primary".
     30, // The weight of the enchantment.
     3, // The maximum number of levels.
     new Enchantment.Cost(3, 1), // The minimum cost of the enchantment. The first parameter is base cost, the second is cost per level.

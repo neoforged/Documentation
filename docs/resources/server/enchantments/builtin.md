@@ -34,7 +34,7 @@ The object within the `value` block is a [LevelBasedValue], which can be used to
 
 Custom numerical operations for use in Value Enchantment blocks can be added by registering a subclass of `EnchantmentValueEffect` through `BuiltInRegistries.ENCHANTMENT_VALUE_EFFECT_TYPE`.
 
-The `EnchantmentValueEffect#process` method is can be used to adjust values based on the provided numerical operations, like so:
+The `EnchantmentValueEffect#process` method can be used to adjust values based on the provided numerical operations, like so:
 ```java
 // `valueEffect` is an EnchantmentValueEffect instance.
 // `enchantLevel` is an integer representing the level of the enchantment
@@ -101,7 +101,7 @@ Custom `EnchantmentLocationBasedEffect` extensions can be registered through `Bu
 #### Defined as `DataComponentType<List<ConditionalEffect<EnchantmentLocationBasedEffect>>>`
 - `minecraft:location_changed`: Runs a Location Based Effect when the wielder's Block Position changes and when this item is equipped. Used by Frost Walker and Soul Speed.
 
-### Entity Effect Components
+## Entity Effect Components
 [Entity Effect Components] are components that contain an `EnchantmentEntityEffect`, an extension of `EnchantmentLocationBasedEffect`. These override `EnchantmentLocationBasedEffect#onChangedBlock` to run `EnchantmentEntityEffect#apply` instead; this `apply` method is also directly invoked somewhere else in the codebase depending on the specific type of Entity Effect Component.
 
 Custom `EnchantmentEntityEffect` extensions can be registered through `BuiltInRegistries.ENCHANTMENT_ENTITY_EFFECT_TYPE`.
@@ -153,7 +153,7 @@ The [Attribute Effect Component], `minecraft:attributes`, is a unique Enchantmen
             "base": 1,
             "per_level_above_first": 1
         },
-        "attribute": "namespace:class.attribute_name",
+        "attribute": "namespace:attribute_name",
         "id": "examplemod:enchantment.example",
         "operation": "add_multiplied_base"
     }
