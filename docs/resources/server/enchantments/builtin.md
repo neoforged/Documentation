@@ -3,16 +3,18 @@
 Vanilla Minecraft provides numerous different types of Enchantment Effect Components for use in [enchantment] definitions. This article will explain each, including their usage and in-code definition.
 
 ## Value Effect Components
-[Value Effect Components] are used for enchantments that alter a numerical value somewhere in the game, and are implemented by the class `EnchantmentValueEffect`. 
+_See also [Value Effect Components] on the Minecraft Wiki_
 
-Value Effect Components can be set to use any of these operations on their given values:
+Value effect components are used for enchantments that alter a numerical value somewhere in the game, and are implemented by the class `EnchantmentValueEffect`. 
+
+Value effect components can be set to use any of these operations on their given values:
 - `minecraft:set`: Overwrites the given level-based value.
 - `minecraft:add`: Adds the specified level-based value to the old one.
 - `minecraft:multiply`: Multiplies the specified level-based factor by the old one.
 - `minecraft:remove_binomial`: Polls a given (level-based) chance using a binomial distibution. If it works, subtracts 1 from the value. Note that many values are effectively flags, being fully on at 1 and fully off at 0.
 - `minecraft:all_of`: Accepts a list of other value effects and applies them in the stated sequence.
 
-The Sharpness enchantment uses `minecraft:damage`, a Value Effect Component, as follows to achieve its effect:
+The Sharpness enchantment uses `minecraft:damage`, a value effect component, as follows to achieve its effect:
 ```json5
 "effects": {
     "minecraft:damage": [
@@ -30,9 +32,9 @@ The Sharpness enchantment uses `minecraft:damage`, a Value Effect Component, as 
   }
 ```
 
-The object within the `value` block is a [LevelBasedValue], which can be used to have a Value Effect Component that changes the intensity of its effect by level.
+The object within the `value` block is a [LevelBasedValue], which can be used to have a value effect component that changes the intensity of its effect by level.
 
-Custom numerical operations for use in Value Enchantment blocks can be added by registering a subclass of `EnchantmentValueEffect` through `BuiltInRegistries.ENCHANTMENT_VALUE_EFFECT_TYPE`.
+Custom numerical operations for use in value effect component definition blocks can be added by registering a subclass of `EnchantmentValueEffect` through `BuiltInRegistries.ENCHANTMENT_VALUE_EFFECT_TYPE`.
 
 The `EnchantmentValueEffect#process` method can be used to adjust values based on the provided numerical operations, like so:
 ```java
@@ -75,14 +77,17 @@ Other:
 - `minecraft:fishing_luck_bonus`: Modifies the amount of [luck] used in the fishing loot table. Used by Luck of the Sea.
 
 #### Defined as `DataComponentType<List<TargetedConditionalEffect<EnchantmentValueEffect>>>`
-- `minecraft:equipmentment_drops`: Modifies the chance of equipment dropping from an entity killed by this weapon. Used by Looting.
+- `minecraft:equipment_drops`: Modifies the chance of equipment dropping from an entity killed by this weapon. Used by Looting.
 
 ## Location Based Effect Components
-[Location Based Effect Components] are components that contain an `EnchantmentLocationBasedEffect`. These components define actions to take that need to know where in the level the wielder of the enchantment is. They operate using two major methods: `EnchantmentEntityEffect#onChangedBlock`, which is called when the enchanted item is equipped and when the wielder changes their `BlockPos`, and `onDeactivate`, which is called when the enchanted item is removed.
+_See also: [Location Based Effect Components] on the Minecraft Wiki_
+
+ Location based effect components are components that contain an `EnchantmentLocationBasedEffect`. These components define actions to take that need to know where in the level the wielder of the enchantment is. They operate using two major methods: `EnchantmentEntityEffect#onChangedBlock`, which is called when the enchanted item is equipped and when the wielder changes their `BlockPos`, and `onDeactivate`, which is called when the enchanted item is removed.
 
 Custom `EnchantmentLocationBasedEffect` extensions can be registered through `BuiltInRegistries.ENCHANTMENT_LOCATION_BASED_EFFECT_TYPE`. 
 
-### Vanilla Enchantment Location Based Effects
+Vanilla adds the following location based events:
+
 - `minecraft:all_of`: Runs a list of entity effects in sequence.
 - `minecraft:apply_mob_effect`: Applies a status effect to the affected mob.
 - `minecraft:damage_entity`: Does damage to the affected entity. This stacks with attack damage if in an attacking context.
@@ -92,7 +97,7 @@ Custom `EnchantmentLocationBasedEffect` extensions can be registered through `Bu
 - `minecraft:play_sound`: Plays a specified sound.
 - `minecraft:replace_block`: Replaces a block at a given offset.
 - `minecraft:replace_disk`: Replaces a disk of blocks.
-- `minecraft:run_function`: Runs a specified [datapack funcion].
+- `minecraft:run_function`: Runs a specified [datapack function].
 - `minecraft:set_block_properies`: Modifies the block state properties of the specified block.
 - `minecraft:spawn_particles`: Spawns a particle.
 - `minecraft:summon_entity`: Summons an entity.
@@ -102,7 +107,9 @@ Custom `EnchantmentLocationBasedEffect` extensions can be registered through `Bu
 - `minecraft:location_changed`: Runs a Location Based Effect when the wielder's Block Position changes and when this item is equipped. Used by Frost Walker and Soul Speed.
 
 ## Entity Effect Components
-[Entity Effect Components] are components that contain an `EnchantmentEntityEffect`, an extension of `EnchantmentLocationBasedEffect`. These override `EnchantmentLocationBasedEffect#onChangedBlock` to run `EnchantmentEntityEffect#apply` instead; this `apply` method is also directly invoked somewhere else in the codebase depending on the specific type of Entity Effect Component.
+_See also [Entity Effect Components] on the Minecraft Wiki._
+
+Entity effect components are components that contain an `EnchantmentEntityEffect`, an extension of `EnchantmentLocationBasedEffect`. These override `EnchantmentLocationBasedEffect#onChangedBlock` to run `EnchantmentEntityEffect#apply` instead; this `apply` method is also directly invoked somewhere else in the codebase depending on the specific type of the component.
 
 Custom `EnchantmentEntityEffect` extensions can be registered through `BuiltInRegistries.ENCHANTMENT_ENTITY_EFFECT_TYPE`.
 
@@ -181,3 +188,4 @@ The [Attribute Effect Component], `minecraft:attributes`, is a unique Enchantmen
 [text component]: /docs/resources/client/i18n.md
 [LevelBasedValue]: https://minecraft.wiki/w/Enchantment_definition#Level-based_value
 [Attribute Effect Component]: https://minecraft.wiki/w/Enchantment_definition#Attribute_effects
+[datapack function]: https://minecraft.wiki/w/Function_(Java_Edition)

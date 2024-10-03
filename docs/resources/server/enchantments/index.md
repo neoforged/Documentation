@@ -10,62 +10,72 @@ A new enchantment can be added by creating a JSON file in your namespace's `ench
 ## Enchantment JSON Format
 ```json5
 {
-    "description": {
-        "translate": "enchantment.examplemod."
-    },
-    // The text component that will be used as the in-game name of the enchantment.
-    // Can be a translation key or a literal string. 
-    
-    "supported_items": "#examplemod:enchantable/example",
-    // The items or item tag that this enchantment can be applied to.
+  // The text component that will be used as the in-game name of the enchantment.
+  // Can be a translation key or a literal string. 
+  // Remember to translate this if you use a translation key!
+  "description": {
+    "translate": "enchantment.examplemod.enchant_name"
+  },
+  
+  // Which items this enchantment can be applied to.
+  // Can be either an item id, such as "minecraft:trident",
+  // or a list of item ids, such as ["examplemod:red_sword", "examplemod:blue_sword"]
+  // or an item tag, such as "#examplemod:enchantable/enchant_name".
+  // Note that this doesn't cause the enchantment to appear for these items in the enchanting table.
+  "supported_items": "#examplemod:enchantable/enchant_name",
 
-    "primary_items": [
-        "examplemod:item_a",
-        "examplemod:item_b"
-    ],
-    // (Optional) The items or item tag that this enchantment appears for in the enchanting table. 
-    // If left unspecified, this is the same as `supported_items`.
+  // (Optional) Which items this enchantment appears for in the enchanting table.
+  // Can be an item, list of items, or item tag.
+  // If left unspecified, this is the same as `supported_items`.
+  "primary_items": [
+    "examplemod:item_a",
+    "examplemod:item_b"
+  ],
 
-    "exclusive_set": "#examplemod:exclusive_to_example",
-    // An enchantment tag or list of enchantments that are incompatible with this one.
-    // Incompatible enchantments will not be added to the same item by vanilla mechanics.
+  // (Optional) Which enchantments are incompatible with this one.
+  // Can be an enchantment id, such as "minecraft:sharpness",
+  // or a list of enchantment ids, such as ["minecraft:sharpness", "minecraft:fire_aspect"],
+  // or enchantment tag, such as "#examplemod:exclusive_to_enchant_name".
+  // Incompatible enchantments will not be added to the same item by vanilla mechanics.
+  "exclusive_set": "#examplemod:exclusive_to_enchant_name",
+  
+  // The likelihood that this enchantment will appear in the Enchanting Table. 
+  // Bounded by [1, 1024].
+  "weight": 6,
+  
+  // The maximum level this enchantment is allowed to reach.
+  // Bounded by [1, 255].
+  "max_level": 3,
+  
+  // The maximum cost of this enchantment, measured in "enchanting power". 
+  // This corresponds to, but is not equivalent to, the threshold in levels the player needs to meet to bestow this enchantment.
+  // See below for details.
+  // The actual cost will be between this and the min_cost.
+  "max_cost": {
+    "base": 45,
+    "per_level_above_first": 9
+  },
+  
+  // Specifies the minimum cost of this enchantment; otherwise as above.
+  "min_cost": {
+    "base": 2,
+    "per_level_above_first": 8
+  },
 
-    "weight": 6,
-    // The likelihood that this enchantment will appear in the Enchanting Table. 
-    // Bounded by [1, 1024].
+  // The cost that this enchantment adds to repairing an item in an anvil in levels. The cost is multiplied by enchantment level.
+  // If an item has a DataComponentTypes.STORED_ENCHANTMENTS component, the cost is halved. In vanilla, this only applies to enchanted books.
+  // Bounded by [1, inf).
+  "anvil_cost": 2,
+  
+  // (Optional) A list of slot groups this enchantment provides effects in. 
+  // A slot group is defined as one of the possible values of the EquipmentSlotGroup enum.
+  // In vanilla, these are: `any`, `hand`, `mainhand`, `offhand`, `armor`, `feet`, `legs`, `chest`, `head`, and  `body`.
+  "slots": [
+    "mainhand"
+  ],
 
-    "max_level": 3,
-    // The maximum level this enchantment is allowed to reach.
-    // Bounded by [1, 255].
-
-    "max_cost": {
-        "base": 45,
-        "per_level_above_first": 9
-    },
-    // The maximum cost of this enchantment in levels. 
-    // The actual cost during a particular enchantment session will be randomized between this and `min_cost`.
-    // Blocks that override IBlockExtension#getEnchantPowerBonus() add their bonus to the player's levels to determine if the player meets an enchantment's cost.
-    // Therefore, costs above 30 require the use of bookshelves or other enchantment boosting blocks to be obtainable in survival.
-
-    "min_cost": {
-        "base": 2,
-        "per_level_above_first": 8
-    },
-    // Specifies the minimum cost of this enchantment; see above.
-
-    "anvil_cost": 2,
-    // The cost that this enchantment adds to repairing an item in an anvil in levels. The cost is multiplied by enchantment level.
-    // If an item has a DataComponentTypes.STORED_ENCHANTMENTS component, the cost is halved. In vanilla, this only applies to enchanted books.
-    // Bounded by [1, inf).
-
-    "slots": [
-        "mainhand"
-    ],
-    // (Optional) A list of slot groups this enchantment provides effects in. 
-    // A slot group is defined as one of the possible values of the EquipmentSlotGroup enum.
-    // In vanilla, these are: `any`, `hand`, `mainhand`, `offhand`, `armor`, `feet`, `legs`, `chest`, `head`, and  `body`.
-
-    "effects": {
+  // The effects that this enchantment provides as a map of enchantment effect components.
+  "effects": {
     "examplemod:custom_effect": [
       {
         "effect": {
@@ -79,9 +89,11 @@ A new enchantment can be added by creating a JSON file in your namespace's `ench
       }
     ]
   }
-  // The effects that this enchantment provides as a map of Enchantment Effect Components.
 }
 ```
+
+### Enchantment Costs
+The `max_cost` and `min_cost` fields specify boundaries for which enchantment cost values can be used to choose this enchantment during enchantment table operation. The amount of cost that the table can generate is influenced by (wip)
 
 ## Enchantment Effect Components
 Enchantment Effect Components are specially-registered [Data Components] that determine how an enchantment functions. The type of the component defines its effect, while the data it contains is used to inform or modify that effect. For instance, the `minecraft:damage` component modifies the damage that a weapon deals by an amount determined by its data.
@@ -126,7 +138,7 @@ Registering a custom `ConditionalEffect`-wrapped Enchantment Effect Component Ty
 ```java
 public static final DeferredHolder<DataComponentType<?>, DataComponentType<ConditionalEffect<ExampleData>>> EXAMPLE_CONDITIONAL_EFFECT =
     ENCHANTMENT_COMPONENT_TYPES.register("example_conditional",
-        () -> DataComponentType.ConditionalEffect<ExampleData>>builder()
+        () -> DataComponentType.ConditionalEffect<ExampleData>builder()
             .persistent(ConditionalEffect.codec(Unit.CODEC, LootContextParamSets.EMPTY))
             .build());
 ```
@@ -134,9 +146,6 @@ The parameters to `ConditionalEffect.codec` are the codec for the generic `Condi
 
 ### Using Enchantment Effect Components
 Here is a full example using vanilla helper methods to work with a custom Enchantment Effect Component.
-
-<Tabs>
-  <TabItem value="useexample" label="Example">
 
 ```java
 // Define an example data-bearing record.
@@ -157,7 +166,7 @@ public record Increment(int value) {
 // Register an Enchantment Effect Component to carry this record.
 public static final DeferredHolder<DataComponentType<?>, DataComponentType<ConditionalEffect<Increment>>> INCREMENT =
     ENCHANTMENT_COMPONENT_TYPES.register("increment",
-        () -> DataComponentType.ConditionalEffect<Increment>>builder()
+        () -> DataComponentType.<ConditionalEffect<Increment>>builder()
             .persistent(ConditionalEffect.codec(Increment.CODEC, LootContextParamSets.EMPTY))
             .build());
 ```
@@ -167,34 +176,30 @@ public static final DeferredHolder<DataComponentType<?>, DataComponentType<Condi
 // `unmodifiedValue` is an integer.
 MutableInt mutableValue = new MutableInt(unmodifiedValue);
 EnchantmentHelper.runIterationOnItem(itemStack, (enchantmentHolder, enchantLevel) -> Enchantment.applyEffects(
-    enchantmentHolder.value().getEffects(INCREMENT.value()),
     // Isolates the ConditionalEffect<Increment> from the provided holder and wraps it in a list for applyEffects.
+    enchantmentHolder.value().getEffects(INCREMENT.value()),
 
-    Enchantment.damageContext(server, enchantLevel, target, damageSource), 
     // Produces a LootContext. Other context helpers from the Enchantment class
     // include itemContext, locationContext, entityContext, and blockHitContext.
-
-    exampleData -> mutableValue.setValue(exampleData.add(mutableValue.getValue()))
+    Enchantment.damageContext(server, enchantLevel, target, damageSource), 
+    
     // Runs for each successful <ConditionalEffect<T>>.
     // `exampleData` is an Increment instance.
     // This line actually performs the value adjustment.
     // Each time it runs, mutableValue is set to (exampleData's value) + mutableValue + enchantLevel.
+    exampleData -> mutableValue.setValue(exampleData.add(mutableValue.getValue()))
 ));
 
 // Use mutableValue elsewhere in your game logic.
 ```
-</TabItem>
 
-<TabItem value="explainer" label="Explanation">
-Consider an Enchantment Effect Component called `INCREMENT`, defined as `List<ConditionalEffect<Increment>>`. Let the `Increment` object it contains be a wrapper around an integer that defined a method `add(int x)`, which adds its internal value to the provided integer and returns the result. Imagine that you want to use this object to increase the count of another integer value within your item's `use` method -- say, to increase the number of times it performs some repeated effect.
+We define an enchantment effect component called `INCREMENT` as `List<ConditionalEffect<Increment>>`. The `Increment` object it contains is a wrapper around an integer that defines a method `add(int x)`, which adds its internal value to the provided integer and returns the result. Imagine that you want to use this object to increase the count of another integer value within your item's `use` method -- say, to increase the number of times it performs some repeated effect.
 
-First, invoke one of the overloads of `EnchantmentHelper#runIterationOnItem`. This function accepts an `EnchantmentHelper.EnchantmentVisitor`, which is a functional interface that accepts an enchantment and its level, and is invoked on all of the enchantments that the given itemstack has. While any consumer of those two values will work, the `Enchantment` class provides a handy function that fits this interface (and is used often by vanilla) -- `Enchantment#applyEffects`. This method is used as above to test the conditions of the `ConditionalEffect`s.
+First, invoke one of the overloads of `EnchantmentHelper#runIterationOnItem`. This function accepts an `EnchantmentHelper.EnchantmentVisitor`, which is a functional interface that accepts an enchantment and its level, and is invoked on all of the enchantments that the given itemstack has (essentially a `BiConsumer<Enchantment, Integer>`). While any consumer of those two values will work, the `Enchantment` class provides a handy function that fits this interface (and is used often by vanilla) -- `Enchantment#applyEffects`. This method is used as above to test the conditions of the `ConditionalEffect`s.
 
 To actually perform the adjustment, use the provided `Increment#add` method.
 
 Note that in this example, the level of the enchantment does not affect the outcome. This can be changed by using `enchantLevel` somewhere in the `Consumer<T>` lambda expression (the last line with code in the example). Any other information stored in the `ItemStack` can also be accessed from here, so other Data Components could be used to inform how the adjustment goes.
-</TabItem>
-</Tabs>
 
 ## Enchantment Data Generation
 Enchantment JSON files can be created automatically using the [data generation] system by passing a `RegistrySetBuilder` into `DatapackBuiltInEntriesProvider`. The JSON will be placed in `<project root>/src/generated/data/<modid>/enchantment/<path>.json`.
@@ -205,9 +210,6 @@ For more information on how `RegistrySetBuilder` and `DatapackBuiltinEntriesProv
   <TabItem value="datagen" label="Datagen">
 
 ```java
-// This RegistrySetBuilder should be passed into a DatapackBuiltinEntriesProvider in your GatherDataEvent handler.
-public static RegistrySetBuilder BUILDER = new RegistrySetBuilder();
-
 // Define the ResourceKey for our enchantment.
 static ResourceKey<Enchantment> EXAMPLE_ENCHANTMENT_KEY = ResourceKey.create(
         Registries.ENCHANTMENT,
@@ -226,7 +228,8 @@ static Enchantment.EnchantmentDefinition EXAMPLE_ENCHANTMENT_DEFINITION = new En
     List.of(EquipmentSlotGroup.ANY) // A list of EquipmentSlotGroups that this enchantment has effects in.
 );
 
-// Add the enchantment itself to the builder.
+// This RegistrySetBuilder should be passed into a DatapackBuiltinEntriesProvider in your GatherDataEvent handler.
+RegistrySetBuilder BUILDER = new RegistrySetBuilder();
 BUILDER.add(
     Registries.ENCHANTMENT,
     bootstrap -> bootstrap.register(
@@ -282,6 +285,5 @@ BUILDER.add(
 [data generation]: /docs/resources/#data-generation
 [Data Generation for Datapack Registries]: https://docs.neoforged.net/docs/concepts/registries/#data-generation-for-datapack-registries
 [luck]: https://minecraft.wiki/w/Luck
-[datapack function]: https://minecraft.wiki/w/Function_(Java_Edition)
 [relevant minecraft wiki page]: https://minecraft.wiki/w/Enchantment_definition#Entity_effects
 [built-in enchantment effect components]: builtin.md
