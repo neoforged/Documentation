@@ -148,6 +148,8 @@ For more complex spawn behavior, please refer to the [Spawning article][spawning
 
 ### Damaging Entities
 
+_See also [Left-Clicking an Item][leftclick]._
+
 While not all entities have the concept of hit points, they can still all receive damage. This is not only used by things like mobs and players: If you cast your mind to item entities (dropped items), they too can take damage from sources like fire or cacti, in which case they are usually deleted immediately.
 
 Damaging an entity is possible by calling `Entity#hurt`. `Entity#hurt` takes two arguments: the [`DamageSource`][damagesource] and the damage amount, as a float in half hearts. For example, calling `entity.hurt(entity.damageSources().wither(), 4.25)` will cause a little over two hearts of wither damage.
@@ -195,9 +197,9 @@ public void tick() {
 
 ### Picking Entities
 
-Entity picking is an ambiguous term because Mojang uses it for two things: the action of middle-clicking an entity to get a spawn egg or similar item, and for selecting the entity (or [block]) to begin with.
+_See also [Middle-Clicking][middleclick]._
 
-The result of middle-clicking, known as the "pick result", can be modified by your entity (be aware that the `Mob` class will select the correct spawn egg for you):
+Picking is the process of selecting the thing that the player is currently looking at, as well as subsequently picking the associated item. The result of middle-clicking, known as the "pick result", can be modified by your entity (be aware that the `Mob` class will select the correct spawn egg for you):
 
 ```java
 @Override
@@ -208,9 +210,7 @@ public ItemStack getPickResult() {
 }
 ```
 
-Selecting the entity or block to begin with is done through what is known as a ray cast in basically any other engine. This is mainly used by things like the F3 debug overlay, game-relevant things such as players attacking or breaking things have their own checks in place here.
-
-Our own entity can be disabled from picking like so:
+Your entity can also be disabled from picking entirely like so:
 
 ```java
 @Override
@@ -220,7 +220,7 @@ public boolean isPickable() {
 }
 ```
 
-If you want to do the picking (i.e. ray casting) yourself, you can call `Entity#pick` on the entity that you want to start the ray cast from. This will return a `HitResult` that you can further check for what exactly has been hit by the ray cast.
+If you want to do the picking (i.e. ray casting) yourself, you can call `Entity#pick` on the entity that you want to start the ray cast from. This will return a [`HitResult`][hitresult] that you can further check for what exactly has been hit by the ray cast.
 
 ### Entity Attachments
 
@@ -246,9 +246,12 @@ Several entities are also direct subclasses of `Entity`, simply because there wa
 [data]: data.md
 [entity]: #the-entity-class
 [hierarchy]: #entity-class-hierarchy
+[hitresult]: ../items/interactions.md#hitresults
 [item]: ../items/index.md
 [itemstack]: ../items/index.md#itemstacks
+[leftclick]: ../items/interactions.md#left-clicking-an-item
 [livingentity]: livingentity.md
+[middleclick]: ../items/interactions.md#middle-clicking
 [mobeffect]: ../items/mobeffects.md
 [particle]: ../resources/client/particles.md
 [projectile]: projectile.md

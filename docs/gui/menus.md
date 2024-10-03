@@ -345,4 +345,4 @@ Once again, this is the simplest way to implement the logic, not the only way.
 [screen]: ./screens.md
 [icf]: #icontainerfactory
 [side]: ../concepts/sides.md#the-logical-side
-[interaction]: ../items/interactionpipeline.md
+[interaction]: ../items/interactions.md#right-clicking-an-item

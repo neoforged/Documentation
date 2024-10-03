@@ -52,7 +52,7 @@ To get the `FoodProperties` for an item, call `Item#getFoodProperties(ItemStack,
 
 Directly using `Item` only allows for very basic items. If you want to add functionality, for example right-click interactions, a custom class that extends `Item` is required. The `Item` class has many methods that can be overridden to do different things; see the classes `Item` and `IItemExtension` for more information.
 
-The two most common use cases for items are left-clicking and right-clicking. For left-clicking, see [Breaking a Block][breaking] and Attacking an Entity (WIP). For right-clicking, see [The Interaction Pipeline][interactionpipeline].
+The two most common use cases for items are left-clicking and right-clicking. Due to their complexity and their reaching into other systems, they are explained in a separate [Interaction article][interactions].
 
 ### `DeferredRegister.Items`
 
@@ -219,7 +219,7 @@ It is also possible to implement `ItemLike` on your custom objects. Simply overr
 [entity]: ../entities/index.md
 [food]: #food
 [hunger]: https://minecraft.wiki/w/Hunger#Mechanics
-[interactionpipeline]: interactionpipeline.md
+[interactions]: interactions.md
 [loottables]: ../resources/server/loottables/index.md
 [mobeffectinstance]: mobeffects.md#mobeffectinstances
 [modbus]: ../concepts/events.md#event-buses
