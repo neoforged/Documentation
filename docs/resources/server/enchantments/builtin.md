@@ -89,7 +89,7 @@ Custom `EnchantmentLocationBasedEffect` extensions can be registered through `Bu
 Vanilla adds the following location based events:
 
 - `minecraft:all_of`: Runs a list of entity effects in sequence.
-- `minecraft:apply_mob_effect`: Applies a status effect to the affected mob.
+- `minecraft:apply_mob_effect`: Applies a [mob effect] to the affected mob.
 - `minecraft:damage_entity`: Does damage to the affected entity. This stacks with attack damage if in an attacking context.
 - `minecraft:damage_item`: Damages this item's durability.
 - `minecraft:explode`: Summons an explosion. 
@@ -186,6 +186,8 @@ The [Attribute Effect Component], `minecraft:attributes`, is a unique Enchantmen
 [Entity Effect Components]: https://minecraft.wiki/w/Enchantment_definition#Components_with_entity_effects
 [Location Based Effect Components]: https://minecraft.wiki/w/Enchantment_definition#location_changed
 [text component]: /docs/resources/client/i18n.md
-[LevelBasedValue]: https://minecraft.wiki/w/Enchantment_definition#Level-based_value
+[LevelBasedValue]: /docs/resources/server/loottables/#number-provider
 [Attribute Effect Component]: https://minecraft.wiki/w/Enchantment_definition#Attribute_effects
 [datapack function]: https://minecraft.wiki/w/Function_(Java_Edition)
+[luck]: https://minecraft.wiki/w/Luck
+[mob effect]: /docs/items/mobeffects/

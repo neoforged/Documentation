@@ -74,7 +74,7 @@ A new enchantment can be added by creating a JSON file in your namespace's `ench
     "mainhand"
   ],
 
-  // The effects that this enchantment provides as a map of enchantment effect components.
+  // The effects that this enchantment provides as a map of enchantment effect components (read on).
   "effects": {
     "examplemod:custom_effect": [
       {
@@ -107,7 +107,7 @@ Enchantment Effect Component Types must be [registered] to `BuiltInRegistries.EN
 // In some registration class
 public static final DeferredRegister<DataComponentType<?>> ENCHANTMENT_COMPONENT_TYPES = DeferredRegister.create(BuiltInRegistries.ENCHANTMENT_EFFECT_COMPONENT_TYPE, "examplemod");
 
-public static final DeferredHolder<DataComponentType<?>, DataComponentType<ExampleEffectData>> EXAMPLE =
+public static final DeferredHolder<DataComponentType<?>, DataComponentType<ExampleEffectData>>> EXAMPLE =
     ENCHANTMENT_COMPONENT_TYPES.register("example",
         () -> DataComponentType.<ExampleEffectData>builder()
             .persistent(ExampleEffectData.CODEC)
@@ -117,7 +117,7 @@ public static final DeferredHolder<DataComponentType<?>, DataComponentType<Examp
 There are no inheritance requirements on the data held by an Enchantment Effect Component, but it may be helpful to refer to vanilla to ensure compatibility with the vanilla helper methods.
 
 ### `ConditionalEffect`
-Wrapping the type in `ConditionalEffect<?>` allows the Enchantment Effect Component to take effect based on conditions informed by a `LootContext`. 
+Wrapping the type in `ConditionalEffect<?>` allows the Enchantment Effect Component to take effect based on conditions informed by a [LootContext]. 
 
 Specifically, each `ConditionalEffect` contains another effect component, along with an `Optional<LootItemCondition>`. Since `LootItemContext` is a `Predicate<LootContext>`, it can be tested against a specified `LootContext` using `LootItemContext#test`.
 
@@ -284,6 +284,6 @@ BUILDER.add(
 [Attribute Operations]: https://minecraft.wiki/w/Attribute#Operations
 [data generation]: /docs/resources/#data-generation
 [Data Generation for Datapack Registries]: https://docs.neoforged.net/docs/concepts/registries/#data-generation-for-datapack-registries
-[luck]: https://minecraft.wiki/w/Luck
 [relevant minecraft wiki page]: https://minecraft.wiki/w/Enchantment_definition#Entity_effects
 [built-in enchantment effect components]: builtin.md
+[LootContext]: /docs/resources/server/loottables/#loot-context
