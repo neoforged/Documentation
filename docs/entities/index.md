@@ -166,7 +166,7 @@ public boolean hurt(DamageSource damageSource, float amount) {
 }
 ```
 
-It is also possible to modify damage done to entities that do not belong to you, i.e. those added by Minecraft or other mods, through events. Please see [Damage Events][damageevents] for more information.
+It is also possible to modify damage done to entities that do not belong to you, i.e. those added by Minecraft or other mods, through events. These events contain a lot of code specific to `LivingEntity`s; as such, their documentation resides in the [Damage Events section][damageevents] within the [Living Entities article][livingentity].
 
 ### Ticking Entities
 
@@ -195,7 +195,32 @@ public void tick() {
 
 ### Picking Entities
 
-TODO
+Entity picking is an ambiguous term because Mojang uses it for two things: the action of middle-clicking an entity to get a spawn egg or similar item, and for selecting the entity (or [block]) to begin with.
+
+The result of middle-clicking, known as the "pick result", can be modified by your entity (be aware that the `Mob` class will select the correct spawn egg for you):
+
+```java
+@Override
+@Nullable
+public ItemStack getPickResult() {
+    // Assumes that MY_CUSTOM_ITEM is a DeferredItem<?>, see the Items article for more information.
+    return new ItemStack(MY_CUSTOM_ITEM.get());
+}
+```
+
+Selecting the entity or block to begin with is done through what is known as a ray cast in basically any other engine. This is mainly used by things like the F3 debug overlay, game-relevant things such as players attacking or breaking things have their own checks in place here.
+
+Our own entity can be disabled from picking like so:
+
+```java
+@Override
+public boolean isPickable() {
+    // Additional checks may be performed here if needed.
+    return false;
+}
+```
+
+If you want to do the picking (i.e. ray casting) yourself, you can call `Entity#pick` on the entity that you want to start the ray cast from. This will return a `HitResult` that you can further check for what exactly has been hit by the ray cast.
 
 ### Entity Attachments
 
@@ -215,6 +240,7 @@ Direct subclasses of `Entity` include:
 
 Several entities are also direct subclasses of `Entity`, simply because there was no other fitting superclass. Prominent examples include `ItemEntity` (dropped items), `LightningBolt`, `ExperienceOrb` and `PrimedTnt`.
 
+[block]: ../blocks/index.md
 [damageevents]: livingentity.md#damage-events
 [damagesource]: ../resources/server/damagetypes.md#creating-and-using-damage-sources
 [data]: data.md
