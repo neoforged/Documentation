@@ -1,6 +1,6 @@
 # Built-In Enchantment Effect Components
 
-Vanilla Minecraft provides numerous different types of Enchantment Effect Components for use in [enchantment] definitions. This article will explain each, including their usage and in-code definition.
+Vanilla Minecraft provides numerous different types of enchantment effect components for use in [enchantment] definitions. This article will explain each, including their usage and in-code definition.
 
 ## Value Effect Components
 _See also [Value Effect Components] on the Minecraft Wiki_
@@ -104,7 +104,7 @@ Vanilla adds the following location based events:
 
 ### Vanilla Location Based Effect Component Types
 #### Defined as `DataComponentType<List<ConditionalEffect<EnchantmentLocationBasedEffect>>>`
-- `minecraft:location_changed`: Runs a Location Based Effect when the wielder's Block Position changes and when this item is equipped. Used by Frost Walker and Soul Speed.
+- `minecraft:location_changed`: Runs a location based effect when the wielder's Block Position changes and when this item is equipped. Used by Frost Walker and Soul Speed.
 
 ## Entity Effect Components
 _See also [Entity Effect Components] on the Minecraft Wiki._
@@ -137,7 +137,7 @@ Here is an example of the JSON definition of one such component from the Fire As
 ]
 ```
 
-Here, the Entity Effect Component is `minecraft:post_attack`. Its effect is `minecraft:ignite`, which is implemented by the `Ignite` record. This record's implementation of `EnchantmentEntityEffect#apply` sets the target entity on fire.
+Here, the entity effect component is `minecraft:post_attack`. Its effect is `minecraft:ignite`, which is implemented by the `Ignite` record. This record's implementation of `EnchantmentEntityEffect#apply` sets the target entity on fire.
 
 ### Vanilla Enchantment Entity Effect Component Types
 #### Defined as `DataComponentType<List<ConditionalEffect<EnchantmentEntityEffect>>>`
@@ -151,7 +151,9 @@ Here, the Entity Effect Component is `minecraft:post_attack`. Its effect is `min
 For more detail on each of these, please look at the [relevant minecraft wiki page].
 
 ### Attribute Effect Component
-The [Attribute Effect Component], `minecraft:attributes`, is a unique Enchantment Entity Effect Component of type `EnchantmentAttributeEffect` that is not registered as a Location Based Effect Component. It is used to apply attribute modifiers to the wielder of the enchantment, which are then removed when the enchanted item is no longer equipped. The JSON format is as follows:
+_See also [Attribute Effect Component] on the Minecraft Wiki_
+
+`minecraft:attributes` is a unique enchantment entity effect component of type `EnchantmentAttributeEffect` that is not registered as a location based effect component. It is used to apply attribute modifiers to the wielder of the enchantment, which are then removed when the enchanted item is no longer equipped. The JSON format is as follows:
 ```json5
 "minecraft:attributes": [
     {

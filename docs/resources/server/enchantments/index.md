@@ -96,12 +96,12 @@ A new enchantment can be added by creating a JSON file in your namespace's `ench
 The `max_cost` and `min_cost` fields specify boundaries for which enchantment cost values can be used to choose this enchantment during enchantment table operation. The amount of cost that the table can generate is influenced by (wip)
 
 ## Enchantment Effect Components
-Enchantment Effect Components are specially-registered [Data Components] that determine how an enchantment functions. The type of the component defines its effect, while the data it contains is used to inform or modify that effect. For instance, the `minecraft:damage` component modifies the damage that a weapon deals by an amount determined by its data.
+Enchantment effect components are specially-registered [Data Components] that determine how an enchantment functions. The type of the component defines its effect, while the data it contains is used to inform or modify that effect. For instance, the `minecraft:damage` component modifies the damage that a weapon deals by an amount determined by its data.
 
 Vanilla defines various [built-in enchantment effect components], which are used to implement all vanilla enchantments.
 
 ### Custom Enchantment Effect Components
-Enchantment Effect Component Types must be [registered] to `BuiltInRegistries.ENCHANTMENT_EFFECT_COMPONENT_TYPE`, which takes a `DataComponentType<?>`. For example, you could register an Enchantment Effect Component that can store an `ExampleEffectData` object as follows:
+Enchantment effect component types must be [registered] to `BuiltInRegistries.ENCHANTMENT_EFFECT_COMPONENT_TYPE`, which takes a `DataComponentType<?>`. For example, you could register an enchantment effect component that can store an `ExampleEffectData` object as follows:
 
 ```java
 // In some registration class
@@ -114,10 +114,10 @@ public static final DeferredHolder<DataComponentType<?>, DataComponentType<Examp
             .build());
 ```
 
-There are no inheritance requirements on the data held by an Enchantment Effect Component, but it may be helpful to refer to vanilla to ensure compatibility with the vanilla helper methods.
+There are no inheritance requirements on the data held by an enchantment effect component, but it may be helpful to refer to vanilla to ensure compatibility with the vanilla helper methods.
 
 ### `ConditionalEffect`
-Wrapping the type in `ConditionalEffect<?>` allows the Enchantment Effect Component to take effect based on conditions informed by a [LootContext]. 
+Wrapping the type in `ConditionalEffect<?>` allows the enchantment effect component to take effect based on conditions informed by a [LootContext]. 
 
 Specifically, each `ConditionalEffect` contains another effect component, along with an `Optional<LootItemCondition>`. Since `LootItemContext` is a `Predicate<LootContext>`, it can be tested against a specified `LootContext` using `LootItemContext#test`.
 
@@ -145,7 +145,7 @@ public static final DeferredHolder<DataComponentType<?>, DataComponentType<Condi
 The parameters to `ConditionalEffect.codec` are the codec for the generic `ConditionalEffect<T>`, followed by some `LootContextParamSets` entry.
 
 ### Using Enchantment Effect Components
-Here is a full example using vanilla helper methods to work with a custom Enchantment Effect Component.
+Here is a full example using vanilla helper methods to work with a custom enchantment effect component.
 
 ```java
 // Define an example data-bearing record.
