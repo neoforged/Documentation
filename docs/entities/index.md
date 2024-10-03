@@ -160,13 +160,26 @@ TODO
 
 ## Entity Class Hierarchy
 
-TODO
+Due to the many different types of entities, there is a complex hierarchy of subclasses of `Entity`. These are important to know about when choosing what class to extend when making your own entity, as you will be able to save a lot of work by reusing their code.
+
+Direct subclasses of `Entity` include:
+
+- `Projectile`: The base class for various projectiles, including arrows, fireballs, snowballs, fireworks and similar entities. Read more about them in the [Projectiles article][projectile].
+- `LivingEntity`: The base class for anything "living", in the sense of it having things like hit points, equipment, [mob effects][mobeffect] and some other properties. Includes things such as monsters, animals, villagers, and players. Read more about them in the [Living Entities article][livingentity].
+- `VehicleEntity`: The base class for boats and minecarts. While these entities loosely share the concept of hit points with `LivingEntity`s, they do not share many other properties with them and are as such kept separated.
+- `BlockAttachedEntity`: The base class for entities that are immobile and attached to blocks. Includes leash knots, item frames and paintings.
+- `Display`: The base class for the various map-maker display entities.
+
+Several entities are also direct subclasses of `Entity`, simply because there was no other fitting superclass. Prominent examples include `ItemEntity` (dropped items), `LightningBolt`, `ExperienceOrb` and `PrimedTnt`.
 
 [data]: data.md
 [entity]: #the-entity-class
 [hierarchy]: #entity-class-hierarchy
 [item]: ../items/index.md
 [itemstack]: ../items/index.md#itemstacks
+[livingentity]: livingentity.md
+[mobeffect]: ../items/mobeffects.md
+[projectile]: projectile.md
 [registration]: ../concepts/registries.md#methods-for-registering
 [renderer]: renderer.md
 [spawning]: spawning.md

@@ -8,7 +8,7 @@ Before we get further into creating items, it is important to understand what an
 
 - In the world, you encounter a dirt block and want to mine it. This is a **block**, because it is placed in the world. (Actually, it is not a block, but a blockstate. See the [Blockstates article][blockstates] for more detailed information.)
   - Not all blocks drop themselves when breaking (e.g. leaves), see the article on [loot tables][loottables] for more information.
-- Once you have [mined the block][breaking], it is removed (= replaced with an air block) and the dirt drops. The dropped dirt is an item **entity**. This means that like other entities (pigs, zombies, arrows, etc.), it can inherently be moved by things like water pushing on it, or burned by fire and lava.
+- Once you have [mined the block][breaking], it is removed (= replaced with an air block) and the dirt drops. The dropped dirt is an item **[entity][entity]**. This means that like other entities (pigs, zombies, arrows, etc.), it can inherently be moved by things like water pushing on it, or burned by fire and lava.
 - Once you pick up the dirt item entity, it becomes an **item stack** in your inventory. An item stack is, simply put, an instance of an item with some extra information, such as the stack size.
 - Item stacks are backed by their corresponding **item** (which is what we're creating). Items hold [data components][datacomponents] that contains the default information all items stacks are initialized to (for example, every iron sword has a max durability of 250), while item stacks can modify those data components, allowing two different stacks for the same item to have different information (for example, one iron sword has 100 uses left, while another iron sword has 200 uses left). For more information on what is done through items and what is done through item stacks, read on.
   - The relationship between items and item stacks is roughly the same as between [blocks][block] and [blockstates][blockstates], in that a blockstate is always backed by a block. It's not a really accurate comparison (item stacks aren't singletons, for example), but it gives a good basic idea about what the concept is here.
@@ -216,6 +216,7 @@ It is also possible to implement `ItemLike` on your custom objects. Simply overr
 [creativetabs]: #creative-tabs
 [datacomponents]: ./datacomponents.mdx
 [datagen]: ../resources/index.md#data-generation
+[entity]: ../entities/index.md
 [food]: #food
 [hunger]: https://minecraft.wiki/w/Hunger#Mechanics
 [interactionpipeline]: interactionpipeline.md
