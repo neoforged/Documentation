@@ -45,7 +45,7 @@ The same format is also used for vanilla's damage types, and pack developers can
  
 ## Creating and Using Damage Sources
 
-`DamageSource`s are usually created on the fly when `Entity#hurt` is called. Be aware that since damage types are a [datapack registry][dr], you will need a `RegistryAccess` to query them, which can be obtained via `Level#registryAccess`. To create a `DamageSource`, call the `DamageSource` constructor with up to four parameters:
+`DamageSource`s are usually created on the fly when [`Entity#hurt`][entityhurt] is called. Be aware that since damage types are a [datapack registry][dr], you will need a `RegistryAccess` to query them, which can be obtained via `Level#registryAccess`. To create a `DamageSource`, call the `DamageSource` constructor with up to four parameters:
 
 ```java
 DamageSource damageSource = new DamageSource(
@@ -79,7 +79,7 @@ public static DamageSource exampleDamage(Entity causer) {
 ```
 
 :::tip
-Vanilla's `DamageSource` factories can be found in `DamageSources`, and vanilla's `DamageType` resource keys can be found in `DamageTypes`.
+Vanilla's `DamageSource` factories can be found in `DamageSources`, and vanilla's `DamageType` resource keys can be found in `DamageTypes`. Entities also have the method `Entity#damageSources`, which is a convenience getter for the `DamageSources` instance.
 :::
 
 The first and foremost use case for damage sources is `Entity#hurt`. This method is called whenever an entity is receiving damage. To hurt an entity with our own damage type, we simply call `Entity#hurt` ourselves:
@@ -128,6 +128,7 @@ public static void onGatherData(GatherDataEvent event) {
 [datagen]: ../index.md#data-generation
 [dr]: ../../concepts/registries.md#datapack-registries
 [drdatagen]: ../../concepts/registries.md#data-generation-for-datapack-registries
+[entityhurt]: ../../entities/index.md#damaging-entities
 [extenum]: ../../advanced/extensibleenums.md
 [rk]: ../../misc/resourcelocation.md#resourcekeys
 [tags]: tags.md

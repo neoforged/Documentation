@@ -128,11 +128,11 @@ And now, we are free to do basically whatever we want with our entity. The follo
 
 _See [Entities/Data and Networking][data]._
 
-### Rendering
+### Rendering Entities
 
 _See [Entities/Entity Renderers][renderer]._
 
-### Spawning
+### Spawning Entities
 
 If we now boot up the game now and enter a world, we have exactly one way of spawning: through the `/summon` command (assuming `EntityType.Builder#noSummon` was not called).
 
@@ -146,9 +146,52 @@ level.addFreshEntity(entity);
 
 For more complex spawn behavior, please refer to the [Spawning article][spawning].
 
+### Damaging Entities
+
+While not all entities have the concept of hit points, they can still all receive damage. This is not only used by things like mobs and players: If you cast your mind to item entities (dropped items), they too can take damage from sources like fire or cacti, in which case they are usually deleted immediately.
+
+Damaging an entity is possible by calling `Entity#hurt`. `Entity#hurt` takes two arguments: the [`DamageSource`][damagesource] and the damage amount, as a float in half hearts. For example, calling `entity.hurt(entity.damageSources().wither(), 4.25)` will cause a little over two hearts of wither damage.
+
+In turn, it is also possible for entities to modify the behavior in `#hurt` by overriding it. For example, we could make our entity take double damage from fire, and no damage from any other source, like so:
+
+```java
+@Override
+// The boolean return value determines whether the entity was actually damaged or not.
+public boolean hurt(DamageSource damageSource, float amount) {
+    if (damageSource.is(DamageTypeTags.IS_FIRE)) {
+        return super.hurt(damageSource, amount * 2);
+    } else {
+        return false;
+    }
+}
+```
+
+It is also possible to modify damage done to entities that do not belong to you, i.e. those added by Minecraft or other mods, through events. Please see [Damage Events][damageevents] for more information.
+
 ### Ticking Entities
 
-TODO
+Quite often, you will want your entity to do something (e.g. move) every tick. This logic is split across several methods:
+
+- `#tick`: This is the central tick method, and the one you will want to override in 99% of cases.
+  - By default, this forwards to `#baseTick`, however this is overridden by almost every subclass.
+- `#baseTick`: This method handles updating some values common to all entities, including the "on fire" state, freezing from powder snow, the swimming state, and passing through portals.
+  - By default, `Entity#tick` will forward to this method.
+- `#rideTick`: This method is called for passengers of other entities, for example for players riding horses, or any entity that rides another entity due to use of the `/ride` command.
+  - By default, this does some checks and then calls `#tick`. Skeletons and players override this method for special handling of riding entities.
+
+Additionally, the entity has a field called `tickCount`, which is the time, in ticks, that the entity has existed in the level, and a boolean field named `firstTick`, which should be self-explanatory. For example, if you wanted to [spawn a particle][particle] every 5 ticks, you could use the following code:
+
+```java
+@Override
+public void tick() {
+    // Always call super unless you have a good reason not to.
+    super.tick();
+    // Run this code once every 5 ticks, and make sure we spawn the particle on the server.
+    if (this.tickCount % 5 == 0 && !level().isClientSide()) {
+        level().addParticle(...);
+    }
+}
+```
 
 ### Picking Entities
 
@@ -172,6 +215,8 @@ Direct subclasses of `Entity` include:
 
 Several entities are also direct subclasses of `Entity`, simply because there was no other fitting superclass. Prominent examples include `ItemEntity` (dropped items), `LightningBolt`, `ExperienceOrb` and `PrimedTnt`.
 
+[damageevents]: livingentity.md#damage-events
+[damagesource]: ../resources/server/damagetypes.md#creating-and-using-damage-sources
 [data]: data.md
 [entity]: #the-entity-class
 [hierarchy]: #entity-class-hierarchy
@@ -179,6 +224,7 @@ Several entities are also direct subclasses of `Entity`, simply because there wa
 [itemstack]: ../items/index.md#itemstacks
 [livingentity]: livingentity.md
 [mobeffect]: ../items/mobeffects.md
+[particle]: ../resources/client/particles.md
 [projectile]: projectile.md
 [registration]: ../concepts/registries.md#methods-for-registering
 [renderer]: renderer.md
