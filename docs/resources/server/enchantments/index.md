@@ -93,7 +93,15 @@ A new enchantment can be added by creating a JSON file in your namespace's `ench
 ```
 
 ### Enchantment Costs
-The `max_cost` and `min_cost` fields specify boundaries for which enchantment cost values can be used to choose this enchantment during enchantment table operation. The amount of cost that the table can generate is influenced by (wip)
+The `max_cost` and `min_cost` fields specify boundaries for how much enchanting power is needed to create this enchantment. There is a somewhat convoluted procedure to actually make use of these values, however.
+
+First, the table takes into account the surrounding blocks and determines a 'base cost' for each slot. This cost is shown in-game as the green numbers besides the enchantments in the menu. For each enchantment, the base cost is modified twice by a random value derived from the item's enchantability (its return value from `IItemStackExtension#getEnchantmentValue`), like so:
+
+`(Modified Cost) = (Base Cost) + random.nextInt(e / 4 + 1) + random.nextInt(e / 4 + 1)`, where `e` is the enchantability score.
+
+This modified cost is adjusted up or down by a random 15%, and then is finally used to choose an enchantment. 
+
+In practical terms, this means that the cost values in your enchantment definition might be above 30, sometimes far above. For example, with an enchantability 10 item, the table could produce enchantments up to 1.15 * (30 + 2 * (10 / 4) + 1) = 40 cost. 
 
 ## Enchantment Effect Components
 Enchantment effect components are specially-registered [Data Components] that determine how an enchantment functions. The type of the component defines its effect, while the data it contains is used to inform or modify that effect. For instance, the `minecraft:damage` component modifies the damage that a weapon deals by an amount determined by its data.
@@ -134,7 +142,7 @@ Enchantment.applyEffects(
 );
 ```
 
-Registering a custom `ConditionalEffect`-wrapped Enchantment Effect Component Type can be done as follows:
+Registering a custom `ConditionalEffect`-wrapped enchantment effect component type can be done as follows:
 ```java
 public static final DeferredHolder<DataComponentType<?>, DataComponentType<ConditionalEffect<ExampleData>>> EXAMPLE_CONDITIONAL_EFFECT =
     ENCHANTMENT_COMPONENT_TYPES.register("example_conditional",
@@ -163,7 +171,7 @@ public record Increment(int value) {
 ```
 
 ```java
-// Register an Enchantment Effect Component to carry this record.
+// Register an enchantment effect component to carry this record.
 public static final DeferredHolder<DataComponentType<?>, DataComponentType<ConditionalEffect<Increment>>> INCREMENT =
     ENCHANTMENT_COMPONENT_TYPES.register("increment",
         () -> DataComponentType.<ConditionalEffect<Increment>>builder()
@@ -238,7 +246,7 @@ BUILDER.add(
                 Component.literal("Example Enchantment"), // The Text Component that specifies the enchantment's name.
                 EXAMPLE_ENCHANTMENT_DEFINITION,
                 HolderSet.empty(), // A HolderSet of incompatible other enchantments.
-                DataComponentMap.builder() // A DataComponentMap of the Enchantment Effect Components associated with this enchantment and their values.
+                DataComponentMap.builder() // A DataComponentMap of the enchantment effect components associated with this enchantment and their values.
                     .set(MY_ENCHANTMENT_EFFECT_COMPONENT_TYPE, new ExampleData())
                     .build()
         )
