@@ -16,6 +16,7 @@ Value effect components can be set to use any of these operations on their given
 - `minecraft:all_of`: Accepts a list of other value effects and applies them in the stated sequence.
 
 The Sharpness enchantment uses `minecraft:damage`, a value effect component, as follows to achieve its effect:
+
 ```json5
 "effects": {
     "minecraft:damage": [
@@ -38,6 +39,7 @@ The object within the `value` block is a [LevelBasedValue], which can be used to
 Custom numerical operations for use in value effect component definition blocks can be added by registering a subclass of `EnchantmentValueEffect` through `BuiltInRegistries.ENCHANTMENT_VALUE_EFFECT_TYPE`.
 
 The `EnchantmentValueEffect#process` method can be used to adjust values based on the provided numerical operations, like so:
+
 ```java
 // `valueEffect` is an EnchantmentValueEffect instance.
 // `enchantLevel` is an integer representing the level of the enchantment
@@ -123,6 +125,7 @@ Entity effect components are components that contain an `EnchantmentEntityEffect
 Custom `EnchantmentEntityEffect` extensions can be registered through `BuiltInRegistries.ENCHANTMENT_ENTITY_EFFECT_TYPE`.
 
 Here is an example of the JSON definition of one such component from the Fire Aspect enchantment:
+
 ```json5
 "minecraft:post_attack": [
     {
@@ -167,6 +170,7 @@ For more detail on each of these, please look at the [relevant minecraft wiki pa
 _See also [Attribute Effect Component] on the Minecraft Wiki_
 
 `minecraft:attributes` is a unique enchantment entity effect component of type `EnchantmentAttributeEffect` that is not registered as a location based effect component. It is used to apply attribute modifiers to the wielder of the enchantment, which are then removed when the enchanted item is no longer equipped. The JSON format is as follows:
+
 ```json5
 "minecraft:attributes": [
     {

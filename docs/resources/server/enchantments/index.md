@@ -136,6 +136,7 @@ Specifically, each `ConditionalEffect` contains another effect component, along 
 `ConditionalEffect` wraps this behavior, allowing one to simply call `ConditionalEffect#matches(LootContext context)` to determine if the effect should be allowed to run.
 
 Vanilla adds an additional helper method to further streamline the process of checking these conditions: `Enchantment#applyEffects()`. This method takes a `List<ConditionalEffect<T>>`, evaluates the conditions, and runs a `Consumer<T>` on each `T` contained by a `ConditionalEffect` whose condition was met. Since many vanilla enchantment effect components are defined as a `List<ConditionalEffect<?>>`, these can be directly plugged into the helper method like so:
+
 ```java
 // `enchant` is an Enchantment instance.
 // `lootContext` is a LootContext instance.
@@ -147,6 +148,7 @@ Enchantment.applyEffects(
 ```
 
 Registering a custom `ConditionalEffect`-wrapped enchantment effect component type can be done as follows:
+
 ```java
 public static final DeferredHolder<DataComponentType<?>, DataComponentType<ConditionalEffect<ExampleData>>> EXAMPLE_CONDITIONAL_EFFECT =
     ENCHANTMENT_COMPONENT_TYPES.register("example_conditional",
@@ -260,6 +262,7 @@ BUILDER.add(
 );
 
 ```
+
 </TabItem>
 
   <TabItem value="json" label="JSON" default>
@@ -287,6 +290,7 @@ BUILDER.add(
   "weight": 30
 }
 ```
+
 </TabItem>
 </Tabs>
 
