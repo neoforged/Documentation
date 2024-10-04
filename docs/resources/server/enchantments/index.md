@@ -8,6 +8,7 @@ Enchantments are special effects that can be applied to tools and other items. A
 A new enchantment can be added by creating a JSON file in your namespace's `enchantment` datapack subfolder. For example, to create an enchantment called `examplemod:example_enchant`, one would create a file `data/examplemod/enchantment/example_enchantment.json`. 
 
 ## Enchantment JSON Format
+
 ```json5
 {
   // The text component that will be used as the in-game name of the enchantment.
@@ -93,6 +94,7 @@ A new enchantment can be added by creating a JSON file in your namespace's `ench
 ```
 
 ### Enchantment Costs
+
 The `max_cost` and `min_cost` fields specify boundaries for how much enchanting power is needed to create this enchantment. There is a somewhat convoluted procedure to actually make use of these values, however.
 
 First, the table takes into account the return value of `IBlockStateExtension#getEnchantPowerBonus()` for the surrounding blocks. From this, it derives a 'base cost' for each slot. This cost is shown in-game as the green numbers besides the enchantments in the menu. For each enchantment, the base cost is modified twice by a random value derived from the item's enchantability (its return value from `IItemStackExtension#getEnchantmentValue()`), like so:
@@ -104,11 +106,13 @@ This modified cost is adjusted up or down by a random 15%, and then is finally u
 In practical terms, this means that the cost values in your enchantment definition might be above 30, sometimes far above. For example, with an enchantability 10 item, the table could produce enchantments up to 1.15 * (30 + 2 * (10 / 4) + 1) = 40 cost. 
 
 ## Enchantment Effect Components
+
 Enchantment effect components are specially-registered [Data Components] that determine how an enchantment functions. The type of the component defines its effect, while the data it contains is used to inform or modify that effect. For instance, the `minecraft:damage` component modifies the damage that a weapon deals by an amount determined by its data.
 
 Vanilla defines various [built-in enchantment effect components], which are used to implement all vanilla enchantments.
 
 ### Custom Enchantment Effect Components
+
 Enchantment effect component types must be [registered] to `BuiltInRegistries.ENCHANTMENT_EFFECT_COMPONENT_TYPE`, which takes a `DataComponentType<?>`. For example, you could register an enchantment effect component that can store an `ExampleEffectData` object as follows:
 
 ```java
@@ -153,6 +157,7 @@ public static final DeferredHolder<DataComponentType<?>, DataComponentType<Condi
 The parameters to `ConditionalEffect.codec` are the codec for the generic `ConditionalEffect<T>`, followed by some `LootContextParamSets` entry.
 
 ### Using Enchantment Effect Components
+
 Here is a full example using vanilla helper methods to work with a custom enchantment effect component.
 
 ```java
@@ -210,6 +215,7 @@ To actually perform the adjustment, use the provided `Increment#add` method.
 Note that in this example, the level of the enchantment does not affect the outcome. This can be changed by using `enchantLevel` somewhere in the `Consumer<T>` lambda expression (the last line with code in the example). Any other information stored in the `ItemStack` can also be accessed from here, so other Data Components could be used to inform how the adjustment goes.
 
 ## Enchantment Data Generation
+
 Enchantment JSON files can be created automatically using the [data generation] system by passing a `RegistrySetBuilder` into `DatapackBuiltInEntriesProvider`. The JSON will be placed in `<project root>/src/generated/data/<modid>/enchantment/<path>.json`.
 
 For more information on how `RegistrySetBuilder` and `DatapackBuiltinEntriesProvider` work, please see the article on [Data Generation for Datapack Registries]. 

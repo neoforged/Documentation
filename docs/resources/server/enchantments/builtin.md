@@ -3,6 +3,7 @@
 Vanilla Minecraft provides numerous different types of enchantment effect components for use in [enchantment] definitions. This article will explain each, including their usage and in-code definition.
 
 ## Value Effect Components
+
 _See also [Value Effect Components] on the Minecraft Wiki_
 
 Value effect components are used for enchantments that alter a numerical value somewhere in the game, and are implemented by the class `EnchantmentValueEffect`. 
@@ -45,11 +46,14 @@ float modifiedValue = valueEffect.process(enchantLevel, server.random, baseValue
 ```
 
 ### Vanilla Enchantment Value Effect Component Types
+
 #### Defined as `DataComponentType<EnchantmentValueEffect>`
+
 - `minecraft:crossbow_charge_time`: Modifies the charge-up time of this crossbow in seconds. Used by Quick Charge.
 - `minecraft:trident_spin_attack_strength`: Modifies the 'strength' of the spin attack of a trident (see `TridentItem#releaseUsing`). Used by Riptide.
 
 #### Defined as `DataComponentType<List<ConditionalEffect<EnchantmentValueEffect>>>`
+
 Armor related:
 - `minecraft:armor_effectiveness`: Determines effectiveness of armor against this weapon on a scale of 0 (no protection) to 1 (normal protection). Used by Breach.
 - `minecraft:damage_protection`: Each "point" of damage reduction reduces damage taken while wielding this item by 4%, to a maximum reduction of 80%. Used by Blast Protection, Feather Falling, Fire Protection, Protection, and Projectile Protection.
@@ -77,9 +81,11 @@ Other:
 - `minecraft:fishing_luck_bonus`: Modifies the amount of [luck] used in the fishing loot table. Used by Luck of the Sea.
 
 #### Defined as `DataComponentType<List<TargetedConditionalEffect<EnchantmentValueEffect>>>`
+
 - `minecraft:equipment_drops`: Modifies the chance of equipment dropping from an entity killed by this weapon. Used by Looting.
 
 ## Location Based Effect Components
+
 _See also: [Location Based Effect Components] on the Minecraft Wiki_
 
  Location based effect components are components that contain an `EnchantmentLocationBasedEffect`. These components define actions to take that need to know where in the level the wielder of the enchantment is. They operate using two major methods: `EnchantmentEntityEffect#onChangedBlock`, which is called when the enchanted item is equipped and when the wielder changes their `BlockPos`, and `onDeactivate`, which is called when the enchanted item is removed.
@@ -103,10 +109,13 @@ Vanilla adds the following location based events:
 - `minecraft:summon_entity`: Summons an entity.
 
 ### Vanilla Location Based Effect Component Types
+
 #### Defined as `DataComponentType<List<ConditionalEffect<EnchantmentLocationBasedEffect>>>`
+
 - `minecraft:location_changed`: Runs a location based effect when the wielder's Block Position changes and when this item is equipped. Used by Frost Walker and Soul Speed.
 
 ## Entity Effect Components
+
 _See also [Entity Effect Components] on the Minecraft Wiki._
 
 Entity effect components are components that contain an `EnchantmentEntityEffect`, an extension of `EnchantmentLocationBasedEffect`. These override `EnchantmentLocationBasedEffect#onChangedBlock` to run `EnchantmentEntityEffect#apply` instead; this `apply` method is also directly invoked somewhere else in the codebase depending on the specific type of the component.
@@ -140,17 +149,21 @@ Here is an example of the JSON definition of one such component from the Fire As
 Here, the entity effect component is `minecraft:post_attack`. Its effect is `minecraft:ignite`, which is implemented by the `Ignite` record. This record's implementation of `EnchantmentEntityEffect#apply` sets the target entity on fire.
 
 ### Vanilla Enchantment Entity Effect Component Types
+
 #### Defined as `DataComponentType<List<ConditionalEffect<EnchantmentEntityEffect>>>`
+
 - `minecraft:hit_block`: Runs an entity effect when an entity (for example, a projectile) hits a block. Used by Channeling.
 - `minecraft:tick`: Runs an entity effect each tick. Used by Soul Speed.
 - `minecraft:projectile_spawned`: Runs an entity effect after a projectile entity has been spawned from a bow or crossbow. Used by Flame.
 
 #### Defined as `DataComponentType<List<TargetedConditionalEffect<EnchantmentEntityEffect>>>`
+
 - `minecraft:post_attack`: Runs an entity effect after an attack damages an entity. Used by Bane of Arthropods, Channeling, Fire Aspect, Thorns, and Wind Burst.
 
 For more detail on each of these, please look at the [relevant minecraft wiki page].
 
 ### Attribute Effect Component
+
 _See also [Attribute Effect Component] on the Minecraft Wiki_
 
 `minecraft:attributes` is a unique enchantment entity effect component of type `EnchantmentAttributeEffect` that is not registered as a location based effect component. It is used to apply attribute modifiers to the wielder of the enchantment, which are then removed when the enchanted item is no longer equipped. The JSON format is as follows:
@@ -170,17 +183,22 @@ _See also [Attribute Effect Component] on the Minecraft Wiki_
 ```
 
 ## Other Vanilla Enchantment Component Types
+
 #### Defined as `DataComponentType<List<ConditionalEffect<DamageImmunity>>>`
+
 - `minecraft:damage_immunity`: Applies immunity to a specified damage type. Used by Frost Walker.
 
 #### Defined as `DataComponentType<Unit>`
+
 - `minecraft:prevent_equipment_drop`: Prevents this item from being dropped by a player when dying. Used by Curse of Vanishing.
 - `minecraft:prevent_armor_change`: Prevents this item from being unequipped from an armor slot. Used by Curse of Binding.
 
 #### Defined as `DataComponentType<List<CrossbowItem.ChargingSounds>>`
+
 - `minecraft:crossbow_charge_sounds`: Determines the sound events that occur when charging a crossbow. Each entry represents one level of the enchantment.
 
 #### Defined as `DataComponentType<List<Holder<SoundEvent>>>`
+
 - `minecraft:trident_sound`: Determines the sound events that occur when using a trident. Each entry represents one level of the enchantment.
 
 [enchantment]: index.md
