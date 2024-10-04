@@ -190,7 +190,7 @@ public ExampleModClient(ModContainer container) {
 
 //Then the config can be accessed, here we can print our welcome message from above
 public void onCommonSetupEvent(CommonSetupEvent event) {
-    LOGGER.info(ExampleConfig.value.get()); //Hello from config!, or other defined value
+    LOGGER.info("Value in config:" + ExampleConfig.value.get());
 }
 ```
 
