@@ -16,25 +16,26 @@ A configuration can be created using a subtype of `IConfigSpec`. NeoForge implem
 
 ```java
 //Store the config properties as finals
-final ModConfigSpec.ConfigValue<String> testValue;
+final ModConfigSpec.ConfigValue<String> welcomeMessage;
 
 public ExampleConfig(ModConfigSpec.Builder builder) {
     //Define each property
-    testValue = builder.define("test_value", "Hello world!");
+    //One property could be a message to log to the console when the game is initialised
+    welcomeMessage = builder.define("welcome_message", "Hello from the config!");
 }
     
 //Define a field to keep the config and spec for later
-public static ExampleConfig config;
-public static ModConfigSpec configSpec;
+public static final ExampleConfig CONFIG;
+public static final ModConfigSpec CONFIG_SPEC;
     
-//Configure the config once the class is loaded
+//CONFIG and CONFIG_SPEC are both built from the same builder, so we use a static block to seperate the properties
 static {
     Pair<ExampleConfig, ModConfigSpec> pair =
             new ModConfigSpec.Builder().configure(ExampleConfig::new);
         
     //Store the resulting values
-    config = pair.getLeft();
-    configSpec = pair.getRight();
+    CONFIG = pair.getLeft();
+    CONFIG_SPEC = pair.getRight();
 }
 ```
 :::
@@ -63,7 +64,7 @@ The `ConfigValue` specific methods take in two additional components:
 
 ```java
 // For some ModConfigSpec.Builder builder
-ConfigValue<T> value = builder.comment("Comment")
+ConfigValue<T> value = builder.comment("This value is called 'config_value_name', and is set to defaultValue if no existing config is present")
     .define("config_value_name", defaultValue);
 ```
 
@@ -119,9 +120,10 @@ Once a `ModConfigSpec` has been built, it must be registered to allow NeoForge t
 ```java
 // In the main mod file with a ModConfigSpec CONFIG
 public ExampleMod(ModContainer container) {
-    container.registerConfig(ModConfig.Type.COMMON, CONFIG);
-
-    // Do other things
+    ...
+    //Register the config
+    container.registerConfig(ModConfig.Type.COMMON, ExampleConfig.CONFIG);
+    ...
 }
 ```
 
@@ -180,20 +182,27 @@ A configuration screen can be registered for a mod by registering a `IConfigScre
 ```java
 // In the main client mod file
 public ExampleModClient(ModContainer container) {
+    ...
     // This will use NeoForge's ConfigurationScreen to display this mod's configs
     container.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
+    ...
+}
+
+//Then the config can be accessed, here we can print our welcome message from above
+public void onCommonSetupEvent(CommonSetupEvent event) {
+    LOGGER.info(ExampleConfig.value.get()); //Hello from config!, or other defined value
 }
 ```
 
 The configuration screen can be accessed in game by going to the 'Mods' page, selecting the mod from the sidebar, and clicking the 'Config' button. Startup, Common, and Client config options will always be editable at any point. Server configs are only editable in the screen when playing on a world locally. If connected to a server or to another person's LAN world, Server config option will be disabled in the screen. The first page of the config screen for the mod will show every registered config file for players to pick which one to edit.
 
 :::warning
-Translation keys should be added and specified within the lang JSON for all config entries.
+Translation keys should be added and have the text defined within the lang JSON for all config entries if you are making a screen.
 
-You can specify a translation key for a config by using the `ModConfigSpec$Builder#translation` method:
+You can specify a translation key for a config by using the `ModConfigSpec$Builder#translation` method, so we can extend the previous code to:
 ```java
-ConfigValue<T> value = builder.comment("Comment")
-    .translation("modid.configuration.config_value_name")
+ConfigValue<T> value = builder.comment("This value is called 'config_value_name', and is set to defaultValue if no existing config is present")
+    .translation("modid.config.config_value_name")
     .define("config_value_name", defaultValue);
 ```
 
