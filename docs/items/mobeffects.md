@@ -1,3 +1,6 @@
+---
+sidebar_position: 4
+---
 # Mob Effects & Potions
 
 Status effects, sometimes known as potion effects and referred to in-code as `MobEffect`s, are effects that influence an entity every tick. This article explains how to use them, what the difference between an effect and a potion is, and how to add your own.
@@ -65,15 +68,10 @@ public static final Supplier<MyMobEffect> MY_MOB_EFFECT = MOB_EFFECTS.register("
 The `MobEffect` class also provides default functionality for adding attribute modifiers to affected entities. For example, the speed effect adds an attribute modifier for movement speed. Effect attribute modifiers are added like so:
 
 ```java
-public static final String MY_MOB_EFFECT_UUID = "01234567-89ab-cdef-0123-456789abcdef";
 public static final Supplier<MyMobEffect> MY_MOB_EFFECT = MOB_EFFECTS.register("my_mob_effect", () -> new MyMobEffect(...)
-        .addAttributeModifier(Attribute.ATTACK_DAMAGE, MY_MOB_EFFECT_UUID, 2.0, AttributeModifier.Operation.ADD_VALUE)
+        .addAttributeModifier(Attributes.ATTACK_DAMAGE, ResourceLocation.fromNamespaceAndPath("examplemod", "effect.strength"), 2.0, AttributeModifier.Operation.ADD_VALUE)
 );
 ```
-
-:::note
-The UUID used must be a valid and unique UUIDv4, as for some reason, Mojang decided to use UUIDs here instead of some text-based identifier. A UUID is best obtained through an online generator, for example [uuidgenerator.net][uuidgen].
-:::
 
 ### `InstantenousMobEffect`
 
@@ -193,7 +191,7 @@ public static void registerBrewingRecipes(RegisterBrewingRecipesEvent event) {
 
 [block]: ../blocks/index.md
 [commonsetup]: ../concepts/events.md#event-buses
-[datapack]: ../resources/server/index.md
+[datapack]: ../resources/index.md#data
 [events]: ../concepts/events.md
 [item]: index.md
 [itemstack]: index.md#itemstacks

@@ -1,3 +1,6 @@
+---
+sidebar_position: 3
+---
 # Data Attachments
 
 The data attachment system allows mods to attach and store additional data on block entities, chunks, and entities.
@@ -111,5 +114,5 @@ NeoForge.EVENT_BUS.register(PlayerEvent.Clone.class, event -> {
 ```
 
 [saveddata]: ./saveddata.md
-[datacomponents]: ../items/datacomponents.md
+[datacomponents]: ../items/datacomponents.mdx
 [network]: ../networking/index.md

@@ -1,130 +1,184 @@
 # Ingredients
 
-`Ingredient`s are predicate handlers for item-based inputs which check whether a certain `ItemStack` meets the condition to be a valid input in a recipe. All [vanilla recipes][recipes] that take inputs use an `Ingredient` or a list of `Ingredient`s, which is then merged into a single `Ingredient`.
+`Ingredient`s are used in [recipes] to check whether a given [`ItemStack`][itemstack] is a valid input for the recipe. For this purpose, `Ingredient` implements `Predicate<ItemStack>`, and `#test` can be called to confirm if a given `ItemStack` matches the ingredient.
 
-## Custom Ingredients
+Unfortunately, many internals of `Ingredient` are a mess. NeoForge works around this by ignoring the `Ingredient` class where possible, instead introducing the `ICustomIngredient` interface for custom ingredients. This is not a direct replacement for regular `Ingredient`s, but we can convert to and from `Ingredient`s using `ICustomIngredient#toVanilla` and `Ingredient#getCustomIngredient`, respectively.
 
-Custom ingredients can be specified by setting `type` to the name of the [ingredient's serializer][serializer], with the exception of [compound ingredients][compound]. When no type is specified, the vanilla ingredient is used. Custom ingredients can also easily be used in [data generation][datagen] by calling `ICustomIngredient#toVanilla`.
+## Built-In Ingredient Types
 
-### NeoForge Types
+The simplest way to get an ingredient is using the `Ingredient#of` helpers. Several variants exist:
 
-NeoForge provides a few additional `Ingredient` types for programmers to implement. 
+- `Ingredient.of()` returns an empty ingredient.
+- `Ingredient.of(Blocks.IRON_BLOCK, Items.GOLD_BLOCK)` returns an ingredient that accepts either an iron or a gold block. The parameter is a vararg of [`ItemLike`s][itemlike], which means that any amount of both blocks and items may be used.
+- `Ingredient.of(new ItemStack(Items.DIAMOND_SWORD))` returns an ingredient that accepts an item stack. Be aware that counts and data components are ignored.
+- `Ingredient.of(Stream.of(new ItemStack(Items.DIAMOND_SWORD)))` returns an ingredient that accepts an item stack. Like the previous method, but with a `Stream<ItemStack>` for if you happen to get your hands on one of those.
+- `Ingredient.of(ItemTags.WOODEN_SLABS)` returns an ingredient that accepts any item from the specified [tag], for example any wooden slab.
 
-#### CompoundIngredient
+Additionally, NeoForge adds a few additional ingredients:
 
-Though they are functionally identical, compound ingredients replaces the way one would implement a list of ingredients in a recipe. They work as a set OR where the passed in stack must be within at least one of the supplied ingredients. This change was made to allow custom ingredients to work correctly within lists. As such, **no type** needs to be specified.
+- `BlockTagIngredient.of(BlockTags.CONVERTABLE_TO_MUD)` returns an ingredient similar to the tag variant of `Ingredient.of()`, but with a block tag instead. This should be used for cases where you'd use an item tag, but there is only a block tag available (for example `minecraft:convertable_to_mud`).
+- `CompoundIngredient.of(Ingredient.of(Items.DIRT))` returns an ingredient with child ingredients, passed in the constructor (vararg parameter). The ingredient matches if any of its children matches.
+- `DataComponentIngredient.of(true, new ItemStack(Items.DIAMOND_SWORD))` returns an ingredient that, in addition to the item, also matches the data component. The boolean parameter denotes strict matching (true) or partial matching (false). Strict matching means the data components must match exactly, while partial matching means the data components must match, but other data components may also be present. Additional overloads of `#of` exist that allow specifying multiple `Item`s, or provide other options.
+- `DifferenceIngredient.of(Ingredient.of(ItemTags.PLANKS), Ingredient.of(ItemTags.NON_FLAMMABLE_WOOD))` returns an ingredient that matches everything in the first ingredient that doesn't also match the second ingredient. The given example only matches planks that can burn (i.e. all planks except crimson planks, warped planks and modded nether wood planks).
+- `IntersectionIngredient.of(Ingredient.of(ItemTags.PLANKS), Ingredient.of(ItemTags.NON_FLAMMABLE_WOOD))` returns an ingredient that matches everything that matches both sub-ingredients. The given example only matches planks that cannot burn (i.e. crimson planks, warped planks and modded nether wood planks).
 
-```json5
-// For some input
-[
-    // At least one of these ingredients must match to succeed
-    {
-      // Ingredient
-    },
-    {
-        // Custom ingredient
-        "type": "examplemod:example_ingredient"
-    }
-]
-```
+Keep in mind that the NeoForge-provided ingredient types are `ICustomIngredient`s and must call `#toVanilla` before using them in vanilla contexts, as outlined in the beginning of this article.
 
-#### DataComponentIngredient
+## Custom Ingredient Types
 
-`DataComponentIngredient`s compare the item, damage, and [data components][datacomponents] on an `ItemStack`. When `strict` is `true`, the `ItemStack` is checked for an exact match. Otherwise, if only the components specified match, the ingredient will pass. This can be used by specifying the `type` as `neoforge:components`.
-
-```json5
-// For some input
-{
-    "type": "neoforge:components",
-    // Can be either a single item or list of items
-    "items": "examplemod:example_item",
-    "components": {
-        // Add component information
-    },
-    // true requires an exact match
-    // false only requires a match of the specified components
-    "strict": true
-}
-```
-
-### IntersectionIngredient
-
-`IntersectionIngredient`s work as a set AND where the passed in stack must match all supplied ingredients. There must be at least two ingredients supplied to this. This can be used by specifying the `type` as `neoforge:intersection`.
-
-```json5
-// For some input
-{
-    "type": "neoforge:intersection",
-
-    // All of these ingredients must return true to succeed
-    "children": [
-        {
-            // Ingredient 1
-        },
-        {
-            // Ingredient 2
-        }
-        // ...
-    ]
-}
-```
-
-### DifferenceIngredient
-
-`DifferenceIngredient`s work as a set subtraction (SUB) where the passed in stack must match the first ingredient but must not match the second ingredient. This can be used by specifying the `type` as `neoforge:difference`.
-
-```json5
-// For some input
-{
-    "type": "neoforge:difference",
-    "base": {
-        // Ingredient the stack is in
-    },
-    "subtracted": {
-        // Ingredient the stack is NOT in
-    }
-}
-```
-
-## Creating Custom Ingredients
-
-Custom ingredients can be created by implementing `ICustomIngredient` and [registering] the associated [IngredientType][type] to `NeoForgeRegistries.Keys.INGREDIENT_TYPES`.
-
-### ICustomIngredient
-
-There are four important methods to implement:
-
-| Method    | Description
-|:---------:|:------------------------
-`test`      | Returns true if the stack matches this ingredient.
-`getItems`  | Returns the list of stacks this ingredient accepts; however, this does not need to be exhaustive as it is only for display purposes
-`isSimple`  | Returns `false` if information on the stack needs to be tested, or `true` if only the item needs to be checked
-`getType`   | Returns the [type] of this ingredient
-
-### IngredientType
-
-`IngredientType` contains two values: a [map codec][codec] used to encode and decode the ingredient, and a [`StreamCodec`][streamcodec] to sync the ingredient if `ICustomIngredient#isSimple` returns `false`. If `#isSimple` is `true`, then `IngredientType` has a constructor overload that only takes in the map codec.
-
-The `IngredientType` needs to be [registered][registering].
+It is possible for modders to add their custom ingredient types through the `ICustomIngredient` system. For the sake of example, let's make an enchanted item ingredient that accepts an item tag and a map of enchantments to min levels:
 
 ```java
-// For some DeferredRegister<IngredientType<?>> REGISTRAR
-public static final DeferredHolder<IngredientType<?>, IngredientType<ExampleIngredient>> EXAMPLE_INGREDIENT = REGISTRAR.register(
-  "example_ingredient", () -> new IngredientType(...)
-);
+public class MinEnchantedIngredient implements ICustomIngredient {
+    private final TagKey<Item> tag;
+    private final Map<Holder<Enchantment>, Integer> enchantments;
+    // The codec for serializing the ingredient.
+    public static final MapCodec<MinEnchantedIngredient> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
+            TagKey.codec(Registries.ITEM).fieldOf("tag").forGetter(e -> e.tag),
+            Codec.unboundedMap(Enchantment.CODEC, Codec.INT)
+                    .optionalFieldOf("enchantments", Map.of())
+                    .forGetter(e -> e.enchantments)
+    ).apply(inst, MinEnchantedIngredient::new));
+    // Create a stream codec from the regular codec. In some cases, it might make sense to define
+    // a new stream codec from scratch.
+    public static final StreamCodec<RegistryFriendlyByteBuf, MinEnchantedIngredient> STREAM_CODEC =
+            ByteBufCodecs.fromCodecWithRegistries(CODEC.codec());
 
-// In ExampleIngredient
-@Override
-public IngredientType<?> getType() {
-  return EXAMPLE_INGREDIENT.get();
+    // Allow passing in a pre-existing map of enchantments to levels.
+    public MinEnchantedIngredient(TagKey<Item> tag, Map<Holder<Enchantment>, Integer> enchantments) {
+        this.tag = tag;
+        this.enchantments = enchantments;
+    }
+
+    public MinEnchantedIngredient(TagKey<Item> tag) {
+        this(tag, new HashMap<>());
+    }
+
+    // Make this chainable for easy use.
+    public MinEnchantedIngredient with(Holder<Enchantment> enchantment, int level) {
+        enchantments.put(enchantment, level);
+        return this;
+    }
+
+    // Check if the passed ItemStack matches our ingredient by verifying the item is in the tag
+    // and by testing for presence of all required enchantments with at least the required level.
+    @Override
+    public boolean test(ItemStack stack) {
+        return stack.is(tag) && enchantments.keySet()
+                .stream()
+                .allMatch(ench -> stack.getEnchantmentLevel(ench) >= enchantments.get(ench));
+    }
+
+    // Determines whether this ingredient performs NBT or data component matching (false) or not (true).
+    // Also determines whether a stream codec is used for syncing, more on this later.
+    // We query enchantments on the stack, therefore our ingredient is not simple.
+    @Override
+    public boolean isSimple() {
+        return false;
+    }
+
+    // Returns a stream of items that match this ingredient. Mostly for display purposes.
+    // There's a few good practices to follow here:
+    // - Always include at least one item stack, to prevent accidental recognition as empty.
+    // - Include each accepted Item at least once.
+    // - If #isSimple is true, this should be exact and contain every item stack that matches.
+    //   If not, this should be as exact as possible, but doesn't need to be super accurate.
+    // In our case, we use all items in the tag, each with the required enchantments.
+    @Override
+    public Stream<ItemStack> getItems() {
+        // Get a list of item stacks, one stack per item in the tag.
+        List<ItemStack> stacks = BuiltInRegistries.ITEM
+                .getOrCreateTag(tag)
+                .stream()
+                .map(ItemStack::new)
+                .toList();
+        // Enchant all stacks with all enchantments.
+        for (ItemStack stack : stacks) {
+            enchantments
+                    .keySet()
+                    .forEach(ench -> stack.enchant(ench, enchantments.get(ench)));
+        }
+        // Return stream variant of the list.
+        return stacks.stream();
+    }
 }
 ```
 
-[recipes]: https://minecraft.wiki/w/Recipe#List_of_recipe_types
-[compound]: #compoundingredient
-[type]: #ingredienttype
-[registering]: ../../../concepts/registries.md
+Custom ingredients are a [registry], so we must register our ingredient. We do so using the `IngredientType` class provided by NeoForge, which is basically a wrapper around a [`MapCodec`][codec] and optionally a [`StreamCodec`][streamcodec].
+
+```java
+public static final DeferredRegister<IngredientType<?>> INGREDIENT_TYPES =
+        DeferredRegister.create(NeoForgeRegistries.Keys.INGREDIENT_TYPE, ExampleMod.MOD_ID);
+
+public static final Supplier<IngredientType<MinEnchantedIngredient>> MIN_ENCHANTED =
+        INGREDIENT_TYPES.register("min_enchanted",
+                // The stream codec parameter is optional, a stream codec will be created from the codec
+                // using ByteBufCodecs#fromCodec or #fromCodecWithRegistries if the stream codec isn't specified.
+                () -> new IngredientType<>(MinEnchantedIngredient.CODEC, MinEnchantedIngredient.STREAM_CODEC));
+```
+
+When we have done that, we also need to override `#getType` in our ingredient class:
+
+```java
+public class MinEnchantedIngredient implements ICustomIngredient {
+    // other stuff here
+
+    @Override    
+    public IngredientType<?> getType() {
+        return MIN_ENCHANTED;
+    }
+}
+```
+
+And there we go! Our ingredient type is ready to use.
+
+## JSON Representation
+
+Due to vanilla ingredients being pretty limited and NeoForge introducing a whole new registry for them, it's also worth looking at what the built-in and our own ingredients look like in JSON.
+
+Ingredients that specify a `type` are generally assumed to be non-vanilla. For example:
+
+```json5
+{
+  "type": "neoforge:block_tag",
+  "tag": "minecraft:convertable_to_mud"
+}
+```
+
+Or another example using our own ingredient:
+
+```json5
+{
+  "type": "examplemod:min_enchanted",
+  "tag": "c:swords",
+  "enchantments": {
+    "minecraft:sharpness": 4
+  }
+}
+```
+
+If the `type` is unspecified, then we have a vanilla ingredient. Vanilla ingredients can specify one of two properties: `item` or `tag`.
+
+An example for a vanilla item ingredient:
+
+```json5
+{
+  "item": "minecraft:dirt"
+}
+```
+
+An example for a vanilla tag ingredient:
+
+```json5
+{
+  "tag": "c:ingots"
+}
+```
+
 [codec]: ../../../datastorage/codecs.md
-[datagen]: ../../../datagen/recipes.md
-[datacomponents]: ../../../items/datacomponents.md
+[itemlike]: ../../../items/index.md#itemlike
+[itemstack]: ../../../items/index.md#itemstacks
+[recipes]: index.md
+[registry]: ../../../concepts/registries.md
 [streamcodec]: ../../../networking/streamcodecs.md
+[tag]: ../tags.md

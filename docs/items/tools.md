@@ -1,3 +1,6 @@
+---
+sidebar_position: 3
+---
 # Tools & Armor
 
 Tools are [items][item] whose primary use is to break [blocks][block]. Many mods add new tool sets (for example copper tools) or new tool types (for example hammers).
@@ -26,10 +29,6 @@ To create a standard set of tools, you must first define a `Tier`. For reference
 public static final Tier COPPER_TIER = new SimpleTier(
         // The tag that determines what blocks this tool cannot break. See below for more information.
         MyBlockTags.INCORRECT_FOR_COPPER_TOOL,
-        // Determines the level of this tool. Since this is an int, there is no good way to place our tool between stone and iron.
-        // NeoForge introduces the TierSortingRegistry to solve this problem, see below for more information. Use a best-effort approximation here.
-        // Stone is 1, iron is 2.
-        1,
         // Determines the durability of the tier.
         // Stone is 131, iron is 250.
         200,
@@ -84,13 +83,13 @@ Alternatively, we can create our own tag, like so:
 
 ```java
 // This tag will allow us to add these blocks to the incorrect tags that cannot mine them
-public static final TagKey<Block> NEEDS_COPPER_TOOL = TagKey.create(BuiltInRegistries.BLOCK.key(), new ResourceLocation(MOD_ID, "needs_copper_tool"));
+public static final TagKey<Block> NEEDS_COPPER_TOOL = TagKey.create(BuiltInRegistries.BLOCK.key(), ResourceLocation.fromNamespaceAndPath(MOD_ID, "needs_copper_tool"));
 
 // This tag will be passed into our tier
-public static final TagKey<Block> INCORRECT_FOR_COPPER_TOOL = TagKey.create(BuiltInRegistries.BLOCK.key(), new ResourceLocation(MOD_ID, "incorrect_for_cooper_tool"));
+public static final TagKey<Block> INCORRECT_FOR_COPPER_TOOL = TagKey.create(BuiltInRegistries.BLOCK.key(), ResourceLocation.fromNamespaceAndPath(MOD_ID, "incorrect_for_cooper_tool"));
 ```
 
-And then, we populate our tag. For example, let's make copper able to mine gold ores, gold blocks and redstone ore, but not diamonds or emeralds. (Redstone blocks are already mineable by stone tools.) The tag file is located at `src/main/resources/data/mod_id/tags/blocks/needs_copper_tool.json` (where `mod_id` is your mod id):
+And then, we populate our tag. For example, let's make copper able to mine gold ores, gold blocks and redstone ore, but not diamonds or emeralds. (Redstone blocks are already mineable by stone tools.) The tag file is located at `src/main/resources/data/mod_id/tags/block/needs_copper_tool.json` (where `mod_id` is your mod id):
 
 ```json5
 {
@@ -105,7 +104,7 @@ And then, we populate our tag. For example, let's make copper able to mine gold 
 }
 ```
 
-Then, for our tag to pass into the tier, we can provide a negative constraint for any tools that are incorrect for stone tools but within our copper tools tag. The tag file is located at `src/main/resources/data/mod_id/tags/blocks/incorrect_for_cooper_tool.json`:
+Then, for our tag to pass into the tier, we can provide a negative constraint for any tools that are incorrect for stone tools but within our copper tools tag. The tag file is located at `src/main/resources/data/mod_id/tags/block/incorrect_for_cooper_tool.json`:
 
 ```json5
 {
@@ -124,7 +123,7 @@ If you want to check if a tool can make a block state drop its blocks, call `Too
 
 ## Custom Tools
 
-Custom tools can be created by adding a `Tool` [data component][datacomponents] (via `DataComponents#TOOL`) to the list of default components on your item via `Item.Properties#component`. `DiggerItem` is an implementation which takes in a `Tier`, as explained above, to construct the `Tool`. `DiggerItem` also provides a convience method called `#createAttributes` to supply to `Item.Properties#attributes` for your tool, such as the modified attack damage and attack speed.
+Custom tools can be created by adding a `Tool` [data component][datacomponents] (via `DataComponents#TOOL`) to the list of default components on your item via `Item.Properties#component`. `DiggerItem` is an implementation which takes in a `Tier`, as explained above, to construct the `Tool`. `DiggerItem` also provides a convenience method called `#createAttributes` to supply to `Item.Properties#attributes` for your tool, such as the modified attack damage and attack speed.
 
 A `Tool` contains a list of `Tool.Rule`s, the default mining speed when holding the tool (`1` by default), and the amount of damage the tool should take when mining a block (`1` by default). A `Tool.Rule` contains three pieces of information: a `HolderSet` of blocks to apply the rule to, an optional speed at which to mine the blocks in the set, and an optional boolean at which to determine whether these blocks can drop from this tool. If the optional are not set, then the other rules will be checked. The default behavior if all rules fail is the default mining speed and that the block cannot be dropped.
 
@@ -136,74 +135,77 @@ Creating a multitool-like item (i.e. an item that combines two or more tools int
 
 - Adding a `Tool` with your own rules by setting `DataComponents#TOOL` via `Item.Properties#component`.
 - Adding attributes to the item (e.g. attack damage, attack speed) via `Item.Properties#attributes`.
-- Overriding `IItemExtension#canPerformAction` to determine what [`ToolAction`s][toolaction] the item can perform.
-- Calling `IBlockExtension#getToolModifiedState` if you want your item to modify the block state on right click based on the `ToolAction`s.
-- Adding your tool to some of the `minecraft:*_enchantable` tags so that your item can have certain enchantments applied to it, or `IItemExtension#canApplyAtEnchantingTable` to check if the enchantment can be applied at all.
+- Overriding `IItemExtension#canPerformAction` to determine what [`ItemAbility`s][itemability] the item can perform.
+- Calling `IBlockExtension#getToolModifiedState` if you want your item to modify the block state on right click based on the `ItemAbility`s.
+- Adding your tool to some of the `minecraft:enchantable/*` tags so that your item can have certain enchantments applied to it.
 
-## `ToolAction`s
+## `ItemAbility`s
 
-`ToolAction`s are an abstraction over what a tool can and cannot do. This includes both left-click and right-click behavior. NeoForge provides default `ToolAction`s in the `ToolActions` class:
+`ItemAbility`s are an abstraction over what an item can and cannot do. This includes both left-click and right-click behavior. NeoForge provides default `ItemAbility`s in the `ItemAbilities` class:
 
-- Digging actions. These exist for all four `DiggerItem` types as mentioned above, as well as sword and shears digging.
-- Axe right-click actions for stripping (logs), scraping (oxidized copper) and unwaxing (waxed copper).
-- Shear actions for harvesting (honeycombs), carving (pumpkins) and disarming (tripwires).
-- Actions for shovel flattening (dirt paths), sword sweeping, hoe tilling, shield blocking, and fishing rod casting.
+- Digging abilities. These exist for all four `DiggerItem` types as mentioned above, as well as sword and shears digging.
+- Axe right-click abilities for stripping (logs), scraping (oxidized copper) and unwaxing (waxed copper).
+- Shear abilities for harvesting (honeycombs), carving (pumpkins) and disarming (tripwires).
+- Abilities for shovel flattening (dirt paths), sword sweeping, hoe tilling, shield blocking, and fishing rod casting.
 
-To create your own `ToolAction`s, use `ToolAction#get` - it will create a new `ToolAction` if needed. Then, in a custom tool type, override `IItemExtension#canPerformAction` as needed.
+To create your own `ItemAbility`s, use `ItemAbility#get` - it will create a new `ItemAbility` if needed. Then, in a custom tool type, override `IItemExtension#canPerformAction` as needed.
 
-To query if an `ItemStack` can perform a certain `ToolAction`, call `IItemStackExtension#canPerformAction`. Note that this works on any `Item`, not just tools.
+To query if an `ItemStack` can perform a certain `ItemAbility`, call `IItemStackExtension#canPerformAction`. Note that this works on any `Item`, not just tools.
 
 ## Armor
 
 Similar to tools, armor uses a tier system (although a different one). What is called `Tier` for tools is called `ArmorMaterial` for armors. Like above, this example shows how to add copper armor; this can be adapted as needed. However, unlike `Tier`s, `ArmorMaterial`s need to be [registered]. For the vanilla values, see the `ArmorMaterials` class.
 
 ```java
+// ARMOR_MATERIALS is a DeferredRegister<ArmorMaterial>
+
 // We place copper somewhere between chainmail and iron.
-public static final ArmorMaterial COPPER_ARMOR_MATERIAL = new ArmorMaterial(
-    // Determines the defense value of this armor material, depending on what armor piece it is.
-    Util.make(new EnumMap<>(ArmorItem.Type.class), map -> {
-        map.put(ArmorItem.Type.BOOTS, 2);
-        map.put(ArmorItem.Type.LEGGINGS, 4);
-        map.put(ArmorItem.Type.CHESTPLATE, 6);
-        map.put(ArmorItem.Type.HELMET, 2);
-        map.put(ArmorItem.Type.BODY, 4);
-    }),
-    // Determines the enchantability of the tier. This represents how good the enchantments on this armor will be.
-    // Gold uses 25, we put copper slightly below that.
-    20,
-    // Determines the sound played when equipping this armor.
-    // This is wrapped with a Holder.
-    SoundEvents.ARMOR_EQUIP_GENERIC,
-    // Determines the repair item for this armor.
-    () -> Ingredient.of(Tags.Items.INGOTS_COPPER),
-    // Determines the texture locations of the armor to apply when rendering
-    // This can also be specified by overriding 'IItemExtension#getArmorTexture' on your item if the armor texture needs to be more dynamic
-    List.of(
-        // Creates a new armor texture that will be located at:
-        // - 'assets/mod_id/textures/models/armor/copper_layer_1.png' for the outer texture
-        // - 'assets/mod_id/textures/models/armor/copper_layer_2.png' for the inner texture (only legs)
-        new ArmorMaterial.Layer(
-            new ResourceLocation(MOD_ID, "copper")
+public static final Holder<ArmorMaterial> COPPER_ARMOR_MATERIAL =
+    ARMOR_MATERIALS.register("copper", () -> new ArmorMaterial(
+        // Determines the defense value of this armor material, depending on what armor piece it is.
+        Util.make(new EnumMap<>(ArmorItem.Type.class), map -> {
+            map.put(ArmorItem.Type.BOOTS, 2);
+            map.put(ArmorItem.Type.LEGGINGS, 4);
+            map.put(ArmorItem.Type.CHESTPLATE, 6);
+            map.put(ArmorItem.Type.HELMET, 2);
+            map.put(ArmorItem.Type.BODY, 4);
+        }),
+        // Determines the enchantability of the tier. This represents how good the enchantments on this armor will be.
+        // Gold uses 25, we put copper slightly below that.
+        20,
+        // Determines the sound played when equipping this armor.
+        // This is wrapped with a Holder.
+        SoundEvents.ARMOR_EQUIP_GENERIC,
+        // Determines the repair item for this armor.
+        () -> Ingredient.of(Tags.Items.INGOTS_COPPER),
+        // Determines the texture locations of the armor to apply when rendering
+        // This can also be specified by overriding 'IItemExtension#getArmorTexture' on your item if the armor texture needs to be more dynamic
+        List.of(
+            // Creates a new armor texture that will be located at:
+            // - 'assets/mod_id/textures/models/armor/copper_layer_1.png' for the outer texture
+            // - 'assets/mod_id/textures/models/armor/copper_layer_2.png' for the inner texture (only legs)
+            new ArmorMaterial.Layer(
+                ResourceLocation.fromNamespaceAndPath(MOD_ID, "copper")
+            ),
+            // Creates a new armor texture that will be rendered on top of the previous at:
+            // - 'assets/mod_id/textures/models/armor/copper_layer_1_overlay.png' for the outer texture
+            // - 'assets/mod_id/textures/models/armor/copper_layer_2_overlay.png' for the inner texture (only legs)
+            // 'true' means that the armor material is dyeable; however, the item must also be added to the 'minecraft:dyeable' tag
+            new ArmorMaterial.Layer(
+                ResourceLocation.fromNamespaceAndPath(MOD_ID, "copper"), "_overlay", true
+            )
         ),
-        // Creates a new armor texture that will be rendered on top of the previous at:
-        // - 'assets/mod_id/textures/models/armor/copper_layer_1_overlay.png' for the outer texture
-        // - 'assets/mod_id/textures/models/armor/copper_layer_2_overlay.png' for the inner texture (only legs)
-        // 'true' means that the armor material is dyeable; however, the item must also be added to the 'minecraft:dyeable' tag
-        new ArmorMaterial.Layer(
-            new ResourceLocation(MOD_ID, "copper"), "_overlay", true
-        )
-    ),
-    // Returns the toughness value of the armor. The toughness value is an additional value included in
-    // damage calculation, for more information, refer to the Minecraft Wiki's article on armor mechanics:
-    // https://minecraft.wiki/w/Armor#Armor_toughness
-    // Only diamond and netherite have values greater than 0 here, so we just return 0.
-    0,
-    // Returns the knockback resistance value of the armor. While wearing this armor, the player is
-    // immune to knockback to some degree. If the player has a total knockback resistance value of 1 or greater
-    // from all armor pieces combined, they will not take any knockback at all.
-    // Only netherite has values greater than 0 here, so we just return 0.
-    0
-);
+        // Returns the toughness value of the armor. The toughness value is an additional value included in
+        // damage calculation, for more information, refer to the Minecraft Wiki's article on armor mechanics:
+        // https://minecraft.wiki/w/Armor#Armor_toughness
+        // Only diamond and netherite have values greater than 0 here, so we just return 0.
+        0,
+        // Returns the knockback resistance value of the armor. While wearing this armor, the player is
+        // immune to knockback to some degree. If the player has a total knockback resistance value of 1 or greater
+        // from all armor pieces combined, they will not take any knockback at all.
+        // Only netherite has values greater than 0 here, so we just return 0.
+        0
+    ));
 ```
 
 And then, we use that armor material in item registration.
@@ -231,8 +233,8 @@ public static final Supplier<ArmorItem> COPPER_BOOTS = ITEMS.register("copper_bo
 When creating your armor texture, it is a good idea to work on top of the vanilla armor texture to see which part goes where.
 
 [block]: ../blocks/index.md
-[datacomponents]: ./datacomponents.md
+[datacomponents]: ./datacomponents.mdx
 [item]: index.md
-[toolaction]: #toolactions
+[itemability]: #itemabilitys
 [tags]: ../resources/server/tags.md
 [registered]: ../concepts/registries.md#methods-for-registering

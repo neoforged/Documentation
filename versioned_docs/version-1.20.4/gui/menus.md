@@ -14,7 +14,7 @@ A `MenuType` is created by passing in a `MenuSupplier` and a `FeatureFlagSet` to
 
 ```java
 // For some DeferredRegister<MenuType<?>> REGISTER
-public static final RegistryObject<MenuType<MyMenu>> MY_MENU = REGISTER.register("my_menu", () -> new MenuType(MyMenu::new, FeatureFlags.DEFAULT_FLAGS));
+public static final Supplier<MenuType<MyMenu>> MY_MENU = REGISTER.register("my_menu", () -> new MenuType(MyMenu::new, FeatureFlags.DEFAULT_FLAGS));
 
 // In MyMenu, an AbstractContainerMenu subclass
 public MyMenu(int containerId, Inventory playerInv) {
@@ -35,7 +35,7 @@ If additional information is needed on the client (e.g. the position of the data
 
 ```java
 // For some DeferredRegister<MenuType<?>> REGISTER
-public static final RegistryObject<MenuType<MyMenuExtra>> MY_MENU_EXTRA = REGISTER.register("my_menu_extra", () -> IForgeMenuType.create(MyMenu::new));
+public static final Supplier<MenuType<MyMenuExtra>> MY_MENU_EXTRA = REGISTER.register("my_menu_extra", () -> IForgeMenuType.create(MyMenu::new));
 
 // In MyMenuExtra, an AbstractContainerMenu subclass
 public MyMenuExtra(int containerId, Inventory playerInv, FriendlyByteBuf extraData) {
@@ -86,7 +86,7 @@ public MyMenuAccess(int containerId, Inventory playerInventory, ContainerLevelAc
   // ...
 }
 
-// Assume this menu is attached to RegistryObject<Block> MY_BLOCK
+// Assume this menu is attached to Supplier<Block> MY_BLOCK
 @Override
 public boolean stillValid(Player player) {
   return AbstractContainerMenu.stillValid(this.access, player, MY_BLOCK.get());

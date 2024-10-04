@@ -1,3 +1,6 @@
+---
+sidebar_position: 2
+---
 # Codecs
 
 Codecs are a serialization tool from Mojang's [DataFixerUpper] used to describe how objects can be transformed between different formats, such as `JsonElement`s for JSON and `Tag`s for NBT.
@@ -42,7 +45,7 @@ exampleCodec.encodeStart(NbtOps.INSTANCE, exampleObject);
 exampleCodec.parse(NbtOps.INSTANCE, exampleNbt);
 ```
 
-To handle registry entries, Minecraft provides `RegistryOps`, which contains a lookup provider to get available registry elements. These can be created by `RegistryOps#create` that takes in the `DynamicOps` with the specific type to store the data within and the lookup provider containing access to the available registries. NeoForge extends `RegistryOps` to create `ConditionalOps`: a registry codec lookup that can handle [conditions to load the entry][conditional].
+To handle registry entries, Minecraft provides `RegistryOps`, which contains a lookup provider to get available registry elements. These can be created by `RegistryOps#create` that takes in the `DynamicOps` with the specific type to store the data within and the lookup provider containing access to the available registries. NeoForge extends `RegistryOps` to create `ConditionalOps`: a registry codec lookup that can handle [conditions to load the entry][conditions].
 
 ```java
 // Let lookupProvider be a HolderLookup.Provider
@@ -582,7 +585,7 @@ public static final Codec<ExampleObject> = DISPATCH.byNameCodec() // Gets Codec<
 
 [DataFixerUpper]: https://github.com/Mojang/DataFixerUpper
 [gson]: https://github.com/google/gson
-[conditional]: ../resources/server/conditional.md
+[conditions]: ../resources/server/conditions.md
 [transformer]: #transformer-codecs
 [pair]: #pair
 [records]: #records

@@ -46,7 +46,7 @@ Each `#blit` method takes in a `ResourceLocation`, which represents the absolute
 
 ```java
 // Points to 'assets/examplemod/textures/gui/container/example_container.png'
-private static final ResourceLocation TEXTURE = new ResourceLocation("examplemod", "textures/gui/container/example_container.png");
+private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath("examplemod", "textures/gui/container/example_container.png");
 ```
 
 While there are many different `#blit` overloads, we will only discuss two of them.
@@ -65,7 +65,7 @@ The second `#blit` which the first calls expands this to seven integers and two 
 
 ```java
 // Points to 'assets/examplemod/textures/gui/sprites/container/example_container/example_sprite.png'
-private static final ResourceLocation SPRITE = new ResourceLocation("examplemod", "container/example_container/example_sprite");
+private static final ResourceLocation SPRITE = ResourceLocation.fromNamespaceAndPath("examplemod", "container/example_container/example_sprite");
 ```
 
 One set of `#blitSprite` methods have the same parameters as `#blit`, except for the x and y coordinate within the sprite.
@@ -205,7 +205,7 @@ protected void init() {
 
 ### Ticking Screens
 
-Screens also tick using the `#tick` method to perform some level of client side logic for rendering purposes. The most common example is the `EditBox` for the blinking cursor.
+Screens also tick using the `#tick` method to perform some level of client side logic for rendering purposes.
 
 ```java
 // In some Screen subclass
@@ -213,8 +213,7 @@ Screens also tick using the `#tick` method to perform some level of client side 
 public void tick() {
     super.tick();
 
-    // Add ticking logic for EditBox in editBox
-    this.editBox.tick();
+    // Execute some logic every frame
 }
 ```
 
@@ -361,7 +360,7 @@ Within the super, `#renderBg` is called to render the background of the screen. 
 // In some AbstractContainerScreen subclass
 
 // The location of the background texture (assets/<namespace>/<path>)
-private static final ResourceLocation BACKGROUND_LOCATION = new ResourceLocation(MOD_ID, "textures/gui/container/my_container_screen.png");
+private static final ResourceLocation BACKGROUND_LOCATION = ResourceLocation.fromNamespaceAndPath(MOD_ID, "textures/gui/container/my_container_screen.png");
 
 @Override
 protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {

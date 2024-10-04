@@ -1,10 +1,13 @@
+---
+sidebar_position: 1
+---
 # Registering Payloads
 
-Payloads are a way to send arbitrary data between the client and the server. They are registered using the `PayloadRegistrar` from the `RegisterPayloadHandlerEvent` event.
+Payloads are a way to send arbitrary data between the client and the server. They are registered using the `PayloadRegistrar` from the `RegisterPayloadHandlersEvent` event.
 
 ```java
 @SubscribeEvent
-public static void register(final RegisterPayloadHandlerEvent event) {
+public static void register(final RegisterPayloadHandlersEvent event) {
     // Sets the current network version
     final PayloadRegistrar registrar = event.registrar("1");
 }
@@ -21,7 +24,7 @@ Then we can implement the `CustomPacketPayload` interface to create a payload th
 ```java
 public record MyData(String name, int age) implements CustomPacketPayload {
     
-    public static final CustomPacketPayload.Type<MyData> TYPE = new CustomPacketPayload.Type<>(new ResourceLocation("mymod", "my_data"));
+    public static final CustomPacketPayload.Type<MyData> TYPE = new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath("mymod", "my_data"));
 
     // Each pair of elements defines the stream codec of the element to encode/decode and the getter for the element to encode
     // 'name' will be encoded and decoded as a string
@@ -48,14 +51,14 @@ Finally, we can register this payload with the registrar:
 
 ```java
 @SubscribeEvent
-public static void register(final RegisterPayloadHandlerEvent event) {
+public static void register(final RegisterPayloadHandlersEvent event) {
     final PayloadRegistrar registrar = event.registrar("1");
     registrar.playBidirectional(
         MyData.TYPE,
         MyData.STREAM_CODEC,
         new DirectionalPayloadHandler<>(
-            ClientPayloadHandler::handleData,
-            ServerPayloadHandler::handleData
+            ClientPayloadHandler::handleDataOnMain,
+            ServerPayloadHandler::handleDataOnMain
         )
     );
 }
@@ -76,7 +79,72 @@ Now that we have registered the payload we need to implement a handler. For this
 ```java
 public class ClientPayloadHandler {
     
-    public static void handleData(final MyData data, final IPayloadContext context) {
+    public static void handleDataOnMain(final MyData data, final IPayloadContext context) {
+        // Do something with the data, on the main thread
+        blah(data.age());
+    }
+}
+```
+
+Here a couple of things are of note:
+
+- The handling method here gets the payload, and a contextual object.
+- The handling method of the payload is, by default, invoked on the main thread.
+
+
+If you need to do some computation that is resource intensive, then the work should be done on the network thread, instead of blocking the main thread. This is done by setting the `HandlerThread` of the `PayloadRegistrar` to `HandlerThread#NETWORK` via `PayloadRegistrar#executesOn` before registering the payload.
+
+```java
+@SubscribeEvent
+public static void register(final RegisterPayloadHandlersEvent event) {
+    final PayloadRegistrar registrar = event.registrar("1")
+        .executesOn(HandlerThread.NETWORK); // All subsequent payloads will register on the network thread
+    registrar.playBidirectional(
+        MyData.TYPE,
+        MyData.STREAM_CODEC,
+        new DirectionalPayloadHandler<>(
+            ClientPayloadHandler::handleDataOnNetwork,
+            ServerPayloadHandler::handleDataOnNetwork
+        )
+    );
+}
+```
+
+:::note
+All payloads registered after an `executesOn` call will retain the same thread execution location until `executesOn` is called again.
+
+```java
+PayloadRegistrar registrar = event.registrar("1");
+
+registrar.playBidirectional(...); // On the main thread
+registrar.playBidirectional(...); // On the main thread
+
+// Configuration methods modify the state of the registrar
+// by creating a new instance, so the change needs to be
+/// updated by storing the result
+registrar = registrar.executesOn(HandlerThread.NETWORK);
+
+registrar.playBidirectional(...); // On the network thread
+registrar.playBidirectional(...); // On the network thread
+
+registrar = registrar.executesOn(HandlerThread.MAIN);
+
+registrar.playBidirectional(...); // On the main thread
+registrar.playBidirectional(...); // On the main thread
+```
+:::
+
+Here a couple of things are of note:
+
+- If you want to run code on the main game thread you can use `enqueueWork` to submit a task to the main thread.
+    - The method will return a `CompletableFuture` that will be completed on the main thread.
+    - Notice: A `CompletableFuture` is returned, this means that you can chain multiple tasks together, and handle exceptions in a single place.
+    - If you do not handle the exception in the `CompletableFuture` then it will be swallowed, **and you will not be notified of it**.
+
+```java
+public class ClientPayloadHandler {
+    
+    public static void handleDataOnNetwork(final MyData data, final IPayloadContext context) {
         // Do something with the data, on the network thread
         blah(data.name());
         
@@ -93,17 +161,33 @@ public class ClientPayloadHandler {
 }
 ```
 
-Here a couple of things are of note:
-
-- The handling method here gets the payload, and a contextual object.
-- The handler of the payload method is invoked on the networking thread, so it is important to do all the heavy work here, instead of blocking the main game thread.
-- If you want to run code on the main game thread you can use `enqueueWork` to submit a task to the main thread.
-    - The method will return a `CompletableFuture` that will be completed on the main thread.
-    - Notice: A `CompletableFuture` is returned, this means that you can chain multiple tasks together, and handle exceptions in a single place.
-    - If you do not handle the exception in the `CompletableFuture` then it will be swallowed, **and you will not be notified of it**.
-
-Now that you know how you can facilitate the communication between the client and the server for your mod, you can start implementing your own payloads.
 With your own payloads you can then use those to configure the client and server using [Configuration Tasks][configuration].
+
+## Sending Payloads
+
+`CustomPacketPayload`s are sent across the network using vanilla's packet system by wrapping the payload via `ServerboundCustomPayloadPacket` when sending to the server, or `ClientboundCustomPayloadPacket` when sending to the client. Payloads sent to the client can only contain at most 1 MiB of data while payloads to the server can only contain less than 32 KiB. 
+
+All payloads are sent via `Connection#send` with some level of abstraction; however, it is generally inconvenient to call these methods if you want to send packets to multiple people based on a given condition. Therefore, `PacketDistributor` contains a number of convenience implementations to send payloads. There is only one method to send packets to the server (`sendToServer`); however, there are numerous methods to send packets to the client depending on which players should receive the payload.
+
+```java
+// ON THE CLIENT
+
+// Send payload to server
+PacketDistributor.sendToServer(new MyData(...));
+
+// ON THE SERVER
+
+// Send to one player (ServerPlayer serverPlayer)
+PacketDistributor.sendToPlayer(serverPlayer, new MyData(...));
+
+/// Send to all players tracking this chunk (ServerLevel serverLevel, ChunkPos chunkPos)
+PacketDistributor.sendToPlayersTrackingChunk(serverLevel, chunkPos, new MyData(...));
+
+/// Send to all connected players
+PacketDistributor.sendToAllPlayers(new MyData(...));
+```
+
+See the `PacketDistributor` class for more implementations.
 
 [configuration]: ./configuration-tasks.md
 [streamcodec]: ./streamcodecs.md

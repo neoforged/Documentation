@@ -1,3 +1,6 @@
+---
+sidebar_position: 1
+---
 # Named Binary Tag (NBT)
 
 NBT is a format introduced in the earliest days of Minecraft, written by Notch himself. It is widely used throughout the Minecraft codebase for data storage.
@@ -97,6 +100,6 @@ NBT is used in a lot of places in Minecraft. Some of the most common examples in
 - [NBT Format on the Minecraft Wiki][nbtwiki]
 
 [blockentity]: ../blockentities/index.md
-[datapack]: ../resources/server/index.md
-[datacomponents]: ../items/datacomponents.md
+[datapack]: ../resources/index.md#data
+[datacomponents]: ../items/datacomponents.mdx
 [nbtwiki]: https://minecraft.wiki/w/NBT_format

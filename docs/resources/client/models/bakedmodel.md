@@ -107,7 +107,10 @@ public static void modifyBakingResult(ModelEvent.ModifyBakingResult event) {
     // For item models
     event.getModels().computeIfPresent(
         // The model resource location of the model to modify.
-        new ModelResourceLocation("examplemod", "example_item", "inventory"),
+        new ModelResourceLocation(
+            ResourceLocation.fromNamespaceAndPath("examplemod", "example_item"),
+            "inventory"
+        ),
         // A BiFunction with the location and the original models as parameters, returning the new model.
         (location, model) -> new MyBakedModelWrapper(model);
     );
@@ -120,8 +123,9 @@ It is generally encouraged to use a [custom model loader][modelloader] over wrap
 
 [ao]: https://en.wikipedia.org/wiki/Ambient_occlusion
 [ber]: ../../../blockentities/ber.md
-[bewlr]: ../../../items/bewlr.md
+[bewlr]: ../../../blockentities/ber.md#blockentitywithoutlevelrenderer
 [blockstate]: ../../../blocks/states.md
+[event]: ../../../concepts/events.md
 [itemoverrides]: #itemoverrides
 [itemstack]: ../../../items/index.md#itemstacks
 [modelloader]: modelloaders.md
@@ -130,3 +134,4 @@ It is generally encouraged to use a [custom model loader][modelloader] over wrap
 [perspective]: #perspectives
 [rendertype]: index.md#render-types
 [rl]: ../../../misc/resourcelocation.md
+[sides]: ../../../concepts/sides.md

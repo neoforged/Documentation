@@ -20,7 +20,7 @@ A `BlockEntityType` can be [registered][registration] like any other registry ob
 
 ```java
 // For some DeferredRegister<BlockEntityType<?>> REGISTER
-public static final RegistryObject<BlockEntityType<MyBE>> MY_BE = REGISTER.register("mybe", () -> BlockEntityType.Builder.of(MyBE::new, validBlocks).build(null));
+public static final Supplier<BlockEntityType<MyBE>> MY_BE = REGISTER.register("mybe", () -> BlockEntityType.Builder.of(MyBE::new, validBlocks).build(null));
 
 // In MyBE, a BlockEntity subclass
 public MyBE(BlockPos pos, BlockState state) {

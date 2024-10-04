@@ -1,3 +1,6 @@
+---
+sidebar_position: 3
+---
 # Using Configuration Tasks
 
 The networking protocol for the client and server has a specific phase where the server can configure the client before the player actually joins the game. This phase is called the configuration phase, and is for example used by the vanilla server to send the resource pack information to the client.
@@ -23,7 +26,7 @@ A configuration task is a simple interface: `ICustomConfigurationTask`. This int
 
 ```java
 public record MyConfigurationTask implements ICustomConfigurationTask {
-    public static final ConfigurationTask.Type TYPE = new ConfigurationTask.Type(new ResourceLocation("mymod", "my_task"));
+    public static final ConfigurationTask.Type TYPE = new ConfigurationTask.Type(ResourceLocation.fromNamespaceAndPath("mymod", "my_task"));
     
     @Override
     public void run(final Consumer<CustomPacketPayload> sender) {
@@ -49,8 +52,8 @@ There are two primary ways of achieving this:
 When the client does not need to acknowledge the configuration task, then the listener can be captured, and the configuration task can be acknowledged directly on the server side.
 
 ```java
-public record MyConfigurationTask(ServerConfigurationListener listener) implements ICustomConfigurationTask {
-    public static final ConfigurationTask.Type TYPE = new ConfigurationTask.Type(new ResourceLocation("mymod", "my_task"));
+public record MyConfigurationTask(ServerConfigurationPacketListener listener) implements ICustomConfigurationTask {
+    public static final ConfigurationTask.Type TYPE = new ConfigurationTask.Type(ResourceLocation.fromNamespaceAndPath("mymod", "my_task"));
     
     @Override
     public void run(final Consumer<CustomPacketPayload> sender) {
@@ -83,7 +86,7 @@ When the client needs to acknowledge the configuration task, then you will need 
 
 ```java
 public record AckPayload() implements CustomPacketPayload {
-    public static final CustomPacketPayload.Type<AckPayload> TYPE = new CustomPacketPayload.Type<>(new ResourceLocation("mymod", "ack"));
+    public static final CustomPacketPayload.Type<AckPayload> TYPE = new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath("mymod", "ack"));
     
     // Unit codec with no data to write
     public static final StreamCodec<ByteBuf, AckPayload> STREAM_CODEC = StreamCodec.unit(new AckPayload());

@@ -1,3 +1,6 @@
+---
+sidebar_position: 1
+---
 # The Interaction Pipeline
 
 This page aims to make the fairly complex and confusing process of things being right-clicked by the player more understandable, as well as clarifying what result to use where and why.

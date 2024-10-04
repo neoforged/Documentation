@@ -47,12 +47,16 @@ public class MyParticle extends TextureSheetParticle {
         super(level, x, y, z);
         this.spriteSet = spriteSet;
         this.gravity = 0; // Our particle floats in midair now, because why not.
+
+        // We set the initial sprite here since ticking is not guaranteed to set the sprite
+        // before the render method is called.
+        this.setSpriteFromAge(spriteSet);
     }
     
     @Override
     public void tick() {
         // Set the sprite for the current particle age, i.e. advance the animation.
-        setSpriteFromAge(spriteSet);
+        this.setSpriteFromAge(spriteSet);
         // Let super handle further movement. You may replace this with your own movement if needed.
         // You may also override move() if you only want to modify the built-in movement.
         super.tick();
@@ -116,10 +120,14 @@ Finally, we must associate our particle type with a texture. Similar to how item
 }
 ```
 
-Note that a particle definition file is only necessary when using a sprite set particle. Single sprite particles directly map to the texture file at `assets/<namespace>/textures/particle/<particle_name>.png`, and special particle providers can do whatever you want anyway.
+A particle definition is required when using a particle that takes in a `SpriteSet`, which is done when registering a particle provider via `registerSpriteSet` or `registerSprite`. They must **not** be provided for particle providers registered via `#registerSpecial`.
 
 :::danger
 A mismatched list of sprite set particle factories and particle definition files, i.e. a particle description without a corresponding particle factory, or vice versa, will throw an exception!
+:::
+
+:::note
+While particle descriptions must have providers registered a certain way, they are only used if the `ParticleRenderType` (set via `Particle#getRenderType`) uses the `TextureAtlas#LOCATION_PARTICLES` as the shader texture. For vanilla render types, these are `PARTICLE_SHEET_OPAQUE`, `PARTICLE_SHEET_TRANSLUCENT`, and `PARTICLE_SHEET_LIT`.
 :::
 
 ### Datagen
@@ -138,17 +146,17 @@ public class MyParticleDescriptionProvider extends ParticleDescriptionProvider {
     protected void addDescriptions() {
         // Adds a single sprite particle definition with the file at
         // assets/examplemod/textures/particle/my_single_particle.png.
-        sprite(MyParticleTypes.MY_SINGLE_PARTICLE.get(), new ResourceLocation("examplemod", "my_single_particle"));
+        sprite(MyParticleTypes.MY_SINGLE_PARTICLE.get(), ResourceLocation.fromNamespaceAndPath("examplemod", "my_single_particle"));
         // Adds a multi sprite particle definition, with a vararg parameter. Alternatively accepts a list.
         spriteSet(MyParticleTypes.MY_MULTI_PARTICLE.get(),
-            new ResourceLocation("examplemod", "my_multi_particle_0"),
-            new ResourceLocation("examplemod", "my_multi_particle_1"),
-            new ResourceLocation("examplemod", "my_multi_particle_2")
+            ResourceLocation.fromNamespaceAndPath("examplemod", "my_multi_particle_0"),
+            ResourceLocation.fromNamespaceAndPath("examplemod", "my_multi_particle_1"),
+            ResourceLocation.fromNamespaceAndPath("examplemod", "my_multi_particle_2")
         );
         // Alternative for the above, appends "_<index>" to the base name given, for the given amount of textures.
         spriteSet(MyParticleTypes.MY_ALT_MULTI_PARTICLE.get(),
             // The base name.
-            new ResourceLocation("examplemod", "my_multi_particle"),
+            ResourceLocation.fromNamespaceAndPath("examplemod", "my_multi_particle"),
             // The amount of textures.
             3,
             // Whether to reverse the list, i.e. start at the last element instead of the first.

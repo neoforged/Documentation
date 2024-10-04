@@ -41,6 +41,7 @@ The `Item` class provides default functionality for food items, meaning you don'
 - `alwaysEdible` - Whether this item can always be eaten, even if the hunger bar is full. `false` by default, `true` for golden apples and other items that provide bonuses beyond just filling the hunger bar.
 - `fast` - Whether fast eating should be enabled for this food. `false` by default, `true` for dried kelp in vanilla.
 - `effect` - Adds a [`MobEffectInstance`][mobeffectinstance] to apply when eating this item. The second parameter denotes the probability of the effect being applied; for example, Rotten Flesh has an 80% chance (= 0.8) of applying the Hunger effect when eaten. This method comes in two variants; you should use the one that takes in a supplier (the other one directly takes a mob effect instance and is deprecated by NeoForge due to classloading issues).
+- `usingConvertsTo` - Sets the item this will turn into after being used.
 - `build` - Once you've set everything you want to set, call `build` to get a `FoodProperties` object for further use.
 
 For examples, or to look at the various values used by Minecraft, have a look at the `Foods` class.
@@ -118,7 +119,7 @@ An `ItemStack` consists of three major parts:
 
 - The `Item` it represents, obtainable through `ItemStack#getItem`.
 - The stack size, typically between 1 and 64, obtainable through `getCount` and changeable through `setCount` or `shrink`.
-- The data components map, where stack-specific data is stored. Obtainable through `getComponents`. The components values are typically accessed and mutated via `has`, `get`, `set`, `update`, and `remove`.
+- The [data components][datacomponents] map, where stack-specific data is stored. Obtainable through `getComponents`. The components values are typically accessed and mutated via `has`, `get`, `set`, `update`, and `remove`.
 
 To create a new `ItemStack`, call `new ItemStack(Item)`, passing in the backing item. By default, this uses a count of 1 and no NBT data; there are constructor overloads that accept a count and NBT data as well if needed.
 
@@ -135,6 +136,23 @@ However, this can sometimes lead to issues when dealing with multiple `ItemStack
 :::tip
 When in doubt, better be safe than sorry and `#copy` the stack.
 :::
+
+### JSON Representation
+
+In many situations, for example [recipes], item stacks need to be represented as JSON objects. An item stack's JSON representation looks the following way:
+
+```json5
+{
+  // The item ID. Required.
+  "id": "minecraft:dirt",
+  // The item stack count. Optional, defaults to 1.
+  "count": 4,
+  // A map of data components. Optional, defaults to an empty map.
+  "components": {
+    "minecraft:enchantment_glint_override": true
+  }
+}
+```
 
 ## Creative Tabs
 
@@ -186,17 +204,26 @@ public static final Supplier<CreativeModeTab> EXAMPLE_TAB = CREATIVE_MODE_TABS.r
 );
 ```
 
+## `ItemLike`
+
+`ItemLike` is an interface implemented by `Item`s and [`Block`s][block] in vanilla. It defines the method `#asItem`, which returns an item representation of whatever the object actually is: `Item`s just return themselves, while `Block`s return their associated `BlockItem` if available, and `Blocks.AIR` otherwise. `ItemLike`s are used in various contexts where the "origin" of the item isn't important, for example in many [data generators][datagen].
+
+It is also possible to implement `ItemLike` on your custom objects. Simply override `#asItem` and you're good to go.
+
 [block]: ../blocks/index.md
 [blockstates]: ../blocks/states.md
 [breaking]: ../blocks/index.md#breaking-a-block
 [creativetabs]: #creative-tabs
-[datacomponents]: ./datacomponents.md
+[datacomponents]: ./datacomponents.mdx
+[datagen]: ../resources/index.md#data-generation
 [food]: #food
 [hunger]: https://minecraft.wiki/w/Hunger#Mechanics
 [interactionpipeline]: interactionpipeline.md
-[loottables]: ../resources/server/loottables.md
+[loottables]: ../resources/server/loottables/index.md
 [mobeffectinstance]: mobeffects.md#mobeffectinstances
 [modbus]: ../concepts/events.md#event-buses
+[recipes]: ../resources/server/recipes/index.md
 [registering]: ../concepts/registries.md#methods-for-registering
 [resources]: ../resources/index.md#assets
 [sides]: ../concepts/sides.md
+[wikicomponents]: https://minecraft.wiki/w/Data_component_format

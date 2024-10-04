@@ -1,3 +1,6 @@
+---
+sidebar_position: 2
+---
 # Stream Codecs
 
 Stream codecs are a serialization tool used to describe how an object should be stored and read from a stream, such as buffers. Stream codecs are primarly used by Vanilla's [networking system][networking] to sync data.

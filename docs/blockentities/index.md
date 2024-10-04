@@ -1,141 +1,240 @@
 # Block Entities
 
-`BlockEntities` are like simplified `Entities` that are bound to a Block. They are used to store dynamic data, execute tick based tasks, and dynamic rendering. Some examples from vanilla Minecraft would be handling of inventories on chests, smelting logic on furnaces, or area effects on beacons. More advanced examples exist in mods, such as quarries, sorting machines, pipes, and displays.
+Block entities allow the storage of data on [blocks][block] in cases where [block states][blockstate] are not suitable. This is especially the case for data with a non-finite amount of options, such as inventories. Block entities are stationary and bound to a block, but otherwise share many similarities with entities, hence the name.
 
 :::note
-`BlockEntities` aren't a solution for everything and they can cause lag when used incorrectly. When possible, try to avoid them.
+If you have a finite and reasonably small amount (= a few hundred at most) of possible states for your block, you might want to consider using [block states][blockstate] instead.
 :::
 
-## Registering
+## Creating and Registering Block Entities
 
-Block Entities are created and removed dynamically and as such are not registry objects on their own.
+Like entities and unlike blocks, the `BlockEntity` class represents the block entity instance, not the [registered][registration] singleton object. The singleton is expressed through the `BlockEntityType<?>` class instead. We will need both to create a new block entity.
 
-In order to create a `BlockEntity`, you need to extend the `BlockEntity` class. As such, another object is registered instead to easily create and refer to the *type* of the dynamic object. For a `BlockEntity`, these are known as `BlockEntityType`s.
-
-A `BlockEntityType` can be [registered][registration] like any other registry object. To construct a `BlockEntityType`, its builder form can be used via `BlockEntityType$Builder#of`. This takes in two arguments: a `BlockEntityType.BlockEntitySupplier` which takes in a `BlockPos` and `BlockState` to create a new instance of the associated `BlockEntity`, and a varargs of `Block`s which this `BlockEntity` can be attached to. Building the `BlockEntityType` is done by calling `BlockEntityType$Builder#build`. This takes in a `Type` which represents the type-safe reference used to refer to this registry object in a `DataFixer`. Since `DataFixer`s are an optional system to use for mods, this can be passed as `null`.
+Let's begin by creating our block entity class:
 
 ```java
-// For some DeferredRegister<BlockEntityType<?>> REGISTER
-public static final RegistryObject<BlockEntityType<MyBE>> MY_BE = REGISTER.register("mybe", () -> BlockEntityType.Builder.of(MyBE::new, validBlocks).build(null));
-
-// In MyBE, a BlockEntity subclass
-public MyBE(BlockPos pos, BlockState state) {
-  super(MY_BE.get(), pos, state);
+public class MyBlockEntity extends BlockEntity {
+    public MyBlockEntity(BlockPos pos, BlockState state) {
+        super(type, pos, state);
+    }
 }
 ```
 
-## Creating a `BlockEntity`
+As you may have noticed, we pass an undefined variable `type` to the super constructor. Let's leave that undefined variable there for a moment and instead move to registration.
 
-To create a `BlockEntity` and attach it to a `Block`, the `EntityBlock` interface must be implemented on your `Block` subclass. The method `EntityBlock#newBlockEntity(BlockPos, BlockState)` must be implemented and return a new instance of your `BlockEntity`.
+Registration happens in a similar fashion to entities. We create an instance of the associated singleton class `BlockEntityType<?>` and register it to the block entity type registry, like so:
 
-## Storing Data within your `BlockEntity`
-
-In order to save data, override the following two methods:
 ```java
-BlockEntity#saveAdditional(CompoundTag tag, HolderLookup.Provider registries)
+public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITY_TYPES =
+        DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, ExampleMod.MOD_ID);
 
-BlockEntity#loadAdditional(CompoundTag tag, HolderLookup.Provider registries)
+public static final Supplier<BlockEntityType<MyBlockEntity>> MY_BLOCK_ENTITY = BLOCK_ENTITY_TYPES.register(
+        "my_block_entity",
+        // The block entity type, created using a builder.
+        () -> BlockEntityType.Builder.of(
+                // The supplier to use for constructing the block entity instances.
+                MyBlockEntity::new,
+                // A vararg of blocks that can have this block entity.
+                // This assumes the existence of the referenced blocks as DeferredBlock<Block>s.
+                MyBlocks.MY_BLOCK_1, MyBlocks.MY_BLOCK_2
+        )
+        // Build using null; vanilla does some datafixer shenanigans with the parameter that we don't need.
+        .build(null)
+);
 ```
-These methods are called whenever the `LevelChunk` containing the `BlockEntity` gets loaded from/saved to a tag.
-Use them to read and write to the fields in your block entity class.
 
-:::note
-Whenever your data changes, you need to call `BlockEntity#setChanged`; otherwise, the `LevelChunk` containing your `BlockEntity` might be skipped while the level is saved.
-:::
-
-:::danger
-It is important that you call the `super` methods!
-
-The tag names `id`, `x`, `y`, `z`, `NeoForgeData` and `neoforge:attachments` are reserved by the `super` methods.
-:::
-
-## Ticking `BlockEntities`
-
-If you need a ticking `BlockEntity`, for example to keep track of the progress during a smelting process, another method must be implemented and overridden within `EntityBlock`: `EntityBlock#getTicker(Level, BlockState, BlockEntityType)`. This can implement different tickers depending on which logical side the user is on, or just implement one general ticker. In either case, a `BlockEntityTicker` must be returned. Since this is a functional interface, it can just take in a method representing the ticker instead:
+Now that we have our block entity type, we can use it in place of the `type` variable we left earlier:
 
 ```java
-// Inside some Block subclass
-@Nullable
-@Override
-public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-  return type == MyBlockEntityTypes.MYBE.get() ? MyBlockEntity::tick : null;
-}
-
-// Inside MyBlockEntity
-public static void tick(Level level, BlockPos pos, BlockState state, MyBlockEntity blockEntity) {
-  // Do stuff
+public class MyBlockEntity extends BlockEntity {
+    public MyBlockEntity(BlockPos pos, BlockState state) {
+        super(MY_BLOCK_ENTITY.get(), pos, state);
+    }
 }
 ```
 
-:::note
-This method is called each tick; therefore, you should avoid having complicated calculations in here. If possible, you should make more complex calculations every X ticks. (The amount of ticks in a second may be lower then 20 (twenty) but won't be higher)
+:::info
+The reason for this rather confusing setup process is that `BlockEntityType.Builder#of` expects a `BlockEntityType.BlockEntitySupplier<T extends BlockEntity>`, which is basically a `BiFunction<BlockPos, BlockState, T extends BlockEntity>`. As such, having a constructor we can directly reference using `::new` is highly beneficial. However, we also need to provide the constructed block entity type to the default and only constructor of `BlockEntity`, so we need to pass references around a bit.
 :::
 
-## Synchronizing the Data to the Client
+Finally, we need to modify the block class associated with the block entity. This means that we will not be able to attach block entities to simple instances of `Block`, instead, we need a subclass:
 
-There are three ways of syncing data to the client: synchronizing on chunk load, on block updates, and with a custom network message.
-
-### Synchronizing on LevelChunk Load
-
-For this you need to override
 ```java
-BlockEntity#getUpdateTag(HolderLookup.Provider registries)
+// The important part is implementing the EntityBlock interface and overriding the #newBlockEntity method.
+public class MyEntityBlock extends Block implements EntityBlock {
+    // Constructor deferring to super.
+    public MyEntityBlock(BlockBehaviour.Properties properties) {
+        super(properties);
+    }
 
-IBlockEntityExtension#handleUpdateTag(CompoundTag tag, HolderLookup.Provider registries)
+    // Return a new instance of our block entity here.
+    @Override
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return new MyBlockEntity(pos, state);
+    }
+}
 ```
 
-The first method collects the data that should be sent to the client while the second one processes that data. If your `BlockEntity` doesn't contain much data, you might be able to use the methods out of the [Storing Data within your `BlockEntity`][storing-data] section.
+And then, you of course need to use this class as the type in your block registration:
+
+```java
+public static final DeferredBlock<MyEntityBlock> MY_BLOCK_1 =
+        BLOCKS.register("my_block_1", () -> new MyEntityBlock( /* ... */ ));
+public static final DeferredBlock<MyEntityBlock> MY_BLOCK_2 =
+        BLOCKS.register("my_block_2", () -> new MyEntityBlock( /* ... */ ));
+```
+
+## Storing Data
+
+One of the main purposes of `BlockEntity`s is to store data. Data storage on block entities can happen in two ways: directly reading and writing [NBT][nbt], or using [data attachments][dataattachments]. This section will cover reading and writing NBT directly; for data attachments, please refer to the linked article.
+
+:::info
+The main purpose of data attachments is, as the name suggests, attaching data to existing block entities, such as those provided by vanilla or other mods. For your own mod's block entities, saving and loading directly to and from NBT is preferred.
+:::
+
+Data can be read from and written to a `CompoundTag` using the `#loadAdditional` and `#saveAdditional` methods, respectively. These methods are called when the block entity is synced to disk or over the network.
+
+```java
+public class MyBlockEntity extends BlockEntity {
+    // This can be any value of any type you want, so long as you can somehow serialize it to NBT.
+    // We will use an int for the sake of example.
+    private int value;
+
+    public MyBlockEntity(BlockPos pos, BlockState state) {
+        super(MY_BLOCK_ENTITY.get(), pos, state);
+    }
+
+    // Read values from the passed CompoundTag here.
+    @Override
+    public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.loadAdditional(tag, registries);
+        // Will default to 0 if absent. See the NBT article for more information.
+        this.value = tag.getInt("value");
+    }
+
+    // Save values into the passed CompoundTag here.
+    @Override
+    public void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.saveAdditional(tag, registries);
+        tag.putInt("value", this.value);
+    }
+}
+```
+
+In both methods, it is important that you call super, as that adds basic information such as the position. The tag names `id`, `x`, `y`, `z`, `NeoForgeData` and `neoforge:attachments` are reserved by the super methods, and as such, you should not use them yourself.
+
+Of course, you will want to set other values and not just work with defaults. You can do so freely, like with any other field. However, if you want the game to save those changes, you must call `#setChanged()` afterward, which marks the block entity's chunk as dirty (= in need of being saved). If you do not call that method, the block entity might get skipped during saving, as Minecraft's saving system only saves chunks that have been marked as dirty.
+
+## Tickers
+
+Another very common use of block entities, often in combination with some stored data, is ticking. Ticking means executing some code every game tick. This is done by overriding `EntityBlock#getTicker` and returning a `BlockEntityTicker`, which is basically a consumer with four arguments (level, position, blockstate and block entity), like so:
+
+```java
+// Note: The ticker is defined in the block, not the block entity. However, it is good practice to
+// keep the ticking logic in the block entity in some way, for example by defining a static #tick method.
+public class MyEntityBlock extends Block implements EntityBlock {
+    // other stuff here
+
+    @SuppressWarnings("unchecked") // Due to generics, an unchecked cast is necessary here.
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
+        // You can return different tickers here, depending on whatever factors you want. A common use case would be
+        // to return different tickers on the client or server, only tick one side to begin with,
+        // or only return a ticker for some blockstates (e.g. when using a "my machine is working" blockstate property).
+        return type == MY_BLOCK_ENTITY.get() ? (BlockEntityTicker<T>) MyBlockEntity::tick : null;
+    }
+}
+
+public class MyBlockEntity extends BlockEntity {
+    // other stuff here
+
+    // The signature of this method matches the signature of the BlockEntityTicker functional interface.
+    public static void tick(Level level, BlockPos pos, BlockState state, MyBlockEntity blockEntity) {
+        // Whatever you want to do during ticking.
+        // For example, you could change a crafting progress value or consume power here.
+    }
+}
+```
+
+Be aware that the `#tick` method is actually called every tick. Due to this, you should avoid doing a lot of complex calculations in here if you can, for example by only calculating things every X ticks, or by caching the results.
+
+## Syncing
+
+Block entity logic is usually run on the server. As such, we need to tell the client what we are doing. There are three ways to do just that: on chunk load, on block update, or by using a custom packet. You should generally only sync information when it is necessary, to not needlessly clog up the network. 
+
+### Syncing on Chunk Load
+
+A chunk is loaded (and by extension, this method is utilized) each time it is read from either network or disk. To send your data here, you need to override the following methods:
+
+```java
+public class MyBlockEntity extends BlockEntity {
+    // ...
+
+    // Create an update tag here. For block entities with only a few fields, this can just call #saveAdditional.
+    @Override
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+        CompoundTag tag = new CompoundTag();
+        saveAdditional(tag, registries);
+        return tag;
+    }
+
+    // Handle a received update tag here. The default implementation calls #loadAdditional here,
+    // so you do not need to override this method if you don't plan to do anything beyond that.
+    @Override
+    public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
+        super.handleUpdateTag(tag, registries);
+    }
+}
+```
+
+### Syncing on Block Update
+
+This method is used whenever a block update occurs. Block updates must be triggered manually, but are generally processed faster than chunk syncing.
+
+```java
+public class MyBlockEntity extends BlockEntity {
+    // ...
+
+    // Create an update tag here, like above.
+    @Override
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+        CompoundTag tag = new CompoundTag();
+        saveAdditional(tag, registries);
+        return tag;
+    }
+
+    // Return our packet here. This method returning a non-null result tells the game to use this packet for syncing.
+    @Override
+    public Packet<ClientGamePacketListener> getUpdatePacket() {
+        // The packet uses the CompoundTag returned by #getUpdateTag. An alternative overload of #create exists
+        // that allows you to specify a custom update tag, including the ability to omit data the client might not need.
+        return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    // Optionally: Run some custom logic when the packet is received.
+    // The super/default implementation forwards to #loadAdditional.
+    @Override
+    public void onDataPacket(Connection connection, ClientboundBlockEntityDataPacket packet, HolderLookup.Provider registries) {
+        super.onDataPacket(connection, packet, registries);
+        // Do whatever you need to do here.
+    }
+}
+```
+
+To actually send the packet, an update notification must be triggered on the server by calling `Level#sendBlockUpdated(BlockPos pos, BlockState oldState, BlockState newState, int flags)`. The position should be the block entity's position, obtainable via `BlockEntity#getBlockPos`. Both blockstate parameters can be the blockstate at the block entity's position, obtainable via `BlockEntity#getBlockState`. Finally, the `flags` parameter is an update mask, as used in [`Level#setBlock`][setblock].
+
+### Using a Custom Packet
+
+By using a dedicated update packet, you can send packets yourself whenever you need to. This is the most versatile, but also the most complex variant, as it requires setting up a network handler. You can send a packet to all players tracking the block entity by using `PacketDistrubtor#sendToPlayersTrackingChunk`. Please see the [Networking][networking] section for more information.
 
 :::caution
-Synchronizing excessive/useless data for block entities can lead to network congestion. You should optimize your network usage by sending only the information the client needs when the client needs it. For instance, it is more often than not unnecessary to send the inventory of a block entity in the update tag, as this can be synchronized via its [`AbstractContainerMenu`][menu].
+It is important that you do safety checks, as the `BlockEntity` might already be destroyed/replaced when the message arrives at the player. You should also check if the chunk is loaded via `Level#hasChunkAt`.
 :::
 
-### Synchronizing on Block Update
-
-This method is a bit more complicated, but again you just need to override two or three methods. Here is a tiny example implementation of it:
-
-```java
-// In some subclass of BlockEntity
-@Override
-public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-  CompoundTag tag = new CompoundTag();
-  //Write your data into the tag
-  return tag;
-}
-
-@Override
-public Packet<ClientGamePacketListener> getUpdatePacket() {
-  // Will get tag from #getUpdateTag
-  return ClientboundBlockEntityDataPacket.create(this);
-}
-
-// Can override IBlockEntityExtension#onDataPacket. By default, this will defer to  BlockEntity#loadWithComponents.
-```
-The static constructors `ClientboundBlockEntityDataPacket#create` takes:
-
-- The `BlockEntity`.
-- An optional function to get the `CompoundTag` from the `BlockEntity`. By default, this uses `BlockEntity#getUpdateTag`.
-
-Now, to send the packet, an update notification must be given on the server.
-
-```java
-Level#sendBlockUpdated(BlockPos pos, BlockState oldState, BlockState newState, int flags)
-```
-
-- The `pos` should be your `BlockEntity`'s position.
-- For `oldState` and `newState`, you can pass the current `BlockState` at that position.
-- `flags` is a bitmask that should contain `2`, which will sync the changes to the client. See `Block` for more info as well as the rest of the flags. The flag `2` is equivalent to `Block#UPDATE_CLIENTS`.
-
-### Synchronizing Using a Custom Network Message
-
-This way of synchronizing is probably the most complicated but is usually the most optimized, as you can make sure that only the data you need to be synchronized is actually synchronized. You should first check out the [`Networking`][networking] section and especially [`PayloadRegistrar`][payload] before attempting this. Once you've created your custom network message, you can send it to all users that have the `BlockEntity` loaded with `PacketDistrubtor#sendToPlayersTrackingChunk`.
-
-:::caution
-It is important that you do safety checks, the `BlockEntity` might already be destroyed/replaced when the message arrives at the player! You should also check if the chunk is loaded (`Level#hasChunkAt(BlockPos)`).
-:::
-
-[registration]: ../concepts/registries.md#methods-for-registering
-[storing-data]: #storing-data-within-your-blockentity
-[menu]: ../gui/menus.md
+[block]: ../blocks/index.md
+[blockstate]: ../blocks/states.md
+[dataattachments]: ../datastorage/attachments.md
+[nbt]: ../datastorage/nbt.md
 [networking]: ../networking/index.md
-[payload]: ../networking/payload.md
+[registration]: ../concepts/registries.md#methods-for-registering
+[setblock]: ../blocks/states.md#levelsetblock
