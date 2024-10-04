@@ -95,7 +95,7 @@ A new enchantment can be added by creating a JSON file in your namespace's `ench
 ### Enchantment Costs
 The `max_cost` and `min_cost` fields specify boundaries for how much enchanting power is needed to create this enchantment. There is a somewhat convoluted procedure to actually make use of these values, however.
 
-First, the table takes into account the surrounding blocks and determines a 'base cost' for each slot. This cost is shown in-game as the green numbers besides the enchantments in the menu. For each enchantment, the base cost is modified twice by a random value derived from the item's enchantability (its return value from `IItemStackExtension#getEnchantmentValue`), like so:
+First, the table takes into account the return value of `IBlockStateExtension#getEnchantPowerBonus()` for the surrounding blocks. From this, it derives a 'base cost' for each slot. This cost is shown in-game as the green numbers besides the enchantments in the menu. For each enchantment, the base cost is modified twice by a random value derived from the item's enchantability (its return value from `IItemStackExtension#getEnchantmentValue()`), like so:
 
 `(Modified Cost) = (Base Cost) + random.nextInt(e / 4 + 1) + random.nextInt(e / 4 + 1)`, where `e` is the enchantability score.
 
