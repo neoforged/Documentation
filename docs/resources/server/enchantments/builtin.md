@@ -19,19 +19,19 @@ The Sharpness enchantment uses `minecraft:damage`, a value effect component, as 
 
 ```json5
 "effects": {
-    "minecraft:damage": [
-      {
-        "effect": {
-          "type": "minecraft:add",
-          "value": {
-            "type": "minecraft:linear",
-            "base": 1.0,
-            "per_level_above_first": 0.5
-          }
+  "minecraft:damage": [
+    {
+      "effect": {
+        "type": "minecraft:add",
+        "value": {
+          "type": "minecraft:linear",
+          "base": 1.0,
+          "per_level_above_first": 0.5
         }
       }
-    ]
-  }
+    }
+  ]
+}
 ```
 
 The object within the `value` block is a [LevelBasedValue], which can be used to have a value effect component that changes the intensity of its effect by level.
@@ -128,24 +128,24 @@ Here is an example of the JSON definition of one such component from the Fire As
 
 ```json5
 "minecraft:post_attack": [
-    {
-        "affected": "victim",
-        "effect": {
-            "type": "minecraft:ignite",
-            "duration": {
-                "type": "minecraft:linear",
-                "base": 4.0,
-                "per_level_above_first": 4.0
-            }
-        },
-        "enchanted": "attacker",
-        "requirements": {
-            "condition": "minecraft:damage_source_properties",
-            "predicate": {
-                "is_direct": true
-            }
-        }
+  {
+    "affected": "victim",
+    "effect": {
+      "type": "minecraft:ignite",
+      "duration": {
+        "type": "minecraft:linear",
+        "base": 4.0,
+        "per_level_above_first": 4.0
+      }
+    },
+    "enchanted": "attacker",
+    "requirements": {
+      "condition": "minecraft:damage_source_properties",
+      "predicate": {
+        "is_direct": true
+      }
     }
+  }
 ]
 ```
 
@@ -173,16 +173,16 @@ _See also [Attribute Effect Component] on the Minecraft Wiki_
 
 ```json5
 "minecraft:attributes": [
-    {
-        "amount": {
-            "type": "minecraft:linear",
-            "base": 1,
-            "per_level_above_first": 1
-        },
-        "attribute": "namespace:attribute_name",
-        "id": "examplemod:enchantment.example",
-        "operation": "add_multiplied_base"
-    }
+  {
+    "amount": {
+      "type": "minecraft:linear",
+      "base": 1,
+      "per_level_above_first": 1
+    },
+    "attribute": "namespace:attribute_name",
+    "id": "examplemod:enchantment.example",
+    "operation": "add_multiplied_base"
+  }
 ],
 ```
 
