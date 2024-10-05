@@ -16,9 +16,9 @@ A configuration can be created using a subtype of `IConfigSpec`. NeoForge implem
 
 ```java
 //Store the config properties as finals
-final ModConfigSpec.ConfigValue<String> welcomeMessage;
+public final ModConfigSpec.ConfigValue<String> welcomeMessage;
 
-public ExampleConfig(ModConfigSpec.Builder builder) {
+private ExampleConfig(ModConfigSpec.Builder builder) {
     //Define each property
     //One property could be a message to log to the console when the game is initialised
     welcomeMessage = builder.define("welcome_message", "Hello from the config!");
@@ -186,11 +186,6 @@ public ExampleModClient(ModContainer container) {
     // This will use NeoForge's ConfigurationScreen to display this mod's configs
     container.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
     ...
-}
-
-//Then the config can be accessed, here we can print our welcome message from above
-public void onCommonSetupEvent(CommonSetupEvent event) {
-    LOGGER.info("Value in config:" + ExampleConfig.value.get());
 }
 ```
 
