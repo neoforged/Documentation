@@ -15,15 +15,6 @@ A configuration can be created using a subtype of `IConfigSpec`. NeoForge implem
 `ModConfigSpec.Builder#configure` is typically used with a `static` block and a class that takes in `ModConfigSpec.Builder` as part of its constructor to attach and hold the values:
 
 ```java
-//Store the config properties as finals
-public final ModConfigSpec.ConfigValue<String> welcomeMessage;
-
-private ExampleConfig(ModConfigSpec.Builder builder) {
-    //Define each property
-    //One property could be a message to log to the console when the game is initialised
-    welcomeMessage = builder.define("welcome_message", "Hello from the config!");
-}
-    
 //Define a field to keep the config and spec for later
 public static final ExampleConfig CONFIG;
 public static final ModConfigSpec CONFIG_SPEC;
@@ -63,9 +54,14 @@ The `ConfigValue` specific methods take in two additional components:
 - A class representing the data type of the config value
 
 ```java
-// For some ModConfigSpec.Builder builder
-ConfigValue<T> value = builder.comment("This value is called 'config_value_name', and is set to defaultValue if no existing config is present")
-    .define("config_value_name", defaultValue);
+//Store the config properties as public finals
+public final ModConfigSpec.ConfigValue<String> welcomeMessage;
+
+private ExampleConfig(ModConfigSpec.Builder builder) {
+    //Define each property
+    //One property could be a message to log to the console when the game is initialised
+    welcomeMessage = builder.define("welcome_message", "Hello from the config!");
+}
 ```
 
 The values themselves can be obtained using `ConfigValue#get`. The values are additionally cached to prevent multiple readings from files.
