@@ -126,7 +126,7 @@ public static final DeferredHolder<DataComponentType<?>, DataComponentType<Examp
             .build());
 ```
 
-There are no inheritance requirements on the data held by an enchantment effect component, but it may be helpful to refer to vanilla to ensure compatibility with the vanilla helper methods.
+There are no inheritance requirements on the data held by an enchantment effect component.
 
 ### `ConditionalEffect`
 Wrapping the type in `ConditionalEffect<?>` allows the enchantment effect component to take effect based on conditions informed by a [LootContext]. 
@@ -251,12 +251,12 @@ BUILDER.add(
     bootstrap -> bootstrap.register(
         EXAMPLE_ENCHANTMENT_KEY,
         new Enchantment(
-                Component.literal("Example Enchantment"), // The Text Component that specifies the enchantment's name.
-                EXAMPLE_ENCHANTMENT_DEFINITION,
-                HolderSet.empty(), // A HolderSet of incompatible other enchantments.
-                DataComponentMap.builder() // A DataComponentMap of the enchantment effect components associated with this enchantment and their values.
-                    .set(MY_ENCHANTMENT_EFFECT_COMPONENT_TYPE, new ExampleData())
-                    .build()
+            Component.literal("Example Enchantment"), // The Text Component that specifies the enchantment's name.
+            EXAMPLE_ENCHANTMENT_DEFINITION,
+            HolderSet.empty(), // A HolderSet of incompatible other enchantments.
+            DataComponentMap.builder() // A DataComponentMap of the enchantment effect components associated with this enchantment and their values.
+                .set(MY_ENCHANTMENT_EFFECT_COMPONENT_TYPE, new ExampleData())
+                .build()
         )
     )
 );
