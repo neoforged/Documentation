@@ -231,7 +231,7 @@ builder.rewards(
     // Alternatively, use addExperience() to add to an existing builder.
     AdvancementRewards.Builder.experience(100)
     // Alternatively, use loot() to create a new builder.
-    .addLootTable(ResourceLocation.fromNamespaceAndPath("minecraft", "chests/igloo"))
+    .addLootTable(ResourceKey.create(Registries.LOOT_TABLE, ResourceLocation.fromNamespaceAndPath("minecraft", "blocks/dirt")))
     // Alternatively, use recipe() to create a new builder.
     .addRecipe(ResourceLocation.fromNamespaceAndPath("minecraft", "iron_ingot"))
     // Alternatively, use function() to create a new builder.
