@@ -146,7 +146,7 @@ Whenever the action being checked is performed, the `#trigger` method defined by
 // Again, EXAMPLE_TRIGGER is a supplier for the registered instance of the custom criterion trigger
 public void performExampleAction(ServerPlayer player, additionalContextParametersHere) {
     // Run code to perform action here
-    EXAMPLE_TRIGGER.value().trigger(player, additionalContextParametersHere);
+    EXAMPLE_TRIGGER.get().trigger(player, additionalContextParametersHere);
 }
 ```
 
