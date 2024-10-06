@@ -247,7 +247,7 @@ builder.requirements(AdvancementRequirements.allOf(List.of("pickup_dirt")));
 
 // Save the advancement to disk, using the given resource location. This returns an AdvancementHolder,
 // which may be stored in a variable and used as a parent by other advancement builders.
-builder.save(saver, ResourceLocation.fromNamespaceAndPath("examplemod", "example_advancement"), existingFileHelper);
+builder.save(consumer, ResourceLocation.fromNamespaceAndPath("examplemod", "example_advancement"), existingFileHelper);
 ```
 
 Of course, don't forget to add your provider to the `GatherDataEvent`:
