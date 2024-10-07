@@ -1,0 +1,26 @@
+{
+  "title": {
+    "message": "Homepage",
+    "description": "The title in the navbar"
+  },
+  "logo.alt": {
+    "message": "NeoForged Logo",
+    "description": "The alt text of navbar logo"
+  },
+  "item.label.NeoForge Documentation": {
+    "message": "NeoForge Documentation",
+    "description": "Navbar item with label NeoForge Documentation"
+  },
+  "item.label.NeoGradle Documentation": {
+    "message": "NeoGradle Documentation",
+    "description": "Navbar item with label NeoGradle Documentation"
+  },
+  "item.label.Contributing": {
+    "message": "Contributing",
+    "description": "Navbar item with label Contributing"
+  },
+  "item.label.GitHub": {
+    "message": "GitHub",
+    "description": "Navbar item with label GitHub"
+  }
+}
