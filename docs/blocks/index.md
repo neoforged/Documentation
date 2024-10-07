@@ -198,7 +198,7 @@ In several situations, multiple methods of `Block` are used at different times. 
 
 ### Placing a Block
 
-Block placement logic is called from `BlockItem#useOn` (or some subclass's implementation thereof, such as in `PlaceOnWaterBlockItem`, which is used for lily pads). For more information on how the game gets there, see the [Interaction Pipeline][interactionpipeline]. In practice, this means that as soon as a `BlockItem` is right-clicked (for example a cobblestone item), this behavior is called.
+Block placement logic is called from `BlockItem#useOn` (or some subclass's implementation thereof, such as in `PlaceOnWaterBlockItem`, which is used for lily pads). For more information on how the game gets there, see [Right-Clicking Items][rightclick]. In practice, this means that as soon as a `BlockItem` is right-clicked (for example a cobblestone item), this behavior is called.
 
 - Several prerequisites are checked, for example that you are not in spectator mode, that all required feature flags for the block are enabled or that the target position is not outside the world border. If at least one of these checks fails, the pipeline ends.
 - `BlockBehaviour#canBeReplaced` is called for the block currently at the position where the block is attempted to be placed. If it returns `false`, the pipeline ends. Prominent cases that return `true` here are tall grass or snow layers.
@@ -230,11 +230,10 @@ while (leftClickIsBeingHeld()) {
 }
 ```
 
-The following subsections further break down these stages into actual method calls.
+The following subsections further break down these stages into actual method calls. For information about how the game gets from left-clicking to this pipeline, see [Left-Clicking an Item][leftclick].
 
 #### The "Initiating" Stage
 
-- Client-only: `InputEvent.InteractionKeyMappingTriggered` is fired with the left mouse button and the main hand. If the event is canceled, the pipeline ends.
 - Several prerequisites are checked, for example that you are not in spectator mode, that all required feature flags for the `ItemStack` in your main hand are enabled or that the block in question is not outside the world border. If at least one of these checks fails, the pipeline ends.
 - `PlayerInteractEvent.LeftClickBlock` is fired. If the event is canceled, the pipeline ends.
     - Note that when the event is canceled on the client, no packets are sent to the server and thus no logic runs on the server.
@@ -300,13 +299,13 @@ Random ticking is used by a wide range of mechanics in Minecraft, such as plant 
 [blockstates]: states.md
 [bsfile]: ../resources/client/models/index.md#blockstate-files
 [codec]: ../datastorage/codecs.md#records
-[events]: ../concepts/events.md
-[interactionpipeline]: ../items/interactionpipeline.md
 [item]: ../items/index.md
+[leftclick]: ../items/interactions.md#left-clicking-an-item
 [model]: ../resources/client/models/index.md
 [randomtick]: #random-ticking
 [registration]: ../concepts/registries.md#methods-for-registering
 [resources]: ../resources/index.md#assets
+[rightclick]: ../items/interactions.md#right-clicking-an-item
 [sounds]: ../resources/client/sounds.md
 [textures]: ../resources/client/textures.md
 [usingblocks]: #using-blocks

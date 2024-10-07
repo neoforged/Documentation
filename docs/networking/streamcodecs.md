@@ -71,7 +71,7 @@ Additionally, there are some static instances that encode and decode primivites 
 
 #### Trusted Tags
 
-`TRUSTED_TAG` and `TRUSTED_COMPOUND_TAG` are variants of `TAG` and `COMPOUND_TAG`, respectively, that have an unlimited heap to decode the tag to, compared to the 2MiB limit of `TAG` and `COMPOUND_TAG`. Trusted tag stream codecs should ideally only be used in clientbound packets, such as what Vanilla does for [block entity data packet][blockentity] and [entity data serializers][entityserializer].
+`TRUSTED_TAG` and `TRUSTED_COMPOUND_TAG` are variants of `TAG` and `COMPOUND_TAG`, respectively, that have an unlimited heap to decode the tag to, compared to the 2MiB limit of `TAG` and `COMPOUND_TAG`. Trusted tag stream codecs should ideally only be used in clientbound packets, such as what Vanilla does for [block entity data packet][blockentity] and [entity data serializers][entity].
 
 If a different limit should be used, then a `NbtAccounter` can be supplied with the given size using `ByteBufCodecs#tagCodec` or `#compoundTagCodec`.
 
@@ -381,6 +381,6 @@ public static final StreamCodec<RegistryFriendlyByteBuf, ExampleObject> DISPATCH
 
 [networking]: ./payload.md
 [codecs]: ../datastorage/codecs.md
-[blockentity]: ../blockentities/index.md#synchronizing-on-block-update
-[entityserializer]: ../networking/entities.md#dynamic-data-parameters
+[blockentity]: ../blockentities/index.md#syncing-on-block-update
+[entity]: ../entities/data.md
 [transformers]: ../datastorage/codecs.md#transformers
