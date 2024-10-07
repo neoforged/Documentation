@@ -146,7 +146,7 @@ Whenever the action being checked is performed, the `#trigger` method defined by
 // Again, EXAMPLE_TRIGGER is a supplier for the registered instance of the custom criterion trigger
 public void performExampleAction(ServerPlayer player, additionalContextParametersHere) {
     // Run code to perform action here
-    EXAMPLE_TRIGGER.value().trigger(player, additionalContextParametersHere);
+    EXAMPLE_TRIGGER.get().trigger(player, additionalContextParametersHere);
 }
 ```
 
@@ -231,7 +231,7 @@ builder.rewards(
     // Alternatively, use addExperience() to add to an existing builder.
     AdvancementRewards.Builder.experience(100)
     // Alternatively, use loot() to create a new builder.
-    .addLootTable(ResourceLocation.fromNamespaceAndPath("minecraft", "chests/igloo"))
+    .addLootTable(ResourceKey.create(Registries.LOOT_TABLE, ResourceLocation.fromNamespaceAndPath("minecraft", "chests/igloo")))
     // Alternatively, use recipe() to create a new builder.
     .addRecipe(ResourceLocation.fromNamespaceAndPath("minecraft", "iron_ingot"))
     // Alternatively, use function() to create a new builder.
