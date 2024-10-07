@@ -83,6 +83,22 @@ const config = {
         },
       },
     ],
+    [
+      "@docusaurus/plugin-content-docs",
+      {
+        id: "userguide",
+        path: "userguide",
+        routeBasePath: "userguide",
+        sidebarPath: require.resolve("./sidebarsUserGuide.js"),
+        lastVersion: "current",
+        includeCurrentVersion: true,
+        versions: {
+          current: {
+            label: "0.1",
+          },
+        },
+      },
+    ],
   ],
 
   themeConfig:
@@ -113,6 +129,13 @@ const config = {
             position: "left",
             docsPluginId: "neogradle",
             label: "NeoGradle Documentation",
+          },
+          {
+            type: "docSidebar",
+            sidebarId: "ugSidebar",
+            position: "left",
+            docsPluginId: "userguide",
+            label: "NeoForge User Guide",
           },
           {
             type: "docsVersionDropdown",
