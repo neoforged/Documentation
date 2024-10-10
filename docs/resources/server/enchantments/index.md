@@ -13,7 +13,7 @@ A new enchantment can be added by creating a JSON file in your namespace's `ench
 {
   // The text component that will be used as the in-game name of the enchantment.
   // Can be a translation key or a literal string. 
-  // Remember to translate this if you use a translation key!
+  // Remember to translate this in your lang file if you use a translation key!
   "description": {
     "translate": "enchantment.examplemod.enchant_name"
   },
