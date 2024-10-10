@@ -97,7 +97,7 @@ A new enchantment can be added by creating a JSON file in your namespace's `ench
 
 The `max_cost` and `min_cost` fields specify boundaries for how much enchanting power is needed to create this enchantment. There is a somewhat convoluted procedure to actually make use of these values, however.
 
-First, the table takes into account the return value of `IBlockStateExtension#getEnchantPowerBonus()` for the surrounding blocks. From this, it derives a 'base cost' for each slot. This cost is shown in-game as the green numbers besides the enchantments in the menu. For each enchantment, the base cost is modified twice by a random value derived from the item's enchantability (its return value from `IItemStackExtension#getEnchantmentValue()`), like so:
+First, the table takes into account the return value of `IBlockExtension#getEnchantPowerBonus()` for the surrounding blocks. From this, it derives a 'base cost' for each slot. This cost is shown in-game as the green numbers besides the enchantments in the menu. For each enchantment, the base cost is modified twice by a random value derived from the item's enchantability (its return value from `IItemExtension#getEnchantmentValue()`), like so:
 
 `(Modified Cost) = (Base Cost) + random.nextInt(e / 4 + 1) + random.nextInt(e / 4 + 1)`, where `e` is the enchantability score.
 
@@ -165,7 +165,7 @@ Here is a full example using vanilla helper methods to work with a custom enchan
 ```java
 // Define an example data-bearing record.
 public record Increment(int value) {
-    public static final Codec<BoundEntity> CODEC = RecordCodecBuilder.create(instance ->
+    public static final Codec<Increment> CODEC = RecordCodecBuilder.create(instance ->
             instance.group(
                     Codec.INT.fieldOf("value").forGetter(Increment::value),
             ).apply(instance, Increment::new)
@@ -192,7 +192,7 @@ public static final DeferredHolder<DataComponentType<?>, DataComponentType<Condi
 MutableInt mutableValue = new MutableInt(unmodifiedValue);
 EnchantmentHelper.runIterationOnItem(itemStack, (enchantmentHolder, enchantLevel) -> Enchantment.applyEffects(
     // Isolates the ConditionalEffect<Increment> from the provided holder and wraps it in a list for applyEffects.
-    enchantmentHolder.value().getEffects(INCREMENT.value()),
+    enchantmentHolder.value().getEffects(INCREMENT.get()),
 
     // Produces a LootContext. Other context helpers from the Enchantment class
     // include itemContext, locationContext, entityContext, and blockHitContext.
