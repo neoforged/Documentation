@@ -1,3 +1,6 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 # Built-In Enchantment Effect Components
 
 Vanilla Minecraft provides numerous different types of enchantment effect components for use in [enchantment] definitions. This article will explain each, including their usage and in-code definition.
@@ -16,6 +19,9 @@ Value effect components can be set to use any of these operations on their given
 - `minecraft:all_of`: Accepts a list of other value effects and applies them in the stated sequence.
 
 The Sharpness enchantment uses `minecraft:damage`, a value effect component, as follows to achieve its effect:
+
+<Tabs>
+  <TabItem value="sharpness.json" label="JSON">
 
 ```json5
 "effects": {
@@ -42,6 +48,26 @@ The Sharpness enchantment uses `minecraft:damage`, a value effect component, as 
   ]
 }
 ```
+
+</TabItem>
+<TabItem value="sharpness.datagen" label="Datagen">
+
+```java
+// Passed into 'effects' in an Enchantment during data generation
+// See the Data Generation section of the Enchantments entry to learn more
+DataComponentMap.builder().set(
+    // Selects the "minecraft:damage" component.
+    EnchantmentEffectComponents.DAMAGE,
+
+    // Constructs a list of one conditional AddValue without any requirements.
+    List.of(new ConditionalEffect<>(
+        new AddValue(LevelBasedValue.perLevel(1.0F, 0.5F)),
+        Optional.empty()))
+).build()
+```
+
+</TabItem>
+</Tabs>
 
 The object within the `value` block is a [LevelBasedValue], which can be used to have a value effect component that changes the intensity of its effect by level.
 
@@ -100,6 +126,10 @@ _See also: [Location Based Effect Components] on the Minecraft Wiki_
 Location based effect components are components that implement `EnchantmentLocationBasedEffect`. These components define actions to take that need to know where in the level the wielder of the enchantment is. They operate using two major methods: `EnchantmentEntityEffect#onChangedBlock`, which is called when the enchanted item is equipped and when the wielder changes their `BlockPos`, and `onDeactivate`, which is called when the enchanted item is removed.
 
 Here is an example which uses the `minecraft:attributes` location based effect component type to change the wielder's entity scale:
+
+<Tabs>
+  <TabItem value="attribute.json" label="JSON">
+
 ```json5
 // The type is "minecraft:attributes" (described below).
 // In a nutshell, this applies an attribute modifier.
@@ -121,6 +151,29 @@ Here is an example which uses the `minecraft:attributes` location based effect c
   }
 ],
 ```
+
+</TabItem>
+<TabItem value="attribute.datagen" label="Datagen">
+
+```java
+// Passed into the effects of an Enchantment during data generation
+DataComponentMap.builder().set(
+    // Specifies the "minecraft:attributes" component type.
+    EnchantmentEffectComponents.ATTRIBUTES,
+
+    // This component takes a list of these EnchantmentAttributeEffect objects.
+    List.of(new EnchantmentAttributeEffect(
+        ResourceLocation.fromNamespaceAndPath("examplemod", "enchantment.size_change"),
+        Attributes.SCALE,
+        LevelBasedValue.perLevel(1F, 1F),
+        AttributeModifier.Operation.ADD_VALUE
+    ))
+).build()
+```
+
+
+</TabItem>
+</Tabs>
 
 Vanilla adds the following location based events:
 
@@ -159,6 +212,9 @@ All types of location based effect component are also valid types of entity effe
 
 Here is an example of the JSON definition of one such component from the Fire Aspect enchantment:
 
+<Tabs>
+<TabItem value="fire.json" label="JSON">
+
 ```json5
 // This component's type is "minecraft:post_attack" (see below).
 "minecraft:post_attack": [
@@ -191,6 +247,50 @@ Here is an example of the JSON definition of one such component from the Fire As
   }
 ]
 ```
+
+</TabItem>
+<TabItem value="fire.datagen" label="Datagen">
+
+```java
+// Passed into the effects of an Enchantment during data generation
+DataComponentMap.builder().set(
+    // Specifies the "minecraft:post_attack" component type.
+    EnchantmentEffectComponents.POST_ATTACK,
+
+    // Defines the data for this component. In this case, a list of one TargetedConditionalEffect.
+    List.of(
+        new TargetedConditionalEffect<>(
+
+            // Determines the "enchanted" field.
+            EnchantmentTarget.ATTACKER,
+
+            // Determines the "affected" field.
+            EnchantmentTarget.VICTIM,
+
+            // The enchantment entity effect.
+            new Ignite(LevelBasedValue.perLevel(4.0F, 4.0F)),
+
+            // The "requirements" clause. 
+            // In this case, the only optional part activated is the isDirect boolean flag.
+            Optional.of(
+                new DamageSourceCondition(
+                    Optional.of(
+                        new DamageSourcePredicate(
+                            List.of(),
+                            Optional.empty(),
+                            Optional.empty(),
+                            Optional.of(true)
+                        )
+                    )
+                )
+            )
+        )
+    )
+).build()
+```
+
+</TabItem>
+</Tabs>
 
 Here, the entity effect component is `minecraft:post_attack`. Its effect is `minecraft:ignite`, which is implemented by the `Ignite` record. This record's implementation of `EnchantmentEntityEffect#apply` sets the target entity on fire.
 
