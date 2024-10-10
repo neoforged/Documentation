@@ -113,29 +113,66 @@ Vanilla defines various [built-in enchantment effect components], which are used
 
 ### Custom Enchantment Effect Components
 
-The logic of applying a custom enchantment effect component must be entirely implemented by its creator. First, you should define a class or record to hold the information you need to implement a given effect. For example, let's 
+The logic of applying a custom enchantment effect component must be entirely implemented by its creator. First, you should define a class or record to hold the information you need to implement a given effect. For example, let's make an example record class `Increment`:
 
-Enchantment effect component types must be [registered] to `BuiltInRegistries.ENCHANTMENT_EFFECT_COMPONENT_TYPE`, which takes a `DataComponentType<?>`. For example, you could register an enchantment effect component that can store an `ExampleEffectData` object as follows:
+```java
+// Define an example data-bearing record.
+public record Increment(int value) {
+    public static final Codec<Increment> CODEC = RecordCodecBuilder.create(instance ->
+            instance.group(
+                    Codec.INT.fieldOf("value").forGetter(Increment::value)
+            ).apply(instance, Increment::new)
+    );
+
+    public int add(int x) {
+        return value() + x;
+    }
+}
+```
+
+Enchantment effect component types must be [registered] to `BuiltInRegistries.ENCHANTMENT_EFFECT_COMPONENT_TYPE`, which takes a `DataComponentType<?>`. For example, you could register an enchantment effect component that can store an `Increment` object as follows:
 
 ```java
 // In some registration class
 public static final DeferredRegister<DataComponentType<?>> ENCHANTMENT_COMPONENT_TYPES = DeferredRegister.create(BuiltInRegistries.ENCHANTMENT_EFFECT_COMPONENT_TYPE, "examplemod");
 
-public static final DeferredHolder<DataComponentType<?>, DataComponentType<ExampleEffectData>>> EXAMPLE =
-    ENCHANTMENT_COMPONENT_TYPES.register("example",
-        () -> DataComponentType.<ExampleEffectData>builder()
-            .persistent(ExampleEffectData.CODEC)
+public static final DeferredHolder<DataComponentType<?>, DataComponentType<Increment>>> INCREMENT =
+    ENCHANTMENT_COMPONENT_TYPES.register("increment",
+        () -> DataComponentType.<Increment>builder()
+            .persistent(Increment.CODEC)
             .build());
 ```
 
-There are no inheritance requirements on the data held by an enchantment effect component.
+Now, we can implement some game logic that makes use of this component to alter an integer value:
+
+```java
+// Somewhere in game logic where an `itemStack` is available.
+// `INCREMENT` is the enchantment component type holder defined above.
+// `value` is an integer.
+AtomicInteger atomicValue = new AtomicInteger(value);
+
+EnchantmentHelper.runIterationOnItem(stack, (enchantmentHolder, enchant_level) -> {
+    // Acquire the Increment instance from the enchantment holder (or null if this is a different enchantment)
+    Increment increment = enchantmentHolder.value().effects().get(INCREMENT.get());
+
+    // If this enchant has an Increment component, use it.
+    if(increment != null){
+        atomicValue.set(increment.add(atomicValue.get()));
+    }
+});
+
+int modifiedValue = atomicValue.get();
+// Use the now-modified value elsewhere in your game logic.
+```
+
+First, we invoke one of the overloads of `EnchantmentHelper#runIterationOnItem`. This function accepts an `EnchantmentHelper.EnchantmentVisitor`, which is a functional interface that accepts an enchantment and its level, and is invoked on all of the enchantments that the given itemstack has (essentially a `BiConsumer<Enchantment, Integer>`).
+
+To actually perform the adjustment, use the provided `Increment#add` method. Since this is inside of a lambda expression, we need to use a type that can be updated atomically, such as `AtomicInteger`, to modify this value. This also permits multiple `INCREMENT` components to run on the same item and stack their effects, like what happens in vanilla.
 
 ### `ConditionalEffect`
-Wrapping the type in `ConditionalEffect<?>` allows the enchantment effect component to take effect based on conditions informed by a [LootContext]. 
+Wrapping the type in `ConditionalEffect<?>` allows the enchantment effect component to optionally take effect based on a given [LootContext].
 
-Specifically, each `ConditionalEffect` contains another effect component, along with an `Optional<LootItemCondition>`. Since `LootItemContext` is a `Predicate<LootContext>`, it can be tested against a specified `LootContext` using `LootItemContext#test`.
-
-`ConditionalEffect` wraps this behavior, allowing one to simply call `ConditionalEffect#matches(LootContext context)` to determine if the effect should be allowed to run.
+`ConditionalEffect` provides `ConditionalEffect#matches(LootContext context)`, which returns whether the effect should be allowed to run based on its internal `Optional<LootItemConditon>`, and handled serialization and deserialization of its `LootItemCondition`.
 
 Vanilla adds an additional helper method to further streamline the process of checking these conditions: `Enchantment#applyEffects()`. This method takes a `List<ConditionalEffect<T>>`, evaluates the conditions, and runs a `Consumer<T>` on each `T` contained by a `ConditionalEffect` whose condition was met. Since many vanilla enchantment effect components are defined as a `List<ConditionalEffect<?>>`, these can be directly plugged into the helper method like so:
 
@@ -152,71 +189,13 @@ Enchantment.applyEffects(
 Registering a custom `ConditionalEffect`-wrapped enchantment effect component type can be done as follows:
 
 ```java
-public static final DeferredHolder<DataComponentType<?>, DataComponentType<ConditionalEffect<ExampleData>>> EXAMPLE_CONDITIONAL_EFFECT =
-    ENCHANTMENT_COMPONENT_TYPES.register("example_conditional",
-        () -> DataComponentType.ConditionalEffect<ExampleData>builder()
-            .persistent(ConditionalEffect.codec(Unit.CODEC, LootContextParamSets.EMPTY))
-            .build());
-```
-The parameters to `ConditionalEffect.codec` are the codec for the generic `ConditionalEffect<T>`, followed by some `LootContextParamSets` entry.
-
-### Using Enchantment Effect Components
-
-Here is a full example using vanilla helper methods to work with a custom enchantment effect component.
-
-```java
-// Define an example data-bearing record.
-public record Increment(int value) {
-    public static final Codec<Increment> CODEC = RecordCodecBuilder.create(instance ->
-            instance.group(
-                    Codec.INT.fieldOf("value").forGetter(Increment::value),
-            ).apply(instance, Increment::new)
-    );
-
-    public int add(int x) {
-        return value() + x;
-    }
-}
-```
-
-```java
-// Register an enchantment effect component to carry this record.
-public static final DeferredHolder<DataComponentType<?>, DataComponentType<ConditionalEffect<Increment>>> INCREMENT =
-    ENCHANTMENT_COMPONENT_TYPES.register("increment",
-        () -> DataComponentType.<ConditionalEffect<Increment>>builder()
+public static final DeferredHolder<DataComponentType<?>, DataComponentType<ConditionalEffect<Increment>>> CONDITIONAL_INCREMENT =
+    ENCHANTMENT_COMPONENT_TYPES.register("conditional_increment",
+        () -> DataComponentType.ConditionalEffect<Increment>builder()
             .persistent(ConditionalEffect.codec(Increment.CODEC, LootContextParamSets.EMPTY))
             .build());
 ```
-
-```java
-// Somewhere in game logic where an `itemStack` is available.
-// `unmodifiedValue` is an integer.
-MutableInt mutableValue = new MutableInt(unmodifiedValue);
-EnchantmentHelper.runIterationOnItem(itemStack, (enchantmentHolder, enchantLevel) -> Enchantment.applyEffects(
-    // Isolates the ConditionalEffect<Increment> from the provided holder and wraps it in a list for applyEffects.
-    enchantmentHolder.value().getEffects(INCREMENT.get()),
-
-    // Produces a LootContext. Other context helpers from the Enchantment class
-    // include itemContext, locationContext, entityContext, and blockHitContext.
-    Enchantment.damageContext(server, enchantLevel, target, damageSource), 
-    
-    // Runs for each successful <ConditionalEffect<T>>.
-    // `exampleData` is an Increment instance.
-    // This line actually performs the value adjustment.
-    // Each time it runs, mutableValue is set to (exampleData's value) + mutableValue + enchantLevel.
-    exampleData -> mutableValue.setValue(exampleData.add(mutableValue.getValue()))
-));
-
-// Use mutableValue elsewhere in your game logic.
-```
-
-We define an enchantment effect component called `INCREMENT` as `List<ConditionalEffect<Increment>>`. The `Increment` object it contains is a wrapper around an integer that defines a method `add(int x)`, which adds its internal value to the provided integer and returns the result. Imagine that you want to use this object to increase the count of another integer value within your item's `use` method -- say, to increase the number of times it performs some repeated effect.
-
-First, invoke one of the overloads of `EnchantmentHelper#runIterationOnItem`. This function accepts an `EnchantmentHelper.EnchantmentVisitor`, which is a functional interface that accepts an enchantment and its level, and is invoked on all of the enchantments that the given itemstack has (essentially a `BiConsumer<Enchantment, Integer>`). While any consumer of those two values will work, the `Enchantment` class provides a handy function that fits this interface (and is used often by vanilla) -- `Enchantment#applyEffects`. This method is used as above to test the conditions of the `ConditionalEffect`s.
-
-To actually perform the adjustment, use the provided `Increment#add` method.
-
-Note that in this example, the level of the enchantment does not affect the outcome. This can be changed by using `enchantLevel` somewhere in the `Consumer<T>` lambda expression (the last line with code in the example). Any other information stored in the `ItemStack` can also be accessed from here, so other Data Components could be used to inform how the adjustment goes.
+The parameters to `ConditionalEffect.codec` are the codec for the generic `ConditionalEffect<T>`, followed by some `LootContextParamSets` entry.
 
 ## Enchantment Data Generation
 
