@@ -30,7 +30,7 @@ The Sharpness enchantment uses `minecraft:damage`, a value effect component, as 
         // The type of value effect to use. In this case, it is "minecraft:add", so the value (given below) will be added 
         // to the weapon damage value.
         "type": "minecraft:add",
-        
+
         // The value block. In this case, the value is a LevelBasedValue that starts at 1 and increases by 0.5 every enchantment level.
         "value": {
           "type": "minecraft:linear",
@@ -97,12 +97,36 @@ Other:
 
 _See also: [Location Based Effect Components] on the Minecraft Wiki_
 
- Location based effect components are components that implement `EnchantmentLocationBasedEffect`. These components define actions to take that need to know where in the level the wielder of the enchantment is. They operate using two major methods: `EnchantmentEntityEffect#onChangedBlock`, which is called when the enchanted item is equipped and when the wielder changes their `BlockPos`, and `onDeactivate`, which is called when the enchanted item is removed.
+Location based effect components are components that implement `EnchantmentLocationBasedEffect`. These components define actions to take that need to know where in the level the wielder of the enchantment is. They operate using two major methods: `EnchantmentEntityEffect#onChangedBlock`, which is called when the enchanted item is equipped and when the wielder changes their `BlockPos`, and `onDeactivate`, which is called when the enchanted item is removed.
+
+Here is an example which uses the `minecraft:attributes` location based effect component type to change the wielder's entity scale:
+```json5
+// The type is "minecraft:attributes" (described below).
+// In a nutshell, this applies an attribute modifier.
+"minecraft:attributes": [
+  {
+    // This "amount" block is a LevelBasedValue.
+    "amount": {
+      "type": "minecraft:linear",
+      "base": 1,
+      "per_level_above_first": 1
+    },
+
+    // Which attribute to modify. In this case, modifies "minecraft:scale"
+    "attribute": "minecraft:generic.scale",
+    // The unique identifier for this attribute modifier. Should not overlap with others, but doesn't need to be registered.
+    "id": "examplemod:enchantment.size_change",
+    // What operation to use on the attribute. Can be "add_value", "add_multiplied_base", or "add_multiplied_total".
+    "operation": "add_value"
+  }
+],
+```
 
 Vanilla adds the following location based events:
 
 - `minecraft:all_of`: Runs a list of entity effects in sequence.
 - `minecraft:apply_mob_effect`: Applies a [mob effect] to the affected mob.
+- `minecraft:attribute`: Applies an [attribute modifier] to the wielder of the enchantment.
 - `minecraft:damage_entity`: Does damage to the affected entity. This stacks with attack damage if in an attacking context.
 - `minecraft:damage_item`: Damages this item's durability.
 - `minecraft:explode`: Summons an explosion. 
@@ -121,27 +145,43 @@ Vanilla adds the following location based events:
 
 - `minecraft:location_changed`: Runs a location based effect when the wielder's Block Position changes and when this item is equipped. Used by Frost Walker and Soul Speed.
 
+#### Defined as `DataComponentType<List<EnchantmentAttributeEffect>>`
+
+- `minecraft:attributes`: Applies an attribute modifier to the wielder, and removes it when the enchanted item is no longer equipped.
+
 ## Entity Effect Components
 
 _See also [Entity Effect Components] on the Minecraft Wiki._
 
 Entity effect components are components that implement `EnchantmentEntityEffect`, an subtype of `EnchantmentLocationBasedEffect`. These override `EnchantmentLocationBasedEffect#onChangedBlock` to run `EnchantmentEntityEffect#apply` instead; this `apply` method is also directly invoked somewhere else in the codebase depending on the specific type of the component.
 
+All types of location based effect component are also valid types of entity effect component, except for `minecraft:attribute`, which is registered only as a location based effect component.
+
 Here is an example of the JSON definition of one such component from the Fire Aspect enchantment:
 
 ```json5
+// This component's type is "minecraft:post_attack" (see below).
 "minecraft:post_attack": [
   {
+    // Decides whether the "victim" of the attack, the "attacker", or the "damaging entity" (the projectile if there is one, attacker if not) recieves the effect.
     "affected": "victim",
+    
+    // Decides which enchantment entity effect to apply.
     "effect": {
+      // The type of this effect is "minecraft:ignite".
       "type": "minecraft:ignite",
+      // "minecraft:ignite" requires a LevelBasedValue as a duration for how long the entity will be ignited.
       "duration": {
         "type": "minecraft:linear",
         "base": 4.0,
         "per_level_above_first": 4.0
       }
     },
+
+    // Decides who (the "victim", "attacker", or "damaging entity") must have the enchantment for it to take effect.
     "enchanted": "attacker",
+
+    // An optional predicate which controls whether the effect applies.
     "requirements": {
       "condition": "minecraft:damage_source_properties",
       "predicate": {
@@ -167,27 +207,6 @@ Here, the entity effect component is `minecraft:post_attack`. Its effect is `min
 - `minecraft:post_attack`: Runs an entity effect after an attack damages an entity. Used by Bane of Arthropods, Channeling, Fire Aspect, Thorns, and Wind Burst.
 
 For more detail on each of these, please look at the [relevant minecraft wiki page].
-
-### Attribute Effect Component
-
-_See also [Attribute Effect Component] on the Minecraft Wiki_
-
-`minecraft:attributes` is a unique enchantment entity effect component of type `EnchantmentAttributeEffect` that is not registered as a location based effect component. It is used to apply attribute modifiers to the wielder of the enchantment, which are then removed when the enchanted item is no longer equipped. The JSON format is as follows:
-
-```json5
-"minecraft:attributes": [
-  {
-    "amount": {
-      "type": "minecraft:linear",
-      "base": 1,
-      "per_level_above_first": 1
-    },
-    "attribute": "namespace:attribute_name",
-    "id": "examplemod:enchantment.example",
-    "operation": "add_multiplied_base"
-  }
-],
-```
 
 ## Other Vanilla Enchantment Component Types
 
@@ -218,3 +237,5 @@ _See also [Attribute Effect Component] on the Minecraft Wiki_
 [datapack function]: https://minecraft.wiki/w/Function_(Java_Edition)
 [luck]: https://minecraft.wiki/w/Luck
 [mob effect]: /docs/items/mobeffects/
+[attribute modifier]: https://minecraft.wiki/w/Attribute#Modifiers
+[relevant minecraft wiki page]: https://minecraft.wiki/w/Enchantment_definition#Components_with_entity_effects

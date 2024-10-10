@@ -299,7 +299,6 @@ BUILDER.add(
 [Enchantment definition Minecraft wiki page]: https://minecraft.wiki/w/Enchantment_definition
 [registered]: /docs/concepts/registries
 [Predicate]: https://minecraft.wiki/w/Predicate
-[Attribute Operations]: https://minecraft.wiki/w/Attribute#Operations
 [data generation]: /docs/resources/#data-generation
 [Data Generation for Datapack Registries]: https://docs.neoforged.net/docs/concepts/registries/#data-generation-for-datapack-registries
 [relevant minecraft wiki page]: https://minecraft.wiki/w/Enchantment_definition#Entity_effects
