@@ -6,7 +6,7 @@ Vanilla Minecraft provides numerous different types of enchantment effect compon
 
 _See also [Value Effect Components] on the Minecraft Wiki_
 
-Value effect components are used for enchantments that alter a numerical value somewhere in the game, and are implemented by the class `EnchantmentValueEffect`. 
+Value effect components are used for enchantments that alter a numerical value somewhere in the game, and are implemented by the class `EnchantmentValueEffect`. If a value is altered by more than one value effect component (for example, by multiple enchantments), all of their effects will apply.
 
 Value effect components can be set to use any of these operations on their given values:
 - `minecraft:set`: Overwrites the given level-based value.
@@ -19,10 +19,19 @@ The Sharpness enchantment uses `minecraft:damage`, a value effect component, as 
 
 ```json5
 "effects": {
+  // The type of this effect component is "minecraft:damage".
+  // This means that the effect will modify weapon damage.
+  // See below for a list of more effect component types.
   "minecraft:damage": [
     {
+      // A value effect that should be applied.
+      // In this case, since there's only one, this value effect is just named "effect".
       "effect": {
+        // The type of value effect to use. In this case, it is "minecraft:add", so the value (given below) will be added 
+        // to the weapon damage value.
         "type": "minecraft:add",
+        
+        // The value block. In this case, the value is a LevelBasedValue that starts at 1 and increases by 0.5 every enchantment level.
         "value": {
           "type": "minecraft:linear",
           "base": 1.0,
@@ -35,8 +44,6 @@ The Sharpness enchantment uses `minecraft:damage`, a value effect component, as 
 ```
 
 The object within the `value` block is a [LevelBasedValue], which can be used to have a value effect component that changes the intensity of its effect by level.
-
-Custom numerical operations for use in value effect component definition blocks can be added by registering a subclass of `EnchantmentValueEffect` through `BuiltInRegistries.ENCHANTMENT_VALUE_EFFECT_TYPE`.
 
 The `EnchantmentValueEffect#process` method can be used to adjust values based on the provided numerical operations, like so:
 
@@ -92,8 +99,6 @@ _See also: [Location Based Effect Components] on the Minecraft Wiki_
 
  Location based effect components are components that implement `EnchantmentLocationBasedEffect`. These components define actions to take that need to know where in the level the wielder of the enchantment is. They operate using two major methods: `EnchantmentEntityEffect#onChangedBlock`, which is called when the enchanted item is equipped and when the wielder changes their `BlockPos`, and `onDeactivate`, which is called when the enchanted item is removed.
 
-Custom `EnchantmentLocationBasedEffect` extensions can be registered through `BuiltInRegistries.ENCHANTMENT_LOCATION_BASED_EFFECT_TYPE`. 
-
 Vanilla adds the following location based events:
 
 - `minecraft:all_of`: Runs a list of entity effects in sequence.
@@ -121,8 +126,6 @@ Vanilla adds the following location based events:
 _See also [Entity Effect Components] on the Minecraft Wiki._
 
 Entity effect components are components that implement `EnchantmentEntityEffect`, an subtype of `EnchantmentLocationBasedEffect`. These override `EnchantmentLocationBasedEffect#onChangedBlock` to run `EnchantmentEntityEffect#apply` instead; this `apply` method is also directly invoked somewhere else in the codebase depending on the specific type of the component.
-
-Custom `EnchantmentEntityEffect` extensions can be registered through `BuiltInRegistries.ENCHANTMENT_ENTITY_EFFECT_TYPE`.
 
 Here is an example of the JSON definition of one such component from the Fire Aspect enchantment:
 
