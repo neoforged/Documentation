@@ -93,15 +93,15 @@ A new enchantment can be added by creating a JSON file in your namespace's `ench
 }
 ```
 
-### Enchantment Costs
+### Enchantment Costs and Levels
 
 The `max_cost` and `min_cost` fields specify boundaries for how much enchanting power is needed to create this enchantment. There is a somewhat convoluted procedure to actually make use of these values, however.
 
-First, the table takes into account the return value of `IBlockExtension#getEnchantPowerBonus()` for the surrounding blocks. From this, it derives a 'base cost' for each slot. This cost is shown in-game as the green numbers besides the enchantments in the menu. For each enchantment, the base cost is modified twice by a random value derived from the item's enchantability (its return value from `IItemExtension#getEnchantmentValue()`), like so:
+First, the table takes into account the return value of `IBlockExtension#getEnchantPowerBonus()` for the surrounding blocks. From this, it calls `EnchantmentHelper#getEnchantmentCost` to derive a 'base level' for each slot. This level is shown in-game as the green numbers besides the enchantments in the menu. For each enchantment, the base level is modified twice by a random value derived from the item's enchantability (its return value from `IItemExtension#getEnchantmentValue()`), like so:
 
-`(Modified Cost) = (Base Cost) + random.nextInt(e / 4 + 1) + random.nextInt(e / 4 + 1)`, where `e` is the enchantability score.
+`(Modified Level) = (Base Level) + random.nextInt(e / 4 + 1) + random.nextInt(e / 4 + 1)`, where `e` is the enchantability score.
 
-This modified cost is adjusted up or down by a random 15%, and then is finally used to choose an enchantment. 
+This modified level is adjusted up or down by a random 15%, and then is finally used to choose an enchantment. This level must fall within your enchantment's cost bounds in order for it to be chosen.
 
 In practical terms, this means that the cost values in your enchantment definition might be above 30, sometimes far above. For example, with an enchantability 10 item, the table could produce enchantments up to 1.15 * (30 + 2 * (10 / 4) + 1) = 40 cost. 
 
