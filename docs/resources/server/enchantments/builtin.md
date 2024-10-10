@@ -153,7 +153,7 @@ Vanilla adds the following location based events:
 
 _See also [Entity Effect Components] on the Minecraft Wiki._
 
-Entity effect components are components that implement `EnchantmentEntityEffect`, an subtype of `EnchantmentLocationBasedEffect`. These override `EnchantmentLocationBasedEffect#onChangedBlock` to run `EnchantmentEntityEffect#apply` instead; this `apply` method is also directly invoked somewhere else in the codebase depending on the specific type of the component.
+Entity effect components are components that implement `EnchantmentEntityEffect`, an subtype of `EnchantmentLocationBasedEffect`. These override `EnchantmentLocationBasedEffect#onChangedBlock` to run `EnchantmentEntityEffect#apply` instead; this `apply` method is also directly invoked somewhere else in the codebase depending on the specific type of the component. This allows effects to occur without waiting for the wielder's block position to change.
 
 All types of location based effect component are also valid types of entity effect component, except for `minecraft:attribute`, which is registered only as a location based effect component.
 
