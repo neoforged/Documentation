@@ -36,7 +36,7 @@ public static final Supplier<BlockEntityType<MyBlockEntity>> MY_BLOCK_ENTITY = B
                 MyBlockEntity::new,
                 // A vararg of blocks that can have this block entity.
                 // This assumes the existence of the referenced blocks as DeferredBlock<Block>s.
-                MyBlocks.MY_BLOCK_1, MyBlocks.MY_BLOCK_2
+                MyBlocks.MY_BLOCK_1.get(), MyBlocks.MY_BLOCK_2.get()
         )
         // Build using null; vanilla does some datafixer shenanigans with the parameter that we don't need.
         .build(null)
