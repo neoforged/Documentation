@@ -151,7 +151,7 @@ Now, we can implement some game logic that makes use of this component to alter 
 // `value` is an integer.
 AtomicInteger atomicValue = new AtomicInteger(value);
 
-EnchantmentHelper.runIterationOnItem(stack, (enchantmentHolder, enchant_level) -> {
+EnchantmentHelper.runIterationOnItem(stack, (enchantmentHolder, enchantLevel) -> {
     // Acquire the Increment instance from the enchantment holder (or null if this is a different enchantment)
     Increment increment = enchantmentHolder.value().effects().get(INCREMENT.get());
 
