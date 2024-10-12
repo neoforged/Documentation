@@ -192,7 +192,10 @@ Registering a custom `ConditionalEffect`-wrapped enchantment effect component ty
 public static final DeferredHolder<DataComponentType<?>, DataComponentType<ConditionalEffect<Increment>>> CONDITIONAL_INCREMENT =
     ENCHANTMENT_COMPONENT_TYPES.register("conditional_increment",
         () -> DataComponentType.ConditionalEffect<Increment>builder()
-            .persistent(ConditionalEffect.codec(Increment.CODEC, LootContextParamSets.EMPTY))
+            // The LootContextParamSet needed depends on what the enchantment is supposed to do.
+            // This might be one of ENCHANTED_DAMAGE, ENCHANTED_ITEM, ENCHANTED_LOCATION, ENCHANTED_ENTITY, or HIT_BLOCK
+            // since all of these bring the enchantment level into context (along with whatever other information is indicated).
+            .persistent(ConditionalEffect.codec(Increment.CODEC, LootContextParamSets.ENCHANTED_DAMAGE))
             .build());
 ```
 The parameters to `ConditionalEffect.codec` are the codec for the generic `ConditionalEffect<T>`, followed by some `LootContextParamSets` entry.
