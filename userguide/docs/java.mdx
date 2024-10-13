@@ -1,0 +1,70 @@
+---
+sidebar_position: 1
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Checking for and Installing Java
+
+This section provides instructions on how to check your computer for an existing Java installation.
+
+If you are sure that you do not already have Java installed, you can skip to the [Installing Java] section below.
+
+## Checking for Existing Java Installation
+
+To find out if you already have Java you can use the terminal application provided by your OS.
+
+### Locating a Terminal Application
+
+<Tabs defaultValue="windows">
+  <TabItem value="windows" label="Windows">
+    Windows has three options depending on version:
+    - Windows Terminal
+    - PowerShell
+    - Command Prompt (aka `cmd`)
+  </TabItem>
+  <TabItem value="macos" label="macOS">
+    macOS has Terminal which is often found on the Finder dock.
+  </TabItem>
+  <TabItem value="linux" label="Linux">
+    The names for terminal applications vary on Linux but one of the following should be available from your distribution's main menu:
+    - GNOME Terminal (or just Terminal)
+    - Konsole
+  </TabItem>
+</Tabs>
+
+### Testing for Installed Java Version
+
+Once you have located the terminal application for your OS, run the command `java -version`, which should present you with information similar to the following:
+
+```
+openjdk version "21.0.4" 2024-07-16 LTS
+OpenJDK Runtime Environment Temurin-21.0.4+7 (build 21.0.4+7-LTS)
+OpenJDK 64-Bit Server VM Temurin-21.0.4+7 (build 21.0.4+7-LTS, mixed mode, sharing)
+```
+
+## Installing Java
+
+Minecraft itself recommends the [Microsoft Build of OpenJDK] (Microsoft JDK) for running Minecraft.
+
+<!-- With Windows being the common case, should there be a `WinGet` example? -->
+
+If you do not want to use the Microsoft JDK, you can instead donwload an installer for, e.g. Temurin from the Eclipse Foundation, from [Adoptium].
+
+### Which Version of Java to Install
+
+You will need to install a specific version of Java depending on the version of NeoForge you are installing.
+
+The following table lists the versions of Java that are recommended for a particular version of minecraft:
+
+| Minecraft version | Java version |
+|-------------------|--------------|
+| 1.20.2 - 1.20.4   | 17           |
+| 1.20.5 and above  | 21           |
+
+<!-- Above are minumium versions from the MC Wiki; check that these are optimal -->
+
+[Installing Java]: ./java.mdx#installing-java
+[Microsoft Build of OpenJDK]: https://www.microsoft.com/openjdk
+[Adoptium]: https://adoptium.net/temurin/releases/
