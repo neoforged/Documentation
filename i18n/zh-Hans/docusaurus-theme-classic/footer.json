@@ -1,0 +1,38 @@
+{
+  "link.title.Docs": {
+    "message": "Docs",
+    "description": "The title of the footer links column with title=Docs in the footer"
+  },
+  "link.title.Links": {
+    "message": "Links",
+    "description": "The title of the footer links column with title=Links in the footer"
+  },
+  "link.item.label.NeoForge Documentation": {
+    "message": "NeoForge Documentation",
+    "description": "The label of footer link with label=NeoForge Documentation linking to /docs/gettingstarted/"
+  },
+  "link.item.label.NeoGradle Documentation": {
+    "message": "NeoGradle Documentation",
+    "description": "The label of footer link with label=NeoGradle Documentation linking to /neogradle/docs/"
+  },
+  "link.item.label.Contributing to the Documentation": {
+    "message": "Contributing to the Documentation",
+    "description": "The label of footer link with label=Contributing to the Documentation linking to /contributing"
+  },
+  "link.item.label.Discord": {
+    "message": "Discord",
+    "description": "The label of footer link with label=Discord linking to https://discord.neoforged.net/"
+  },
+  "link.item.label.Main Website": {
+    "message": "Main Website",
+    "description": "The label of footer link with label=Main Website linking to https://neoforged.net/"
+  },
+  "link.item.label.GitHub": {
+    "message": "GitHub",
+    "description": "The label of footer link with label=GitHub linking to https://github.com/neoforged/documentation"
+  },
+  "copyright": {
+    "message": "Copyright © 2016, under the MIT license. Built with Docusaurus.",
+    "description": "The footer copyright"
+  }
+}
