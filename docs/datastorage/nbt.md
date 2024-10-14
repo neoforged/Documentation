@@ -101,5 +101,5 @@ NBT is used in a lot of places in Minecraft. Some of the most common examples in
 
 [blockentity]: ../blockentities/index.md
 [datapack]: ../resources/index.md#data
-[datacomponents]: ../items/datacomponents.mdx
+[datacomponents]: ../items/datacomponents.md
 [nbtwiki]: https://minecraft.wiki/w/NBT_format

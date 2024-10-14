@@ -8,10 +8,10 @@ Allows configuring composter values, as a replacement for `ComposterBlock.COMPOS
 
 ```json5
 {
-  // A 0 to 1 (inclusive) float representing the chance that the item will update the level of the composter
-  "chance": 1,
-  // Optional, defaults to false - whether farmer villagers can compost this item
-  "can_villager_compost": false
+    // A 0 to 1 (inclusive) float representing the chance that the item will update the level of the composter
+    "chance": 1,
+    // Optional, defaults to false - whether farmer villagers can compost this item
+    "can_villager_compost": false
 }
 ```
 
@@ -19,12 +19,12 @@ Example:
 
 ```json5
 {
-  "values": {
-    // Give acacia logs a 50% chance that they will fill a composter
-    "minecraft:acacia_log": {
-      "chance": 0.5
+    "values": {
+        // Give acacia logs a 50% chance that they will fill a composter
+        "minecraft:acacia_log": {
+            "chance": 0.5
+        }
     }
-  }
 }
 ```
 
@@ -34,8 +34,8 @@ Allows configuring item burn times. This data map is located at `neoforge/data_m
 
 ```json5
 {
-  // A positive integer representing the item's burn time in ticks
-  "burn_time": 1000
+    // A positive integer representing the item's burn time in ticks
+    "burn_time": 1000
 }
 ```
 
@@ -43,12 +43,12 @@ Example:
 
 ```json5
 {
-  "values": {
-    // Give anvils a 2 seconds burn time
-    "minecraft:anvil": {
-      "burn_time": 40
+    "values": {
+        // Give anvils a 2 seconds burn time
+        "minecraft:anvil": {
+            "burn_time": 40
+        }
     }
-  }
 }
 ```
 
@@ -61,17 +61,17 @@ Vanilla adds an implicit burn time of 300 ticks (15 seconds) for `#minecraft:log
 
 ```json5
 {
-  "replace": false,
-  "values": [
-    // values here
-  ],
-  "remove": [
-    "examplemod:example_nether_wood_planks",
-    "#examplemod:example_nether_wood_stems",
-    "examplemod:example_nether_wood_door",
-    // etc.
-    // other removals here
-  ]
+    "replace": false,
+    "values": [
+        // values here
+    ],
+    "remove": [
+        "examplemod:example_nether_wood_planks",
+        "#examplemod:example_nether_wood_stems",
+        "examplemod:example_nether_wood_door",
+        // etc.
+        // other removals here
+    ]
 }
 ```
 :::
@@ -82,8 +82,8 @@ Allows configuring the mobs that may appear in the mob spawner in a monster room
 
 ```json5
 {
-  // The weight of this mob, relative to other mobs in the datamap
-  "weight": 100
+    // The weight of this mob, relative to other mobs in the datamap
+    "weight": 100
 }
 ```
 
@@ -91,12 +91,12 @@ Example:
 
 ```json5
 {
-  "values": {
-    // Make squids appear in monster room spawners with a weight of 100
-    "minecraft:squid": {
-      "weight": 100
+    "values": {
+        // Make squids appear in monster room spawners with a weight of 100
+        "minecraft:squid": {
+            "weight": 100
+        }
     }
-  }
 }
 ```
 
@@ -106,8 +106,8 @@ Allows configuring oxidation stages, as a replacement for `WeatheringCopper#NEXT
 
 ```json5
 {
-  // The block this block will turn into once oxidized
-  "next_oxidized_stage": "examplemod:oxidized_block"
+    // The block this block will turn into once oxidized
+    "next_oxidized_stage": "examplemod:oxidized_block"
 }
 ```
 
@@ -119,12 +119,12 @@ Example:
 
 ```json5
 {
-  "values": {
-    "mymod:custom_copper": {
-      // Make a custom copper block oxidize into custom oxidized copper
-      "next_oxidized_stage": "mymod:custom_oxidized_copper"
+    "values": {
+        "mymod:custom_copper": {
+            // Make a custom copper block oxidize into custom oxidized copper
+            "next_oxidized_stage": "mymod:custom_oxidized_copper"
+        }
     }
-  }
 }
 ```
 
@@ -134,8 +134,8 @@ Allows configuring the sounds produced by parrots when they want to imitate a mo
 
 ```json5
 {
-  // The ID of the sound that parrots will produce when imitating the mob
-  "sound": "minecraft:entity.parrot.imitate.creeper"
+    // The ID of the sound that parrots will produce when imitating the mob
+    "sound": "minecraft:entity.parrot.imitate.creeper"
 }
 ```
 
@@ -143,12 +143,12 @@ Example:
 
 ```json5
 {
-  "values": {
-    // Make parrots produce the ambient cave sound when imitating allays
-    "minecraft:allay": {
-      "sound": "minecraft:ambient.cave"
+    "values": {
+        // Make parrots produce the ambient cave sound when imitating allays
+        "minecraft:allay": {
+            "sound": "minecraft:ambient.cave"
+        }
     }
-  }
 }
 ```
 
@@ -158,8 +158,8 @@ Allows configuring the gift that a villager with a certain `VillagerProfession` 
 
 ```json5
 {
-  // The ID of the loot table that a villager profession will hand out after a raid
-  "loot_table": "minecraft:gameplay/hero_of_the_village/armorer_gift"
+    // The ID of the loot table that a villager profession will hand out after a raid
+    "loot_table": "minecraft:gameplay/hero_of_the_village/armorer_gift"
 }
 ```
 
@@ -167,12 +167,12 @@ Example:
 
 ```json5
 {
-  "values": {
-    "minecraft:armorer": {
-      // Make armorers give the raid hero the armorer gift loot table
-      "loot_table": "minecraft:gameplay/hero_of_the_village/armorer_gift"
+    "values": {
+        "minecraft:armorer": {
+            // Make armorers give the raid hero the armorer gift loot table
+            "loot_table": "minecraft:gameplay/hero_of_the_village/armorer_gift"
+        }
     }
-  }
 }
 ```
 
@@ -182,8 +182,8 @@ Allows configuring the sculk vibration frequencies emitted by game events, as a 
 
 ```json5
 {
-  // An integer between 1 and 15 (inclusive) that indicates the vibration frequency of the event
-  "frequency": 2
+    // An integer between 1 and 15 (inclusive) that indicates the vibration frequency of the event
+    "frequency": 2
 }
 ```
 
@@ -191,12 +191,12 @@ Example:
 
 ```json5
 {
-  "values": {
-    // Make the splash in water game event vibrate on the second frequency
-    "minecraft:splash": {
-      "frequency": 2
+    "values": {
+        // Make the splash in water game event vibrate on the second frequency
+        "minecraft:splash": {
+            "frequency": 2
+        }
     }
-  }
 }
 ```
 
@@ -206,8 +206,8 @@ Allows configuring the block a block will turn into when waxed (right clicked wi
 
 ```json5
 {
-  // The waxed variant of this block
-  "waxed": "minecraft:iron_block"
+    // The waxed variant of this block
+    "waxed": "minecraft:iron_block"
 }
 ```
 
@@ -215,14 +215,14 @@ Example:
 
 ```json5
 {
-  "values": {
-    // Make gold blocks turn into iron blocks once waxed
-    "minecraft:gold_block": {
-      "waxed": "minecraft:iron_block"
+    "values": {
+        // Make gold blocks turn into iron blocks once waxed
+        "minecraft:gold_block": {
+            "waxed": "minecraft:iron_block"
+        }
     }
-  }
 }
 ```
 
-[datacomponent]: ../../../items/datacomponents.mdx
+[datacomponent]: ../../../items/datacomponents.md
 [datamap]: index.md

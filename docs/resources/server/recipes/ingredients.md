@@ -140,8 +140,8 @@ Ingredients that specify a `type` are generally assumed to be non-vanilla. For e
 
 ```json5
 {
-  "type": "neoforge:block_tag",
-  "tag": "minecraft:convertable_to_mud"
+    "type": "neoforge:block_tag",
+    "tag": "minecraft:convertable_to_mud"
 }
 ```
 
@@ -149,11 +149,11 @@ Or another example using our own ingredient:
 
 ```json5
 {
-  "type": "examplemod:min_enchanted",
-  "tag": "c:swords",
-  "enchantments": {
-    "minecraft:sharpness": 4
-  }
+    "type": "examplemod:min_enchanted",
+    "tag": "c:swords",
+    "enchantments": {
+        "minecraft:sharpness": 4
+    }
 }
 ```
 
@@ -163,7 +163,7 @@ An example for a vanilla item ingredient:
 
 ```json5
 {
-  "item": "minecraft:dirt"
+    "item": "minecraft:dirt"
 }
 ```
 
@@ -171,7 +171,7 @@ An example for a vanilla tag ingredient:
 
 ```json5
 {
-  "tag": "c:ingots"
+    "tag": "c:ingots"
 }
 ```
 

@@ -21,31 +21,31 @@ Value effect components can be set to use any of these operations on their given
 The Sharpness enchantment uses `minecraft:damage`, a value effect component, as follows to achieve its effect:
 
 <Tabs>
-  <TabItem value="sharpness.json" label="JSON">
+<TabItem value="sharpness.json" label="JSON">
 
 ```json5
 "effects": {
-  // The type of this effect component is "minecraft:damage".
-  // This means that the effect will modify weapon damage.
-  // See below for a list of more effect component types.
-  "minecraft:damage": [
-    {
-      // A value effect that should be applied.
-      // In this case, since there's only one, this value effect is just named "effect".
-      "effect": {
-        // The type of value effect to use. In this case, it is "minecraft:add", so the value (given below) will be added 
-        // to the weapon damage value.
-        "type": "minecraft:add",
+    // The type of this effect component is "minecraft:damage".
+    // This means that the effect will modify weapon damage.
+    // See below for a list of more effect component types.
+    "minecraft:damage": [
+        {
+            // A value effect that should be applied.
+            // In this case, since there's only one, this value effect is just named "effect".
+            "effect": {
+                // The type of value effect to use. In this case, it is "minecraft:add", so the value (given below) will be added 
+                // to the weapon damage value.
+                "type": "minecraft:add",
 
-        // The value block. In this case, the value is a LevelBasedValue that starts at 1 and increases by 0.5 every enchantment level.
-        "value": {
-          "type": "minecraft:linear",
-          "base": 1.0,
-          "per_level_above_first": 0.5
+                // The value block. In this case, the value is a LevelBasedValue that starts at 1 and increases by 0.5 every enchantment level.
+                "value": {
+                    "type": "minecraft:linear",
+                    "base": 1.0,
+                    "per_level_above_first": 0.5
+                }
+            }
         }
-      }
-    }
-  ]
+    ]
 }
 ```
 
@@ -128,27 +128,27 @@ Location based effect components are components that implement `EnchantmentLocat
 Here is an example which uses the `minecraft:attributes` location based effect component type to change the wielder's entity scale:
 
 <Tabs>
-  <TabItem value="attribute.json" label="JSON">
+<TabItem value="attribute.json" label="JSON">
 
 ```json5
 // The type is "minecraft:attributes" (described below).
 // In a nutshell, this applies an attribute modifier.
 "minecraft:attributes": [
-  {
-    // This "amount" block is a LevelBasedValue.
-    "amount": {
-      "type": "minecraft:linear",
-      "base": 1,
-      "per_level_above_first": 1
-    },
+    {
+        // This "amount" block is a LevelBasedValue.
+        "amount": {
+            "type": "minecraft:linear",
+            "base": 1,
+            "per_level_above_first": 1
+        },
 
-    // Which attribute to modify. In this case, modifies "minecraft:scale"
-    "attribute": "minecraft:generic.scale",
-    // The unique identifier for this attribute modifier. Should not overlap with others, but doesn't need to be registered.
-    "id": "examplemod:enchantment.size_change",
-    // What operation to use on the attribute. Can be "add_value", "add_multiplied_base", or "add_multiplied_total".
-    "operation": "add_value"
-  }
+        // Which attribute to modify. In this case, modifies "minecraft:scale"
+        "attribute": "minecraft:generic.scale",
+        // The unique identifier for this attribute modifier. Should not overlap with others, but doesn't need to be registered.
+        "id": "examplemod:enchantment.size_change",
+        // What operation to use on the attribute. Can be "add_value", "add_multiplied_base", or "add_multiplied_total".
+        "operation": "add_value"
+    }
 ],
 ```
 
@@ -218,33 +218,33 @@ Here is an example of the JSON definition of one such component from the Fire As
 ```json5
 // This component's type is "minecraft:post_attack" (see below).
 "minecraft:post_attack": [
-  {
-    // Decides whether the "victim" of the attack, the "attacker", or the "damaging entity" (the projectile if there is one, attacker if not) recieves the effect.
-    "affected": "victim",
-    
-    // Decides which enchantment entity effect to apply.
-    "effect": {
-      // The type of this effect is "minecraft:ignite".
-      "type": "minecraft:ignite",
-      // "minecraft:ignite" requires a LevelBasedValue as a duration for how long the entity will be ignited.
-      "duration": {
-        "type": "minecraft:linear",
-        "base": 4.0,
-        "per_level_above_first": 4.0
-      }
-    },
+    {
+        // Decides whether the "victim" of the attack, the "attacker", or the "damaging entity" (the projectile if there is one, attacker if not) recieves the effect.
+        "affected": "victim",
+        
+        // Decides which enchantment entity effect to apply.
+        "effect": {
+            // The type of this effect is "minecraft:ignite".
+            "type": "minecraft:ignite",
+            // "minecraft:ignite" requires a LevelBasedValue as a duration for how long the entity will be ignited.
+            "duration": {
+                "type": "minecraft:linear",
+                "base": 4.0,
+                "per_level_above_first": 4.0
+            }
+        },
 
-    // Decides who (the "victim", "attacker", or "damaging entity") must have the enchantment for it to take effect.
-    "enchanted": "attacker",
+        // Decides who (the "victim", "attacker", or "damaging entity") must have the enchantment for it to take effect.
+        "enchanted": "attacker",
 
-    // An optional predicate which controls whether the effect applies.
-    "requirements": {
-      "condition": "minecraft:damage_source_properties",
-      "predicate": {
-        "is_direct": true
-      }
+        // An optional predicate which controls whether the effect applies.
+        "requirements": {
+            "condition": "minecraft:damage_source_properties",
+            "predicate": {
+                "is_direct": true
+            }
+        }
     }
-  }
 ]
 ```
 

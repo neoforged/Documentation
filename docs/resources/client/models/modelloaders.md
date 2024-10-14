@@ -68,7 +68,7 @@ The dynamic fluid container model, also called dynamic bucket model after its mo
     "cover_is_mask": false,
     // Optional, defaults to true. Whether to apply the fluid's luminosity to the item model.
     "apply_fluid_luminosity": false,
-  }
+}
 ```
 
 Very often, dynamic fluid container models will directly use the bucket model. This is done by specifying the `neoforge:item_bucket` parent model, like so:

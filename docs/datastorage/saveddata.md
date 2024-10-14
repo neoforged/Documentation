@@ -27,13 +27,13 @@ For example, if a SD was named "example" within the Nether, then a file would be
 ```java
 // In some class
 public ExampleSavedData create() {
-  return new ExampleSavedData();
+    return new ExampleSavedData();
 }
 
 public ExampleSavedData load(CompoundTag tag, HolderLookup.Provider lookupProvider) {
-  ExampleSavedData data = this.create();
-  // Load saved data
-  return data;
+    ExampleSavedData data = this.create();
+    // Load saved data
+    return data;
 }
 
 // In some method within the class

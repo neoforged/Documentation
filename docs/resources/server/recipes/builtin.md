@@ -12,25 +12,25 @@ Some of the most important recipes - such as the crafting table, sticks, or most
 
 ```json5
 {
-  "type": "minecraft:crafting_shaped",
-  "category": "equipment",
-  "pattern": [
-    "XXX",
-    " # ",
-    " # "
-  ],
-  "key": {
-    "#": {
-      "item": "minecraft:stick"
+    "type": "minecraft:crafting_shaped",
+    "category": "equipment",
+    "pattern": [
+        "XXX",
+        " # ",
+        " # "
+    ],
+    "key": {
+        "#": {
+            "item": "minecraft:stick"
+        },
+        "X": {
+            "item": "minecraft:iron_ingot"
+        }
     },
-    "X": {
-      "item": "minecraft:iron_ingot"
+    "result": {
+        "count": 1,
+        "id": "minecraft:iron_pickaxe"
     }
-  },
-  "result": {
-    "count": 1,
-    "id": "minecraft:iron_pickaxe"
-  }
 }
 ```
 
@@ -39,8 +39,8 @@ Let's digest this line for line:
 - `type`: This is the id of the shaped recipe serializer, `minecraft:crafting_shaped`.
 - `category`: This optional field defines the category in the crafting book.
 - `key` and `pattern`: Together, these define how the items must be put into the crafting grid.
-  - The pattern defines up to three lines of up to three-wide strings that define the shape. All lines must be the same length, i.e. the pattern must form a rectangular shape. Spaces can be used to denote slots that should stay empty.
-  - The key associates the characters used in the pattern with [ingredients][ingredient]. In the above example, all `X`s in the pattern must be iron ingots, and all `#`s must be sticks.
+    - The pattern defines up to three lines of up to three-wide strings that define the shape. All lines must be the same length, i.e. the pattern must form a rectangular shape. Spaces can be used to denote slots that should stay empty.
+    - The key associates the characters used in the pattern with [ingredients][ingredient]. In the above example, all `X`s in the pattern must be iron ingots, and all `#`s must be sticks.
 - `result`: The result of the recipe. This is [an item stack's JSON representation][itemjson].
 - Not shown in the example is the `group` key. This optional string property creates a group in the recipe book. Recipes in the same group will be displayed as one in the recipe book.
 
@@ -78,23 +78,23 @@ Unlike shaped crafting recipes, shapeless crafting recipes do not care about the
 
 ```json5
 {
-  "type": "minecraft:crafting_shapeless",
-  "category": "misc",
-  "ingredients": [
-    {
-      "item": "minecraft:brown_mushroom"
-    },
-    {
-      "item": "minecraft:red_mushroom"
-    },
-    {
-      "item": "minecraft:bowl"
+    "type": "minecraft:crafting_shapeless",
+    "category": "misc",
+    "ingredients": [
+        {
+            "item": "minecraft:brown_mushroom"
+        },
+        {
+            "item": "minecraft:red_mushroom"
+        },
+        {
+            "item": "minecraft:bowl"
+        }
+    ],
+    "result": {
+        "count": 1,
+        "id": "minecraft:mushroom_stew"
     }
-  ],
-  "result": {
-    "count": 1,
-    "id": "minecraft:mushroom_stew"
-  }
 }
 ```
 
@@ -143,7 +143,7 @@ In some cases, outputs must be created dynamically from inputs. Most of the time
 
 ```java
 {
-  "type": "minecraft:crafting_special_armordye"
+    "type": "minecraft:crafting_special_armordye"
 }
 ```
 
@@ -182,16 +182,16 @@ The second most important group of recipes are the ones made through smelting or
 
 ```json5
 {
-  "type": "minecraft:smelting",
-  "category": "food",
-  "cookingtime": 200,
-  "experience": 0.1,
-  "ingredient": {
-    "item": "minecraft:kelp"
-  },
-  "result": {
-    "id": "minecraft:dried_kelp"
-  }
+    "type": "minecraft:smelting",
+    "category": "food",
+    "cookingtime": 200,
+    "experience": 0.1,
+    "ingredient": {
+        "item": "minecraft:kelp"
+    },
+    "result": {
+        "id": "minecraft:dried_kelp"
+    }
 }
 ```
 
@@ -237,14 +237,14 @@ Stonecutter recipes use the `minecraft:stonecutting` recipe type. They are about
 
 ```json5
 {
-  "type": "minecraft:stonecutting",
-  "ingredient": {
-    "item": "minecraft:andesite"
-  },
-  "result": {
-    "count": 2,
-    "id": "minecraft:andesite_slab"
-  }
+    "type": "minecraft:stonecutting",
+    "ingredient": {
+        "item": "minecraft:andesite"
+    },
+    "result": {
+        "count": 2,
+        "id": "minecraft:andesite_slab"
+    }
 }
 ```
 
@@ -270,20 +270,20 @@ This recipe serializer is for transforming two input items into one, preserving 
 
 ```json5
 {
-  "type": "minecraft:smithing_transform",
-  "base": {
-    "item": "minecraft:diamond_axe"
-  },
-  "template": {
-    "item": "minecraft:netherite_upgrade_smithing_template"
-  },
-  "addition": {
-    "item": "minecraft:netherite_ingot"
-  },
-  "result": {
-    "count": 1,
-    "id": "minecraft:netherite_axe"
-  }
+    "type": "minecraft:smithing_transform",
+    "base": {
+        "item": "minecraft:diamond_axe"
+    },
+    "template": {
+        "item": "minecraft:netherite_upgrade_smithing_template"
+    },
+    "addition": {
+        "item": "minecraft:netherite_ingot"
+    },
+    "result": {
+        "count": 1,
+        "id": "minecraft:netherite_axe"
+    }
 }
 ```
 
@@ -323,16 +323,16 @@ Trim smithing is the process of applying armor trims to armor:
 
 ```json5
 {
-  "type": "minecraft:smithing_trim",
-  "addition": {
-    "tag": "minecraft:trim_materials"
-  },
-  "base": {
-    "tag": "minecraft:trimmable_armor"
-  },
-  "template": {
-    "item": "minecraft:bolt_armor_trim_smithing_template"
-  }
+    "type": "minecraft:smithing_trim",
+    "addition": {
+        "tag": "minecraft:trim_materials"
+    },
+    "base": {
+        "tag": "minecraft:trimmable_armor"
+    },
+    "template": {
+        "item": "minecraft:bolt_armor_trim_smithing_template"
+    }
 }
 ```
 

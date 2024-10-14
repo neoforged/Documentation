@@ -306,7 +306,7 @@ When iterating over the inventory contents, it is recommended to iterate over `i
 [block]: ../blocks/index.md
 [blockentity]: index.md
 [component]: ../resources/client/i18n.md#components
-[datacomponent]: ../items/datacomponents.mdx
+[datacomponent]: ../items/datacomponents.md
 [item]: ../items/index.md
 [itemstack]: ../items/index.md#itemstacks
 [menu]: ../gui/menus.md

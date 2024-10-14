@@ -20,30 +20,30 @@ Tag files have the following syntax:
 
 ```json5
 {
-  // The values of the tag.
-  "values": [
-    // A value object. Must specify the id of the object to add, and whether it is required.
-    // If the entry is required, but the object is not present, the tag will not load. The "required" field
-    // is technically optional, but when removed, the entry is equivalent to the shorthand below.
-    {
-      "id": "examplemod:example_ingot",
-      "required": false
-    }
-    // Shorthand for {"id": "minecraft:gold_ingot", "required": true}, i.e. a required entry.
-    "minecraft:gold_ingot",
-    // A tag object. Distinguished from regular entries by the leading #. In this case, all planks
-    // will be considered entries of the tag. Like normal entries, this can also have the "id"/"required" format.
-    // Warning: Circular tag dependencies will lead to a datapack not being loaded!
-    "#minecraft:planks"
-  ],
-  // Whether to remove all pre-existing entries before adding your own (true) or just add your own (false).
-  // This should generally be false, the option to set this to true is primarily aimed at pack developers.
-  "replace": false,
-  // A finer-grained way to remove entries from the tag again, if present. Optional, NeoForge-added.
-  // Entry syntax is the same as in the "values" array.
-  "remove": [
-    "minecraft:iron_ingot"
-  ]
+    // The values of the tag.
+    "values": [
+        // A value object. Must specify the id of the object to add, and whether it is required.
+        // If the entry is required, but the object is not present, the tag will not load. The "required" field
+        // is technically optional, but when removed, the entry is equivalent to the shorthand below.
+        {
+            "id": "examplemod:example_ingot",
+            "required": false
+        }
+        // Shorthand for {"id": "minecraft:gold_ingot", "required": true}, i.e. a required entry.
+        "minecraft:gold_ingot",
+        // A tag object. Distinguished from regular entries by the leading #. In this case, all planks
+        // will be considered entries of the tag. Like normal entries, this can also have the "id"/"required" format.
+        // Warning: Circular tag dependencies will lead to a datapack not being loaded!
+        "#minecraft:planks"
+    ],
+    // Whether to remove all pre-existing entries before adding your own (true) or just add your own (false).
+    // This should generally be false, the option to set this to true is primarily aimed at pack developers.
+    "replace": false,
+    // A finer-grained way to remove entries from the tag again, if present. Optional, NeoForge-added.
+    // Entry syntax is the same as in the "values" array.
+    "remove": [
+        "minecraft:iron_ingot"
+    ]
 }
 ```
 
@@ -202,33 +202,33 @@ This example results in the following tag JSON:
 
 ```json5
 {
-  "values": [
-    "minecraft:dirt",
-    "minecraft:cobblestone",
-    {
-      "id": "botania:pure_daisy",
-      "required": false
-    },
-    "#minecraft:planks",
-    "#minecraft:logs",
-    "#minecraft:wooden_slabs",
-    {
-      "id": "c:ingots/tin",
-      "required": false
-    },
-    {
-      "id": "c:nuggets/tin",
-      "required": false
-    },
-    {
-      "id": "c:storage_blocks/tin",
-      "required": false
-    }
-  ],
-  "remove": [
-    "minecraft:crimson_slab",
-    "minecraft:warped_slab"
-  ]
+    "values": [
+        "minecraft:dirt",
+        "minecraft:cobblestone",
+        {
+            "id": "botania:pure_daisy",
+            "required": false
+        },
+        "#minecraft:planks",
+        "#minecraft:logs",
+        "#minecraft:wooden_slabs",
+        {
+            "id": "c:ingots/tin",
+            "required": false
+        },
+        {
+            "id": "c:nuggets/tin",
+            "required": false
+        },
+        {
+            "id": "c:storage_blocks/tin",
+            "required": false
+        }
+    ],
+    "remove": [
+        "minecraft:crimson_slab",
+        "minecraft:warped_slab"
+    ]
 }
 ```
 

@@ -88,9 +88,9 @@ The parameters can be specified in three ways with limitations depending on the 
 
 - Inline in the JSON file as an array of constants (only allowed for primitive values, Strings and for passing null to any reference type)
 - As a reference to a field of type `EnumProxy<TheEnum>` in a class from the mod (see `EnumProxy` example above)
-  - The first parameter specifies the target enum and the subsequent parameters are the ones to be passed to the enum constructor
+    - The first parameter specifies the target enum and the subsequent parameters are the ones to be passed to the enum constructor
 - As a reference to a method returning `Object`, where the return value is the parameter value to use. The method must have exactly two parameters of type `int` (index of the parameter) and `Class<?>` (expected type of the parameter)
-  - The `Class<?>` object should be used to cast (`Class#cast()`) the return value in order to keep `ClassCastException`s in mod code.
+    - The `Class<?>` object should be used to cast (`Class#cast()`) the return value in order to keep `ClassCastException`s in mod code.
 
 :::warning
 The fields and/or methods used as sources for parameter values should be in a separate class to avoid unintentionally loading mod classes too early.
@@ -117,7 +117,7 @@ Further action is required depending on specific details about the enum:
 - If the enum has an int ID parameter which should match the entry's ordinal, then the enum should be annotated with `@NumberedEnum` with the ID's parameter index as the annotation's value if it's not the first parameter
 - If the enum has a String name parameter which is used for serialization and should therefore be namespaced, then the enum should be annotated with `@NamedEnum` with the name's parameter index as the annotation's value if it's not the first parameter
 - If the enum is sent over the network, then it should be annotated with `@NetworkedEnum` with the annotation's parameter specifying in which direction the values may be sent (clientbound, serverbound or bidirectional)
-  - Warning: networked enums will require additional steps once network checks for enums are implemented in NeoForge
+    - Warning: networked enums will require additional steps once network checks for enums are implemented in NeoForge
 - If the enum has constructors which are not usable by mods (i.e. because they require registry objects on an enum that may be initialized before modded registration runs), then they should be annotated with `@ReservedConstructor`
 
 :::note

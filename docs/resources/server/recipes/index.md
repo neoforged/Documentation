@@ -23,10 +23,10 @@ The contents of recipe files vary greatly depending on the selected type. Common
 
 ```json5
 {
-  // The recipe type. This maps to an entry in the recipe serializer registry.
-  "type": "minecraft:crafting_shaped",
-  // A list of data load conditions. Optional, NeoForge-added. See the article linked above for more information.
-  "neoforge:conditions": [ /*...*/ ]
+    // The recipe type. This maps to an entry in the recipe serializer registry.
+    "type": "minecraft:crafting_shaped",
+    // A list of data load conditions. Optional, NeoForge-added. See the article linked above for more information.
+    "neoforge:conditions": [ /*...*/ ]
 }
 ```
 

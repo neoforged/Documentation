@@ -141,11 +141,11 @@ The data generator can accept several command line arguments:
 - `--existing path/to/folder`: Tells the data generator to consider the given folder when checking for existing files. Like with the output, it is recommended to use Gradle's `file(...).getAbsolutePath()`.
 - `--existing-mod examplemod`: Tells the data generator to consider the resources in the given mod's JAR file when checking for existing files.
 - Generator modes (all of these are boolean arguments and do not need any additional arguments):
-  - `--includeClient`: Whether to generate client resources (assets). Check at runtime with `GatherDataEvent#includeClient()`.
-  - `--includeServer`: Whether to generate server resources (data). Check at runtime with `GatherDataEvent#includeServer()`.
-  - `--includeDev`: Whether to run dev tools. Generally shouldn't be used by mods. Check at runtime with `GatherDataEvent#includeDev()`.
-  - `--includeReports`: Whether to dump a list of registered objects. Check at runtime with `GatherDataEvent#includeReports()`.
-  - `--all`: Enable all generator modes.
+    - `--includeClient`: Whether to generate client resources (assets). Check at runtime with `GatherDataEvent#includeClient()`.
+    - `--includeServer`: Whether to generate server resources (data). Check at runtime with `GatherDataEvent#includeServer()`.
+    - `--includeDev`: Whether to run dev tools. Generally shouldn't be used by mods. Check at runtime with `GatherDataEvent#includeDev()`.
+    - `--includeReports`: Whether to dump a list of registered objects. Check at runtime with `GatherDataEvent#includeReports()`.
+    - `--all`: Enable all generator modes.
 
 All arguments can be added to the run configurations by adding the following to your `build.gradle`:
 

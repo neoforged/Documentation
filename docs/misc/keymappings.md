@@ -15,7 +15,7 @@ public static final Lazy<KeyMapping> EXAMPLE_MAPPING = Lazy.of(() -> /*...*/);
 // Event is on the mod event bus only on the physical client
 @SubscribeEvent
 public void registerBindings(RegisterKeyMappingsEvent event) {
-  event.register(EXAMPLE_MAPPING.get());
+    event.register(EXAMPLE_MAPPING.get());
 }
 ```
 
@@ -41,10 +41,10 @@ The integer is dependent on the type provided. All input codes are defined in `G
 
 ```java
 new KeyMapping(
-  "key.examplemod.example1", // Will be localized using this translation key
-  InputConstants.Type.KEYSYM, // Default mapping is on the keyboard
-  GLFW.GLFW_KEY_P, // Default key is P
-  "key.categories.misc" // Mapping will be in the misc category
+    "key.examplemod.example1", // Will be localized using this translation key
+    InputConstants.Type.KEYSYM, // Default mapping is on the keyboard
+    GLFW.GLFW_KEY_P, // Default key is P
+    "key.categories.misc" // Mapping will be in the misc category
 )
 ```
 
@@ -62,11 +62,11 @@ Currently, NeoForge defines three basic contexts through `KeyConflictContext`: `
 
 ```java
 new KeyMapping(
-  "key.examplemod.example2",
-  KeyConflictContext.GUI, // Mapping can only be used when a screen is open
-  InputConstants.Type.MOUSE, // Default mapping is on the mouse
-  GLFW.GLFW_MOUSE_BUTTON_LEFT, // Default mouse input is the left mouse button
-  "key.categories.examplemod.examplecategory" // Mapping will be in the new example category
+    "key.examplemod.example2",
+    KeyConflictContext.GUI, // Mapping can only be used when a screen is open
+    InputConstants.Type.MOUSE, // Default mapping is on the mouse
+    GLFW.GLFW_MOUSE_BUTTON_LEFT, // Default mouse input is the left mouse button
+    "key.categories.examplemod.examplecategory" // Mapping will be in the new example category
 )
 ```
 
@@ -78,12 +78,12 @@ A modifier can be added in the [controls option menu][controls] by holding down 
 
 ```java
 new KeyMapping(
-  "key.examplemod.example3",
-  KeyConflictContext.UNIVERSAL,
-  KeyModifier.SHIFT, // Default mapping requires shift to be held down
-  InputConstants.Type.KEYSYM, // Default mapping is on the keyboard
-  GLFW.GLFW_KEY_G, // Default key is G
-  "key.categories.misc"
+    "key.examplemod.example3",
+    KeyConflictContext.UNIVERSAL,
+    KeyModifier.SHIFT, // Default mapping requires shift to be held down
+    InputConstants.Type.KEYSYM, // Default mapping is on the keyboard
+    GLFW.GLFW_KEY_G, // Default key is G
+    "key.categories.misc"
 )
 ```
 
@@ -118,11 +118,11 @@ Within a GUI, a mapping can be checked within one of the `GuiEventListener` meth
 // In some Screen subclass
 @Override
 public boolean keyPressed(int key, int scancode, int mods) {
-  if (EXAMPLE_MAPPING.get().isActiveAndMatches(InputConstants.getKey(key, scancode))) {
-    // Execute logic to perform on key press here
-    return true;
-  }
-  return super.keyPressed(x, y, button);
+    if (EXAMPLE_MAPPING.get().isActiveAndMatches(InputConstants.getKey(key, scancode))) {
+        // Execute logic to perform on key press here
+        return true;
+    }
+    return super.keyPressed(x, y, button);
 } 
 ```
 
@@ -136,11 +136,11 @@ If you do not own the screen which you are trying to check a **key** for, you ca
 // In some Screen subclass
 @Override
 public boolean mouseClicked(double x, double y, int button) {
-  if (EXAMPLE_MAPPING.get().isActiveAndMatches(InputConstants.TYPE.MOUSE.getOrCreate(button))) {
-    // Execute logic to perform on mouse click here
-    return true;
-  }
-  return super.mouseClicked(x, y, button);
+    if (EXAMPLE_MAPPING.get().isActiveAndMatches(InputConstants.TYPE.MOUSE.getOrCreate(button))) {
+        // Execute logic to perform on mouse click here
+        return true;
+    }
+    return super.mouseClicked(x, y, button);
 } 
 ```
 

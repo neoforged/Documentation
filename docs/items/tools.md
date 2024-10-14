@@ -12,12 +12,12 @@ A tool set typically consists of five items: a pickaxe, an axe, a shovel, a hoe 
 ```text
 Item
 - TieredItem
-  - DiggerItem
-    - AxeItem
-    - HoeItem
-    - PickaxeItem
-    - ShovelItem
-  - SwordItem
+    - DiggerItem
+        - AxeItem
+        - HoeItem
+        - PickaxeItem
+        - ShovelItem
+    - SwordItem
 ```
 
 `TieredItem` is a class that contains helpers for items with a certain `Tier` (read on). `DiggerItem` contains helpers for items that are designed to break blocks. Note that other items usually considered tools, such as shears, are not included in this hierarchy. Instead, they directly extend `Item` and hold the breaking logic themselves.
@@ -93,14 +93,14 @@ And then, we populate our tag. For example, let's make copper able to mine gold 
 
 ```json5
 {
-  "values": [
-    "minecraft:gold_block",
-    "minecraft:raw_gold_block",
-    "minecraft:gold_ore",
-    "minecraft:deepslate_gold_ore",
-    "minecraft:redstone_ore",
-    "minecraft:deepslate_redstone_ore"
-  ]
+    "values": [
+        "minecraft:gold_block",
+        "minecraft:raw_gold_block",
+        "minecraft:gold_ore",
+        "minecraft:deepslate_gold_ore",
+        "minecraft:redstone_ore",
+        "minecraft:deepslate_redstone_ore"
+    ]
 }
 ```
 
@@ -233,7 +233,7 @@ public static final Supplier<ArmorItem> COPPER_BOOTS = ITEMS.register("copper_bo
 When creating your armor texture, it is a good idea to work on top of the vanilla armor texture to see which part goes where.
 
 [block]: ../blocks/index.md
-[datacomponents]: ./datacomponents.mdx
+[datacomponents]: ./datacomponents.md
 [item]: index.md
 [itemability]: #itemabilitys
 [tags]: ../resources/server/tags.md

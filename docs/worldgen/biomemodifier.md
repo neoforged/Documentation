@@ -8,20 +8,20 @@ Biome Modifiers are a data-driven system that allows for changing many aspects o
 ### Recommended Section To Read:
 
 - Players or pack developers:
-  - [Applying Biome Modifiers](#applying-biome-modifiers)
-  - [Built-in Neoforge Biome Modifiers](#built-in-biome-modifiers)
+    - [Applying Biome Modifiers](#applying-biome-modifiers)
+    - [Built-in Neoforge Biome Modifiers](#built-in-biome-modifiers)
 
 
 - Modders doing simple additions or removal biome modifications:
-  - [Applying Biome Modifiers](#applying-biome-modifiers)
-  - [Built-in Neoforge Biome Modifiers](#built-in-biome-modifiers)
-  - [Datagenning Biome Modifiers](#datagenning-biome-modifiers)
+    - [Applying Biome Modifiers](#applying-biome-modifiers)
+    - [Built-in Neoforge Biome Modifiers](#built-in-biome-modifiers)
+    - [Datagenning Biome Modifiers](#datagenning-biome-modifiers)
 
 
 - Modders who want to do custom or complex biome modifications:
-  - [Applying Biome Modifiers](#applying-biome-modifiers)
-  - [Creating Custom Biome Modifiers](#creating-custom-biome-modifiers)
-  - [Datagenning Biome Modifiers](#datagenning-biome-modifiers)
+    - [Applying Biome Modifiers](#applying-biome-modifiers)
+    - [Creating Custom Biome Modifiers](#creating-custom-biome-modifiers)
+    - [Datagenning Biome Modifiers](#datagenning-biome-modifiers)
 
 
 ## Applying Biome Modifiers
@@ -39,16 +39,16 @@ These biome modifiers are registered by NeoForge for anyone to use.
 This biome modifier has no operation and will do no modification. Pack makers and players can use this in a datapack to disable mods' biome modifiers by overriding their biome modifier JSONs with the JSON below.
 
 <Tabs>
-  <TabItem value="json" label="JSON" default>
+<TabItem value="json" label="JSON" default>
 
 ```json5
 {
-  "type": "neoforge:none"
+    "type": "neoforge:none"
 }
 ```
 
-  </TabItem>
-  <TabItem value="datagen" label="Datagen">
+</TabItem>
+<TabItem value="datagen" label="Datagen">
 
 ```java
 // Define the ResourceKey for our BiomeModifier.
@@ -65,7 +65,7 @@ BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
 });
 ```
 
-  </TabItem>
+</TabItem>
 </Tabs>
 
 ### Add Features
@@ -73,27 +73,27 @@ BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
 This biome modifier type adds `PlacedFeature`s (such as trees or ores) to biomes so that they can spawn during world generation. The modifier takes in the biome id or tag of the biomes the features are added to, a `PlacedFeature` id or tag to add to the selected biomes, and the [`GenerationStep.Decoration`](#Available-Values-for-Decoration-Steps) the features will be generated within.
 
 <Tabs>
-  <TabItem value="json" label="JSON" default>
+<TabItem value="json" label="JSON" default>
 
 ```json5
 {
-  "type": "neoforge:add_features",
-  // Can either be a biome id, such as "minecraft:plains",
-  // or a list of biome ids, such as ["minecraft:plains", "minecraft:badlands", ...],
-  // or a biome tag, such as "#c:is_overworld".
-  "biomes": "#namespace:your_biome_tag",
-  // Can either be a placed feature id, such as "examplemod:add_features_example",
-  // or a list of placed feature ids, such as ["examplemod:add_features_example", minecraft:ice_spike", ...],
-  // or a placed feature tag, such as "#examplemod:placed_feature_tag".
-  "features": "namespace:your_feature",
-  // See the GenerationStep.Decoration enum in code for a list of valid enum names.
-  // The decoration step section further down also has the list of values for reference.
-  "step": "underground_ores"
+    "type": "neoforge:add_features",
+    // Can either be a biome id, such as "minecraft:plains",
+    // or a list of biome ids, such as ["minecraft:plains", "minecraft:badlands", ...],
+    // or a biome tag, such as "#c:is_overworld".
+    "biomes": "#namespace:your_biome_tag",
+    // Can either be a placed feature id, such as "examplemod:add_features_example",
+    // or a list of placed feature ids, such as ["examplemod:add_features_example", minecraft:ice_spike", ...],
+    // or a placed feature tag, such as "#examplemod:placed_feature_tag".
+    "features": "namespace:your_feature",
+    // See the GenerationStep.Decoration enum in code for a list of valid enum names.
+    // The decoration step section further down also has the list of values for reference.
+    "step": "underground_ores"
 }
 ```
 
-  </TabItem>
-  <TabItem value="datagen" label="Datagen">
+</TabItem>
+<TabItem value="datagen" label="Datagen">
 
 ```java
 // Assume we have some PlacedFeature named EXAMPLE_PLACED_FEATURE.
@@ -125,7 +125,7 @@ BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
 })
 ```
 
-  </TabItem>
+</TabItem>
 </Tabs>
 
 
@@ -140,7 +140,7 @@ Vanilla `PlacedFeature`s can be referenced in biome JSONs or added via biome mod
 This biome modifier type removes features (such as trees or ores) from biomes so that they will no longer spawn during world generation. The modifier takes in the biome id or tag of the biomes the features are removed from, a `PlacedFeature` id or tag to remove from the selected biomes, and the [`GenerationStep.Decoration`](#Available-Values-for-Decoration-Steps)s that the features will be removed from.
 
 <Tabs>
-  <TabItem value="json" label="JSON" default>
+<TabItem value="json" label="JSON" default>
 
 ```json5
 {
@@ -161,8 +161,8 @@ This biome modifier type removes features (such as trees or ores) from biomes so
 }
 ```
 
-  </TabItem>
-  <TabItem value="datagen" label="Datagen">
+</TabItem>
+<TabItem value="datagen" label="Datagen">
 
 ```java
 // Define the ResourceKey for our BiomeModifier.
@@ -196,7 +196,7 @@ BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
 });
 ```
 
-  </TabItem>
+</TabItem>
 </Tabs>
 
 
@@ -209,35 +209,35 @@ If you are a modder adding a new entity, make sure the entity has a spawn restri
 :::
 
 <Tabs>
-  <TabItem value="json" label="JSON" default>
+<TabItem value="json" label="JSON" default>
 
 ```json5
 {
-  "type": "neoforge:add_spawns",
-  // Can either be a biome id, such as "minecraft:plains",
-  // or a list of biome ids, such as ["minecraft:plains", "minecraft:badlands", ...],
-  // or a biome tag, such as "#c:is_overworld".
-  "biomes": "#namespace:biome_tag",
-  // Can be either a single object or a list of objects.
-  "spawners": [
-    {
-      "type": "namespace:entity_type", // The id of the entity type to spawn
-      "weight": 100, // int, spawn weight
-      "minCount": 1, // int, minimum group size
-      "maxCount": 4 // int, maximum group size
-    },
-    {
-      "type": "minecraft:ghast",
-      "weight": 1,
-      "minCount": 5,
-      "maxCount": 10
-    }
-  ]
+    "type": "neoforge:add_spawns",
+    // Can either be a biome id, such as "minecraft:plains",
+    // or a list of biome ids, such as ["minecraft:plains", "minecraft:badlands", ...],
+    // or a biome tag, such as "#c:is_overworld".
+    "biomes": "#namespace:biome_tag",
+    // Can be either a single object or a list of objects.
+    "spawners": [
+        {
+            "type": "namespace:entity_type", // The id of the entity type to spawn
+            "weight": 100, // int, spawn weight
+            "minCount": 1, // int, minimum group size
+            "maxCount": 4 // int, maximum group size
+        },
+        {
+            "type": "minecraft:ghast",
+            "weight": 1,
+            "minCount": 5,
+            "maxCount": 10
+        }
+    ]
 }
 ```
 
-  </TabItem>
-  <TabItem value="datagen" label="Datagen">
+</TabItem>
+<TabItem value="datagen" label="Datagen">
 
 ```java
 // Assume we have some EntityType<?> named EXAMPLE_ENTITY.
@@ -269,7 +269,7 @@ BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
 });
 ```
 
-  </TabItem>
+</TabItem>
 </Tabs>
 
 
@@ -278,24 +278,24 @@ BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
 This biome modifier type removes entity spawns from biomes. The modifier takes in the biome id or tag of the biomes the entity spawns are removed from, and the `EntityType` id or tag of the entities to remove.
 
 <Tabs>
-  <TabItem value="json" label="JSON" default>
+<TabItem value="json" label="JSON" default>
 
 ```json5
 {
-  "type": "neoforge:remove_spawns",
-  // Can either be a biome id, such as "minecraft:plains",
-  // or a list of biome ids, such as ["minecraft:plains", "minecraft:badlands", ...],
-  // or a biome tag, such as "#c:is_overworld".
-  "biomes": "#namespace:biome_tag",
-  // Can either be an entity type id, such as "minecraft:ghast",
-  // or a list of entity type ids, such as ["minecraft:ghast", "minecraft:skeleton", ...],
-  // or an entity type tag, such as "#minecraft:skeletons".
-  "entity_types": "#namespace:entitytype_tag"
+    "type": "neoforge:remove_spawns",
+    // Can either be a biome id, such as "minecraft:plains",
+    // or a list of biome ids, such as ["minecraft:plains", "minecraft:badlands", ...],
+    // or a biome tag, such as "#c:is_overworld".
+    "biomes": "#namespace:biome_tag",
+    // Can either be an entity type id, such as "minecraft:ghast",
+    // or a list of entity type ids, such as ["minecraft:ghast", "minecraft:skeleton", ...],
+    // or an entity type tag, such as "#minecraft:skeletons".
+    "entity_types": "#namespace:entitytype_tag"
 }
 ```
 
-  </TabItem>
-  <TabItem value="datagen" label="Datagen">
+</TabItem>
+<TabItem value="datagen" label="Datagen">
 
 ```java
 // Define the ResourceKey for our BiomeModifier.
@@ -324,7 +324,7 @@ BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
 });
 ```
 
-  </TabItem>
+</TabItem>
 </Tabs>
 
 
@@ -339,30 +339,30 @@ If you are a modder adding a new entity, make sure the entity has a spawn restri
 :::
 
 <Tabs>
-  <TabItem value="json" label="JSON" default>
+<TabItem value="json" label="JSON" default>
 
 ```json5
 {
-  "type": "neoforge:add_spawn_costs",
-  // Can either be a biome id, such as "minecraft:plains",
-  // or a list of biome ids, such as ["minecraft:plains", "minecraft:badlands", ...],
-  // or a biome tag, such as "#c:is_overworld".
-  "biomes": "#namespace:biome_tag",
-  // Can either be an entity type id, such as "minecraft:ghast",
-  // or a list of entity type ids, such as ["minecraft:ghast", "minecraft:skeleton", ...],
-  // or an entity type tag, such as "#minecraft:skeletons".
-  "entity_types": "#minecraft:skeletons",
-  "spawn_cost": {
-    // The energy budget
-    "energy_budget": 1.0,
-    // The amount of charge each entity takes up from the budget
-    "charge": 0.1
-  }
+    "type": "neoforge:add_spawn_costs",
+    // Can either be a biome id, such as "minecraft:plains",
+    // or a list of biome ids, such as ["minecraft:plains", "minecraft:badlands", ...],
+    // or a biome tag, such as "#c:is_overworld".
+    "biomes": "#namespace:biome_tag",
+    // Can either be an entity type id, such as "minecraft:ghast",
+    // or a list of entity type ids, such as ["minecraft:ghast", "minecraft:skeleton", ...],
+    // or an entity type tag, such as "#minecraft:skeletons".
+    "entity_types": "#minecraft:skeletons",
+    "spawn_cost": {
+        // The energy budget
+        "energy_budget": 1.0,
+        // The amount of charge each entity takes up from the budget
+        "charge": 0.1
+    }
 }
 ```
 
-  </TabItem>
-  <TabItem value="datagen" label="Datagen">
+</TabItem>
+<TabItem value="datagen" label="Datagen">
 
 ```java
 // Define the ResourceKey for our BiomeModifier.
@@ -395,7 +395,7 @@ BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
 });
 ```
 
-  </TabItem>
+</TabItem>
 </Tabs>
 
 
@@ -404,24 +404,24 @@ BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
 Allows for removing a spawn cost from a biome. Spawn costs are a newer way of making mobs spawn spread out in a biome to reduce clustering. The modifier takes in the biome id or tag of the biomes the spawn costs are removed from, and the `EntityType` id or tag of the entities to remove the spawn cost for.
 
 <Tabs>
-  <TabItem value="json" label="JSON" default>
+<TabItem value="json" label="JSON" default>
 
 ```json5
 {
-  "type": "neoforge:remove_spawn_costs",
-  // Can either be a biome id, such as "minecraft:plains",
-  // or a list of biome ids, such as ["minecraft:plains", "minecraft:badlands", ...],
-  // or a biome tag, such as "#c:is_overworld".
-  "biomes": "#namespace:biome_tag",
-  // Can either be an entity type id, such as "minecraft:ghast",
-  // or a list of entity type ids, such as ["minecraft:ghast", "minecraft:skeleton", ...],
-  // or an entity type tag, such as "#minecraft:skeletons".
-  "entity_types": "#minecraft:skeletons"
+    "type": "neoforge:remove_spawn_costs",
+    // Can either be a biome id, such as "minecraft:plains",
+    // or a list of biome ids, such as ["minecraft:plains", "minecraft:badlands", ...],
+    // or a biome tag, such as "#c:is_overworld".
+    "biomes": "#namespace:biome_tag",
+    // Can either be an entity type id, such as "minecraft:ghast",
+    // or a list of entity type ids, such as ["minecraft:ghast", "minecraft:skeleton", ...],
+    // or an entity type tag, such as "#minecraft:skeletons".
+    "entity_types": "#minecraft:skeletons"
 }
 ```
 
-  </TabItem>
-  <TabItem value="datagen" label="Datagen">
+</TabItem>
+<TabItem value="datagen" label="Datagen">
 
 ```java
 // Define the ResourceKey for our BiomeModifier.
@@ -450,7 +450,7 @@ BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
 });
 ```
 
-  </TabItem>
+</TabItem>
 </Tabs>
 
 
@@ -459,27 +459,27 @@ BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
 This biome modifier type allows adding carver caves and ravines to biomes. These are what was used for cave generation before the Caves and Cliffs update. It CANNOT add noise caves to biomes, because noise caves are a part of certain noise-based chunk generator systems and not actually tied to biomes.
 
 <Tabs>
-  <TabItem value="json" label="JSON" default>
+<TabItem value="json" label="JSON" default>
 
 ```json5
-{
-  "type": "neoforge:add_carvers",
-  // Can either be a biome id, such as "minecraft:plains",
-  // or a list of biome ids, such as ["minecraft:plains", "minecraft:badlands", ...],
-  // or a biome tag, such as "#c:is_overworld".
-  "biomes": "minecraft:plains",
-  // Can either be a carver id, such as "examplemod:add_carvers_example",
-  // or a list of carver ids, such as ["examplemod:add_carvers_example", "minecraft:canyon", ...],
-  // or a carver tag, such as "#examplemod:configured_carver_tag".
-  "carvers": "examplemod:add_carvers_example",
-  // See GenerationStep.Carving in code for a list of valid enum names.
-  // Only "air" and "liquid" are available.
-  "step": "air"
+    {
+    "type": "neoforge:add_carvers",
+    // Can either be a biome id, such as "minecraft:plains",
+    // or a list of biome ids, such as ["minecraft:plains", "minecraft:badlands", ...],
+    // or a biome tag, such as "#c:is_overworld".
+    "biomes": "minecraft:plains",
+    // Can either be a carver id, such as "examplemod:add_carvers_example",
+    // or a list of carver ids, such as ["examplemod:add_carvers_example", "minecraft:canyon", ...],
+    // or a carver tag, such as "#examplemod:configured_carver_tag".
+    "carvers": "examplemod:add_carvers_example",
+    // See GenerationStep.Carving in code for a list of valid enum names.
+    // Only "air" and "liquid" are available.
+    "step": "air"
 }
 ```
 
-  </TabItem>
-  <TabItem value="datagen" label="Datagen">
+</TabItem>
+<TabItem value="datagen" label="Datagen">
 
 ```java
 // Assume we have some ConfiguredWorldCarver named EXAMPLE_CARVER.
@@ -511,7 +511,7 @@ BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
 });
 ```
 
-  </TabItem>
+</TabItem>
 </Tabs>
 
 ### Removing Legacy Carvers
@@ -519,32 +519,32 @@ BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
 This biome modifier type allows removing carver caves and ravines from biomes. These are what was used for cave generation before the Caves and Cliffs update. It CANNOT remove noise caves from biomes, because noise caves are baked into the dimension's noise settings system and not actually tied to biomes.
 
 <Tabs>
-  <TabItem value="json" label="JSON" default>
+<TabItem value="json" label="JSON" default>
 
 ```json5
 {
-  "type": "neoforge:remove_carvers",
-  // Can either be a biome id, such as "minecraft:plains",
-  // or a list of biome ids, such as ["minecraft:plains", "minecraft:badlands", ...],
-  // or a biome tag, such as "#c:is_overworld".
-  "biomes": "minecraft:plains",
-  // Can either be a carver id, such as "examplemod:add_carvers_example",
-  // or a list of carver ids, such as ["examplemod:add_carvers_example", "minecraft:canyon", ...],
-  // or a carver tag, such as "#examplemod:configured_carver_tag".
-  "carvers": "examplemod:add_carvers_example",
-  // Can either be a single generation step, such as "air",
-  // or a list of generation steps, such as ["air", "liquid"].
-  // See GenerationStep.Carving for a list of valid enum names.
-  // Only "air" and "liquid" are available.
-  "steps": [
-    "air",
-    "liquid"
-  ]
+    "type": "neoforge:remove_carvers",
+    // Can either be a biome id, such as "minecraft:plains",
+    // or a list of biome ids, such as ["minecraft:plains", "minecraft:badlands", ...],
+    // or a biome tag, such as "#c:is_overworld".
+    "biomes": "minecraft:plains",
+    // Can either be a carver id, such as "examplemod:add_carvers_example",
+    // or a list of carver ids, such as ["examplemod:add_carvers_example", "minecraft:canyon", ...],
+    // or a carver tag, such as "#examplemod:configured_carver_tag".
+    "carvers": "examplemod:add_carvers_example",
+    // Can either be a single generation step, such as "air",
+    // or a list of generation steps, such as ["air", "liquid"].
+    // See GenerationStep.Carving for a list of valid enum names.
+    // Only "air" and "liquid" are available.
+    "steps": [
+        "air",
+        "liquid"
+    ]
 }
 ```
 
-  </TabItem>
-  <TabItem value="datagen" label="Datagen">
+</TabItem>
+<TabItem value="datagen" label="Datagen">
 
 ```java
 // Define the ResourceKey for our BiomeModifier.
@@ -578,7 +578,7 @@ BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
 });
 ```
 
-  </TabItem>
+</TabItem>
 </Tabs>
 
 ### Available Values for Decoration Steps

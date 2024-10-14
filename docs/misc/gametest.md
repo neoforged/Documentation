@@ -18,10 +18,10 @@ A Game Test method is a `Consumer<GameTestHelper>` reference, meaning it takes i
 
 ```java
 public class ExampleGameTests {
-  @GameTest
-  public static void exampleTest(GameTestHelper helper) {
-    // Do stuff
-  }
+    @GameTest
+    public static void exampleTest(GameTestHelper helper) {
+        // Do stuff
+    }
 }
 ```
 
@@ -30,11 +30,11 @@ The `@GameTest` annotation also contains members which configure how the game te
 ```java
 // In some class
 @GameTest(
-  setupTicks = 20L, // The test spends 20 ticks to set up for execution
-  required = false // The failure is logged but does not affect the execution of the batch
+    setupTicks = 20L, // The test spends 20 ticks to set up for execution
+    required = false // The failure is logged but does not affect the execution of the batch
 )
 public static void exampleConfiguredTest(GameTestHelper helper) {
-  // Do stuff
+    // Do stuff
 }
 ```
 
@@ -89,10 +89,10 @@ If Game Test methods need to be generated dynamically, a test method generator c
 
 ```java
 public class ExampleGameTests {
-  @GameTestGenerator
-  public static Collection<TestFunction> exampleTests() {
-    // Return a collection of TestFunctions
-  }
+    @GameTestGenerator
+    public static Collection<TestFunction> exampleTests() {
+        // Return a collection of TestFunctions
+    }
 }
 ```
 
@@ -114,15 +114,15 @@ Batch methods are `Consumer<ServerLevel>` references, meaning they take in a `Se
 
 ```java
 public class ExampleGameTests {
-  @BeforeBatch(batch = "firstBatch")
-  public static void beforeTest(ServerLevel level) {
-    // Perform setup
-  }
+    @BeforeBatch(batch = "firstBatch")
+    public static void beforeTest(ServerLevel level) {
+        // Perform setup
+    }
 
-  @GameTest(batch = "firstBatch")
-  public static void exampleTest2(GameTestHelper helper) {
-    // Do stuff
-  }
+    @GameTest(batch = "firstBatch")
+    public static void exampleTest2(GameTestHelper helper) {
+        // Do stuff
+    }
 }
 ```
 
@@ -137,7 +137,7 @@ The `@GameTestHolder` annotation registers any test methods within the type (cla
 ```java
 @GameTestHolder(MODID)
 public class ExampleGameTests {
-  // ...
+    // ...
 }
 ```
 
@@ -148,13 +148,13 @@ public class ExampleGameTests {
 ```java
 // In some class
 public void registerTests(RegisterGameTestsEvent event) {
-  event.register(ExampleGameTests.class);
+    event.register(ExampleGameTests.class);
 }
 
 // In ExampleGameTests
 @GameTest(templateNamespace = MODID)
 public static void exampleTest3(GameTestHelper helper) {
-  // Perform setup
+    // Perform setup
 }
 ```
 
@@ -187,27 +187,27 @@ The name of the template is determined by `GameTest#template`. If not specified,
 @GameTestHolder(MODID)
 public class ExampleGameTests {
 
-  // Class name is prepended, template name is not specified
-  // Template Location at 'modid:examplegametests.exampletest'
-  @GameTest
-  public static void exampleTest(GameTestHelper helper) { /*...*/ }
+    // Class name is prepended, template name is not specified
+    // Template Location at 'modid:examplegametests.exampletest'
+    @GameTest
+    public static void exampleTest(GameTestHelper helper) { /*...*/ }
 
-  // Class name is not prepended, template name is not specified
-  // Template Location at 'modid:exampletest2'
-  @PrefixGameTestTemplate(false)
-  @GameTest
-  public static void exampleTest2(GameTestHelper helper) { /*...*/ }
+    // Class name is not prepended, template name is not specified
+    // Template Location at 'modid:exampletest2'
+    @PrefixGameTestTemplate(false)
+    @GameTest
+    public static void exampleTest2(GameTestHelper helper) { /*...*/ }
 
-  // Class name is prepended, template name is specified
-  // Template Location at 'modid:examplegametests.test_template'
-  @GameTest(template = "test_template")
-  public static void exampleTest3(GameTestHelper helper) { /*...*/ }
+    // Class name is prepended, template name is specified
+    // Template Location at 'modid:examplegametests.test_template'
+    @GameTest(template = "test_template")
+    public static void exampleTest3(GameTestHelper helper) { /*...*/ }
 
-  // Class name is not prepended, template name is specified
-  // Template Location at 'modid:test_template2'
-  @PrefixGameTestTemplate(false)
-  @GameTest(template = "test_template2")
-  public static void exampleTest4(GameTestHelper helper) { /*...*/ }
+    // Class name is not prepended, template name is specified
+    // Template Location at 'modid:test_template2'
+    @PrefixGameTestTemplate(false)
+    @GameTest(template = "test_template2")
+    public static void exampleTest4(GameTestHelper helper) { /*...*/ }
 }
 ```
 
@@ -249,7 +249,7 @@ There must be no spaces in-between namespaces; otherwise, the namespace will not
 The Game Test Server is a special configuration which runs a build server. The build server returns an exit code of the number of required, failed Game Tests. All failed tests, whether required or optional, are logged. This server can be run using `gradlew runGameTestServer`.
 
 <details>
-  <summary>Important infromation on NeoGradle</summary>
+<summary>Important infromation on NeoGradle</summary>
 
 :::caution
 Due to a quirk in how Gradle works, by default, if a task forces a system exit, the Gradle daemon will be killed, causing the Gradle runner to report a build failure. NeoGradle sets by default a force exit on run tasks such that any subprojects are not executed in sequence. However, as such, the Game Test Server will always fail.

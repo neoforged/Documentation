@@ -7,11 +7,11 @@ Along with blocks, items are a key component of Minecraft. While blocks make up 
 Before we get further into creating items, it is important to understand what an item actually is, and what distinguishes it from, say, a [block][block]. Let's illustrate this using an example:
 
 - In the world, you encounter a dirt block and want to mine it. This is a **block**, because it is placed in the world. (Actually, it is not a block, but a blockstate. See the [Blockstates article][blockstates] for more detailed information.)
-  - Not all blocks drop themselves when breaking (e.g. leaves), see the article on [loot tables][loottables] for more information.
+    - Not all blocks drop themselves when breaking (e.g. leaves), see the article on [loot tables][loottables] for more information.
 - Once you have [mined the block][breaking], it is removed (= replaced with an air block) and the dirt drops. The dropped dirt is an item **entity**. This means that like other entities (pigs, zombies, arrows, etc.), it can inherently be moved by things like water pushing on it, or burned by fire and lava.
 - Once you pick up the dirt item entity, it becomes an **item stack** in your inventory. An item stack is, simply put, an instance of an item with some extra information, such as the stack size.
 - Item stacks are backed by their corresponding **item** (which is what we're creating). Items hold [data components][datacomponents] that contains the default information all items stacks are initialized to (for example, every iron sword has a max durability of 250), while item stacks can modify those data components, allowing two different stacks for the same item to have different information (for example, one iron sword has 100 uses left, while another iron sword has 200 uses left). For more information on what is done through items and what is done through item stacks, read on.
-  - The relationship between items and item stacks is roughly the same as between [blocks][block] and [blockstates][blockstates], in that a blockstate is always backed by a block. It's not a really accurate comparison (item stacks aren't singletons, for example), but it gives a good basic idea about what the concept is here.
+    - The relationship between items and item stacks is roughly the same as between [blocks][block] and [blockstates][blockstates], in that a blockstate is always backed by a block. It's not a really accurate comparison (item stacks aren't singletons, for example), but it gives a good basic idea about what the concept is here.
 
 ## Creating an Item
 
@@ -62,9 +62,9 @@ All registries use `DeferredRegister` to register their contents, and items are 
 public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(ExampleMod.MOD_ID);
 
 public static final Supplier<Item> EXAMPLE_ITEM = ITEMS.registerItem(
-        "example_item",
-        Item::new, // The factory that the properties will be passed into.
-        new Item.Properties() // The properties to use.
+    "example_item",
+    Item::new, // The factory that the properties will be passed into.
+    new Item.Properties() // The properties to use.
 );
 ```
 
@@ -74,8 +74,8 @@ If you want to use `Item::new`, you can leave out the factory entirely and use t
 
 ```java
 public static final Supplier<Item> EXAMPLE_ITEM = ITEMS.registerSimpleItem(
-        "example_item",
-        new Item.Properties() // The properties to use.
+    "example_item",
+    new Item.Properties() // The properties to use.
 );
 ```
 
@@ -92,13 +92,24 @@ public static final Supplier<Item> EXAMPLE_ITEM = ITEMS.registerSimpleItem("exam
 Finally, there's also shortcuts for block items:
 
 ```java
-public static final Supplier<BlockItem> EXAMPLE_BLOCK_ITEM = ITEMS.registerSimpleBlockItem("example_block", ExampleBlocksClass.EXAMPLE_BLOCK, new Item.Properties());
+public static final Supplier<BlockItem> EXAMPLE_BLOCK_ITEM = ITEMS.registerSimpleBlockItem(
+    "example_block",
+    ExampleBlocksClass.EXAMPLE_BLOCK, new Item.Properties()
+);
 // Variant that omits the properties parameter:
-public static final Supplier<BlockItem> EXAMPLE_BLOCK_ITEM = ITEMS.registerSimpleBlockItem("example_block", ExampleBlocksClass.EXAMPLE_BLOCK);
+public static final Supplier<BlockItem> EXAMPLE_BLOCK_ITEM = ITEMS.registerSimpleBlockItem(
+    "example_block",
+    ExampleBlocksClass.EXAMPLE_BLOCK
+);
 // Variant that omits the name parameter, instead using the block's registry name:
-public static final Supplier<BlockItem> EXAMPLE_BLOCK_ITEM = ITEMS.registerSimpleBlockItem(ExampleBlocksClass.EXAMPLE_BLOCK, new Item.Properties());
+public static final Supplier<BlockItem> EXAMPLE_BLOCK_ITEM = ITEMS.registerSimpleBlockItem(
+    ExampleBlocksClass.EXAMPLE_BLOCK,
+    new Item.Properties()
+);
 // Variant that omits both the name and the properties:
-public static final Supplier<BlockItem> EXAMPLE_BLOCK_ITEM = ITEMS.registerSimpleBlockItem(ExampleBlocksClass.EXAMPLE_BLOCK);
+public static final Supplier<BlockItem> EXAMPLE_BLOCK_ITEM = ITEMS.registerSimpleBlockItem(
+    ExampleBlocksClass.EXAMPLE_BLOCK
+);
 ```
 
 :::note
@@ -143,14 +154,14 @@ In many situations, for example [recipes], item stacks need to be represented as
 
 ```json5
 {
-  // The item ID. Required.
-  "id": "minecraft:dirt",
-  // The item stack count. Optional, defaults to 1.
-  "count": 4,
-  // A map of data components. Optional, defaults to an empty map.
-  "components": {
-    "minecraft:enchantment_glint_override": true
-  }
+    // The item ID. Required.
+    "id": "minecraft:dirt",
+    // The item stack count. Optional, defaults to 1.
+    "count": 4,
+    // A map of data components. Optional, defaults to an empty map.
+    "components": {
+        "minecraft:enchantment_glint_override": true
+    }
 }
 ```
 
@@ -214,7 +225,7 @@ It is also possible to implement `ItemLike` on your custom objects. Simply overr
 [blockstates]: ../blocks/states.md
 [breaking]: ../blocks/index.md#breaking-a-block
 [creativetabs]: #creative-tabs
-[datacomponents]: ./datacomponents.mdx
+[datacomponents]: ./datacomponents.md
 [datagen]: ../resources/index.md#data-generation
 [food]: #food
 [hunger]: https://minecraft.wiki/w/Hunger#Mechanics

@@ -6,16 +6,16 @@ Most JSON files can optionally declare a `neoforge:conditions` block in the root
 
 ```json5
 {
-  "neoforge:conditions": [
-    {
-      // Condition 1
-    },
-    {
-      // Condition 2
-    },
-    // ...
-  ],
-  // The rest of the data file
+    "neoforge:conditions": [
+        {
+            // Condition 1
+        },
+        {
+            // Condition 2
+        },
+        // ...
+    ],
+    // The rest of the data file
 }
 ```
 
@@ -23,16 +23,16 @@ For example, if we want to only load our file if a mod with id `examplemod` is p
 
 ```json5
 {
-  // highlight-start
-  "neoforge:conditions": [
-    {
-      "type": "neoforge:mod_loaded",
-      "modid": "examplemod"
-    }
-  ],
-  // highlight-end
-  "type": "minecraft:crafting_shaped",
-  // ...
+    // highlight-start
+    "neoforge:conditions": [
+        {
+            "type": "neoforge:mod_loaded",
+            "modid": "examplemod"
+        }
+    ],
+    // highlight-end
+    "type": "minecraft:crafting_shaped",
+    // ...
 }
 ```
 
@@ -48,8 +48,8 @@ These consist of no data and return the expected value.
 
 ```json5
 {
-  // Will always return true (or false for "neoforge:false")
-  "type": "neoforge:true"
+    // Will always return true (or false for "neoforge:false")
+    "type": "neoforge:true"
 }
 ```
 
@@ -69,11 +69,11 @@ This condition accepts another condition and inverts it.
 
 ```json5
 {
-  // Inverts the result of the stored condition
-  "type": "neoforge:not",
-  "value": {
-    // Another condition
-  }
+    // Inverts the result of the stored condition
+    "type": "neoforge:not",
+    "value": {
+        // Another condition
+    }
 }
 ```
 
@@ -83,16 +83,16 @@ These conditions accept the condition(s) being operated upon and apply the expec
 
 ```json5
 {
-  // ANDs the stored conditions together (or ORs for "neoforge:or")
-  "type": "neoforge:and",
-  "values": [
-    {
-      // First condition
-    },
-    {
-      // Second condition
-    }
-  ]
+    // ANDs the stored conditions together (or ORs for "neoforge:or")
+    "type": "neoforge:and",
+    "values": [
+        {
+            // First condition
+        },
+        {
+            // Second condition
+        }
+    ]
 }
 ```
 
@@ -102,9 +102,9 @@ This condition returns true if a mod with the given mod id is loaded, and false 
 
 ```json5
 {
-  "type": "neoforge:mod_loaded",
-  // Returns true if "examplemod" is loaded
-  "modid": "examplemod"
+    "type": "neoforge:mod_loaded",
+    // Returns true if "examplemod" is loaded
+    "modid": "examplemod"
 }
 ```
 
@@ -114,9 +114,9 @@ This condition returns true if an item with the given registry name has been reg
 
 ```json5
 {
-  "type": "neoforge:item_exists",
-  // Returns true if "examplemod:example_item" has been registered
-  "item": "examplemod:example_item"
+    "type": "neoforge:item_exists",
+    // Returns true if "examplemod:example_item" has been registered
+    "item": "examplemod:example_item"
 }
 ```
 
@@ -126,9 +126,9 @@ This condition returns true if the given item [tag] is empty, and false otherwis
 
 ```json5
 {
-  "type": "neoforge:tag_empty",
-  // Returns true if "examplemod:example_tag" is an empty item tag
-  "tag": "examplemod:example_tag"
+    "type": "neoforge:tag_empty",
+    // Returns true if "examplemod:example_tag" is an empty item tag
+    "tag": "examplemod:example_tag"
 }
 ```
 
@@ -171,13 +171,13 @@ And then, we can use our condition in some data file (assuming we registered the
 
 ```json5
 {
-  "neoforge:conditions": [
-    {
-      "type": "examplemod:entity_tag_empty",
-      "tag": "minecraft:zombies"
-    }
-  ],
-  // The rest of the data file
+    "neoforge:conditions": [
+        {
+            "type": "examplemod:entity_tag_empty",
+            "tag": "minecraft:zombies"
+        }
+    ],
+    // The rest of the data file
 }
 ```
 

@@ -18,8 +18,8 @@ public static final Supplier<MenuType<MyMenu>> MY_MENU = REGISTER.register("my_m
 
 // In MyMenu, an AbstractContainerMenu subclass
 public MyMenu(int containerId, Inventory playerInv) {
-  super(MY_MENU.get(), containerId);
-  // ...
+    super(MY_MENU.get(), containerId);
+    // ...
 }
 ```
 
@@ -39,9 +39,9 @@ public static final Supplier<MenuType<MyMenuExtra>> MY_MENU_EXTRA = REGISTER.reg
 
 // In MyMenuExtra, an AbstractContainerMenu subclass
 public MyMenuExtra(int containerId, Inventory playerInv, FriendlyByteBuf extraData) {
-  super(MY_MENU_EXTRA.get(), containerId);
-  // Store extra data from buffer
-  // ...
+    super(MY_MENU_EXTRA.get(), containerId);
+    // Store extra data from buffer
+    // ...
 }
 ```
 
@@ -58,12 +58,12 @@ Each menu should contain two constructors: one used to initialize the menu on th
 ```java
 // Client menu constructor
 public MyMenu(int containerId, Inventory playerInventory) { // optional FriendlyByteBuf parameter if reading data from server
-  this(containerId, playerInventory, /* Any default parameters here */);
+    this(containerId, playerInventory, /* Any default parameters here */);
 }
 
 // Server menu constructor
 public MyMenu(int containerId, Inventory playerInventory, /* Any additional parameters here. */) {
-  // ...
+    // ...
 }
 ```
 
@@ -78,18 +78,18 @@ A `ContainerLevelAccess` supplies the current level and block position within an
 ```java
 // Client menu constructor
 public MyMenuAccess(int containerId, Inventory playerInventory) {
-  this(containerId, playerInventory, ContainerLevelAccess.NULL);
+    this(containerId, playerInventory, ContainerLevelAccess.NULL);
 }
 
 // Server menu constructor
 public MyMenuAccess(int containerId, Inventory playerInventory, ContainerLevelAccess access) {
-  // ...
+    // ...
 }
 
 // Assume this menu is attached to Supplier<Block> MY_BLOCK
 @Override
 public boolean stillValid(Player player) {
-  return AbstractContainerMenu.stillValid(this.access, player, MY_BLOCK.get());
+    return AbstractContainerMenu.stillValid(this.access, player, MY_BLOCK.get());
 }
 ```
 
@@ -123,22 +123,22 @@ NeoForge patches the packet to provide the full integer to the client.
 
 // Client menu constructor
 public MyMenuAccess(int containerId, Inventory playerInventory) {
-  this(containerId, playerInventory, new ItemStackHandler(5), DataSlot.standalone());
+    this(containerId, playerInventory, new ItemStackHandler(5), DataSlot.standalone());
 }
 
 // Server menu constructor
 public MyMenuAccess(int containerId, Inventory playerInventory, IItemHandler dataInventory, DataSlot dataSingle) {
-  // Check if the data inventory size is some fixed value
-  // Then, add slots for data inventory
-  this.addSlot(new SlotItemHandler(dataInventory, /*...*/));
+    // Check if the data inventory size is some fixed value
+    // Then, add slots for data inventory
+    this.addSlot(new SlotItemHandler(dataInventory, /*...*/));
 
-  // Add slots for player inventory
-  this.addSlot(new Slot(playerInventory, /*...*/));
+    // Add slots for player inventory
+    this.addSlot(new Slot(playerInventory, /*...*/));
 
-  // Add data slots for handled integers
-  this.addDataSlot(dataSingle);
+    // Add data slots for handled integers
+    this.addDataSlot(dataSingle);
 
-  // ...
+    // ...
 }
 ```
 
@@ -151,18 +151,18 @@ If multiple integers need to be synced to the client, a `ContainerData` can be u
 
 // Client menu constructor
 public MyMenuAccess(int containerId, Inventory playerInventory) {
-  this(containerId, playerInventory, new SimpleContainerData(3));
+    this(containerId, playerInventory, new SimpleContainerData(3));
 }
 
 // Server menu constructor
 public MyMenuAccess(int containerId, Inventory playerInventory, ContainerData dataMultiple) {
-  // Check if the ContainerData size is some fixed value
-  checkContainerDataCount(dataMultiple, 3);
+    // Check if the ContainerData size is some fixed value
+    checkContainerDataCount(dataMultiple, 3);
 
-  // Add data slots for handled integers
-  this.addDataSlots(dataMultiple);
+    // Add data slots for handled integers
+    this.addDataSlots(dataMultiple);
 
-  // ...
+    // ...
 }
 ```
 
@@ -184,81 +184,81 @@ Across Minecraft implementations, this method is fairly consistent in its logic:
 //   - Player Hotbar (32 - 40)
 @Override
 public ItemStack quickMoveStack(Player player, int quickMovedSlotIndex) {
-  // The quick moved slot stack
-  ItemStack quickMovedStack = ItemStack.EMPTY;
-  // The quick moved slot
-  Slot quickMovedSlot = this.slots.get(quickMovedSlotIndex) 
+    // The quick moved slot stack
+    ItemStack quickMovedStack = ItemStack.EMPTY;
+    // The quick moved slot
+    Slot quickMovedSlot = this.slots.get(quickMovedSlotIndex) 
   
-   // If the slot is in the valid range and the slot is not empty
-  if (quickMovedSlot != null && quickMovedSlot.hasItem()) {
-    // Get the raw stack to move
-    ItemStack rawStack = quickMovedSlot.getItem(); 
-    // Set the slot stack to a copy of the raw stack
-    quickMovedStack = rawStack.copy();
+    // If the slot is in the valid range and the slot is not empty
+    if (quickMovedSlot != null && quickMovedSlot.hasItem()) {
+        // Get the raw stack to move
+        ItemStack rawStack = quickMovedSlot.getItem(); 
+        // Set the slot stack to a copy of the raw stack
+        quickMovedStack = rawStack.copy();
 
-    /*
-    The following quick move logic can be simplified to if in data inventory,
-    try to move to player inventory/hotbar and vice versa for containers
-    that cannot transform data (e.g. chests).
-    */
+        /*
+        The following quick move logic can be simplified to if in data inventory,
+        try to move to player inventory/hotbar and vice versa for containers
+        that cannot transform data (e.g. chests).
+        */
 
-    // If the quick move was performed on the data inventory result slot
-    if (quickMovedSlotIndex == 0) {
-      // Try to move the result slot into the player inventory/hotbar
-      if (!this.moveItemStackTo(rawStack, 5, 41, true)) {
-        // If cannot move, no longer quick move
-        return ItemStack.EMPTY;
-      }
+        // If the quick move was performed on the data inventory result slot
+        if (quickMovedSlotIndex == 0) {
+            // Try to move the result slot into the player inventory/hotbar
+            if (!this.moveItemStackTo(rawStack, 5, 41, true)) {
+                // If cannot move, no longer quick move
+                return ItemStack.EMPTY;
+            }
 
-      // Perform logic on result slot quick move
-      slot.onQuickCraft(rawStack, quickMovedStack);
-    }
-    // Else if the quick move was performed on the player inventory or hotbar slot
-    else if (quickMovedSlotIndex >= 5 && quickMovedSlotIndex < 41) {
-      // Try to move the inventory/hotbar slot into the data inventory input slots
-      if (!this.moveItemStackTo(rawStack, 1, 5, false)) {
-        // If cannot move and in player inventory slot, try to move to hotbar
-        if (quickMovedSlotIndex < 32) {
-          if (!this.moveItemStackTo(rawStack, 32, 41, false)) {
+            // Perform logic on result slot quick move
+            slot.onQuickCraft(rawStack, quickMovedStack);
+        }
+        // Else if the quick move was performed on the player inventory or hotbar slot
+        else if (quickMovedSlotIndex >= 5 && quickMovedSlotIndex < 41) {
+            // Try to move the inventory/hotbar slot into the data inventory input slots
+            if (!this.moveItemStackTo(rawStack, 1, 5, false)) {
+                // If cannot move and in player inventory slot, try to move to hotbar
+                if (quickMovedSlotIndex < 32) {
+                    if (!this.moveItemStackTo(rawStack, 32, 41, false)) {
+                        // If cannot move, no longer quick move
+                        return ItemStack.EMPTY;
+                    }
+                }
+                // Else try to move hotbar into player inventory slot
+                else if (!this.moveItemStackTo(rawStack, 5, 32, false)) {
+                    // If cannot move, no longer quick move
+                    return ItemStack.EMPTY;
+                }
+            }
+        }
+        // Else if the quick move was performed on the data inventory input slots, try to move to player inventory/hotbar
+        else if (!this.moveItemStackTo(rawStack, 5, 41, false)) {
             // If cannot move, no longer quick move
             return ItemStack.EMPTY;
-          }
         }
-        // Else try to move hotbar into player inventory slot
-        else if (!this.moveItemStackTo(rawStack, 5, 32, false)) {
-          // If cannot move, no longer quick move
-          return ItemStack.EMPTY;
+
+        if (rawStack.isEmpty()) {
+            // If the raw stack has completely moved out of the slot, set the slot to the empty stack
+            quickMovedSlot.set(ItemStack.EMPTY);
+        } else {
+            // Otherwise, notify the slot that that the stack count has changed
+            quickMovedSlot.setChanged();
         }
-      }
-    }
-    // Else if the quick move was performed on the data inventory input slots, try to move to player inventory/hotbar
-    else if (!this.moveItemStackTo(rawStack, 5, 41, false)) {
-      // If cannot move, no longer quick move
-      return ItemStack.EMPTY;
+
+        /*
+        The following if statement and Slot#onTake call can be removed if the
+        menu does not represent a container that can transform stacks (e.g.
+        chests).
+        */
+        if (rawStack.getCount() == quickMovedStack.getCount()) {
+            // If the raw stack was not able to be moved to another slot, no longer quick move
+            return ItemStack.EMPTY;
+        }
+        // Execute logic on what to do post move with the remaining stack
+        quickMovedSlot.onTake(player, rawStack);
     }
 
-    if (rawStack.isEmpty()) {
-      // If the raw stack has completely moved out of the slot, set the slot to the empty stack
-      quickMovedSlot.set(ItemStack.EMPTY);
-    } else {
-      // Otherwise, notify the slot that that the stack count has changed
-      quickMovedSlot.setChanged();
-    }
-
-    /*
-    The following if statement and Slot#onTake call can be removed if the
-    menu does not represent a container that can transform stacks (e.g.
-    chests).
-    */
-    if (rawStack.getCount() == quickMovedStack.getCount()) {
-      // If the raw stack was not able to be moved to another slot, no longer quick move
-      return ItemStack.EMPTY;
-    }
-    // Execute logic on what to do post move with the remaining stack
-    quickMovedSlot.onTake(player, rawStack);
-  }
-
-  return quickMovedStack; // Return the slot stack
+    return quickMovedStack; // Return the slot stack
 }
 ```
 
@@ -280,8 +280,8 @@ A `MenuProvider` can easily be created using `SimpleMenuProvider`, which takes i
 // In some implementation with access to the Player on the logical server (e.g. ServerPlayer instance)
 // Assume we have ServerPlayer serverPlayer
 serverPlayer.openMenu(new SimpleMenuProvider(
-  (containerId, playerInventory, player) -> new MyMenu(containerId, playerInventory),
-  Component.translatable("menu.title.examplemod.mymenu")
+    (containerId, playerInventory, player) -> new MyMenu(containerId, playerInventory),
+    Component.translatable("menu.title.examplemod.mymenu")
 ));
 ```
 
@@ -299,15 +299,15 @@ The `MenuProvider` should be implemented by overriding `BlockBehaviour#getMenuPr
 // In some Block subclass
 @Override
 public MenuProvider getMenuProvider(BlockState state, Level level, BlockPos pos) {
-  return new SimpleMenuProvider(/* ... */);
+    return new SimpleMenuProvider(/* ... */);
 }
 
 @Override
 public InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult result) {
-  if (!level.isClientSide && player instanceof ServerPlayer serverPlayer) {
-    serverPlayer.openMenu(state.getMenuProvider(level, pos));
-  }
-  return InteractionResult.sidedSuccess(level.isClientSide);
+    if (!level.isClientSide && player instanceof ServerPlayer serverPlayer) {
+        serverPlayer.openMenu(state.getMenuProvider(level, pos));
+    }
+    return InteractionResult.sidedSuccess(level.isClientSide);
 }
 ```
 
@@ -321,15 +321,15 @@ Mobs typically implement a menu by overriding `Mob#mobInteract`. This is done si
 
 ```java
 public class MyMob extends Mob implements MenuProvider {
-  // ...
+    // ...
 
-  @Override
-  public InteractionResult mobInteract(Player player, InteractionHand hand) {
-    if (!this.level.isClientSide && player instanceof ServerPlayer serverPlayer) {
-      serverPlayer.openMenu(this);
+    @Override
+    public InteractionResult mobInteract(Player player, InteractionHand hand) {
+        if (!this.level.isClientSide && player instanceof ServerPlayer serverPlayer) {
+            serverPlayer.openMenu(this);
+        }
+        return InteractionResult.sidedSuccess(this.level.isClientSide);
     }
-    return InteractionResult.sidedSuccess(this.level.isClientSide);
-  }
 }
 ```
 

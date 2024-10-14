@@ -36,18 +36,18 @@ For example, let's assume that we have a data map object with two float keys `am
 
 ```json5
 {
-  "values": {
-    // Attach a value to the carrot item
-    "minecraft:carrot": {
-      "amount": 12,
-      "chance": 1
-    },
-    // Attach a value to all items in the logs tag
-    "#minecraft:logs": {
-      "amount": 1,
-      "chance": 0.1
+    "values": {
+        // Attach a value to the carrot item
+        "minecraft:carrot": {
+            "amount": 12,
+            "chance": 1
+        },
+        // Attach a value to all items in the logs tag
+        "#minecraft:logs": {
+            "amount": 1,
+            "chance": 0.1
+        }
     }
-  }
 }
 ```
 
@@ -55,18 +55,18 @@ Data maps may support [mergers][mergers], which will cause custom merging behavi
 
 ```json5
 {
-  "values": {
-    // Overwrite the value of the carrot item
-    "minecraft:carrot": {
-      // highlight-next-line
-      "replace": true,
-      // The new value will be under a value sub-object
-      "value": {
-        "amount": 12,
-        "chance": 1
-      }
+    "values": {
+        // Overwrite the value of the carrot item
+        "minecraft:carrot": {
+            // highlight-next-line
+            "replace": true,
+            // The new value will be under a value sub-object
+            "value": {
+                "amount": 12,
+                "chance": 1
+            }
+        }
     }
-  }
 }
 ```
 
@@ -76,10 +76,10 @@ Removing elements can be done by specifying a list of item IDs or tag IDs to rem
 
 ```json5
 {
-  // We do not want the potato to have a value, even if another mod's data map added it
-  "remove": [
-    "minecraft:potato"
-  ]
+    // We do not want the potato to have a value, even if another mod's data map added it
+    "remove": [
+        "minecraft:potato"
+    ]
 }
 ```
 
@@ -87,13 +87,13 @@ Removals run after additions, so we can include a tag and then exclude certain e
 
 ```json5
 {
-  "values": {
-    "#minecraft:logs": { /* ... */ }
-  },
-  // Exclude crimson stem again
-  "remove": [
-    "minecraft:crimson_stem"
-  ]
+    "values": {
+        "#minecraft:logs": { /* ... */ }
+    },
+    // Exclude crimson stem again
+    "remove": [
+        "minecraft:crimson_stem"
+    ]
 }
 ```
 
@@ -101,11 +101,11 @@ Data maps may support custom [removers] with additional arguments. To supply the
 
 ```json5
 {
-  "remove": {
-    // The remover will be deserialized from the value (`somekey1` in this case)
-    // and applied to the value attached to the carrot item
-    "minecraft:carrot": "somekey1"
-  }
+    "remove": {
+        // The remover will be deserialized from the value (`somekey1` in this case)
+        // and applied to the value attached to the carrot item
+        "minecraft:carrot": "somekey1"
+    }
 }
 ```
 
@@ -263,12 +263,12 @@ With this remover in mind, consider the following data file:
 
 ```json5
 {
-  "values": {
-    "minecraft:carrot": {
-      "somekey1": "value1",
-      "somekey2": "value2"
+    "values": {
+        "minecraft:carrot": {
+            "somekey1": "value1",
+            "somekey2": "value2"
+        }
     }
-  }
 }
 ```
 
@@ -276,11 +276,11 @@ Now, consider this second data file that is placed at a higher priority than the
 
 ```json5
 {
-  "remove": {
-    // As the remover is decoded as a string, we can use a string as the value here.
-    // If it were decoded as an object, we would have needed to use an object.
-    "minecraft:carrot": "somekey1"
-  }
+    "remove": {
+        // As the remover is decoded as a string, we can use a string as the value here.
+        // If it were decoded as an object, we would have needed to use an object.
+        "minecraft:carrot": "somekey1"
+    }
 }
 ```
 
@@ -288,11 +288,11 @@ That way, after both files are applied, the final result will be (an in-memory r
 
 ```json5
 {
-  "values": {
-    "minecraft:carrot": {
-      "somekey1": "value1"
+    "values": {
+        "minecraft:carrot": {
+            "somekey1": "value1"
+        }
     }
-  }
 }
 ```
 
@@ -338,26 +338,26 @@ This would then result in the following JSON file:
 
 ```json5
 {
-  "replace": true,
-  "values": {
-    "#minecraft:slabs": {
-      "amount": 10,
-      "chance": 1.0
+    "replace": true,
+    "values": {
+        "#minecraft:slabs": {
+            "amount": 10,
+            "chance": 1.0
+        },
+        "minecraft:apple": {
+            "amount": 5,
+            "chance": 0.2
+        }
     },
-    "minecraft:apple": {
-      "amount": 5,
-      "chance": 0.2
-    }
-  },
-  "remove": [
-    "#minecraft:wooden_slabs"
-  ],
-  "neoforge:conditions": [
-    {
-      "type": "neoforge:mod_loaded",
-      "modid": "botania"
-    }
-  ]
+    "remove": [
+        "#minecraft:wooden_slabs"
+    ],
+    "neoforge:conditions": [
+        {
+            "type": "neoforge:mod_loaded",
+            "modid": "botania"
+        }
+    ]
 }
 ```
 

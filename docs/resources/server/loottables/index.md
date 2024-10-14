@@ -164,40 +164,40 @@ An example loot table could have the following format:
 
 ```json5
 {
-  "type": "chest", // loot parameter set
-  "neoforge:conditions": [
-    // data load conditions
-  ],
-  "functions": [
-    // table-wide loot functions
-  ],
-  "pools": [ // list of loot pools
-    {
-      "rolls": 1, // amount of rolls of the loot table, using 5 here will yield 5 results from the pool
-      "bonus_rolls": 0.5, // amount of bonus rolls
-      "name": "my_pool",
-      "conditions": [
-        // pool-wide loot conditions
-      ],
-      "functions": [
-        // pool-wide loot functions
-      ],
-      "entries": [ // list of loot table entries
+    "type": "chest", // loot parameter set
+    "neoforge:conditions": [
+        // data load conditions
+    ],
+    "functions": [
+        // table-wide loot functions
+    ],
+    "pools": [ // list of loot pools
         {
-          "type": "minecraft:item", // loot entry type
-          "name": "minecraft:dirt", // type-specific properties, for example the name of the item
-          "weight": 3, // weight of an entry
-          "quality": 1, // quality of an entry
-          "conditions": [
-            // entry-wide loot conditions
-          ],
-          "functions": [
-            // entry-wide loot functions
-          ]
+            "rolls": 1, // amount of rolls of the loot table, using 5 here will yield 5 results from the pool
+            "bonus_rolls": 0.5, // amount of bonus rolls
+            "name": "my_pool",
+            "conditions": [
+                // pool-wide loot conditions
+            ],
+            "functions": [
+                // pool-wide loot functions
+            ],
+            "entries": [ // list of loot table entries
+                {
+                    "type": "minecraft:item", // loot entry type
+                    "name": "minecraft:dirt", // type-specific properties, for example the name of the item
+                    "weight": 3, // weight of an entry
+                    "quality": 1, // quality of an entry
+                    "conditions": [
+                        // entry-wide loot conditions
+                    ],
+                    "functions": [
+                        // entry-wide loot functions
+                    ]
+                }
+            ]
         }
-      ]
-    }
-  ]
+    ]
 }
 ```
 

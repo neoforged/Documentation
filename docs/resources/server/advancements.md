@@ -10,21 +10,21 @@ An advancement JSON file may contain the following entries:
 
 - `parent`: The parent advancement ID of this advancement. Circular references will be detected and cause a loading failure. Optional; if absent, this advancement will be considered a root advancement. Root advancements are advancements that have no parent set. They will be the root of their [advancement tree][tree].
 - `display`: The object holding several properties used for display of the advancement in the advancement GUI. Optional; if absent, this advancement will be invisible, but can still be triggered.
-  - `icon`: A [JSON representation of an item stack][itemstackjson].
-  - `text`: A [text component][text] to use as the advancement's title.
-  - `description`: A [text component][text] to use as the advancement's description.
-  - `frame`: The frame type of the advancement. Accepts `challenge`, `goal` and `task`. Optional, defaults to `task`.
-  - `background`: The texture to use for the tree background. This is not relative to the `textures` directory, i.e. the `textures/` folder prefix must be included. Optional, defaults to the missing texture. Only effective on root advancements.
-  - `show_toast`: Whether to show a toast in the top right corner on completion. Optional, defaults to true.
-  - `announce_to_chat`: Whether to announce advancement completion in the chat. Optional, defaults to true.
-  - `hidden`: Whether to hide this advancement and all children from the advancement GUI until it is completed. Has no effect on root advancements themselves, but still hides all of their children. Optional, defaults to false.
+    - `icon`: A [JSON representation of an item stack][itemstackjson].
+    - `text`: A [text component][text] to use as the advancement's title.
+    - `description`: A [text component][text] to use as the advancement's description.
+    - `frame`: The frame type of the advancement. Accepts `challenge`, `goal` and `task`. Optional, defaults to `task`.
+    - `background`: The texture to use for the tree background. This is not relative to the `textures` directory, i.e. the `textures/` folder prefix must be included. Optional, defaults to the missing texture. Only effective on root advancements.
+    - `show_toast`: Whether to show a toast in the top right corner on completion. Optional, defaults to true.
+    - `announce_to_chat`: Whether to announce advancement completion in the chat. Optional, defaults to true.
+    - `hidden`: Whether to hide this advancement and all children from the advancement GUI until it is completed. Has no effect on root advancements themselves, but still hides all of their children. Optional, defaults to false.
 - `criteria`: A map of criteria this advancement should track. Every criterion is identified by its map key. A list of criteria triggers added by Minecraft can be found in the `CriteriaTriggers` class, and the JSON specifications can be found on the [Minecraft Wiki][triggers]. For implementing your own criteria or triggering criteria from code, see below.
 - `requirements`: A list of lists that determine what criteria are required. This is a list of OR lists that are ANDed together, or in other words, every sublist must have at least one criterion matching. Optional, defaults to all criteria being required.
 - `rewards`: An object representing the rewards to grant when this advancement is completed. Optional, all values of the object are also optional.
-  - `experience`: The amount of experience to award to the player.
-  - `recipes`: A list of [recipe] IDs to unlock.
-  - `loot`: A list of [loot tables][loottable] to roll and give to the player.
-  - `function`: A [function] to run. If you want to run multiple functions, create a wrapper function that runs all other functions.
+    - `experience`: The amount of experience to award to the player.
+    - `recipes`: A list of [recipe] IDs to unlock.
+    - `loot`: A list of [loot tables][loottable] to roll and give to the player.
+    - `function`: A [function] to run. If you want to run multiple functions, create a wrapper function that runs all other functions.
 - `sends_telemetry_event`: Determines whether telemetry data should be collected when this advancement is completed or not. Only actually does anything if in the `minecraft` namespace. Optional, defaults to false.
 - `neoforge:conditions`: NeoForge-added. A list of [conditions] that must be passed for the advancement to be loaded. Optional.
 

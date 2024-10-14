@@ -22,13 +22,13 @@ Example usage:
 
 ```json5
 {
-  "replace": false, // must be present
-  "entries": [
-    // represents a loot modifier in data/examplemod/loot_modifiers/example_glm_1.json
-    "examplemod:example_glm_1",
-    "examplemod:example_glm_2"
-    // ...
-  ]
+    "replace": false, // must be present
+    "entries": [
+        // represents a loot modifier in data/examplemod/loot_modifiers/example_glm_1.json
+        "examplemod:example_glm_1",
+        "examplemod:example_glm_2"
+        // ...
+    ]
 }
 ```
 
@@ -48,15 +48,15 @@ An example usage may look something like this:
 
 ```json5
 {
-  // This is the registry name of the loot modifier
-  "type": "examplemod:my_loot_modifier",
-  "conditions": [
-    // Loot table conditions here
-  ],
-  // Extra properties specified by the codec
-  "field1": "somestring",
-  "field2": 10,
-  "field3": "minecraft:dirt"
+    // This is the registry name of the loot modifier
+    "type": "examplemod:my_loot_modifier",
+    "conditions": [
+        // Loot table conditions here
+    ],
+    // Extra properties specified by the codec
+    "field1": "somestring",
+    "field2": 10,
+    "field3": "minecraft:dirt"
 }
 ```
 
@@ -137,9 +137,9 @@ This loot modifier rolls a second loot table and adds the results to the loot ta
 
 ```json5
 {
-  "type": "neoforge:add_table",
-  "conditions": [], // the required loot conditions
-  "table": "minecraft:chests/abandoned_mineshaft" // the second table to roll
+    "type": "neoforge:add_table",
+    "conditions": [], // the required loot conditions
+    "table": "minecraft:chests/abandoned_mineshaft" // the second table to roll
 }
 ```
 
