@@ -222,9 +222,9 @@ If you are a modder adding a new entity, make sure the entity has a spawn restri
     "spawners": [
         {
             "type": "namespace:entity_type", // The id of the entity type to spawn
-            "weight": 100, // int, spawn weight
-            "minCount": 1, // int, minimum group size
-            "maxCount": 4 // int, maximum group size
+            "weight": 100, // non-negative int, spawn weight
+            "minCount": 1, // positive int, minimum group size
+            "maxCount": 4 // positive int, maximum group size
         },
         {
             "type": "minecraft:ghast",
@@ -471,10 +471,7 @@ This biome modifier type allows adding carver caves and ravines to biomes. These
     // Can either be a carver id, such as "examplemod:add_carvers_example",
     // or a list of carver ids, such as ["examplemod:add_carvers_example", "minecraft:canyon", ...],
     // or a carver tag, such as "#examplemod:configured_carver_tag".
-    "carvers": "examplemod:add_carvers_example",
-    // See GenerationStep.Carving in code for a list of valid enum names.
-    // Only "air" and "liquid" are available.
-    "step": "air"
+    "carvers": "examplemod:add_carvers_example"
 }
 ```
 
@@ -503,9 +500,7 @@ BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
             // The biome(s) to generate within
             HolderSet.direct(biomes.getOrThrow(Biomes.PLAINS)),
             // The carver(s) to generate within the biomes
-            HolderSet.direct(carvers.getOrThrow(EXAMPLE_CARVER)),
-            // The generation step
-            GenerationStep.Carving.AIR
+            HolderSet.direct(carvers.getOrThrow(EXAMPLE_CARVER))
         )
     );
 });
@@ -531,15 +526,7 @@ This biome modifier type allows removing carver caves and ravines from biomes. T
     // Can either be a carver id, such as "examplemod:add_carvers_example",
     // or a list of carver ids, such as ["examplemod:add_carvers_example", "minecraft:canyon", ...],
     // or a carver tag, such as "#examplemod:configured_carver_tag".
-    "carvers": "examplemod:add_carvers_example",
-    // Can either be a single generation step, such as "air",
-    // or a list of generation steps, such as ["air", "liquid"].
-    // See GenerationStep.Carving for a list of valid enum names.
-    // Only "air" and "liquid" are available.
-    "steps": [
-        "air",
-        "liquid"
-    ]
+    "carvers": "examplemod:add_carvers_example"
 }
 ```
 
@@ -567,12 +554,7 @@ BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
             // The biome(s) to remove from
             biomes.getOrThrow(Tags.Biomes.IS_OVERWORLD),
             // The carver(s) to remove from the biomes
-            HolderSet.direct(carvers.getOrThrow(Carvers.CAVE)),
-            // The generation steps to remove from
-            Set.of(
-                GenerationStep.Carving.AIR,
-                GenerationStep.Carving.LIQUID
-            )
+            HolderSet.direct(carvers.getOrThrow(Carvers.CAVE))
         )
     );
 });
