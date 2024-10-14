@@ -135,8 +135,8 @@ public net.minecraft.util.Crypt$ByteArrayToKeyFunction
 protected-f net.minecraft.server.MinecraftServer random
 
 # Makes public the 'makeExecutor' method in Util,
-# accepting a String and returns an ExecutorService
-public net.minecraft.Util makeExecutor(Ljava/lang/String;)Ljava/util/concurrent/ExecutorService;
+# accepting a String and returns a TracingExecutor
+public net.minecraft.Util makeExecutor(Ljava/lang/String;)Lnet/minecraft/TracingExecutor;
 
 # Makes public the 'leastMostToIntArray' method in UUIDUtil,
 # accepting two longs and returning an int[]
