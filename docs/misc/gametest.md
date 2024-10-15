@@ -249,7 +249,7 @@ There must be no spaces in-between namespaces; otherwise, the namespace will not
 The Game Test Server is a special configuration which runs a build server. The build server returns an exit code of the number of required, failed Game Tests. All failed tests, whether required or optional, are logged. This server can be run using `gradlew runGameTestServer`.
 
 <details>
-<summary>Important infromation on NeoGradle</summary>
+<summary>Important information on NeoGradle</summary>
 
 :::caution
 Due to a quirk in how Gradle works, by default, if a task forces a system exit, the Gradle daemon will be killed, causing the Gradle runner to report a build failure. NeoGradle sets by default a force exit on run tasks such that any subprojects are not executed in sequence. However, as such, the Game Test Server will always fail.
