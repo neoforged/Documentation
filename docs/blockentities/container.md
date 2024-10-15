@@ -259,7 +259,7 @@ public class MyBackpackContainer extends SimpleContainer {
 And voilà, you have created an item-backed container! Call `new MyBackpackContainer(stack)` to create a container for a menu or other use case.
 
 :::warning
-Be aware that `Menu`s that directly interface with `Container`s must `#copy()` their `ItemStack`s when modifying them, as otherwise the immutability contract on data components is broken. To do this, NeoForge provides the `StackCopySlot` class for you.
+Be aware that menus that directly interface with `Container`s must `#copy()` their `ItemStack`s when modifying them, as otherwise the immutability contract on data components is broken. To do this, NeoForge provides the `StackCopySlot` class for you.
 :::
 
 ## `Container`s on `Entity`s

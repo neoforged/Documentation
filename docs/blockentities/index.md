@@ -30,16 +30,14 @@ public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITY_TYPES =
 
 public static final Supplier<BlockEntityType<MyBlockEntity>> MY_BLOCK_ENTITY = BLOCK_ENTITY_TYPES.register(
         "my_block_entity",
-        // The block entity type, created using a builder.
-        () -> BlockEntityType.Builder.of(
+        // The block entity type.
+        () -> new BlockEntityType<>(
                 // The supplier to use for constructing the block entity instances.
                 MyBlockEntity::new,
                 // A vararg of blocks that can have this block entity.
                 // This assumes the existence of the referenced blocks as DeferredBlock<Block>s.
                 MyBlocks.MY_BLOCK_1.get(), MyBlocks.MY_BLOCK_2.get()
         )
-        // Build using null; vanilla does some datafixer shenanigans with the parameter that we don't need.
-        .build(null)
 );
 ```
 
@@ -54,7 +52,7 @@ public class MyBlockEntity extends BlockEntity {
 ```
 
 :::info
-The reason for this rather confusing setup process is that `BlockEntityType.Builder#of` expects a `BlockEntityType.BlockEntitySupplier<T extends BlockEntity>`, which is basically a `BiFunction<BlockPos, BlockState, T extends BlockEntity>`. As such, having a constructor we can directly reference using `::new` is highly beneficial. However, we also need to provide the constructed block entity type to the default and only constructor of `BlockEntity`, so we need to pass references around a bit.
+The reason for this rather confusing setup process is that `BlockEntityType` expects a `BlockEntityType.BlockEntitySupplier<T extends BlockEntity>`, which is basically a `BiFunction<BlockPos, BlockState, T extends BlockEntity>`. As such, having a constructor we can directly reference using `::new` is highly beneficial. However, we also need to provide the constructed block entity type to the default and only constructor of `BlockEntity`, so we need to pass references around a bit.
 :::
 
 Finally, we need to modify the block class associated with the block entity. This means that we will not be able to attach block entities to simple instances of `Block`, instead, we need a subclass:
@@ -75,7 +73,7 @@ public class MyEntityBlock extends Block implements EntityBlock {
 }
 ```
 
-And then, you of course need to use this class as the type in your block registration:
+And then, you of course need to use this class as the type in your [block registration][blockreg]:
 
 ```java
 public static final DeferredBlock<MyEntityBlock> MY_BLOCK_1 =
@@ -232,6 +230,7 @@ It is important that you do safety checks, as the `BlockEntity` might already be
 :::
 
 [block]: ../blocks/index.md
+[blockreg]: ../blocks/index.md#basic-blocks
 [blockstate]: ../blocks/states.md
 [dataattachments]: ../datastorage/attachments.md
 [nbt]: ../datastorage/nbt.md
