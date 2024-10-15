@@ -3,7 +3,7 @@ import TabItem from '@theme/TabItem';
 
 # Enchantments
 
-Enchantments are special effects that can be applied to tools and other items. As of 1.21, enchantments are stored on items as [Data Components], are defined in JSON, and are comprised of so-called enchantment effect components. During the game, the enchantments on a particular item are contained within the `DataComponentTypes.ENCHANTMENT` component, in an `ItemEnchantment` instance.
+Enchantments are special effects that can be applied to tools and other items. As of 1.21, enchantments are stored on items as [Data Components], are defined in JSON, and are comprised of so-called enchantment effect components. During the game, the enchantments on a particular item are contained within the `DataComponents.ENCHANTMENTS` component, in an `ItemEnchantments` instance.
 
 A new enchantment can be added by creating a JSON file in your namespace's `enchantment` datapack subfolder. For example, to create an enchantment called `examplemod:example_enchant`, one would create a file `data/examplemod/enchantment/example_enchantment.json`. 
 
@@ -134,13 +134,16 @@ Enchantment effect component types must be [registered] to `BuiltInRegistries.EN
 
 ```java
 // In some registration class
-public static final DeferredRegister<DataComponentType<?>> ENCHANTMENT_COMPONENT_TYPES = DeferredRegister.create(BuiltInRegistries.ENCHANTMENT_EFFECT_COMPONENT_TYPE, "examplemod");
+public static final DeferredRegister<DataComponentType<?>> ENCHANTMENT_COMPONENT_TYPES =
+    DeferredRegister.create(BuiltInRegistries.ENCHANTMENT_EFFECT_COMPONENT_TYPE, "examplemod");
 
 public static final DeferredHolder<DataComponentType<?>, DataComponentType<Increment>>> INCREMENT =
-    ENCHANTMENT_COMPONENT_TYPES.register("increment",
-        () -> DataComponentType.<Increment>builder()
+    ENCHANTMENT_COMPONENT_TYPES.register(
+        "increment",
+        () -> DataComponentType.builder()
             .persistent(Increment.CODEC)
-            .build());
+            .build()
+    );
 ```
 
 Now, we can implement some game logic that makes use of this component to alter an integer value:
@@ -165,25 +168,29 @@ int modifiedValue = atomicValue.get();
 // Use the now-modified value elsewhere in your game logic.
 ```
 
-First, we invoke one of the overloads of `EnchantmentHelper#runIterationOnItem`. This function accepts an `EnchantmentHelper.EnchantmentVisitor`, which is a functional interface that accepts an enchantment and its level, and is invoked on all of the enchantments that the given itemstack has (essentially a `BiConsumer<Enchantment, Integer>`).
+First, we invoke one of the overloads of `EnchantmentHelper#runIterationOnItem`. This function accepts an `EnchantmentHelper.EnchantmentVisitor`, which is a functional interface that accepts an enchantment and its level, and is invoked on all of the enchantments that the given itemstack has (essentially a `BiConsumer<Holder<Enchantment>, Integer>`).
 
 To actually perform the adjustment, use the provided `Increment#add` method. Since this is inside of a lambda expression, we need to use a type that can be updated atomically, such as `AtomicInteger`, to modify this value. This also permits multiple `INCREMENT` components to run on the same item and stack their effects, like what happens in vanilla.
 
 ### `ConditionalEffect`
 Wrapping the type in `ConditionalEffect<?>` allows the enchantment effect component to optionally take effect based on a given [LootContext].
 
-`ConditionalEffect` provides `ConditionalEffect#matches(LootContext context)`, which returns whether the effect should be allowed to run based on its internal `Optional<LootItemConditon>`, and handled serialization and deserialization of its `LootItemCondition`.
-
-Vanilla adds an additional helper method to further streamline the process of checking these conditions: `Enchantment#applyEffects()`. This method takes a `List<ConditionalEffect<T>>`, evaluates the conditions, and runs a `Consumer<T>` on each `T` contained by a `ConditionalEffect` whose condition was met. Since many vanilla enchantment effect components are defined as a `List<ConditionalEffect<?>>`, these can be directly plugged into the helper method like so:
+`ConditionalEffect` provides `ConditionalEffect#matches(LootContext context)`, which returns whether the effect should be allowed to run based on its internal `Optional<LootItemConditon>`, and handled serialization and deserialization of its `LootItemCondition`:
 
 ```java
-// `enchant` is an Enchantment instance.
-// `lootContext` is a LootContext instance.
-Enchantment.applyEffects(
-    enchant.getEffects(EnchantmentEffectComponents.KNOCKBACK), // Or whichever other List<ConditionalEffect<T>> you want
-    lootContext,
-    (effectData) -> // Use the effectData (in this example, an EnchantmentValueEffect) however you want.
-);
+// Given some Enchantment `enchantment`
+// And a LootContext `ctx`
+for (
+    ConditionalEffect<EnchantmentValueEffect> conditionalEffect :
+    // Can be whatever collection of `ConditionalEffect` desired
+    enchantment.getEffects(EnchantmentEffectComponents.KNOCKBACK)
+) {
+    // If the conditions of the effect succeeds
+    if (conditionalEffect.matches(ctx)) {
+        EnchantmentValueEffect effect = conditionalEffect.effect();
+        // Apply effect here
+    }
+}
 ```
 
 Registering a custom `ConditionalEffect`-wrapped enchantment effect component type can be done as follows:
@@ -192,13 +199,14 @@ Registering a custom `ConditionalEffect`-wrapped enchantment effect component ty
 public static final DeferredHolder<DataComponentType<?>, DataComponentType<ConditionalEffect<Increment>>> CONDITIONAL_INCREMENT =
     ENCHANTMENT_COMPONENT_TYPES.register("conditional_increment",
         () -> DataComponentType.ConditionalEffect<Increment>builder()
-            // The LootContextParamSet needed depends on what the enchantment is supposed to do.
+            // The ContextKeySet needed depends on what the enchantment is supposed to do.
             // This might be one of ENCHANTED_DAMAGE, ENCHANTED_ITEM, ENCHANTED_LOCATION, ENCHANTED_ENTITY, or HIT_BLOCK
             // since all of these bring the enchantment level into context (along with whatever other information is indicated).
             .persistent(ConditionalEffect.codec(Increment.CODEC, LootContextParamSets.ENCHANTED_DAMAGE))
             .build());
 ```
-The parameters to `ConditionalEffect.codec` are the codec for the generic `ConditionalEffect<T>`, followed by some `LootContextParamSets` entry.
+
+The parameters to `ConditionalEffect.codec` are the codec for the generic `ConditionalEffect<T>`, followed by some `ContextKeySet` entry.
 
 ## Enchantment Data Generation
 
@@ -313,13 +321,13 @@ BUILDER.add(
 </TabItem>
 </Tabs>
 
-[Data Components]: /docs/items/datacomponents
-[Codec]: /docs/datastorage/codecs
+[Data Components]: ../../../items/datacomponents.md
+[Codec]: ../../../datastorage/codecs.md
 [Enchantment definition Minecraft wiki page]: https://minecraft.wiki/w/Enchantment_definition
-[registered]: /docs/concepts/registries
+[registered]: ../../../concepts/registries.md
 [Predicate]: https://minecraft.wiki/w/Predicate
-[data generation]: /docs/resources/#data-generation
+[data generation]: ../../../resources/index.md#data-generation
 [Data Generation for Datapack Registries]: https://docs.neoforged.net/docs/concepts/registries/#data-generation-for-datapack-registries
 [relevant minecraft wiki page]: https://minecraft.wiki/w/Enchantment_definition#Entity_effects
-[built-in enchantment effect components]: builtin.md
-[LootContext]: /docs/resources/server/loottables/#loot-context
+[built-in enchantment effect components]: ./builtin.md
+[LootContext]: ../loottables/index.md#loot-context

@@ -180,8 +180,8 @@ Vanilla adds the following location based events:
 - `minecraft:all_of`: Runs a list of entity effects in sequence.
 - `minecraft:apply_mob_effect`: Applies a [mob effect] to the affected mob.
 - `minecraft:attribute`: Applies an [attribute modifier] to the wielder of the enchantment.
+- `minecraft:change_item_damage`: Damages this item's durability.
 - `minecraft:damage_entity`: Does damage to the affected entity. This stacks with attack damage if in an attacking context.
-- `minecraft:damage_item`: Damages this item's durability.
 - `minecraft:explode`: Summons an explosion. 
 - `minecraft:ignite`: Sets the entity on fire.
 - `minecraft:play_sound`: Plays a specified sound.
@@ -327,15 +327,15 @@ For more detail on each of these, please look at the [relevant minecraft wiki pa
 
 - `minecraft:trident_sound`: Determines the sound events that occur when using a trident. Each entry represents one level of the enchantment.
 
-[enchantment]: index.md
+[enchantment]: ./index.md
 [Value Effect Components]: https://minecraft.wiki/w/Enchantment_definition#Components_with_value_effects
 [Entity Effect Components]: https://minecraft.wiki/w/Enchantment_definition#Components_with_entity_effects
 [Location Based Effect Components]: https://minecraft.wiki/w/Enchantment_definition#location_changed
-[text component]: /docs/resources/client/i18n.md
-[LevelBasedValue]: /docs/resources/server/loottables/#number-provider
+[text component]: ../../client/i18n.md
+[LevelBasedValue]: ../loottables/index.md#number-provider
 [Attribute Effect Component]: https://minecraft.wiki/w/Enchantment_definition#Attribute_effects
 [datapack function]: https://minecraft.wiki/w/Function_(Java_Edition)
 [luck]: https://minecraft.wiki/w/Luck
-[mob effect]: /docs/items/mobeffects/
+[mob effect]: ../../../items/mobeffects.md
 [attribute modifier]: https://minecraft.wiki/w/Attribute#Modifiers
 [relevant minecraft wiki page]: https://minecraft.wiki/w/Enchantment_definition#Components_with_entity_effects
