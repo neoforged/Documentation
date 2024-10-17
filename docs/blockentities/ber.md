@@ -115,6 +115,16 @@ public static void registerClientExtensions(RegisterClientExtensionsEvent event)
 `IClientItemExtensions` are generally expected to be treated as singletons. Do not construct them outside `RegisterClientExtensionsEvent`!
 :::
 
+Finally, the item has to know that it should use the BEWLR for its rendering. This is done by having the final [`BakedModel`][bakedmodel] return true for `#isCustomRenderer`. The easiest way to do this is to have the [item model JSON][model] with a `parent` of `minecraft:builtin/entity`:
+
+```json5
+// In some item model file assets/<mod_id>/models/item/<registry_name>.json
+{
+    "parent": "minecraft: builtin/entity",
+    // ...
+}
+```
+
 [block]: ../blocks/index.md
 [blockentity]: index.md
 [event]: ../concepts/events.md#registering-an-event-handler
