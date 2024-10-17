@@ -22,7 +22,7 @@ public class MyBlockEntity extends BlockEntity {
 
 As you may have noticed, we pass an undefined variable `type` to the super constructor. Let's leave that undefined variable there for a moment and instead move to registration.
 
-Registration happens in a similar fashion to entities. We create an instance of the associated singleton class `BlockEntityType<?>` and register it to the block entity type registry, like so:
+[Registration][registration] happens in a similar fashion to entities. We create an instance of the associated singleton class `BlockEntityType<?>` and register it to the block entity type registry, like so:
 
 ```java
 public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITY_TYPES =
@@ -40,6 +40,10 @@ public static final Supplier<BlockEntityType<MyBlockEntity>> MY_BLOCK_ENTITY = B
         )
 );
 ```
+
+:::note
+Remember that the `DeferredRegister` must be [registered][registration] to the mod event bus!
+:::
 
 Now that we have our block entity type, we can use it in place of the `type` variable we left earlier:
 
