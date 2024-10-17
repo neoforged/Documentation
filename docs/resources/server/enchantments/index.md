@@ -175,22 +175,20 @@ To actually perform the adjustment, use the provided `Increment#add` method. Sin
 ### `ConditionalEffect`
 Wrapping the type in `ConditionalEffect<?>` allows the enchantment effect component to optionally take effect based on a given [LootContext].
 
-`ConditionalEffect` provides `ConditionalEffect#matches(LootContext context)`, which returns whether the effect should be allowed to run based on its internal `Optional<LootItemConditon>`, and handled serialization and deserialization of its `LootItemCondition`:
+`ConditionalEffect` provides `ConditionalEffect#matches(LootContext context)`, which returns whether the effect should be allowed to run based on its internal `Optional<LootItemConditon>`, and handled serialization and deserialization of its `LootItemCondition`.
+
+Vanilla adds an additional helper method to further streamline the process of checking these conditions: `Enchantment#applyEffects()`. This method takes a `List<ConditionalEffect<T>>`, evaluates the conditions, and runs a `Consumer<T>` on each `T` contained by a `ConditionalEffect` whose condition was met. Since many vanilla enchantment effect components are defined as a `List<ConditionalEffect<?>>`, these can be directly plugged into the helper method like so:
 
 ```java
-// Given some Enchantment `enchantment`
-// And a LootContext `ctx`
-for (
-    ConditionalEffect<EnchantmentValueEffect> conditionalEffect :
-    // Can be whatever collection of `ConditionalEffect` desired
-    enchantment.getEffects(EnchantmentEffectComponents.KNOCKBACK)
-) {
-    // If the conditions of the effect succeeds
-    if (conditionalEffect.matches(ctx)) {
-        EnchantmentValueEffect effect = conditionalEffect.effect();
-        // Apply effect here
-    }
-}
+// `enchant` is an Enchantment instance.
+// `lootContext` is a LootContext instance.
+enchant.applyEffects(
+    // Or whichever other List<ConditionalEffect<T>> you want
+    enchant.getEffects(EnchantmentEffectComponents.KNOCKBACK),
+    // The context to test the conditions against
+    lootContext,
+    (effectData) -> // Use the effectData (in this example, an EnchantmentValueEffect) however you want.
+);
 ```
 
 Registering a custom `ConditionalEffect`-wrapped enchantment effect component type can be done as follows:
