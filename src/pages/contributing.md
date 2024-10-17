@@ -61,8 +61,6 @@ If the pseudocode is not explanatory enough to understand the concept, then a fu
 
 If a change occurs between a minor or patch versions of NeoForge, then relevant changes in the documentation should be split into separate sections or put into tabs. This maintains the accuracy of the information depending on the version the modder is currently developing for.
 
-Tabs must be in an `.mdx` file, not an `.md` file, for proper IDE support.
-
 ````md
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';

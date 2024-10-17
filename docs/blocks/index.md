@@ -18,7 +18,7 @@ So now, let's register our blocks:
 
 ```java
 //BLOCKS is a DeferredRegister.Blocks
-public static final DeferredBlock<Block> MY_BLOCK = BLOCKS.register("my_block", () -> new Block(...));
+public static final DeferredBlock<Block> MY_BLOCK = BLOCKS.register("my_block", registryName -> new Block(...));
 ```
 
 After registering the block, all references to the new `my_block` should use this constant. For example, if you want to check if the block at a given position is `my_block`, the code for that would look something like this:
@@ -51,6 +51,8 @@ public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBloc
 
 For simple blocks which need no special functionality (think cobblestone, wooden planks, etc.), the `Block` class can be used directly. To do so, during registration, instantiate `Block` with a `BlockBehaviour.Properties` parameter. This `BlockBehaviour.Properties` parameter can be created using `BlockBehaviour.Properties#of`, and it can be customized by calling its methods. The most important methods for this are:
 
+- `setId` - Sets the resource key of the block.
+    - This **must** be set on every block; otherwise, an exception will be thrown.
 - `destroyTime` - Determines the time the block needs to be destroyed.
     - Stone has a destroy time of 1.5, dirt has 0.5, obsidian has 50, and bedrock has -1 (unbreakable).
 - `explosionResistance` - Determines the explosion resistance of the block.
@@ -68,8 +70,9 @@ So for example, a simple implementation would look something like this:
 //BLOCKS is a DeferredRegister.Blocks
 public static final DeferredBlock<Block> MY_BETTER_BLOCK = BLOCKS.register(
         "my_better_block", 
-        () -> new Block(BlockBehaviour.Properties.of()
+        registryName -> new Block(BlockBehaviour.Properties.of()
                 //highlight-start
+                .setId(ResourceKey.create(Registries.BLOCK, registryName))
                 .destroyTime(2.0f)
                 .explosionResistance(10.0f)
                 .sound(SoundType.GRAVEL)
@@ -108,14 +111,14 @@ public class SimpleBlock extends Block {
 
     @Override
     public MapCodec<SimpleBlock> codec() {
-        return SIMPLE_CODEC.value();
+        return SIMPLE_CODEC.get();
     }
 }
 
 // In some registration class
 public static final DeferredRegister<MapCodec<? extends Block>> REGISTRAR = DeferredRegister.create(BuiltInRegistries.BLOCK_TYPE, "yourmodid");
 
-public static final DeferredHolder<MapCodec<? extends Block>, MapCodec<SimpleBlock>> SIMPLE_CODEC = REGISTRAR.register(
+public static final Suppler<MapCodec<SimpleBlock>> SIMPLE_CODEC = REGISTRAR.register(
     "simple",
     () -> simpleCodec(SimpleBlock::new)
 );
@@ -133,7 +136,7 @@ public class ComplexBlock extends Block {
 
     @Override
     public MapCodec<ComplexBlock> codec() {
-        return COMPLEX_CODEC.value();
+        return COMPLEX_CODEC.get();
     }
 
     public int getValue() {
@@ -144,14 +147,14 @@ public class ComplexBlock extends Block {
 // In some registration class
 public static final DeferredRegister<MapCodec<? extends Block>> REGISTRAR = DeferredRegister.create(BuiltInRegistries.BLOCK_TYPE, "yourmodid");
 
-public static final DeferredHolder<MapCodec<? extends Block>, MapCodec<ComplexBlock>> COMPLEX_CODEC = REGISTRAR.register(
+public static final Supplier<MapCodec<ComplexBlock>> COMPLEX_CODEC = REGISTRAR.register(
     "simple",
     () -> RecordCodecBuilder.mapCodec(instance ->
         instance.group(
             Codec.INT.fieldOf("value").forGetter(ComplexBlock::getValue),
             BlockBehaviour.propertiesCodec() // represents the BlockBehavior.Properties parameter
         ).apply(instance, ComplexBlock::new)
-    );
+    )
 );
 ```
 
@@ -173,7 +176,7 @@ public static final DeferredBlock<Block> EXAMPLE_BLOCK = BLOCKS.registerBlock(
 );
 ```
 
-Internally, this will simply call `BLOCKS.register("example_block", () -> new Block(BlockBehaviour.Properties.of()))` by applying the properties parameter to the provided block factory (which is commonly the constructor).
+Internally, this will simply call `BLOCKS.register("example_block", registryName -> new Block(BlockBehaviour.Properties.of().setId(ResourceKey.create(Registries.BLOCK, registryName))))` by applying the properties parameter to the provided block factory (which is commonly the constructor). The id is set on the properties.
 
 If you want to use `Block::new`, you can leave out the factory entirely:
 

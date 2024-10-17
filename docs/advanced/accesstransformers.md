@@ -14,9 +14,9 @@ Access Transformers need to be declared in `build.gradle`. AT files can be speci
 // In build.gradle:
 // This block is where your mappings version is also specified
 minecraft {
-  accessTransformers {
-    file('src/main/resources/META-INF/accesstransformer.cfg')
-  }
+    accessTransformers {
+        file('src/main/resources/META-INF/accesstransformer.cfg')
+    }
 }
 ```
 
@@ -35,10 +35,10 @@ Additionally, multiple AT files can be specified and will be applied in order. T
 ```groovy
 // In build.gradle:
 minecraft {
-  accessTransformers {
-    file('src/main/resources/accesstransformer_main.cfg')
-    file('src/additions/resources/accesstransformer_additions.cfg')
-  }
+    accessTransformers {
+        file('src/main/resources/accesstransformer_main.cfg')
+        file('src/additions/resources/accesstransformer_additions.cfg')
+    }
 }
 ```
 
@@ -135,8 +135,8 @@ public net.minecraft.util.Crypt$ByteArrayToKeyFunction
 protected-f net.minecraft.server.MinecraftServer random
 
 # Makes public the 'makeExecutor' method in Util,
-# accepting a String and returns an ExecutorService
-public net.minecraft.Util makeExecutor(Ljava/lang/String;)Ljava/util/concurrent/ExecutorService;
+# accepting a String and returns a TracingExecutor
+public net.minecraft.Util makeExecutor(Ljava/lang/String;)Lnet/minecraft/TracingExecutor;
 
 # Makes public the 'leastMostToIntArray' method in UUIDUtil,
 # accepting two longs and returning an int[]

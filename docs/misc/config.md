@@ -18,7 +18,12 @@ A configuration can be created using a subtype of `IConfigSpec`. NeoForge implem
 //Define a field to keep the config and spec for later
 public static final ExampleConfig CONFIG;
 public static final ModConfigSpec CONFIG_SPEC;
-    
+
+private ExampleConfig(ModConfigSpec.Builder builder) {
+    // Define properties used by the configuration
+    // ...
+}
+
 //CONFIG and CONFIG_SPEC are both built from the same builder, so we use a static block to seperate the properties
 static {
     Pair<ExampleConfig, ModConfigSpec> pair =
