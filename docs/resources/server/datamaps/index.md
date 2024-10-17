@@ -228,8 +228,8 @@ This way, if one pack specifies the value 12 for `minecraft:carrot` and another 
 Finally, don't forget to actually specify the merger in the builder, like so:
 
 ```java
-// We assume AdvancedData contains an integer property of some sort.
-AdvancedDataMapType<Item, AdvancedData> ADVANCED_MAP = AdvancedDataMapType.builder(...)
+// The types of the data map must match the type of the merger.
+AdvancedDataMapType<Item, Integer> ADVANCED_MAP = AdvancedDataMapType.builder(...)
         .merger(new IntMerger())
         .build();
 ```
@@ -318,7 +318,7 @@ public class MyDataMapProvider extends DataMapProvider {
     @Override
     protected void gather() {
         // We create a builder for the EXAMPLE_DATA data map and add our entries using #add.
-        builder(EXAMPLE_DATA)
+        this.builder(EXAMPLE_DATA)
                 // We turn on replacing. Don't ever ship a mod like this! This is purely for educational purposes.
                 .replace(true)
                 // We add the value "amount": 10, "chance": 1 for all slabs. The boolean parameter controls
