@@ -118,7 +118,7 @@ Copies custom NBT data from a block entity or entity source to the item stack. U
 }
 ```
 
-During datagen, call `CopyCustomDataFunction#copy` with the desired source and target values, as well as a merging strategy (optional, defaults to `replace`), to construct a builder for this function.
+During datagen, call `CopyCustomDataFunction#copyData` with the associated `NbtProvider` to get the builder. Then call `Builder#copy` with the desired source and target values, as well as a merging strategy (optional, defaults to `replace`), to construct a builder for this function.
 
 ## `minecraft:set_components`
 
@@ -354,7 +354,7 @@ Enchants the item with one random enchantment.
     "options": [
         "minecraft:sharpness",
         "minecraft:fire_aspect"
-    ]
+    ],
     // Whether to only allow compatible enchantments, or any enchantments. Optional, defaults to true.
     "only_compatible": true
 }
@@ -474,20 +474,20 @@ Adds a list of attribute modifiers to the result item stack.
     // A list of attribute modifiers.
     "modifiers": [
         {
-        // The resource location id of the modifier. Should be prefixed by your mod id.
-        "id": "examplemod:example_modifier",
-        // The id of the attribute the modifier is for.
-        "attribute": "minecraft:generic.attack_damage",
-        // The attribute modifier operation.
-        // Valid values are "add_value", "add_multiplied_base" and "add_multiplied_total". 
-        "operation": "add_value",
-        // The amount of the modifier. This can also be a number provider.
-        "amount": 5,
-        // The slot(s) the modifier applies for. Valid values are "any" (any inventory slot),
-        // "mainhand", "offhand", "hand", (mainhand/offhand/both hands),
-        // "feet", "legs", "chest", "head", "armor" (boots/leggings/chestplates/helmets/any armor slots)
-        // and "body" (horse armor and similar slots).
-        "slot": "armor"
+            // The resource location id of the modifier. Should be prefixed by your mod id.
+            "id": "examplemod:example_modifier",
+            // The id of the attribute the modifier is for.
+            "attribute": "minecraft:generic.attack_damage",
+            // The attribute modifier operation.
+            // Valid values are "add_value", "add_multiplied_base" and "add_multiplied_total". 
+            "operation": "add_value",
+            // The amount of the modifier. This can also be a number provider.
+            "amount": 5,
+            // The slot(s) the modifier applies for. Valid values are "any" (any inventory slot),
+            // "mainhand", "offhand", "hand", (mainhand/offhand/both hands),
+            // "feet", "legs", "chest", "head", "armor" (boots/leggings/chestplates/helmets/any armor slots)
+            // and "body" (horse armor and similar slots).
+            "slot": "armor"
         }
     ],
     // Whether to replace the existing values instead of adding to them. Optional, defaults to true.
@@ -548,7 +548,7 @@ Sets an ominous bottle amplifier on the result item stack. Uses a [number provid
 }
 ```
 
-During datagen, call `SetOminousBottleAmplifierFunction#amplifier` with the desired number provider to construct a builder for this function.
+During datagen, call `SetOminousBottleAmplifierFunction#setAmplifier` with the desired number provider to construct a builder for this function.
 
 ## `minecraft:exploration_map`
 
@@ -680,13 +680,13 @@ Sets a firework explosion on the result item stack.
         255
     ],
     // Whether the explosion has a trail. Optional, defaults to false.
-    "has_trail": true,
+    "trail": true,
     // Whether the explosion has a twinkle. Optional, defaults to false.
-    "has_twinkle": true
+    "twinkle": true
 }
 ```
 
-During datagen, call `SetItemCountFunction#setCount` with the desired number provider and optionally an `add` boolean to construct a builder for this function.
+It is currently not possible to create this function during datagen.
 
 ## `minecraft:set_book_cover`
 
@@ -783,7 +783,7 @@ It is currently not possible to create this function during datagen.
 
 ## `minecraft:filtered`
 
-This function accepts an `ItemPredicate` that is checked against the `tool` loot parameter; if the check succeeds, the other function is run. An `ItemPredicate` can specify a list of valid item ids (`items`), a min/max range for the item count (`count`), a `DataComponentPredicate` (`components`) and an `ItemSubPredicate` (`predicates`); all fields are optional. Requires the `minecraft:tool` loot parameter, always failing if that parameter is absent.
+This function accepts an `ItemPredicate` that is checked against the generated stack; if the check succeeds, the other function is run. An `ItemPredicate` can specify a list of valid item ids (`items`), a min/max range for the item count (`count`), a `DataComponentPredicate` (`components`) and a map of `ItemSubPredicate`s (`predicates`); all fields are optional.
 
 ```json5
 {

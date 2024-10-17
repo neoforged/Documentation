@@ -75,7 +75,7 @@ This condition accepts a [number provider][numberprovider] representing a chance
 }
 ```
 
-During datagen, call `RandomChance#randomChance` with the number provider or a (constant) float value to construct a builder for this condition.
+During datagen, call `LootItemRandomChanceCondition#randomChance` with the number provider or a (constant) float value to construct a builder for this condition.
 
 ## `minecraft:random_chance_with_enchanted_bonus`
 
@@ -215,7 +215,7 @@ During datagen, call `ExplosionCondition#survivesExplosion` to construct a build
 
 ## `minecraft:match_tool`
 
-This condition accepts an `ItemPredicate` that is checked against the `tool` loot parameter. An `ItemPredicate` can specify a list of valid item ids (`items`), a min/max range for the item count (`count`), a `DataComponentPredicate` (`components`) and an `ItemSubPredicate` (`predicates`); all fields are optional. Requires the `minecraft:tool` loot parameter, always failing if that parameter is absent.
+This condition accepts an `ItemPredicate` that is checked against the `tool` loot parameter. An `ItemPredicate` can specify a list of valid item ids (`items`), a min/max range for the item count (`count`), a `DataComponentPredicate` (`components`) and a map of `ItemSubPredicate`s (`predicates`); all fields are optional. Requires the `minecraft:tool` loot parameter, always failing if that parameter is absent.
 
 ```json5
 {
@@ -265,7 +265,7 @@ During datagen, call `BonusLevelTableCondition#bonusLevelFlatChance` with the en
 
 ## `minecraft:entity_properties`
 
-This condition checks a given `EntityPredicate` against an [entity target][entitytarget]. The `EntityPredicate` can check the entity type, mob effects, nbt values, equipment, location etc.
+This condition checks a given `EntityPredicate` against an [entity target][entitytarget]. The `EntityPredicate` can check the entity type, mob effects, nbt values, equipment, location, etc.
 
 ```json5
 {
@@ -294,7 +294,7 @@ This condition checks a given `DamageSourcePredicate` against the damage source 
     "predicate": {
         // Check whether the source entity is a zombie.
         "source_entity": {
-        "type": "zombie"
+            "type": "zombie"
         }
     }
 }
