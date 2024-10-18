@@ -14,7 +14,7 @@ A `MenuType` is created by passing in a `MenuSupplier` and a `FeatureFlagSet` to
 
 ```java
 // For some DeferredRegister<MenuType<?>> REGISTER
-public static final Supplier<MenuType<MyMenu>> MY_MENU = REGISTER.register("my_menu", () -> new MenuType(MyMenu::new, FeatureFlags.DEFAULT_FLAGS));
+public static final Supplier<MenuType<MyMenu>> MY_MENU = REGISTER.register("my_menu", () -> new MenuType<>(MyMenu::new, FeatureFlags.DEFAULT_FLAGS));
 
 // In MyMenu, an AbstractContainerMenu subclass
 public MyMenu(int containerId, Inventory playerInv) {
@@ -66,6 +66,10 @@ public MyMenu(int containerId, Inventory playerInventory, /* Any additional para
     // ...
 }
 ```
+
+:::note
+If no additional data needs to be displayed in the menu, then only one constructor is necessary.
+:::
 
 Each menu implementation must implement two methods: `#stillValid` and [`#quickMoveStack`][qms].
 
@@ -291,7 +295,7 @@ Menus are typically opened on a player interaction of some kind (e.g. when a blo
 
 #### Block Implementation
 
-Blocks typically implement a menu by overriding `BlockBehaviour#useWithoutItem`. If on the [logical client][side], the [interaction] returns `InteractionResult#SUCCESS`. Otherwise, it opens the menu and returns `InteractionResult#CONSUME`.
+Blocks typically implement a menu by overriding `BlockBehaviour#useWithoutItem`, returning `InteractionResult#SUCCESS` for the [interaction].
 
 The `MenuProvider` should be implemented by overriding `BlockBehaviour#getMenuProvider`. Vanilla methods use this to view the menu in spectator mode.
 
@@ -307,7 +311,8 @@ public InteractionResult useWithoutItem(BlockState state, Level level, BlockPos 
     if (!level.isClientSide && player instanceof ServerPlayer serverPlayer) {
         serverPlayer.openMenu(state.getMenuProvider(level, pos));
     }
-    return InteractionResult.sidedSuccess(level.isClientSide);
+
+    return InteractionResult.SUCCESS;
 }
 ```
 
@@ -328,7 +333,8 @@ public class MyMob extends Mob implements MenuProvider {
         if (!this.level.isClientSide && player instanceof ServerPlayer serverPlayer) {
             serverPlayer.openMenu(this);
         }
-        return InteractionResult.sidedSuccess(this.level.isClientSide);
+
+        return InteractionResult.SUCCESS;
     }
 }
 ```
