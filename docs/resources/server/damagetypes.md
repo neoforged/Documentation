@@ -50,7 +50,7 @@ The same format is also used for vanilla's damage types, and pack developers can
 ```java
 DamageSource damageSource = new DamageSource(
         // The damage type holder to use. Query from the registry. This is the only required parameter.
-        registryAccess.registryOrThrow(Registries.DAMAGE_TYPE).getHolderOrThrow(EXAMPLE_DAMAGE),
+        registryAccess.lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(EXAMPLE_DAMAGE),
         // The direct entity. For example, if a skeleton shot you, the skeleton would be the causing entity
         // (= the parameter above), and the arrow would be the direct entity (= this parameter). Similar to
         // the causing entity, this isn't always applicable and therefore nullable. Optional, defaults to null.
@@ -73,7 +73,7 @@ If `DamageSource`s have no entity or position context whatsoever, it makes sense
 ```java
 public static DamageSource exampleDamage(Entity causer) {
     return new DamageSource(
-            causer.level().registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getHolderOrThrow(EXAMPLE_DAMAGE),
+            causer.level().registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(EXAMPLE_DAMAGE),
             causer);
 }
 ```
@@ -101,10 +101,9 @@ Damage type JSON files can be [datagenned][datagen]. Since damage types are a da
 // In your datagen class
 @SubscribeEvent
 public static void onGatherData(GatherDataEvent event) {
-    CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
-    event.getGenerator().addProvider(
+    CompletableFuture<HolderLookup.Provider> lookupProvider = event.getGenerator().addProvider(
             event.includeServer(),
-            output -> new DatapackBuiltinEntriesProvider(output, lookupProvider, new RegistrySetBuilder()
+            output -> new DatapackBuiltinEntriesProvider(output, event.getLookupProvider(), new RegistrySetBuilder()
                     // Add a datapack builtin entry provider for damage types. If this lambda becomes longer,
                     // this should probably be extracted into a separate method for the sake of readability.
                     .add(Registries.DAMAGE_TYPE, bootstrap -> {
@@ -121,7 +120,9 @@ public static void onGatherData(GatherDataEvent event) {
                     .add(...),
                     Set.of(ExampleMod.MOD_ID)
             )
-    );
+    ).getRegistryProvider();
+
+    // ...
 }
 ```
 

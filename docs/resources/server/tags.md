@@ -87,7 +87,7 @@ We can then use our tag to perform various operations on it. Let's start with th
 
 ```java
 // Check whether dirt is in our tag.
-boolean isInTag = BuiltInRegistries.BLOCK.getOrCreateTag(MY_TAG).stream().anyMatch(e -> e == Items.DIRT);
+boolean isInTag = BuiltInRegistries.BLOCK.getOrThrow(MY_TAG).stream().anyMatch(holder -> holder.is(Items.DIRT));
 ```
 
 Since this is a very verbose statement, especially when used often, `BlockState` and `ItemStack` - the two most common users of the tag system - each define a `#is` helper method, used like so:
@@ -99,36 +99,10 @@ boolean isInBlockTag = blockState.is(MY_TAG);
 boolean isInItemTag = itemStack.is(MY_ITEM_TAG);
 ```
 
-If needed, we can also get ourselves a set of tag entries, like so:
+If needed, we can also get ourselves a set of tag entries to stream, like so:
 
 ```java
-Set<Block> blocksInTag = BuiltInRegistries.BLOCK.getOrCreateTag(MY_TAG).stream().toSet();
-```
-
-For performance reasons, it is recommended to cache these sets in a field, invalidating them when tags are reloaded (which can be listened for using `TagsUpdatedEvent`). This can be done like so:
-
-```java
-public class MyTagsCacheClass {
-    private static Set<Block> blocksInTag = null;
-
-    public static Set<Block> getBlockTagContents() {
-        if (blocksInTag == null) {
-            // Wrap as an unmodifiable set, as we're not supposed to modify this anyway
-            blocksInTag = Collections.unmodifiableSet(BuiltInRegistries.BLOCK.getOrCreateTag(MY_TAG).stream().toSet());
-        }
-        return blocksInTag;
-    }
-    
-    public static void invalidateCache() {
-        blocksInTag = null;
-    }
-}
-
-// In an event handler class
-@SubscribeEvent
-public static void onTagsUpdated(TagsUpdatedEvent event) {
-    MyTagsCacheClass.invalidateCache();
-}
+Stream<Holder<Block>> blocksInTag = BuiltInRegistries.BLOCK.getOrThrow(MY_TAG).stream();
 ```
 
 ## Datagen
@@ -169,7 +143,7 @@ public class MyBlockTagsProvider extends BlockTagsProvider {
     @Override
     protected void addTags(HolderLookup.Provider lookupProvider) {
         // Create a tag builder for our tag. This could also be e.g. a vanilla or NeoForge tag.
-        tag(MY_TAG)
+        this.tag(MY_TAG)
                 // Add entries. This is a vararg parameter.
                 // Non-intrinsic providers must provide ResourceKeys here instead of the actual objects.
                 .add(Blocks.DIRT, Blocks.COBBLESTONE)
@@ -253,7 +227,7 @@ public static void gatherData(GatherDataEvent event) {
 
 ```java
 // In an ItemTagsProvider's #addTags method, assuming types TagKey<Block> and TagKey<Item> for the two parameters.
-copy(EXAMPLE_BLOCK_TAG, EXAMPLE_ITEM_TAG);
+this.copy(EXAMPLE_BLOCK_TAG, EXAMPLE_ITEM_TAG);
 ```
 
 ### Custom Tag Providers

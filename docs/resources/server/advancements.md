@@ -158,35 +158,60 @@ Advancements can be [datagenned][datagen] using an `AdvancementProvider`. An `Ad
 Both Minecraft and NeoForge provide a class named `AdvancementProvider`, located at `net.minecraft.data.advancements.AdvancementProvider` and `net.neoforged.neoforge.common.data.AdvancementProvider`, respectively. The NeoForge class is an improvement on the one Minecraft provides, and should always be used in favor of the Minecraft one. The following documentation always assumes usage of the NeoForge `AdvancementProvider` class.
 :::
 
-To start, create a subclass of `AdvancementProvider`:
+To start, create an instance of `AdvancementProvider` within `GatherDataEvent`:
 
 ```java
-public class MyAdvancementProvider extends AdvancementProvider {
-    // Parameters can be obtained from GatherDataEvent.
-    public MyAdvancementProvider(PackOutput output,
-            CompletableFuture<HolderLookup.Provider> lookupProvider, ExistingFileHelper existingFileHelper) {
-        super(output, lookupProvider, existingFileHelper, List.of());
-    }
+@SubscribeEvent
+public static void gatherData(GatherDataEvent event) {
+    DataGenerator generator = event.getGenerator();
+    PackOutput output = generator.getPackOutput();
+    CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
+    ExistingFileHelper existingFileHelper = event.getExistingFileHelper();
+
+    generator.addProvider(
+            event.includeServer(),
+            new AdvancementProvider(
+                output, lookupProvider, existingFileHelper,
+                // Add generators here
+                List.of(...)
+            )
+    );
+
+     // Other providers
 }
 ```
 
-Now, the next step is to fill the list with our generators. To do so, we add one or more generators as static classes and then add an instance of each of them to the currently empty list in the constructor parameter.
+Now, the next step is to fill the list with our generators. To do so, we can either add generators as classes or lambdas, and then add an instance of each of them to the currently empty list in the constructor parameter.
 
 ```java
-public class MyAdvancementProvider extends AdvancementProvider {
-    public MyAdvancementProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider, ExistingFileHelper existingFileHelper) {
-        // Add an instance of our generator to the list parameter. This can be done as many times as you want.
-        // Having multiple generators is purely for organization, all functionality can be achieved with a single generator.
-        super(output, lookupProvider, existingFileHelper, List.of(new MyAdvancementGenerator()));
-    }
+// Class example
+public class MyAdvancementGenerator extends AdvancementProvider.AdvancementGenerator {
 
-    private static final class MyAdvancementGenerator implements AdvancementProvider.AdvancementGenerator {
-        @Override
-        public void generate(HolderLookup.Provider registries, Consumer<AdvancementHolder> saver, ExistingFileHelper existingFileHelper) {
-            // Generate your advancements here.
-        }
+    @Override
+    public void generate(HolderLookup.Provider registries, Consumer<AdvancementHolder> saver, ExistingFileHelper existingFileHelper) {
+        // Generate your advancements here.
     }
 }
+
+// Method Example, assume in ExampleClass
+public static void generateExampleAdvancements(HolderLookup.Provider registries, Consumer<AdvancementHolder> saver, ExistingFileHelper existingFileHelper) {
+    // Generate your advancements here.
+}
+
+// In GatherDataEvent
+generator.addProvider(
+    event.includeServer(),
+    new AdvancementProvider(
+        output, lookupProvider, existingFileHelper,
+        // Add generators here
+        List.of(
+            // Add an instance of our generator to the list parameter. This can be done as many times as you want.
+            // Having multiple generators is purely for organization, all functionality can be achieved with a single generator.
+            new MyAdvancementGenerator(),
+            ExampleClass::generateExampleAdvancements
+        )
+    )
+);
 ```
 
 To generate an advancement, you want to use an `Advancement.Builder`:
@@ -233,7 +258,7 @@ builder.rewards(
     // Alternatively, use loot() to create a new builder.
     .addLootTable(ResourceKey.create(Registries.LOOT_TABLE, ResourceLocation.fromNamespaceAndPath("minecraft", "chests/igloo")))
     // Alternatively, use recipe() to create a new builder.
-    .addRecipe(ResourceLocation.fromNamespaceAndPath("minecraft", "iron_ingot"))
+    .addRecipe(ResourceKey.create(Registries.RECIPE, ResourceLocation.fromNamespaceAndPath("minecraft", "iron_ingot")))
     // Alternatively, use function() to create a new builder.
     .runs(ResourceLocation.fromNamespaceAndPath("examplemod", "example_function"))
 );
@@ -248,24 +273,6 @@ builder.requirements(AdvancementRequirements.allOf(List.of("pickup_dirt")));
 // Save the advancement to disk, using the given resource location. This returns an AdvancementHolder,
 // which may be stored in a variable and used as a parent by other advancement builders.
 builder.save(saver, ResourceLocation.fromNamespaceAndPath("examplemod", "example_advancement"), existingFileHelper);
-```
-
-Of course, don't forget to add your provider to the `GatherDataEvent`:
-
-```java
-@SubscribeEvent
-public static void gatherData(GatherDataEvent event) {
-    DataGenerator generator = event.getGenerator();
-    PackOutput output = generator.getPackOutput();
-    CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
-    ExistingFileHelper existingFileHelper = event.getExistingFileHelper();
-
-    // other providers here
-    generator.addProvider(
-            event.includeServer(),
-            new MyAdvancementProvider(output, lookupProvider, existingFileHelper)
-    );
-}
 ```
 
 [codec]: ../../datastorage/codecs.md

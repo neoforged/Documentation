@@ -142,12 +142,12 @@ For example, let's assume we want to reimplement the `tag_empty` condition, but 
 // This class is basically a boiled-down copy of TagEmptyCondition, adjusted for entity types instead of items.
 public record EntityTagEmptyCondition(TagKey<EntityType<?>> tag) implements ICondition {
     public static final MapCodec<EntityTagEmptyCondition> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
-            ResourceLocation.CODEC.xmap(rl -> TagKey.create(Registries.ENTITY_TYPES, rl), TagKey::location).fieldOf("tag").forGetter(EntityTagEmptyCondition::tag)
+            TagKey.codec(Registries.ENTITY_TYPE).fieldOf("tag").forGetter(EntityTagEmptyCondition::tag)
     ).apply(inst, EntityTagEmptyCondition::new));
 
     @Override
     public boolean test(ICondition.IContext context) {
-        return context.getTag(this.tag()).isEmpty();
+        return !context.isTagLoaded(this.tag());
     }
 
     @Override
