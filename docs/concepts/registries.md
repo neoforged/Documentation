@@ -38,27 +38,49 @@ public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(
 );
 ```
 
-We can then add our registry entries as static final fields (see [the article on Blocks][block] for what parameters to add in `new Block()`):
+We can then add our registry entries as static final fields using one of the following methods (see [the article on Blocks][block] for what parameters to add in `new Block()`):
 
 ```java
-public static final DeferredHolder<Block, Block> EXAMPLE_BLOCK = BLOCKS.register(
-        "example_block" // Our registry name.
-        () -> new Block(...) // A supplier of the object we want to register.
+public static final DeferredHolder<Block, Block> EXAMPLE_BLOCK_1 = BLOCKS.register(
+        // Our registry name.
+        "example_block" 
+        // A supplier of the object we want to register.
+        () -> new Block(...)
+);
+
+public static final DeferredHolder<Block, SlabBlock> EXAMPLE_BLOCK_2 = BLOCKS.register(
+        // Our registry name.
+        "example_block" 
+        // A function creating the object we want to register
+        //   given its registry name as a ResourceLocation.
+        registryName -> new SlabBlock(...)
 );
 ```
 
-The class `DeferredHolder<R, T extends R>` holds our object. The type parameter `R` is the type of the registry we are registering to (in our case `Block`). The type parameter `T` is the type of our supplier. Since we directly register a `Block` in this example, we provide `Block` as the second parameter. If we were to register an object of a subclass of `Block`, for example `SlabBlock`, we would provide `SlabBlock` here instead.
+The class `DeferredHolder<R, T extends R>` holds our object. The type parameter `R` is the type of the registry we are registering to (in our case `Block`). The type parameter `T` is the type of our supplier. Since we directly register a `Block` in the first example, we provide `Block` as the second parameter. If we were to register an object of a subclass of `Block`, for example `SlabBlock` (as shown in the second example), we would provide `SlabBlock` here instead.
 
 `DeferredHolder<R, T extends R>` is a subclass of `Supplier<T>`. To get our registered object when we need it, we can call `DeferredHolder#get()`. The fact that `DeferredHolder` extends `Supplier` also allows us to use `Supplier` as the type of our field. That way, the above code block becomes the following:
 
 ```java
-public static final Supplier<Block> EXAMPLE_BLOCK = BLOCKS.register(
-        "example_block" // Our registry name.
-        () -> new Block(...) // A supplier of the object we want to register.
+public static final Supplier<Block> EXAMPLE_BLOCK_1 = BLOCKS.register(
+        // Our registry name.
+        "example_block" 
+        // A supplier of the object we want to register.
+        () -> new Block(...)
+);
+
+public static final Supplier<SlabBlock> EXAMPLE_BLOCK_2 = BLOCKS.register(
+        // Our registry name.
+        "example_block" 
+        // A function creating the object we want to register
+        //   given its registry name as a ResourceLocation.
+        registryName -> new SlabBlock(...)
 );
 ```
 
+:::note
 Be aware that a few places explicitly require a `Holder` or `DeferredHolder` and will not just accept any `Supplier`. If you need either of those two, it is best to change the type of your `Supplier` back to `Holder` or `DeferredHolder` as necessary.
+:::
 
 Finally, since the entire system is a wrapper around registry events, we need to tell the `DeferredRegister` to attach itself to the registry events as needed:
 
@@ -72,7 +94,7 @@ public ExampleMod(IEventBus modBus) {
 ```
 
 :::info
-There are specialized variants of `DeferredRegister`s for blocks and items that provide helper methods, called [`DeferredRegister.Blocks`][defregblocks] and [`DeferredRegister.Items`][defregitems], respectively.
+There are specialized variants of `DeferredRegister`s for blocks, items, and data components that provide helper methods: [`DeferredRegister.Blocks`][defregblocks], [`DeferredRegister.Items`][defregitems], and [`DeferredRegister.DataComponents`][defregcomp], respectively.
 :::
 
 ### `RegisterEvent`
@@ -102,11 +124,11 @@ public void register(RegisterEvent event) {
 Sometimes, you will find yourself in situations where you want to get a registered object by a given id. Or, you want to get the id of a certain registered object. Since registries are basically maps of ids (`ResourceLocation`s) to distinct objects, i.e. a reversible map, both of these operations work:
 
 ```java
-BuiltInRegistries.BLOCKS.get(ResourceLocation.fromNamespaceAndPath("minecraft", "dirt")); // returns the dirt block
+BuiltInRegistries.BLOCKS.getValue(ResourceLocation.fromNamespaceAndPath("minecraft", "dirt")); // returns the dirt block
 BuiltInRegistries.BLOCKS.getKey(Blocks.DIRT); // returns the resource location "minecraft:dirt"
 
 // Assume that ExampleBlocksClass.EXAMPLE_BLOCK.get() is a Supplier<Block> with the id "yourmodid:example_block"
-BuiltInRegistries.BLOCKS.get(ResourceLocation.fromNamespaceAndPath("yourmodid", "example_block")); // returns the example block
+BuiltInRegistries.BLOCKS.getValue(ResourceLocation.fromNamespaceAndPath("yourmodid", "example_block")); // returns the example block
 BuiltInRegistries.BLOCKS.getKey(ExampleBlocksClass.EXAMPLE_BLOCK.get()); // returns the resource location "yourmodid:example_block"
 ```
 
@@ -172,7 +194,7 @@ static void registerRegistries(NewRegistryEvent event) {
 You can now register new registry contents like with any other registry, through both `DeferredRegister` and `RegisterEvent`:
 
 ```java
-public static final DeferredRegister<Spell> SPELLS = DeferredRegister.create("yourmodid", SPELL_REGISTRY);
+public static final DeferredRegister<Spell> SPELLS = DeferredRegister.create(SPELL_REGISTRY, "yourmodid");
 public static final Supplier<Spell> EXAMPLE_SPELL = SPELLS.register("example_spell", () -> new Spell(...));
 
 // Alternatively:
@@ -228,10 +250,10 @@ First, we create a `RegistrySetBuilder` and add our entries to it (one `Registry
 ```java
 new RegistrySetBuilder()
     .add(Registries.CONFIGURED_FEATURE, bootstrap -> {
-    // Register configured features through the bootstrap context (see below)
+        // Register configured features through the bootstrap context (see below)
     })
     .add(Registries.PLACED_FEATURE, bootstrap -> {
-    // Register placed features through the bootstrap context (see below)
+        // Register placed features through the bootstrap context (see below)
     });
 ```
 
@@ -254,7 +276,7 @@ new RegistrySetBuilder()
         );
     })
     .add(Registries.PLACED_FEATURE, bootstrap -> {
-    // ...
+        // ...
     });
 ```
 
@@ -287,8 +309,8 @@ Finally, we use our `RegistrySetBuilder` in an actual data provider, and registe
 
 ```java
 @SubscribeEvent
-static void onGatherData(GatherDataEvent event) {
-    event.getGenerator().addProvider(
+public static void onGatherData(GatherDataEvent event) {
+    CompletableFuture<HolderLookup.Provider> lookupProvider = event.getGenerator().addProvider(
         // Only run datapack generation when server data is being generated
         event.includeServer(),
         // Create the provider
@@ -300,7 +322,11 @@ static void onGatherData(GatherDataEvent event) {
             // A set of mod ids we are generating. Usually only your own mod id.
             Set.of("yourmodid")
         )
-    );
+    ).getRegistryProvider();
+    
+    // Use the lookup provider generated from your datapack entries as input
+    //   to all other data providers.
+    // ...
 }
 ```
 
@@ -311,6 +337,7 @@ static void onGatherData(GatherDataEvent event) {
 [datagenindex]: ../resources/index.md#data-generation
 [datapack]: ../resources/index.md#data
 [defregblocks]: ../blocks/index.md#deferredregisterblocks-helpers
+[defregcomp]: ../items/datacomponents.md#creating-custom-data-components
 [defregitems]: ../items/index.md#deferredregisteritems
 [event]: ./events.md
 [item]: ../items/index.md

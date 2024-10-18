@@ -16,7 +16,7 @@ public class MyParticleTypes {
     
     // The easiest way to add new particle types is reusing vanilla's SimpleParticleType.
     // Implementing a custom ParticleType is also possible, see below.
-    public static final DeferredHolder<ParticleType<?>, SimpleParticleType> MY_PARTICLE = PARTICLE_TYPES.register(
+    public static final Supplier<SimpleParticleType> MY_PARTICLE = PARTICLE_TYPES.register(
         // The name of the particle type.
         "my_particle",
         // The supplier. The boolean parameter denotes whether setting the Particles option in the
@@ -127,7 +127,7 @@ A mismatched list of sprite set particle factories and particle definition files
 :::
 
 :::note
-While particle descriptions must have providers registered a certain way, they are only used if the `ParticleRenderType` (set via `Particle#getRenderType`) uses the `TextureAtlas#LOCATION_PARTICLES` as the shader texture. For vanilla render types, these are `PARTICLE_SHEET_OPAQUE`, `PARTICLE_SHEET_TRANSLUCENT`, and `PARTICLE_SHEET_LIT`.
+While particle descriptions must have providers registered a certain way, they are only used if the `ParticleRenderType` (set via `Particle#getRenderType`) uses the `TextureAtlas#LOCATION_PARTICLES` as the shader texture. For vanilla render types, these are `PARTICLE_SHEET_OPAQUE` and `PARTICLE_SHEET_TRANSLUCENT`.
 :::
 
 ### Datagen
@@ -199,6 +199,11 @@ public class MyParticleOptions implements ParticleOptions {
 
     // Does not need any parameters, but may define any fields necessary for the particle to work.
     public MyParticleOptions() {}
+
+    @Override
+    public ParticleType<?> getType() {
+        // Return the registered particle type
+    }
 }
 ```
 
@@ -225,13 +230,27 @@ public class MyParticleType extends ParticleType<MyParticleOptions> {
 }
 ```
 
-... and reference it during registration:
+... and reference it during [registration][registry]:
 
 ```java
 public static final Supplier<MyParticleType> MY_CUSTOM_PARTICLE = PARTICLE_TYPES.register(
     "my_custom_particle",
     () -> new MyParticleType(false)
 );
+```
+
+The registered particle is then passed into `ParticleOptions#getType`:
+
+```java
+public class MyParticleOptions implements ParticleOptions {
+    
+    // ...
+
+    @Override
+    public ParticleType<?> getType() {
+        return MY_CUSTOM_PARTICLE.get();
+    }
+}
 ```
 
 ## Spawning Particles
@@ -245,5 +264,5 @@ As a reminder from before, the server only knows `ParticleType`s and `ParticleOp
 [datagen]: ../index.md#data-generation
 [event]: ../../concepts/events.md
 [modbus]: ../../concepts/events.md#event-buses
-[registry]: ../../concepts/registries.md
+[registry]: ../../concepts/registries.md#methods-for-registering
 [side]: ../../concepts/sides.md

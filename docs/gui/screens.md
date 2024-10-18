@@ -42,7 +42,7 @@ Strings should typically be passed in as [`Component`s][component] as they handl
 
 Textures are drawn through blitting, hence the method name `#blit`, which, for this purpose, copies the bits of an image and draws them directly to the screen. These are drawn through a position texture shader.
 
-Each `#blit` method takes in a `ResourceLocation`, which represents the absolute location of the texture:
+Each `#blit` method takes in a `Function<ResourceLocation, RenderType>`, which determines how to render the texture, and `ResourceLocation`, which represents the absolute location of the texture:
 
 ```java
 // Points to 'assets/examplemod/textures/gui/container/example_container.png'
@@ -117,7 +117,10 @@ This is set by adding the `gui.scaling` JSON object in an mcmeta file with the s
                 "right": 1,
                 "top": 1,
                 "bottom": 1
-            }
+            },
+            // When true the center part of the texture will be applied like
+            // the stretch type instead of a nine slice tiling.
+            "stretch_inner": true
         }
     }
 }
@@ -159,7 +162,7 @@ Screens implement `ContainerEventHandler` through `AbstractContainerEventHandler
 
 `NarratableEntry`s are elements which can be spoken about through Minecraft's accessibility narration feature. Each element can provide different narration depending on what is hovered or selected, prioritized typically by focus, hovering, and then all other cases.
 
-`NarratableEntry`s have three methods: one which determines the priority of the element (`#narrationPriority`), one which determines whether to speak the narration (`#isActive`), and finally one which supplies the narration to its associated output, spoken or read (`#updateNarration`). 
+`NarratableEntry`s have four methods: two which determines the priority of the element when being read (`#narrationPriority` and `#getTabOrderGroup`), one which determines whether to speak the narration (`#isActive`), and finally one which supplies the narration to its associated output, spoken or read (`#updateNarration`). 
 
 :::note
 All widgets from Minecraft are `NarratableEntry`s, so it typically does not need to be manually implemented if using an available subtype.
@@ -238,7 +241,7 @@ Tooltips are rendered through `GuiGraphics#renderTooltip` or `GuiGraphics#render
 @Override
 public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
     // Background is typically rendered first
-    this.renderBackground(graphics);
+    this.renderBackground(graphics, mouseX, mouseY, partialTick);
 
     // Render things here before widgets (background textures)
 
@@ -369,9 +372,17 @@ protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int
      * 'topPos' should already represent the top left corner of where
      * the texture should be rendered as it was precomputed from the
      * 'imageWidth' and 'imageHeight'. The two zeros represent the
-     * integer u/v coordinates inside the 256 x 256 PNG file.
+     * integer u/v coordinates inside the PNG file, whose size is
+     * represented by the last two integers (typically 256 x 256).
      */
-    graphics.blit(BACKGROUND_LOCATION, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
+    graphics.blit(
+        RenderType::guiTextured,
+        BACKGROUND_LOCATION,
+        this.leftPos, this.topPos,
+        0, 0,
+        this.imageWidth, this.imageHeight,
+        256, 256
+    );
 }
 ```
 
@@ -385,7 +396,9 @@ protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
 
     // Assume we have some Component 'label'
     // 'label' is drawn at 'labelX' and 'labelY'
-    graphics.drawString(this.font, this.label, this.labelX, this.labelY, 0x404040);
+    // The color is an ARGB value, if the alpha is less than 4, than the alpha is set to 255
+    // The final boolean renders the drop shadow when true
+    graphics.drawString(this.font, this.label, this.labelX, this.labelY, 0x404040, false);
 }
 ```
 

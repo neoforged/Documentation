@@ -42,9 +42,9 @@ Here is a small explanation of what each part means:
 The Debug Profiler has basic support for `Entity` and `BlockEntity`. If you would like to profile something else, you may need to manually create your sections like so:
 
 ```java
-ProfilerFiller#push(yourSectionName : String);
+Profiler.get().push("yourSectionName");
 //The code you want to profile
-ProfilerFiller#pop();
+Profiler.get().pop();
 ```
-You can obtain the `ProfilerFiller` instance from a `Level`, `MinecraftServer`, or `Minecraft` instance.
+
 Now you just need to search the results file for your section name.

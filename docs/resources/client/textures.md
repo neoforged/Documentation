@@ -37,7 +37,10 @@ Texture metadata can be specified in a file named exactly the same as the textur
                 "top": 0,
                 "right": 0,
                 "bottom": 0
-            }
+            },
+            // When true the center part of the texture will be applied like
+            // the stretch type instead of a nine slice tiling.
+            "stretch_inner": true
         }
     },
     // See below.
