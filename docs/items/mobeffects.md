@@ -53,14 +53,14 @@ public class MyMobEffect extends MobEffect {
 }
 ```
 
-Like all registry objects, `MobEffect`s must be registered, like so:
+Like all registry objects, `MobEffect`s must be [registered][registration], like so:
 
 ```java
-//MOB_EFFECTS is a DeferredRegister<MobEffect>
-public static final Supplier<MyMobEffect> MY_MOB_EFFECT = MOB_EFFECTS.register("my_mob_effect", () -> new MyMobEffect(
+// MOB_EFFECTS is a DeferredRegister<MobEffect>
+public static final Holder<MobEffect> MY_MOB_EFFECT = MOB_EFFECTS.register("my_mob_effect", () -> new MyMobEffect(
         //Can be either BENEFICIAL, NEUTRAL or HARMFUL. Used to determine the potion tooltip color of this effect.
         MobEffectCategory.BENEFICIAL,
-        //The color of the effect particles.
+        //The color of the effect particles in RGB format.
         0xffffff
 ));
 ```
@@ -68,7 +68,7 @@ public static final Supplier<MyMobEffect> MY_MOB_EFFECT = MOB_EFFECTS.register("
 The `MobEffect` class also provides default functionality for adding attribute modifiers to affected entities. For example, the speed effect adds an attribute modifier for movement speed. Effect attribute modifiers are added like so:
 
 ```java
-public static final Supplier<MyMobEffect> MY_MOB_EFFECT = MOB_EFFECTS.register("my_mob_effect", () -> new MyMobEffect(...)
+public static final Holder<MobEffect> MY_MOB_EFFECT = MOB_EFFECTS.register("my_mob_effect", () -> new MyMobEffect(...)
         .addAttributeModifier(Attributes.ATTACK_DAMAGE, ResourceLocation.fromNamespaceAndPath("examplemod", "effect.strength"), 2.0, AttributeModifier.Operation.ADD_VALUE)
 );
 ```
@@ -90,7 +90,7 @@ public class MyMobEffect extends InstantenousMobEffect {
 }
 ```
 
-Then, register your effect like normal.
+Then, [register][registration] your effect like normal.
 
 ### Events
 
@@ -112,7 +112,7 @@ MobEffectInstance instance = new MobEffectInstance(
         // The duration to use, in ticks. Defaults to 0 if not specified.
         500,
         // The amplifier to use. This is the "strength" of the effect, i.e. Strength I, Strength II, etc;
-        // starting at 0. Defaults to 0 if not specified.
+        // starting at 0 and at most 255. Defaults to 0 if not specified.
         0,
         // Whether the effect is an "ambient" effect, meaning it is being applied by an ambient source,
         // of which Minecraft currently has the beacon and the conduit. Defaults to false if not specified.
@@ -132,17 +132,17 @@ Several constructor overloads are available, omitting the last 1-5 parameters, r
 
 ### Using `MobEffectInstance`s
 
-A `MobEffectInstance` can be added to an entity like so:
+A `MobEffectInstance` can be added to a `LivingEntity` like so:
 
 ```java
 MobEffectInstance instance = new MobEffectInstance(...);
-entity.addEffect(instance);
+livingEntity.addEffect(instance);
 ```
 
-Similarly, `MobEffectInstance` can also be removed from an entity. Since a `MobEffectInstance` overwrites pre-existing `MobEffectInstance`s of the same `MobEffect` on the entity, there can only ever be one `MobEffectInstance` per `MobEffect` and entity. As such, specifying the `MobEffect` suffices when removing:
+Similarly, `MobEffectInstance` can also be removed from an `LivingEntity`. Since a `MobEffectInstance` overwrites pre-existing `MobEffectInstance`s of the same `MobEffect` on the entity, there can only ever be one `MobEffectInstance` per `MobEffect` and entity. As such, specifying the `MobEffect` suffices when removing:
 
 ```java
-entity.removeEffect(MobEffects.REGENERATION);
+livingEntity.removeEffect(MobEffects.REGENERATION);
 ```
 
 :::info
@@ -155,12 +155,17 @@ entity.removeEffect(MobEffects.REGENERATION);
 
 ```java
 //POTIONS is a DeferredRegister<Potion>
-public static final Supplier<Potion> MY_POTION = POTIONS.register("my_potion", () -> new Potion(new MobEffectInstance(MY_MOB_EFFECT, 3600)));
+public static final Holder<Potion> MY_POTION = POTIONS.register("my_potion", registryName -> new Potion(
+    // The suffix applied to the potion
+    registryName.getPath(),
+    // The effects used by the potion
+    new MobEffectInstance(MY_MOB_EFFECT, 3600)
+));
 ```
 
-Note that the parameter of `new Potion` is a vararg. This means that you can add as many effects as you want to the potion. This also means that it is possible to create empty potions, i.e. potions that don't have any effects. Simply call `new Potion()` and you're done! (This is how vanilla adds the `awkward` potion, by the way.)
+The name of the potion is the first constructor argument. It is used as the suffix for a translation key; for example, the long and strong potion variants in vanilla use this to have the same names as their base variant.
 
-The name of the potion can be passed as the first constructor argument. It is used for translating; for example, the long and strong potion variants in vanilla use this to have the same names as their base variant. The name is not required; if it is omitted, the name will be queried from the registry.
+The `MobEffectInstance` parameter of `new Potion` is a vararg. This means that you can add as many effects as you want to the potion. This also means that it is possible to create empty potions, i.e. potions that don't have any effects. Simply call `new Potion()` and you're done! (This is how vanilla adds the `awkward` potion, by the way.)
 
 The `PotionContents` class offers various helper methods related to potion items. Potion item store their `PotionContents` via `DataComponent#POTION_CONTENTS`.
 
@@ -195,5 +200,5 @@ public static void registerBrewingRecipes(RegisterBrewingRecipesEvent event) {
 [events]: ../concepts/events.md
 [item]: index.md
 [itemstack]: index.md#itemstacks
-[registration]: ../concepts/registries.md
+[registration]: ../concepts/registries.md#methods-for-registering
 [uuidgen]: https://www.uuidgenerator.net/version4

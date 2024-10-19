@@ -1,8 +1,6 @@
 ---
 sidebar_position: 2
 ---
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
 
 # Data Components
 
@@ -68,9 +66,6 @@ Either `persistent` or `networkSynchronized` must be provided in the builder; ot
 
 `DataComponentType` are registry objects and must be [registered].
 
-<Tabs defaultValue="latest">
-<TabItem value="latest" label="Latest">
-
 ```java
 // Using ExampleRecord(int, boolean)
 // Only one Codec and/or StreamCodec should be used below
@@ -97,7 +92,7 @@ public static final StreamCodec<ByteBuf, ExampleRecord> UNIT_STREAM_CODEC = Stre
 // The specialized DeferredRegister.DataComponents simplifies data component registration and avoids some generic inference issues with the `DataComponentType.Builder` within a `Supplier`
 public static final DeferredRegister.DataComponents REGISTRAR = DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, "examplemod");
 
-public static final DeferredHolder<DataComponentType<?>, DataComponentType<ExampleRecord>> BASIC_EXAMPLE = REGISTRAR.registerComponentType(
+public static final Supplier<DataComponentType<ExampleRecord>> BASIC_EXAMPLE = REGISTRAR.registerComponentType(
     "basic",
     builder -> builder
         // The codec to read/write the data to disk
@@ -107,13 +102,13 @@ public static final DeferredHolder<DataComponentType<?>, DataComponentType<Examp
 );
 
 /// Component will not be saved to disk
-public static final DeferredHolder<DataComponentType<?>, DataComponentType<ExampleRecord>> TRANSIENT_EXAMPLE = REGISTRAR.registerComponentType(
+public static final Supplier<DataComponentType<ExampleRecord>> TRANSIENT_EXAMPLE = REGISTRAR.registerComponentType(
     "transient",
     builder -> builder.networkSynchronized(BASIC_STREAM_CODEC)
 );
 
 // No data will be synced across the network
-public static final DeferredHolder<DataComponentType<?>, DataComponentType<ExampleRecord>> NO_NETWORK_EXAMPLE = REGISTRAR.registerComponentType(
+public static final Supplier<DataComponentType<ExampleRecord>> NO_NETWORK_EXAMPLE = REGISTRAR.registerComponentType(
    "no_network",
    builder -> builder
         .persistent(BASIC_CODEC)
@@ -121,62 +116,6 @@ public static final DeferredHolder<DataComponentType<?>, DataComponentType<Examp
         .networkSynchronized(UNIT_STREAM_CODEC)
 );
 ```
-
-</TabItem>
-<TabItem value="21.1.48" label="[21.0.0, 21.1.48]">
-
-```java
-// Using ExampleRecord(int, boolean)
-// Only one Codec and/or StreamCodec should be used below
-// Multiple are provided for an example
-
-// Basic codec
-public static final Codec<ExampleRecord> BASIC_CODEC = RecordCodecBuilder.create(instance ->
-    instance.group(
-        Codec.INT.fieldOf("value1").forGetter(ExampleRecord::value1),
-        Codec.BOOL.fieldOf("value2").forGetter(ExampleRecord::value2)
-    ).apply(instance, ExampleRecord::new)
-);
-public static final StreamCodec<ByteBuf, ExampleRecord> BASIC_STREAM_CODEC = StreamCodec.composite(
-    ByteBufCodecs.INT, ExampleRecord::value1,
-    ByteBufCodecs.BOOL, ExampleRecord::value2,
-    ExampleRecord::new
-);
-
-// Unit stream codec if nothing should be sent across the network
-public static final StreamCodec<ByteBuf, ExampleRecord> UNIT_STREAM_CODEC = StreamCodec.unit(new ExampleRecord(0, false));
-
-
-// In another class
-// The specialized DeferredRegister.DataComponents simplifies data component registration and avoids some generic inference issues with the `DataComponentType.Builder` within a `Supplier`
-public static final DeferredRegister.DataComponents REGISTRAR = DeferredRegister.createDataComponents("examplemod");
-
-public static final DeferredHolder<DataComponentType<?>, DataComponentType<ExampleRecord>> BASIC_EXAMPLE = REGISTRAR.registerComponentType(
-    "basic",
-    builder -> builder
-        // The codec to read/write the data to disk
-        .persistent(BASIC_CODEC)
-        // The codec to read/write the data across the network
-        .networkSynchronized(BASIC_STREAM_CODEC)
-);
-
-/// Component will not be saved to disk
-public static final DeferredHolder<DataComponentType<?>, DataComponentType<ExampleRecord>> TRANSIENT_EXAMPLE = REGISTRAR.registerComponentType(
-    "transient",
-    builder -> builder.networkSynchronized(BASIC_STREAM_CODEC)
-);
-
-// No data will be synced across the network
-public static final DeferredHolder<DataComponentType<?>, DataComponentType<ExampleRecord>> NO_NETWORK_EXAMPLE = REGISTRAR.registerComponentType(
-   "no_network",
-   builder -> builder
-        .persistent(BASIC_CODEC)
-        // Note we use a unit stream codec here
-        .networkSynchronized(UNIT_STREAM_CODEC)
-);
-```
-</TabItem>
-</Tabs>
 
 ## The Component Map
 
@@ -271,9 +210,10 @@ Although data components are stored on an `ItemStack`, a map of default componen
 // For some DeferredRegister.Items REGISTRAR
 public static final Item COMPONENT_EXAMPLE = REGISTRAR.register("component",
     // register is used over other overloads as the DataComponentType has not been registered yet
-    () -> new Item(
+    registryName -> new Item(
         new Item.Properties()
-        .component(BASIC_EXAMPLE.value(), new ExampleRecord(24, true))
+        .setId(ResourceKey.create(Registries.ITEM, registryName))
+        .component(BASIC_EXAMPLE.get(), new ExampleRecord(24, true))
     )
 );
 ```
@@ -286,12 +226,12 @@ If the data component should be added to an existing item that belongs to Vanill
 public void modifyComponents(ModifyDefaultComponentsEvent event) {
     // Sets the component on melon seeds
     event.modify(Items.MELON_SEEDS, builder ->
-        builder.set(BASIC_EXAMPLE.value(), new ExampleRecord(10, false))
+        builder.set(BASIC_EXAMPLE.get(), new ExampleRecord(10, false))
     );
 
-    // Removes the component for any items that have a crafting item
+    // Removes the component for any items that have a crafting remainder
     event.modifyMatching(
-        item -> item.hasCraftingRemainingItem(),
+        item -> !item.getCraftingRemainder().isEmpty(),
         builder -> builder.remove(DataComponents.BUCKET_ENTITY_DATA)
     );
 }
@@ -337,7 +277,7 @@ public class ExampleHolder implements MutableDataComponentHolder {
 
     @Override
     public void applyComponents(DataComponentMap components) {
-        this.components.setAll(p_330402_);
+        this.components.setAll(components);
     }
 
     // Other methods
