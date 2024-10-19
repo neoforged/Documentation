@@ -51,13 +51,13 @@ private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAn
 
 While there are many different `#blit` overloads, we will only discuss two of them.
 
-The first `#blit` takes in six integers and assumes the texture being rendered is on a 256 x 256 PNG file. It takes in the left x and top y screen coordinate, the left x and top y coordinate within the PNG, and the width and height of the image to render.
+The first `#blit` takes in two integers, than two floats, and finally four more integers, assuming the image is on a PNG file. It takes in the left x and top y screen coordinate, the left x and top y coordinate within the PNG, the width and height of the image to render, and the width and height of the PNG file.
 
 :::tip
 The size of the PNG file must be specified so that the coordinates can be normalized to obtain the associated UV values.
 :::
 
-The second `#blit` which the first calls expands this to seven integers and two floats for the PNG coordinates, only assuming the image is on a PNG file. It takes in the left x and top y screen coordinate, the z coordinate (referred to as the blit offset), the left x and top y coordinate within the PNG, the width and height of the image to render, and the width and height of the PNG file.
+The second `#blit` adds an additional integer at the end which represents the tint color of the image to be drawn. This color will be treated as an ARGB value, and is `0xFFFFFFFF` if not specified.
 
 #### `blitSprite`
 
@@ -68,9 +68,9 @@ The second `#blit` which the first calls expands this to seven integers and two 
 private static final ResourceLocation SPRITE = ResourceLocation.fromNamespaceAndPath("examplemod", "container/example_container/example_sprite");
 ```
 
-One set of `#blitSprite` methods have the same parameters as `#blit`, except for the x and y coordinate within the sprite.
+One set of `#blitSprite` methods have the same parameters as `#blit`, except for the the four integers dealing with the coordinates, width, and height of the PNG.
 
-The other `#blitSprite` methods take in more texture information to allow for rendering part of the sprite. These methods take in the texture width and height, the x and y coordinate in the sprite, the left x and top y screen coordinate, the z coordinate (referred to as the blit offset), and the width and height of the image to render.
+The other `#blitSprite` methods take in more texture information to allow for rendering part of the sprite. These methods take in the texture width and height, the x and y coordinate in the sprite, the left x and top y screen coordinate, the tint color (in ARGB format), and the width and height of the image to render.
 
 If the sprite size does not match the texture size, then the sprite can be scaled in one of three ways: `stretch`, `tile`, and `nine_slice`. `stretch` stretches the image from the texture size to the screen size. `tile` renders the texture over and over again until it reaches the screen size. `nine_slice` divides the texture into one center, four edges, and four corners to tile the texture to the required screen size.
 
