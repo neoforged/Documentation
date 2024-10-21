@@ -87,7 +87,8 @@ We can then use our tag to perform various operations on it. Let's start with th
 
 ```java
 // Check whether dirt is in our tag.
-boolean isInTag = BuiltInRegistries.BLOCK.getOrThrow(MY_TAG).stream().anyMatch(holder -> holder.is(Items.DIRT));
+// Assume access to Level level
+boolean isInTag = level.registryAccess().lookupOrThrow(BuiltInRegistries.BLOCK).getOrThrow(MY_TAG).stream().anyMatch(holder -> holder.is(Items.DIRT));
 ```
 
 Since this is a very verbose statement, especially when used often, `BlockState` and `ItemStack` - the two most common users of the tag system - each define a `#is` helper method, used like so:
@@ -102,7 +103,17 @@ boolean isInItemTag = itemStack.is(MY_ITEM_TAG);
 If needed, we can also get ourselves a set of tag entries to stream, like so:
 
 ```java
-Stream<Holder<Block>> blocksInTag = BuiltInRegistries.BLOCK.getOrThrow(MY_TAG).stream();
+// Assume access to Level level
+Stream<Holder<Block>> blocksInTag = level.registryAccess().lookupOrThrow(BuiltInRegistries.BLOCK).getOrThrow(MY_TAG).stream();
+```
+
+### Tags for Static Registries During Bootstrap
+
+Sometimes, you need to get access to a `HolderSet` during the registry process. In this case, for static registries **only**, you can obtain the necessary `HolderGetter` via `BuiltInRegistries#acquireBootstrapRegistrationLookup`:
+
+```java
+// Assume access to Level level
+HolderSet<Block> blockTag = BuiltInRegistries.acquireBootstrapRegistrationLookup(BuiltInRegistries.BLOCK).getOrThrow(MY_TAG);
 ```
 
 ## Datagen
