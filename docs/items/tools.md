@@ -19,7 +19,15 @@ Item
 - SwordItem
 ```
 
-Tools are almost completely implemented through seven [data components][datacomponents]: `DataComponents#MAX_DAMAGE`, `#MAX_STACK_SIZE`, and `#DAMAGE` for durability; `#REPAIRABLE` for reepairing a tool in an anvil; `#ENCHANTABLE` for the maximum [enchanting][enchantment] value; `#TOOL` for mining information; and `#ATTRIBUTE_MODIFIERS` for attack damage and attack speed. For `DiggerItem` and `SwordItem`, they are simply delegates that set up the components via the utility record `ToolMaterial`. Note that other items usually considered tools, such as shears, are not included in this hierarchy. Instead, they directly extend `Item` and hold the breaking logic themselves.
+Tools are almost completely implemented through seven [data components][datacomponents]:
+
+- `DataComponents#MAX_DAMAGE`, `#MAX_STACK_SIZE`, and `#DAMAGE` for durability
+- `#REPAIRABLE` for reepairing a tool in an anvil
+- `#ENCHANTABLE` for the maximum [enchanting][enchantment] value
+- `#ATTRIBUTE_MODIFIERS` for attack damage and attack speed
+- `#TOOL` for mining information
+
+For `DiggerItem` and `SwordItem`, they are simply delegates that set up the components via the utility record `ToolMaterial`. Note that other items usually considered tools, such as shears, are not included in this hierarchy. Instead, they directly extend `Item` and hold the breaking logic themselves.
 
 To create a standard set of tools using a `DiggerItem` or `SwordItem`, you must first define a `ToolMaterial`. Reference values can be found within the constants in `ToolMaterial`. This example uses copper tools, you can use your own material here and adjust the values as needed.
 
@@ -45,7 +53,7 @@ public static final ToolMaterial COPPER_MATERIAL = new ToolMaterial(
 );
 ```
 
-Now that we have our `ToolMaterial`, we can use it for registering tools. All tool constructors have the same four parameters.
+Now that we have our `ToolMaterial`, we can use it for [registering] tools. All tool constructors have the same four parameters.
 
 ```java
 // ITEMS is a DeferredRegister.Items
@@ -160,6 +168,7 @@ To query if an `ItemStack` can perform a certain `ItemAbility`, call `IItemStack
 [block]: ../blocks/index.md
 [datacomponents]: ./datacomponents.md
 [enchantment]: ../resources/server/enchantments/index.md#enchantment-costs-and-levels
-[item]: index.md
+[item]: ./index.md
 [itemability]: #itemabilitys
+[registering]: ../concepts/registries.md#methods-for-registering
 [tags]: ../resources/server/tags.md
