@@ -71,6 +71,18 @@ The dynamic fluid container model, also called dynamic bucket model after its mo
 }
 ```
 
+:::note
+If you would like to apply a tint to the fluid texture, you will need to [register an `ItemColor`][tint]. An instance with the fluid tinting logic can be created from `DynamicFluidContainerModel.Colors`:
+
+```java
+// Client-side mod bus event handler
+@SubscribeEvent
+public static void registerItemColorHandlers(RegisterColorHandlersEvent.Item event) {
+    event.register(new DynamicFluidContainerModel.Colors(), EXAMPLE_BUCKET.get(), ...);
+}
+```
+:::
+
 Very often, dynamic fluid container models will directly use the bucket model. This is done by specifying the `neoforge:item_bucket` parent model, like so:
 
 ```json5
@@ -83,7 +95,7 @@ Very often, dynamic fluid container models will directly use the bucket model. T
 }
 ```
 
-To [datagen][modeldatagen] this model, use the custom loader class `DynamicFluidContainerModelBuilder`. Be aware that for legacy support reasons, this class also provides a method to set the `apply_tint` property, which is no longer used.
+To [datagen][modeldatagen] this model, use the custom loader class `DynamicFluidContainerModelBuilder`.
 
 ### Elements Model
 
@@ -472,4 +484,5 @@ public class MyDynamicModel implements IDynamicBakedModel {
 [modeldatagen]: datagen.md
 [rendertype]: index.md#render-types
 [sides]: ../../../concepts/sides.md
+[tint]: ./index.md#tinting
 [transform]: index.md#root-transforms
