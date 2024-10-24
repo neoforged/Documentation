@@ -604,16 +604,17 @@ Now that all parts of your recipe are complete, you can make yourself some recip
 In our case, however, we want to apply the recipe when an item is right-clicked on a block. We will do so using an [event handler][event]. Keep in mind that this is an example implementation, and you can alter this in any way you like (so long as you run it on the server). As we want the interaction state to match on both the client and server, we will also need to [sync any relevant input states across the network][networking].
 
 ```java
-// A basic packet class, must be registered
+// A basic packet class, must be registered.
 public record ClientboundRightClickBlockRecipesPayload(
     Set<BlockState> inputStates, Set<Holder<Item>> inputItems
 ) implements CustomPacketPayload {
 
     // ...
 }
-// Packet stores data in an instance class
-// Present on both server and client to do initial matching
-public class RightClickBlockRecipeInputs {
+// Packet stores data in an instance class.
+// Present on both server and client to do initial matching.
+// Resource listener so it can be reloaded when recipes are.
+public class RightClickBlockRecipeInputs extends SimplePreparableReloadListener<Void> {
     // Only one instance
     public static final RightClickBlockRecipeInputs INSTANCE = new RightClickBlockRecipeInputs();
 
@@ -622,9 +623,41 @@ public class RightClickBlockRecipeInputs {
 
     private RightClickBlockRecipeInputs() {}
 
+    @Override
+    protected Void prepare(ResourceManager manager, ProfilerFiller filler) {}
+
+    // Set inputs here as #apply is fired synchronously based on listener registration order.
+    // Recipes are always applied first.
+    @Override
+    protected abstract void apply(Void dummy, ResourceManager manager, ProfilerFiller filler) {
+        MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+        if (server != null) { // Should never be null
+            // Populate inputs
+            Set<BlockState> inputStates = new HashSet<>();
+            Set<Holder<Item>> inputItems = new HashSet<>();
+
+            server.getRecipeManager().recipeMap().byType(RIGHT_CLICK_BLOCK_TYPE.get())
+                .forEach(holder -> {
+                    var recipe = holder.value();
+                    inputStates.add(recipe.getInputState());
+                    inputItems.addAll(recipe.getInputItem().items());
+                });
+            
+            this.inputStates = Set.copyOf(inputStates);
+            this.inputItems = Set.copyOf(inputItems);
+        }
+    }
+
+    // Should be called within the handler for the payload
     public void setInputs(Set<BlockState> inputStates, Set<Holder<Item>> inputItems) {
         this.inputStates = inputStates;
         this.inputItems = inputItems;
+    }
+
+    public void syncToClient(Stream<ServerPlayer> players) {
+        ClientboundRightClickBlockRecipesPayload payload =
+            new ClientboundRightClickBlockRecipesPayload(this.inputStates, this.inputItems);
+        players.forEach(player -> PacketDistributor.sendToPlayer(player, payload));
     }
 
     public boolean test(BlockState state, ItemStack stack) {
@@ -633,26 +666,17 @@ public class RightClickBlockRecipeInputs {
 }
 
 // On the game event bus
+@Override
+public static void addListener(AddReloadListenerEvent event) {
+    // Register server reload listener
+    event.addListener(RightClickBlockRecipeInputs.INSTANCE);
+}
+
+// On the game event bus
 @SubscribeEvent
 public static void datapackSync(OnDatapackSyncEvent event) {
-    // Populate inputs
-    Set<BlockState> inputStates = new HashSet<>();
-    Set<Holder<Item>> inputItems = new HashSet<>();
-
-    event.getPlayerList().getServer().getRecipeManager()
-        .recipeMap().byType(RIGHT_CLICK_BLOCK_TYPE.get())
-        .forEach(holder -> {
-            var recipe = holder.value();
-            inputStates.add(recipe.getInputState());
-            inputItems.addAll(recipe.getInputItem().items());
-        });
-    
-    // Set server inputs
-    RightClickBlockRecipeInputs.INSTANCE.setInputs(inputStates, inputItems);
-
     // Send to client
-    ClientboundRightClickBlockRecipesPayload payload = new ClientboundRightClickBlockRecipesPayload(inputStates, inputItems);
-    event.getRelevantPlayers().forEach(player -> PacketDistributor.sendToPlayer(player, payload));
+    RightClickBlockRecipeInputs.INSTANCE.syncToClient(event.getRelevantPlayers());
 }
 
 // On the game event bus
