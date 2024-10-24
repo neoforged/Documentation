@@ -10,17 +10,21 @@ The simplest way to get an ingredient is using the `Ingredient#of` helpers. Seve
 
 - `Ingredient.of()` returns an empty ingredient.
 - `Ingredient.of(Blocks.IRON_BLOCK, Items.GOLD_BLOCK)` returns an ingredient that accepts either an iron or a gold block. The parameter is a vararg of [`ItemLike`s][itemlike], which means that any amount of both blocks and items may be used.
-- `Ingredient.of(new ItemStack(Items.DIAMOND_SWORD))` returns an ingredient that accepts an item stack. Be aware that counts and data components are ignored.
-- `Ingredient.of(Stream.of(new ItemStack(Items.DIAMOND_SWORD)))` returns an ingredient that accepts an item stack. Like the previous method, but with a `Stream<ItemStack>` for if you happen to get your hands on one of those.
-- `Ingredient.of(ItemTags.WOODEN_SLABS)` returns an ingredient that accepts any item from the specified [tag], for example any wooden slab.
+- `Ingredient.of(Stream.of(Items.DIAMOND_SWORD))` returns an ingredient that accepts an item. Like the previous method, but with a `Stream<ItemLike>` for if you happen to get your hands on one of those.
+- `Ingredient.of(BuiltInRegistries.ITEM.getOrThrow(ItemTags.WOODEN_SLABS))` returns an ingredient that accepts any item from the specified [tag], for example any wooden slab.
 
 Additionally, NeoForge adds a few additional ingredients:
 
 - `BlockTagIngredient.of(BlockTags.CONVERTABLE_TO_MUD)` returns an ingredient similar to the tag variant of `Ingredient.of()`, but with a block tag instead. This should be used for cases where you'd use an item tag, but there is only a block tag available (for example `minecraft:convertable_to_mud`).
+- `CustomDisplayIngredient.of(Ingredient.of(Items.DIRT), SlotDisplay.Empty.INSTANCE)` returns an ingredient with a custom [`SlotDisplay`][slotdisplay] defining how to render on the client.
 - `CompoundIngredient.of(Ingredient.of(Items.DIRT))` returns an ingredient with child ingredients, passed in the constructor (vararg parameter). The ingredient matches if any of its children matches.
 - `DataComponentIngredient.of(true, new ItemStack(Items.DIAMOND_SWORD))` returns an ingredient that, in addition to the item, also matches the data component. The boolean parameter denotes strict matching (true) or partial matching (false). Strict matching means the data components must match exactly, while partial matching means the data components must match, but other data components may also be present. Additional overloads of `#of` exist that allow specifying multiple `Item`s, or provide other options.
-- `DifferenceIngredient.of(Ingredient.of(ItemTags.PLANKS), Ingredient.of(ItemTags.NON_FLAMMABLE_WOOD))` returns an ingredient that matches everything in the first ingredient that doesn't also match the second ingredient. The given example only matches planks that can burn (i.e. all planks except crimson planks, warped planks and modded nether wood planks).
-- `IntersectionIngredient.of(Ingredient.of(ItemTags.PLANKS), Ingredient.of(ItemTags.NON_FLAMMABLE_WOOD))` returns an ingredient that matches everything that matches both sub-ingredients. The given example only matches planks that cannot burn (i.e. crimson planks, warped planks and modded nether wood planks).
+- `DifferenceIngredient.of(Ingredient.of(BuiltInRegistries.ITEM.getOrThrow(ItemTags.PLANKS)), Ingredient.of(BuiltInRegistries.ITEM.getOrThrow(ItemTags.NON_FLAMMABLE_WOOD)))` returns an ingredient that matches everything in the first ingredient that doesn't also match the second ingredient. The given example only matches planks that can burn (i.e. all planks except crimson planks, warped planks and modded nether wood planks).
+- `IntersectionIngredient.of(Ingredient.of(BuiltInRegistries.ITEM.getOrThrow(ItemTags.PLANKS)), Ingredient.of(BuiltInRegistries.ITEM.getOrThrow(ItemTags.NON_FLAMMABLE_WOOD)))` returns an ingredient that matches everything that matches both sub-ingredients. The given example only matches planks that cannot burn (i.e. crimson planks, warped planks and modded nether wood planks).
+
+:::note
+If you are using data generation with ingreidents that take in a `HolderSet` for the tag instance (the ones that call `Registry#getOrThrow`), that should be obtained via the `HolderLookup.Provider`, using `HolderLookup.Provider#lookupOrThrow` to get the item registry and `HolderGetter#getOrThrow` with the `TagKey` to get the holder set.
+:::
 
 Keep in mind that the NeoForge-provided ingredient types are `ICustomIngredient`s and must call `#toVanilla` before using them in vanilla contexts, as outlined in the beginning of this article.
 
@@ -50,23 +54,13 @@ public class MinEnchantedIngredient implements ICustomIngredient {
         this.enchantments = enchantments;
     }
 
-    public MinEnchantedIngredient(TagKey<Item> tag) {
-        this(tag, new HashMap<>());
-    }
-
-    // Make this chainable for easy use.
-    public MinEnchantedIngredient with(Holder<Enchantment> enchantment, int level) {
-        enchantments.put(enchantment, level);
-        return this;
-    }
-
     // Check if the passed ItemStack matches our ingredient by verifying the item is in the tag
     // and by testing for presence of all required enchantments with at least the required level.
     @Override
     public boolean test(ItemStack stack) {
         return stack.is(tag) && enchantments.keySet()
                 .stream()
-                .allMatch(ench -> stack.getEnchantmentLevel(ench) >= enchantments.get(ench));
+                .allMatch(ench -> EnchantmentHelper.getEnchantmentsForCrafting(stack).getLevel(ench) >= enchantments.get(ench));
     }
 
     // Determines whether this ingredient performs NBT or data component matching (false) or not (true).
@@ -79,27 +73,14 @@ public class MinEnchantedIngredient implements ICustomIngredient {
 
     // Returns a stream of items that match this ingredient. Mostly for display purposes.
     // There's a few good practices to follow here:
-    // - Always include at least one item stack, to prevent accidental recognition as empty.
+    // - Always include at least one item, to prevent accidental recognition as empty.
     // - Include each accepted Item at least once.
-    // - If #isSimple is true, this should be exact and contain every item stack that matches.
+    // - If #isSimple is true, this should be exact and contain every item that matches.
     //   If not, this should be as exact as possible, but doesn't need to be super accurate.
-    // In our case, we use all items in the tag, each with the required enchantments.
+    // In our case, we use all items in the tag.
     @Override
-    public Stream<ItemStack> getItems() {
-        // Get a list of item stacks, one stack per item in the tag.
-        List<ItemStack> stacks = BuiltInRegistries.ITEM
-                .getOrCreateTag(tag)
-                .stream()
-                .map(ItemStack::new)
-                .toList();
-        // Enchant all stacks with all enchantments.
-        for (ItemStack stack : stacks) {
-            enchantments
-                    .keySet()
-                    .forEach(ench -> stack.enchant(ench, enchantments.get(ench)));
-        }
-        // Return stream variant of the list.
-        return stacks.stream();
+    public Stream<Holder<Item>> getItems() {
+        return BuiltInRegistries.ITEM.getOrThrow(tag).stream();
     }
 }
 ```
@@ -125,7 +106,7 @@ public class MinEnchantedIngredient implements ICustomIngredient {
 
     @Override    
     public IngredientType<?> getType() {
-        return MIN_ENCHANTED;
+        return MIN_ENCHANTED.get();
     }
 }
 ```
@@ -140,7 +121,7 @@ Ingredients that specify a `type` are generally assumed to be non-vanilla. For e
 
 ```json5
 {
-    "type": "neoforge:block_tag",
+    "neoforge:ingredient_type": "neoforge:block_tag",
     "tag": "minecraft:convertable_to_mud"
 }
 ```
@@ -149,7 +130,7 @@ Or another example using our own ingredient:
 
 ```json5
 {
-    "type": "examplemod:min_enchanted",
+    "neoforge:ingredient_type": "examplemod:min_enchanted",
     "tag": "c:swords",
     "enchantments": {
         "minecraft:sharpness": 4
@@ -157,22 +138,18 @@ Or another example using our own ingredient:
 }
 ```
 
-If the `type` is unspecified, then we have a vanilla ingredient. Vanilla ingredients can specify one of two properties: `item` or `tag`.
+If the `type` is unspecified, then we have a vanilla ingredient. Vanilla ingredients are strings that either represent an item, or a tag when prefixed with `#`.
 
 An example for a vanilla item ingredient:
 
 ```json5
-{
-    "item": "minecraft:dirt"
-}
+"minecraft:dirt"
 ```
 
 An example for a vanilla tag ingredient:
 
 ```json5
-{
-    "tag": "c:ingots"
-}
+"#c:ingots"
 ```
 
 [codec]: ../../../datastorage/codecs.md
@@ -180,5 +157,6 @@ An example for a vanilla tag ingredient:
 [itemstack]: ../../../items/index.md#itemstacks
 [recipes]: index.md
 [registry]: ../../../concepts/registries.md
+[slotdisplay]: ./index.md#slot-displays
 [streamcodec]: ../../../networking/streamcodecs.md
 [tag]: ../tags.md

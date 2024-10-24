@@ -1,6 +1,6 @@
 # Recipes
 
-Recipes are a way to transform a set of objects into other objects within a Minecraft world. Although Minecraft uses this system purely for item transformations, the system is built in a way that allows any kind of objects - blocks, entities, etc. - to be transformed. Almost all recipes use recipe data files; a "recipe" is assumed to be a data-driven recipe in this article unless explicitly stated otherwise.
+Recipes are a datapack registry used as a way to transform a set of objects into other objects within a Minecraft world. Although Minecraft uses this system purely for item transformations, the system is built in a way that allows any kind of objects - blocks, entities, etc. - to be transformed.
 
 Recipe data files are located at `data/<namespace>/recipe/<path>.json`. For example, the recipe `minecraft:diamond_block` is located at `data/minecraft/recipe/diamond_block.json`.
 
@@ -10,10 +10,15 @@ Recipe data files are located at `data/<namespace>/recipe/<path>.json`. For exam
 - A **`Recipe`** holds in-code representations of all JSON fields, alongside the matching logic ("Does this input match the recipe?") and some other properties.
 - A **`RecipeInput`** is a type that provides inputs to a recipe. Comes in several subclasses, e.g. `CraftingInput` or `SingleRecipeInput` (for furnaces and similar).
 - A **recipe ingredient**, or just **ingredient**, is a single input for a recipe (whereas the `RecipeInput` generally represents a collection of inputs to check against a recipe's ingredients). Ingredients are a very powerful system and as such outlined [in their own article][ingredients].
+- A **`PlacementInfo`** is a definition of items the recipe contains and what indexes they should populate. If the recipe cannot be captured to some degree based on the items provided (e.g., only changing the data components), then `PlacementInfo#NOT_PLACEABLE` is used.
+- A **`SlotDisplay`** defines how a single slot should display within a recipe viewer, like the recipe book.
+- A **`RecipeDisplay`** defines the `SlotDisplay`s of a recipe to be consumed by a recipe viewer, like the recipe book. While the interface only contains methods for the result of a recipe and the workstation the recipe was conducted within, a subtype can capture information like ingredients or grid size.
 - The **`RecipeManager`** is a singleton field on the server that holds all loaded recipes.
 - A **`RecipeSerializer`** is basically a wrapper around a [`MapCodec`][codec] and a [`StreamCodec`][streamcodec], both used for serialization.
 - A **`RecipeType`** is the registered type equivalent of a `Recipe`. It is mainly used when looking up recipes by type. As a rule of thumb, different crafting containers should use different `RecipeType`s. For example, the `minecraft:crafting` recipe type covers the `minecraft:crafting_shaped` and `minecraft:crafting_shapeless` recipe serializers, as well as the special crafting serializers.
+- A **`RecipeBookCategory`** is a group representing some recipes when viewed through a recipe book.
 - A **recipe [advancement]** is an advancement responsible for unlocking a recipe in the recipe book. They are not required, and generally neglected by players in favor of recipe viewer mods, however the [recipe data provider][datagen] generates them for you, so it's recommended to just roll with it.
+- A **`RecipePropertySet`** defines the available list of ingredients that can be accepted by the defined input slot in a menu.
 - A **`RecipeBuilder`** is used during datagen to create JSON recipes.
 - A **recipe factory** is a method reference used to create a `Recipe` from a `RecipeBuilder`. It can either be a reference to a constructor, or a static builder method, or a functional interface (often named `Factory`) created specifically for this purpose.
 
@@ -34,31 +39,33 @@ A full list of types provided by Minecraft can be found in the [Built-In Recipe 
 
 ## Using Recipes
 
-Recipes are loaded, stored and obtained via the `RecipeManager` class, which is in turn obtained via `ServerLevel#getRecipeManager` or - if you don't have a `ServerLevel` available - `ServerLifecycleHooks.getCurrentServer()#getRecipeManager`. Be aware that while the client has a full copy of the `RecipeManager` for display purposes, recipe logic should always run on the server to avoid sync issues.
+Recipes are registered, stored and obtained via the `RecipeManager` class, which is in turn obtained via `ServerLevel#recipeAccess` or - if you don't have a `ServerLevel` available - `ServerLifecycleHooks.getCurrentServer()#getRecipeManager`. The client does not sync the recipes themselves, only the `RecipePropertySet` for restricting inputs on menu slots and a `RecipeDisplayEntry` for the recipe book. All recipe logic should always run on the server.
 
-The easiest way to get a recipe is by ID:
+The easiest way to get a recipe is by its resource key:
 
 ```java
-RecipeManager recipes = serverLevel.getRecipeManager();
-// RecipeHolder<?> is a record of the recipe id and the recipe itself.
-Optional<RecipeHolder<?>> optional = recipes.byId(ResourceLocation.withDefaultNamespace("diamond_block"));
+RecipeManager recipes = serverLevel.recipeAccess();
+// RecipeHolder<?> is a record of the resource key and the recipe itself.
+Optional<RecipeHolder<?>> optional = recipes.byKey(
+    ResourceKey.create(Registries.RECIPE, ResourceLocation.withDefaultNamespace("diamond_block"))
+);
 optional.map(RecipeHolder::value).ifPresent(recipe -> {
-        // Do whatever you want to do with the recipe here. Be aware that the recipe may be of any type.
+    // Do whatever you want to do with the recipe here. Be aware that the recipe may be of any type.
 });
 ```
 
 A more practically applicable method is constructing a `RecipeInput` and trying to get a matching recipe. In this example, we will be creating a `CraftingInput` containing one diamond block using `CraftingInput#of`. This will create a shapeless input, a shaped input would instead use `CraftingInput#ofPositioned`, and other inputs would use other `RecipeInput`s (for example, furnace recipes will generally use `new SingleRecipeInput`).
 
 ```java
-RecipeManager recipes = serverLevel.getRecipeManager();
+RecipeManager recipes = serverLevel.recipeAccess();
 // Construct a RecipeInput, as required by the recipe. For example, construct a CraftingInput for a crafting recipe.
 // The parameters are width, height and items, respectively.
-CraftingInput input = CraftingInput.of(1, 1, List.of(Items.DIAMOND_BLOCK));
-// The generic wildcard on the recipe holder should then extend Recipe<CraftingInput>.
+CraftingInput input = CraftingInput.of(1, 1, List.of(new ItemStack(Items.DIAMOND_BLOCK)));
+// The generic wildcard on the recipe holder should then extend CraftingRecipe.
 // This allows for more type safety later on.
-Optional<RecipeHolder<? extends Recipe<CraftingInput>>> optional = recipes.getRecipeFor(
+Optional<RecipeHolder<? extends CraftingRecipe>> optional = recipes.getRecipeFor(
         // The recipe type to get the recipe for. In our case, we use the crafting type.
-        RecipeTypes.CRAFTING,
+        RecipeType.CRAFTING,
         // Our recipe input.
         input,
         // Our level context.
@@ -66,41 +73,41 @@ Optional<RecipeHolder<? extends Recipe<CraftingInput>>> optional = recipes.getRe
 );
 // This returns the diamond block -> 9 diamonds recipe (unless a datapack changes that recipe).
 optional.map(RecipeHolder::value).ifPresent(recipe -> {
-        // Do whatever you want here. Note that the recipe is now a Recipe<CraftingInput> instead of a Recipe<?>.
+    // Do whatever you want here. Note that the recipe is now a CraftingRecipe instead of a Recipe<?>.
 });
 ```
 
 Alternatively, you can also get yourself a potentially empty list of recipes that match your input, this is especially useful for cases where it can be reasonably assumed that multiple recipes match:
 
 ```java
-RecipeManager recipes = serverLevel.getRecipeManager();
-CraftingInput input = CraftingInput.of(1, 1, List.of(Items.DIAMOND_BLOCK));
+RecipeManager recipes = serverLevel.recipeAccess();
+CraftingInput input = CraftingInput.of(1, 1, List.of(new ItemStack(Items.DIAMOND_BLOCK)));
 // These are not Optionals, and can be used directly. However, the list may be empty, indicating no matching recipes.
-List<RecipeHolder<? extends Recipe<CraftingInput>>> list = recipes.getRecipesFor(
-        // Same parameters as above.
-        RecipeTypes.CRAFTING, input, serverLevel
+Stream<RecipeHolder<? extends Recipe<CraftingInput>>> list = recipes.recipeMap().getRecipesFor(
+    // Same parameters as above.
+    RecipeType.CRAFTING, input, serverLevel
 );
 ```
 
 Once we have our correct recipe inputs, we also want to get the recipe outputs. This is done by calling `Recipe#assemble`:
 
 ```java
-RecipeManager recipes = serverLevel.getRecipeManager();
+RecipeManager recipes = serverLevel.recipeAccess();
 CraftingInput input = CraftingInput.of(...);
-Optional<RecipeHolder<? extends Recipe<CraftingInput>>> optional = recipes.getRecipeFor(...);
+Optional<RecipeHolder<? extends CraftingRecipe>> optional = recipes.getRecipeFor(...);
 // Use ItemStack.EMPTY as a fallback.
 ItemStack result = optional
         .map(RecipeHolder::value)
-        .map(e -> e.assemble(input, serverLevel.registryAccess()))
+        .map(recipe -> recipe.assemble(input, serverLevel.registryAccess()))
         .orElse(ItemStack.EMPTY);
 ```
 
 If necessary, it is also possible to iterate over all recipes of a type. This is done like so:
 
 ```java
-RecipeManager recipes = serverLevel.getRecipeManager();
+RecipeManager recipes = serverLevel.recipeAccess();
 // Like before, pass the desired recipe type.
-List<RecipeHolder<?>> list = recipes.getAllRecipesFor(RecipeTypes.CRAFTING);
+Collection<RecipeHolder<?>> list = recipes.recipeMap().byType(RecipeType.CRAFTING);
 ```
 
 ## Other Recipe Mechanisms
@@ -135,7 +142,7 @@ See [the Brewing chapter in the Mob Effects & Potions article][brewing].
 
 ## Custom Recipes
 
-To add custom recipes, we need at least three things: a `Recipe`, a `RecipeType`, and a `RecipeSerializer`. Depending on what you are implementing, you may also need a custom `RecipeInput` if reusing an existing subclass is not feasible.
+To add custom recipes, we need at least three things: a `Recipe`, a `RecipeType`, and a `RecipeSerializer`. Depending on what you are implementing, you may also need a custom `RecipeInput`, `RecipeDisplay`, `SlotDisplay`, `RecipeBookCategory`, and `RecipePropertySet` if reusing an existing subclass is not feasible.
 
 For the sake of example, and to highlight many different features, we are going to implement a recipe-driven mechanic that requires you to right-click a `BlockState` in-world with a certain item, breaking the `BlockState` and dropping the result item.
 
@@ -188,34 +195,12 @@ public class RightClickBlockRecipe implements Recipe<RightClickBlockInput> {
         this.result = result;
     }
 
-    // A list of our ingredients. Does not need to be overridden if you have no ingredients
-    // (the default implementation returns an empty list here). It makes sense to cache larger lists in a field.
-    @Override
-    public NonNullList<Ingredient> getIngredients() {
-        NonNullList<Ingredient> list = NonNullList.create();
-        list.add(this.inputItem);
-        return list;
-    }
-
-    // Grid-based recipes should return whether their recipe can fit in the given dimensions.
-    // We don't have a grid, so we just return if any item can be placed in there.
-    @Override
-    public boolean canCraftInDimensions(int width, int height) {
-        return width * height >= 1;
-    }
-
     // Check whether the given input matches this recipe. The first parameter matches the generic.
     // We check our blockstate and our item stack, and only return true if both match.
+    // If we needed to check the dimensions of our input, we would also do so here.
     @Override
     public boolean matches(RightClickBlockInput input, Level level) {
         return this.inputState == input.state() && this.inputItem.test(input.stack());
-    }
-
-    // Return an UNMODIFIABLE version of your result here. The result of this method is mainly intended
-    // for the recipe book, and commonly used by JEI and other recipe viewers as well.
-    @Override
-    public ItemStack getResultItem(HolderLookup.Provider registries) {
-        return this.result;
     }
 
     // Return the result of the recipe here, based on the given input. The first parameter matches the generic.
@@ -226,8 +211,293 @@ public class RightClickBlockRecipe implements Recipe<RightClickBlockInput> {
         return this.result.copy();
     }
 
+    // When false, will prevent the recipe from being synced within the recipe book or awarded on use/unlock.
+    // This should only be false if the recipe shouldn't appear in a recipe book, such as extended a map.
+    // Although this recipe takes in an input state, it could still be used in a custom recipe book using
+    //   the methods below.
+    @Override
+    public boolean isSpecial() {
+        return true;
+    }
+
     // This example outlines the most important methods. There is a number of other methods to override.
+    // Some methods will be explained in the below sections as they cannot be easily compressed and understood here.
     // Check the class definition of Recipe to view them all.
+}
+```
+
+### Recipe Book Categories
+
+A `RecipeBookCategory` simply defines a group to display this recipe within in a recipe book. For example, an iron pickaxe crafting recipe would show up in the `RecipeBookCategories#CARFTING_EQUIPMENT` while a cooked cod recipe would show up in `#FURNANCE_FOOD` or `#SMOKER_FOOD`. Each recipe has one associated `RecipeBookCategory`. The vanilla categories can be found in `RecipeBookCategories`.
+
+:::note
+There are two cooked cod recipes, one for the furnance and one for the smoker. The furnace and smoker recipes have different book categories.
+:::
+
+If your recipe does not fit into one of the existing categories, typically because the recipe does not use one of the existing workbench-types (e.g., crafting table, furnace), then a new `RecipeBookCategory` can be created. Each `RecipeBookCategory` must be [registered][registry] to `BuiltInRegistries#RECIPE_BOOK_CATEGORY`:
+
+```java
+/// For some DeferredRegister<RecipeBookCategory> RECIPE_BOOK_CATEGORIES
+public static final Supplier<RecipeBookCategory> RIGHT_CLICK_BLOCK_CATEGORY = RECIPE_BOOK_CATEGORIES.register(
+    "right_click_block", RecipeBookCategory::new
+);
+```
+
+Then, to set the category, we must override `#recipeBookCategory` like so:
+
+```java
+public class RightClickBlockRecipe implements Recipe<RightClickBlockInput> {
+    // other stuff here
+
+    @Override
+    public RecipeBookCategory recipeBookCategory() {
+        return RIGHT_CLICK_BLOCK_CATEGORY.get();
+    }
+}
+```
+
+#### Search Categories
+
+All `RecipeBookCategory`s are technically `ExtendedRecipeBookCategory`s. There is another type of `ExtendedRecipeBookCategory` called `SearchRecipeBookCategory`, which is used to aggregate `RecipeBookCategory`s when viewing all recipes in a recipe book.
+
+NeoForge allows users to specify their own `ExtendedRecipeBookCategory` as a search category via `RegisterRecipeBookSearchCategoriesEvent#register` on the mod event bus. `register` takes in the `ExtendedRecipeBookCategory` representing the search category and the `RecipeBookCategory`s that make up that search category. The `ExtendedRecipeBookCategory` search category does not need to be registered to some static vanilla registry.
+
+```java
+// In some location
+public static final ExtendedRecipeBookCategory RIGHT_CLICK_BLOCK_SEARCH_CATEGORY = new ExtendedRecipeBookCategory() {};
+
+// On the mod event bus
+@SubscribeEvent
+public static void registerSearchCategories(RegisterRecipeBookSearchCategoriesEvent event) {
+    event.register(
+        // The search category
+        RIGHT_CLICK_BLOCK_SEARCH_CATEGORY,
+        // All recipe categories within the search category as varargs
+        RIGHT_CLICK_BLOCK_CATEGORY.get()
+    )
+}
+```
+
+### Placement Info
+
+A `PlacementInfo` is meant to define the crafting requirements used by the recipe consumer to determine what recipes can be placed in workbench-type. `PlacementInfo` are only meant for item ingredients, so if other types of ingredients are desired (e.g., fluid, block), the surrounding logic will need to be implemented from scratch. In these cases, the recipe can be labelled as not placeable, and say as such via `PlacementInfo#NOT_PLACEABLE`. However, if there is at least one item-like object in your recipe, you should create a `PlacementInfo`.
+
+A `PlacementInfo` can be created via `create`, which takes in one or a list of ingredient, or `createFromOptionals`, which takes in a list of optional ingredients. If your recipe contains some representation of empty slots, then `createFromOptionals` should be used, providing an empty optional for an empty slot:
+
+```java
+public class RightClickBlockRecipe implements Recipe<RightClickBlockInput> {
+    // other stuff here
+    private PlacementInfo info;
+
+    @Override
+    public PlacementInfo placementInfo() {
+        // This delegate is in case the ingredient is not fully populated at this point in time
+        // Tags and recipes are loaded at the same time, which is why this might be the case.
+        if (this.info == null) {
+            // Use optional ingredient as the block state may have an item representation
+            List<Optional<Ingredient>> ingredients = new ArrayList<>();
+            Item stateItem = this.inputState.getBlock().asItem();
+            ingredients.add(stateItem != Items.AIR ? Optional.of(Ingredient.of(stateItem)): Optional.empty());
+            ingredients.add(Optional.of(this.inputItem));
+
+            // Create placement info
+            this.info = PlacementInfo.createFromOptionals(ingredients);
+        }
+
+        return this.info;
+    }
+}
+```
+
+### Slot Displays
+
+`SlotDisplay`s represent the information on what should render in what slot when viewed by a recipe consumer, like a recipe book. A `SlotDisplay` has two methods. First there's `resolve`, which takes in the `ContextMap` containing the available registries and fuel values (as shown in `SlotDisplayContext`); and the current `DisplayContentsFactory`, which accepts the contents to display for this slot; and returns the transformed list of contents into the output to be accepted. Then there's `type`, which holds the [`MapCodec`][codec] and [`StreamCodec`][streamcodec] used to encode/decode the display.
+
+`SlotDisplay`s are typically implemented on the [`Ingredient` via `#display`, or `ICustomIngredient#display` for modded ingredients][ingredients]; however, in some cases, the input may not be an ingredient, meaning a `SlotDisplay` will need to use one available, or have a new one created.
+
+These are the available slot displays provided by Vanilla and NeoForge:
+
+- `SlotDisplay.Empty`: A slot that represents nothing.
+- `SlotDisplay.ItemSlotDisplay`: A slot that respresents an item.
+- `SlotDisplay.ItemStackSlotDisplay`: A slot that represents an item stack.
+- `SlotDisplay.TagSlotDisplay`: A slot that represents an item tag.
+- `SlotDisplay.WithRemainder`: A slot that represents some input that has some crafting remainder.
+- `SlotDisplay.AnyFuel`: A slot that represents all fuel items.
+- `SlotDisplay.Composite`: A slot that represents a combination of other slot displays.
+- `SlotDisplay.SmithingTrimDemoSlotDisplay`: A slot that represents a random smithing drim being applied to some base with the given material.
+
+- `FluidSlotDisplay`: A slot that represents a fluid.
+- `FluidStackSlotDisplay`: A slot that represents a fluid stack.
+- `FluidTagSlotDisplay`: A slot that represents a fluid tag.
+
+We have three 'slots' in our recipe: the `BlockState` input, the `Ingredient` input, and the `ItemStack` result. The `Ingredient` input will already have an associated `SlotDisplay` and the `ItemStack` can be represented by `SlotDisplay.ItemStackSlotDisplay`. The `BlockState`, on the other hand, will need its own custom `SlotDisplay` and `DisplayContentsFactory`, as existing ones only take in item stacks, and for this example, block states are handled in a different fashion.
+
+Starting with the `DisplayContentsFactory`, it is meant to be a transformer for some type to desired content display type. The available factories are:
+
+- `DisplayContentsFactory.ForStacks`: A transformer that takes in `ItemStack`s.
+- `DisplayContentsFactory.ForRemainders`: A transformer that takes in the input object and a list of remainder objects.
+
+- `DisplayContentsFactory.ForFluidStacks`: A transformer that takes in a `FluidStack`.
+
+With this, the `DisplayContentsFactory` can be implemented to transform the provided objects into the desired output. For example, `SlotDisplay.ItemStackContentsFactory`, takes the `ForStacks` transformer and has the stacks transformed into `ItemStack`s.
+
+For our `BlockState`, we'll create a factory that takes in the state, along with a basic implementation that outputs the state itself.
+
+```java
+// A basic transformer for block states
+public interface ForBlockStates<T> extends DisplayContentsFactory<T> {
+
+    // Delegate methods
+    default forState(Holder<Block> block) {
+        return this.forState(block.value());
+    }
+
+    default forState(Block block) {
+        return this.forState(block.defaultBlockState());
+    }
+
+    // The block state to take in and transform to the desired output
+    T forState(BlockState state);
+}
+
+// An implementation for a block state output
+public class BlockStateContentsFactory implements ForBlockStates<BlockState> {
+    // Singleton instance
+    public static final BlockStateContentsFactory INSTANCE = new BlockStateContentsFactory();
+
+    private BlockStateContentsFactory() {}
+
+    @Override
+    public BlockState forState(BlockState state) {
+        return state;
+    }
+}
+
+// An implementation for an item stack output
+public class BlockStateStackContentsFactory implements ForBlockStates<ItemStack> {
+    // Singleton instance
+    public static final BlockStateStackContentsFactory INSTANCE = new BlockStateStackContentsFactory();
+
+    private BlockStateStackContentsFactory() {}
+
+    @Override
+    public ItemStack forState(BlockState state) {
+        return new ItemStack(state.getBlock());
+    }
+}
+```
+
+Then, with that, we can create a new `SlotDisplay`. The `SlotDisplay.Type` must be [registered][registry]:
+
+```java
+// A simple slot display
+public record BlockStateSlotDisplay(BlockState state) implements SlotDisplay {
+    public static final MapCodec<BlockStateSlotDisplay> CODEC = BlockState.CODEC.fieldOf("state")
+        .xmap(BlockStateSlotDisplay::new, BlockStateSlotDisplay::state);
+    public static final StreamCodec<RegistryFriendlyByteBuf, BlockStateSlotDisplay> STREAM_CODEC =
+        StreamCodec.composite(
+            ByteBufCodecs.idMapper(Block.BLOCK_STATE_REGISTRY), BlockStateSlotDisplay::state,
+            BlockStateSlotDisplay::new
+        );
+    
+    @Override
+    public <T> Stream<T> resolve(ContextMap context, DisplayContentsFactory<T> factory) {
+        return switch (factory) {
+            // Check for our contents factory and transform if necessary
+            case ForBlockStates<T> states -> Stream.of(states.forState(this.state));
+            // If you want the contents to be handled differently depending on contents display
+            //   then you can case on other displays like so
+            case ForStacks<T> stacks -> Stream.of(stacks.forStack(state.getBlock().asItem()));
+            // If no factories match, then do not return anything in the transformed stream
+            default -> Stream.empty();
+        }
+    }
+
+    @Override
+    public SlotDisplay.Type<? extends SlotDisplay> type() {
+        // Return the registered type from below
+        return BLOCK_STATE_SLOT_DISPLAY.get();
+    }
+}
+
+// In some registrar class
+/// For some DeferredRegister<SlotDisplay.Type<?>> SLOT_DISPLAY_TYPES
+public static final Supplier<SlotDisplay.Type<BlockStateSlotDisplay>> BLOCK_STATE_SLOT_DISPLAY = SLOT_DISPLAY_TYPES.register(
+    "block_state",
+    () -> new SlotDisplay.Type<>(BlockStateSlotDisplay.CODEC, BlockStateSlotDisplay.STREAM_CODEC)
+);
+```
+
+### Recipe Display
+
+A `RecipeDisplay` is the same as a `SlotDisplay`, except that it represents an entire recipe. The default interface only keeps track of the `result` of recipe and the `craftingStation` which represents the workbench where the recipe is applied. The `RecipeDisplay` also has a `type` that holds the [`MapCodec`][codec] and [`StreamCodec`][streamcodec] used to encode/decode the display.However, subtypes of `RecipeDisplay` contains all the information required to properly render the slot on the client. As such, we will need to create our own `RecipeDisplay`.
+
+All slots and ingredients should be represented as `SlotDisplay`s. Any restrictions, such as grid size, can be provided in any manner the user decides.
+
+```java
+// A simple recipe display
+public record RightClickBlockRecipeDisplay(
+    SlotDisplay inputState,
+    SlotDisplay inputItem,
+    SlotDisplay result, // Implements RecipeDisplay#result
+    SlotDisplay craftingStation // Implements RecipeDisplay#craftingStation
+) implements RecipeDisplay {
+    public static final MapCodec<RightClickBlockRecipeDisplay> MAP_CODEC = RecordCodecBuilder.mapCodec(
+        instance -> instance.group(
+                    SlotDisplay.CODEC.fieldOf("inputState").forGetter(RightClickBlockRecipeDisplay::inputState),
+                    SlotDisplay.CODEC.fieldOf("inputState").forGetter(RightClickBlockRecipeDisplay::inputItem),
+                    SlotDisplay.CODEC.fieldOf("result").forGetter(RightClickBlockRecipeDisplay::result),
+                    SlotDisplay.CODEC.fieldOf("crafting_station").forGetter(RightClickBlockRecipeDisplay::craftingStation)
+                )
+                .apply(instance, RightClickBlockRecipeDisplay::new)
+    );
+    public static final StreamCodec<RegistryFriendlyByteBuf, RightClickBlockRecipeDisplay> STREAM_CODEC = StreamCodec.composite(
+        SlotDisplay.STREAM_CODEC,
+        RightClickBlockRecipeDisplay::inputState,
+        SlotDisplay.STREAM_CODEC,
+        RightClickBlockRecipeDisplay::inputItem,
+        SlotDisplay.STREAM_CODEC,
+        RightClickBlockRecipeDisplay::result,
+        SlotDisplay.STREAM_CODEC,
+        RightClickBlockRecipeDisplay::craftingStation,
+        RightClickBlockRecipeDisplay::new
+    );
+
+    @Override
+    public RecipeDisplay.Type<? extends RecipeDisplay> type() {
+        // Return the registered type from below
+        return RIGHT_CLICK_BLOCK_RECIPE_DISPLAY.get();
+    }
+}
+
+// In some registrar class
+/// For some DeferredRegister<RecipeDisplay.Type<?>> RECIPE_DISPLAY_TYPES
+public static final Supplier<RecipeDisplay.Type<RightClickBlockRecipeDisplay>> RIGHT_CLICK_BLOCK_RECIPE_DISPLAY = RECIPE_DISPLAY_TYPES.register(
+    "right_click_block",
+    () -> new RecipeDisplay.Type<>(RightClickBlockRecipeDisplay.CODEC, RightClickBlockRecipeDisplay.STREAM_CODEC)
+);
+```
+
+Then we can create the recipe display for the recipe by overriding `#display` like so:
+
+```java
+public class RightClickBlockRecipe implements Recipe<RightClickBlockInput> {
+    // other stuff here
+
+    @Override
+    public List<RecipeDisplay> display() {
+        // You can have many different displays for the same recipe
+        // But this example will only use one like the other recipes.
+        return List.of(
+            // Add our recipe display with the specified slots
+            new RightClickBlockRecipeDisplay(
+                new BlockStateSlotDisplay(this.inputState),
+                this.inputItem.display(),
+                new SlotDisplay.ItemStackSlotDisplay(this.result),
+                new SlotDisplay.ItemSlotDisplay(Items.GRASS_BLOCK)
+            )
+        )
+    }
 }
 ```
 
@@ -239,11 +509,17 @@ Next up, our recipe type. This is fairly straightforward because there's no data
 public static final DeferredRegister<RecipeType<?>> RECIPE_TYPES =
         DeferredRegister.create(Registries.RECIPE_TYPE, ExampleMod.MOD_ID);
 
-public static final Supplier<RecipeType<RightClickBlockRecipe>> RIGHT_CLICK_BLOCK =
+public static final Supplier<RecipeType<RightClickBlockRecipe>> RIGHT_CLICK_BLOCK_TYPE =
         RECIPE_TYPES.register(
                 "right_click_block",
                 // We need the qualifying generic here due to generics being generics.
-                () -> RecipeType.<RightClickBlockRecipe>simple(ResourceLocation.fromNamespaceAndPath(ExampleMod.MOD_ID, "right_click_block"))
+                registryName -> new RecipeType<RightClickBlockRecipe> {
+
+                    @Override
+                    public String toString() {
+                        return registryName.toString();
+                    }
+                }
         );
 ```
 
@@ -254,8 +530,8 @@ public class RightClickBlockRecipe implements Recipe<RightClickBlockInput> {
     // other stuff here
 
     @Override
-    public RecipeType<?> getType() {
-        return RIGHT_CLICK_BLOCK.get();
+    public RecipeType<? extends Recipe<RightClickBlockInput>> getType() {
+        return RIGHT_CLICK_BLOCK_TYPE.get();
     }
 }
 ```
@@ -315,7 +591,7 @@ public class RightClickBlockRecipe implements Recipe<RightClickBlockInput> {
     // other stuff here
 
     @Override
-    public RecipeSerializer<?> getSerializer() {
+    public RecipeSerializer<? extends Recipe<RightClickBlockInput>> getSerializer() {
         return RIGHT_CLICK_BLOCK.get();
     }
 }
@@ -325,46 +601,103 @@ public class RightClickBlockRecipe implements Recipe<RightClickBlockInput> {
 
 Now that all parts of your recipe are complete, you can make yourself some recipe JSONs (see the [datagen] section for that) and then query the recipe manager for your recipes, like above. What you then do with the recipe is up to you. A common use case would be a machine that can process your recipes, storing the active recipe as a field.
 
-In our case, however, we want to apply the recipe when an item is right-clicked on a block. We will do so using an [event handler][event]. Keep in mind that this is an example implementation, and you can alter this in any way you like (so long as you run it on the server).
+In our case, however, we want to apply the recipe when an item is right-clicked on a block. We will do so using an [event handler][event]. Keep in mind that this is an example implementation, and you can alter this in any way you like (so long as you run it on the server). As we want the interaction state to match on both the client and server, we will also need to [sync any relevant input states across the network][networking].
 
 ```java
+// A basic packet class, must be registered
+public record ClientboundRightClickBlockRecipesPayload(
+    Set<BlockState> inputStates, Set<Holder<Item>> inputItems
+) implements CustomPacketPayload {
+
+    // ...
+}
+// Packet stores data in an instance class
+// Present on both server and client to do initial matching
+public class RightClickBlockRecipeInputs {
+    // Only one instance
+    public static final RightClickBlockRecipeInputs INSTANCE = new RightClickBlockRecipeInputs();
+
+    private Set<BlockState> inputStates;
+    private Set<Holder<Item>> inputItems;
+
+    private RightClickBlockRecipeInputs() {}
+
+    public void setInputs(Set<BlockState> inputStates, Set<Holder<Item>> inputItems) {
+        this.inputStates = inputStates;
+        this.inputItems = inputItems;
+    }
+
+    public boolean test(BlockState state, ItemStack stack) {
+        return this.inputStates.contains(state) && this.inputItems.contains(stack.getItemHolder());
+    }
+}
+
+// On the game event bus
+@SubscribeEvent
+public static void datapackSync(OnDatapackSyncEvent event) {
+    // Populate inputs
+    Set<BlockState> inputStates = new HashSet<>();
+    Set<Holder<Item>> inputItems = new HashSet<>();
+
+    event.getPlayerList().getServer().getRecipeManager()
+        .recipeMap().byType(RIGHT_CLICK_BLOCK_TYPE.get())
+        .forEach(holder -> {
+            var recipe = holder.value();
+            inputStates.add(recipe.getInputState());
+            inputItems.addAll(recipe.getInputItem().items());
+        });
+    
+    // Set server inputs
+    RightClickBlockRecipeInputs.INSTANCE.setInputs(inputStates, inputItems);
+
+    // Send to client
+    ClientboundRightClickBlockRecipesPayload payload = new ClientboundRightClickBlockRecipesPayload(inputStates, inputItems);
+    event.getRelevantPlayers().forEach(player -> PacketDistributor.sendToPlayer(player, payload));
+}
+
+// On the game event bus
 @SubscribeEvent
 public static void useItemOnBlock(UseItemOnBlockEvent event) {
     // Skip if we are not in the block-dictated phase of the event. See the event's javadocs for details.
     if (event.getUsePhase() != UseItemOnBlockEvent.UsePhase.BLOCK) return;
-    // Get the parameters we need.
-    UseOnContext context = event.getUseOnContext();
-    Level level = context.getLevel();
-    BlockPos pos = context.getClickedPos();
+    // Get parameters to check input first
+    Level level = event.getLevel();
+    BlockPos pos = event.getPos();
     BlockState blockState = level.getBlockState(pos);
-    ItemStack itemStack = context.getItemInHand();
-    RecipeManager recipes = level.getRecipeManager();
-    // Create an input and query the recipe.
-    RightClickBlockInput input = new RightClickBlockInput(blockState, itemStack);
-    Optional<RecipeHolder<? extends Recipe<CraftingInput>>> optional = recipes.getRecipeFor(
+    ItemStack itemStack = event.getItemStack();
+
+    // Check if the input can result in a recipe on both sides
+    if (!RightClickBlockRecipeInputs.INSTANCE.test(blockState, itemStack)) return;
+
+    // If so, make sure on server before checking recipe
+    if (!level.isClientSide() && level instanceof ServerLevel serverLevel) {
+        // Create an input and query the recipe.
+        RightClickBlockInput input = new RightClickBlockInput(blockState, itemStack);
+        Optional<RecipeHolder<? extends Recipe<CraftingInput>>> optional = serverLevel.recipeAccess().getRecipeFor(
             // The recipe type.
-            RIGHT_CLICK_BLOCK,
+            RIGHT_CLICK_BLOCK_TYPE.get(),
             input,
             level
-    );
-    ItemStack result = optional
+        );
+        ItemStack result = optional
             .map(RecipeHolder::value)
             .map(e -> e.assemble(input, level.registryAccess()))
             .orElse(ItemStack.EMPTY);
-    // If there is a result, break the block and drop the result in the world.
-    if (!result.isEmpty()) {
-        level.removeBlock(pos, false);
-        // If the level is not a server level, don't spawn the entity.
-        if (!level.isClientSide()) {
+        
+        // If there is a result, break the block and drop the result in the world.
+        if (!result.isEmpty()) {
+            level.removeBlock(pos, false);
             ItemEntity entity = new ItemEntity(level,
                     // Center of pos.
                     pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5,
                     result);
             level.addFreshEntity(entity);
         }
-        // Cancel the event to stop the interaction pipeline.
-        event.cancelWithResult(ItemInteractionResult.sidedSuccess(level.isClientSide));
     }
+
+    // Cancel the event to stop the interaction pipeline regardless of side.
+    // Already made sure that there could be a result.
+    event.cancelWithResult(InteractionResult.SUCCESS_SERVER);
 }
 ```
 
@@ -378,23 +711,37 @@ The `ShapedRecipePattern` class, responsible for holding the in-memory represent
 
 ## Data Generation
 
-Like most other JSON files, recipes can be datagenned. For recipes, we want to extend the `RecipeProvider` class and override `#buildRecipes`:
+Like most other JSON files, recipes can be datagenned. For recipes, we want to extend the `RecipeProvider` class and override `#buildRecipes`, and extend the `RecipeProvider.Runner` class to pass to the data generator:
 
 ```java
 public class MyRecipeProvider extends RecipeProvider {
-    // Get the parameters from GatherDataEvent.
-    public MyRecipeProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider) {
-        super(output, registries);
+
+    // Construct the provider to run
+    protected MyRecipeProvider(HolderLookup.Provider provider, RecipeOutput output) {
+        super(provider, output);
+    }
+ 
+    @Override
+    protected void buildRecipes() {
+        // Add your recipes here.
     }
 
-    @Override
-    protected void buildRecipes(RecipeOutput output) {
-        // Add your recipes here.
+    // The runner to add to the data generator
+    public static class Runner extends RecipeProvider.Runner {
+        // Get the parameters from GatherDataEvent.
+        public Runner(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider) {
+            super(output, registries);
+        }
+
+        @Override
+        protected abstract RecipeProvider createRecipeProvider(HolderLookup.Provider provider, RecipeOutput output) {
+            return new MyRecipeProvider(provider, output);
+        }
     }
 }
 ```
 
-Of note is the `RecipeOutput` parameter of `#buildRecipes`. Minecraft uses this object to automatically generate a recipe advancement for you. On top of that, NeoForge injects [conditions] support into `RecipeOutput`, which can be called on via `#withConditions`.
+Of note is the `RecipeOutput` parameter. Minecraft uses this object to automatically generate a recipe advancement for you. On top of that, NeoForge injects [conditions] support into `RecipeOutput`, which can be called on via `#withConditions`.
 
 Recipes themselves are commonly added through subclasses of `RecipeBuilder`. Listing all vanilla recipe builders is beyond the scope of this article (they are explained in the [Built-In Recipe Types article][builtin]), however creating your own builder is explained [below][customdatagen].
 
@@ -410,7 +757,7 @@ public static void gatherData(GatherDataEvent event) {
     // other providers here
     generator.addProvider(
             event.includeServer(),
-            new MyRecipeProvider(output, lookupProvider)
+            new MyRecipeProvider.Runner(output, lookupProvider)
     );
 }
 ```
@@ -479,19 +826,19 @@ public class RightClickBlockRecipeBuilder extends SimpleRecipeBuilder {
         this.inputItem = inputItem;
     }
 
-    // Saves a recipe using the given RecipeOutput and id. This method is defined in the RecipeBuilder interface.
+    // Saves a recipe using the given RecipeOutput and key. This method is defined in the RecipeBuilder interface.
     @Override
-    public void save(RecipeOutput output, ResourceLocation id) {
+    public void save(RecipeOutput output, ResourceKey<Recipe<?>> key) {
         // Build the advancement.
         Advancement.Builder advancement = output.advancement()
-                .addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(id))
-                .rewards(AdvancementRewards.Builder.recipe(id))
+                .addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(key))
+                .rewards(AdvancementRewards.Builder.recipe(key))
                 .requirements(AdvancementRequirements.Strategy.OR);
         this.criteria.forEach(advancement::addCriterion);
         // Our factory parameters are the result, the block state, and the ingredient.
         RightClickBlockRecipe recipe = new RightClickBlockRecipe(this.inputState, this.inputItem, this.result);
         // Pass the id, the recipe, and the recipe advancement into the RecipeOutput.
-        output.accept(id, recipe, advancement.build(id.withPrefix("recipes/")));
+        output.accept(key, recipe, advancement.build(key.location().withPrefix("recipes/")));
     }
 }
 ```
@@ -507,7 +854,7 @@ protected void buildRecipes(RecipeOutput output) {
             Blocks.DIRT.defaultBlockState(),
             Ingredient.of(Items.APPLE)
     )
-            .unlockedBy("has_apple", has(Items.APPLE))
+            .unlockedBy("has_apple", this.has(Items.APPLE))
             .save(output);
     // other recipe builders here
 }
@@ -518,7 +865,7 @@ It is also possible to have `SimpleRecipeBuilder` be merged into `RightClickBloc
 :::
 
 [advancement]: ../advancements.md
-[brewing]: ../../../items/mobeffects.md
+[brewing]: ../../../items/mobeffects.md#brewing
 [builtin]: builtin.md
 [cancel]: ../../../concepts/events.md#cancellable-events
 [codec]: ../../../datastorage/codecs.md
@@ -529,6 +876,7 @@ It is also possible to have `SimpleRecipeBuilder` be merged into `RightClickBloc
 [event]: ../../../concepts/events.md
 [ingredients]: ingredients.md
 [manager]: #using-recipes
-[registry]: ../../../concepts/registries.md
+[networking]: ../../../networking/payload.md
+[registry]: ../../../concepts/registries.md#methods-for-registering
 [streamcodec]: ../../../networking/streamcodecs.md
 [tags]: ../tags.md
