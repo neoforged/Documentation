@@ -111,8 +111,8 @@ MobEffectInstance instance = new MobEffectInstance(
         MobEffects.REGENERATION,
         // The duration to use, in ticks. Defaults to 0 if not specified.
         500,
-        // The amplifier to use. This is the "strength" of the effect, i.e. Strength I, Strength II, etc;
-        // starting at 0 and at most 255. Defaults to 0 if not specified.
+        // The amplifier to use. This is the "strength" of the effect, i.e. Strength I, Strength II, etc.
+        // Must be between 0 and 255 (inclusive). Defaults to 0 if not specified.
         0,
         // Whether the effect is an "ambient" effect, meaning it is being applied by an ambient source,
         // of which Minecraft currently has the beacon and the conduit. Defaults to false if not specified.

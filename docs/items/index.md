@@ -236,15 +236,15 @@ public static final Supplier<CreativeModeTab> EXAMPLE_TAB = CREATIVE_MODE_TABS.r
 
 It is also possible to implement `ItemLike` on your custom objects. Simply override `#asItem` and you're good to go.
 
-[armor]: ./armor.md
+[armor]: armor.md
 [block]: ../blocks/index.md
 [blockstates]: ../blocks/states.md
 [breaking]: ../blocks/index.md#breaking-a-block
 [creativetabs]: #creative-tabs
-[datacomponents]: ./datacomponents.md
+[datacomponents]: datacomponents.md
 [datagen]: ../resources/index.md#data-generation
 [enchantment]: ../resources/server/enchantments/index.md#enchantment-costs-and-levels
-[food]: ./consumables.md#food
+[food]: consumables.md#food
 [interactionpipeline]: interactionpipeline.md
 [loottables]: ../resources/server/loottables/index.md
 [modbus]: ../concepts/events.md#event-buses
@@ -252,4 +252,4 @@ It is also possible to implement `ItemLike` on your custom objects. Simply overr
 [registering]: ../concepts/registries.md#methods-for-registering
 [resources]: ../resources/index.md#assets
 [sides]: ../concepts/sides.md
-[tools]: ./tools.md
+[tools]: tools.md

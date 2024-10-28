@@ -91,7 +91,7 @@ public class MyBakedModelWrapper extends BakedModelWrapper<BakedModel> {
 }
 ```
 
-After writing your model wrapper class, you must apply the wrappers to the models it should affect. Do so in a [client-side][sides] [event handler][event] for `ModelEvent.ModifyBakingResult` on the **mod event bus**:
+After writing your model wrapper class, you must apply the wrappers to the models it should affect. Do so in a [client-side][sides] [event handler][event] for `ModelEvent.ModifyBakingResult` on the [**mod event bus**][modbus]:
 
 ```java
 @SubscribeEvent
@@ -127,6 +127,7 @@ It is generally encouraged to use a [custom model loader][modelloader] over wrap
 [event]: ../../../concepts/events.md
 [bakedoverrides]: #bakedoverrides
 [itemstack]: ../../../items/index.md#itemstacks
+[modbus]: ../../../concepts/events.md#event-buses
 [modelloader]: modelloaders.md
 [mrl]: ../../../misc/resourcelocation.md#modelresourcelocations
 [overrides]: index.md#overrides

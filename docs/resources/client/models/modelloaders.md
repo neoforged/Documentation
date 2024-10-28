@@ -484,5 +484,5 @@ public class MyDynamicModel implements IDynamicBakedModel {
 [modeldatagen]: datagen.md
 [rendertype]: index.md#render-types
 [sides]: ../../../concepts/sides.md
-[tint]: ./index.md#tinting
+[tint]: index.md#tinting
 [transform]: index.md#root-transforms

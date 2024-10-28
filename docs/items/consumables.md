@@ -356,14 +356,14 @@ The contents of a [potion][potions] via `PotionContents` is another `ConsumableL
 
 [animation]: #itemuseanimation
 [consumeeffect]: #consumeeffect
-[datacomponent]: ./datacomponents.md
-[datacompreg]: ./datacomponents.md#creating-custom-data-components
+[datacomponent]: datacomponents.md
+[datacompreg]: datacomponents.md#creating-custom-data-components
 [extensibleenum]: ../advanced/extensibleenums.md
 [food]: #food
 [hunger]: https://minecraft.wiki/w/Hunger#Mechanics
-[item]: ./index.md
-[mobeffectinstance]: ./mobeffects.md#mobeffectinstances
+[item]: index.md
+[mobeffectinstance]: mobeffects.md#mobeffectinstances
 [particles]: ../resources/client/particles.md
-[potions]: ./mobeffects.md#potions
+[potions]: mobeffects.md#potions
 [sound]: ../resources/client/sounds.md#creating-soundevents
 [registering]: ../concepts/registries.md#methods-for-registering

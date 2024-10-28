@@ -193,9 +193,13 @@ public class MyAdvancementGenerator extends AdvancementProvider.AdvancementGener
     }
 }
 
-// Method Example, assume in ExampleClass
-public static void generateExampleAdvancements(HolderLookup.Provider registries, Consumer<AdvancementHolder> saver, ExistingFileHelper existingFileHelper) {
-    // Generate your advancements here.
+// Method Example
+public class ExampleClass {
+
+    // Matches the parameters provided by AdvancementProvider.AdvancementGenerator#generate
+    public static void generateExampleAdvancements(HolderLookup.Provider registries, Consumer<AdvancementHolder> saver, ExistingFileHelper existingFileHelper) {
+        // Generate your advancements here.
+    }
 }
 
 // In GatherDataEvent

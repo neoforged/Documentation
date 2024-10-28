@@ -348,7 +348,7 @@ Once again, this is the simplest way to implement the logic, not the only way.
 [mt]: #menutype
 [qms]: #quickmovestack
 [cap]: ../datastorage/capabilities.md#neoforge-provided-capabilities
-[screen]: ./screens.md
+[screen]: screens.md
 [icf]: #icontainerfactory
 [side]: ../concepts/sides.md#the-logical-side
 [interaction]: ../items/interactionpipeline.md

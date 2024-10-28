@@ -376,7 +376,7 @@ public static final StreamCodec<RegistryFriendlyByteBuf, ExampleObject> DISPATCH
     );
 ```
 
-[networking]: ./payload.md
+[networking]: payload.md
 [codecs]: ../datastorage/codecs.md
 [blockentity]: ../blockentities/index.md#synchronizing-on-block-update
 [entityserializer]: ../networking/entities.md#dynamic-data-parameters

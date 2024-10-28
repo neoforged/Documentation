@@ -339,7 +339,7 @@ public static void onGatherData(GatherDataEvent event) {
 [defregblocks]: ../blocks/index.md#deferredregisterblocks-helpers
 [defregcomp]: ../items/datacomponents.md#creating-custom-data-components
 [defregitems]: ../items/index.md#deferredregisteritems
-[event]: ./events.md
+[event]: events.md
 [item]: ../items/index.md
 [resloc]: ../misc/resourcelocation.md
 [resourcekey]: ../misc/resourcelocation.md#resourcekeys

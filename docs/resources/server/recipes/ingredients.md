@@ -16,14 +16,14 @@ The simplest way to get an ingredient is using the `Ingredient#of` helpers. Seve
 Additionally, NeoForge adds a few additional ingredients:
 
 - `BlockTagIngredient.of(BlockTags.CONVERTABLE_TO_MUD)` returns an ingredient similar to the tag variant of `Ingredient.of()`, but with a block tag instead. This should be used for cases where you'd use an item tag, but there is only a block tag available (for example `minecraft:convertable_to_mud`).
-- `CustomDisplayIngredient.of(Ingredient.of(Items.DIRT), SlotDisplay.Empty.INSTANCE)` returns an ingredient with a custom [`SlotDisplay`][slotdisplay] defining how to render on the client.
+- `CustomDisplayIngredient.of(Ingredient.of(Items.DIRT), SlotDisplay.Empty.INSTANCE)` returns an ingredient with a custom [`SlotDisplay`][slotdisplay] you provide to determine how the slot gets consumed for rendering on the client.
 - `CompoundIngredient.of(Ingredient.of(Items.DIRT))` returns an ingredient with child ingredients, passed in the constructor (vararg parameter). The ingredient matches if any of its children matches.
 - `DataComponentIngredient.of(true, new ItemStack(Items.DIAMOND_SWORD))` returns an ingredient that, in addition to the item, also matches the data component. The boolean parameter denotes strict matching (true) or partial matching (false). Strict matching means the data components must match exactly, while partial matching means the data components must match, but other data components may also be present. Additional overloads of `#of` exist that allow specifying multiple `Item`s, or provide other options.
 - `DifferenceIngredient.of(Ingredient.of(BuiltInRegistries.ITEM.getOrThrow(ItemTags.PLANKS)), Ingredient.of(BuiltInRegistries.ITEM.getOrThrow(ItemTags.NON_FLAMMABLE_WOOD)))` returns an ingredient that matches everything in the first ingredient that doesn't also match the second ingredient. The given example only matches planks that can burn (i.e. all planks except crimson planks, warped planks and modded nether wood planks).
 - `IntersectionIngredient.of(Ingredient.of(BuiltInRegistries.ITEM.getOrThrow(ItemTags.PLANKS)), Ingredient.of(BuiltInRegistries.ITEM.getOrThrow(ItemTags.NON_FLAMMABLE_WOOD)))` returns an ingredient that matches everything that matches both sub-ingredients. The given example only matches planks that cannot burn (i.e. crimson planks, warped planks and modded nether wood planks).
 
 :::note
-If you are using data generation with ingreidents that take in a `HolderSet` for the tag instance (the ones that call `Registry#getOrThrow`), that should be obtained via the `HolderLookup.Provider`, using `HolderLookup.Provider#lookupOrThrow` to get the item registry and `HolderGetter#getOrThrow` with the `TagKey` to get the holder set.
+If you are using data generation with ingredients that take in a `HolderSet` for the tag instance (the ones that call `Registry#getOrThrow`), then that `HolderSet` should be obtained via the `HolderLookup.Provider`, using `HolderLookup.Provider#lookupOrThrow` to get the item registry and `HolderGetter#getOrThrow` with the `TagKey` to get the holder set.
 :::
 
 Keep in mind that the NeoForge-provided ingredient types are `ICustomIngredient`s and must call `#toVanilla` before using them in vanilla contexts, as outlined in the beginning of this article.
@@ -117,7 +117,7 @@ And there we go! Our ingredient type is ready to use.
 
 Due to vanilla ingredients being pretty limited and NeoForge introducing a whole new registry for them, it's also worth looking at what the built-in and our own ingredients look like in JSON.
 
-Ingredients that specify a `type` are generally assumed to be non-vanilla. For example:
+Ingredients that are objects and specify a `neoforge:ingredient_type` are generally assumed to be non-vanilla. For example:
 
 ```json5
 {
@@ -138,7 +138,7 @@ Or another example using our own ingredient:
 }
 ```
 
-If the `type` is unspecified, then we have a vanilla ingredient. Vanilla ingredients are strings that either represent an item, or a tag when prefixed with `#`.
+If the ingredient is a string, meaning `neoforge:ingredient_type` is unspecified, then we have a vanilla ingredient. Vanilla ingredients are strings that either represent an item, or a tag when prefixed with `#`.
 
 An example for a vanilla item ingredient:
 
@@ -157,6 +157,6 @@ An example for a vanilla tag ingredient:
 [itemstack]: ../../../items/index.md#itemstacks
 [recipes]: index.md
 [registry]: ../../../concepts/registries.md
-[slotdisplay]: ./index.md#slot-displays
+[slotdisplay]: index.md#slot-displays
 [streamcodec]: ../../../networking/streamcodecs.md
 [tag]: ../tags.md

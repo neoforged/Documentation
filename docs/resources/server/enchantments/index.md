@@ -327,5 +327,5 @@ BUILDER.add(
 [data generation]: ../../../resources/index.md#data-generation
 [Data Generation for Datapack Registries]: https://docs.neoforged.net/docs/concepts/registries/#data-generation-for-datapack-registries
 [relevant minecraft wiki page]: https://minecraft.wiki/w/Enchantment_definition#Entity_effects
-[built-in enchantment effect components]: ./builtin.md
+[built-in enchantment effect components]: builtin.md
 [LootContext]: ../loottables/index.md#loot-context

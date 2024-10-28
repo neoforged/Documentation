@@ -232,7 +232,7 @@ An entry in `neoforge.mods.toml` does not need a corresponding `@Mod` annotation
 [multiline]: https://toml.io/en/v1.0.0#string
 [mvr]: https://maven.apache.org/enforcer/enforcer-rules/versionRanges.html
 [neoversioning]: versioning.md#neoforge
-[packaging]: ./structuring.md#packaging
+[packaging]: structuring.md#packaging
 [registration]: ../concepts/registries.md#deferredregister
 [resource]: ../resources/index.md
 [serviceload]: https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/ServiceLoader.html#load(java.lang.Class)
@@ -241,5 +241,5 @@ An entry in `neoforge.mods.toml` does not need a corresponding `@Mod` annotation
 [toml]: https://toml.io/
 [update]: ../misc/updatechecker.md
 [uses]: https://docs.oracle.com/javase/specs/jls/se21/html/jls-7.html#jls-7.7.3
-[versioning]: ./versioning.md
+[versioning]: versioning.md
 [enumextension]: ../advanced/extensibleenums.md

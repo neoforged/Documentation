@@ -426,7 +426,7 @@ this.equipmentLayerRenderer.renderLayers(
 ```
 
 [item]: index.md
-[datacomponents]: ./datacomponents.md
+[datacomponents]: datacomponents.md
 [enchantment]: ../resources/server/enchantments/index.md#enchantment-costs-and-levels
 [registering]: ../concepts/registries.md#methods-for-registering
 [rendering]: #equipement-rendering

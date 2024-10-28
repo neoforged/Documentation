@@ -166,9 +166,9 @@ To create your own `ItemAbility`s, use `ItemAbility#get` - it will create a new 
 To query if an `ItemStack` can perform a certain `ItemAbility`, call `IItemStackExtension#canPerformAction`. Note that this works on any `Item`, not just tools.
 
 [block]: ../blocks/index.md
-[datacomponents]: ./datacomponents.md
+[datacomponents]: datacomponents.md
 [enchantment]: ../resources/server/enchantments/index.md#enchantment-costs-and-levels
-[item]: ./index.md
+[item]: index.md
 [itemability]: #itemabilitys
 [registering]: ../concepts/registries.md#methods-for-registering
 [tags]: ../resources/server/tags.md

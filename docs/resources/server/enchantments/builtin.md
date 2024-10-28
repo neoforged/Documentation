@@ -327,7 +327,7 @@ For more detail on each of these, please look at the [relevant minecraft wiki pa
 
 - `minecraft:trident_sound`: Determines the sound events that occur when using a trident. Each entry represents one level of the enchantment.
 
-[enchantment]: ./index.md
+[enchantment]: index.md
 [Value Effect Components]: https://minecraft.wiki/w/Enchantment_definition#Components_with_value_effects
 [Entity Effect Components]: https://minecraft.wiki/w/Enchantment_definition#Components_with_entity_effects
 [Location Based Effect Components]: https://minecraft.wiki/w/Enchantment_definition#location_changed

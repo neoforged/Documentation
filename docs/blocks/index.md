@@ -118,7 +118,7 @@ public class SimpleBlock extends Block {
 // In some registration class
 public static final DeferredRegister<MapCodec<? extends Block>> REGISTRAR = DeferredRegister.create(BuiltInRegistries.BLOCK_TYPE, "yourmodid");
 
-public static final Suppler<MapCodec<SimpleBlock>> SIMPLE_CODEC = REGISTRAR.register(
+public static final Supplier<MapCodec<SimpleBlock>> SIMPLE_CODEC = REGISTRAR.register(
     "simple",
     () -> simpleCodec(SimpleBlock::new)
 );

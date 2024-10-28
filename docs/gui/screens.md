@@ -162,7 +162,7 @@ Screens implement `ContainerEventHandler` through `AbstractContainerEventHandler
 
 `NarratableEntry`s are elements which can be spoken about through Minecraft's accessibility narration feature. Each element can provide different narration depending on what is hovered or selected, prioritized typically by focus, hovering, and then all other cases.
 
-`NarratableEntry`s have four methods: two which determines the priority of the element when being read (`#narrationPriority` and `#getTabOrderGroup`), one which determines whether to speak the narration (`#isActive`), and finally one which supplies the narration to its associated output, spoken or read (`#updateNarration`). 
+`NarratableEntry`s have four methods: two which determine the priority of the element when being read (`#narrationPriority` and `#getTabOrderGroup`), one which determines whether to speak the narration (`#isActive`), and finally one which supplies the narration to its associated output, spoken or read (`#updateNarration`). 
 
 :::note
 All widgets from Minecraft are `NarratableEntry`s, so it typically does not need to be manually implemented if using an available subtype.
@@ -417,7 +417,7 @@ private void registerScreens(RegisterMenuScreensEvent event) {
 }
 ```
 
-[menus]: ./menus.md
+[menus]: menus.md
 [network]: ../networking/index.md
 [screen]: #the-screen-subtype
 [argb]: https://en.wikipedia.org/wiki/RGBA_color_model#ARGB32
