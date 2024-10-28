@@ -154,7 +154,7 @@ While not all entities have the concept of hit points, they can still all receiv
 
 Damaging an entity is possible by calling `Entity#hurt`. `Entity#hurt` takes two arguments: the [`DamageSource`][damagesource] and the damage amount, as a float in half hearts. For example, calling `entity.hurt(entity.damageSources().wither(), 4.25)` will cause a little over two hearts of wither damage.
 
-In turn, it is also possible for entities to modify the behavior in `#hurt` by overriding it. For example, we could make our entity take double damage from fire, and no damage from any other source, like so:
+In turn, entities can also modify the behavior in `#hurt` by overriding it. For example, we could make our entity take double damage from fire, and no damage from any other source, like so:
 
 ```java
 @Override
