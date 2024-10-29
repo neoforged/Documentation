@@ -3,4 +3,6 @@ sidebar_position: 3
 ---
 # Projectiles
 
-TODO
+:::info
+This section is a work in progress.
+:::

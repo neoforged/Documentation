@@ -82,7 +82,9 @@ Sometimes, there may be generic bounds errors with the entity type and the entit
 
 ### `MobCategory`
 
-TODO
+:::info
+This section is a work in progress.
+:::
 
 ## The Entity Class
 
@@ -224,7 +226,9 @@ If you want to do the picking (i.e. ray casting) yourself, you can call `Entity#
 
 ### Entity Attachments
 
-TODO
+:::info
+This section is a work in progress.
+:::
 
 ## Entity Class Hierarchy
 

@@ -3,4 +3,6 @@ sidebar_position: 6
 ---
 # Entity Renderers
 
-TODO
+:::info
+This section is a work in progress.
+:::
