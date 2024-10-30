@@ -269,6 +269,38 @@ The following subsections further break down these stages into actual method cal
         - Server-only: `BlockDropsEvent` is fired. If the event is canceled, then nothing is dropped when the block breaks. Otherwise, every `ItemEntity` in `BlockDropsEvent#getDrops` is added to the current level.
 - Server-only: `Block#popExperience` is called with the result of the previous `IBlockExtension#getExpDrop` call, if that call returned a value greater than 0.
 
+#### Mining Speed
+
+The mining speed is calculated as f from the block's hardness, the used [tool]'s speed, and several entity [attributes] according to the following rules.
+
+```java
+// This will return the tool's mining speed, or 1 if the held item is either empty, not a tool,
+// or not applicable for the block being broken.
+float f = item.getDestroySpeed();
+// If we have an applicable tool, add the minecraft:mining_efficiency attribute as an additive modifier.
+if (f > 1) {
+    f += player.getAttributeValue(Attributes.MINING_EFFICIENCY);
+}
+// Apply effects from haste, conduit power, and slowness multiplicatively.
+if (player.hasEffect(MobEffects.DIG_SPEED))     { f *= ...; }
+if (player.hasEffect(MobEffects.CONDUIT_POWER)) { f *= ...; }
+if (player.hasEffect(MobEffects.DIG_SLOWDOWN))  { f *= ...; }
+// Add the minecraft:block_break_speed attribute as a multiplicative modifier.
+f *= player.getAttributeValue(Attributes.BLOCK_BREAK_SPEED);
+// If the player is underwater, apply the underwater mining speed penalty multiplicatively.
+if (player.isEyeInFluid(FluidTags.WATER)) {
+    f *= player.getAttributeValue(Attributes.SUBMERGED_MINING_SPEED);
+}
+// If the player is trying to break a block in mid-air, make the player mine 5 times slower.
+if (!player.onGround()) {
+    f /= 5;
+}
+f = /* The PlayerEvent.BreakSpeed event is fired here, allowing modders to further modify this value. */;
+return f;
+```
+
+The exact code for this can be found in `Player#getDigSpeed` for reference.
+
 ### Ticking
 
 Ticking is a mechanism that updates (ticks) parts of the game every 1 / 20 seconds, or 50 milliseconds ("one tick"). Blocks provide different ticking methods that are called in different ways.
@@ -294,6 +326,7 @@ Random ticks occur every tick for a set amount of blocks in a chunk. That set am
 Random ticking is used by a wide range of mechanics in Minecraft, such as plant growth, ice and snow melting, or copper oxidizing.
 
 [above]: #one-block-to-rule-them-all
+[attribute]: ../entities/attributes.md
 [below]: #deferredregisterblocks-helpers
 [blockentities]: ../blockentities/index.md
 [blockstates]: states.md
@@ -308,5 +341,6 @@ Random ticking is used by a wide range of mechanics in Minecraft, such as plant 
 [rightclick]: ../items/interactions.md#right-clicking-an-item
 [sounds]: ../resources/client/sounds.md
 [textures]: ../resources/client/textures.md
+[tool]: ../items/tools.md
 [usingblocks]: #using-blocks
 [usingblockstates]: states.md#using-blockstates
