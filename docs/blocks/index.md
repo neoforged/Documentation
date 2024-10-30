@@ -326,7 +326,7 @@ Random ticks occur every tick for a set amount of blocks in a chunk. That set am
 Random ticking is used by a wide range of mechanics in Minecraft, such as plant growth, ice and snow melting, or copper oxidizing.
 
 [above]: #one-block-to-rule-them-all
-[attribute]: ../entities/attributes.md
+[attributes]: ../entities/attributes.md
 [below]: #deferredregisterblocks-helpers
 [blockentities]: ../blockentities/index.md
 [blockstates]: states.md
