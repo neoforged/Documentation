@@ -337,5 +337,5 @@ For more detail on each of these, please look at the [relevant minecraft wiki pa
 [datapack function]: https://minecraft.wiki/w/Function_(Java_Edition)
 [luck]: https://minecraft.wiki/w/Luck
 [mob effect]: /docs/items/mobeffects/
-[attribute modifier]: https://minecraft.wiki/w/Attribute#Modifiers
+[attribute modifier]: ../../../entities/attributes.md#attribute-modifiers
 [relevant minecraft wiki page]: https://minecraft.wiki/w/Enchantment_definition#Components_with_entity_effects

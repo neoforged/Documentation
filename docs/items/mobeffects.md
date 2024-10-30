@@ -65,7 +65,7 @@ public static final Supplier<MyMobEffect> MY_MOB_EFFECT = MOB_EFFECTS.register("
 ));
 ```
 
-The `MobEffect` class also provides default functionality for adding attribute modifiers to affected entities. For example, the speed effect adds an attribute modifier for movement speed. Effect attribute modifiers are added like so:
+The `MobEffect` class also provides default functionality for adding [attribute modifiers][attributemodifier] to affected entities, and also removing them when the effect expires or is removed through other means. For example, the speed effect adds an attribute modifier for movement speed. Effect attribute modifiers are added like so:
 
 ```java
 public static final Supplier<MyMobEffect> MY_MOB_EFFECT = MOB_EFFECTS.register("my_mob_effect", () -> new MyMobEffect(...)
@@ -189,6 +189,7 @@ public static void registerBrewingRecipes(RegisterBrewingRecipesEvent event) {
 }
 ```
 
+[attributemodifier]: ../entities/attributes.md#attribute-modifiers
 [block]: ../blocks/index.md
 [commonsetup]: ../concepts/events.md#event-buses
 [datapack]: ../resources/index.md#data

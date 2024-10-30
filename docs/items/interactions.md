@@ -25,7 +25,7 @@ Every frame on the [physical client][physicalside], the `Minecraft` class update
         - `Entity#skipAttackInteraction` is called on the target. If it returns true, the pipeline ends.
         - If the target is in the `minecraft:redirectable_projectile` tag (by default this is fireballs and wind charges) and an instance of `Projectile`, the target is deflected and the pipeline ends.
         - Entity base damage (the value of the `minecraft:generic.attack_damage` [attribute]) and enchantment bonus damage are calculated as two separate floats. If both are 0, the pipeline ends.
-            - Note that this excludes attribute modifiers from the main hand item, these are added after the check.
+            - Note that this excludes [attribute modifiers][attributemodifier] from the main hand item, these are added after the check.
         - `minecraft:generic.attack_damage` attribute modifiers from the main hand item are added to the base damage.
         - `CriticalHitEvent` is fired. If the event's `#isCriticalHit` method returns true, the base damage is multiplied with the value returned from the event's `#getDamageMultiplier` method, which defaults to 1.5 if [a number of conditions][critical] pass and 1.0 otherwise, but may be modified by the event.
         - Enchantment bonus damage is added to the base damage, resulting in the final damage value.
@@ -122,6 +122,7 @@ Returning `InteractionResultHolder#fail` here while considering the main hand wi
         - If the player is in creative, the "selected" `ItemStack` is added to the player's inventory. Otherwise, a hotbar slot that matches the "selected" item is set active, if such a hotbar slot exists.
 
 [attribute]: ../entities/attributes.md
+[attributemodifier]: ../entities/attributes.md#attribute-modifiers
 [block]: ../blocks/index.md
 [blockbreak]: ../blocks/index.md#breaking-a-block
 [blockentity]: ../blockentities/index.md

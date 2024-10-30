@@ -91,15 +91,87 @@ Some classes have specialized versions of `LivingEntity#createLivingAttributes`.
 
 ## Querying Attributes
 
-:::info
-This section is a work in progress.
-:::
+Attribute values are stored on entities in an `AttributeMap`, which is basically a `Map<Attribute, AttributeInstance>`. Attribute instances are basically what item stacks are to items, i.e. whereas an attribute is a registered singleton, attribute instances are concrete attribute objects bound to a concrete entity.
+
+The `AttributeMap` of an entity can be retrieved by calling `LivingEntity#getAttributes`. You can then query the map like so:
+
+```java
+// Get the attribute map.
+AttributeMap attributes = livingEntity.getAttributes();
+// Get an attribute instance. This may be null if the entity does not have the attribute.
+AttributeInstance instance = attributes.get(Attributes.ARMOR);
+// Get the value for an attribute. Will fallback to the default for the entity if needed.
+double value = attributes.getValue(Attributes.ARMOR);
+// Of course, we can also check if an attribute is present to begin with.
+if (attributes.hasAttribute(Attributes.ARMOR)) { ... }
+```
 
 ## Attribute Modifiers
 
-:::info
-This section is a work in progress.
-:::
+In contrast to querying, changing the attribute values is not as easy. This is mainly because there may be multiple changes required to an attribute at the same time.
+
+Consider this: You are a player, who has an attack damage attribute of 1. You wield a diamond sword, which does 6 extra attack damage, so you have 7 total attack damage. Then you drink a strength potion, adding a damage multiplier. You then also have some sort of trinket equipped that adds yet another multiplier.
+
+To avoid miscalculations and to better communicate how the attribute values are modified, Minecraft introduces the attribute modifier system. In this system, every attribute has a **base value**, which is typically sourced from the default attributes we discussed earlier. We can then add any amount of **attribute modifiers** that can be individually removed again, without us having to worry about correctly applying operations.
+
+To get started, let's create an attribute modifier:
+
+```java
+// The name of the modifier. This is later used to query the modifier from the attribute map
+// and as such must be (semantically) unique.
+ResourceLocation id = ResourceLocation.fromNamespaceAndPath("yourmodid", "my_modifier");
+// The modifier itself.
+AttributeModifier modifier = new AttributeModifier(
+    // The name we defined earlier.
+    id,
+    // The amount by which we modify the attribute value.
+    2.0,
+    // The operation used to apply the modifier. Possible values are:
+    // - AttributeModifier.Operation.ADD_VALUE: Adds the value to the total attribute value.
+    // - AttributeModifier.Operation.ADD_MULTIPLIED_BASE: Multiplies the value with the attribute base value
+    //   and adds it to the total attribute value.
+    // - AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL: Multiplies the value with the total attribute value,
+    //   i.e. the attribute base value with all previous modifications already performed,
+    //   and adds it to the total attribute value.
+    AttributeModifier.Operation.ADD_VALUE
+);
+```
+
+Now, to apply the modifier, we have two options: add it as a transient modifier, or as a permanent modifier. Permanent modifiers are saved to disk, while transient modifiers are not. The use case for permanent modifiers is things like permanent stat bonuses (e.g. some sort of armor or health skill), while transient modifiers are mainly for [equipment], [mob effects][mobeffect] and other modifiers that depend on the player's current state.
+
+```java
+AttributeMap attributes = livingEntity.getAttributes();
+// Add a transient modifier. If a modifier with the same id is already present, this will throw an exception.
+attributes.getInstance(Attributes.ARMOR).addTransientModifier(modifier);
+// Add a transient modifier. If a modifier with the same id is already present, it is removed first.
+attributes.getInstance(Attributes.ARMOR).addOrUpdateTransientModifier(modifier);
+// Add a permanent modifier. If a modifier with the same id is already present, this will throw an exception.
+attributes.getInstance(Attributes.ARMOR).addPermanentModifier(modifier);
+// Add a permanent modifier. If a modifier with the same id is already present, it is removed first.
+attributes.getInstance(Attributes.ARMOR).addOrReplacePermanentModifier(modifier);
+```
+
+These modifiers can also be removed again:
+
+```java
+// Remove by modifier object.
+attributes.getInstance(Attributes.ARMOR).removeModifier(modifier);
+// Remove by modifier id.
+attributes.getInstance(Attributes.ARMOR).removeModifier(id);
+// Remove all modifiers for an attribute.
+attributes.getInstance(Attributes.ARMOR).removeModifiers();
+```
+
+Finally, we can also query the attribute map for whether it has a modifier with a certain ID, as well as query base values and modifier values separately, like so:
+
+```java
+// Check for the modifier being present.
+if (attributes.getInstance(Attributes.ARMOR).hasModifier(id)) { ... }
+// Get the base armor attribute value.
+double baseValue = attributes.getBaseValue(Attributes.ARMOR);
+// Get the value of a certain modifier.
+double modifierValue = attributes.getModifierValue(Attributes.ARMOR, id);
+```
 
 ## Custom Attributes
 
@@ -107,10 +179,12 @@ This section is a work in progress.
 This section is a work in progress.
 :::
 
+[equipment]: ../blockentities/container.md#containers-on-entitys
 [event]: ../concepts/events.md
 [livingentity]: livingentity.md
 [loottables]: ../resources/server/loottables/index.md
 [miningspeed]: ../blocks/index.md#mining-speed
+[mobeffect]: ../items/mobeffects.md
 [spawning]: spawning.md
-[toughness]: https://minecraft.wiki
+[toughness]: https://minecraft.wiki/w/Armor#Armor_toughness
 [wiki]: https://minecraft.wiki

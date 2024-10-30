@@ -134,7 +134,7 @@ A `HolderSet` can be created from a `TagKey` via `Registry#getOrCreateTag`.
 Creating a multitool-like item (i.e. an item that combines two or more tools into one, e.g. an axe and a pickaxe as one item) or any tool-like does not need to extend any of the existing `TieredItem`s. It simply can be implemented using a combination of the following parts:
 
 - Adding a `Tool` with your own rules by setting `DataComponents#TOOL` via `Item.Properties#component`.
-- Adding attributes to the item (e.g. attack damage, attack speed) via `Item.Properties#attributes`.
+- Adding [attribute modifiers][attributemodifier] to the item (e.g. attack damage, attack speed) via `Item.Properties#attributes`.
 - Overriding `IItemExtension#canPerformAction` to determine what [`ItemAbility`s][itemability] the item can perform.
 - Calling `IBlockExtension#getToolModifiedState` if you want your item to modify the block state on right click based on the `ItemAbility`s.
 - Adding your tool to some of the `minecraft:enchantable/*` tags so that your item can have certain enchantments applied to it.
@@ -232,6 +232,7 @@ public static final Supplier<ArmorItem> COPPER_BOOTS = ITEMS.register("copper_bo
 
 When creating your armor texture, it is a good idea to work on top of the vanilla armor texture to see which part goes where.
 
+[attributemodifier]: ../entities/attributes.md#attribute-modifiers
 [block]: ../blocks/index.md
 [datacomponents]: ./datacomponents.mdx
 [item]: index.md
