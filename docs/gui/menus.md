@@ -49,8 +49,8 @@ public MyMenuExtra(int containerId, Inventory playerInv, FriendlyByteBuf extraDa
 
 All menus are extended from `AbstractContainerMenu`. A menu takes in two parameters, the [`MenuType`][mt], which represents the type of the menu itself, and the container id, which represents the unique identifier of the menu for the current accessor.
 
-:::caution
-The player can only have 100 unique menus open at once.
+:::note
+The menu identifier cycles through 0-99, incrementing whenever a player opens a menu.
 :::
 
 Each menu should contain two constructors: one used to initialize the menu on the server and one used to initialize the menu on the client. The constructor used to initialize the menu on the client is the one supplied to the `MenuType`. Any fields that the server menu constructor contains should have some default for the client menu constructor.
