@@ -90,6 +90,32 @@ This event is called immediately before the damage is done. The `DamageContainer
 
 This event is called after the damage has been done, absorption has been reduced, the combat tracker has been updated, and stats and game events have been handled. It is not cancellable, as the attack has already happened. This event would commonly be used for post-attack effects. Note that the event is fired even if the damage amount is zero, so check that value accordingly if needed.
 
+## Hierarchy
+
+Living entities have a complex class hierarchy. As mentioned before, the three direct subclasses are `ArmorStand`, `Mob` and `Player`. Of these, `ArmorStand` has no subclasses, so we will focus on the class hierarchy of `Mob` and `Player`.
+
+### Hierarchy of `Mob`
+
+`Mob`'s most important subclass is `PathfinderMob`, which contains (surprise!) logic for pathfinding. `PathfinderMob`'s subclasses are as follows:
+
+- `AbstractGolem`: The superclass for iron golems, snow golems and (for some reason) shulkers.
+- `AgeableMob`: This class has two direct subclasses `AbstractVillager` and `Animal`, both of which should be self-explanatory. These contain most of the aging logic. `Animal` additionally has the abstract `TamableAnimal` subclass that is used for tamable animals such as wolves, cats and parrots; as well as the `AbstractHorse` subclass, which is the superclass of horses, donkeys and mules.
+- `Allay`: Allays directly extend `PathfinderMob`.
+- `Monster`: The abstract class for everything the game considers monsters. Like `Animal`, this has various abstract subclasses, such as `AbstractPiglin`, `AbstractSkeleton`, `Raider`, and `Zombie`.
+- `WaterAnimal`: The superclass for water-based animals, such as fish, squids and dolphins. These are kept separate from the other animals due to significantly different pathfinding.
+
+Some other classes also extend `Mob` directly. These include `AmbientCreature` with its only subclass `Bat`, `EnderDragon`, `FlyingMob` with its two subclasses `Ghast` and `Phantom` (no, there is no consistency here whatsoever), and `Slime` and its `MagmaCube` subclass.
+
+### Hierarchy of `Player`
+
+Depending on which side the player is on, a different player class is used:
+
+- `ServerPlayer`: This class is used to represent players on the [logical server][logicalsides].
+    - `FakePlayer`: This is a special subclass of `ServerPlayer` designed to be used as a mock for a player, for non-player mechanisms that need a player context.
+- `AbstractClientPlayer`: This class is used as a base for the two client players, both used to represent players on the [logical client][logicalsides].
+    - `LocalPlayer`: This class is used to represent the player currently running the game.
+    - `RemotePlayer`: This class is used to represent other players that the `LocalPlayer` may encounter during multiplayer. `RemotePlayer`s do not exist in singleplayer contexts.
+
 ## Mob Effects
 
 _See [Mob Effects & Potions][mobeffects]._
@@ -130,6 +156,7 @@ This section is a work in progress.
 [enchantments]: ../resources/server/enchantments/index.md
 [entities]: index.md
 [hurt]: index.md#damaging-entities
+[logicalsides]: ../concepts/sides.md#the-logical-side
 [mobeffects]: ../items/mobeffects.md
 [priority]: ../concepts/events.md#priority
 [spawning]: spawning.md
