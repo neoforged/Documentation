@@ -72,6 +72,12 @@ protected void addAdditionalSaveData(CompoundTag tag) {
 }
 ```
 
+## Custom Spawn Data
+
+In some cases, there is custom data needed for your entity on the client when it is spawned, but that same data doesn't change over time. When this is the case, you can implement the `IEntityWithComplexSpawn` interface on your entity and use its two methods `#writeSpawnData` and `#readSpawnData` to write/read data to/from the network buffer.
+
+Additionally, you can send your own packets upon spawning. To do so, override `IEntityExtension#sendPairingData` and send your packets there like any other packet. Please refer to the [Networking articles][networking] for more information.
+
 ## Custom Network Messages
 
 Of course, you can also always opt to use a custom packet to send additional information when needed. Please refer to the [Networking articles][networking] for more information.
