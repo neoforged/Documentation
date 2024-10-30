@@ -61,19 +61,35 @@ The following attributes are in the `neoforge` namespace, and their in-code valu
 | `nametag_distance` | `NAMETAG_DISTANCE` | `[0,64]`   | 64            | How far the nametag of the entity will be visible, in blocks.                                                                                        |
 | `swim_speed`       | `SWIM_SPEED`       | `[0,1024]` | 1             | A movement speed multiplier that is applied when the entity is underwater. This is applied independently from `minecraft:water_movement_efficiency`. |
 
-## Using Attributes
-
-:::info
-This section is a work in progress.
-:::
-
-## Custom Attributes
-
-:::info
-This section is a work in progress.
-:::
-
 ## Default Attributes
+
+When creating a `LivingEntity`, it is required to register a set of default attributes for them. When an entity is [spawned][spawning] in, its default attributes are set on it. Default attributes are registered in the [`EntityAttributeCreationEvent`][event] like so:
+
+```java
+@SubscribeEvent
+public static void createDefaultAttributes(EntityAttributeCreationEvent event) {
+    event.put(
+        // Your entity type.
+        MY_ENTITY.get(),
+        // An AttributeSupplier. This is typically created by calling LivingEntity#createLivingAttributes,
+        // setting your values on it, and calling #build. You can also create the AttributeSupplier from scratch
+        // if you want, see the source of LivingEntity#createLivingAttributes for an example.
+        LivingEntity.createLivingAttributes()
+            // Add an attribute with its default value.
+            .add(Attributes.MAX_HEALTH)
+            // Add an attribute with a non-default value.
+            .add(Attributes.MAX_HEALTH, 50)
+            // Build the AttributeSupplier.
+            .build()
+    );
+}
+```
+
+:::tip
+Some classes have specialized versions of `LivingEntity#createLivingAttributes`. For example, the `Monster` class has a method named `Monster#createMonsterAttributes` that can be used instead.
+:::
+
+## Querying Attributes
 
 :::info
 This section is a work in progress.
@@ -85,8 +101,16 @@ This section is a work in progress.
 This section is a work in progress.
 :::
 
+## Custom Attributes
+
+:::info
+This section is a work in progress.
+:::
+
+[event]: ../concepts/events.md
 [livingentity]: livingentity.md
 [loottables]: ../resources/server/loottables/index.md
 [miningspeed]: ../blocks/index.md#mining-speed
+[spawning]: spawning.md
 [toughness]: https://minecraft.wiki
 [wiki]: https://minecraft.wiki
