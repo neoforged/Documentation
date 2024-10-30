@@ -3,7 +3,7 @@ sidebar_position: 5
 ---
 # Attributes
 
-Attributes are special properties of [living entities][livingentity] that determine basic properties such as max health, speed or armor. All attributes are stored as double values and synced automatically. Vanilla offers a wide range of default attributes, and you can also add your own.
+Attributes are special fields of [living entities][livingentity] that determine basic properties such as max health, speed or armor. All attributes are stored as double values and synced automatically. Vanilla offers a wide range of default attributes, and you can also add your own.
 
 Due to legacy implementations, not all attributes work with all entities. For example, flying speed is ignored by ghasts, and jump strength only affects horses, not players.
 
@@ -175,9 +175,34 @@ double modifierValue = attributes.getModifierValue(Attributes.ARMOR, id);
 
 ## Custom Attributes
 
-:::info
-This section is a work in progress.
-:::
+If needed, you can also add your own attributes. Like many other systems, attributes are a [registry], and you can register your own objects to it. To get started, create a `DeferredRegister<Attribute>` like so:
+
+```java
+public static final DeferredRegister<Attribute> ATTRIBUTES = DeferredRegister.create(
+        BuiltInRegistries.ATTRIBUTE, "yourmodid");
+```
+
+For the attributes themselves, there are three classes you can choose from:
+
+- `RangedAttribute`: Used by most attributes, this class defines lower and upper bounds for the attribute, along with a default value.
+- `PercentageAttribute`: Like `RangedAttribute`, but is displayed in percent instead of float values. NeoForge-added.
+- `BooleanAttribute`: An attribute that only has semantic true (\> 0) and false (\<\= 0). This still uses doubles internally. NeoForge-added.
+
+Using `RangedAttribute` as an example (the other two work similarly), registering an attribute would look like this:
+
+```java
+public static final Holder<Attribute> MY_ATTRIBUTE = ATTRIBUTES.register("my_attribute", new RangedAttribute(
+    // The translation key to use.
+    "attributes.yourmodid.my_attribute",
+    // The default value.
+    0,
+    // Min and max values.
+    -10000,
+    10000
+));
+```
+
+And that's it! Just don't forget to register your `DeferredRegister` to the mod bus, and off you go.
 
 [equipment]: ../blockentities/container.md#containers-on-entitys
 [event]: ../concepts/events.md
@@ -185,6 +210,7 @@ This section is a work in progress.
 [loottables]: ../resources/server/loottables/index.md
 [miningspeed]: ../blocks/index.md#mining-speed
 [mobeffect]: ../items/mobeffects.md
+[registry]: ../concepts/registries.md
 [spawning]: spawning.md
 [toughness]: https://minecraft.wiki/w/Armor#Armor_toughness
 [wiki]: https://minecraft.wiki
