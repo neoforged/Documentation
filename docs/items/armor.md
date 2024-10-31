@@ -15,8 +15,9 @@ An armor set for a humanoid entity typically consists of four items: a helmet fo
 
 Armors are almost completely implemented through seven [data components][datacomponents]: 
 
-- `DataComponents#MAX_DAMAGE`, `#MAX_STACK_SIZE`, and `#DAMAGE` for durability
-- `#REPAIRABLE` for reepairing a tool in an anvil
+- `DataComponents#MAX_DAMAGE` and `#DAMAGE` for durability
+- `#MAX_STACK_SIZE` to set the stack size to `1`
+- `#REPAIRABLE` for repairing a tool in an anvil
 - `#ENCHANTABLE` for the maximum [enchanting][enchantment] value
 - `#ATTRIBUTE_MODIFIERS` for armor, armor toughness, and knockback
 - `#EQUIPPABLE` for how the entity can equip the item.
@@ -89,8 +90,8 @@ public static final DeferredItem<ArmorItem> COPPER_LEGGINGS =
 public static final DeferredItem<ArmorItem> COPPER_BOOTS =
     ITEMS.registerItem("copper_chestplate", props -> new ArmorItem(...));
 
-public static final DeferredItem<AnimalArmorItem> WOLF_COPPER_ARMOR = ITEMS.registerItem(
-    "wolf_copper_armor",
+public static final DeferredItem<AnimalArmorItem> COPPER_WOLF_ARMOR = ITEMS.registerItem(
+    "copper_wolf_armor",
     props -> new AnimalArmorItem(
         // The material to use.
         COPPER_ARMOR_MATERIAL,
@@ -101,8 +102,8 @@ public static final DeferredItem<AnimalArmorItem> WOLF_COPPER_ARMOR = ITEMS.regi
     )
 );
 
-public static final DeferredItem<AnimalArmorItem> HORSE_COPPER_ARMOR =
-    ITEMS.registerItem("horse_copper_armor", props -> new AnimalArmorItem(...));
+public static final DeferredItem<AnimalArmorItem> COPPER_HORSE_ARMOR =
+    ITEMS.registerItem("copper_horse_armor", props -> new AnimalArmorItem(...));
 ```
 
 Now, creating armor or an armor-like item does not need to extend `ArmorItem` or `AnimalArmorItem`. It simply can be implemented using a combination of the following parts:
@@ -115,7 +116,7 @@ Now, creating armor or an armor-like item does not need to extend `ArmorItem` or
 - Adding your armor to some of the `minecraft:enchantable/*` `ItemTags` so that your item can have certain enchantments applied to it.
 
 :::note
-The only logic that has no alternative to using an `ArmorItem` base is when mobs replace their current held item via `Mob#canReplaceCurrentItem`. Mobs will always check swords, followed by bows, crossbows, armor, and diggers, with all other items not considered for specialized logic.
+The only logic that has no alternative to using an `ArmorItem` base is when mobs replace their current held item via `Mob#canReplaceCurrentItem`. Mobs will always check for an instance of `SwordItem`, followed by `BowItem`, `CrossbowItem`, `ArmorItem`, and `DiggerItem`, with all other items not considered for specialized logic.
 :::
 
 ### `Equippable`
@@ -172,12 +173,11 @@ Now we have some armor in game, but if we try to wear it, nothing will render si
 
 An `EquipmentModel` is functionally a map of `EquipmentModel.LayerType`s to a list of `EquipmentModel.Layer`s to apply.
 
-
 The `LayerType` can be thought of as a group of textures to render for some instance. For example, `LayerType#HUMANOID` is used by the `HumanoidArmorLayer` to render the head, chest, and feet on humanoid entities; `LayerType#WOLF_BODY` is used by `WolfArmorLayer` to render the body armor. These can be combined into one equipment model JSON if they are for the same type of equippable, like copper armor.
 
 The `LayerType` maps to some list of `Layer`s to apply and render the model in the order provided. A `Layer` effectively represents a single texture to render. The first parameter represents the location of the texture, relative to `textures/entity/equipment`.
 
-The second parameter is an optional that indicates whether the texture can be tinted as a `EquipmentModel.Dyeable`. The `Dyeable` object holds an integer that, when present, indicates the default RGB color to tint the texture with. If this optional is not present, then pure white is used.
+The second parameter is an optional that indicates whether the [texture can be tinted][tinting] as a `EquipmentModel.Dyeable`. The `Dyeable` object holds an integer that, when present, indicates the default RGB color to tint the texture with. If this optional is not present, then pure white is used.
 
 :::warning
 For a tint other than the undyed color to be applied to the item, the item must be in the [`ItemTags#DYEABLE`][tag] and have the `DataComponents#DYED_COLOR` component set to some RGB value.
@@ -369,18 +369,6 @@ public static void gatherData(GatherDataEvent event) {
 </TabItem>
 </Tabs>
 
-### Item Overrides
-
-TODO
-
-- `IClientExtensions`
-    - `getHumanoidArmorModel`
-    - `getGenericArmorModel`
-    - `setupModelAnimations`
-    - `renderHelmetOverlay`
-    - `getArmorLayerTintColor`
-    - `getDefaultDyeColor`
-
 ## Equipment Rendering
 
 The equipment models are rendered via the `EquipmentLayerRenderer` in the render function of an `EntityRenderer` or one of its `RenderLayer`s. `EquipmentLayerRenderer` is obtained as part of the render context via `EntityRendererProvider.Context#getEquipmentRenderer`. If the `EquipmentModel`s are required, they are also available via `EntityRendererProvider.Context#getEquipmentModels`.
@@ -432,3 +420,4 @@ this.equipmentLayerRenderer.renderLayers(
 [rendering]: #equipement-rendering
 [respack]: ../resources/index.md#assets
 [tag]: ../resources/server/tags.md
+[tinting]: ../resources/client/models/index.md#tinting

@@ -122,7 +122,6 @@ To apply some animation, you need to implement `IClientItemExtensions#applyForge
 
 First, let's create a new `ItemUseAnimation`. This is done using the [extensible enum][extensibleenum] system:
 
-
 ```json5
 {
     "entries": [
@@ -147,7 +146,7 @@ Then we can get the enum constant via `valueOf`:
 public static final ItemUseAnimation EXAMPLE_ANIMATION = ItemUseAnimation.valueOf("EXAMPLEMOD_ITEM_USE_ANIMATION");
 ```
 
-From there, we can then start applying the transforms. To do this, we must create a new `IClientItemExtensions`, implement our desired methods, and register it via `RegisterClientExtensionsEvent` on the **mod event bus**:
+From there, we can then start applying the transforms. To do this, we must create a new `IClientItemExtensions`, implement our desired methods, and register it via `RegisterClientExtensionsEvent` on the [**mod event bus**][modbus]:
 
 ```java
 public class ConsumableClientItemExtensions implements IClientItemExtensions {
@@ -252,7 +251,6 @@ public static final HumanoidModel.ArmPose EXAMPLE_POSE = HumanoidModel.ArmPose.v
 ```
 
 Then, the arm pose is set via `IClientItemExtensions#getArmPose`:
-
 
 ```java
 public class ConsumableClientItemExtensions implements IClientItemExtensions {
@@ -362,6 +360,7 @@ The contents of a [potion][potions] via `PotionContents` is another `ConsumableL
 [food]: #food
 [hunger]: https://minecraft.wiki/w/Hunger#Mechanics
 [item]: index.md
+[modbus]: ../concepts/events.md#event-buses
 [mobeffectinstance]: mobeffects.md#mobeffectinstances
 [particles]: ../resources/client/particles.md
 [potions]: mobeffects.md#potions

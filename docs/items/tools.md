@@ -21,7 +21,8 @@ Item
 
 Tools are almost completely implemented through seven [data components][datacomponents]:
 
-- `DataComponents#MAX_DAMAGE`, `#MAX_STACK_SIZE`, and `#DAMAGE` for durability
+- `DataComponents#MAX_DAMAGE` and `#DAMAGE` for durability
+- `#MAX_STACK_SIZE` to set the stack size to `1`
 - `#REPAIRABLE` for reepairing a tool in an anvil
 - `#ENCHANTABLE` for the maximum [enchanting][enchantment] value
 - `#ATTRIBUTE_MODIFIERS` for attack damage and attack speed
@@ -148,7 +149,7 @@ Creating any tool or multitool-like item (i.e. an item that combines two or more
 - Adding your tool to some of the `minecraft:enchantable/*` `ItemTags` so that your item can have certain enchantments applied to it.
 
 :::note
-The only logic that has no alternative to using a `DiggerItem` or `SwordItem` base is when mobs replace their current held item via `Mob#canReplaceCurrentItem`. Mobs will always check swords, followed by bows, crossbows, armor, and diggers, with all other items not considered for specialized logic.
+The only logic that has no alternative to using a `DiggerItem` or `SwordItem` base is when mobs replace their current held item via `Mob#canReplaceCurrentItem`. Mobs will always check for an instance of `SwordItem`, followed by `BowItem`, `CrossbowItem`, `ArmorItem`, and `DiggerItem`, with all other items not considered for specialized logic.
 :::
 
 ## `ItemAbility`s
