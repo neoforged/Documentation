@@ -11,7 +11,7 @@ Armors are [items][item] whose primary use is to protect an entity from damage u
 
 ## Custom Armor Sets
 
-An armor set for a humanoid entity typically consists of four items: a helmet for the head, a chestplate for the chest, leggings for the legs, and boots for the feet. There is also armor for wolves, horses, and llamas that are applied to a 'body' armor alot specifically for animals. All of these items are generally implemented through `ArmorItem` and `AnimalArmorItem`, repsectively.
+An armor set for a humanoid entity typically consists of four items: a helmet for the head, a chestplate for the chest, leggings for the legs, and boots for the feet. There is also armor for wolves, horses, and llamas that are applied to a 'body' armor slot specifically for animals. All of these items are generally implemented through `ArmorItem` and `AnimalArmorItem`, respectively.
 
 Armors are almost completely implemented through seven [data components][datacomponents]: 
 
@@ -164,7 +164,7 @@ public static final DeferredItem<Item> EQUIPPABLE = ITEMS.registerSimpleItem(
 
 ## Equipment Models
 
-Now we have some armor in game, but if we try to wear it, nothing will render since we never specified how to render the equipment. To do so, we need to create an `EquipmentModel` JSON at the location specified by `Equippable#model`, relative to the `models/equipment` of the [resource pack][respack] (`assets` folder). The `EquipmentModel` specifies the associated textures to use for each layer to render.
+Now we have some armor in game, but if we try to wear it, nothing will render since we never specified how to render the equipment. To do so, we need to create an `EquipmentModel` JSON at the location specified by `Equippable#model`, relative to the `models/equipment` folder of the [resource pack][respack] (`assets` folder). The `EquipmentModel` specifies the associated textures to use for each layer to render.
 
 :::note
 `EquipmentModel` is a bit of a misnomer as it does **not** specify the model to use when rendering, only the textures. The model used is the one passed in during [equipment rendering][rendering].
@@ -180,10 +180,10 @@ The `LayerType` maps to some list of `Layer`s to apply and render the model in t
 The second parameter is an optional that indicates whether the texture can be tinted as a `EquipmentModel.Dyeable`. The `Dyeable` object holds an integer that, when present, indicates the default RGB color to tint the texture with. If this optional is not present, then pure white is used.
 
 :::warning
-For a tint other than the undyed color to be applied to the item, the item must be within [`ItemTags#DYEABLE`][tag] and have the `DataComponents#DYED_COLOR` component set to some RGB value.
+For a tint other than the undyed color to be applied to the item, the item must be in the [`ItemTags#DYEABLE`][tag] and have the `DataComponents#DYED_COLOR` component set to some RGB value.
 :::
 
-The third paramters is a boolean which indicates whether it should use the texture provided during rendering instead of the one defined within the `Layer`. An example of this is a custom cape or custom elytra texture for the player.
+The third parameter is a boolean that indicates whether the texture provided during rendering should be used instead of the one defined within the `Layer`. An example of this is a custom cape or custom elytra texture for the player.
 
 Let's create a equipment model for the copper armor material. We'll also assume that for each layer there are two textures: one for the actual armor and one that is overlayed and tinted. For the animal armor, we'll say that there is some dynamic texture to be used that can be passed in.
 
@@ -413,7 +413,7 @@ this.equipmentLayerRenderer.renderLayers(
     // The item stack representing the item being rendered as a model
     // This is only used to get the dyeable, foil, and armor trim information
     stack,
-    // The stack used to render the model in the correct location
+    // The pose stack used to render the model in the correct location
     poseStack,
     // The source of the buffers to get the vertex consumer of the render type
     bufferSource,

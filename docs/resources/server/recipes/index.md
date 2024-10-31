@@ -39,7 +39,7 @@ A full list of types provided by Minecraft can be found in the [Built-In Recipe 
 
 ## Using Recipes
 
-Recipes are registered, stored and obtained via the `RecipeManager` class, which is in turn obtained via `ServerLevel#recipeAccess` or - if you don't have a `ServerLevel` available - `ServerLifecycleHooks.getCurrentServer()#getRecipeManager`. The client does not sync the recipes themselves, only the `RecipePropertySet` for restricting inputs on menu slots and a `RecipeDisplayEntry` for the recipe book. All recipe logic should always run on the server.
+Recipes are registered, stored and obtained via the `RecipeManager` class, which is in turn obtained via `ServerLevel#recipeAccess` or - if you don't have a `ServerLevel` available - `ServerLifecycleHooks.getCurrentServer()#getRecipeManager`. The server does not sync the recipes to the client in their entirety, instead it only sends the `RecipePropertySet`s for restricting inputs on menu slots and the `RecipeDisplayEntry`s for the recipe book. All recipe logic should always run on the server.
 
 The easiest way to get a recipe is by its resource key:
 
@@ -430,7 +430,7 @@ public static final Supplier<SlotDisplay.Type<BlockStateSlotDisplay>> BLOCK_STAT
 
 ### Recipe Display
 
-A `RecipeDisplay` is the same as a `SlotDisplay`, except that it represents an entire recipe. The default interface only keeps track of the `result` of recipe and the `craftingStation` which represents the workbench where the recipe is applied. The `RecipeDisplay` also has a `type` that holds the [`MapCodec`][codec] and [`StreamCodec`][streamcodec] used to encode/decode the display.However, subtypes of `RecipeDisplay` contains all the information required to properly render the slot on the client. As such, we will need to create our own `RecipeDisplay`.
+A `RecipeDisplay` is the same as a `SlotDisplay`, except that it represents an entire recipe. The default interface only keeps track of the `result` of recipe and the `craftingStation` which represents the workbench where the recipe is applied. The `RecipeDisplay` also has a `type` that holds the [`MapCodec`][codec] and [`StreamCodec`][streamcodec] used to encode/decode the display. However, no available subtypes of `RecipeDisplay` contain all the information required to properly render our recipe on the client. As such, we will need to create our own `RecipeDisplay`.
 
 All slots and ingredients should be represented as `SlotDisplay`s. Any restrictions, such as grid size, can be provided in any manner the user decides.
 

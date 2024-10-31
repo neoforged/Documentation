@@ -45,7 +45,7 @@ return InteractionResult.SUCCESS.heldItemTransformedTo(new ItemStack(Items.APPLE
 ```
 
 :::note
-`SUCCESS` and `SUCCESS_SERVER` should generally never be used in the same method. If the client has enough information to determine when to swing than `SUCCESS` should always be used. Otherwise, if it relies on server information not present on the client, `SUCCESS_SERVER` should be used.
+`SUCCESS` and `SUCCESS_SERVER` should generally never be used in the same method. If the client has enough information to determine when to swing, then `SUCCESS` should always be used. Otherwise, if it relies on server information not present on the client, `SUCCESS_SERVER` should be used.
 :::
 
 Then there is `InteractionResult.Fail`, implemented by `InteractionResult#FAIL`, which indicates that the operation should be considered failed, allowing no further interaction to occur. The pipeline will end. This can be used anywhere, but it should be used with care outside of `Item#useOn` and `Item#use`. In many cases, using `InteractionResult#PASS` makes more sense.
