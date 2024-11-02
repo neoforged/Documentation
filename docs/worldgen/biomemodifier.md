@@ -16,12 +16,14 @@ Biome Modifiers are a data-driven system that allows for changing many aspects o
     - [Applying Biome Modifiers](#applying-biome-modifiers)
     - [Built-in Neoforge Biome Modifiers](#built-in-biome-modifiers)
     - [Datagenning Biome Modifiers](#datagenning-biome-modifiers)
+    - [Targeting Biomes That May Not Exist](#targeting-biomes-that-may-not-exist)
 
 
 - Modders who want to do custom or complex biome modifications:
     - [Applying Biome Modifiers](#applying-biome-modifiers)
     - [Creating Custom Biome Modifiers](#creating-custom-biome-modifiers)
     - [Datagenning Biome Modifiers](#datagenning-biome-modifiers)
+    - [Targeting Biomes That May Not Exist](#targeting-biomes-that-may-not-exist)
 
 
 ## Applying Biome Modifiers
@@ -676,6 +678,24 @@ This will then result in the following JSON being created:
     "value": 20
 }
 ```
+
+## Targeting Biomes That May Not Exist
+
+There may be times when a biome modifier needs to target a biome that is not always present in the game. If a biome modifier targets the unregistered biome directly, it will crash on world loading. The way to work around this is to create a biome tag and add the target biome as an optional tag entry by setting required to false for the entry. An example is below:
+
+```json5
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "minecraft:pale_garden",
+      "required": false
+    }
+  ]
+}
+```
+
+Using that biome tag for a biome modifier will now not crash if the biome is not registered. A use case for this is the Pale Garden biome in 1.21.3. That biome is only created when you turn on the Winter Drop datapack in-game. Otherwise, the biome does not exist in the biome registry at all. Another use case can be to target modded biomes while still functioning when the other mods not present.
 
 [datareg]: ../concepts/registries.md#datapack-registries
 [staticreg]: ../concepts/registries.md#methods-for-registering
