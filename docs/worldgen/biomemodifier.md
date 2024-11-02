@@ -695,7 +695,7 @@ There may be times when a biome modifier needs to target a biome that is not alw
 }
 ```
 
-Using that biome tag for a biome modifier will now not crash if the biome is not registered. A use case for this is the Pale Garden biome in 1.21.3. That biome is only created when you turn on the Winter Drop datapack in-game. Otherwise, the biome does not exist in the biome registry at all. Another use case can be to target modded biomes while still functioning when the other mods not present.
+Using that biome tag for a biome modifier will now not crash if the biome is not registered. A use case for this is the Pale Garden biome in 1.21.3. That biome is only created when you turn on the Winter Drop datapack in-game. Otherwise, the biome does not exist in the biome registry at all. Another use case can be to target modded biomes while still functioning when the mods adding these biomes are not present.
 
 [datareg]: ../concepts/registries.md#datapack-registries
 [staticreg]: ../concepts/registries.md#methods-for-registering
