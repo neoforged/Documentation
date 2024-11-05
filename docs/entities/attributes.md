@@ -211,6 +211,6 @@ And that's it! Just don't forget to register your `DeferredRegister` to the mod 
 [miningspeed]: ../blocks/index.md#mining-speed
 [mobeffect]: ../items/mobeffects.md
 [registry]: ../concepts/registries.md
-[spawning]: spawning.md
+[spawning]: index.md#spawning-entities
 [toughness]: https://minecraft.wiki/w/Armor#Armor_toughness
 [wiki]: https://minecraft.wiki

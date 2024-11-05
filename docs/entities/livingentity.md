@@ -90,6 +90,14 @@ This event is called immediately before the damage is done. The `DamageContainer
 
 This event is called after the damage has been done, absorption has been reduced, the combat tracker has been updated, and stats and game events have been handled. It is not cancellable, as the attack has already happened. This event would commonly be used for post-attack effects. Note that the event is fired even if the damage amount is zero, so check that value accordingly if needed.
 
+## Mob Effects
+
+_See [Mob Effects & Potions][mobeffects]._
+
+## Equipment
+
+_See [Containers on Entities][containers]._
+
 ## Hierarchy
 
 Living entities have a complex class hierarchy. As mentioned before, the three direct subclasses are `ArmorStand`, `Mob` and `Player`. Of these, `ArmorStand` has no subclasses, so we will focus on the class hierarchy of `Mob` and `Player`.
@@ -111,18 +119,43 @@ Some other classes also extend `Mob` directly. These include `AmbientCreature` w
 Depending on which side the player is on, a different player class is used:
 
 - `ServerPlayer`: This class is used to represent players on the [logical server][logicalsides].
-    - `FakePlayer`: This is a special subclass of `ServerPlayer` designed to be used as a mock for a player, for non-player mechanisms that need a player context.
+  - `FakePlayer`: This is a special subclass of `ServerPlayer` designed to be used as a mock for a player, for non-player mechanisms that need a player context.
 - `AbstractClientPlayer`: This class is used as a base for the two client players, both used to represent players on the [logical client][logicalsides].
-    - `LocalPlayer`: This class is used to represent the player currently running the game.
-    - `RemotePlayer`: This class is used to represent other players that the `LocalPlayer` may encounter during multiplayer. `RemotePlayer`s do not exist in singleplayer contexts.
+  - `LocalPlayer`: This class is used to represent the player currently running the game.
+  - `RemotePlayer`: This class is used to represent other players that the `LocalPlayer` may encounter during multiplayer. `RemotePlayer`s do not exist in singleplayer contexts.
 
-## Mob Effects
+## Spawning
 
-_See [Mob Effects & Potions][mobeffects]._
+In addition to the [regular ways of spawning][spawning], `Mob`s can also be spawned through some other means. `ArmorStand`s can be spawned through regular means, and `Player`s should not be instantiated yourself.
 
-## Equipment
+## Spawn Eggs
 
-_See [Containers on Entities][containers]._
+It is common (though not required) to [register] a spawn egg for mobs. Vanilla uses the `SpawnEggItem` class here, which does some additional setup in the constructor.
+
+Due to modded registration order, a crash will occur when mods use this class. As a workaround, NeoForge introduces the `DeferredSpawnEggItem` class, which postpones that additional setup to a point where it can be run safely.
+
+Using `DeferredSpawnEggItem`, our implementation is as simple as this:
+
+```java
+// Assume we have a DeferredRegister.Items called ITEMS
+DeferredItem<DeferredSpawnEggItem> MY_ENTITY_SPAWN_EGG = ITEMS.register("my_entity_spawn_egg",
+    properties -> new DeferredSpawnEggItem(
+        // The entity type to spawn, as a Supplier<? extends EntityType<? extends Mob>>.
+        MY_ENTITY_TYPE,
+        // The colors to use for the spawn egg. The first one is the base/background color,
+        // the second one is the spots/highlight color.
+        0xff0000,
+        0x00ff00,
+        // The properties passed into the lambda, with any additional setup.
+        properties
+    ));
+```
+
+As an item like any other, the item should be added to a [creative tab][creative], and a [model] and [translation] should be added.
+
+## Natural Spawning
+
+_See [Worldgen/Biome Modifers/Add Spawns][addspawns] and [Worldgen/Biome Modifers/Add Spawn Costs][addspawncosts]._
 
 ## AI and Navigation
 
@@ -159,5 +192,11 @@ This section is a work in progress.
 [logicalsides]: ../concepts/sides.md#the-logical-side
 [mobeffects]: ../items/mobeffects.md
 [priority]: ../concepts/events.md#priority
-[spawning]: spawning.md
+[spawning]: index.md#spawning-entities
 [tags]: ../resources/server/tags.md
+[creative]: ../items/index.md#creative-tabs
+[model]: ../resources/client/models/index.md
+[register]: ../concepts/registries.md
+[translation]: ../resources/client/i18n.md
+[addspawns]: ../worldgen/biomemodifier.md#add-spawns
+[addspawncosts]: ../worldgen/biomemodifier.md#add-spawn-costs

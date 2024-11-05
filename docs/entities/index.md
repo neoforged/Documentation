@@ -136,7 +136,7 @@ _See [Entities/Entity Renderers][renderer]._
 
 ### Spawning Entities
 
-If we now boot up the game now and enter a world, we have exactly one way of spawning: through the `/summon` command (assuming `EntityType.Builder#noSummon` was not called).
+If we now boot up the game now and enter a world, we have exactly one way of spawning: through the [`/summon`][summon] command (assuming `EntityType.Builder#noSummon` was not called).
 
 Obviously, we want to add our entities some other way. The easiest way to do so is through the `LevelWriter#addFreshEntity` method. This method simply accepts an `Entity` instance and adds it to the world, like so:
 
@@ -146,7 +146,7 @@ MyEntity entity = new MyEntity(level, 100.0, 200.0, 300.0);
 level.addFreshEntity(entity);
 ```
 
-For more complex spawn behavior, please refer to the [Spawning article][spawning].
+This will be used for pretty much all non-living entities. Players should obviously not be spawned yourself, and `Mob`s have [their own ways of spawning][mobspawn] (though they can also be added via `#addFreshEntity`).
 
 ### Damaging Entities
 
@@ -257,9 +257,11 @@ Several entities are also direct subclasses of `Entity`, simply because there wa
 [livingentity]: livingentity.md
 [middleclick]: ../items/interactions.md#middle-clicking
 [mobeffect]: ../items/mobeffects.md
+[mobspawn]: livingentity.md#spawning
 [particle]: ../resources/client/particles.md
 [projectile]: projectile.md
 [registration]: ../concepts/registries.md#methods-for-registering
 [renderer]: renderer.md
-[spawning]: spawning.md
+[spawning]: #spawning-entities
+[summon]: https://minecraft.wiki/w/Commands/summon
 [type]: #entitytype
