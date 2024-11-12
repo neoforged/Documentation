@@ -42,7 +42,7 @@ public static final Supplier<BlockEntityType<MyBlockEntity>> MY_BLOCK_ENTITY = B
 ```
 
 :::note
-Remember that the `DeferredRegister` must be [registered][registration] to the mod event bus!
+Remember that the `DeferredRegister` must be registered to the [mod event bus][modbus]!
 :::
 
 Now that we have our block entity type, we can use it in place of the `type` variable we left earlier:
@@ -237,6 +237,7 @@ It is important that you do safety checks, as the `BlockEntity` might already be
 [blockreg]: ../blocks/index.md#basic-blocks
 [blockstate]: ../blocks/states.md
 [dataattachments]: ../datastorage/attachments.md
+[modbus]: ../concepts/events.md#event-buses
 [nbt]: ../datastorage/nbt.md
 [networking]: ../networking/index.md
 [registration]: ../concepts/registries.md#methods-for-registering

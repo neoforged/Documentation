@@ -169,14 +169,22 @@ We already discussed how to create a `DeferredRegister.Blocks` [above], as well 
 ```java
 public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks("yourmodid");
 
+public static final DeferredBlock<Block> EXAMPLE_BLOCK = BLOCKS.register(
+        "example_block", registryName -> new Block(
+            BlockBehaviour.Properties.of()
+                // The ID must be set on the block
+                .setId(ResourceKey.create(Registries.BLOCK, registryName))
+        )
+);
+
+// Same as above, except that the block properties are constructed eagerly.
+// setId is also called internally on the properties object.
 public static final DeferredBlock<Block> EXAMPLE_BLOCK = BLOCKS.registerBlock(
         "example_block",
         Block::new, // The factory that the properties will be passed into.
         BlockBehaviour.Properties.of() // The properties to use.
 );
 ```
-
-Internally, this will simply call `BLOCKS.register("example_block", registryName -> new Block(BlockBehaviour.Properties.of().setId(ResourceKey.create(Registries.BLOCK, registryName))))` by applying the properties parameter to the provided block factory (which is commonly the constructor). The id is set on the properties.
 
 If you want to use `Block::new`, you can leave out the factory entirely:
 

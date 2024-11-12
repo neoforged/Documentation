@@ -470,48 +470,50 @@ public record ClientboundRightClickBlockRecipesPayload(
     // ...
 }
 
-
 // Packet stores data in an instance class.
 // Present on both server and client to do initial matching.
-// Resource listener so it can be reloaded when recipes are.
-public class RightClickBlockRecipeInputs extends SimplePreparableReloadListener<Void> {
-    // Only one instance
-    public static final RightClickBlockRecipeInputs INSTANCE = new RightClickBlockRecipeInputs();
+public interface RightClickBlockRecipeInputs {
+
+    Set<BlockState> inputStates();
+    Set<Holder<Item>> inputItems();
+
+    default boolean test(BlockState state, ItemStack stack) {
+        return this.inputStates().contains(state) && this.inputItems().contains(stack.getItemHolder());
+    }
+}
+
+// Server resource listener so it can be reloaded when recipes are.
+public class ServerRightClickBlockRecipeInputs implements ResourceManagerReloadListener, RightClickBlockRecipeInputs {
+
+    private final RecipeManager recipeManager;
 
     private Set<BlockState> inputStates;
     private Set<Holder<Item>> inputItems;
 
-    private RightClickBlockRecipeInputs() {}
-
-    @Override
-    protected Void prepare(ResourceManager manager, ProfilerFiller filler) {}
+    public RightClickBlockRecipeInputs(RecipeManager recipeManager) {
+        this.recipeManager = recipeManager;
+    }
 
     // Set inputs here as #apply is fired synchronously based on listener registration order.
     // Recipes are always applied first.
     @Override
-    protected abstract void apply(Void dummy, ResourceManager manager, ProfilerFiller filler) {
+    public void onResourceManagerReload(ResourceManager manager) {
         MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
         if (server != null) { // Should never be null
             // Populate inputs
             Set<BlockState> inputStates = new HashSet<>();
             Set<Holder<Item>> inputItems = new HashSet<>();
 
-            server.getRecipeManager().recipeMap().byType(RIGHT_CLICK_BLOCK_TYPE.get())
+            this.recipeManager.recipeMap().byType(RIGHT_CLICK_BLOCK_TYPE.get())
                 .forEach(holder -> {
                     var recipe = holder.value();
                     inputStates.add(recipe.getInputState());
                     inputItems.addAll(recipe.getInputItem().items());
                 });
             
-            this.inputStates = Set.copyOf(inputStates);
-            this.inputItems = Set.copyOf(inputItems);
+            this.inputStates = Set.unmodifiableSet(inputStates);
+            this.inputItems = Set.unmodifiableSet(inputItems);
         }
-    }
-
-    // Should be called within the handler for the payload
-    public void setInputs(Set<BlockState> inputStates, Set<Holder<Item>> inputItems) {
-        this.inputStates = inputStates;
-        this.inputItems = inputItems;
     }
 
     public void syncToClient(Stream<ServerPlayer> players) {
@@ -520,23 +522,78 @@ public class RightClickBlockRecipeInputs extends SimplePreparableReloadListener<
         players.forEach(player -> PacketDistributor.sendToPlayer(player, payload));
     }
 
-    public boolean test(BlockState state, ItemStack stack) {
-        return this.inputStates.contains(state) && this.inputItems.contains(stack.getItemHolder());
+    @Override
+    public Set<BlockState> inputStates() {
+        return this.inputStates;
+    }
+
+    @Override
+    public Set<Holder<Item>> inputItems() {
+        return this.inputItems;
     }
 }
 
-// On the game event bus
-@Override
-public static void addListener(AddReloadListenerEvent event) {
-    // Register server reload listener
-    event.addListener(RightClickBlockRecipeInputs.INSTANCE);
+// Client implementation to hold the inputs.
+public record ClientRightClickBlockRecipeInputs(
+    Set<BlockState> inputStates, Set<Holder<Item>> inputItems
+) implements RightClickBlockRecipeInputs {
+
+    public ClientRightClickBlockRecipeInputs(Set<BlockState> inputStates, Set<Holder<Item>> inputItems) {
+        this.inputStates = Set.unmodifiableSet(inputStates);
+        this.inputItems = Set.unmodifiableSet(inputItems);
+    }
 }
 
-// On the game event bus
-@SubscribeEvent
-public static void datapackSync(OnDatapackSyncEvent event) {
-    // Send to client
-    RightClickBlockRecipeInputs.INSTANCE.syncToClient(event.getRelevantPlayers());
+// Handling the recipe instance depending on side.
+public class ServerRightClickBlockRecipes {
+
+    private static ServerRightClickBlockRecipeInputs inputs;
+
+    public static RightClickBlockRecipeInputs inputs() {
+        return ServerRightClickBlockRecipes.inputs;
+    }
+
+    // On the game event bus
+    @SubscribeEvent
+    public static void addListener(AddReloadListenerEvent event) {
+        // Register server reload listener
+        ServerRightClickBlockRecipes.inputs = new ServerRightClickBlockRecipeInputs(
+            event.getServerResources().getRecipeManager()
+        );
+        event.addListener(ServerRightClickBlockRecipes.inputs);
+    }
+
+    // On the game event bus
+    @SubscribeEvent
+    public static void datapackSync(OnDatapackSyncEvent event) {
+        // Send to client
+        ServerRightClickBlockRecipes.inputs.syncToClient(event.getRelevantPlayers());
+    }
+}
+public class ClientRightClickBlockRecipes {
+
+    private static ClientRightClickBlockRecipeInputs inputs;
+
+    public static RightClickBlockRecipeInputs inputs() {
+        return ClientRightClickBlockRecipes.inputs;
+    }
+
+    // Handling the sent packet
+    public static void handle(final ClientboundRightClickBlockRecipesPayload data, final IPayloadContext context) {
+        // Do something with the data, on the main thread
+        ClientRightClickBlockRecipes.inputs = new ClientRightClickBlockRecipeInputs(
+            data.inputStates(), data.inputItems()
+        );
+    }
+}
+
+public class RightClickBlockRecipes {
+    // Make proxy method to access properly
+    public static RightClickBlockRecipeInputs inputs() {
+        return FMLEnvironment.dist == Dist.CLIENT
+            ? ClientRightClickBlockRecipes.inputs()
+            : ServerRightClickBlockRecipes.inputs();
+    }
 }
 ```
 
@@ -555,7 +612,7 @@ public static void useItemOnBlock(UseItemOnBlockEvent event) {
     ItemStack itemStack = event.getItemStack();
 
     // Check if the input can result in a recipe on both sides
-    if (!RightClickBlockRecipeInputs.INSTANCE.test(blockState, itemStack)) return;
+    if (!RightClickBlockRecipes.inputs().test(blockState, itemStack)) return;
 
     // If so, make sure on server before checking recipe
     if (!level.isClientSide() && level instanceof ServerLevel serverLevel) {

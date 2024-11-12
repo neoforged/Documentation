@@ -1,6 +1,6 @@
 # Recipes
 
-Recipes are a datapack registry used as a way to transform a set of objects into other objects within a Minecraft world. Although Minecraft uses this system purely for item transformations, the system is built in a way that allows any kind of objects - blocks, entities, etc. - to be transformed. Almost all recipes use recipe data files; a "recipe" is assumed to be a data-driven recipe in this article unless explicitly stated otherwise.
+Recipes are a way to transform a set of objects into other objects within a Minecraft world. Although Minecraft uses this system purely for item transformations, the system is built in a way that allows any kind of objects - blocks, entities, etc. - to be transformed. Almost all recipes use recipe data files; a "recipe" is assumed to be a data-driven recipe in this article unless explicitly stated otherwise.
 
 Recipe data files are located at `data/<namespace>/recipe/<path>.json`. For example, the recipe `minecraft:diamond_block` is located at `data/minecraft/recipe/diamond_block.json`.
 
@@ -39,7 +39,7 @@ A full list of types provided by Minecraft can be found in the [Built-In Recipe 
 
 ## Using Recipes
 
-Recipes are loaded, stored and obtained via the `RecipeManager` class, which is in turn obtained via `ServerLevel#recipeAccess` or - if you don't have a `ServerLevel` available - `ServerLifecycleHooks.getCurrentServer()#getRecipeManager`. The server does not sync the recipes to the client in their entirety, instead it only sends the `RecipePropertySet`s for restricting inputs on menu slots and the `RecipeDisplayEntry`s for the recipe book. All recipe logic should always run on the server.
+Recipes are loaded, stored and obtained via the `RecipeManager` class, which is in turn obtained via `ServerLevel#recipeAccess` or - if you don't have a `ServerLevel` available - `ServerLifecycleHooks.getCurrentServer()#getRecipeManager`. The server does not sync the recipes to the client in their entirety instead it only sends the `RecipePropertySet`s for restricting inputs on menu slots and  `RecipeDisplay`s via `RecipeDisplayEntry`s for the recipe book (excluding all recipes where `Recipe#isSpecial` returns true). All recipe logic should always run on the server.
 
 The easiest way to get a recipe is by its resource key:
 

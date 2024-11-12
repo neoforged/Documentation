@@ -134,15 +134,13 @@ Enchantment effect component types must be [registered] to `BuiltInRegistries.EN
 
 ```java
 // In some registration class
-public static final DeferredRegister<DataComponentType<?>> ENCHANTMENT_COMPONENT_TYPES =
-    DeferredRegister.create(BuiltInRegistries.ENCHANTMENT_EFFECT_COMPONENT_TYPE, "examplemod");
+public static final DeferredRegister.DataComponents ENCHANTMENT_COMPONENT_TYPES =
+    DeferredRegister.createDataComponents(BuiltInRegistries.ENCHANTMENT_EFFECT_COMPONENT_TYPE, "examplemod");
 
 public static final Supplier<DataComponentType<Increment>> INCREMENT =
-    ENCHANTMENT_COMPONENT_TYPES.register(
+    ENCHANTMENT_COMPONENT_TYPES.registerComponentType(
         "increment",
-        () -> DataComponentType.builder()
-            .persistent(Increment.CODEC)
-            .build()
+        builder -> builder.persistent(Increment.CODEC)
     );
 ```
 
