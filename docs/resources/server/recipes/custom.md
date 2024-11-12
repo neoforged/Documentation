@@ -589,8 +589,8 @@ public class ClientRightClickBlockRecipes {
 
 public class RightClickBlockRecipes {
     // Make proxy method to access properly
-    public static RightClickBlockRecipeInputs inputs() {
-        return FMLEnvironment.dist == Dist.CLIENT
+    public static RightClickBlockRecipeInputs inputs(Level level) {
+        return level.isClientSide
             ? ClientRightClickBlockRecipes.inputs()
             : ServerRightClickBlockRecipes.inputs();
     }
@@ -612,7 +612,7 @@ public static void useItemOnBlock(UseItemOnBlockEvent event) {
     ItemStack itemStack = event.getItemStack();
 
     // Check if the input can result in a recipe on both sides
-    if (!RightClickBlockRecipes.inputs().test(blockState, itemStack)) return;
+    if (!RightClickBlockRecipes.inputs(level).test(blockState, itemStack)) return;
 
     // If so, make sure on server before checking recipe
     if (!level.isClientSide() && level instanceof ServerLevel serverLevel) {

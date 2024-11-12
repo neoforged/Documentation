@@ -39,7 +39,7 @@ A full list of types provided by Minecraft can be found in the [Built-In Recipe 
 
 ## Using Recipes
 
-Recipes are loaded, stored and obtained via the `RecipeManager` class, which is in turn obtained via `ServerLevel#recipeAccess` or - if you don't have a `ServerLevel` available - `ServerLifecycleHooks.getCurrentServer()#getRecipeManager`. The server does not sync the recipes to the client in their entirety instead it only sends the `RecipePropertySet`s for restricting inputs on menu slots and  `RecipeDisplay`s via `RecipeDisplayEntry`s for the recipe book (excluding all recipes where `Recipe#isSpecial` returns true). All recipe logic should always run on the server.
+Recipes are loaded, stored and obtained via the `RecipeManager` class, which is in turn obtained via `ServerLevel#recipeAccess` or - if you don't have a `ServerLevel` available - `ServerLifecycleHooks.getCurrentServer()#getRecipeManager`. The server does not sync the recipes to the client by default, instead it only sends the `RecipePropertySet`s for restricting inputs on menu slots. Additionally, whenever a recipe is unlocked for the recipe book, its `RecipeDisplay`s via `RecipeDisplayEntry`s are sent to the client (excluding all recipes where `Recipe#isSpecial` returns true) As such, recipe logic should always run on the server.
 
 The easiest way to get a recipe is by its resource key:
 
