@@ -56,7 +56,7 @@ public static final DeferredItem<Item> CONSUMABLE = ITEMS.registerSimpleItem(
 
 ### `ConsumeEffect`
 
-When a consumable has finished being used, you may want to trigger some kind of logic to execute like adding a potion effect. These are handled by `ConsumeEffect`s, which are added the `Consumable` by calling `Consumable.Builder#onConsume`.
+When a consumable has finished being used, you may want to trigger some kind of logic to execute like adding a potion effect. These are handled by `ConsumeEffect`s, which are added to the `Consumable` by calling `Consumable.Builder#onConsume`.
 
 A list of vanilla effects can be found in `ConsumeEffect`.
 

@@ -33,7 +33,7 @@ When you right-click anywhere in the world, a number of things happen, depending
 
 ## `InteractionResult`
 
-`InteractionResult` is a sealed interface that respresents the result of some interaction between an item or and empty hand and some object (e.g. entities, blocks, etc.). The interface is broken into four records, where there are six potential default states.
+`InteractionResult` is a sealed interface that respresents the result of some interaction between an item or an empty hand and some object (e.g. entities, blocks, etc.). The interface is broken into four records, where there are six potential default states.
 
 First there is `InteractionResult.Success`, which indicates that the operation should be considered sucessful, ending the pipeline. A successful state has two parameters: the `SwingSource`, which indicates whether the entity should swing on the respective [logical side][side]; and the `InteractionResult.ItemContext`, which holds whether the interaction was caused by a held item, and what the held item transformed into after use. The swing source is determined by one of the default states: `InteractionResult#SUCCESS` for client swing, `InteractionResult#SUCCESS_SERVER` for server swing, and `InteractionResult#CONSUME` for no swing. The item context is set via `Success#heldItemTransformedTo` if the `ItemStack` changed, or `withoutItem` if there wasn't an interaction between the held item and the object. The default sets there was an item interaction but no transformation.
 

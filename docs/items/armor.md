@@ -17,9 +17,9 @@ Armors are almost completely implemented through seven [data components][datacom
 
 - `DataComponents#MAX_DAMAGE` and `#DAMAGE` for durability
 - `#MAX_STACK_SIZE` to set the stack size to `1`
-- `#REPAIRABLE` for repairing a tool in an anvil
+- `#REPAIRABLE` for repairing an armor piece in an anvil
 - `#ENCHANTABLE` for the maximum [enchanting][enchantment] value
-- `#ATTRIBUTE_MODIFIERS` for armor, armor toughness, and knockback
+- `#ATTRIBUTE_MODIFIERS` for armor, armor toughness, and knockback resistance
 - `#EQUIPPABLE` for how the entity can equip the item.
 
 `ArmorItem` and `AnimalArmorItem` use `ArmorMaterial` combined with `ArmorType` or `AnimalArmorItem.BodyType` respectively to set up the components. Reference values can be found within `ArmorMaterials`. This example uses a copper armor material, which you can adjust the values as needed.
@@ -141,7 +141,7 @@ public static final DeferredItem<Item> EQUIPPABLE = ITEMS.registerSimpleItem(
             // Points to assets/examplemod/models/equipment/equippable.json
             // When not set, does not render the equipment.
             .setModel(ResourceLocation.fromNamespaceAndPath("examplemod", "equippable"))
-            // The relative location over the texture to overlay on the player screen when wearing (e.g., pumpkin blur).
+            // The relative location of the texture to overlay on the player screen when wearing (e.g., pumpkin blur).
             // Points to assets/examplemod/textures/equippable.png
             // When not set, does not render an overlay.
             .setCameraOverlay(ResourceLocation.withDefaultNamespace("examplemod", "equippable"))
