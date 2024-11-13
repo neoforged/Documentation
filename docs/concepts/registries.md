@@ -52,7 +52,7 @@ public static final DeferredHolder<Block, SlabBlock> EXAMPLE_BLOCK_2 = BLOCKS.re
         // Our registry name.
         "example_block" 
         // A function creating the object we want to register
-        //   given its registry name as a ResourceLocation.
+        // given its registry name as a ResourceLocation.
         registryName -> new SlabBlock(...)
 );
 ```
@@ -73,7 +73,7 @@ public static final Supplier<SlabBlock> EXAMPLE_BLOCK_2 = BLOCKS.register(
         // Our registry name.
         "example_block" 
         // A function creating the object we want to register
-        //   given its registry name as a ResourceLocation.
+        // given its registry name as a ResourceLocation.
         registryName -> new SlabBlock(...)
 );
 ```
