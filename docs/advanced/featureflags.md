@@ -55,7 +55,7 @@ In order to flag a given `FeatureElement` as requiring your Feature Flag, you si
 - `Item`: `Item.Properties#requiredFeatures`
 - `Block`: `BlockBehaviour.Properties#requiredFeatures`
 - `EntityType`: `EntityType.Builder#requiredFeatures`
-- `MenuType`: `IMenuTypeExtension#create`
+- `MenuType`: `MenuType#new`
 - `Potion`: `Potion#requiredFeatures`
 - `MobEffect`: `MobEffect#requiredFeatures`
 
@@ -89,9 +89,18 @@ DeferredHolder<EntityType<?>, EntityType<ExperimentalEntity>> EXPERIMENTAL_ENTIT
 
 // MenuType
 DeferredRegister<MenuType<?>> MENU_TYPES = DeferredRegister.create(Registries.MENU, "examplemod");
-DeferredHolder<MenuType<?>, MenuType<ExperimentalMenu>> EXPERIMENTAL_MENU = MENU_TYPES.register("experimental", () -> IMenuTypeExtension.create(
-    ExperimentalMenu::new,
-    EXPERIMENTAL // mark as requiring the 'EXPERIMENTAL' flag
+DeferredHolder<MenuType<?>, MenuType<ExperimentalMenu>> EXPERIMENTAL_MENU = MENU_TYPES.register("experimental", () -> new MenuType<>(
+    // Using Vanilla MenuSupplier
+    // This is used when your menu is not encoding complex data during `player.openMenu`
+    // (windowId, inventory) -> new ExperimentalMenu(windowId, inventory),
+
+    // Using NeoForge IContainerFactory
+    // This is used when you wish to read complex data encoded during `player.openMenu`
+    // Casting here is important as `MenuType` specificly wants `MenuSupplier`
+    (IContainerFactory<ExperimentalMenu>) (windowId, inventory, buffer) -> new ExperimentalMenu(windowId, inventory, buffer),
+    
+    // mark as requiring the 'EXPERIMENTAL' flag
+    FeatureFlagSet.of(EXPERIMENTAL)
 ));
 
 // MobEffect
