@@ -162,36 +162,6 @@ Feature packs are a type of pack that not only loads resources and/or data, but 
 
 There are a couple of ways for users to obtain a feature pack, namely installing them from an external source as a datapack, or downloading a mod that has a built-in feature pack. Both of these then need to be installed differently depending on the [physical side](../concepts/sides.md).
 
-**External**
-
-External packs are provided to your users in datapack form.
-
-#### Installation in Singleplayer
-
-1. Create a new world.
-2. Navigate to the datapack selection screen.
-3. Drag and drop the datapack zip file onto the game window.
-4. Move the newly available datapack over to the `Selected` packs list.
-5. Confirm changes by clicking `Done`.
-
-The game will now warn you about any newly selected experimental features, potential bugs, issues and crashes. You can confirm these changes by clicking `Proceed` or `Details` to see an extensive list of all selected packs and which features they would enable.
-
-:::note
-External feature packs do not show up in the Experiments screen. The Experiments screen will only show built-in feature packs.
-
-To disable external feature packs after enabling them, navigate back into the datapacks screen and move the external packs back into `Available` from `Selected`.
-:::
-
-#### Installation in Multiplayer
-
-Enabling Feature Packs can only be done during initial world creation, and they cannot be disabled once enabled.
-
-1. Create the directory `./world/datapacks`
-2. Upload the datapack zip file into the newly created directory
-3. Open your server's `server.properties` file
-4. Add the datapack zip file name (excluding `.zip`) to `initial-enabled-packs` (separating each pack by a `,`)
-   - Example: The zip `examplemod-experimental.zip` would be added like so `initial-enabled-packs=vanilla,examplemod-experimental`
-
 **Built-In**
 
 Built-in packs are bundled with your mod and are made available to the game using the `AddPackFindersEvent` event.
@@ -238,6 +208,36 @@ public static void addFeaturePacks(final AddPackFindersEvent event) {
 
 1. Open your server's `server.properties` file.
 2. Add the feature pack id to `initial-enabled-packs`, separating each pack by a `,`. The pack id is defined during registering your pack finder, as seen above.
+
+**External**
+
+External packs are provided to your users in datapack form.
+
+#### Installation in Singleplayer
+
+1. Create a new world.
+2. Navigate to the datapack selection screen.
+3. Drag and drop the datapack zip file onto the game window.
+4. Move the newly available datapack over to the `Selected` packs list.
+5. Confirm changes by clicking `Done`.
+
+The game will now warn you about any newly selected experimental features, potential bugs, issues and crashes. You can confirm these changes by clicking `Proceed` or `Details` to see an extensive list of all selected packs and which features they would enable.
+
+:::note
+External feature packs do not show up in the Experiments screen. The Experiments screen will only show built-in feature packs.
+
+To disable external feature packs after enabling them, navigate back into the datapacks screen and move the external packs back into `Available` from `Selected`.
+:::
+
+#### Installation in Multiplayer
+
+Enabling Feature Packs can only be done during initial world creation, and they cannot be disabled once enabled.
+
+1. Create the directory `./world/datapacks`
+2. Upload the datapack zip file into the newly created directory
+3. Open your server's `server.properties` file
+4. Add the datapack zip file name (excluding `.zip`) to `initial-enabled-packs` (separating each pack by a `,`)
+   - Example: The zip `examplemod-experimental.zip` would be added like so `initial-enabled-packs=vanilla,examplemod-experimental`
 
 ### Data Generation
 
