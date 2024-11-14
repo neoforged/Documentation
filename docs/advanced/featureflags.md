@@ -145,6 +145,8 @@ itemStack.isItemEnabled(enabledFeatures);
 
 ### Feature Packs
 
+_See also: [Resource Packs](../resources/index.md#assets), [Data Packs](../resources/index.md#data) and [Pack.mcmeta](../resources/index.md#packmcmeta)_
+
 Feature packs are a type of pack that not only loads resources and/or data, but also has the ability to toggle on a given set of feature flags. These flags are defined in the `pack.mcmeta` JSON file at the root of this pack, which follows the below format:
 ```json5
 {
@@ -198,6 +200,8 @@ Built-in packs are bundled with your mod and are made available to the game usin
 public static void addFeaturePacks(final AddPackFindersEvent event) {
     event.addPackFinders(
             // Path relative to your mods 'resources' pointing towards this pack
+            // Take note this also defines your packs id using the following format
+            // mod/<namespace>:<path>`, e.g. `mod/examplemod:data/examplemod/datapacks/experimental`
             ResourceLocation.fromNamespaceAndPath("examplemod", "data/examplemod/datapacks/experimental"),
             
             // What kind of resources are contained within this pack
@@ -236,6 +240,8 @@ public static void addFeaturePacks(final AddPackFindersEvent event) {
 2. Add the feature pack id to `initial-enabled-packs`, separating each pack by a `,`. The pack id is defined during registering your pack finder, as seen above.
 
 ### Data Generation
+
+_See also: [Datagen](../resources/index.md#data-generation)_
 
 Feature packs can be generated during regular mod datagen. This is best used in combination with built-in packs, but it is also possible to zip up the generated result and share it as an external pack. Just choose one, i.e. don't provide it as an external pack and also bundle it as a built-in pack.
 
