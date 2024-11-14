@@ -252,9 +252,7 @@ public static void gatherData(final GatherDataEvent event) {
     // This will generate the feature pack into the following path:
     // ./data/<namespace>/datapacks/<path>
     PackGenerator featurePack = generator.getBuiltinDatapack(true, "examplemod", "experimental");
-    
-    // Do take note of the generated pack location, as this is where Built-In packs should point their `packLocation` towards.
-    
+        
     // Register a provider to generate the `pack.mcmeta` file.
     featurePack.addProvider(output -> PackMetadataGenerator.forFeaturePack(
             output,
