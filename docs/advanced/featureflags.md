@@ -202,15 +202,15 @@ Built-in packs are bundled with your mod and are made available to the game usin
 @SubscribeEvent
 public static void addFeaturePacks(final AddPackFindersEvent event) {
     event.addPackFinders(
-            // 'packLocation': Path relative to your mods 'resources' pointing towards this pack
+            // Path relative to your mods 'resources' pointing towards this pack
             ResourceLocation.fromNamespaceAndPath("examplemod", "data/examplemod/datapacks/experimental"),
             
-            // 'packType': What kind of resources are contained within this pack
+            // What kind of resources are contained within this pack
             // 'CLIENT_RESOURCES' for packs with client assets (resource packs)
             // 'SERVER_DATA' for packs with server data (data packs)
             PackType.SERVER_DATA,
             
-            // 'packNameDisplay': Display name shown in the Experiments screen
+            // Display name shown in the Experiments screen
             Component.literal("ExampleMod: Experiments"),
             
             // In order for this pack to load and enable feature flags, this MUST be 'FEATURE',
@@ -220,7 +220,7 @@ public static void addFeaturePacks(final AddPackFindersEvent event) {
             // If this is true, the pack is always active and cannot be disabled, should always be false for feature packs
             false,
             
-            // 'packPosition': Priority to load resources from this pack in
+            // Priority to load resources from this pack in
             // 'TOP' this pack will be prioritized over other packs
             // 'BOTTOM' other packs will be prioritized over this pack 
             Pack.Position.TOP
