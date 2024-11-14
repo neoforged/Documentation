@@ -40,7 +40,8 @@ public static final FeatureFlag EXPERIMENTAL = FeatureFlags.REGISTRY.getFlag(Res
 
 When a feature element is disabled, it is fully hidden from the player's view, and all interactions will be skipped. Do note that these disabled elements will still exist in the registry and are merely functionally unusable.
 
-The following is a complete list of all registries which directly implement the `FeatureElement` system.
+The following is a complete list of all registries which directly implement the `FeatureElement` system:
+
 - Item
 - Block
 - EntityType
@@ -50,7 +51,7 @@ The following is a complete list of all registries which directly implement the 
 
 #### Flagging elements
 
-In order to flag a given `FeatureElement` as requiring your Feature Flag, you simply pass it and any other desired flags into the respective registration method.
+In order to flag a given `FeatureElement` as requiring your Feature Flag, you simply pass it and any other desired flags into the respective registration method:
 
 - `Item`: `Item.Properties#requiredFeatures`
 - `Block`: `BlockBehaviour.Properties#requiredFeatures`
@@ -192,8 +193,6 @@ Enabling Feature Packs can only be done during initial world creation, and they 
 2. Upload the datapack zip file into the newly created directory
 3. Open your server's `server.properties` file
 4. Add the datapack zip file name (excluding `.zip`) to `initial-enabled-packs` (separating each pack by a `,`)
-
-The Feature Pack is now installed and enabled
 
 **Built-In**
 
