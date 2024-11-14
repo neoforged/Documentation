@@ -246,13 +246,13 @@ Feature packs can be generated during regular mod datagen. This is best used in 
 ```java
 @SubscribeEvent
 public static void gatherData(final GatherDataEvent event) {
-    var generator = event.getGenerator();
+    DataGenerator generator = event.getGenerator();
     
     // To generate a feature pack, you must first obtain a pack generator instance for the desired pack.
     // generator.getBuiltinDatapack(<shouldGenerate>, <namespace>, <path>);
     // This will generate the feature pack into the following path:
     // ./data/<namespace>/datapacks/<path>
-    var featurePack = generator.getBuiltinDatapack(true, "examplemod", "experimental");
+    PackGenerator featurePack = generator.getBuiltinDatapack(true, "examplemod", "experimental");
     
     // Do take note of the generated pack location, as this is where Built-In packs should point their `packLocation` towards.
     
