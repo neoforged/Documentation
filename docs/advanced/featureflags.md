@@ -131,9 +131,7 @@ minecraft.getConnection().enabledFeatures();
 server.getWorldData().enabledFeatures();
 ```
 
-To validate if any arbitrary `FeatureFlagSet` is enabled, simply pass the enabled features to `FeatureFlagSet#isSubsetOf`.
-
-To validate if any given `FeatureElement` is enabled, simply invoke `FeatureElement#isEnabled`.
+To validate if any `FeatureFlagSet` is enabled, you can pass the enabled features to `FeatureFlagSet#isSubsetOf`, and for validating if a specific `FeatureElement` is enabled, you can invoke `FeatureElement#isEnabled`.
 
 :::note
 `ItemStack` has a special `isItemEnabled(FeatureFlagSet)` method. This is so that empty stacks are treated as enabled even if the required features for the backing `Item` do not match the enabled features. It is recommended to prefer this method over `Item#isEnabled` where possible.
