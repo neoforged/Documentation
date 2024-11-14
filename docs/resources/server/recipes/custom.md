@@ -70,7 +70,7 @@ public class RightClickBlockRecipe implements Recipe<RightClickBlockInput> {
     }
 
     // When true, will prevent the recipe from being synced within the recipe book or awarded on use/unlock.
-    // This should only be true if the recipe shouldn't appear in a recipe book, such as extended a map.
+    // This should only be true if the recipe shouldn't appear in a recipe book, such as map extending.
     // Although this recipe takes in an input state, it could still be used in a custom recipe book using
     //   the methods below.
     @Override
