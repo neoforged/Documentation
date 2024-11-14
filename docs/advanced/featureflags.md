@@ -99,8 +99,7 @@ DeferredHolder<MenuType<?>, MenuType<ExperimentalMenu>> EXPERIMENTAL_MENU = MENU
     // Casting is important here, as `MenuType` specifically expects a `MenuSupplier`.
     (IContainerFactory<ExperimentalMenu>) (windowId, inventory, buffer) -> new ExperimentalMenu(windowId, inventory, buffer),
     
-    // mark as requiring the 'EXPERIMENTAL' flag
-    FeatureFlagSet.of(EXPERIMENTAL)
+    FeatureFlagSet.of(EXPERIMENTAL) // mark as requiring the 'EXPERIMENTAL' flag
 ));
 
 // MobEffect
