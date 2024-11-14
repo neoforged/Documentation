@@ -191,6 +191,7 @@ Enabling Feature Packs can only be done during initial world creation, and they 
 2. Upload the datapack zip file into the newly created directory
 3. Open your server's `server.properties` file
 4. Add the datapack zip file name (excluding `.zip`) to `initial-enabled-packs` (separating each pack by a `,`)
+   - Example: The zip `examplemod-experimental.zip` would be added like so `initial-enabled-packs=vanilla,examplemod-experimental`
 
 **Built-In**
 
