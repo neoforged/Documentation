@@ -6,7 +6,8 @@ A common use case would be gating experimental features/elements behind a experi
 
 ### Creating a Feature Flag
 
-To create new Feature Flags, a JSON file needs to be created and referenced in your `neoforge.mods.toml` file with the `featureFlags` entry inside of your `[[mods]]` block. The specified path must be relative to the `resources` directory:
+To create new Feature flags, a JSON file needs to be created and referenced in your `neoforge.mods.toml` file with the `featureFlags` entry inside of your `[[mods]]` block. The specified path must be relative to the `resources` directory:
+
 ```toml
 # In neoforge.mods.toml:
 [[mods]]
@@ -15,22 +16,23 @@ To create new Feature Flags, a JSON file needs to be created and referenced in y
     featureFlags="feature_flags.json"
 ```
 
-The definition of the entry consists of a list of Feature Flag names, which will be loaded and registered during game initialization.
+The definition of the entry consists of a list of Feature flag names, which will be loaded and registered during game initialization.
+
 ```json5
 {
     "flags": [
-        // Identifier of a Feature Flag to be registered
+        // Identifier of a Feature flag to be registered
         "examplemod:experimental"
     ]
 }
 ```
 
-### Retrieving the Feature Flag
+### Retrieving the Feature flag
 
-The registered Feature Flag can be retrieved via `FeatureFlagRegistry.getFlag(ResourceLocation)`. This can be done at any time during your mod's initialization and is recommended to be stored somewhere for future use, rather than looking up the registry each time you require your flag.
+The registered Feature flag can be retrieved via `FeatureFlagRegistry.getFlag(ResourceLocation)`. This can be done at any time during your mod's initialization and is recommended to be stored somewhere for future use, rather than looking up the registry each time you require your flag.
 
 ```java
-// Look up the 'examplemod:experimental' Feature Flag
+// Look up the 'examplemod:experimental' Feature flag
 public static final FeatureFlag EXPERIMENTAL = FeatureFlags.REGISTRY.getFlag(ResourceLocation.fromNamespaceAndPath("examplemod", "experimental"));
 ```
 
@@ -51,7 +53,7 @@ The following is a complete list of all registries which directly implement the 
 
 #### Flagging elements
 
-In order to flag a given `FeatureElement` as requiring your Feature Flag, you simply pass it and any other desired flags into the respective registration method:
+In order to flag a given `FeatureElement` as requiring your Feature flag, you simply pass it and any other desired flags into the respective registration method:
 
 - `Item`: `Item.Properties#requiredFeatures`
 - `Block`: `BlockBehaviour.Properties#requiredFeatures`
@@ -148,11 +150,12 @@ itemStack.isItemEnabled(enabledFeatures);
 _See also: [Resource Packs](../resources/index.md#assets), [Data Packs](../resources/index.md#data) and [Pack.mcmeta](../resources/index.md#packmcmeta)_
 
 Feature packs are a type of pack that not only loads resources and/or data, but also has the ability to toggle on a given set of feature flags. These flags are defined in the `pack.mcmeta` JSON file at the root of this pack, which follows the below format:
+
 ```json5
 {
     "features": [
         "enabled": [
-            // Identifier of a Feature Flag to be enabled
+            // Identifier of a Feature flag to be enabled
             // Must be a valid registered flag
             "examplemod:experimental"
         ]
@@ -165,6 +168,7 @@ There are a couple of ways for users to obtain a feature pack, namely installing
 **Built-In**
 
 Built-in packs are bundled with your mod and are made available to the game using the `AddPackFindersEvent` event.
+
 ```java
 @SubscribeEvent
 public static void addFeaturePacks(final AddPackFindersEvent event) {
@@ -263,7 +267,7 @@ public static void gatherData(final GatherDataEvent event) {
             // Description displayed in the Experiments screen
             Component.literal("Enabled experimental features for ExampleMod"),
             
-            // Set of Feature Flags this pack should enable
+            // Set of Feature flags this pack should enable
             FeatureFlagSet.of(EXPERIMENTAL)
     ));
     
