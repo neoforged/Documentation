@@ -48,7 +48,7 @@ The following is a complete list of all registries which directly implement the 
 - Potion
 - MobEffect
 
-**Flagging elements**
+#### Flagging elements
 
 In order to flag a given `FeatureElement` as requiring your Feature Flag, you simply pass it and any other desired flags into the respective registration method.
 
@@ -115,7 +115,7 @@ DeferredHolder<Potion, ExperimentalPotion> EXPERIMENTAL_POTION = POTIONS.registe
 );
 ```
 
-**Validating enabled status**
+#### Validating enabled status
 
 In order to validate if features should be enabled or not, you must first acquire the set of enabled features. This can be done in a variety of ways, but the common and recommended method is `LevelReader#enabledFeatures`.  
 
@@ -168,6 +168,7 @@ Installing these packs differs depending on if its being installed into a single
 External packs are provided to your users in datapack form.
 
 #### Installation in Singleplayer
+
 1. Create a new world.
 2. Navigate to the datapack selection screen.
 3. Drag and drop the datapack zip file onto the game window.
@@ -235,6 +236,7 @@ public static void addFeaturePacks(final AddPackFindersEvent event) {
 4. Confirm changes by clicking `Done`.
 
 #### Enabling in Multiplayer
+
 1. Open your server's `server.properties` file.
 2. Add the feature pack id to `initial-enabled-packs`, separating each pack by a `,`. The pack id is defined during registering your pack finder, as seen above.
 
