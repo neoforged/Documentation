@@ -174,8 +174,7 @@ External packs are provided to your users in datapack form.
 4. Move the newly available datapack over to the `Selected` packs list.
 5. Confirm changes by clicking `Done`.
 
-The game will now warn you about any newly selected experimental features, potential bugs, issues and crashes.
-You can confirm these changes by clicking `Proceed` or `Details` to see an extensive list of all selected packs and which features they would enable.
+The game will now warn you about any newly selected experimental features, potential bugs, issues and crashes. You can confirm these changes by clicking `Proceed` or `Details` to see an extensive list of all selected packs and which features they would enable.
 
 :::note
 External feature packs do not show up in the Experiments screen. The Experiments screen will only show built-in feature packs.
