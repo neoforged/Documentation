@@ -160,9 +160,7 @@ Feature packs are a type of pack that not only loads resources and/or data, but 
 }
 ```
 
-There are a couple methods in which you can provide a feature pack to your users.
-
-Installing these packs differs depending on if its being installed into a single player world or a server.
+There are a couple of ways for users to obtain a feature pack, namely installing them from an external source as a datapack, or downloading a mod that has a built-in feature pack. Both of these then need to be installed differently depending on the [physical side](../concepts/sides.md).
 
 **External**
 
