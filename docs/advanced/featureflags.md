@@ -4,7 +4,13 @@ Feature flags are a system that allows developers to gate a set of features behi
 
 A common use case would be gating experimental features/elements behind a experimental flag, allowing users to easily switch them on and play around with them before they are finalized.
 
-### Creating a Feature Flag
+:::tip
+You are not forced to add your own flags. If you find a vanilla flag which would fit your use case, feel free to flag your blocks/items/entities/etc. with said flag.
+
+For example in `1.21.3` if you were to add to the set of Pale Oak wood blocks, you'd only want those to show up if the `WINTER_DROP` flag is enabled.
+:::
+
+## Creating a Feature Flag
 
 To create new Feature flags, a JSON file needs to be created and referenced in your `neoforge.mods.toml` file with the `featureFlags` entry inside of your `[[mods]]` block. The specified path must be relative to the `resources` directory:
 
@@ -27,7 +33,7 @@ The definition of the entry consists of a list of Feature flag names, which will
 }
 ```
 
-### Retrieving the Feature flag
+## Retrieving the Feature Flag
 
 The registered Feature flag can be retrieved via `FeatureFlagRegistry.getFlag(ResourceLocation)`. This can be done at any time during your mod's initialization and is recommended to be stored somewhere for future use, rather than looking up the registry each time you require your flag.
 
@@ -36,7 +42,7 @@ The registered Feature flag can be retrieved via `FeatureFlagRegistry.getFlag(Re
 public static final FeatureFlag EXPERIMENTAL = FeatureFlags.REGISTRY.getFlag(ResourceLocation.fromNamespaceAndPath("examplemod", "experimental"));
 ```
 
-### Feature Elements
+## Feature Elements
 
 `FeatureElement`s are registry values which can be given a set of required flags. These values are only made available to players when the respective required flags match the flags enabled in the level.
 
@@ -51,7 +57,7 @@ The following is a complete list of all registries which directly implement the 
 - Potion
 - MobEffect
 
-#### Flagging elements
+### Flagging Elements
 
 In order to flag a given `FeatureElement` as requiring your Feature flag, you simply pass it and any other desired flags into the respective registration method:
 
@@ -118,7 +124,7 @@ DeferredHolder<Potion, ExperimentalPotion> EXPERIMENTAL_POTION = POTIONS.registe
 );
 ```
 
-#### Validating enabled status
+### Validating Enabled Status
 
 In order to validate if features should be enabled or not, you must first acquire the set of enabled features. This can be done in a variety of ways, but the common and recommended method is `LevelReader#enabledFeatures`.  
 
@@ -145,7 +151,7 @@ featureElement.isEnabled(enabledFeatures);
 itemStack.isItemEnabled(enabledFeatures);
 ```
 
-### Feature Packs
+## Feature Packs
 
 _See also: [Resource Packs](../resources/index.md#assets), [Data Packs](../resources/index.md#data) and [Pack.mcmeta](../resources/index.md#packmcmeta)_
 
@@ -165,7 +171,7 @@ Feature packs are a type of pack that not only loads resources and/or data, but 
 
 There are a couple of ways for users to obtain a feature pack, namely installing them from an external source as a datapack, or downloading a mod that has a built-in feature pack. Both of these then need to be installed differently depending on the [physical side](../concepts/sides.md).
 
-**Built-In**
+### Built-In
 
 Built-in packs are bundled with your mod and are made available to the game using the `AddPackFindersEvent` event.
 
@@ -213,7 +219,7 @@ public static void addFeaturePacks(final AddPackFindersEvent event) {
 1. Open your server's `server.properties` file.
 2. Add the feature pack id to `initial-enabled-packs`, separating each pack by a `,`. The pack id is defined during registering your pack finder, as seen above.
 
-**External**
+### External
 
 External packs are provided to your users in datapack form.
 
