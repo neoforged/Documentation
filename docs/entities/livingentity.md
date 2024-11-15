@@ -130,18 +130,14 @@ In addition to the [regular ways of spawning][spawning], `Mob`s can also be spaw
 
 ### Spawn Eggs
 
-It is common (though not required) to [register] a spawn egg for mobs. Vanilla uses the `SpawnEggItem` class here, which does some additional setup in the constructor.
-
-Due to modded registration order, a crash will occur when mods use this class. As a workaround, NeoForge introduces the `DeferredSpawnEggItem` class, which postpones that additional setup to a point where it can be run safely.
-
-Using `DeferredSpawnEggItem`, our implementation is as simple as this:
+It is common (though not required) to [register] a spawn egg for mobs. This is done through the `SpawnEggItem` class, which has been patched by NeoForge to do some extra setup, such as registering the color handler and adding the spawn egg to the internal `SpawnEggItem` -> `EntityType` map.
 
 ```java
 // Assume we have a DeferredRegister.Items called ITEMS
-DeferredItem<DeferredSpawnEggItem> MY_ENTITY_SPAWN_EGG = ITEMS.register("my_entity_spawn_egg",
-    properties -> new DeferredSpawnEggItem(
-        // The entity type to spawn, as a Supplier<? extends EntityType<? extends Mob>>.
-        MY_ENTITY_TYPE,
+DeferredItem<SpawnEggItem> MY_ENTITY_SPAWN_EGG = ITEMS.register("my_entity_spawn_egg",
+    properties -> new SpawnEggItem(
+        // The entity type to spawn.
+        MY_ENTITY_TYPE.get(),
         // The colors to use for the spawn egg. The first one is the base/background color,
         // the second one is the spots/highlight color.
         0xff0000,
@@ -153,7 +149,7 @@ DeferredItem<DeferredSpawnEggItem> MY_ENTITY_SPAWN_EGG = ITEMS.register("my_enti
 
 As an item like any other, the item should be added to a [creative tab][creative], and a [model] and [translation] should be added.
 
-## Natural Spawning
+### Natural Spawning
 
 _See [Worldgen/Biome Modifers/Add Spawns][addspawns] and [Worldgen/Biome Modifers/Add Spawn Costs][addspawncosts]._
 
@@ -181,8 +177,11 @@ This section is a work in progress.
 This section is a work in progress.
 :::
 
+[addspawncosts]: ../worldgen/biomemodifier.md#add-spawn-costs
+[addspawns]: ../worldgen/biomemodifier.md#add-spawns
 [attributes]: attributes.md
 [containers]: ../blockentities/container.md
+[creative]: ../items/index.md#creative-tabs
 [damage]: index.md#damaging-entities
 [damagesources]: ../resources/server/damagetypes.md#creating-and-using-damage-sources
 [damagetypes]: ../resources/server/damagetypes.md
@@ -191,12 +190,9 @@ This section is a work in progress.
 [hurt]: index.md#damaging-entities
 [logicalsides]: ../concepts/sides.md#the-logical-side
 [mobeffects]: ../items/mobeffects.md
+[model]: ../resources/client/models/index.md
 [priority]: ../concepts/events.md#priority
+[register]: ../concepts/registries.md
 [spawning]: index.md#spawning-entities
 [tags]: ../resources/server/tags.md
-[creative]: ../items/index.md#creative-tabs
-[model]: ../resources/client/models/index.md
-[register]: ../concepts/registries.md
 [translation]: ../resources/client/i18n.md
-[addspawns]: ../worldgen/biomemodifier.md#add-spawns
-[addspawncosts]: ../worldgen/biomemodifier.md#add-spawn-costs
