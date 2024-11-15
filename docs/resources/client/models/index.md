@@ -247,7 +247,7 @@ public static void registerBlockColorHandlers(RegisterColorHandlersEvent.Block e
         return 0xFFFFFFFF;
     },
     // A varargs of blocks to apply the tinting to
-    EXAMPLE_BLOCK.value(), ...);
+    EXAMPLE_BLOCK.get(), ...);
 }
 ```
 
@@ -264,7 +264,7 @@ public static void registerItemColorHandlers(RegisterColorHandlersEvent.Item eve
         return 0xFFFFFFFF;
     },
     // A varargs of items to apply the tinting to
-    EXAMPLE_ITEM.value(), ...);
+    EXAMPLE_ITEM.get(), ...);
 }
 ```
 

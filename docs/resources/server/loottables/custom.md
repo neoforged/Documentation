@@ -59,7 +59,7 @@ public static final MapCodec<EntityLootEntry> CODEC = RecordCodecBuilder.mapCode
 );
 ```
 
-We then use this codec in registration:
+We then use this codec in [registration][registries]:
 
 ```java
 public static final DeferredRegister<LootPoolEntryType> LOOT_POOL_ENTRY_TYPES =
@@ -109,13 +109,13 @@ public record InvertedSignProvider(NumberProvider base) implements NumberProvide
     // Return a set of the loot context params used by this provider. See below for more information.
     // Since we have a base value, we just defer to the base.
     @Override
-    public Set<LootContextParam<?>> getReferencedContextParams() {
+    public Set<ContextKey<?>> getReferencedContextParams() {
         return this.base.getReferencedContextParams();
     }
 }
 ```
 
-Like with custom loot entry types, we then use this codec in registration:
+Like with custom loot entry types, we then use this codec in [registration][registries]:
 
 ```java
 public static final DeferredRegister<LootNumberProviderType> LOOT_NUMBER_PROVIDER_TYPES =
@@ -162,7 +162,7 @@ public record InvertedSignLevelBasedValue(LevelBasedValue base) implements Level
 }
 ```
 
-And again, we then use the codec in registration, though this time directly:
+And again, we then use the codec in [registration][registries], though this time directly:
 
 ```java
 public static final DeferredRegister<MapCodec<? extends LevelBasedValue>> LEVEL_BASED_VALUES =
@@ -187,19 +187,20 @@ public record HasXpLevelCondition(int level) implements LootItemCondition {
     // In our case, we want the KILLER_ENTITY to have at least our required level.
     @Override
     public boolean test(LootContext context) {
-        Entity entity = context.getParamOrNull(LootContextParams.KILLER_ENTITY);
+        @Nullable
+        Entity entity = context.getOptionalParameter(LootContextParams.KILLER_ENTITY);
         return entity instanceof Player player && player.experienceLevel >= level; 
     }
     
     // Tell the game what parameters we expect from the loot context. Used in validation.
     @Override
-    public Set<LootContextParam<?>> getReferencedContextParams() {
+    public Set<ContextKey<?>> getReferencedContextParams() {
         return ImmutableSet.of(LootContextParams.KILLER_ENTITY);
     }
 }
 ```
 
-We can register the condition type to the registry using the condition's codec:
+We can [register][registries] the condition type to the registry using the condition's codec:
 
 ```java
 public static final DeferredRegister<LootItemConditionType> LOOT_CONDITION_TYPES =
@@ -253,7 +254,7 @@ public class RandomEnchantmentWithLevelFunction extends LootItemConditionalFunct
         RandomSource random = context.getRandom();
         List<Holder<Enchantment>> stream = this.enchantments
                 .map(HolderSet::stream)
-                .orElseGet(() -> context.getLevel().registryAccess().registryOrThrow(Registries.ENCHANTMENT).holders().map(Function.identity()))
+                .orElseGet(() -> context.getLevel().registryAccess().registryOrThrow(Registries.ENCHANTMENT).listElements().map(Function.identity()))
                 .filter(e -> e.value().canEnchant(stack))
                 .toList();
         Optional<Holder<Enchantment>> optional = Util.getRandomSafe(list, random);
@@ -270,7 +271,7 @@ public class RandomEnchantmentWithLevelFunction extends LootItemConditionalFunct
 }
 ```
 
-We can then register the function type to the registry using the function's codec:
+We can then [register][registries] the function type to the registry using the function's codec:
 
 ```java
 public static final DeferredRegister<LootItemFunctionType> LOOT_FUNCTION_TYPES =
@@ -287,11 +288,11 @@ public class RandomEnchantmentWithLevelFunction extends LootItemConditionalFunct
     // other stuff here
 
     @Override
-    public LootItemFunctionType getType() {
+    public LootItemFunctionType<?> getType() {
         return RANDOM_ENCHANTMENT_WITH_LEVEL.get();
     }
 }
 ```
 
 [codec]: ../../../datastorage/codecs.md
-[registries]: ../../../concepts/registries.md
+[registries]: ../../../concepts/registries.md#methods-for-registering
