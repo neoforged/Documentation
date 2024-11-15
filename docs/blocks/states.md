@@ -53,10 +53,6 @@ To implement a blockstate property, in your block class, create or reference a `
     - Implements `Property<E>`. Defines a property that can take on the values of an Enum class.
     - Created by calling `EnumProperty#create(String propertyName, Class<E> enumClass)`.
     - It is also possible to use only a subset of the Enum values (e.g. 4 out of 16 `DyeColor`s), see the overloads of `EnumProperty#create`.
-- `DirectionProperty`
-    - Extends `EnumProperty<Direction>`. Defines a property that can take on a `Direction`.
-    - Created by calling `DirectionProperty#create(String propertyName)`.
-    - Several convenience predicates are provided. For example, to get a property that represents the cardinal directions, call `DirectionProperty.create("<name>", Direction.Plane.HORIZONTAL)`; to get the X directions, `DirectionProperty.create("<name>", Direction.Axis.X)`.
 
 The class `BlockStateProperties` contains shared vanilla properties which should be used or referenced whenever possible, in place of creating your own properties.
 
@@ -72,7 +68,7 @@ To further illustrate this, this is what the relevant bits of the `EndPortalFram
 public class EndPortalFrameBlock extends Block {
     // Note: It is possible to directly use the values in BlockStateProperties instead of referencing them here again.
     // However, for the sake of simplicity and readability, it is recommended to add constants like this.
-    public static final DirectionProperty FACING = BlockStateProperties.FACING;
+    public static final EnumProperty<Direction> FACING = BlockStateProperties.FACING;
     public static final BooleanProperty EYE = BlockStateProperties.EYE;
 
     public EndPortalFrameBlock(BlockBehaviour.Properties pProperties) {
@@ -107,7 +103,7 @@ To go from `Block` to `BlockState`, call `Block#defaultBlockState()`. The defaul
 You can get the value of a property by calling `BlockState#getValue(Property<?>)`, passing it the property you want to get the value of. Reusing our end portal frame example, this would look something like this:
 
 ```java
-// EndPortalFrameBlock.FACING is a DirectionProperty and thus can be used to obtain a Direction from the BlockState
+// EndPortalFrameBlock.FACING is an EnumPropery<Direction> and thus can be used to obtain a Direction from the BlockState
 Direction direction = endPortalFrameBlockState.getValue(EndPortalFrameBlock.FACING);
 ```
 
@@ -138,9 +134,10 @@ To help setting the update flags correctly, there are a number of `int` constant
 - `Block.UPDATE_KNOWN_SHAPE` stops neighbor update recursion.
 - `Block.UPDATE_SUPPRESS_DROPS` disables block drops for the old block at that position.
 - `Block.UPDATE_MOVE_BY_PISTON` is only used by piston code to signal that the block was moved by a piston. This is mainly responsible for delaying light engine updates.
+- `Block.UPDATE_SKIP_SHAPE_UPDATE_ON_WIRE` is used by the `ExperimentalRedstoneWireEvaluator` to signal if the shape should be skipped. This is set only when the power strength is changed from not a placement or that the original source on the signal is not the current wire.
 - `Block.UPDATE_ALL` is an alias for `Block.UPDATE_NEIGHBORS | Block.UPDATE_CLIENTS`.
 - `Block.UPDATE_ALL_IMMEDIATE` is an alias for `Block.UPDATE_NEIGHBORS | Block.UPDATE_CLIENTS | Block.UPDATE_IMMEDIATE`.
-- `Block.NONE` is an alias for `Block.UPDATE_INVISIBLE`.
+- `Block.UPDATE_NONE` is an alias for `Block.UPDATE_INVISIBLE`.
 
 There is also a convenience method `Level#setBlockAndUpdate(BlockPos pos, BlockState state)` that calls `setBlock(pos, state, Block.UPDATE_ALL)` internally.
 

@@ -20,30 +20,30 @@ Tag files have the following syntax:
 
 ```json5
 {
-  // The values of the tag.
-  "values": [
-    // A value object. Must specify the id of the object to add, and whether it is required.
-    // If the entry is required, but the object is not present, the tag will not load. The "required" field
-    // is technically optional, but when removed, the entry is equivalent to the shorthand below.
-    {
-      "id": "examplemod:example_ingot",
-      "required": false
-    }
-    // Shorthand for {"id": "minecraft:gold_ingot", "required": true}, i.e. a required entry.
-    "minecraft:gold_ingot",
-    // A tag object. Distinguished from regular entries by the leading #. In this case, all planks
-    // will be considered entries of the tag. Like normal entries, this can also have the "id"/"required" format.
-    // Warning: Circular tag dependencies will lead to a datapack not being loaded!
-    "#minecraft:planks"
-  ],
-  // Whether to remove all pre-existing entries before adding your own (true) or just add your own (false).
-  // This should generally be false, the option to set this to true is primarily aimed at pack developers.
-  "replace": false,
-  // A finer-grained way to remove entries from the tag again, if present. Optional, NeoForge-added.
-  // Entry syntax is the same as in the "values" array.
-  "remove": [
-    "minecraft:iron_ingot"
-  ]
+    // The values of the tag.
+    "values": [
+        // A value object. Must specify the id of the object to add, and whether it is required.
+        // If the entry is required, but the object is not present, the tag will not load. The "required" field
+        // is technically optional, but when removed, the entry is equivalent to the shorthand below.
+        {
+            "id": "examplemod:example_ingot",
+            "required": false
+        }
+        // Shorthand for {"id": "minecraft:gold_ingot", "required": true}, i.e. a required entry.
+        "minecraft:gold_ingot",
+        // A tag object. Distinguished from regular entries by the leading #. In this case, all planks
+        // will be considered entries of the tag. Like normal entries, this can also have the "id"/"required" format.
+        // Warning: Circular tag dependencies will lead to a datapack not being loaded!
+        "#minecraft:planks"
+    ],
+    // Whether to remove all pre-existing entries before adding your own (true) or just add your own (false).
+    // This should generally be false, the option to set this to true is primarily aimed at pack developers.
+    "replace": false,
+    // A finer-grained way to remove entries from the tag again, if present. Optional, NeoForge-added.
+    // Entry syntax is the same as in the "values" array.
+    "remove": [
+        "minecraft:iron_ingot"
+    ]
 }
 ```
 
@@ -87,7 +87,8 @@ We can then use our tag to perform various operations on it. Let's start with th
 
 ```java
 // Check whether dirt is in our tag.
-boolean isInTag = BuiltInRegistries.BLOCK.getOrCreateTag(MY_TAG).stream().anyMatch(e -> e == Items.DIRT);
+// Assume access to Level level
+boolean isInTag = level.registryAccess().lookupOrThrow(BuiltInRegistries.BLOCK).getOrThrow(MY_TAG).stream().anyMatch(holder -> holder.is(Items.DIRT));
 ```
 
 Since this is a very verbose statement, especially when used often, `BlockState` and `ItemStack` - the two most common users of the tag system - each define a `#is` helper method, used like so:
@@ -99,36 +100,20 @@ boolean isInBlockTag = blockState.is(MY_TAG);
 boolean isInItemTag = itemStack.is(MY_ITEM_TAG);
 ```
 
-If needed, we can also get ourselves a set of tag entries, like so:
+If needed, we can also get ourselves a set of tag entries to stream, like so:
 
 ```java
-Set<Block> blocksInTag = BuiltInRegistries.BLOCK.getOrCreateTag(MY_TAG).stream().toSet();
+// Assume access to Level level
+Stream<Holder<Block>> blocksInTag = level.registryAccess().lookupOrThrow(BuiltInRegistries.BLOCK).getOrThrow(MY_TAG).stream();
 ```
 
-For performance reasons, it is recommended to cache these sets in a field, invalidating them when tags are reloaded (which can be listened for using `TagsUpdatedEvent`). This can be done like so:
+### Tags for Static Registries During Bootstrap
+
+Sometimes, you need to get access to a `HolderSet` during the registry process. In this case, for static registries **only**, you can obtain the necessary `HolderGetter` via `BuiltInRegistries#acquireBootstrapRegistrationLookup`:
 
 ```java
-public class MyTagsCacheClass {
-    private static Set<Block> blocksInTag = null;
-
-    public static Set<Block> getBlockTagContents() {
-        if (blocksInTag == null) {
-            // Wrap as an unmodifiable set, as we're not supposed to modify this anyway
-            blocksInTag = Collections.unmodifiableSet(BuiltInRegistries.BLOCK.getOrCreateTag(MY_TAG).stream().toSet());
-        }
-        return blocksInTag;
-    }
-    
-    public static void invalidateCache() {
-        blocksInTag = null;
-    }
-}
-
-// In an event handler class
-@SubscribeEvent
-public static void onTagsUpdated(TagsUpdatedEvent event) {
-    MyTagsCacheClass.invalidateCache();
-}
+// Assume access to Level level
+HolderSet<Block> blockTag = BuiltInRegistries.acquireBootstrapRegistrationLookup(BuiltInRegistries.BLOCK).getOrThrow(MY_TAG);
 ```
 
 ## Datagen
@@ -169,7 +154,7 @@ public class MyBlockTagsProvider extends BlockTagsProvider {
     @Override
     protected void addTags(HolderLookup.Provider lookupProvider) {
         // Create a tag builder for our tag. This could also be e.g. a vanilla or NeoForge tag.
-        tag(MY_TAG)
+        this.tag(MY_TAG)
                 // Add entries. This is a vararg parameter.
                 // Non-intrinsic providers must provide ResourceKeys here instead of the actual objects.
                 .add(Blocks.DIRT, Blocks.COBBLESTONE)
@@ -202,33 +187,33 @@ This example results in the following tag JSON:
 
 ```json5
 {
-  "values": [
-    "minecraft:dirt",
-    "minecraft:cobblestone",
-    {
-      "id": "botania:pure_daisy",
-      "required": false
-    },
-    "#minecraft:planks",
-    "#minecraft:logs",
-    "#minecraft:wooden_slabs",
-    {
-      "id": "c:ingots/tin",
-      "required": false
-    },
-    {
-      "id": "c:nuggets/tin",
-      "required": false
-    },
-    {
-      "id": "c:storage_blocks/tin",
-      "required": false
-    }
-  ],
-  "remove": [
-    "minecraft:crimson_slab",
-    "minecraft:warped_slab"
-  ]
+    "values": [
+        "minecraft:dirt",
+        "minecraft:cobblestone",
+        {
+            "id": "botania:pure_daisy",
+            "required": false
+        },
+        "#minecraft:planks",
+        "#minecraft:logs",
+        "#minecraft:wooden_slabs",
+        {
+            "id": "c:ingots/tin",
+            "required": false
+        },
+        {
+            "id": "c:nuggets/tin",
+            "required": false
+        },
+        {
+            "id": "c:storage_blocks/tin",
+            "required": false
+        }
+    ],
+    "remove": [
+        "minecraft:crimson_slab",
+        "minecraft:warped_slab"
+    ]
 }
 ```
 
@@ -253,7 +238,7 @@ public static void gatherData(GatherDataEvent event) {
 
 ```java
 // In an ItemTagsProvider's #addTags method, assuming types TagKey<Block> and TagKey<Item> for the two parameters.
-copy(EXAMPLE_BLOCK_TAG, EXAMPLE_ITEM_TAG);
+this.copy(EXAMPLE_BLOCK_TAG, EXAMPLE_ITEM_TAG);
 ```
 
 ### Custom Tag Providers

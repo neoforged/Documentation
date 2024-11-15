@@ -14,4 +14,4 @@ The most common way to accomplish these goals is to pass messages between the cl
 There is a technique provided by NeoForge to facilitate communication mostly built on top of [netty]. This technique can be used by listening for the `RegisterPayloadHandlersEvent` event, and then registering a specific type of [payloads], its reader, and its handler function to the registrar.
 
 [netty]: https://netty.io "Netty Website"
-[payloads]: ./payload.md "Registering custom Payloads"
+[payloads]: payload.md "Registering custom Payloads"

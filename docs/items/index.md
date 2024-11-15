@@ -7,11 +7,11 @@ Along with blocks, items are a key component of Minecraft. While blocks make up 
 Before we get further into creating items, it is important to understand what an item actually is, and what distinguishes it from, say, a [block][block]. Let's illustrate this using an example:
 
 - In the world, you encounter a dirt block and want to mine it. This is a **block**, because it is placed in the world. (Actually, it is not a block, but a blockstate. See the [Blockstates article][blockstates] for more detailed information.)
-  - Not all blocks drop themselves when breaking (e.g. leaves), see the article on [loot tables][loottables] for more information.
+    - Not all blocks drop themselves when breaking (e.g. leaves), see the article on [loot tables][loottables] for more information.
 - Once you have [mined the block][breaking], it is removed (= replaced with an air block) and the dirt drops. The dropped dirt is an item **[entity][entity]**. This means that like other entities (pigs, zombies, arrows, etc.), it can inherently be moved by things like water pushing on it, or burned by fire and lava.
 - Once you pick up the dirt item entity, it becomes an **item stack** in your inventory. An item stack is, simply put, an instance of an item with some extra information, such as the stack size.
 - Item stacks are backed by their corresponding **item** (which is what we're creating). Items hold [data components][datacomponents] that contains the default information all items stacks are initialized to (for example, every iron sword has a max durability of 250), while item stacks can modify those data components, allowing two different stacks for the same item to have different information (for example, one iron sword has 100 uses left, while another iron sword has 200 uses left). For more information on what is done through items and what is done through item stacks, read on.
-  - The relationship between items and item stacks is roughly the same as between [blocks][block] and [blockstates][blockstates], in that a blockstate is always backed by a block. It's not a really accurate comparison (item stacks aren't singletons, for example), but it gives a good basic idea about what the concept is here.
+    - The relationship between items and item stacks is roughly the same as between [blocks][block] and [blockstates][blockstates], in that a blockstate is always backed by a block. It's not a really accurate comparison (item stacks aren't singletons, for example), but it gives a good basic idea about what the concept is here.
 
 ## Creating an Item
 
@@ -19,34 +19,40 @@ Now that we understand what an item is, let's create one!
 
 Like with basic blocks, for basic items that need no special functionality (think sticks, sugar, etc.), the `Item` class can be used directly. To do so, during registration, instantiate `Item` with a `Item.Properties` parameter. This `Item.Properties` parameter can be created using `Item.Properties#of`, and it can be customized by calling its methods:
 
-- `stacksTo` - Sets the max stack size (via `DataComponents#MAX_STACK_SIZE`) of this item. Defaults to 64. Used e.g. by ender pearls or other items that only stack to 16.
-- `durability` - Sets the durability (via `DataComponents#MAX_DAMAGE`) of this item and the initial damge to 0 (via `DataComponents#DAMAGE`). Defaults to 0, which means "no durability". For example, iron tools use 250 here. Note that setting the durability automatically locks the max stack size to 1.
-- `craftRemainder` - Sets the crafting remainder of this item. Vanilla uses this for filled buckets that leave behind empty buckets after crafting.
-- `fireResistant` - Makes item entities that use this item immune to fire and lava (via `DataComponents#FIRE_RESISTANT`). Used by various netherite items.
-- `setNoRepair` - Disables anvil and crafting grid repairing for this item. Unused in vanilla.
-- `rarity` - Sets the rarity of this item (via `DataComponents#RARITY`). Currently, this simply changes the item's color. `Rarity` is an enum consisting of the four values `COMMON` (white, default), `UNCOMMON` (yellow), `RARE` (aqua) and `EPIC` (light purple). Be aware that mods may add more rarity types.
+- `setId` - Sets the resource key of the item.
+    - This **must** be set on every item; otherwise, an exception will be thrown.
+- `overrideDescription` - Sets the translation key of the item. The created `Component` is stored in `DataComponents#ITEM_NAME`.
+- `useBlockDescriptionPrefix` - Convenience helper that calls `overrideDescription` with the translation key `block.<modid>.<registry_name>`. This should be called on any `BlockItem`.
+- `overrideModel` - Sets the `ResourceLocation` representing the item model and expands to `assets/<namespace>/models/item/<path>.json`. The `ResourceLocation` is stored in `DataComponents#ITEM_MODEL`.
 - `requiredFeatures` - Sets the required feature flags for this item. This is mainly used for vanilla's feature locking system in minor versions. It is discouraged to use this, unless you're integrating with a system locked behind feature flags by vanilla.
+- `stacksTo` - Sets the max stack size (via `DataComponents#MAX_STACK_SIZE`) of this item. Defaults to 64. Used e.g. by ender pearls or other items that only stack to 16.
+- `durability` - Sets the durability (via `DataComponents#MAX_DAMAGE`) of this item and the initial damage to 0 (via `DataComponents#DAMAGE`). Defaults to 0, which means "no durability". For example, iron tools use 250 here. Note that setting the durability automatically locks the max stack size to 1.
+- `fireResistant` - Makes item entities that use this item immune to fire and lava (via `DataComponents#FIRE_RESISTANT`). Used by various netherite items.
+- `rarity` - Sets the rarity of this item (via `DataComponents#RARITY`). Currently, this simply changes the item's color. `Rarity` is an enum consisting of the four values `COMMON` (white, default), `UNCOMMON` (yellow), `RARE` (aqua) and `EPIC` (light purple). Be aware that mods may add more rarity types.
+- `setNoRepair` - Disables anvil and crafting grid repairing for this item. Unused in vanilla.
+- `jukeboxPlayable` - Sets the resource key of the datapack `JukeboxSong` to play when inserted into a jukebox.
 - `food` - Sets the [`FoodProperties`][food] of this item (via `DataComponents#FOOD`).
 
 For examples, or to look at the various values used by Minecraft, have a look at the `Items` class.
 
-### Food
+### Remainders and Cooldowns
 
-The `Item` class provides default functionality for food items, meaning you don't need a separate class for that. To make your item edible, all you need to do is set the `FoodProperties` on it through the `food` method in `Item.Properties`.
+Items may have additional properties that are applied when being used or prevent the item from being used for a set time:
 
-`FoodProperties` are created using a `FoodProperties.Builder`. You can then set various properties on it:
+- `craftRemainder` - Sets the crafting remainder of this item. Vanilla uses this for filled buckets that leave behind empty buckets after crafting.
+- `usingConvertsTo` - Sets the item to return after the item is finished being used via `Item#use`, `IItemExtension#finishUsingItem`, or `Item#releaseUsing`. The `ItemStack` is stored on `DataComponents#USE_REMAINDER`.
+- `useCooldown` - Sets the number of seconds before the item can be used again (via `DataComponents#USE_COOLDOWN`).
 
-- `nutrition` - Sets how many hunger points are restored. Counts in half hunger points, so for example, Minecraft's steak restores 8 hunger points.
-- `saturationMod` - The saturation modifier used in calculating the [saturation value][hunger] restored when eating this food. The calculation is `min(2 * nutrition * saturationMod, playerNutrition)`, meaning that using `0.5` will make the effective saturation value the same as the nutrition value.
-- `alwaysEdible` - Whether this item can always be eaten, even if the hunger bar is full. `false` by default, `true` for golden apples and other items that provide bonuses beyond just filling the hunger bar.
-- `fast` - Whether fast eating should be enabled for this food. `false` by default, `true` for dried kelp in vanilla.
-- `effect` - Adds a [`MobEffectInstance`][mobeffectinstance] to apply when eating this item. The second parameter denotes the probability of the effect being applied; for example, Rotten Flesh has an 80% chance (= 0.8) of applying the Hunger effect when eaten. This method comes in two variants; you should use the one that takes in a supplier (the other one directly takes a mob effect instance and is deprecated by NeoForge due to classloading issues).
-- `usingConvertsTo` - Sets the item this will turn into after being used.
-- `build` - Once you've set everything you want to set, call `build` to get a `FoodProperties` object for further use.
+### Tools and Armor
 
-For examples, or to look at the various values used by Minecraft, have a look at the `Foods` class.
+Some items act like [tools] and [armor]. These are constructed via a series of item properties, with only some usage being delegated to their associated classes:
 
-To get the `FoodProperties` for an item, call `Item#getFoodProperties(ItemStack, LivingEntity)`. This may return null, since not every item is edible. To determine whether an item is edible, null-check the result of the `getFoodProperties` call.
+- `enchantable` - Sets the maximum [enchantment] value of the stack, allowing the item to be enchanted (via `DataComponents#ENCHANTABLE`).
+- `repairable` - Sets the item or tag that can be used to repair the durability of this item (via `DataComponents#REPAIRABLE`). Must have durability components and not `DataComponents#UNBREAKABLE`.
+- `equippable` - Sets the slot the item can be equipped to (via `DataComponents#EQUIPPABLE`).
+- `equippableUnswappable` - Same as `equippable`, but disables quick swapping via the use item button (default right-click).
+
+More information can be found on their relevant pages.
 
 ### More Functionality
 
@@ -61,21 +67,21 @@ All registries use `DeferredRegister` to register their contents, and items are 
 ```java
 public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(ExampleMod.MOD_ID);
 
-public static final Supplier<Item> EXAMPLE_ITEM = ITEMS.registerItem(
-        "example_item",
-        Item::new, // The factory that the properties will be passed into.
-        new Item.Properties() // The properties to use.
+public static final DeferredItem<Item> EXAMPLE_ITEM = ITEMS.registerItem(
+    "example_item",
+    Item::new, // The factory that the properties will be passed into.
+    new Item.Properties() // The properties to use.
 );
 ```
 
-Internally, this will simply call `ITEMS.register("example_item", () -> new Item(new Item.Properties()))` by applying the properties parameter to the provided item factory (which is commonly the constructor).
+Internally, this will simply call `ITEMS.register("example_item", registryName -> new Item(new Item.Properties().setId(ResourceKey.create(Registries.ITEM, registryName))))` by applying the properties parameter to the provided item factory (which is commonly the constructor). The id is set on the properties.
 
 If you want to use `Item::new`, you can leave out the factory entirely and use the `simple` method variant:
 
 ```java
-public static final Supplier<Item> EXAMPLE_ITEM = ITEMS.registerSimpleItem(
-        "example_item",
-        new Item.Properties() // The properties to use.
+public static final DeferredItem<Item> EXAMPLE_ITEM = ITEMS.registerSimpleItem(
+    "example_item",
+    new Item.Properties() // The properties to use.
 );
 ```
 
@@ -84,21 +90,41 @@ This does the exact same as the previous example, but is slightly shorter. Of co
 Both of these methods also have overloads that omit the `new Item.Properties()` parameter:
 
 ```java
-public static final Supplier<Item> EXAMPLE_ITEM = ITEMS.registerItem("example_item", Item::new);
+public static final DeferredItem<Item> EXAMPLE_ITEM = ITEMS.registerItem("example_item", Item::new);
+
 // Variant that also omits the Item::new parameter
-public static final Supplier<Item> EXAMPLE_ITEM = ITEMS.registerSimpleItem("example_item");
+public static final DeferredItem<Item> EXAMPLE_ITEM = ITEMS.registerSimpleItem("example_item");
 ```
 
-Finally, there's also shortcuts for block items:
+Finally, there's also shortcuts for block items. Along with `setId`, these also call `useBlockDescriptionPrefix` to set the translation key to the one used for a block:
 
 ```java
-public static final Supplier<BlockItem> EXAMPLE_BLOCK_ITEM = ITEMS.registerSimpleBlockItem("example_block", ExampleBlocksClass.EXAMPLE_BLOCK, new Item.Properties());
+public static final DeferredItem<BlockItem> EXAMPLE_BLOCK_ITEM = ITEMS.registerSimpleBlockItem(
+    "example_block",
+    ExampleBlocksClass.EXAMPLE_BLOCK,
+    new Item.Properties()
+);
+
 // Variant that omits the properties parameter:
-public static final Supplier<BlockItem> EXAMPLE_BLOCK_ITEM = ITEMS.registerSimpleBlockItem("example_block", ExampleBlocksClass.EXAMPLE_BLOCK);
+public static final DeferredItem<BlockItem> EXAMPLE_BLOCK_ITEM = ITEMS.registerSimpleBlockItem(
+    "example_block",
+    ExampleBlocksClass.EXAMPLE_BLOCK
+);
+
 // Variant that omits the name parameter, instead using the block's registry name:
-public static final Supplier<BlockItem> EXAMPLE_BLOCK_ITEM = ITEMS.registerSimpleBlockItem(ExampleBlocksClass.EXAMPLE_BLOCK, new Item.Properties());
+public static final DeferredItem<BlockItem> EXAMPLE_BLOCK_ITEM = ITEMS.registerSimpleBlockItem(
+    // Must be an instance of `Holder<Block>`
+    // DeferredBlock<T> also works
+    ExampleBlocksClass.EXAMPLE_BLOCK,
+    new Item.Properties()
+);
+
 // Variant that omits both the name and the properties:
-public static final Supplier<BlockItem> EXAMPLE_BLOCK_ITEM = ITEMS.registerSimpleBlockItem(ExampleBlocksClass.EXAMPLE_BLOCK);
+public static final DeferredItem<BlockItem> EXAMPLE_BLOCK_ITEM = ITEMS.registerSimpleBlockItem(
+    // Must be an instance of `Holder<Block>`
+    // DeferredBlock<T> also works
+    ExampleBlocksClass.EXAMPLE_BLOCK
+);
 ```
 
 :::note
@@ -117,7 +143,7 @@ Like with blocks and blockstates, most places where you'd expect an `Item` actua
 
 An `ItemStack` consists of three major parts:
 
-- The `Item` it represents, obtainable through `ItemStack#getItem`.
+- The `Item` it represents, obtainable through `ItemStack#getItem`, or `getItemHolder` for `Holder<Item>`.
 - The stack size, typically between 1 and 64, obtainable through `getCount` and changeable through `setCount` or `shrink`.
 - The [data components][datacomponents] map, where stack-specific data is stored. Obtainable through `getComponents`. The components values are typically accessed and mutated via `has`, `get`, `set`, `update`, and `remove`.
 
@@ -143,14 +169,14 @@ In many situations, for example [recipes], item stacks need to be represented as
 
 ```json5
 {
-  // The item ID. Required.
-  "id": "minecraft:dirt",
-  // The item stack count. Optional, defaults to 1.
-  "count": 4,
-  // A map of data components. Optional, defaults to an empty map.
-  "components": {
-    "minecraft:enchantment_glint_override": true
-  }
+    // The item ID. Required.
+    "id": "minecraft:dirt",
+    // The item stack count [1, 99]. Optional, defaults to 1.
+    "count": 4,
+    // A map of data components. Optional, defaults to an empty map.
+    "components": {
+        "minecraft:enchantment_glint_override": true
+    }
 }
 ```
 
@@ -210,21 +236,22 @@ public static final Supplier<CreativeModeTab> EXAMPLE_TAB = CREATIVE_MODE_TABS.r
 
 It is also possible to implement `ItemLike` on your custom objects. Simply override `#asItem` and you're good to go.
 
+[armor]: armor.md
 [block]: ../blocks/index.md
 [blockstates]: ../blocks/states.md
 [breaking]: ../blocks/index.md#breaking-a-block
 [creativetabs]: #creative-tabs
-[datacomponents]: ./datacomponents.mdx
+[datacomponents]: datacomponents.md
 [datagen]: ../resources/index.md#data-generation
+[enchantment]: ../resources/server/enchantments/index.md#enchantment-costs-and-levels
 [entity]: ../entities/index.md
-[food]: #food
+[food]: consumables.md#food
 [hunger]: https://minecraft.wiki/w/Hunger#Mechanics
 [interactions]: interactions.md
 [loottables]: ../resources/server/loottables/index.md
-[mobeffectinstance]: mobeffects.md#mobeffectinstances
 [modbus]: ../concepts/events.md#event-buses
 [recipes]: ../resources/server/recipes/index.md
 [registering]: ../concepts/registries.md#methods-for-registering
 [resources]: ../resources/index.md#assets
 [sides]: ../concepts/sides.md
-[wikicomponents]: https://minecraft.wiki/w/Data_component_format
+[tools]: tools.md
