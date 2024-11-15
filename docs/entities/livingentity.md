@@ -1,5 +1,5 @@
 ---
-sidebar_position: 4
+sidebar_position: 3
 ---
 # Living Entities, Mobs & Players
 
@@ -128,7 +128,7 @@ Depending on which side the player is on, a different player class is used:
 
 In addition to the [regular ways of spawning][spawning], `Mob`s can also be spawned through some other means. `ArmorStand`s can be spawned through regular means, and `Player`s should not be instantiated yourself.
 
-## Spawn Eggs
+### Spawn Eggs
 
 It is common (though not required) to [register] a spawn egg for mobs. Vanilla uses the `SpawnEggItem` class here, which does some additional setup in the constructor.
 

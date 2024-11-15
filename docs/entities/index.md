@@ -236,13 +236,27 @@ Due to the many different types of entities, there is a complex hierarchy of sub
 
 Direct subclasses of `Entity` include:
 
-- `Projectile`: The base class for various projectiles, including arrows, fireballs, snowballs, fireworks and similar entities. Read more about them in the [Projectiles article][projectile].
+- `Projectile`: The base class for various projectiles, including arrows, fireballs, snowballs, fireworks and similar entities. Read more about them [below][projectile].
 - `LivingEntity`: The base class for anything "living", in the sense of it having things like hit points, equipment, [mob effects][mobeffect] and some other properties. Includes things such as monsters, animals, villagers, and players. Read more about them in the [Living Entities article][livingentity].
 - `VehicleEntity`: The base class for boats and minecarts. While these entities loosely share the concept of hit points with `LivingEntity`s, they do not share many other properties with them and are as such kept separated.
 - `BlockAttachedEntity`: The base class for entities that are immobile and attached to blocks. Includes leash knots, item frames and paintings.
 - `Display`: The base class for the various map-maker display entities.
 
 Several entities are also direct subclasses of `Entity`, simply because there was no other fitting superclass. Prominent examples include `ItemEntity` (dropped items), `LightningBolt`, `ExperienceOrb` and `PrimedTnt`.
+
+### Projectiles
+
+Projectiles are a subgroup of entities. Common to them is that they fly in one direction until they hit something, and that they have an owner assigned to them (e.g. a player or a skeleton would be the owner of an arrow, or a ghast would be the owner of a fireball).
+
+There are three big subgroups of projectiles:
+
+- Arrows: Represented by the `AbstractArrow` superclass, this group covers the different kinds of arrows, as well as the trident. An important common property is that they will not fly straight, but are affected by gravity.
+- Throwables: Represented by the `ThrowableProjectile` superclass, this group covers things like eggs, snowballs and ender pearls. Like arrows, they are affected by gravity, but unlike arrows, they will not inflict damage upon hitting the target. They are also all spawned by using the corresponding item.
+- Hurting Projectiles: Represented by the `AbstractHurtingProjectile` superclass, this group covers wind charges, fireballs and wither skulls. These are damaging projectiles unaffected by gravity.
+
+Other projectiles that directly extend `Projectile` include fireworks, fishing bobbers and shulker bullets.
+
+A new projectile can be created by extending `Projectile` or a fitting subclass, and then overriding the methods required for adding your functionality. Common methods to override would be `#shoot`, which calculates and sets the correct velocity on the projectile; `#onHit`, `#onHitEntity` and `#onHitBlock`, which do exactly what you'd expect; and `#getOwner` and `#setOwner`, which get and set the owning entity, respectively.
 
 [block]: ../blocks/index.md
 [damageevents]: livingentity.md#damage-events
@@ -259,7 +273,7 @@ Several entities are also direct subclasses of `Entity`, simply because there wa
 [mobeffect]: ../items/mobeffects.md
 [mobspawn]: livingentity.md#spawning
 [particle]: ../resources/client/particles.md
-[projectile]: projectile.md
+[projectile]: #projectiles
 [registration]: ../concepts/registries.md#methods-for-registering
 [renderer]: renderer.md
 [spawning]: #spawning-entities
