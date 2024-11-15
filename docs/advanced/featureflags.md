@@ -19,7 +19,7 @@ To create new Feature flags, a JSON file needs to be created and referenced in y
 [[mods]]
     # The file is relative to the output directory of the resources, or the root path inside the jar when compiled
     # The 'resources' directory represents the root output directory of the resources
-    featureFlags="feature_flags.json"
+    featureFlags="META-INF/feature_flags.json"
 ```
 
 The definition of the entry consists of a list of Feature flag names, which will be loaded and registered during game initialization.
