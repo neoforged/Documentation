@@ -68,8 +68,20 @@ The dynamic fluid container model, also called dynamic bucket model after its mo
     "cover_is_mask": false,
     // Optional, defaults to true. Whether to apply the fluid's luminosity to the item model.
     "apply_fluid_luminosity": false,
-  }
+}
 ```
+
+:::note
+If you would like to apply a tint to the fluid texture, you will need to [register an `ItemColor`][tint]. An instance with the fluid tinting logic can be created from `DynamicFluidContainerModel.Colors`:
+
+```java
+// Client-side mod bus event handler
+@SubscribeEvent
+public static void registerItemColorHandlers(RegisterColorHandlersEvent.Item event) {
+    event.register(new DynamicFluidContainerModel.Colors(), EXAMPLE_BUCKET.get(), ...);
+}
+```
+:::
 
 Very often, dynamic fluid container models will directly use the bucket model. This is done by specifying the `neoforge:item_bucket` parent model, like so:
 
@@ -83,7 +95,7 @@ Very often, dynamic fluid container models will directly use the bucket model. T
 }
 ```
 
-To [datagen][modeldatagen] this model, use the custom loader class `DynamicFluidContainerModelBuilder`. Be aware that for legacy support reasons, this class also provides a method to set the `apply_tint` property, which is no longer used.
+To [datagen][modeldatagen] this model, use the custom loader class `DynamicFluidContainerModelBuilder`.
 
 ### Elements Model
 
@@ -240,16 +252,23 @@ public class MyGeometry implements IUnbakedGeometry<MyGeometry> {
     // - The model state. This holds the properties from the blockstate file, e.g. rotations and the uvlock boolean.
     // - The item overrides. This is the code representation of an "overrides" block in an item model.
     @Override
-    public BakedModel bake(IGeometryBakingContext context, ModelBaker baker, Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelState, ItemOverrides overrides) {
+    public BakedModel bake(IGeometryBakingContext context, ModelBaker baker, Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelState, List<ItemOverride> overrides) {
         // See info on the parameters below.
         return new MyDynamicModel(context.useAmbientOcclusion(), context.isGui3d(), context.useBlockLight(),
-            spriteGetter.apply(context.getMaterial("particle")), overrides);
+            spriteGetter.apply(context.getMaterial("particle")), new BakedOverrides(baker, overrides));
     }
 
     // Method responsible for correctly resolving parent properties. Required if this model loads any nested models or reuses the vanilla loader on itself (see below).
     @Override
-    public void resolveParents(Function<ResourceLocation, UnbakedModel> modelGetter, IGeometryBakingContext context) {
-        // UnbakedModel#resolveParents
+    public void resolveDependencies(UnbakedModel.Resolver resolver, IGeometryBakingContext context) {
+        // UnbakedModel#resolveDependencies
+    }
+
+    // Gets the name of the components that can be configured via IGeometryBakingContext
+    // Usually empty unless there are child components
+    @Override
+    public Set<String> getConfigurableComponentNames() {
+        return Set.of();
     }
 }
 
@@ -264,11 +283,11 @@ public class MyDynamicModel implements IDynamicBakedModel {
     private final boolean isGui3d;
     private final boolean usesBlockLight;
     private final TextureAtlasSprite particle;
-    private final ItemOverrides overrides;
+    private final BakedOverrides overrides;
 
     // The constructor does not require any parameters other than the ones for instantiating the final fields.
     // It may specify any additional parameters to store in fields you deem necessary for your model to work.
-    public MyDynamicModel(boolean useAmbientOcclusion, boolean isGui3d, boolean usesBlockLight, TextureAtlasSprite particle, ItemOverrides overrides) {
+    public MyDynamicModel(boolean useAmbientOcclusion, boolean isGui3d, boolean usesBlockLight, TextureAtlasSprite particle, BakedOverrides overrides) {
         this.useAmbientOcclusion = useAmbientOcclusion;
         this.isGui3d = isGui3d;
         this.usesBlockLight = usesBlockLight;
@@ -299,8 +318,8 @@ public class MyDynamicModel implements IDynamicBakedModel {
     }
 
     @Override
-    public ItemOverrides getOverrides() {
-        // Return ItemOverrides.EMPTY when in a block model context.
+    public BakedOverrides overrides() {
+        // Return BakedOverrides.EMPTY when in a block model context.
         return overrides;
     }
 
@@ -415,14 +434,14 @@ public class MyGeometry implements IUnbakedGeometry<MyGeometry> {
     }
 
     @Override
-    public BakedModel bake(IGeometryBakingContext context, ModelBaker baker, Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelState, ItemOverrides overrides) {
-        BakedModel bakedBase = new ElementsModel(base.getElements()).bake(context, baker, spriteGetter, modelState, overrides);
+    public BakedModel bake(IGeometryBakingContext context, ModelBaker baker, Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelState, List<ItemOverride> overrides) {
+        BakedModel bakedBase = this.base.bake(baker, spriteGetter, modelState);
         return new MyDynamicModel(bakedBase, /* other parameters here */);
     }
 
     @Override
-    public void resolveParents(Function<ResourceLocation, UnbakedModel> modelGetter, IGeometryBakingContext context) {
-        base.resolveParents(modelGetter);
+    public void resolveDependencies(UnbakedModel.Resolver resolver, IGeometryBakingContext context) {
+        this.base.resolveDependencies(resolver);
     }
 }
 
@@ -441,7 +460,7 @@ public class MyDynamicModel implements IDynamicBakedModel {
     public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, RandomSource rand, ModelData extraData, @Nullable RenderType renderType) {
         List<BakedQuad> quads = new ArrayList<>();
         // Add the base model's quads. Can also do something different with the quads here, depending on what you need.
-        quads.addAll(base.getQuads(state, side, rand, extraData, renderType));
+        quads.addAll(this.base.getQuads(state, side, rand, extraData, renderType));
         // add other elements to the quads list as needed here
         return quads;
     }
@@ -449,7 +468,7 @@ public class MyDynamicModel implements IDynamicBakedModel {
     // Apply the base model's transforms to our model as well.
     @Override
     public BakedModel applyTransform(ItemDisplayContext transformType, PoseStack poseStack, boolean applyLeftHandTransform) {
-        return base.applyTransform(transformType, poseStack, applyLeftHandTransform);
+        return this.base.applyTransform(transformType, poseStack, applyLeftHandTransform);
     }
 }
 ```
@@ -465,4 +484,5 @@ public class MyDynamicModel implements IDynamicBakedModel {
 [modeldatagen]: datagen.md
 [rendertype]: index.md#render-types
 [sides]: ../../../concepts/sides.md
+[tint]: index.md#tinting
 [transform]: index.md#root-transforms

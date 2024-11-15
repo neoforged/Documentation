@@ -189,5 +189,5 @@ PacketDistributor.sendToAllPlayers(new MyData(...));
 
 See the `PacketDistributor` class for more implementations.
 
-[configuration]: ./configuration-tasks.md
-[streamcodec]: ./streamcodecs.md
+[configuration]: configuration-tasks.md
+[streamcodec]: streamcodecs.md

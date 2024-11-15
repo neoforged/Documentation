@@ -26,48 +26,50 @@ When you right-click anywhere in the world, a number of things happen, depending
         - `PlayerInteractEvent.RightClickBlock` is fired. If the event is canceled, the pipeline ends. You may also specifically deny only block or item usage in this event.
         - `IItemExtension#onItemUseFirst` is called. If it returns a definitive result, the pipeline ends.
         - If the player is not sneaking and the event does not deny block usage, `UseItemOnBlockEvent` is fired. If the event is canceled, the cancellation result is used. Otherwise, `Block#useItemOn` is called. If it returns a definitive result, the pipeline ends.
-        - If the `ItemInteractionResult` is `PASS_TO_DEFAULT_BLOCK_INTERACTION` and the executing hand is the main hand, then `Block#useWithoutItem` is called. If it returns a definitive result, the pipeline ends.
+        - If the `InteractionResult` is `TRY_WITH_EMPTY_HAND` and the executing hand is the main hand, then `Block#useWithoutItem` is called. If it returns a definitive result, the pipeline ends.
         - If the event does not deny item usage, `Item#useOn` is called. If it returns a definitive result, the pipeline ends.
 - `Item#use` is called. If it returns a definitive result, the pipeline ends.
 - The above process runs a second time, this time with the off hand instead of the main hand.
 
-## Result Types
+## `InteractionResult`
 
-There are three different types of results: `InteractionResult`s, `ItemInteractionResult`s, and `InteractionResultHolder<T>`s. `InteractionResult` is used most of the time, only `Item#use` uses `InteractionResultHolder<ItemStack>`, and only `BlockBehaviour#useItemOn` and `CauldronInteraction#interact` use `ItemInteractionResult`.
+`InteractionResult` is a sealed interface that respresents the result of some interaction between an item or an empty hand and some object (e.g. entities, blocks, etc.). The interface is broken into four records, where there are six potential default states.
 
-`InteractionResult` is an enum consisting of five values: `SUCCESS`, `CONSUME`, `CONSUME_PARTIAL`, `PASS` and `FAIL`. Additionally, the method `InteractionResult#sidedSuccess` is available, which returns `SUCCESS` on the server and `CONSUME` on the client.
+First there is `InteractionResult.Success`, which indicates that the operation should be considered sucessful, ending the pipeline. A successful state has two parameters: the `SwingSource`, which indicates whether the entity should swing on the respective [logical side][side]; and the `InteractionResult.ItemContext`, which holds whether the interaction was caused by a held item, and what the held item transformed into after use. The swing source is determined by one of the default states: `InteractionResult#SUCCESS` for client swing, `InteractionResult#SUCCESS_SERVER` for server swing, and `InteractionResult#CONSUME` for no swing. The item context is set via `Success#heldItemTransformedTo` if the `ItemStack` changed, or `withoutItem` if there wasn't an interaction between the held item and the object. The default sets there was an item interaction but no transformation.
 
-`InteractionResultHolder<T>` is a wrapper around `InteractionResult` that adds additional context for `T`. `T` can be anything, but in 99.99 percent of cases, it is an `ItemStack`. `InteractionResultHolder<T>` provides wrapper methods for the enum values (`#success`, `#consume`, `#pass` and `#fail`), as well as `#sidedSuccess`, which calls `#success` on the server and `#consume` on the client.
+```java
+// In some method that returns an interaction result
 
-`ItemInteractionResult` is a parallel to `InteractionResult` specifically for when an item is used on a block. It is an enum of six values: `SUCCESS`, `CONSUME`, `CONSUME_PARTIAL`, `PASS_TO_DEFAULT_BLOCK_INTERACTION`, `SKIP_DEFAULT_BLOCK_INTERACTION`,  and `FAIL`. Each `ItemInteractionResult` can be mapped to a `InteractionResult` via `#result`; `PASS_TO_DEFAULT_BLOCK_INTERACTION`, `SKIP_DEFAULT_BLOCK_INTERACTION` both represent `InteractionResult#PASS`. Similarly, `#sidedSucess` also exists for `ItemInteractionResult`.
+// Item in hand will turn into an apple
+return InteractionResult.SUCCESS.heldItemTransformedTo(new ItemStack(Items.APPLE));
+```
 
-Generally, the different values mean the following:
+:::note
+`SUCCESS` and `SUCCESS_SERVER` should generally never be used in the same method. If the client has enough information to determine when to swing, then `SUCCESS` should always be used. Otherwise, if it relies on server information not present on the client, `SUCCESS_SERVER` should be used.
+:::
 
-- `InteractionResult#sidedSuccess` (or `InteractionResultHolder#sidedSuccess` / `ItemInteractionResult#sidedSucess` where needed) should be used if the operation should be considered successful, and you want the arm to swing. The pipeline will end.
-- `InteractionResult#SUCCESS` (or `InteractionResultHolder#success` / `ItemInteractionResult#SUCCESS` where needed) should be used if the operation should be considered successful, and you want the arm to swing, but only on one side. Only use this if you want to return a different value on the other logical side for whatever reason. The pipeline will end.
-- `InteractionResult#CONSUME` (or `InteractionResultHolder#consume` / `ItemInteractionResult#CONSUME` where needed) should be used if the operation should be considered successful, but you do not want the arm to swing. The pipeline will end.
-- `InteractionResult#CONSUME_PARTIAL` is mostly identical to `InteractionResult#CONSUME`, the only difference is in its usage in [`Item#useOn`][itemuseon].
-    - `ItemInteractionResult#CONSUME_PARTIAL` is similar within its usage in `BlockBehaviour#useItemOn`.
-- `InteractionResult.FAIL` (or `InteractionResultHolder#fail` / `ItemInteractionResult#FAIL` where needed) should be used if the item functionality should be considered failed and no further interaction should be performed. The pipeline will end. This can be used everywhere, but it should be used with care outside of `Item#useOn` and `Item#use`. In many cases, using `InteractionResult.PASS` makes more sense.
-- `InteractionResult.PASS` (or `InteractionResultHolder#pass` where needed) should be used if the operation should be considered neither successful nor failed. The pipeline will continue. This is the default behavior (unless otherwise specified).
-    - `ItemInteractionResult#PASS_TO_DEFAULT_BLOCK_INTERACTION` allows `BlockBehaviour#useWithoutItem` to be called for the mainhand while `#SKIP_DEFAULT_BLOCK_INTERACTION` prevents the method from executing altogether. `#PASS_TO_DEFAULT_BLOCK_INTERACTION` is the default behavior (unless otherwise specified).
+Then there is `InteractionResult.Fail`, implemented by `InteractionResult#FAIL`, which indicates that the operation should be considered failed, allowing no further interaction to occur. The pipeline will end. This can be used anywhere, but it should be used with care outside of `Item#useOn` and `Item#use`. In many cases, using `InteractionResult#PASS` makes more sense.
+
+Finally, there is `InteractionResult.Pass` and `InteractionResult.TryWithEmptyHandInteraction`, implemented by `InteractionResult#PASS` and `InteractionResult#TRY_WITH_EMPTY_HAND` respectively. These records indicate when an operation should be considered neither successful or failed, and the pipeline should continue. `PASS` is the default behavior for all `InteractionResult` methods except `BlockBehaviour#useItemOn`, which returns `TRY_WITH_EMPTY_HAND`. More specifically, if `BlockBehaviour#useItemOn` returns anything but `TRY_WITH_EMPTY_HAND`, `BlockBehaviour#useWithoutItem` will not be called regardless of if the item is in the main hand.
 
 Some methods have special behavior or requirements, which are explained in the below chapters.
 
-## `IItemExtension#onItemUseFirst`
-
-`InteractionResult#sidedSuccess` and `InteractionResult.CONSUME` don't have an effect here. Only `InteractionResult.SUCCESS`, `InteractionResult.FAIL` or `InteractionResult.PASS` should be used here.
-
 ## `Item#useOn`
 
-If you want the operation to be considered successful, but you do not want the arm to swing or an `ITEM_USED` stat point to be awarded, use `InteractionResult.CONSUME_PARTIAL`.
+If you want the operation to be considered successful, but you do not want the arm to swing or an `ITEM_USED` stat point to be awarded, use `InteractionResult#CONSUME` and calling `#withoutItem`.
+
+```java
+// In Item#useOn
+return InteractionResult.CONSUME.withoutItem();
+```
 
 ## `Item#use`
 
-This is the only instance where the return type is `InteractionResultHolder<ItemStack>`. The resulting `ItemStack` in the `InteractionResultHolder<ItemStack>` replaces the `ItemStack` the usage was initiated with, if it has changed.
+This is the only instance where the transformed `ItemStack` is used from a `Success` variant (`SUCCESS`, `SUCCESS_SERVER`, `CONSUME`). The resulting `ItemStack` set by `Success#heldItemTransformedTo` replaces the `ItemStack` the usage was initiated with, if it has changed.
 
-The default implementation of `Item#use` returns `InteractionResultHolder#consume` when the item is edible and the player can eat the item (because they are hungry, or because the item is always edible), `InteractionResultHolder#fail` when the item is edible but the player cannot eat the item, and `InteractionResultHolder#pass` if the item is not edible.
+The default implementation of `Item#use` returns `InteractionResult#CONSUME` when the item is edible (has `DataComponents#CONSUMABLE`) and the player can eat the item (because they are hungry, or because the item is always edible) and `InteractionResult#FAIL` when the item is edible (has `DataComponents#CONSUMABLE`) but the player cannot eat the item. If the item is equippable (has `DataComponents#EQUIPPABLE`), then it returns `InteractionResult#SUCCESS` on swap with the held item replaced by the swaped item (via `heldItemTransformedTo`), or `InteractionResult#FAIL` if the enchantment on the armor has the `EnchantmentEffectComponents#PREVENT_ARMOR_CHANGE` component. Otherwise `InteractionResult#PASS` is returned.
 
-Returning `InteractionResultHolder#fail` here while considering the main hand will prevent offhand behavior from running. If you want offhand behavior to run (which you usually want), return `InteractionResultHolder#pass` instead.
+Returning `InteractionResult#FAIL` here while considering the main hand will prevent offhand behavior from running. If you want offhand behavior to run (which you usually want), return `InteractionResult#PASS` instead.
 
 [itemuseon]: #itemuseon
+[side]: ../concepts/sides.md#the-logical-side

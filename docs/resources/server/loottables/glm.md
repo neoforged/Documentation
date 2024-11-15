@@ -22,13 +22,13 @@ Example usage:
 
 ```json5
 {
-  "replace": false, // must be present
-  "entries": [
-    // represents a loot modifier in data/examplemod/loot_modifiers/example_glm_1.json
-    "examplemod:example_glm_1",
-    "examplemod:example_glm_2"
-    // ...
-  ]
+    "replace": false, // must be present
+    "entries": [
+        // represents a loot modifier in data/examplemod/loot_modifiers/example_glm_1.json
+        "examplemod:example_glm_1",
+        "examplemod:example_glm_2"
+        // ...
+    ]
 }
 ```
 
@@ -48,15 +48,15 @@ An example usage may look something like this:
 
 ```json5
 {
-  // This is the registry name of the loot modifier
-  "type": "examplemod:my_loot_modifier",
-  "conditions": [
-    // Loot table conditions here
-  ],
-  // Extra properties specified by the codec
-  "field1": "somestring",
-  "field2": 10,
-  "field3": "minecraft:dirt"
+    // This is the registry name of the loot modifier
+    "type": "examplemod:my_loot_modifier",
+    "conditions": [
+        // Loot table conditions here
+    ],
+    // Extra properties specified by the codec
+    "field1": "somestring",
+    "field2": 10,
+    "field3": "minecraft:dirt"
 }
 ```
 
@@ -117,7 +117,7 @@ public static final MapCodec<MyLootModifier> CODEC = RecordCodecBuilder.mapCodec
 );
 ```
 
-Then, we register the codec to the registry:
+Then, we [register] the codec to the registry:
 
 ```java
 public static final DeferredRegister<MapCodec<? extends IGlobalLootModifier>> GLOBAL_LOOT_MODIFIER_SERIALIZERS =
@@ -137,9 +137,9 @@ This loot modifier rolls a second loot table and adds the results to the loot ta
 
 ```json5
 {
-  "type": "neoforge:add_table",
-  "conditions": [], // the required loot conditions
-  "table": "minecraft:chests/abandoned_mineshaft" // the second table to roll
+    "type": "neoforge:add_table",
+    "conditions": [], // the required loot conditions
+    "table": "minecraft:chests/abandoned_mineshaft" // the second table to roll
 }
 ```
 
@@ -150,20 +150,20 @@ GLMs can be [datagenned][datagen]. This is done by subclassing `GlobalLootModifi
 ```java
 public class MyGlobalLootModifierProvider extends GlobalLootModifierProvider {
     // Get the PackOutput from GatherDataEvent.
-    public MyGlobalLootModifierProvider(PackOutput output) {
-        super(output, ExampleMod.MOD_ID);
+    public MyGlobalLootModifierProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
+        super(output, registries, ExampleMod.MOD_ID);
     }
     
     @Override
     protected void start() {
         // Call #add to add a new GLM. This also adds a corresponding entry in global_loot_modifiers.json.
-        add(
+        this.add(
                 // The name of the modifier. This will be the file name.
                 "my_loot_modifier_instance",
                 // The loot modifier to add. For the sake of example, we add a weather loot condition.
                 new MyLootModifier(new LootItemCondition[] {
                         WeatherCheck.weather().setRaining(true).build()
-                }, "somestring", 10, Items.DIRT);
+                }, "somestring", 10, Items.DIRT),
                 // A list of data load conditions. Note that these are unrelated to the loot conditions
                 // specified on the modifier itself. For the sake of example, we add a mod loaded condition.
                 // An overload of #add is available that accepts a vararg of conditions instead of a list.
@@ -178,7 +178,10 @@ And like all data providers, you must register the provider to `GatherDataEvent`
 ```java
 @SubscribeEvent
 public static void onGatherData(GatherDataEvent event) {
-    event.getGenerator().addProvider(event.includeServer(), MyGlobalLootModifierProvider::new);
+    event.getGenerator().addProvider(
+        event.includeServer(),
+        output -> new MyGlobalLootModifierProvider(output, event.getLookupProvider())
+    );
 }
 ```
 

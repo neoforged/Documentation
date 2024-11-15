@@ -23,8 +23,8 @@ public class YourMod {
     }
 
     // Heals an entity by half a heart every time they jump.
-    private static void onLivingJump(LivingJumpEvent event) {
-        Entity entity = event.getEntity();
+    private static void onLivingJump(LivingEvent.LivingJumpEvent event) {
+        LivingEntity entity = event.getEntity();
         // Only heal on the server side
         if (!entity.level().isClientSide()) {
             entity.heal(1);
@@ -40,8 +40,8 @@ Alternatively, event handlers can be annotation-driven by creating an event hand
 ```java
 public class EventHandler {
     @SubscribeEvent
-    public void onLivingJump(LivingJumpEvent event) {
-        Entity entity = event.getEntity();
+    public void onLivingJump(LivingEvent.LivingJumpEvent event) {
+        LivingEntity entity = event.getEntity();
         if (!entity.level().isClientSide()) {
             entity.heal(1);
         }
@@ -61,8 +61,8 @@ You can also do it statically. Simply make all event handlers static, and instea
 ```java
 public class EventHandler {
 	@SubscribeEvent
-    public static void onLivingJump(LivingJumpEvent event) {
-        Entity entity = event.getEntity();
+    public static void onLivingJump(LivingEvent.LivingJumpEvent event) {
+        LivingEntity entity = event.getEntity();
         if (!entity.level().isClientSide()) {
             entity.heal(1);
         }
@@ -87,8 +87,8 @@ While not required, it is highly recommended to specify the `modid` parameter in
 @EventBusSubscriber(modid = "yourmodid")
 public class EventHandler {
     @SubscribeEvent
-    public static void onLivingJump(LivingJumpEvent event) {
-        Entity entity = event.getEntity();
+    public static void onLivingJump(LivingEvent.LivingJumpEvent event) {
+        LivingEntity entity = event.getEntity();
         if (!entity.level().isClientSide()) {
             entity.heal(1);
         }
@@ -112,7 +112,7 @@ If you listen to an `abstract` event, your game will crash, as this is never wha
 
 ### Cancellable Events
 
-Some events implement the `ICancellableEvent` interface. These events can be cancelled using `#setCanceled(boolean canceled)`, and the cancellation status can be checked using `#isCanceled()`. If an event is cancelled, other event handlers for this event will not run, and some kind of behavior that is associated with "cancelling" is enabled. For example, cancelling `LivingJumpEvent` will prevent the jump.
+Some events implement the `ICancellableEvent` interface. These events can be cancelled using `#setCanceled(boolean canceled)`, and the cancellation status can be checked using `#isCanceled()`. If an event is cancelled, other event handlers for this event will not run, and some kind of behavior that is associated with "cancelling" is enabled. For example, cancelling `LivingChangeTargetEvent` will prevent the entity's target entity from changing.
 
 Event handlers can opt to explicitly receive cancelled events. This is done by setting the `receiveCanceled` boolean parameter in `IEventBus#addListener` (or `@SubscribeEvent`, depending on your way of attaching the event handlers) to true.
 
@@ -126,7 +126,7 @@ An event with three potential return states has some `set*` method to set the de
 // In some class where the listeners are subscribed to the game event bus
 
 @SubscribeEvent
-public void renderNameTag(RenderNameTagEvent event) {
+public void renderNameTag(RenderNameTagEvent.CanRender event) {
     // Uses TriState to set the return state
     event.setCanRender(TriState.FALSE);
 }
@@ -185,7 +185,7 @@ Then, during `InterModProcessEvent`, you can use `InterModComms#getMessages` to 
 
 Next to the lifecycle events, there are a few miscellaneous events that are fired on the mod event bus, mostly for legacy reasons. These are generally events where you can register, set up, or initialize various things. Most of these events are not ran in parallel in contrast to the lifecycle events. A few examples:
 
-- `RegisterColorHandlersEvent`
+- `RegisterColorHandlersEvent.Block`, `.Item`, `.ColorResolvers` 
 - `ModelEvent.BakingCompleted`
 - `TextureAtlasStitchedEvent`
 
