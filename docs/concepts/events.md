@@ -110,6 +110,19 @@ In order to use the advantages of inheritance, some events do not directly exten
 If you listen to an `abstract` event, your game will crash, as this is never what you want. You always want to listen to one of the subevents instead.
 :::
 
+```mermaid
+graph TD;
+    Event-->BlockEvent;
+    BlockEvent-->BlockDropsEvent;
+    Event-->EntityEvent;
+    EntityEvent-->LivingEvent;
+    LivingEvent-->PlayerEvent;
+    PlayerEvent-->CanPlayerSleepEvent;
+
+    classDef abstract fill:#c99,stroke:#a77,stroke-width:2px,color:#000;
+    class Event,BlockEvent,EntityEvent,LivingEvent,PlayerEvent abstract;
+```
+
 ### Cancellable Events
 
 Some events implement the `ICancellableEvent` interface. These events can be cancelled using `#setCanceled(boolean canceled)`, and the cancellation status can be checked using `#isCanceled()`. If an event is cancelled, other event handlers for this event will not run, and some kind of behavior that is associated with "cancelling" is enabled. For example, cancelling `LivingChangeTargetEvent` will prevent the entity's target entity from changing.
