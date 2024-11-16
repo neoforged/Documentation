@@ -60,48 +60,48 @@ public class MyBlockStateProvider extends BlockStateProvider {
         // The texture must be located at assets/<namespace>/textures/block/<path>.png, where
         // <namespace> and <path> are the block's registry name's namespace and path, respectively.
         // Used by the majority of (full) blocks, such as planks, cobblestone or bricks.
-        simpleBlock(block);
+        this.simpleBlock(block);
         // Overload that accepts a model file to use.
-        simpleBlock(block, exampleModel);
+        this.simpleBlock(block, exampleModel);
         // Overload that accepts one or multiple (vararg) ConfiguredModel objects.
         // See below for more info about ConfiguredModel.
-        simpleBlock(block, ConfiguredModel.builder().build());
+        this.simpleBlock(block, ConfiguredModel.builder().build());
         // Adds an item model file with the block's name, parenting the given model file, for a block item to pick up.
-        simpleBlockItem(block, exampleModel);
+        this.simpleBlockItem(block, exampleModel);
         // Shorthand for calling #simpleBlock() (model file overload) and #simpleBlockItem.
-        simpleBlockWithItem(block, exampleModel);
+        this.simpleBlockWithItem(block, exampleModel);
         
         // Adds a log block model. Requires two textures at assets/<namespace>/textures/block/<path>.png and
         // assets/<namespace>/textures/block/<path>_top.png, referencing the side and top texture, respectively.
         // Note that the block input here is limited to RotatedPillarBlock, which is the class vanilla logs use.
-        logBlock(block);
+        this.logBlock(block);
         // Like #logBlock, but the textures are named <path>_side.png and <path>_end.png instead of
         // <path>.png and <path>_top.png, respectively. Used by quartz pillars and similar blocks.
         // Has an overload that allow you to specify a different texture base name, that is then suffixed
         // with _side and _end as needed, an overload that allows you to specify two resource locations
         // for the side and end textures, and an overload that allows specifying side and end model files.
-        axisBlock(block);
+        this.axisBlock(block);
         // Variants of #logBlock and #axisBlock that additionally allow for render types to be specified.
         // Comes in string and resource location variants for the render type,
         // in all combinations with all variants of #logBlock and #axisBlock.
-        logBlockWithRenderType(block, "minecraft:cutout");
-        axisBlockWithRenderType(block, mcLoc("cutout_mipped"));
+        this.logBlockWithRenderType(block, "minecraft:cutout");
+        this.axisBlockWithRenderType(block, mcLoc("cutout_mipped"));
         
         // Specifies a horizontally-rotatable block model with a side texture, a front texture, and a top texture.
         // The bottom will use the side texture as well. If you don't need the front or top texture,
         // just pass in the side texture twice. Used by e.g. furnaces and similar blocks.
-        horizontalBlock(block, sideTexture, frontTexture, topTexture);
+        this.horizontalBlock(block, sideTexture, frontTexture, topTexture);
         // Specifies a horizontally-rotatable block model with a model file that will be rotated as needed.
         // Has an overload that instead of a model file accepts a Function<BlockState, ModelFile>,
         // allowing for different rotations to use different models. Used e.g. by the stonecutter.
-        horizontalBlock(block, exampleModel);
+        this.horizontalBlock(block, exampleModel);
         // Specifies a horizontally-rotatable block model that is attached to a face, e.g. for buttons or levers.
         // Accounts for placing the block on the ground and on the ceiling, and rotates them accordingly.
         // Like #horizontalBlock, has an overload that accepts a Function<BlockState, ModelFile> instead.
-        horizontalFaceBlock(block, exampleModel);
+        this.horizontalFaceBlock(block, exampleModel);
         // Similar to #horizontalBlock, but for blocks that are rotatable in all directions, including up and down.
         // Again, has an overload that accepts a Function<BlockState, ModelFile> instead.
-        directionalBlock(block, exampleModel);
+        this.directionalBlock(block, exampleModel);
     }
 }
 ```
@@ -180,7 +180,7 @@ ConfiguredModel.Builder<?> builder = ConfiguredModel.builder()
 ConfiguredModel[] model = builder.build();
 
 // Get a variant block state builder.
-VariantBlockStateBuilder variantBuilder = getVariantBuilder(MyBlocksClass.EXAMPLE_BLOCK.get());
+VariantBlockStateBuilder variantBuilder = this.getVariantBuilder(MyBlocksClass.EXAMPLE_BLOCK.get());
 // Create a partial state and set properties on it.
 VariantBlockStateBuilder.PartialBlockstate partialState = variantBuilder.partialState();
 // Add one or multiple models for a partial blockstate. The models are a vararg parameter.
@@ -202,7 +202,7 @@ variantBuilder.forAllStates(state -> {
 });
 
 // Get a multipart block state builder.
-MultiPartBlockStateBuilder multipartBuilder = getMultipartBuilder(MyBlocksClass.EXAMPLE_BLOCK.get());
+MultiPartBlockStateBuilder multipartBuilder = this.getMultipartBuilder(MyBlocksClass.EXAMPLE_BLOCK.get());
 // Add a new part. Starts with .part() and ends with .end().
 multipartBuilder.addPart(multipartBuilder.part()
     // Step one: Build the model. multipartBuilder.part() returns a ConfiguredModel.Builder,
@@ -247,14 +247,14 @@ public class MyItemModelProvider extends ItemModelProvider {
     @Override
     protected void registerModels() {
         // Block items generally use their corresponding block models as parent.
-        withExistingParent(MyItemsClass.EXAMPLE_BLOCK_ITEM.get(), modLoc("block/example_block"));
+        this.withExistingParent(MyItemsClass.EXAMPLE_BLOCK_ITEM.get(), modLoc("block/example_block"));
         // Items generally use a simple parent and one texture. The most common parents are item/generated and item/handheld.
         // In this example, the item texture would be located at assets/examplemod/textures/item/example_item.png.
         // If you want a more complex model, you can use getBuilder() and then work from that, like you would with block models.
-        withExistingParent(MyItemsClass.EXAMPLE_ITEM.get(), mcLoc("item/generated")).texture("layer0", "item/example_item");
+        this.withExistingParent(MyItemsClass.EXAMPLE_ITEM.get(), mcLoc("item/generated")).texture("layer0", "item/example_item");
         // The above line is so common that there is a shortcut for it. Note that the item registry name and the
         // texture path, relative to textures/item, must match.
-        basicItem(MyItemsClass.EXAMPLE_ITEM.get());
+        this.basicItem(MyItemsClass.EXAMPLE_ITEM.get());
     }
 }
 ```

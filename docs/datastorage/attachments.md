@@ -113,6 +113,6 @@ NeoForge.EVENT_BUS.register(PlayerEvent.Clone.class, event -> {
 });
 ```
 
-[saveddata]: ./saveddata.md
-[datacomponents]: ../items/datacomponents.mdx
+[saveddata]: saveddata.md
+[datacomponents]: ../items/datacomponents.md
 [network]: ../networking/index.md

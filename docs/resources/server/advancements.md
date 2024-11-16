@@ -10,21 +10,21 @@ An advancement JSON file may contain the following entries:
 
 - `parent`: The parent advancement ID of this advancement. Circular references will be detected and cause a loading failure. Optional; if absent, this advancement will be considered a root advancement. Root advancements are advancements that have no parent set. They will be the root of their [advancement tree][tree].
 - `display`: The object holding several properties used for display of the advancement in the advancement GUI. Optional; if absent, this advancement will be invisible, but can still be triggered.
-  - `icon`: A [JSON representation of an item stack][itemstackjson].
-  - `text`: A [text component][text] to use as the advancement's title.
-  - `description`: A [text component][text] to use as the advancement's description.
-  - `frame`: The frame type of the advancement. Accepts `challenge`, `goal` and `task`. Optional, defaults to `task`.
-  - `background`: The texture to use for the tree background. This is not relative to the `textures` directory, i.e. the `textures/` folder prefix must be included. Optional, defaults to the missing texture. Only effective on root advancements.
-  - `show_toast`: Whether to show a toast in the top right corner on completion. Optional, defaults to true.
-  - `announce_to_chat`: Whether to announce advancement completion in the chat. Optional, defaults to true.
-  - `hidden`: Whether to hide this advancement and all children from the advancement GUI until it is completed. Has no effect on root advancements themselves, but still hides all of their children. Optional, defaults to false.
+    - `icon`: A [JSON representation of an item stack][itemstackjson].
+    - `text`: A [text component][text] to use as the advancement's title.
+    - `description`: A [text component][text] to use as the advancement's description.
+    - `frame`: The frame type of the advancement. Accepts `challenge`, `goal` and `task`. Optional, defaults to `task`.
+    - `background`: The texture to use for the tree background. This is not relative to the `textures` directory, i.e. the `textures/` folder prefix must be included. Optional, defaults to the missing texture. Only effective on root advancements.
+    - `show_toast`: Whether to show a toast in the top right corner on completion. Optional, defaults to true.
+    - `announce_to_chat`: Whether to announce advancement completion in the chat. Optional, defaults to true.
+    - `hidden`: Whether to hide this advancement and all children from the advancement GUI until it is completed. Has no effect on root advancements themselves, but still hides all of their children. Optional, defaults to false.
 - `criteria`: A map of criteria this advancement should track. Every criterion is identified by its map key. A list of criteria triggers added by Minecraft can be found in the `CriteriaTriggers` class, and the JSON specifications can be found on the [Minecraft Wiki][triggers]. For implementing your own criteria or triggering criteria from code, see below.
 - `requirements`: A list of lists that determine what criteria are required. This is a list of OR lists that are ANDed together, or in other words, every sublist must have at least one criterion matching. Optional, defaults to all criteria being required.
 - `rewards`: An object representing the rewards to grant when this advancement is completed. Optional, all values of the object are also optional.
-  - `experience`: The amount of experience to award to the player.
-  - `recipes`: A list of [recipe] IDs to unlock.
-  - `loot`: A list of [loot tables][loottable] to roll and give to the player.
-  - `function`: A [function] to run. If you want to run multiple functions, create a wrapper function that runs all other functions.
+    - `experience`: The amount of experience to award to the player.
+    - `recipes`: A list of [recipe] IDs to unlock.
+    - `loot`: A list of [loot tables][loottable] to roll and give to the player.
+    - `function`: A [function] to run. If you want to run multiple functions, create a wrapper function that runs all other functions.
 - `sends_telemetry_event`: Determines whether telemetry data should be collected when this advancement is completed or not. Only actually does anything if in the `minecraft` namespace. Optional, defaults to false.
 - `neoforge:conditions`: NeoForge-added. A list of [conditions] that must be passed for the advancement to be loaded. Optional.
 
@@ -158,35 +158,64 @@ Advancements can be [datagenned][datagen] using an `AdvancementProvider`. An `Ad
 Both Minecraft and NeoForge provide a class named `AdvancementProvider`, located at `net.minecraft.data.advancements.AdvancementProvider` and `net.neoforged.neoforge.common.data.AdvancementProvider`, respectively. The NeoForge class is an improvement on the one Minecraft provides, and should always be used in favor of the Minecraft one. The following documentation always assumes usage of the NeoForge `AdvancementProvider` class.
 :::
 
-To start, create a subclass of `AdvancementProvider`:
+To start, create an instance of `AdvancementProvider` within `GatherDataEvent`:
 
 ```java
-public class MyAdvancementProvider extends AdvancementProvider {
-    // Parameters can be obtained from GatherDataEvent.
-    public MyAdvancementProvider(PackOutput output,
-            CompletableFuture<HolderLookup.Provider> lookupProvider, ExistingFileHelper existingFileHelper) {
-        super(output, lookupProvider, existingFileHelper, List.of());
-    }
+@SubscribeEvent
+public static void gatherData(GatherDataEvent event) {
+    DataGenerator generator = event.getGenerator();
+    PackOutput output = generator.getPackOutput();
+    CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
+    ExistingFileHelper existingFileHelper = event.getExistingFileHelper();
+
+    generator.addProvider(
+            event.includeServer(),
+            new AdvancementProvider(
+                output, lookupProvider, existingFileHelper,
+                // Add generators here
+                List.of(...)
+            )
+    );
+
+     // Other providers
 }
 ```
 
-Now, the next step is to fill the list with our generators. To do so, we add one or more generators as static classes and then add an instance of each of them to the currently empty list in the constructor parameter.
+Now, the next step is to fill the list with our generators. To do so, we can either add generators as classes or lambdas, and then add an instance of each of them to the currently empty list in the constructor parameter.
 
 ```java
-public class MyAdvancementProvider extends AdvancementProvider {
-    public MyAdvancementProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider, ExistingFileHelper existingFileHelper) {
-        // Add an instance of our generator to the list parameter. This can be done as many times as you want.
-        // Having multiple generators is purely for organization, all functionality can be achieved with a single generator.
-        super(output, lookupProvider, existingFileHelper, List.of(new MyAdvancementGenerator()));
-    }
+// Class example
+public class MyAdvancementGenerator extends AdvancementProvider.AdvancementGenerator {
 
-    private static final class MyAdvancementGenerator implements AdvancementProvider.AdvancementGenerator {
-        @Override
-        public void generate(HolderLookup.Provider registries, Consumer<AdvancementHolder> saver, ExistingFileHelper existingFileHelper) {
-            // Generate your advancements here.
-        }
+    @Override
+    public void generate(HolderLookup.Provider registries, Consumer<AdvancementHolder> saver, ExistingFileHelper existingFileHelper) {
+        // Generate your advancements here.
     }
 }
+
+// Method Example
+public class ExampleClass {
+
+    // Matches the parameters provided by AdvancementProvider.AdvancementGenerator#generate
+    public static void generateExampleAdvancements(HolderLookup.Provider registries, Consumer<AdvancementHolder> saver, ExistingFileHelper existingFileHelper) {
+        // Generate your advancements here.
+    }
+}
+
+// In GatherDataEvent
+generator.addProvider(
+    event.includeServer(),
+    new AdvancementProvider(
+        output, lookupProvider, existingFileHelper,
+        // Add generators here
+        List.of(
+            // Add an instance of our generator to the list parameter. This can be done as many times as you want.
+            // Having multiple generators is purely for organization, all functionality can be achieved with a single generator.
+            new MyAdvancementGenerator(),
+            ExampleClass::generateExampleAdvancements
+        )
+    )
+);
 ```
 
 To generate an advancement, you want to use an `Advancement.Builder`:
@@ -233,7 +262,7 @@ builder.rewards(
     // Alternatively, use loot() to create a new builder.
     .addLootTable(ResourceKey.create(Registries.LOOT_TABLE, ResourceLocation.fromNamespaceAndPath("minecraft", "chests/igloo")))
     // Alternatively, use recipe() to create a new builder.
-    .addRecipe(ResourceLocation.fromNamespaceAndPath("minecraft", "iron_ingot"))
+    .addRecipe(ResourceKey.create(Registries.RECIPE, ResourceLocation.fromNamespaceAndPath("minecraft", "iron_ingot")))
     // Alternatively, use function() to create a new builder.
     .runs(ResourceLocation.fromNamespaceAndPath("examplemod", "example_function"))
 );
@@ -248,24 +277,6 @@ builder.requirements(AdvancementRequirements.allOf(List.of("pickup_dirt")));
 // Save the advancement to disk, using the given resource location. This returns an AdvancementHolder,
 // which may be stored in a variable and used as a parent by other advancement builders.
 builder.save(saver, ResourceLocation.fromNamespaceAndPath("examplemod", "example_advancement"), existingFileHelper);
-```
-
-Of course, don't forget to add your provider to the `GatherDataEvent`:
-
-```java
-@SubscribeEvent
-public static void gatherData(GatherDataEvent event) {
-    DataGenerator generator = event.getGenerator();
-    PackOutput output = generator.getPackOutput();
-    CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
-    ExistingFileHelper existingFileHelper = event.getExistingFileHelper();
-
-    // other providers here
-    generator.addProvider(
-            event.includeServer(),
-            new MyAdvancementProvider(output, lookupProvider, existingFileHelper)
-    );
-}
 ```
 
 [codec]: ../../datastorage/codecs.md

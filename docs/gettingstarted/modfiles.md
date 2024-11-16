@@ -108,7 +108,7 @@ modId = "examplemod2"
 | `version`        | string   | `"1"`                        | The version of the mod, preferably in a [variation of Maven versioning][versioning]. When set to `${file.jarVersion}`, it will be replaced with the value of the `Implementation-Version` property in the JAR's manifest (displays as `0.0NONE` in a development environment). | `version="1.20.2-1.0.0"`                                        |
 | `displayName`    | string   | value of `modId`             | The display name of the mod. Used when representing the mod on a screen (e.g., mod list, mod mismatch).                                                                                                                                                                        | `displayName="Example Mod"`                                     |
 | `description`    | string   | `'''MISSING DESCRIPTION'''`  | The description of the mod shown in the mod list screen. It is recommended to use a [multiline literal string][multiline]. This value is also translatable, see [Translating Mod Metadata][i18n] for more info.                                                                | `description='''This is an example.'''`                         |
-| `logoFile`       | string   | _nothing_                    | The name and extension of an image file used on the mods list screen. The logo must be in the root of the JAR or directly in the root of the source set (e.g. `src/main/resources` for the main source set).                                                                   | `logoFile="example_logo.png"`                                   |
+| `logoFile`       | string   | _nothing_                    | The name and extension of an image file used on the mods list screen. The location must be an absolute path starting from the root of the JAR or source set (e.g. `src/main/resources` for the main source set). Valid filename characters are lowercase letters (`a-z`), digits (`0-9`), slashes, (`/`), underscores (`_`), periods (`.`) and hyphens (`-`). The complete character set is `[a-z0-9_-.]`.                                                                  | `logoFile="test/example_logo.png"`                              |
 | `logoBlur`       | boolean  | `true`                       | Whether to use `GL_LINEAR*` (true) or `GL_NEAREST*` (false) to render the `logoFile`. In simpler terms, this means whether the logo should be blurred or not when trying to scale the logo.                                                                                    | `logoBlur=false`                                                |
 | `updateJSONURL`  | string   | _nothing_                    | A URL to a JSON used by the [update checker][update] to make sure the mod you are playing is the latest version.                                                                                                                                                               | `updateJSONURL="https://example.github.io/update_checker.json"` |
 | `features`       | table    | `{}`                         | See [features].                                                                                                                                                                                                                                                                | `features={java_version="[17,)"}`                               |
@@ -118,6 +118,7 @@ modId = "examplemod2"
 | `authors`        | string   | _nothing_                    | The authors of the mod shown on the mod list screen.                                                                                                                                                                                                                           | `authors="Example Person"`                                      |
 | `displayURL`     | string   | _nothing_                    | A URL to the display page of the mod shown on the mod list screen.                                                                                                                                                                                                             | `displayURL="https://neoforged.net/"`                           |
 | `enumExtensions` | string   | _nothing_                    | The file path of a JSON file used for [enum extension][enumextension]                                                                                                                                                                                                          | `enumExtensions="META_INF/enumextensions.json"`                 |
+| `featureFlags`   | string   | _nothing_                    | The file path of a JSON file used for [feature flags][featureflags]                                                                                                                                                                                                            | `featureFlags="feature_flags.json"`                             |
 
 #### Features
 
@@ -232,7 +233,7 @@ An entry in `neoforge.mods.toml` does not need a corresponding `@Mod` annotation
 [multiline]: https://toml.io/en/v1.0.0#string
 [mvr]: https://maven.apache.org/enforcer/enforcer-rules/versionRanges.html
 [neoversioning]: versioning.md#neoforge
-[packaging]: ./structuring.md#packaging
+[packaging]: structuring.md#packaging
 [registration]: ../concepts/registries.md#deferredregister
 [resource]: ../resources/index.md
 [serviceload]: https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/ServiceLoader.html#load(java.lang.Class)
@@ -241,5 +242,6 @@ An entry in `neoforge.mods.toml` does not need a corresponding `@Mod` annotation
 [toml]: https://toml.io/
 [update]: ../misc/updatechecker.md
 [uses]: https://docs.oracle.com/javase/specs/jls/se21/html/jls-7.html#jls-7.7.3
-[versioning]: ./versioning.md
+[versioning]: versioning.md
 [enumextension]: ../advanced/extensibleenums.md
+[featureflags]: ../advanced/featureflags.md

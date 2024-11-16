@@ -25,15 +25,32 @@ Any `SavedData` is loaded and/or attached to a level dynamically. As such, if on
 For example, if a SD was named "example" within the Nether, then a file would be created at `./<level_folder>/DIM-1/data/example.dat` and would be implemented like so:
 
 ```java
-// In some class
-public ExampleSavedData create() {
-  return new ExampleSavedData();
-}
+// In some saved data implementation
+public class ExampleSavedData extends SavedData {
 
-public ExampleSavedData load(CompoundTag tag, HolderLookup.Provider lookupProvider) {
-  ExampleSavedData data = this.create();
-  // Load saved data
-  return data;
+    // Create new instance of saved data
+    public ExampleSavedData create() {
+        return new ExampleSavedData();
+    }
+
+    // Load existing instance of saved data
+    public ExampleSavedData load(CompoundTag tag, HolderLookup.Provider lookupProvider) {
+        ExampleSavedData data = this.create();
+        // Load saved data
+        return data;
+    }
+
+    @Override
+    public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {
+        // Write data to tag
+        return tag;
+    }
+
+    public void foo() {
+        // Change data in saved data
+        // Call set dirty if data changes
+        this.setDirty();
+    }
 }
 
 // In some method within the class

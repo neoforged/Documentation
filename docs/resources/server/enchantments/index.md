@@ -3,7 +3,7 @@ import TabItem from '@theme/TabItem';
 
 # Enchantments
 
-Enchantments are special effects that can be applied to tools and other items. As of 1.21, enchantments are stored on items as [Data Components], are defined in JSON, and are comprised of so-called enchantment effect components. During the game, the enchantments on a particular item are contained within the `DataComponentTypes.ENCHANTMENT` component, in an `ItemEnchantment` instance.
+Enchantments are special effects that can be applied to tools and other items. As of 1.21, enchantments are stored on items as [Data Components], are defined in JSON, and are comprised of so-called enchantment effect components. During the game, the enchantments on a particular item are contained within the `DataComponents.ENCHANTMENTS` component, in an `ItemEnchantments` instance.
 
 A new enchantment can be added by creating a JSON file in your namespace's `enchantment` datapack subfolder. For example, to create an enchantment called `examplemod:example_enchant`, one would create a file `data/examplemod/enchantment/example_enchantment.json`. 
 
@@ -11,85 +11,85 @@ A new enchantment can be added by creating a JSON file in your namespace's `ench
 
 ```json5
 {
-  // The text component that will be used as the in-game name of the enchantment.
-  // Can be a translation key or a literal string. 
-  // Remember to translate this in your lang file if you use a translation key!
-  "description": {
-    "translate": "enchantment.examplemod.enchant_name"
-  },
-  
-  // Which items this enchantment can be applied to.
-  // Can be either an item id, such as "minecraft:trident",
-  // or a list of item ids, such as ["examplemod:red_sword", "examplemod:blue_sword"]
-  // or an item tag, such as "#examplemod:enchantable/enchant_name".
-  // Note that this doesn't cause the enchantment to appear for these items in the enchanting table.
-  "supported_items": "#examplemod:enchantable/enchant_name",
+    // The text component that will be used as the in-game name of the enchantment.
+    // Can be a translation key or a literal string. 
+    // Remember to translate this in your lang file if you use a translation key!
+    "description": {
+        "translate": "enchantment.examplemod.enchant_name"
+    },
+    
+    // Which items this enchantment can be applied to.
+    // Can be either an item id, such as "minecraft:trident",
+    // or a list of item ids, such as ["examplemod:red_sword", "examplemod:blue_sword"]
+    // or an item tag, such as "#examplemod:enchantable/enchant_name".
+    // Note that this doesn't cause the enchantment to appear for these items in the enchanting table.
+    "supported_items": "#examplemod:enchantable/enchant_name",
 
-  // (Optional) Which items this enchantment appears for in the enchanting table.
-  // Can be an item, list of items, or item tag.
-  // If left unspecified, this is the same as `supported_items`.
-  "primary_items": [
-    "examplemod:item_a",
-    "examplemod:item_b"
-  ],
+    // (Optional) Which items this enchantment appears for in the enchanting table.
+    // Can be an item, list of items, or item tag.
+    // If left unspecified, this is the same as `supported_items`.
+    "primary_items": [
+        "examplemod:item_a",
+        "examplemod:item_b"
+    ],
 
-  // (Optional) Which enchantments are incompatible with this one.
-  // Can be an enchantment id, such as "minecraft:sharpness",
-  // or a list of enchantment ids, such as ["minecraft:sharpness", "minecraft:fire_aspect"],
-  // or enchantment tag, such as "#examplemod:exclusive_to_enchant_name".
-  // Incompatible enchantments will not be added to the same item by vanilla mechanics.
-  "exclusive_set": "#examplemod:exclusive_to_enchant_name",
-  
-  // The likelihood that this enchantment will appear in the Enchanting Table. 
-  // Bounded by [1, 1024].
-  "weight": 6,
-  
-  // The maximum level this enchantment is allowed to reach.
-  // Bounded by [1, 255].
-  "max_level": 3,
-  
-  // The maximum cost of this enchantment, measured in "enchanting power". 
-  // This corresponds to, but is not equivalent to, the threshold in levels the player needs to meet to bestow this enchantment.
-  // See below for details.
-  // The actual cost will be between this and the min_cost.
-  "max_cost": {
-    "base": 45,
-    "per_level_above_first": 9
-  },
-  
-  // Specifies the minimum cost of this enchantment; otherwise as above.
-  "min_cost": {
-    "base": 2,
-    "per_level_above_first": 8
-  },
+    // (Optional) Which enchantments are incompatible with this one.
+    // Can be an enchantment id, such as "minecraft:sharpness",
+    // or a list of enchantment ids, such as ["minecraft:sharpness", "minecraft:fire_aspect"],
+    // or enchantment tag, such as "#examplemod:exclusive_to_enchant_name".
+    // Incompatible enchantments will not be added to the same item by vanilla mechanics.
+    "exclusive_set": "#examplemod:exclusive_to_enchant_name",
+    
+    // The likelihood that this enchantment will appear in the Enchanting Table. 
+    // Bounded by [1, 1024].
+    "weight": 6,
+    
+    // The maximum level this enchantment is allowed to reach.
+    // Bounded by [1, 255].
+    "max_level": 3,
+    
+    // The maximum cost of this enchantment, measured in "enchanting power". 
+    // This corresponds to, but is not equivalent to, the threshold in levels the player needs to meet to bestow this enchantment.
+    // See below for details.
+    // The actual cost will be between this and the min_cost.
+    "max_cost": {
+        "base": 45,
+        "per_level_above_first": 9
+    },
+    
+    // Specifies the minimum cost of this enchantment; otherwise as above.
+    "min_cost": {
+        "base": 2,
+        "per_level_above_first": 8
+    },
 
-  // The cost that this enchantment adds to repairing an item in an anvil in levels. The cost is multiplied by enchantment level.
-  // If an item has a DataComponentTypes.STORED_ENCHANTMENTS component, the cost is halved. In vanilla, this only applies to enchanted books.
-  // Bounded by [1, inf).
-  "anvil_cost": 2,
-  
-  // (Optional) A list of slot groups this enchantment provides effects in. 
-  // A slot group is defined as one of the possible values of the EquipmentSlotGroup enum.
-  // In vanilla, these are: `any`, `hand`, `mainhand`, `offhand`, `armor`, `feet`, `legs`, `chest`, `head`, and  `body`.
-  "slots": [
-    "mainhand"
-  ],
+    // The cost that this enchantment adds to repairing an item in an anvil in levels. The cost is multiplied by enchantment level.
+    // If an item has a DataComponentTypes.STORED_ENCHANTMENTS component, the cost is halved. In vanilla, this only applies to enchanted books.
+    // Bounded by [1, inf).
+    "anvil_cost": 2,
+    
+    // (Optional) A list of slot groups this enchantment provides effects in. 
+    // A slot group is defined as one of the possible values of the EquipmentSlotGroup enum.
+    // In vanilla, these are: `any`, `hand`, `mainhand`, `offhand`, `armor`, `feet`, `legs`, `chest`, `head`, and  `body`.
+    "slots": [
+        "mainhand"
+    ],
 
-  // The effects that this enchantment provides as a map of enchantment effect components (read on).
-  "effects": {
-    "examplemod:custom_effect": [
-      {
-        "effect": {
-          "type": "minecraft:add",
-          "value": {
-            "type": "minecraft:linear",
-            "base": 1,
-            "per_level_above_first": 1
-          }
-        }
-      }
-    ]
-  }
+    // The effects that this enchantment provides as a map of enchantment effect components (read on).
+    "effects": {
+        "examplemod:custom_effect": [
+            {
+                "effect": {
+                    "type": "minecraft:add",
+                    "value": {
+                        "type": "minecraft:linear",
+                        "base": 1,
+                        "per_level_above_first": 1
+                    }
+                }
+            }
+        ]
+    }
 }
 ```
 
@@ -134,13 +134,14 @@ Enchantment effect component types must be [registered] to `BuiltInRegistries.EN
 
 ```java
 // In some registration class
-public static final DeferredRegister<DataComponentType<?>> ENCHANTMENT_COMPONENT_TYPES = DeferredRegister.create(BuiltInRegistries.ENCHANTMENT_EFFECT_COMPONENT_TYPE, "examplemod");
+public static final DeferredRegister.DataComponents ENCHANTMENT_COMPONENT_TYPES =
+    DeferredRegister.createDataComponents(BuiltInRegistries.ENCHANTMENT_EFFECT_COMPONENT_TYPE, "examplemod");
 
-public static final DeferredHolder<DataComponentType<?>, DataComponentType<Increment>>> INCREMENT =
-    ENCHANTMENT_COMPONENT_TYPES.register("increment",
-        () -> DataComponentType.<Increment>builder()
-            .persistent(Increment.CODEC)
-            .build());
+public static final Supplier<DataComponentType<Increment>> INCREMENT =
+    ENCHANTMENT_COMPONENT_TYPES.registerComponentType(
+        "increment",
+        builder -> builder.persistent(Increment.CODEC)
+    );
 ```
 
 Now, we can implement some game logic that makes use of this component to alter an integer value:
@@ -165,7 +166,7 @@ int modifiedValue = atomicValue.get();
 // Use the now-modified value elsewhere in your game logic.
 ```
 
-First, we invoke one of the overloads of `EnchantmentHelper#runIterationOnItem`. This function accepts an `EnchantmentHelper.EnchantmentVisitor`, which is a functional interface that accepts an enchantment and its level, and is invoked on all of the enchantments that the given itemstack has (essentially a `BiConsumer<Enchantment, Integer>`).
+First, we invoke one of the overloads of `EnchantmentHelper#runIterationOnItem`. This function accepts an `EnchantmentHelper.EnchantmentVisitor`, which is a functional interface that accepts an enchantment and its level, and is invoked on all of the enchantments that the given itemstack has (essentially a `BiConsumer<Holder<Enchantment>, Integer>`).
 
 To actually perform the adjustment, use the provided `Increment#add` method. Since this is inside of a lambda expression, we need to use a type that can be updated atomically, such as `AtomicInteger`, to modify this value. This also permits multiple `INCREMENT` components to run on the same item and stack their effects, like what happens in vanilla.
 
@@ -179,8 +180,10 @@ Vanilla adds an additional helper method to further streamline the process of ch
 ```java
 // `enchant` is an Enchantment instance.
 // `lootContext` is a LootContext instance.
-Enchantment.applyEffects(
-    enchant.getEffects(EnchantmentEffectComponents.KNOCKBACK), // Or whichever other List<ConditionalEffect<T>> you want
+enchant.applyEffects(
+    // Or whichever other List<ConditionalEffect<T>> you want
+    enchant.getEffects(EnchantmentEffectComponents.KNOCKBACK),
+    // The context to test the conditions against
     lootContext,
     (effectData) -> // Use the effectData (in this example, an EnchantmentValueEffect) however you want.
 );
@@ -192,13 +195,14 @@ Registering a custom `ConditionalEffect`-wrapped enchantment effect component ty
 public static final DeferredHolder<DataComponentType<?>, DataComponentType<ConditionalEffect<Increment>>> CONDITIONAL_INCREMENT =
     ENCHANTMENT_COMPONENT_TYPES.register("conditional_increment",
         () -> DataComponentType.ConditionalEffect<Increment>builder()
-            // The LootContextParamSet needed depends on what the enchantment is supposed to do.
+            // The ContextKeySet needed depends on what the enchantment is supposed to do.
             // This might be one of ENCHANTED_DAMAGE, ENCHANTED_ITEM, ENCHANTED_LOCATION, ENCHANTED_ENTITY, or HIT_BLOCK
             // since all of these bring the enchantment level into context (along with whatever other information is indicated).
             .persistent(ConditionalEffect.codec(Increment.CODEC, LootContextParamSets.ENCHANTED_DAMAGE))
             .build());
 ```
-The parameters to `ConditionalEffect.codec` are the codec for the generic `ConditionalEffect<T>`, followed by some `LootContextParamSets` entry.
+
+The parameters to `ConditionalEffect.codec` are the codec for the generic `ConditionalEffect<T>`, followed by some `ContextKeySet` entry.
 
 ## Enchantment Data Generation
 
@@ -207,7 +211,7 @@ Enchantment JSON files can be created automatically using the [data generation] 
 For more information on how `RegistrySetBuilder` and `DatapackBuiltinEntriesProvider` work, please see the article on [Data Generation for Datapack Registries]. 
 
 <Tabs>
-  <TabItem value="datagen" label="Datagen">
+<TabItem value="datagen" label="Datagen">
 
 ```java
 
@@ -266,60 +270,60 @@ BUILDER.add(
 
 </TabItem>
 
-  <TabItem value="json" label="JSON" default>
+<TabItem value="json" label="JSON" default>
 
 ```json5
 // For more detail on each entry, please check the section above on the enchantment JSON format.
 {
-  // The anvil cost of the enchantment.
-  "anvil_cost": 2,
+    // The anvil cost of the enchantment.
+    "anvil_cost": 2,
 
-  // The text Component that specifies the enchantment's name.
-  "description": "Example Enchantment",
+    // The text Component that specifies the enchantment's name.
+    "description": "Example Enchantment",
 
-  // A map of the effect components associated with this enchantment and their values.
-  "effects": {
-    <effect components>
-  },
+    // A map of the effect components associated with this enchantment and their values.
+    "effects": {
+        // <effect components>
+    },
 
-  // The maximum cost of the enchantment.
-  "max_cost": {
-    "base": 4,
-    "per_level_above_first": 2
-  },
+    // The maximum cost of the enchantment.
+    "max_cost": {
+        "base": 4,
+        "per_level_above_first": 2
+    },
 
-  // The maximum level this enchantment can be.
-  "max_level": 3,
+    // The maximum level this enchantment can be.
+    "max_level": 3,
 
-  // The minimum cost of the enchantment.
-  "min_cost": {
-    "base": 3,
-    "per_level_above_first": 1
-  },
+    // The minimum cost of the enchantment.
+    "min_cost": {
+        "base": 3,
+        "per_level_above_first": 1
+    },
 
-  // A list of EquipmentSlotGroup aliases that this enchantment has effects in.
-  "slots": [
-    "any"
-  ],
+    // A list of EquipmentSlotGroup aliases that this enchantment has effects in.
+    "slots": [
+        "any"
+    ],
 
-  // The set of items that this enchantment can be applied to using an anvil.
-  "supported_items": <supported item list>,
+    // The set of items that this enchantment can be applied to using an anvil.
+    "supported_items": /* <supported item list> */,
 
-  // The weight of this enchantment.
-  "weight": 30
+    // The weight of this enchantment.
+    "weight": 30
 }
 ```
 
 </TabItem>
 </Tabs>
 
-[Data Components]: /docs/items/datacomponents
-[Codec]: /docs/datastorage/codecs
+[Data Components]: ../../../items/datacomponents.md
+[Codec]: ../../../datastorage/codecs.md
 [Enchantment definition Minecraft wiki page]: https://minecraft.wiki/w/Enchantment_definition
-[registered]: /docs/concepts/registries
+[registered]: ../../../concepts/registries.md
 [Predicate]: https://minecraft.wiki/w/Predicate
-[data generation]: /docs/resources/#data-generation
+[data generation]: ../../../resources/index.md#data-generation
 [Data Generation for Datapack Registries]: https://docs.neoforged.net/docs/concepts/registries/#data-generation-for-datapack-registries
 [relevant minecraft wiki page]: https://minecraft.wiki/w/Enchantment_definition#Entity_effects
 [built-in enchantment effect components]: builtin.md
-[LootContext]: /docs/resources/server/loottables/#loot-context
+[LootContext]: ../loottables/index.md#loot-context
