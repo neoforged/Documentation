@@ -14,13 +14,11 @@ import Translate from '@docusaurus/Translate';
 import {
   useActivePlugin,
   useDocVersionSuggestions,
+  useDocsPreferredVersion,
+  useDocsVersion,
   type GlobalVersion,
 } from '@docusaurus/plugin-content-docs/client';
 import {ThemeClassNames} from '@docusaurus/theme-common';
-import {
-  useDocsPreferredVersion,
-  useDocsVersion,
-} from '@docusaurus/theme-common/internal';
 import type {Props} from '@theme/DocVersionBanner';
 import type {
   VersionBanner,
@@ -129,6 +127,8 @@ function DocVersionBannerEnabled({
 
   const getVersionMainDoc = (version: GlobalVersion) =>
     version.docs.find((doc) => doc.id === version.mainDocId)!;
+
+  const res = useDocsPreferredVersion(pluginId);
 
   const {savePreferredVersionName} = useDocsPreferredVersion(pluginId);
 
