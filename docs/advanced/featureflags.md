@@ -159,13 +159,13 @@ Feature packs are a type of pack that not only loads resources and/or data, but 
 
 ```json5
 {
-    "features": [
+    "features": {
         "enabled": [
             // Identifier of a Feature flag to be enabled
             // Must be a valid registered flag
             "examplemod:experimental"
         ]
-    ]
+    }
 }
 ```
 
