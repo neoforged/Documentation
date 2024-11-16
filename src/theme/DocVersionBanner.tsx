@@ -128,8 +128,6 @@ function DocVersionBannerEnabled({
   const getVersionMainDoc = (version: GlobalVersion) =>
     version.docs.find((doc) => doc.id === version.mainDocId)!;
 
-  const res = useDocsPreferredVersion(pluginId);
-
   const {savePreferredVersionName} = useDocsPreferredVersion(pluginId);
 
   const {latestDocSuggestion, latestVersionSuggestion} =
