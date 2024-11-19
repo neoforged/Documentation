@@ -157,15 +157,20 @@ _See also: [Resource Packs](../resources/index.md#assets), [Data Packs](../resou
 
 Feature packs are a type of pack that not only loads resources and/or data, but also has the ability to toggle on a given set of feature flags. These flags are defined in the `pack.mcmeta` JSON file at the root of this pack, which follows the below format:
 
+:::note
+This file differs from the one in your mod's `resources/` directory. This file defines a brand new feature pack and thus must be in its own folder.
+:::
+
 ```json5
 {
-    "features": [
+    "features": {
         "enabled": [
             // Identifier of a Feature flag to be enabled
             // Must be a valid registered flag
             "examplemod:experimental"
         ]
-    ]
+    },
+    "pack": { ... }
 }
 ```
 
