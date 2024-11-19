@@ -19,7 +19,7 @@ To create new Feature flags, a JSON file needs to be created and referenced in y
 [[mods]]
     # The file is relative to the output directory of the resources, or the root path inside the jar when compiled
     # The 'resources' directory represents the root output directory of the resources
-    featureFlags="feature_flags.json"
+    featureFlags="META-INF/feature_flags.json"
 ```
 
 The definition of the entry consists of a list of Feature flag names, which will be loaded and registered during game initialization.
@@ -157,15 +157,20 @@ _See also: [Resource Packs](../resources/index.md#assets), [Data Packs](../resou
 
 Feature packs are a type of pack that not only loads resources and/or data, but also has the ability to toggle on a given set of feature flags. These flags are defined in the `pack.mcmeta` JSON file at the root of this pack, which follows the below format:
 
+:::note
+This file differs from the one in your mod's `resources/` directory. This file defines a brand new feature pack and thus must be in its own folder.
+:::
+
 ```json5
 {
-    "features": [
+    "features": {
         "enabled": [
             // Identifier of a Feature flag to be enabled
             // Must be a valid registered flag
             "examplemod:experimental"
         ]
-    ]
+    },
+    "pack": { ... }
 }
 ```
 

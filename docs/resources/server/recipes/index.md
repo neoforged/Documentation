@@ -169,7 +169,7 @@ public class MyRecipeProvider extends RecipeProvider {
     public static class Runner extends RecipeProvider.Runner {
         // Get the parameters from GatherDataEvent.
         public Runner(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider) {
-            super(output, registries);
+            super(output, lookupProvider);
         }
 
         @Override

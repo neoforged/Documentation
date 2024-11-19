@@ -18,8 +18,8 @@ Now that we can reference it from code, let's specify some properties in the dat
 ```json5
 {
     // The death message id of the damage type. The full death message translation key will be
-    // "death.examplemod.example" (with swapped-out mod ids and names).
-    "message_id": "example",
+    // "death.attack.examplemod.example" (with swapped-out mod id and name).
+    "message_id": "examplemod.example",
     // Whether this damage type's damage amount scales with difficulty or not. Valid vanilla values are:
     // - "never": The damage value remains the same on any difficulty. Common for player-caused damage types.
     // - "when_caused_by_living_non_player": The damage value is scaled if the entity is caused by a
