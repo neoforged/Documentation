@@ -25,12 +25,12 @@ To get started, create an `EntityDataAccessor` in your entity class:
 public class MyEntity extends Entity {
     // The generic type must match the one of the second parameter below.
     public static final EntityDataAccessor<Integer> MY_DATA =
-            SynchedEntityData.defineId(
-                    // The class of the entity.
-                    MyEntity.class,
-                    // The entity data accessor type.
-                    EntityDataSerializers.INT
-            );
+        SynchedEntityData.defineId(
+            // The class of the entity.
+            MyEntity.class,
+            // The entity data accessor type.
+            EntityDataSerializers.INT
+        );
 }
 ```
 

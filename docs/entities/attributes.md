@@ -179,7 +179,7 @@ If needed, you can also add your own attributes. Like many other systems, attrib
 
 ```java
 public static final DeferredRegister<Attribute> ATTRIBUTES = DeferredRegister.create(
-        BuiltInRegistries.ATTRIBUTE, "yourmodid");
+    BuiltInRegistries.ATTRIBUTE, "yourmodid");
 ```
 
 For the attributes themselves, there are three classes you can choose from:

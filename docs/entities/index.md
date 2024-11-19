@@ -23,52 +23,52 @@ Let's create our `EntityType` registry and register an `EntityType` for it, assu
 
 ```java
 public static final DeferredRegister<EntityType<?>> ENTITY_TYPES =
-        DeferredRegister.create(Registries.ENTITY_TYPE, ExampleMod.MOD_ID);
+    DeferredRegister.create(Registries.ENTITY_TYPE, ExampleMod.MOD_ID);
 
 public static final Supplier<EntityType<MyEntity>> MY_ENTITY = ENTITY_TYPES.register(
-        "my_entity",
-        // The entity type, created using a builder.
-        () -> EntityType.Builder.of(
-                // An EntityType.EntityFactory<T>, where T is the entity class used - MyEntity in this case.
-                // You can think of it as a BiFunction<EntityType<T>, Level, T>.
-                // This is commonly a reference to the entity constructor.
-                MyEntity::new,
-                // The MobCategory our entity uses. This is mainly relevant for spawning.
-                // See below for more information.
-                MobCategory.MISC
-        )
-        // The width and height, in blocks. The width is used in both horizontal directions.
-        // This also means that non-square footprints are not supported. Default is 0.6f and 1.8f.
-        .sized(1.0f, 1.0f)
-        // The spawn dimensions. This is used by mobs that spawn in varying sizes.
-        // In vanilla, these are only slimes and magma cubes, both of which use 4.0f.
-        .spawnDimensionsScale(4.0f)
-        // The eye height, in blocks from the bottom of the size. Defaults to height * 0.85.
-        // This must be called after #sized to have an effect.
-        .eyeHeight(0.5f)
-        // Disables the entity being summonable via /summon.
-        .noSummon()
-        // Prevents the entity from being saved to disk.
-        .noSave()
-        // Makes the entity fire immune.
-        .fireImmune()
-        // Makes the entity immune to damage from a certain block. Vanilla uses this to make
-        // foxes immune to sweet berry bushes, withers and wither skeletons immune to wither roses,
-        // and polar bears, snow golems and strays immune to powder snow.
-        .immuneTo(Blocks.POWDER_SNOW)
-        // Disables a rule in the spawn handler that limits the distance at which entities can spawn.
-        // This means that no matter the distance to the player, this entity can spawn.
-        // Vanilla enables this for pillagers and shulkers.
-        .canSpawnFarFromPlayer()
-        // The range in which the entity is kept loaded by the client, in chunks.
-        // Vanilla values for this vary, but it's often something around 8 or 10. Defaults to 5.
-        .clientTrackingRange(8)
-        // How often update packets are sent for this entity, in once every x ticks. This is set to higher values
-        // for entities that have predictable movement patterns, for example projectiles. Defaults to 3.
-        .updateInterval(10)
-        // Build the entity type. The parameter is a string used for datafixing; mods generally
-        // do not utilize this and can safely pass null here instead.
-        .build(null)
+    "my_entity",
+    // The entity type, created using a builder.
+    () -> EntityType.Builder.of(
+        // An EntityType.EntityFactory<T>, where T is the entity class used - MyEntity in this case.
+        // You can think of it as a BiFunction<EntityType<T>, Level, T>.
+        // This is commonly a reference to the entity constructor.
+        MyEntity::new,
+        // The MobCategory our entity uses. This is mainly relevant for spawning.
+        // See below for more information.
+        MobCategory.MISC
+    )
+    // The width and height, in blocks. The width is used in both horizontal directions.
+    // This also means that non-square footprints are not supported. Default is 0.6f and 1.8f.
+    .sized(1.0f, 1.0f)
+    // The spawn dimensions. This is used by mobs that spawn in varying sizes.
+    // In vanilla, these are only slimes and magma cubes, both of which use 4.0f.
+    .spawnDimensionsScale(4.0f)
+    // The eye height, in blocks from the bottom of the size. Defaults to height * 0.85.
+    // This must be called after #sized to have an effect.
+    .eyeHeight(0.5f)
+    // Disables the entity being summonable via /summon.
+    .noSummon()
+    // Prevents the entity from being saved to disk.
+    .noSave()
+    // Makes the entity fire immune.
+    .fireImmune()
+    // Makes the entity immune to damage from a certain block. Vanilla uses this to make
+    // foxes immune to sweet berry bushes, withers and wither skeletons immune to wither roses,
+    // and polar bears, snow golems and strays immune to powder snow.
+    .immuneTo(Blocks.POWDER_SNOW)
+    // Disables a rule in the spawn handler that limits the distance at which entities can spawn.
+    // This means that no matter the distance to the player, this entity can spawn.
+    // Vanilla enables this for pillagers and shulkers.
+    .canSpawnFarFromPlayer()
+    // The range in which the entity is kept loaded by the client, in chunks.
+    // Vanilla values for this vary, but it's often something around 8 or 10. Defaults to 5.
+    .clientTrackingRange(8)
+    // How often update packets are sent for this entity, in once every x ticks. This is set to higher values
+    // for entities that have predictable movement patterns, for example projectiles. Defaults to 3.
+    .updateInterval(10)
+    // Build the entity type. The parameter is a string used for datafixing; mods generally
+    // do not utilize this and can safely pass null here instead.
+    .build(null)
 );
 ```
 
@@ -177,11 +177,11 @@ It is also possible to modify damage done to entities that do not belong to you,
 Quite often, you will want your entity to do something (e.g. move) every tick. This logic is split across several methods:
 
 - `#tick`: This is the central tick method, and the one you will want to override in 99% of cases.
-  - By default, this forwards to `#baseTick`, however this is overridden by almost every subclass.
+    - By default, this forwards to `#baseTick`, however this is overridden by almost every subclass.
 - `#baseTick`: This method handles updating some values common to all entities, including the "on fire" state, freezing from powder snow, the swimming state, and passing through portals.
-  - By default, `Entity#tick` will forward to this method.
+    - By default, `Entity#tick` will forward to this method.
 - `#rideTick`: This method is called for passengers of other entities, for example for players riding horses, or any entity that rides another entity due to use of the `/ride` command.
-  - By default, this does some checks and then calls `#tick`. Skeletons and players override this method for special handling of riding entities.
+    - By default, this does some checks and then calls `#tick`. Skeletons and players override this method for special handling of riding entities.
 
 Additionally, the entity has a field called `tickCount`, which is the time, in ticks, that the entity has existed in the level, and a boolean field named `firstTick`, which should be self-explanatory. For example, if you wanted to [spawn a particle][particle] every 5 ticks, you could use the following code:
 

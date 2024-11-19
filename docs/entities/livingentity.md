@@ -60,11 +60,11 @@ public static void decreaseArmor(LivingIncomingDamageEvent event) {
     if (event.getEntity() instanceof Player) {
         // Add our reduction modifier callback.
         event.getDamageContainer().addModifier(
-                // The reduction to target. See the DamageContainer.Reduction enum for possible values.
-                DamageContainer.Reduction.ARMOR,
-                // The modification to perform. Gets the damage container and the base reduction as inputs,
-                // and outputs the new reduction. Both input and output reductions are floats.
-                (container, baseReduction) -> baseReduction * 0.5f
+            // The reduction to target. See the DamageContainer.Reduction enum for possible values.
+            DamageContainer.Reduction.ARMOR,
+            // The modification to perform. Gets the damage container and the base reduction as inputs,
+            // and outputs the new reduction. Both input and output reductions are floats.
+            (container, baseReduction) -> baseReduction * 0.5f
         );
     }
 }
@@ -119,10 +119,10 @@ Some other classes also extend `Mob` directly. These include `AmbientCreature` w
 Depending on which side the player is on, a different player class is used:
 
 - `ServerPlayer`: This class is used to represent players on the [logical server][logicalsides].
-  - `FakePlayer`: This is a special subclass of `ServerPlayer` designed to be used as a mock for a player, for non-player mechanisms that need a player context.
+    - `FakePlayer`: This is a special subclass of `ServerPlayer` designed to be used as a mock for a player, for non-player mechanisms that need a player context.
 - `AbstractClientPlayer`: This class is used as a base for the two client players, both used to represent players on the [logical client][logicalsides].
-  - `LocalPlayer`: This class is used to represent the player currently running the game.
-  - `RemotePlayer`: This class is used to represent other players that the `LocalPlayer` may encounter during multiplayer. `RemotePlayer`s do not exist in singleplayer contexts.
+    - `LocalPlayer`: This class is used to represent the player currently running the game.
+    - `RemotePlayer`: This class is used to represent other players that the `LocalPlayer` may encounter during multiplayer. `RemotePlayer`s do not exist in singleplayer contexts.
 
 ## Spawning
 
