@@ -82,8 +82,29 @@ Sometimes, there may be generic bounds errors with the entity type and the entit
 
 ### `MobCategory`
 
+_See also [Natural Spawning][mobspawn]._
+
+An entity's `MobCategory` determines some properties for the entity, which are related to [spawning and despawning][mobspawn]. Vanilla adds a total of eight `MobCategory`s by default:
+
+| Name                         | Spawn Cap | Examples                                                                                                                       |
+|------------------------------|-----------|--------------------------------------------------------------------------------------------------------------------------------|
+| `MONSTER`                    | 70        | Various monsters                                                                                                               |
+| `CREATURE`                   | 10        | Various animals                                                                                                                |
+| `AMBIENT`                    | 15        | Bats                                                                                                                           |
+| `AXOLOTS`                    | 5         | Axolotls                                                                                                                       |
+| `UNDERGROUND_WATER_CREATURE` | 5         | Glow Squids                                                                                                                    |
+| `WATER_CREATURE`             | 5         | Squids, Dolphins                                                                                                               |
+| `WATER_AMBIENT`              | 20        | Fish                                                                                                                           |
+| `MISC`                       | N/A       | All non-living entities, e.g. projectiles; using this `MobCategory` will make the entity unable to be spawned naturally at all |
+
+There are also some other properties that are only set on one or two `MobCategory`s each:
+
+- `isFriendly`: Set to false for `MONSTER`, and true for all others.
+- `isPersistent`: Set to true for `CREATURE` and `MISC`, and false for all others.
+- `despawnDistance`: Set to 64 for `WATER_AMBIENT`, and 128 for all others.
+
 :::info
-This section is a work in progress.
+`MobCategory` is an [extensible enum][extenum], meaning that you can add custom entries to it. If you do so, you will also have to add some spawning mechanism for entities of this custom `MobCategory`.
 :::
 
 ## The Entity Class
@@ -263,6 +284,7 @@ A new projectile can be created by extending `Projectile` or a fitting subclass,
 [damagesource]: ../resources/server/damagetypes.md#creating-and-using-damage-sources
 [data]: data.md
 [entity]: #the-entity-class
+[extenum]: ../advanced/extensibleenums.md
 [hierarchy]: #entity-class-hierarchy
 [hitresult]: ../items/interactions.md#hitresults
 [item]: ../items/index.md

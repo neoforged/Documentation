@@ -151,7 +151,13 @@ As an item like any other, the item should be added to a [creative tab][creative
 
 ### Natural Spawning
 
-_See [Worldgen/Biome Modifers/Add Spawns][addspawns] and [Worldgen/Biome Modifers/Add Spawn Costs][addspawncosts]._
+_See also [Entities/`MobCategory`][mobcategory], [Worldgen/Biome Modifers/Add Spawns][addspawns], [Worldgen/Biome Modifers/Add Spawn Costs][addspawncosts]; and [Spawn Cycle][spawncycle] on the [Minecraft Wiki][mcwiki]._
+
+Natural spawning is performed every tick for entities where `MobCategory#isFriendly()` is true, and every 400 ticks (= 20 seconds) for entities where `MobCategory#isFriendly()` is false. If `MobCategory#isPersistent()` returns true, this process additionally also happens on chunk generation.
+
+For each chunk and mob category, it is checked whether there are less than `MobCategory#getMaxInstancesPerChunk() * loadedChunks / 289` in the world. Additionally, for each chunk, it is required that there are less than `MobCategory#getMaxInstancesPerChunk()` entities of that `MobCategory` near at least one player (near means that the distance between mob and player <= 128) for spawning of that `MobCategory` to occur.
+
+If the conditions are met, an entry is randomly chosen from the relevant biome's spawn data, and spawning occurs if a suitable position can be found. There are at most three attempts to find a random position; if no position can be found, no spawning will occur.
 
 ## AI and Navigation
 
@@ -189,10 +195,13 @@ This section is a work in progress.
 [entities]: index.md
 [hurt]: index.md#damaging-entities
 [logicalsides]: ../concepts/sides.md#the-logical-side
+[mcwiki]: https://minecraft.wiki
+[mobcategory]: index.md#mobcategory
 [mobeffects]: ../items/mobeffects.md
 [model]: ../resources/client/models/index.md
 [priority]: ../concepts/events.md#priority
 [register]: ../concepts/registries.md
+[spawncycle]: https://minecraft.wiki/w/Mob_spawning#Spawn_cycle
 [spawning]: index.md#spawning-entities
 [tags]: ../resources/server/tags.md
 [translation]: ../resources/client/i18n.md

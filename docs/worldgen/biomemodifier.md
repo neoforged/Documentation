@@ -204,6 +204,8 @@ BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
 
 ### Add Spawns
 
+_See also [Living Entities/Natural Spawning][spawning]._
+
 This biome modifier type adds entity spawns to biomes. The modifier takes in the biome id or tag of the biomes the entity spawns are added to, and the `SpawnerData` of the entities to add. Each `SpawnerData` contains the entity id, the spawn weight, and the minimum/maximum number of entities to spawn at a given time.
 
 :::note
@@ -710,8 +712,9 @@ protected void addTags(HolderLookup.Provider registries) {
 }
 ```
 
-[datareg]: ../concepts/registries.md#datapack-registries
-[staticreg]: ../concepts/registries.md#methods-for-registering
-[datapacks]: ../resources/index.md#data
 [datagen]: ../resources/index.md#data-generation
 [datapackdatagen]: ../concepts/registries#data-generation-for-datapack-registries
+[datapacks]: ../resources/index.md#data
+[datareg]: ../concepts/registries.md#datapack-registries
+[spawning]: ../entities/livingentity.md#natural-spawning
+[staticreg]: ../concepts/registries.md#methods-for-registering
