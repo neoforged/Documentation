@@ -247,6 +247,8 @@ If you want to do the picking (i.e. ray casting) yourself, you can call `Entity#
 
 ### Entity Attachments
 
+_Not to be confused with [Data Attachments][dataattachments]._
+
 :::info
 This section is a work in progress.
 :::
@@ -283,6 +285,7 @@ A new projectile can be created by extending `Projectile` or a fitting subclass,
 [damageevents]: livingentity.md#damage-events
 [damagesource]: ../resources/server/damagetypes.md#creating-and-using-damage-sources
 [data]: data.md
+[dataattachments]: ../datastorage/attachments.md
 [entity]: #the-entity-class
 [extenum]: ../advanced/extensibleenums.md
 [hierarchy]: #entity-class-hierarchy

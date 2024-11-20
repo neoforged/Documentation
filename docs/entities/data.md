@@ -78,10 +78,15 @@ In some cases, there is custom data needed for your entity on the client when it
 
 Additionally, you can send your own packets upon spawning. To do so, override `IEntityExtension#sendPairingData` and send your packets there like any other packet. Please refer to the [Networking articles][networking] for more information.
 
+## Data Attachments
+
+Entities have been patched to extend `AttachmentHolder` and as such support data storage via [data attachments][attachment]. Please see the linked article for more information.
+
 ## Custom Network Messages
 
 Of course, you can also always opt to use a custom packet to send additional information when needed. Please refer to the [Networking articles][networking] for more information.
 
+[attachment]: ../datastorage/attachments.md
 [nbt]: ../datastorage/nbt.md
 [networking]: ../networking/index.md
 [registration]: ../concepts/registries.md#methods-for-registering
