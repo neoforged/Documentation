@@ -153,9 +153,9 @@ As an item like any other, the item should be added to a [creative tab][creative
 
 _See also [Entities/`MobCategory`][mobcategory], [Worldgen/Biome Modifers/Add Spawns][addspawns], [Worldgen/Biome Modifers/Add Spawn Costs][addspawncosts]; and [Spawn Cycle][spawncycle] on the [Minecraft Wiki][mcwiki]._
 
-Natural spawning is performed every tick for entities where `MobCategory#isFriendly()` is true, and every 400 ticks (= 20 seconds) for entities where `MobCategory#isFriendly()` is false. If `MobCategory#isPersistent()` returns true, this process additionally also happens on chunk generation.
+Natural spawning is performed every tick for entities where `MobCategory#isFriendly()` is true, and every 400 ticks (\= 20 seconds) for entities where `MobCategory#isFriendly()` is false. If `MobCategory#isPersistent()` returns true, this process additionally also happens on chunk generation.
 
-For each chunk and mob category, it is checked whether there are less than `MobCategory#getMaxInstancesPerChunk() * loadedChunks / 289` in the world. Additionally, for each chunk, it is required that there are less than `MobCategory#getMaxInstancesPerChunk()` entities of that `MobCategory` near at least one player (near means that the distance between mob and player <= 128) for spawning of that `MobCategory` to occur.
+For each chunk and mob category, it is checked whether there are less than `MobCategory#getMaxInstancesPerChunk() * loadedChunks / 289` in the world. Additionally, for each chunk, it is required that there are less than `MobCategory#getMaxInstancesPerChunk()` entities of that `MobCategory` near at least one player (near means that the distance between mob and player \<\= 128) for spawning of that `MobCategory` to occur.
 
 If the conditions are met, an entry is randomly chosen from the relevant biome's spawn data, and spawning occurs if a suitable position can be found. There are at most three attempts to find a random position; if no position can be found, no spawning will occur.
 
