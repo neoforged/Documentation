@@ -264,7 +264,7 @@ Be aware that menus that directly interface with `Container`s must `#copy()` the
 
 ## `Container`s on `Entity`s
 
-`Container`s on `Entity`s are finicky: whether an entity has a container or not cannot be universally determined. It all depends on what entity you are handling, and as such can require a lot of special-casing.
+`Container`s on [`Entity`s][entity] are finicky: whether an entity has a container or not cannot be universally determined. It all depends on what entity you are handling, and as such can require a lot of special-casing.
 
 If you are creating an entity yourself, there is nothing stopping you from implementing `Container` on it directly, though be aware that you will not be able to use superclasses such as `SimpleContainer` (since `Entity` is the superclass).
 
@@ -307,6 +307,7 @@ When iterating over the inventory contents, it is recommended to iterate over `i
 [blockentity]: index.md
 [component]: ../resources/client/i18n.md#components
 [datacomponent]: ../items/datacomponents.md
+[entity]: ../entities/index.md
 [item]: ../items/index.md
 [itemstack]: ../items/index.md#itemstacks
 [menu]: ../gui/menus.md

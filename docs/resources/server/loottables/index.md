@@ -2,7 +2,7 @@
 
 Loot tables are data files that are used to define randomized loot drops. A loot table can be rolled, returning a (potentially empty) list of item stacks. The output of this process depends on (pseudo-)randomness. Loot tables are located at `data/<mod_id>/loot_table/<name>.json`. For example, the loot table `minecraft:blocks/dirt`, used by the dirt block, is located at `data/minecraft/loot_table/blocks/dirt.json`.
 
-Minecraft uses loot tables at various points in the game, including block drops, entity drops, chest loot, fishing loot, and many others. How a loot table is referenced depends on the context:
+Minecraft uses loot tables at various points in the game, including [block] drops, [entity] drops, chest loot, fishing loot, and many others. How a loot table is referenced depends on the context:
 
 - Every block will, by default, receive an associated loot table, located at `<block_namespace>:blocks/<block_name>`. This can be disabled by calling `#noLootTable` on the block's `Properties`, resulting in no loot table being created and the block dropping nothing; this is mainly done by air-like or technical blocks.
 - Every entity that does not call `EntityType.Builder#noLootTable` (which is typically entities in `MobCategory#MISC`) will, by default, receive an associated loot table, located at `<entity_namespace>:entities/<entity_name>`. This can be changed by overriding `#getLootTable`. For example, sheep use this to roll different loot tables depending on their wool color.
@@ -416,6 +416,7 @@ new LootTableProvider(output, Set.of(), List.of(new SubProviderEntry(
 
 [advancement]: ../advancements.md
 [binomial]: https://en.wikipedia.org/wiki/Binomial_distribution
+[block]: ../../../blocks/index.md
 [conditions]: ../conditions.md
 [context]: #loot-context
 [customentry]: custom.md#custom-loot-entry-types
@@ -423,6 +424,7 @@ new LootTableProvider(output, Set.of(), List.of(new SubProviderEntry(
 [customnumber]: custom.md#custom-number-providers
 [damagesource]: ../damagetypes.md#creating-and-using-damage-sources
 [datagen]: ../../index.md#data-generation
+[entity]: ../../../entities/index.md
 [entry]: #loot-entry
 [glm]: glm.md
 [lootcondition]: lootconditions

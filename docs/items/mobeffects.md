@@ -3,7 +3,7 @@ sidebar_position: 6
 ---
 # Mob Effects & Potions
 
-Status effects, sometimes known as potion effects and referred to in-code as `MobEffect`s, are effects that influence an entity every tick. This article explains how to use them, what the difference between an effect and a potion is, and how to add your own.
+Status effects, sometimes known as potion effects and referred to in-code as `MobEffect`s, are effects that influence a [`LivingEntity`][livingentity] every tick. This article explains how to use them, what the difference between an effect and a potion is, and how to add your own.
 
 ## Terminology
 
@@ -201,5 +201,6 @@ public static void registerBrewingRecipes(RegisterBrewingRecipesEvent event) {
 [events]: ../concepts/events.md
 [item]: index.md
 [itemstack]: index.md#itemstacks
+[livingentity]: ../entities/livingentity.md
 [registration]: ../concepts/registries.md#methods-for-registering
 [uuidgen]: https://www.uuidgenerator.net/version4

@@ -38,7 +38,7 @@ Minecraft only ever has one root advancement per tab, and always calls the root 
 
 ## Criteria Triggers
 
-To unlock an advancement, the specified criteria must be met. Criteria are tracked through triggers, which are executed from code when the associated action happens (e.g. the `player_killed_entity` trigger executes when the player kills the specified entity). Any time an advancement is loaded into the game, the criteria defined are read and added as listeners to the trigger. When a trigger is executed, all advancements that have a listener for the corresponding criterion are rechecked for completion. If the advancement is completed, the listeners are removed.
+To unlock an advancement, the specified criteria must be met. Criteria are tracked through triggers, which are executed from code when the associated action happens (e.g. the `player_killed_entity` trigger executes when the player kills the specified [entity]). Any time an advancement is loaded into the game, the criteria defined are read and added as listeners to the trigger. When a trigger is executed, all advancements that have a listener for the corresponding criterion are rechecked for completion. If the advancement is completed, the listeners are removed.
 
 Custom criteria triggers are made up of two parts: the trigger, which is activated in code by calling `#trigger`, and the instance which defines the conditions under which the trigger should award the criterion. The trigger extends `SimpleCriterionTrigger<T>` while the instance implements `SimpleCriterionTrigger.SimpleInstance`. The generic value `T` represents the trigger instance type.
 
@@ -282,6 +282,7 @@ builder.save(saver, ResourceLocation.fromNamespaceAndPath("examplemod", "example
 [codec]: ../../datastorage/codecs.md
 [conditions]: conditions.md
 [datagen]: ../index.md#data-generation
+[entity]: ../../entities/index.md
 [function]: https://minecraft.wiki/w/Function_(Java_Edition)
 [itemstackjson]: ../../items/index.md#json-representation
 [loottable]: loottables/index.md

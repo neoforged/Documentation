@@ -1,6 +1,6 @@
 # Damage Types & Damage Sources
 
-A damage type denotes what kind of damage is being applied to an entity - physical damage, fire damage, drowning damage, magic damage, void damage, etc. The distinction into damage types is used for various immunities (e.g. blazes won't take fire damage), enchantments (e.g. blast protection will only protect against explosion damage), and many more use cases.
+A damage type denotes what kind of damage is being applied to an [entity] - physical damage, fire damage, drowning damage, magic damage, void damage, etc. The distinction into damage types is used for various immunities (e.g. blazes won't take fire damage), enchantments (e.g. blast protection will only protect against explosion damage), and many more use cases.
 
 A damage type is a template for a damage source, so to speak. Or in other words, a damage source can be viewed as a damage type instance. Damage types exist as [`ResourceKey`s][rk] in code, but have all of their properties defined in data packs. Damage sources, on the other hand, are created as needed by the game, based off the values in the data pack files. They can hold additional context, for example the attacking entity.
 
@@ -129,6 +129,7 @@ public static void onGatherData(GatherDataEvent event) {
 [datagen]: ../index.md#data-generation
 [dr]: ../../concepts/registries.md#datapack-registries
 [drdatagen]: ../../concepts/registries.md#data-generation-for-datapack-registries
+[entity]: ../../entities/index.md
 [entityhurt]: ../../entities/index.md#damaging-entities
 [extenum]: ../../advanced/extensibleenums.md
 [rk]: ../../misc/resourcelocation.md#resourcekeys
