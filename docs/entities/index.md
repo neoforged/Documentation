@@ -249,9 +249,41 @@ If you want to do the picking (i.e. ray casting) yourself, you can call `Entity#
 
 _Not to be confused with [Data Attachments][dataattachments]._
 
+Entity attachments are used to define visual attachment points for the entity. Using this system, it can be defined where things like passengers or name tags will be displayed relative to the entity itself.
+
+When building the `EntityType`, any amount of attachment points can be set by calling `EntityType.Builder#attach`. This method accepts an `EntityAttachment`, which defines the attachment to consider, and three floats to define the position (x/y/z). The position should be defined relative to where the default value of the attachment would be.
+
+Vanilla defines the following four `EntityAttachment`s:
+
+| Name           | Default                                  | Usages                                                               |
+|----------------|------------------------------------------|----------------------------------------------------------------------|
+| `PASSENGER`    | Center X/top Y/center Z of the hitbox    | Rideable entities, e.g. horses, to define where passengers appear    |
+| `VEHICLE`      | Center X/bottom Y/center Z of the hitbox | All entities, to define where they appear when riding another entity |
+| `NAME_TAG`     | Center X/top Y/center Z of the hitbox    | Define where the name tag of the entity appears, if applicable       |
+| `WARDEN_CHEST` | Center X/center Y/center Z of the hitbox | By wardens, to define where the sonic boom attack originates from    |
+
 :::info
-This section is a work in progress.
+`PASSENGER` and `VEHICLE` are related in that they are used in the same context. First, `PASSENGER` is applied to position the rider. Then, `VEHICLE` is applied on the rider.
 :::
+
+`EntityType.Builder` also has some helpers related to `EntityAttachment`s:
+
+- `#passengerAttachment()`: Used to define `PASSENGER` attachments. Comes in two variants.
+    - One variant accepts a `Vec3...` of attachment points.
+    - The other accepts a `float...`, which forwards to the `Vec3...` variant by transforming each float to a `Vec3` that uses the given float as the y value, and sets x and z to 0.
+- `#vehicleAttachment()`: Used to define a `VEHICLE` attachment. Accepts a `Vec3`.
+- `#ridingOffset()`: Used to define a `VEHICLE` attachment. Accepts a float and forwards to `#vehicleAttachment()` with a `Vec3` that has its x and z values set to 0, and the y value set to the negated value of the passed-in float.
+- `#nameTagOffset()`: Used to define a `NAME_TAG` attachment. Accepts a float, which is used for the y value, with 0 being used for the x and z values.
+
+Alternatively, attachments can be defined yourself by calling `EntityAttachments#builder()` and then calling `#attach()` on that builder, like so:
+
+```java
+// In some EntityType<?> creation
+EntityType.Builder.of(...)
+    // This EntityAttachments will make name tags float half a block above the top end of the entity's hitbox.
+    .attach(EntityAttachment.NAME_TAG, 0, 0.5f, 0)
+    .build();
+```
 
 ## Entity Class Hierarchy
 
