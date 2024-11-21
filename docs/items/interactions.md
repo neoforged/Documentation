@@ -113,7 +113,8 @@ Returning `InteractionResult#FAIL` here while considering the main hand will pre
 - `InputEvent.InteractionKeyMappingTriggered` is fired with the left mouse button and the main hand. If the [event][event] is [canceled][cancel], the pipeline ends.
 - Depending on what you are looking at (using the `HitResult` in `Minecraft.getInstance().hitResult`), different things happen:
     - If you are looking at an [entity] that is within your reach:
-        - If the player is not in creative, the pipeline ends.
+        - If `Entity#isPickable` returns false, the pipeline ends.
+        - If you are not in creative, the pipeline ends.
         - `IEntityExtension#getPickedResult` is called. The resulting `ItemStack` is added to the player's inventory.
             - By default, this method forwards to `Entity#getPickResult`, which can be overridden by modders.
     - If you are looking at a [block] that is within your reach:

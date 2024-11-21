@@ -86,9 +86,13 @@ This event should be pretty self-explanatory. It is fired when armor damage from
 
 This event is called immediately before the damage is done. The `DamageContainer` is fully populated, the final damage amount is available, and the event can no longer be canceled as the attack is considered successful by this point.
 
+At this point, all kinds of modifiers are available, allowing you to finely modify the damage amount. Be aware that things like armor damage are already done by this point.
+
 #### `LivingDamageEvent.Post`
 
 This event is called after the damage has been done, absorption has been reduced, the combat tracker has been updated, and stats and game events have been handled. It is not cancellable, as the attack has already happened. This event would commonly be used for post-attack effects. Note that the event is fired even if the damage amount is zero, so check that value accordingly if needed.
+
+If you are calling this on your own entity, you should consider overriding `ILivingEntityExtension#onDamageTaken()` instead. Unlike `LivingDamageEvent.Post`, this is only called if the damage is greater than zero.
 
 ## Mob Effects
 
@@ -134,7 +138,7 @@ It is common (though not required) to [register] a spawn egg for mobs. This is d
 
 ```java
 // Assume we have a DeferredRegister.Items called ITEMS
-DeferredItem<SpawnEggItem> MY_ENTITY_SPAWN_EGG = ITEMS.register("my_entity_spawn_egg",
+DeferredItem<SpawnEggItem> MY_ENTITY_SPAWN_EGG = ITEMS.registerItem("my_entity_spawn_egg",
     properties -> new SpawnEggItem(
         // The entity type to spawn.
         MY_ENTITY_TYPE.get(),

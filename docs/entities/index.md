@@ -62,6 +62,8 @@ public static final Supplier<EntityType<MyEntity>> MY_ENTITY = ENTITY_TYPES.regi
     .canSpawnFarFromPlayer()
     // The range in which the entity is kept loaded by the client, in chunks.
     // Vanilla values for this vary, but it's often something around 8 or 10. Defaults to 5.
+    // Be aware that if this is greater than the client's chunk view distance,
+    // then that chunk view distance is effectively used here instead.
     .clientTrackingRange(8)
     // How often update packets are sent for this entity, in once every x ticks. This is set to higher values
     // for entities that have predictable movement patterns, for example projectiles. Defaults to 3.
@@ -162,9 +164,11 @@ If we now boot up the game now and enter a world, we have exactly one way of spa
 Obviously, we want to add our entities some other way. The easiest way to do so is through the `LevelWriter#addFreshEntity` method. This method simply accepts an `Entity` instance and adds it to the world, like so:
 
 ```java
-// In some method that has a level available
-MyEntity entity = new MyEntity(level, 100.0, 200.0, 300.0);
-level.addFreshEntity(entity);
+// In some method that has a level available, only on the server
+if (!level.isClientSide()) {
+    MyEntity entity = new MyEntity(level, 100.0, 200.0, 300.0);
+    level.addFreshEntity(entity);
+}
 ```
 
 This will be used for pretty much all non-living entities. Players should obviously not be spawned yourself, and `Mob`s have [their own ways of spawning][mobspawn] (though they can also be added via `#addFreshEntity`).
@@ -233,7 +237,7 @@ public ItemStack getPickResult() {
 }
 ```
 
-Your entity can also be disabled from picking entirely like so:
+Your entity can also be disabled from picking entirely. The primary use case for this would be multipart entities, such as the ender dragon, where the parent entity has picking disabled, but the parts have it enabled again, for finer hitbox tuning. Picking can be disabled like so:
 
 ```java
 @Override
@@ -265,6 +269,8 @@ Vanilla defines the following four `EntityAttachment`s:
 :::info
 `PASSENGER` and `VEHICLE` are related in that they are used in the same context. First, `PASSENGER` is applied to position the rider. Then, `VEHICLE` is applied on the rider.
 :::
+
+Every attachment can be thought of as a mapping from `EntityAttachment` to `List<Vec3>`. The amount of points actually used depends on the consuming system. For example, boats and camels will use two `PASSENGER` points, while entities like horses or minecarts will only use one `PASSENGER` point.
 
 `EntityType.Builder` also has some helpers related to `EntityAttachment`s:
 
@@ -311,7 +317,15 @@ There are three big subgroups of projectiles:
 
 Other projectiles that directly extend `Projectile` include fireworks, fishing bobbers and shulker bullets.
 
-A new projectile can be created by extending `Projectile` or a fitting subclass, and then overriding the methods required for adding your functionality. Common methods to override would be `#shoot`, which calculates and sets the correct velocity on the projectile; `#onHit`, `#onHitEntity` and `#onHitBlock`, which do exactly what you'd expect; and `#getOwner` and `#setOwner`, which get and set the owning entity, respectively.
+A new projectile can be created by extending `Projectile` or a fitting subclass, and then overriding the methods required for adding your functionality. Common methods to override include:
+
+- `#shoot`: Calculates and sets the correct velocity on the projectile.
+- `#onHit`: Called when something is hit.
+    - `#onHitEntity`: Called when that something is an [entity].
+    - `#onHitBlock`: Called when that something is a [block].
+- `#getOwner` and `#setOwner`, which get and set the owning entity, respectively.
+- `#deflect`, which deflects the projectile based on the passed `ProjectileDeflection` enum value.
+- `#onDeflection`, which is called from `#deflect` for any post-deflection behavior.
 
 [block]: ../blocks/index.md
 [damageevents]: livingentity.md#damage-events

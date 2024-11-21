@@ -99,12 +99,20 @@ The `AttributeMap` of an entity can be retrieved by calling `LivingEntity#getAtt
 // Get the attribute map.
 AttributeMap attributes = livingEntity.getAttributes();
 // Get an attribute instance. This may be null if the entity does not have the attribute.
-AttributeInstance instance = attributes.get(Attributes.ARMOR);
+AttributeInstance instance = attributes.getInstance(Attributes.ARMOR);
 // Get the value for an attribute. Will fallback to the default for the entity if needed.
 double value = attributes.getValue(Attributes.ARMOR);
 // Of course, we can also check if an attribute is present to begin with.
 if (attributes.hasAttribute(Attributes.ARMOR)) { ... }
+
+// Alternatively, LivingEntity also offers shortcuts:
+AttributeInstance instance = livingEntity.getAttribute(Attributes.ARMOR);
+double value = livingEntity.getAttributeValue(Attributes.ARMOR);
 ```
+
+:::info
+When handling attributes, you will almost exclusively use `Holder<Attribute>`s instead of `Attribute`s. This is also why with custom attributes (see below), we explicitly store the `Holder<Attribute>`.
+:::
 
 ## Attribute Modifiers
 
@@ -191,7 +199,7 @@ For the attributes themselves, there are three classes you can choose from:
 Using `RangedAttribute` as an example (the other two work similarly), registering an attribute would look like this:
 
 ```java
-public static final Holder<Attribute> MY_ATTRIBUTE = ATTRIBUTES.register("my_attribute", new RangedAttribute(
+public static final Holder<Attribute> MY_ATTRIBUTE = ATTRIBUTES.register("my_attribute", () -> new RangedAttribute(
     // The translation key to use.
     "attributes.yourmodid.my_attribute",
     // The default value.

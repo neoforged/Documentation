@@ -25,8 +25,8 @@ After registering the block, all references to the new `my_block` should use thi
 
 ```java
 level.getBlockState(position) // returns the blockstate placed in the given level (world) at the given position
-        //highlight-next-line
-        .is(MyBlockRegistrationClass.MY_BLOCK);
+    //highlight-next-line
+    .is(MyBlockRegistrationClass.MY_BLOCK);
 ```
 
 This approach also has the convenient effect that `block1 == block2` works and can be used instead of Java's `equals` method (using `equals` still works, of course, but is pointless since it compares by reference anyway).
@@ -69,16 +69,16 @@ So for example, a simple implementation would look something like this:
 ```java
 //BLOCKS is a DeferredRegister.Blocks
 public static final DeferredBlock<Block> MY_BETTER_BLOCK = BLOCKS.register(
-        "my_better_block", 
-        registryName -> new Block(BlockBehaviour.Properties.of()
-                //highlight-start
-                .setId(ResourceKey.create(Registries.BLOCK, registryName))
-                .destroyTime(2.0f)
-                .explosionResistance(10.0f)
-                .sound(SoundType.GRAVEL)
-                .lightLevel(state -> 7)
-                //highlight-end
-        ));
+    "my_better_block", 
+    registryName -> new Block(BlockBehaviour.Properties.of()
+        //highlight-start
+        .setId(ResourceKey.create(Registries.BLOCK, registryName))
+        .destroyTime(2.0f)
+        .explosionResistance(10.0f)
+        .sound(SoundType.GRAVEL)
+        .lightLevel(state -> 7)
+        //highlight-end
+    ));
 ```
 
 For further documentation, see the source code of `BlockBehaviour.Properties`. For more examples, or to look at the values used by Minecraft, have a look at the `Blocks` class.
@@ -104,7 +104,6 @@ If the block subclass only takes in the `BlockBehaviour.Properties`, then `Block
 ```java
 // For some block subclass
 public class SimpleBlock extends Block {
-
     public SimpleBlock(BlockBehavior.Properties properties) {
         // ...
     }
@@ -129,7 +128,6 @@ If the block subclass contains more parameters, then [`RecordCodecBuilder#mapCod
 ```java
 // For some block subclass
 public class ComplexBlock extends Block {
-
     public ComplexBlock(int value, BlockBehavior.Properties properties) {
         // ...
     }
@@ -170,19 +168,19 @@ We already discussed how to create a `DeferredRegister.Blocks` [above], as well 
 public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks("yourmodid");
 
 public static final DeferredBlock<Block> EXAMPLE_BLOCK = BLOCKS.register(
-        "example_block", registryName -> new Block(
-            BlockBehaviour.Properties.of()
-                // The ID must be set on the block
-                .setId(ResourceKey.create(Registries.BLOCK, registryName))
-        )
+    "example_block", registryName -> new Block(
+        BlockBehaviour.Properties.of()
+            // The ID must be set on the block
+            .setId(ResourceKey.create(Registries.BLOCK, registryName))
+    )
 );
 
 // Same as above, except that the block properties are constructed eagerly.
 // setId is also called internally on the properties object.
 public static final DeferredBlock<Block> EXAMPLE_BLOCK = BLOCKS.registerBlock(
-        "example_block",
-        Block::new, // The factory that the properties will be passed into.
-        BlockBehaviour.Properties.of() // The properties to use.
+    "example_block",
+    Block::new, // The factory that the properties will be passed into.
+    BlockBehaviour.Properties.of() // The properties to use.
 );
 ```
 
@@ -190,8 +188,8 @@ If you want to use `Block::new`, you can leave out the factory entirely:
 
 ```java
 public static final DeferredBlock<Block> EXAMPLE_BLOCK = BLOCKS.registerSimpleBlock(
-        "example_block",
-        BlockBehaviour.Properties.of() // The properties to use.
+    "example_block",
+    BlockBehaviour.Properties.of() // The properties to use.
 );
 ```
 
@@ -282,32 +280,32 @@ The following subsections further break down these stages into actual method cal
 
 #### Mining Speed
 
-The mining speed is calculated as f from the block's hardness, the used [tool]'s speed, and several entity [attributes] according to the following rules.
+The mining speed is calculated as f from the block's hardness, the used [tool]'s speed, and several entity [attributes] according to the following rules:
 
 ```java
 // This will return the tool's mining speed, or 1 if the held item is either empty, not a tool,
 // or not applicable for the block being broken.
-float f = item.getDestroySpeed();
+float destroySpeed = item.getDestroySpeed();
 // If we have an applicable tool, add the minecraft:mining_efficiency attribute as an additive modifier.
-if (f > 1) {
-    f += player.getAttributeValue(Attributes.MINING_EFFICIENCY);
+if (destroySpeed > 1) {
+    destroySpeed += player.getAttributeValue(Attributes.MINING_EFFICIENCY);
 }
 // Apply effects from haste, conduit power, and slowness multiplicatively.
-if (player.hasEffect(MobEffects.DIG_SPEED))     { f *= ...; }
-if (player.hasEffect(MobEffects.CONDUIT_POWER)) { f *= ...; }
-if (player.hasEffect(MobEffects.DIG_SLOWDOWN))  { f *= ...; }
+if (player.hasEffect(MobEffects.DIG_SPEED))     { destroySpeed *= ...; }
+if (player.hasEffect(MobEffects.CONDUIT_POWER)) { destroySpeed *= ...; }
+if (player.hasEffect(MobEffects.DIG_SLOWDOWN))  { destroySpeed *= ...; }
 // Add the minecraft:block_break_speed attribute as a multiplicative modifier.
-f *= player.getAttributeValue(Attributes.BLOCK_BREAK_SPEED);
+destroySpeed *= player.getAttributeValue(Attributes.BLOCK_BREAK_SPEED);
 // If the player is underwater, apply the underwater mining speed penalty multiplicatively.
 if (player.isEyeInFluid(FluidTags.WATER)) {
-    f *= player.getAttributeValue(Attributes.SUBMERGED_MINING_SPEED);
+    destroySpeed *= player.getAttributeValue(Attributes.SUBMERGED_MINING_SPEED);
 }
 // If the player is trying to break a block in mid-air, make the player mine 5 times slower.
 if (!player.onGround()) {
-    f /= 5;
+    destroySpeed /= 5;
 }
-f = /* The PlayerEvent.BreakSpeed event is fired here, allowing modders to further modify this value. */;
-return f;
+destroySpeed = /* The PlayerEvent.BreakSpeed event is fired here, allowing modders to further modify this value. */;
+return destroySpeed;
 ```
 
 The exact code for this can be found in `Player#getDigSpeed` for reference.
