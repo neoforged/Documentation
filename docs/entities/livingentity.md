@@ -78,7 +78,7 @@ This event can be used to fully customize shield blocking. This includes introdu
 
 Note that this event is not designed for immunities or attack cancellations that are outside the scope of "shield-like" items.
 
-#### `LivingArmorHurtEvent`
+#### `ArmorHurtEvent`
 
 This event should be pretty self-explanatory. It is fired when armor damage from an attack is calculated, and can be used to modify how much durability damage (if any at all) is done to which armor piece.
 
