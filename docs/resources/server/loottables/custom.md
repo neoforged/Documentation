@@ -274,10 +274,10 @@ public class RandomEnchantmentWithLevelFunction extends LootItemConditionalFunct
 We can then [register][registries] the function type to the registry using the function's codec:
 
 ```java
-public static final DeferredRegister<LootItemFunctionType> LOOT_FUNCTION_TYPES =
+public static final DeferredRegister<LootItemFunctionType<?>> LOOT_FUNCTION_TYPES =
         DeferredRegister.create(Registries.LOOT_FUNCTION_TYPE, ExampleMod.MOD_ID);
 
-public static final Supplier<LootItemFunctionType> RANDOM_ENCHANTMENT_WITH_LEVEL =
+public static final Supplier<LootItemFunctionType<RandomEnchantmentWithLevelFunction>> RANDOM_ENCHANTMENT_WITH_LEVEL =
         LOOT_FUNCTION_TYPES.register("random_enchantment_with_level", () -> new LootItemFunctionType(RandomEnchantmentWithLevelFunction.CODEC));
 ```
 

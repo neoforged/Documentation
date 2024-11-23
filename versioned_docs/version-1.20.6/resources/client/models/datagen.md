@@ -48,7 +48,7 @@ public class MyBlockStateProvider extends BlockStateProvider {
     protected void registerStatesAndModels() {
         // Placeholders, their usages should be replaced with real values. See above for how to use the model builder,
         // and below for the helpers the model builder offers.
-        ModelFile exampleModel = models().withExistingParent("minecraft:block/cobblestone");
+        ModelFile exampleModel = models().withExistingParent("example_model", this.mcLoc("block/cobblestone"));
         Block block = MyBlocksClass.EXAMPLE_BLOCK.get();
         ResourceLocation exampleTexture = modLoc("block/example_texture");
         ResourceLocation bottomTexture = modLoc("block/example_texture_bottom");
@@ -167,7 +167,7 @@ If the default helpers won't do it for you, you can also directly build model ob
 ConfiguredModel.Builder<?> builder = ConfiguredModel.builder()
 // Use a model file. As mentioned previously, can either be an ExistingModelFile, an UncheckedModelFile,
 // or some sort of ModelBuilder. See above for how to use ModelBuilder.
-        .modelFile(models().withExistingParent("minecraft:block/cobblestone"))
+        .modelFile(models().withExistingParent("example_model", this.mcLoc("block/cobblestone")))
         // Set rotations around the x and y axes.
         .rotationX(90)
         .rotationY(180)
@@ -187,7 +187,7 @@ VariantBlockStateBuilder.PartialBlockstate partialState = variantBuilder.partial
 variantBuilder.addModels(partialState,
     // Specify at least one ConfiguredModel.Builder, as seen above. Create through #modelForState().
     partialState.modelForState()
-        .modelFile(models().withExistingParent("minecraft:block/cobblestone"))
+        .modelFile(models().withExistingParent("example_variant_model", this.mcLoc("block/cobblestone")))
         .uvlock(true)
 );
 // Alternatively, forAllStates(Function<BlockState, ConfiguredModel[]>) creates a model for every state.
@@ -196,7 +196,7 @@ variantBuilder.forAllStates(state -> {
     // Return a ConfiguredModel depending on the state's properties.
     // For example, the following code will rotate the model depending on the horizontal rotation of the block.
     return ConfiguredModel.builder()
-        .modelFile(models().withExistingParent("minecraft:block/cobblestone"))
+        .modelFile(models().withExistingParent("example_variant_model", this.mcLoc("block/cobblestone")))
         .rotationY((int) state.getValue(BlockStateProperties.HORIZONTAL_FACING).toYRot())
         .build();
 });
@@ -204,10 +204,10 @@ variantBuilder.forAllStates(state -> {
 // Get a multipart block state builder.
 MultiPartBlockStateBuilder multipartBuilder = getMultipartBuilder(MyBlocksClass.EXAMPLE_BLOCK.get());
 // Add a new part. Starts with .part() and ends with .end().
-multipartBuilder.addPart(multipartBuilder.part()
+multipartBuilder.part()
     // Step one: Build the model. multipartBuilder.part() returns a ConfiguredModel.Builder,
     // meaning that all methods seen above can be used here as well.
-    .modelFile("minecraft:block/cobblestone")
+    .modelFile(models().withExistingParent("example_multipart_model", this.mcLoc("block/cobblestone")))
     // Call .addModel(). Now that the model is built, we can proceed to step two: add the part data.
     .addModel()
     // Add a condition for the part. Requires a property
@@ -228,8 +228,7 @@ multipartBuilder.addPart(multipartBuilder.part()
     .endNestedGroup()
     .endNestedGroup()
     // End the part builder and add the resulting part to the multipart builder.
-    .end()
-);
+    .end();
 ```
 
 ## Item Model Datagen
@@ -244,14 +243,15 @@ public class MyItemModelProvider extends ItemModelProvider {
         super(output, "examplemod", existingFileHelper);
     }
     
+    // Assume that EXAMPLE_BLOCK_ITEM and EXAMPLE_ITEM are both DeferredItems
     @Override
     protected void registerModels() {
         // Block items generally use their corresponding block models as parent.
-        withExistingParent(MyItemsClass.EXAMPLE_BLOCK_ITEM.get(), modLoc("block/example_block"));
+        withExistingParent(MyItemsClass.EXAMPLE_BLOCK_ITEM.getId().toString(), modLoc("block/example_block"));
         // Items generally use a simple parent and one texture. The most common parents are item/generated and item/handheld.
         // In this example, the item texture would be located at assets/examplemod/textures/item/example_item.png.
         // If you want a more complex model, you can use getBuilder() and then work from that, like you would with block models.
-        withExistingParent(MyItemsClass.EXAMPLE_ITEM.get(), mcLoc("item/generated")).texture("layer0", "item/example_item");
+        withExistingParent(MyItemsClass.EXAMPLE_ITEM.getId().toString(), mcLoc("item/generated")).texture("layer0", "item/example_item");
         // The above line is so common that there is a shortcut for it. Note that the item registry name and the
         // texture path, relative to textures/item, must match.
         basicItem(MyItemsClass.EXAMPLE_ITEM.get());
