@@ -1,0 +1,24 @@
+/* Flowcharts / Graphs */
+.docusaurus-mermaid-container .red > rect {
+    fill: #c99 !important;
+    stroke: #a77 !important;
+    stroke-width: 2px !important;
+}
+
+.docusaurus-mermaid-container .green > rect {
+    fill: #9c9 !important;
+    stroke: #7a7 !important;
+    stroke-width: 2px !important;
+}
+
+.docusaurus-mermaid-container .blue > rect {
+    fill: #99c !important;
+    stroke: #77a !important;
+    stroke-width: 2px !important;
+}
+
+.docusaurus-mermaid-container .highlighted > rect {
+    fill: #cc9 !important;
+    stroke: #aa7 !important;
+    stroke-width: 2px !important;
+}

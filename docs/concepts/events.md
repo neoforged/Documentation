@@ -119,8 +119,7 @@ graph TD;
     LivingEvent-->PlayerEvent;
     PlayerEvent-->CanPlayerSleepEvent;
 
-    classDef abstract fill:#c99,stroke:#a77,stroke-width:2px,color:#000;
-    class Event,BlockEvent,EntityEvent,LivingEvent,PlayerEvent abstract;
+    class Event,BlockEvent,EntityEvent,LivingEvent,PlayerEvent red;
 ```
 
 ### Cancellable Events
