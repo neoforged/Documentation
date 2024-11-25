@@ -190,6 +190,12 @@ const config = {
         indexName: 'neoforged'
       },
     }),
+
+    markdown: {
+      mermaid: true
+    },
+
+    themes: ['@docusaurus/theme-mermaid']
 };
 
 module.exports = config;
