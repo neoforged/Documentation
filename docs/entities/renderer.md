@@ -77,7 +77,89 @@ Like with entities themselves, entity renderers also have a class hierarchy, tho
 
 As with the various entity classes, use what fits your use case most. Be aware that many of these classes have corresponding type bounds in their generics; for example, `LivingRenderer` has type bounds for `LivingEntity` and `LivingEntityRenderState`.
 
-## Entity Models
+## Entity Models and Layer Definitions
+
+Many renderers, especially the `LivingRenderer` and its subclasses, make use of `EntityModel`s. `EntityModel`s are basically a list of cubes and associated textures for the renderer to use. They are commonly created statically when the entity renderer's constructor is first created.
+
+Entity models use a layer system, where each layer is represented as a `LayerDefinition`. A renderer can use multiple layers, and the renderer can decide what layer(s) to render at what time. For example, the elytra uses a separate layer that is rendered independently of the `LivingEntity` wearing it. Similarly, player capes are also a separate layer.
+
+### Creating a Layer Definition
+
+With all that out of the way, let's create an entity model ourselves:
+
+```java
+// You may use a more specific subtype of EntityRenderState in the generic.
+// If you do, all uses of EntityRenderState within the class will change to that more specific subtype.
+public class MyEntityModel extends EntityModel<EntityRenderState> {
+    // A static method in which we create our layer definition. createBodyLayer() is the name
+    // most vanilla models use. If you have multiple layers, you will have multiple of these static methods.
+    public static LayerDefinition createBodyLayer() {
+        // Create our mesh.
+        MeshDefinition mesh = new MeshDefinition();
+        // The mesh initially contains no object other than the root, which is invisible (has a size of 0x0x0).
+        PartDefinition root = mesh.getRoot();
+        // We add a head part.
+        PartDefinition head = root.addOrReplaceChild(
+            // The name of the part.
+            "head",
+            // The CubeListBuilder we want to add. While it is possible to add multiple cubes into one part,
+            // it is generally discouraged and only one cube per PartDefinition should be used.
+            CubeListBuilder.create()
+                // The UV coordinates to use within the texture. Texture binding itself is explained below.
+                // In this example, we start at U=10, V=20.
+                .texOffs(10, 20)
+                // Add our cube. Again, while multiple can be added, it is recommended to only add one.
+                .addBox(
+                    // The origin of the cube, relative to the parent object's position.
+                    -5, -5, -5,
+                    // The size of the cube.
+                    10, 10, 10
+                ),
+            // An additional offset to apply to all elements of the CubeListBuilder. Besides PartPose#offset,
+            // PartPose#offsetAndRotation is also available. This can be reused across multiple PartDefinitions.
+            PartPose.offset(0, 8, 0)
+        );
+        // We can now add children to any PartDefinition, thus creating a hierarchy.
+        PartDefinition part1 = root.addOrReplaceChild(...);
+        PartDefinition part2 = head.addOrReplaceChild(...);
+        PartDefinition part3 = part1.addOrReplaceChild(...);
+        // At the end, we create a LayerDefinition from the MeshDefinition.
+        // The two integers are the expected dimensions of the texture; 64x32 in our example.
+        return LayerDefinition.create(mesh, 64, 32);
+    }
+}
+```
+
+Note that in the above example, we directly extend `EntityModel`; depending on your use case, it might be more appropriate to use one of the subclasses instead. When creating a new model, it is recommended you have a look at whatever existing model is closest to your use case, and then work from there.
+
+:::tip
+The [Blockbench][blockbench] modeling program is a great help in creating entity models. To do so, choose the Modded Entity option when creating your model in Blockbench.
+
+Blockbench also has an option to export models as a `LayerDefinition` creation method, which can be found under `File -> Export -> Export Java Entity`.
+:::
+
+### Registering a Layer Definition
+
+Once we have our entity layer definition, we also need to register it in `EntityRenderersEvent.RegisterLayerDefinitions`. To do so, we need a `ModelLayerLocation`, which essentially acts as an identifier for our layer (remember, one entity can have multiple layers).
+
+```java
+// Our ModelLayerLocation.
+public static final ModelLayerLocation MY_LAYER = new ModelLayerLocation(
+    // Should be the name of the entity this layer belongs to.
+    // May be more generic if this layer can be used on multiple entities.
+    ResourceLocation.fromNamespaceAndPath("examplemod", "example_entity"),
+    // The name of the layer itself.
+    "main"
+);
+
+@SubscribeEvent
+public static void registerLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event) {
+    // Add our layer here.
+    event.add(MY_LAYER, MyEntityModel::createBodyLayer);
+}
+```
+
+### Adding a Layer Definition to an Entity
 
 :::info
 This section is a work in progress.
@@ -89,6 +171,7 @@ This section is a work in progress.
 This section is a work in progress.
 :::
 
+[blockbench]: https://www.blockbench.net/
 [events]: ../concepts/events.md
 [livingentity]: livingentity.md
 [sides]: ../concepts/sides.md
