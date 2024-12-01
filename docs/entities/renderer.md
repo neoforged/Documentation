@@ -66,20 +66,38 @@ That's literally it. Extend the class, add your field, and off you go. The only 
 
 ## Hierarchy
 
-Like with entities themselves, entity renderers also have a class hierarchy, though not as layered. It basically boils down to:
+Like entities themselves, entity renderers have a class hierarchy, though not as layered. The most important classes of the hierarchy are related like this (red classes are `abstract`, blue classes are not):
 
-- `EntityRenderer`: The abstract base class. Many entities, notably almost all non-living ones, extend this class directly.
-    - `ArrowRenderer`, `AbstractBoatRenderer`, `AbstractMinecartRenderer`: These exist mainly for convenience, and are used as parents for more specific renderers. `ArrowRenderer` is also used directly by the regular arrow entity.
-    - `LivingRenderer`: The abstract base class for renderers for [living entities][livingentity]. Direct subclasses include `ArmorStandRenderer` and `PlayerRenderer`.
-        - `MobRenderer`: The abstract base class for renderers for `Mob`s. Many renderers extend this directly.
-            - `AgeableRenderer`: The abstract base class for renderers for `Mob`s that have child variants. This includes monsters with child variants, such as hoglins.
-                - `HumanoidMobRenderer`: The abstract base class for humanoid entity renderers. Used by e.g. zombies and skeletons.
+```mermaid
+graph LR;
+    EntityRenderer-->AbstractBoatRenderer;
+    EntityRenderer-->AbstractMinecartRenderer;
+    EntityRenderer-->ArrowRenderer;
+    EntityRenderer-->LivingEntityRenderer;
+    LivingEntityRenderer-->ArmorStandRenderer;
+    LivingEntityRenderer-->MobRenderer;
+    MobRenderer-->AgeableRenderer;
+    AgeableRenderer-->HumanoidMobRenderer;
+    LivingEntityRenderer-->PlayerRenderer;
+    
+    class EntityRenderer,AbstractBoatRenderer,AbstractMinecartRenderer,ArrowRenderer,LivingEntityRenderer,MobRenderer,AgeableRenderer,HumanoidMobRenderer red;
+    class ArmorStandRenderer,PlayerRenderer blue;
+```
 
-As with the various entity classes, use what fits your use case most. Be aware that many of these classes have corresponding type bounds in their generics; for example, `LivingRenderer` has type bounds for `LivingEntity` and `LivingEntityRenderState`.
+- `EntityRenderer`: The abstract base class. Many renderers, notably almost all renderers for non-living entities, extend this class directly.
+- `ArrowRenderer`, `AbstractBoatRenderer`, `AbstractMinecartRenderer`: These exist mainly for convenience, and are used as parents for more specific renderers.
+- `LivingEntityRenderer`: The abstract base class for renderers for [living entities][livingentity]. Direct subclasses include `ArmorStandRenderer` and `PlayerRenderer`.
+- `ArmorStandRenderer`: Self-explanatory.
+- `PlayerRenderer`: Used to render players. Note that unlike most other renderers, multiple instances of this class used for different contexts may exist at the same time.
+- `MobRenderer`: The abstract base class for renderers for `Mob`s. Many renderers extend this directly.
+- `AgeableRenderer`: The abstract base class for renderers for `Mob`s that have child variants. This includes monsters with child variants, such as hoglins.
+- `HumanoidMobRenderer`: The abstract base class for humanoid entity renderers. Used by e.g. zombies and skeletons.
+
+As with the various entity classes, use what fits your use case most. Be aware that many of these classes have corresponding type bounds in their generics; for example, `LivingEntityRenderer` has type bounds for `LivingEntity` and `LivingEntityRenderState`.
 
 ## Entity Models and Layer Definitions
 
-Many renderers, especially the `LivingRenderer` and its subclasses, make use of `EntityModel`s. `EntityModel`s are basically a list of cubes and associated textures for the renderer to use. They are commonly created statically when the entity renderer's constructor is first created.
+Many renderers, especially the `LivingEntityRenderer` and its subclasses, make use of `EntityModel`s. `EntityModel`s are basically a list of cubes and associated textures for the renderer to use. They are commonly created statically when the entity renderer's constructor is first created.
 
 Entity models use a layer system, where each layer is represented as a `LayerDefinition`. A renderer can use multiple layers, and the renderer can decide what layer(s) to render at what time. For example, the elytra uses a separate layer that is rendered independently of the `LivingEntity` wearing it. Similarly, player capes are also a separate layer.
 

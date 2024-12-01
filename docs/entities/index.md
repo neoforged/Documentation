@@ -295,27 +295,106 @@ EntityType.Builder.of(...)
 
 Due to the many different types of entities, there is a complex hierarchy of subclasses of `Entity`. These are important to know about when choosing what class to extend when making your own entity, as you will be able to save a lot of work by reusing their code.
 
-Direct subclasses of `Entity` include:
+The vanilla entity hierarchy looks like this (red classes are `abstract`, blue classes are not):
+
+```mermaid
+graph LR;
+    Entity-->Projectile;
+    Entity-->LivingEntity;
+    Entity-->BlockAttachedEntity;
+    BlockAttachedEntity-->LeashFenceKnotEntity;
+    BlockAttachedEntity-->HangingEntity;
+    HangingEntity-->ItemFrame;
+    ItemFrame-->GlowItemFrame;
+    HangingEntity-->Painting;
+    Entity-->PartEntity;
+    PartEntity-->EnderDragonPart;
+    Entity-->VehicleEntity;
+    VehicleEntity-->AbstractBoat;
+    AbstractBoat-->AbstractChestBoat;
+    AbstractChestBoat-->ChestBoat;
+    AbstractChestBoat-->ChestRaft;
+    AbstractBoat-->Boat;
+    AbstractBoat-->Raft;
+    VehicleEntity-->AbstractMinecart;
+    AbstractMinecart-->AbstractMinecartContainer;
+    AbstractMinecartContainer-->MinecartChest;
+    AbstractMinecartContainer-->MinecartHopper;
+    AbstractMinecart-->Minecart;
+    AbstractMinecart-->MinecartCommandBlock;
+    AbstractMinecart-->MinecartFurnace;
+    AbstractMinecart-->MinecartSpawner;
+    AbstractMinecart-->MinecartTNT;
+    
+    class Entity,Projectile,LivingEntity,BlockAttachedEntity,HangingEntity,PartEntity,VehicleEntity,AbstractBoat,AbstractChestBoat,AbstractMinecart,AbstractMinecartContainer red;
+    class LeashFenceKnotEntity,ItemFrame,GlowItemFrame,Painting,EnderDragonPart,ChestBoat,ChestRaft,Boat,Raft,MinecartChest,MinecartHopper,Minecart,MinecartCommandBlock,MinecartCommandBlock,MinecartFurnace,MinecartSpawner,MinecartTNT blue;
+```
+
+Let's break these down:
 
 - `Projectile`: The base class for various projectiles, including arrows, fireballs, snowballs, fireworks and similar entities. Read more about them [below][projectile].
 - `LivingEntity`: The base class for anything "living", in the sense of it having things like hit points, equipment, [mob effects][mobeffect] and some other properties. Includes things such as monsters, animals, villagers, and players. Read more about them in the [Living Entities article][livingentity].
-- `VehicleEntity`: The base class for boats and minecarts. While these entities loosely share the concept of hit points with `LivingEntity`s, they do not share many other properties with them and are as such kept separated.
-- `BlockAttachedEntity`: The base class for entities that are immobile and attached to blocks. Includes leash knots, item frames and paintings.
-- `Display`: The base class for the various map-maker display entities.
+- `BlockAttachedEntity`: The base class for entities that are immobile and attached to blocks. Includes leash knots, item frames and paintings. The subclasses mainly serve the purpose of reusing common code.
+- `PartEntity`: The base class for part entities, i.e. entities made up of multiple smaller entities. Vanilla currently only uses this for the Ender Dragon.
+- `VehicleEntity`: The base class for boats and minecarts. While these entities loosely share the concept of hit points with `LivingEntity`s, they do not share many other properties with them and are as such kept separated. The subclasses mainly serve the purpose of reusing common code.
 
-Several entities are also direct subclasses of `Entity`, simply because there was no other fitting superclass. Prominent examples include `ItemEntity` (dropped items), `LightningBolt`, `ExperienceOrb` and `PrimedTnt`.
+There are also several entities that are direct subclasses of `Entity`, simply because there was no other fitting superclass. Most of these should be self-explanatory:
+
+- `AreaEffectCloud` (lingering potion clouds)
+- `EndCrystal`
+- `EvokerFangs`
+- `ExperienceOrb`
+- `EyeOfEnder`
+- `FallingBlockEntity` (falling sand, gravel etc.)
+- `ItemEntity` (dropped items)
+- `LightningBolt`
+- `OminousItemSpawner` (for continuously spawning the loot of trial spawners)
+- `PrimedTnt`
+
+Not included in this diagram and list are the mapmaker entities (displays, interactions and markers).
 
 ### Projectiles
 
 Projectiles are a subgroup of entities. Common to them is that they fly in one direction until they hit something, and that they have an owner assigned to them (e.g. a player or a skeleton would be the owner of an arrow, or a ghast would be the owner of a fireball).
 
-There are three big subgroups of projectiles:
+The class hierarchy of projectiles looks as follows (red classes are `abstract`, blue classes are not):
 
-- Arrows: Represented by the `AbstractArrow` superclass, this group covers the different kinds of arrows, as well as the trident. An important common property is that they will not fly straight, but are affected by gravity.
-- Throwables: Represented by the `ThrowableProjectile` superclass, this group covers things like eggs, snowballs and ender pearls. Like arrows, they are affected by gravity, but unlike arrows, they will not inflict damage upon hitting the target. They are also all spawned by using the corresponding item.
-- Hurting Projectiles: Represented by the `AbstractHurtingProjectile` superclass, this group covers wind charges, fireballs and wither skulls. These are damaging projectiles unaffected by gravity.
+```mermaid
+graph LR;
+    Projectile-->AbstractArrow;
+    AbstractArrow-->Arrow;
+    AbstractArrow-->SpectralArrow;
+    AbstractArrow-->ThrownTrident;
+    Projectile-->AbstractHurtingProjectile;
+    AbstractHurtingProjectile-->AbstractWindCharge;
+    AbstractWindCharge-->BreezeWindCharge;
+    AbstractWindCharge-->WindCharge;
+    AbstractHurtingProjectile-->DragonFireball;
+    AbstractHurtingProjectile-->Fireball;
+    Fireball-->LargeFireball;
+    Fireball-->SmallFireball;
+    AbstractHurtingProjectile-->WitherSkull;
+    Projectile-->FireworkRocketEntity;
+    Projectile-->FishingHook;
+    Projectile-->LlamaSpit;
+    Projectile-->ShulkerBullet;
+    Projectile-->ThrowableProjectile;
+    ThrowableProjectile-->ThrowableItemProjectile;
+    ThrowableItemProjectile-->Snowball;
+    ThrowableItemProjectile-->ThrownEgg;
+    ThrowableItemProjectile-->ThrownEnderpearl;
+    ThrowableItemProjectile-->ThrownExperienceBottle;
+    ThrowableItemProjectile-->ThrownPotion;
 
-Other projectiles that directly extend `Projectile` include fireworks, fishing bobbers and shulker bullets.
+    class Projectile,AbstractArrow,AbstractHurtingProjectile,AbstractWindCharge,Fireball,ThrowableProjectile,ThrowableItemProjectile red;
+    class Arrow,SpectralArrow,ThrownTrident,BreezeWindCharge,WindCharge,DragonFireball,LargeFireball,SmallFireball,WitherSkull,FireworkRocketEntity,FishingHook,LlamaSpit,ShulkerBullet,Snowball,ThrownEgg,ThrownEnderpearl,ThrownExperienceBottle,ThrownPotion blue;
+```
+
+Of note are the three direct abstract subclasses of `Projectile`:
+
+- `AbstractArrow`: This class covers the different kinds of arrows, as well as the trident. An important common property is that they will not fly straight, but are affected by gravity.
+- `AbstractHurtingProjectile`: This class covers wind charges, various fireballs, and wither skulls. These are damaging projectiles unaffected by gravity.
+- `ThrowableProjectile`: This class covers things like eggs, snowballs and ender pearls. Like arrows, they are affected by gravity, but unlike arrows, they will not inflict damage upon hitting the target. They are also all spawned by using the corresponding [item].
 
 A new projectile can be created by extending `Projectile` or a fitting subclass, and then overriding the methods required for adding your functionality. Common methods to override include:
 

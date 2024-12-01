@@ -104,33 +104,94 @@ _See [Containers on Entities][containers]._
 
 ## Hierarchy
 
-Living entities have a complex class hierarchy. As mentioned before, the three direct subclasses are `ArmorStand`, `Mob` and `Player`. Of these, `ArmorStand` has no subclasses, so we will focus on the class hierarchy of `Mob` and `Player`.
+Living entities have a complex class hierarchy. As mentioned before, there are three direct subclasses:
+
+```mermaid
+graph LR;
+    LivingEntity-->ArmorStand;
+    LivingEntity-->Mob;
+    LivingEntity-->Player;
+```
+
+Of these, `ArmorStand` has no subclasses (and is also the only non-abstract class), so we will focus on the class hierarchy of `Mob` and `Player`.
 
 ### Hierarchy of `Mob`
 
-`Mob`'s most important subclass is `PathfinderMob`, which contains (surprise!) logic for pathfinding. `PathfinderMob`'s subclasses are as follows:
+The class hierarchy of `Mob` looks as follows (red classes are `abstract`, blue classes are not):
 
-- `AbstractGolem`: The superclass for iron golems, snow golems and (for some reason) shulkers.
-- `AgeableMob`: This class has two direct subclasses `AbstractVillager` and `Animal`, both of which should be self-explanatory. These contain most of the aging logic. `Animal` additionally has the abstract `TamableAnimal` subclass that is used for tamable animals such as wolves, cats and parrots; as well as the `AbstractHorse` subclass, which is the superclass of horses, donkeys and mules.
-- `Allay`: Allays directly extend `PathfinderMob`.
-- `Monster`: The abstract class for everything the game considers monsters. Like `Animal`, this has various abstract subclasses, such as `AbstractPiglin`, `AbstractSkeleton`, `Raider`, and `Zombie`.
-- `WaterAnimal`: The superclass for water-based animals, such as fish, squids and dolphins. These are kept separate from the other animals due to significantly different pathfinding.
+```mermaid
+graph LR;
+    Mob-->AmbientCreature;
+    AmbientCreature-->Bat;
+    Mob-->EnderDragon;
+    Mob-->FlyingMob;
+    FlyingMob-->Ghast;
+    FlyingMob-->Phantom;
+    Mob-->PathfinderMob;
+    PathfinderMob-->AbstractGolem;
+    AbstractGolem-->IronGolem;
+    AbstractGolem-->Shulker;
+    AbstractGolem-->SnowGolem;
+    PathfinderMob-->AgeableMob;
+    AgeableMob-->AbstractVillager;
+    AbstractVillager-->Villager;
+    AbstractVillager-->WanderingTrader;
+    AgeableMob-->AgeableWaterCreature;
+    AgeableWaterCreature-->Dolphin;
+    AgeableWaterCreature-->Squid;
+    Squid-->GlowSquid;
+    AgeableMob-->Animal;
+    PathfinderMob-->Allay;
+    PathfinderMob-->Monster;
+    PathfinderMob-->WaterAnimal;
+    WaterAnimal-->AbstractFish;
+    AbstractFish-->AbstractSchoolingFish;
+    AbstractSchoolingFish-->Cod;
+    AbstractSchoolingFish-->Salmon;
+    AbstractSchoolingFish-->TropicalFish;
+    AbstractFish-->Pufferfish;
+    AbstractFish-->Tadpole;
+    Mob-->Slime;
+    Slime-->MagmaCube;
+    
+    class Mob,AmbientCreature,FlyingMob,PathfinderMob,AbstractGolem,AgeableMob,AbstractVillager,AgeableWaterCreature,Animal,Monster,WaterAnimal,AbstractFish,AbstractSchoolingFish red;
+    class Bat,EnderDragon,Ghast,Phantom,IronGolem,Shulker,SnowGolem,Villager,WanderingTrader,Dolphin,Squid,GlowSquid,Allay,Cod,Salmon,TropicalFish,Pufferfish,Tadpole,Slime,MagmaCube blue;
+```
 
-Some other classes also extend `Mob` directly. These include `AmbientCreature` with its only subclass `Bat`, `EnderDragon`, `FlyingMob` with its two subclasses `Ghast` and `Phantom` (no, there is no consistency here whatsoever), and `Slime` and its `MagmaCube` subclass.
+All other living entities missing from the diagram are subclasses of either `Animal` or `Monster`.
+
+As you may have noticed, this is very messy. For example, why aren't bees, parrots etc. also flying mobs? This problem becomes even worse when looking into the subclass hierarchy of `Animal` and `Monster`, which will not be discussed here in detail (look them up using your IDE's Show Hierarchy feature if you're interested). It is best to acknowledge it, but not worry about it.
+
+Let's go over the most important classes:
+
+- `PathfinderMob`: Contains (surprise!) logic for pathfinding.
+- `AgeableMob`: Contains the logic for aging and baby entities. Zombies and other monsters with baby variants do not extend this class, they instead are children of `Monster`.
+- `Animal`: What most animals extend. Has further abstract subclasses, such as `AbstractHorse` or `TamableAnimal`.
+- `Monster`: The abstract class for most entities the game considers monsters. Like `Animal`, this has further abstract subclasses, such as `AbstractPiglin`, `AbstractSkeleton`, `Raider`, and `Zombie`.
+- `WaterAnimal`: The abstract class for water-based animals, such as fish, squids and dolphins. These are kept separate from the other animals due to significantly different pathfinding.
 
 ### Hierarchy of `Player`
 
-Depending on which side the player is on, a different player class is used:
+Depending on which side the player is on, a different player class is used. You should never need to construct a player yourself, except for `FakePlayer`s.
 
-- `ServerPlayer`: This class is used to represent players on the [logical server][logicalsides].
-    - `FakePlayer`: This is a special subclass of `ServerPlayer` designed to be used as a mock for a player, for non-player mechanisms that need a player context.
+```mermaid
+graph LR;
+    Player-->AbstractClientPlayer;
+    AbstractClientPlayer-->LocalPlayer;
+    AbstractClientPlayer-->RemotePlayer;
+    Player-->ServerPlayer;
+    ServerPlayer-->FakePlayer;
+```
+
 - `AbstractClientPlayer`: This class is used as a base for the two client players, both used to represent players on the [logical client][logicalsides].
-    - `LocalPlayer`: This class is used to represent the player currently running the game.
-    - `RemotePlayer`: This class is used to represent other players that the `LocalPlayer` may encounter during multiplayer. `RemotePlayer`s do not exist in singleplayer contexts.
+- `LocalPlayer`: This class is used to represent the player currently running the game.
+- `RemotePlayer`: This class is used to represent other players that the `LocalPlayer` may encounter during multiplayer. As such, `RemotePlayer`s do not exist in singleplayer contexts.
+- `ServerPlayer`: This class is used to represent players on the [logical server][logicalsides].
+- `FakePlayer`: This is a special subclass of `ServerPlayer` designed to be used as a mock for a player, for non-player mechanisms that need a player context.
 
 ## Spawning
 
-In addition to the [regular ways of spawning][spawning], `Mob`s can also be spawned through some other means. `ArmorStand`s can be spawned through regular means, and `Player`s should not be instantiated yourself.
+In addition to the [regular ways of spawning][spawning], `Mob`s can also be spawned through some other means. `ArmorStand`s can be spawned through regular means, and `Player`s should not be instantiated yourself, except for `FakePlayer`s.
 
 ### Spawn Eggs
 
