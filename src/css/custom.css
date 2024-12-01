@@ -4,6 +4,8 @@
  * work well for content-centric websites.
  */
 
+ @import "mermaid";
+ 
 /* You can override the default Infima variables here. */
 :root {
   --ifm-color-primary: #3819d2;
