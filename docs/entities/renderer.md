@@ -161,9 +161,40 @@ public static void registerLayerDefinitions(EntityRenderersEvent.RegisterLayerDe
 
 ### Adding a Layer Definition to an Entity
 
-:::info
-This section is a work in progress.
-:::
+In some contexts, you might also want to add a new layer to an existing entity. For example, you might want to render some extra equipment on an entity when worn. This can be done like so:
+
+```java
+@SubscribeEvent
+public static void addLayers(EntityRenderersEvent.AddLayers event) {
+    // Add a layer to every single entity type.
+    for (EntityType<?> entityType : event.getEntityTypes()) {
+        // Get our renderer.
+        EntityRenderer<?, ?> renderer = event.getRenderer(entityType);
+        // Null-check the renderer. You could add more checks here. For example, a common check is
+        // `instanceof LivingEntityRenderer<?, ?>` to only target living entity renderers.
+        if (renderer != null) {
+            // Add the layer to the renderer. Reuses the ModelLayerLocation from above.
+            renderer.addLayer(MY_LAYER);
+        }
+    }
+}
+```
+
+For players, a bit of special-casing is required because there can actually be multiple player renderers. These are managed separately by the event. We can interact with them like so:
+
+```java
+@SubscribeEvent
+public static void addPlayerLayers(EntityRenderersEvent.AddLayers event) {
+    // Iterate over all possible player models.
+    for (PlayerSkin.Model skin : event.getSkins()) {
+        // Get the associated PlayerRenderer.
+        if (event.getSkin(skin) instanceof PlayerRenderer playerRenderer) {
+            // Add the layer to the renderer.
+            playerRenderer.addLayer(MY_LAYER);
+        }
+    }
+}
+```
 
 ## Animations
 
