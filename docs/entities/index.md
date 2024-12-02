@@ -181,14 +181,14 @@ While not all entities have the concept of hit points, they can still all receiv
 
 Damaging an entity is possible by calling `Entity#hurt`. `Entity#hurt` takes two arguments: the [`DamageSource`][damagesource] and the damage amount, as a float in half hearts. For example, calling `entity.hurt(entity.damageSources().wither(), 4.25)` will cause a little over two hearts of wither damage.
 
-In turn, entities can also modify the behavior in `#hurt` by overriding it. For example, we could make our entity take double damage from fire, and no damage from any other source, like so:
+In turn, entities can also modify that behavior. This isn't done by overriding `#hurt`, as it is a final method. Rather, there are two methods `#hurtServer` and `#hurtClient` that each handle damage logic for the corresponding side. `#hurtClient` is commonly used to tell the client that an attack has succeeded, even though that may not always be true, mainly for playing attack sounds and other effects regardless. For changing damage behavior, we mainly care about `#hurtServer`, which we can override like so:
 
 ```java
 @Override
 // The boolean return value determines whether the entity was actually damaged or not.
-public boolean hurt(DamageSource damageSource, float amount) {
+public boolean hurtServer(ServerLevel level, DamageSource damageSource, float amount) {
     if (damageSource.is(DamageTypeTags.IS_FIRE)) {
-        return super.hurt(damageSource, amount * 2);
+        return super.hurt(level, damageSource, amount * 2);
     } else {
         return false;
     }
@@ -203,7 +203,7 @@ Quite often, you will want your entity to do something (e.g. move) every tick. T
 
 - `#tick`: This is the central tick method, and the one you will want to override in 99% of cases.
     - By default, this forwards to `#baseTick`, however this is overridden by almost every subclass.
-- `#baseTick`: This method handles updating some values common to all entities, including the "on fire" state, freezing from powder snow, the swimming state, and passing through portals.
+- `#baseTick`: This method handles updating some values common to all entities, including the "on fire" state, freezing from powder snow, the swimming state, and passing through portals. `LivingEntity` additionally handles drowning, in-block damage, and updates to the damage tracker here. Override this method if you want to change or add to that logic.
     - By default, `Entity#tick` will forward to this method.
 - `#rideTick`: This method is called for passengers of other entities, for example for players riding horses, or any entity that rides another entity due to use of the `/ride` command.
     - By default, this does some checks and then calls `#tick`. Skeletons and players override this method for special handling of riding entities.

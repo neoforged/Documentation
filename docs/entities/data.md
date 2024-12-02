@@ -5,7 +5,7 @@ sidebar_position: 2
 
 One of the most important use cases of entities is to store data of some sort. All entities store some default data, such as their type and their position. This article will explain how to add your own data, as well as how to synchronize that data.
 
-The most simple way to add data is as a field in your `Entity` class. You can then interact with this data in any way you wish. However, this quickly becomes very annoying as soon as you have to synchronize that data.
+The most simple way to add data is as a field in your `Entity` class. You can then interact with this data in any way you wish. However, this quickly becomes very annoying as soon as you have to synchronize that data. This is because most entity logic is run on the server only, and it is only occasionally (depending on the [`EntityType`][entitytype]'s `clientUpdateInterval` value) that an update is sent to the client; this is also the cause for easily noticeable entity "lags" when the server's tick speed is too slow.
 
 As such, vanilla introduces a few systems to help with that. These systems generally exist in parallel and can be replaced with one another, this is due to legacy reasons.
 
@@ -87,6 +87,7 @@ Entities have been patched to extend `AttachmentHolder` and as such support data
 Of course, you can also always opt to use a custom packet to send additional information when needed. Please refer to the [Networking articles][networking] for more information.
 
 [attachment]: ../datastorage/attachments.md
+[entitytype]: index.md#entitytype
 [nbt]: ../datastorage/nbt.md
 [networking]: ../networking/index.md
 [registration]: ../concepts/registries.md#methods-for-registering
