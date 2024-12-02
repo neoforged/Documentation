@@ -104,13 +104,16 @@ _See [Containers on Entities][containers]._
 
 ## Hierarchy
 
-Living entities have a complex class hierarchy. As mentioned before, there are three direct subclasses:
+Living entities have a complex class hierarchy. As mentioned before, there are three direct subclasses (red classes are `abstract`, blue classes are not):
 
 ```mermaid
 graph LR;
     LivingEntity-->ArmorStand;
     LivingEntity-->Mob;
     LivingEntity-->Player;
+    
+    class LivingEntity,Mob,Player red;
+    class ArmorStand blue;
 ```
 
 Of these, `ArmorStand` has no subclasses (and is also the only non-abstract class), so we will focus on the class hierarchy of `Mob` and `Player`.
@@ -181,6 +184,9 @@ graph LR;
     AbstractClientPlayer-->RemotePlayer;
     Player-->ServerPlayer;
     ServerPlayer-->FakePlayer;
+    
+    class Player,AbstractClientPlayer red;
+    class LocalPlayer,RemotePlayer,ServerPlayer,FakePlayer blue;
 ```
 
 - `AbstractClientPlayer`: This class is used as a base for the two client players, both used to represent players on the [logical client][logicalsides].
