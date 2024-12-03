@@ -136,7 +136,7 @@ This condition returns true if the given item [tag] is empty, and false otherwis
 
 Custom conditions can be created by implementing `ICondition` and its `#test(IContext)` method, as well as creating a [map codec][codec] for it. The `IContext` parameter in `#test` has access to some parts of the game state. Currently, this only allows you to query tags from registries. Some objects with conditions may be loaded earlier than tags, in which case the context will be `IContext.EMPTY` and not contain any tag information at all.
 
-For example, let's assume we want to reimplement the `tag_empty` condition, but for entity type tags instead of item tags, then our condition would look something like this:
+For example, let's assume we want to reimplement the `tag_empty` condition, but for [entity type][entitytype] tags instead of item tags, then our condition would look something like this:
 
 ```java
 // This class is basically a boiled-down copy of TagEmptyCondition, adjusted for entity types instead of items.
@@ -195,6 +195,7 @@ For the conditions themselves, the `IConditionBuilder` interface provides static
 [codec]: ../../datastorage/codecs
 [datagen]: ../index.md#data-generation
 [datamapprovider]: datamaps/index.md#data-generation
+[entitytype]: ../../entities/index.md#entitytype
 [glmprovider]: loottables/glm.md#datagen
 [loottable]: loottables/index.md
 [recipeprovider]: recipes/index.md#data-generation
