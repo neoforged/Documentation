@@ -170,7 +170,7 @@ This file differs from the one in your mod's `resources/` directory. This file d
             "examplemod:experimental"
         ]
     },
-    "pack": { ... }
+    "pack": { /*...*/ }
 }
 ```
 

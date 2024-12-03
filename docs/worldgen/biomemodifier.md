@@ -685,21 +685,21 @@ There may be times when a biome modifier needs to target a biome that is not alw
 
 ```json5
 {
-  "replace": false,
-  "values": [
-    {
-      "id": "minecraft:pale_garden",
-      "required": false
-    }
-  ]
+    "replace": false,
+    "values": [
+        {
+            "id": "minecraft:pale_garden",
+            "required": false
+        }
+    ]
 }
 ```
 
-Using that biome tag for a biome modifier will now not crash if the biome is not registered. A use case for this is the Pale Garden biome in 1.21.3. That biome is only created when you turn on the Winter Drop datapack in-game. Otherwise, the biome does not exist in the biome registry at all. Another use case can be to target modded biomes while still functioning when the mods adding these biomes are not present.
+Using that biome tag for a biome modifier will now not crash if the biome is not registered. One such use case is the Pale Garden biome, which is only created in 1.21.3 when the Winter Drop datapack is turned on. Otherwise, the biome does not exist in the biome registry at all. Another use case can be to target modded biomes while still functioning when the mods adding these biomes are not present.
 
 To datagen optional entries for biome tags, the datagen code would look something along these lines:
 
-```json5
+```java
 // In a TagsProvider<Biome> subclass
 // Assume we have some example TagKey<Biome> OPTIONAL_BIOMES_TAG
 @Override
