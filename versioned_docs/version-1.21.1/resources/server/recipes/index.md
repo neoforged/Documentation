@@ -429,7 +429,7 @@ public abstract class SimpleRecipeBuilder implements RecipeBuilder {
     protected final ItemStack result;
     protected final Map<String, Criterion<?>> criteria = new LinkedHashMap<>();
     @Nullable
-    protected final String group;
+    protected String group;
 
     // It is common for constructors to accept the result item stack.
     // Alternatively, static builder methods are also possible.
