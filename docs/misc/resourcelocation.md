@@ -24,15 +24,14 @@ Some places, for example registries, use `ResourceLocation`s directly. Some othe
 
 - `ResourceLocation`s are used as identifiers for GUI background. For example, the furnace GUI uses the resource location `minecraft:textures/gui/container/furnace.png`. This maps to the file `assets/minecraft/textures/gui/container/furnace.png` on disk. Note that the `.png` suffix is required in this resource location.
 - `ResourceLocation`s are used as identifiers for block models. For example, the block model of dirt uses the resource location `minecraft:block/dirt`. This maps to the file `assets/minecraft/models/block/dirt.json` on disk. Note that the `.json` suffix is not required here. Note as well that this resource location automatically maps into the `models` subfolder.
+- `ResourceLocations` are used as identifiers for client items. For example, the client item of apple uses the resource location `minecraft:apple` (as defined by `DataComponents#ITEM_MODEL`). This maps to the file `assets/minecraft/items/apple.json`. Note that the `.json` suffix is not required here. Note as well that this resource location automatically maps into the `items` subfolder.
 - `ResourceLocation`s are used as identifiers for recipes. For example, the iron block crafting recipe uses the resource location `minecraft:iron_block`. This maps to the file `data/minecraft/recipe/iron_block.json` on disk. Note that the `.json` suffix is not required here. Note as well that this resource location automatically maps into the `recipe` subfolder.
 
 Whether the `ResourceLocation` expects a file suffix, or what exactly the resource location resolves to, depends on the use case.
 
 ## `ModelResourceLocation`s
 
-`ModelResourceLocation`s are a special kind of resource location that includes a third part, called the variant. Minecraft uses these mainly to differentiate between different variants of models, where the different variants are used in different display contexts (for example with tridents, which have different models in first person, third person and inventories). The variant is always `inventory` for items, and the comma-delimited string of property-value pairs for blockstates (for example `facing=north,waterlogged=false`, empty for blocks with no blockstate properties).
-
-The variant is appended to the regular resource location, along with a `#`. For example, the full name of the diamond sword's item model is `minecraft:diamond_sword#inventory`. However, in most contexts, the `inventory` variant can be omitted.
+`ModelResourceLocation`s are a special kind of resource location for block states that includes a third part, called the variant. Minecraft uses these mainly to differentiate between different variants of models. The variant is the comma-delimited string of property-value pairs for blockstates (for example `facing=north,waterlogged=false`, empty for blocks with no blockstate properties), appended to a regular resource location with a `#`.
 
 `ModelResourceLocation` is a [client only][sides] class. This means that servers referencing this class will crash with a `NoClassDefFoundError`.
 
