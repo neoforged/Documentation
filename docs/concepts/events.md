@@ -197,12 +197,12 @@ Then, during `InterModProcessEvent`, you can use `InterModComms#getMessages` to 
 
 Next to the lifecycle events, there are a few miscellaneous events that are fired on the mod event bus, mostly for legacy reasons. These are generally events where you can register, set up, or initialize various things. Most of these events are not ran in parallel in contrast to the lifecycle events. A few examples:
 
-- `RegisterColorHandlersEvent.Block`, `.Item`, `.ColorResolvers` 
+- `RegisterColorHandlersEvent.Block`, `.ItemTintSources`, `.ColorResolvers` 
 - `ModelEvent.BakingCompleted`
 - `TextureAtlasStitchedEvent`
 
 :::warning
-Most of these events are planned to be moved to the main event bus in a future version.
+Most of these events are planned to be moved to the game event bus in a future version.
 :::
 
 [modbus]: #event-buses
