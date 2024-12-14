@@ -466,7 +466,7 @@ During datagen, call `SetItemDamageFunction#setDamage` with the desired number p
 
 ## `minecraft:set_attributes`
 
-Adds a list of attribute modifiers to the result item stack.
+Adds a list of [attribute modifiers][attributemodifier] to the result item stack.
 
 ```json5
 {
@@ -845,6 +845,7 @@ During datagen, call `SequenceFunction#of` with the other functions to construct
 
 - [Item Modifiers][itemmodifiers] on the [Minecraft Wiki][mcwiki]
 
+[attributemodifier]: ../../../entities/attributes.md#attribute-modifiers
 [component]: ../../client/i18n.md#components
 [conditions]: lootconditions
 [custom]: custom.md#custom-loot-functions
