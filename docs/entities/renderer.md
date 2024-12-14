@@ -5,7 +5,7 @@ sidebar_position: 5
 
 Entity renderers are used to define rendering behavior for an entity. They only exist on the [logical and physical client][sides].
 
-Entity rendering uses what is known as entity render states. Simply put, this is an object that holds all values that the renderer needs. Every time the entity is rendered, the render state is updated, and then the `#render` method uses that render state to render the entity. This is to avoid common issues when the entity renderer accidentally mutates the entity's fields.
+Entity rendering uses what is known as entity render states. Simply put, this is an object that holds all values that the renderer needs. Every time the entity is rendered, the render state is updated, and then the `#render` method uses that render state to render the entity. This is probably intended to be adapted into a deferred rendering system at some point, where the render information is collected beforehand (which could potentially be multithreaded) and rendering then happens at a later point in time.
 
 ## Creating an Entity Renderer
 

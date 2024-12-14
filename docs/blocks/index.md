@@ -280,7 +280,7 @@ The following subsections further break down these stages into actual method cal
 
 #### Mining Speed
 
-The mining speed is calculated as f from the block's hardness, the used [tool]'s speed, and several entity [attributes] according to the following rules:
+The mining speed is calculated from the block's hardness, the used [tool]'s speed, and several entity [attributes] according to the following rules:
 
 ```java
 // This will return the tool's mining speed, or 1 if the held item is either empty, not a tool,

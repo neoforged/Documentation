@@ -3,20 +3,20 @@ sidebar_position: 2
 ---
 # Data and Networking
 
-One of the most important use cases of entities is to store data of some sort. All entities store some default data, such as their type and their position. This article will explain how to add your own data, as well as how to synchronize that data.
+An entity without data is quite useless, as such storing data on an entity is essential. All entities store some default data, such as their type and their position. This article will explain how to add your own data, as well as how to synchronize that data.
 
 The most simple way to add data is as a field in your `Entity` class. You can then interact with this data in any way you wish. However, this quickly becomes very annoying as soon as you have to synchronize that data. This is because most entity logic is run on the server only, and it is only occasionally (depending on the [`EntityType`][entitytype]'s `clientUpdateInterval` value) that an update is sent to the client; this is also the cause for easily noticeable entity "lags" when the server's tick speed is too slow.
 
-As such, vanilla introduces a few systems to help with that. These systems generally exist in parallel and can be replaced with one another, this is due to legacy reasons.
+As such, vanilla introduces a few systems to help with that, each of which serves a specific purpose.
 
 ## `SynchedEntityData`
 
-`SynchedEntityData` is a system used for both storing and syncing values over the network. It is split into three classes:
+`SynchedEntityData` is a system used for storing values at runtime and syncing them over the network. It is split into three classes:
 
 - `EntityDataSerializer`s are basically wrappers around a [`StreamCodec`][streamcodec].
-    - They are a registry, meaning that if you want to add new `EntityDataSerializer`s, they must be added by [registration].
+    - Minecraft uses a hard-coded map of serializers. NeoForge transforms this map into a registry, meaning that if you want to add new `EntityDataSerializer`s, they must be added by [registration].
     - Minecraft defines various default `EntityDataSerializer`s in the `EntityDataSerializers` class.
-- `EntityDataAccessor`s are held by the entity and used to get and set the data values.
+- `EntityDataAccessor`s are held by the entity and are used to get and set the data values.
 - `SynchedEntityData` itself holds all `EntityDataAccessor`s for an entity, and automatically calls on the `EntityDataSerializer`s to sync values as needed.
 
 To get started, create an `EntityDataAccessor` in your entity class:
@@ -33,6 +33,10 @@ public class MyEntity extends Entity {
         );
 }
 ```
+
+:::danger
+While the compiler will allow you to use a class other than the owning class as the first parameter in `SynchedEntityData#defineId()`, this can and will lead to hard-to-debug issues and as such should be avoided.
+:::
 
 We must then define default values in the `defineSynchedData` method, like so:
 
@@ -57,7 +61,7 @@ this.getEntityData().set(MY_DATA, 1);
 
 ## `readAdditionalSaveData` and `addAdditionalSaveData`
 
-This method works by loading/saving your values from/to an [NBT tag][nbt], like so:
+These two methods are used to read and write data to disk. They work by loading/saving your values from/to an [NBT tag][nbt], like so:
 
 ```java
 // Assume that an `int data` exists in the class.
@@ -80,11 +84,11 @@ Additionally, you can send your own packets upon spawning. To do so, override `I
 
 ## Data Attachments
 
-Entities have been patched to extend `AttachmentHolder` and as such support data storage via [data attachments][attachment]. Please see the linked article for more information.
+Entities have been patched to extend `AttachmentHolder` and as such support data storage via [data attachments][attachment]. Its main use is to define custom data on entities that are not your own, i.e., entities added by Minecraft or other mods. Please see the linked article for more information.
 
 ## Custom Network Messages
 
-Of course, you can also always opt to use a custom packet to send additional information when needed. Please refer to the [Networking articles][networking] for more information.
+For syncing, you can also always opt to use a custom packet to send additional information when needed. Please refer to the [Networking articles][networking] for more information.
 
 [attachment]: ../datastorage/attachments.md
 [entitytype]: index.md#entitytype
