@@ -222,7 +222,7 @@ Like all data providers, add each tag provider to the `GatherDataEvent`:
 ```java
 @SubscribeEvent
 public static void gatherData(GatherDataEvent event) {
-    PackOutput output = generator.getPackOutput();
+    PackOutput output = event.getGenerator().getPackOutput();
     CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
     ExistingFileHelper existingFileHelper = event.getExistingFileHelper();
 
@@ -261,7 +261,7 @@ public class MyRecipeTypeTagsProvider extends TagsProvider<RecipeType<?>> {
 If desirable and applicable, you can also extend `IntrinsicHolderTagsProvider<T>` instead of `TagsProvider<T>`, allowing you to pass in objects directly rather than just their resource keys. This additionally requires a function parameter that returns a resource key for a given object. Using attribute tags as an example:
 
 ```java
-public class MyAttributeTagsProvider extends TagsProvider<Attribute> {
+public class MyAttributeTagsProvider extends IntrinsicHolderTagsProvider<Attribute> {
     // Get parameters from GatherDataEvent.
     public MyAttributeTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider, ExistingFileHelper existingFileHelper) {
         super(output,

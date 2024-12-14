@@ -19,6 +19,17 @@ Most JSON files can optionally declare a `neoforge:conditions` block in the root
 }
 ```
 
+:::note
+If the value to load is not a map/object, it is stored within `neoforge:value`:
+
+```json5
+{
+    "neoforge:conditions": [ /* ...*/ ],
+    "neoforge:value": 2 // The value to load
+}
+```
+:::
+
 For example, if we want to only load our file if a mod with id `examplemod` is present, our file would look something like this:
 
 ```json5
@@ -42,22 +53,22 @@ Most vanilla files have been patched to use conditions using the `ConditionalCod
 
 ## Built-In Conditions
 
-### `neoforge:true` and `neoforge:false`
+### `neoforge:always` and `neoforge:never`
 
 These consist of no data and return the expected value.
 
 ```json5
 {
-    // Will always return true (or false for "neoforge:false")
-    "type": "neoforge:true"
+    // Will always return true (or false for "neoforge:never")
+    "type": "neoforge:always"
 }
 ```
 
 :::tip
-Using the `neoforge:false` condition very cleanly allows disabling any data file. Simply place a file with the following contents at the needed location:
+Using the `neoforge:never` condition very cleanly allows disabling any data file. Simply place a file with the following contents at the needed location:
 
 ```json5
-{"neoforge:conditions":[{"type":"neoforge:false"}]}
+{"neoforge:conditions":[{"type":"neoforge:never"}]}
 ```
 
 Disabling files this way will **not** cause log spam.
@@ -108,27 +119,47 @@ This condition returns true if a mod with the given mod id is loaded, and false 
 }
 ```
 
-### `neoforge:item_exists`
+### `neoforge:registered`
 
-This condition returns true if an item with the given registry name has been registered, and false otherwise.
+This condition returns true if an object in a specific registry with the given registry name has been registered, and false otherwise.
 
 ```json5
 {
-    "type": "neoforge:item_exists",
+    "type": "neoforge:registered",
+    // The registry to check the value for
+    // Defaults to `minecraft:item`
+    "registry": "minecraft:item",
     // Returns true if "examplemod:example_item" has been registered
-    "item": "examplemod:example_item"
+    "value": "examplemod:example_item"
 }
 ```
 
 ### `neoforge:tag_empty`
 
-This condition returns true if the given item [tag] is empty, and false otherwise.
+This condition returns true if the given registry [tag] is empty, and false otherwise.
 
 ```json5
 {
     "type": "neoforge:tag_empty",
-    // Returns true if "examplemod:example_tag" is an empty item tag
+    // The registry to check the tag for
+    // Defaults to `minecraft:item`
+    "registry": "minecraft:item",
+    // Returns true if "examplemod:example_tag" is an empty tag
     "tag": "examplemod:example_tag"
+}
+```
+
+### `neoforge:feature_flags_enabled`
+
+This condition returns true if the provided [feature flags][flags] are enabled, and false otherwise.
+
+```json5
+{
+    "type": "neoforge:feature_flags_enabled",
+    // Returns true if the "examplemod:example_feature" is enabled
+    "flags": [
+        "examplemod:example_feature"
+    ]
 }
 ```
 
@@ -136,18 +167,18 @@ This condition returns true if the given item [tag] is empty, and false otherwis
 
 Custom conditions can be created by implementing `ICondition` and its `#test(IContext)` method, as well as creating a [map codec][codec] for it. The `IContext` parameter in `#test` has access to some parts of the game state. Currently, this only allows you to query tags from registries. Some objects with conditions may be loaded earlier than tags, in which case the context will be `IContext.EMPTY` and not contain any tag information at all.
 
-For example, let's assume we want to reimplement the `tag_empty` condition, but for entity type tags instead of item tags, then our condition would look something like this:
+For example, let's assume we want to implement an `xor` condition, then our condition would look something like this:
 
 ```java
-// This class is basically a boiled-down copy of TagEmptyCondition, adjusted for entity types instead of items.
-public record EntityTagEmptyCondition(TagKey<EntityType<?>> tag) implements ICondition {
-    public static final MapCodec<EntityTagEmptyCondition> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
-            TagKey.codec(Registries.ENTITY_TYPE).fieldOf("tag").forGetter(EntityTagEmptyCondition::tag)
-    ).apply(inst, EntityTagEmptyCondition::new));
+public record XorCondition(ICondition first, ICondition second) implements ICondition {
+    public static final MapCodec<XorCondition> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
+            ICondition.CODEC.fieldOf("first").forGetter(XorCondition::first),
+            ICondition.CODEC.fieldOf("second").forGetter(XorCondition::second)
+    ).apply(inst, XorCondition::new));
 
     @Override
     public boolean test(ICondition.IContext context) {
-        return !context.isTagLoaded(this.tag());
+        return this.first.test(context) ^ this.second.test(context);
     }
 
     @Override
@@ -163,8 +194,8 @@ Conditions are a registry of codecs. As such, we need to [register] our codec, l
 public static final DeferredRegister<MapCodec<? extends ICondition>> CONDITION_CODECS =
         DeferredRegister.create(NeoForgeRegistries.Keys.CONDITION_CODECS, ExampleMod.MOD_ID);
 
-public static final Supplier<MapCodec<EntityTagEmptyCondition>> ENTITY_TAG_EMPTY =
-        CONDITION_CODECS.register("entity_tag_empty", () -> EntityTagEmptyCondition.CODEC);
+public static final Supplier<MapCodec<XorCondition>> XOR =
+        CONDITION_CODECS.register("xor", () -> XorCondition.CODEC);
 ```
 
 And then, we can use our condition in some data file (assuming we registered the condition under the `examplemod` namespace):
@@ -173,8 +204,15 @@ And then, we can use our condition in some data file (assuming we registered the
 {
     "neoforge:conditions": [
         {
-            "type": "examplemod:entity_tag_empty",
-            "tag": "minecraft:zombies"
+            "type": "examplemod:xor",
+            "first": {
+                // Either this condition is true
+                "type": "..."
+            },
+            "second": {
+                // Or this condition, not both!
+                "type": "..."
+            }
         }
     ],
     // The rest of the data file
@@ -190,11 +228,12 @@ While any datapack JSON file can use load conditions, only a few [data providers
 - [`DataMapProvider`][datamapprovider]
 - [`GlobalLootModifierProvider`][glmprovider]
 
-For the conditions themselves, the `IConditionBuilder` interface provides static helpers for each of the built-in condition types that return the corresponding `ICondition`s.
+For the conditions themselves, the `NeoForgeConditions` class provides static helpers for each of the built-in condition types that return the corresponding `ICondition`s.
 
 [codec]: ../../datastorage/codecs
 [datagen]: ../index.md#data-generation
 [datamapprovider]: datamaps/index.md#data-generation
+[flags]: ../../advanced/featureflags.md
 [glmprovider]: loottables/glm.md#datagen
 [loottable]: loottables/index.md
 [recipeprovider]: recipes/index.md#data-generation
