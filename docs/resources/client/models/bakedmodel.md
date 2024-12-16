@@ -1,8 +1,12 @@
 # Baked Models
 
-`BakedModel`s are the in-code representation of a shape with textures. They can originate from multiple sources, for example from a call to `UnbakedModel#bake` (default model loader) or `IUnbakedGeometry#bake` ([custom model loaders][modelloader]). Some [block entity renderers][ber] also make use of baked models. There is no limit to how complex a model may be.
+`BakedModel`s are the in-code representation of a shape with textures. They originate from multiple sources from some call to `UnbakedModel#bake` to resolve the model from the model JSON. Some [block entity renderers][ber] also make use of baked models. There is no limit to how complex a model may be.
 
 Models are stored in the `ModelManager`, which can be accessed through `Minecraft.getInstance().modelManager`. Then, you can call `ModelManager#getModel` to get a certain model by its [`ModelResourceLocation`][mrl]. Mods will basically always reuse a model that was previously automatically loaded and baked.
+
+:::warning
+These are not to be confused with [item models][itemmodels], which consume `BakedModel`s for rendering.
+:::
 
 ## Methods of `BakedModel`
 
@@ -39,13 +43,10 @@ Other methods in `BakedModel` that you may override and/or query include:
 | `TriState useAmbientOcclusion()`                                              | Whether to use [ambient occlusion][ao] or not. Accepts a `BlockState`, `RenderType` and `ModelData` parameter and returns a `TriState` which allows not only force-disabling AO but also force-enabling AO. Has two overloads that each return a `boolean` parameter and accept either only a `BlockState` or no parameters at all; both of these are deprecated for removal in favor of the first variant. |
 | `boolean isGui3d()`                                                           | Whether this model renders as 3d or flat in GUI slots.                                                                                                                                                                                                                                                                                                                                                      |
 | `boolean usesBlockLight()`                                                    | Whether to use 3D lighting (`true`) or flat lighting from the front (`false`) when lighting the model.                                                                                                                                                                                                                                                                                                      |
-| `boolean isCustomRenderer()`                                                  | If true, skips normal rendering and calls an associated [`BlockEntityWithoutLevelRenderer`][bewlr]'s `renderByItem` method instead. If false, renders through the default renderer.                                                                                                                                                                                                                         |
-| `BakedOverrides overrides()`                                                | Returns the [`BakedOverrides`][bakedoverrides] associated with this model. This is only relevant on item models.                                                                                                                                                                                                                                                                                              |
 | `ModelData getModelData(BlockAndTintGetter, BlockPos, BlockState, ModelData)` | Returns the model data to use for the model. This method is passed an existing `ModelData` that is either the result of `BlockEntity#getModelData()` if the block has an associated block entity, or `ModelData.EMPTY` if that is not the case. This method can be used for blocks that need model data, but do not have a block entity, for example for blocks with connected textures.                    |
 | `TextureAtlasSprite getParticleIcon(ModelData)`                               | Returns the particle sprite to use for the model. May use the model data to use different particle sprites for different model data values. NeoForge-added, replacing the vanilla `getParticleIcon()` overload with no parameters.                                                                                                                                                                          |
 | `ChunkRenderTypeSet getRenderTypes(BlockState, RandomSource, ModelData)`      | Returns a `ChunkRenderTypeSet` containing the render type(s) to use for rendering the block model. A `ChunkRenderTypeSet` is a set-backed ordered `Iterable<RenderType>`. By default falls back to [getting the render type from the model JSON][rendertype]. Only used for block models, item models use the overload below.                                                                               |
-| `List<RenderType> getRenderTypes(ItemStack)`                         | Returns a `List<RenderType>` containing the render type(s) to use for rendering the item model. By default falls back to the normal model-bound render type lookup, which always yields a list with one element. Only used for item models, block models use the overload above.                                                                                                                            |
-| `List<BakedModel> getRenderPasses(ItemStack)`                         | Returns a `List<BakedModel>` containing the models used by the item. Each of those models' render types will be queired using `getRenderTypes`.                                                                                                                            |
+| `RenderType getRenderType(ItemStack)`                         | Returns a `RenderType` containing the render type to use for rendering the item model. By default falls back to the normal model-bound render type lookup. Only used by [item models][itemmodels], block models use the overload above.                                                                                                                            |
 
 ## Perspectives
 
@@ -63,27 +64,14 @@ Minecraft's render engine recognizes a total of 8 perspective types (9 if you in
 | `FIXED`                   | `"fixed"`                 | Item frames                                                                                                      |
 | `NONE`                    | `"none"`                  | Fallback purposes in code, should not be used in JSON                                                            |
 
-## `BakedOverrides`
+## `DelegateBakedModel`
 
-`BakedOverrides` is a class that provides a way for baked models to process the state of an [`ItemStack`][itemstack] and return a new baked model through the `#findOverride` method. `#findOverride` has four parameters:
-
-- An `ItemStack`: The item stack being rendered.
-- A `ClientLevel`: The level the model is being rendered in. This should only be used for querying the level, not mutating it in any way. May be null.
-- A `LivingEntity`: The entity the model is rendered on. May be null, e.g. when rendering from a [block entity renderer][ber].
-- An `int`: A seed for randomizing.
-
-`BakedOverrides` also hold the model's override options as `BakedOverride`s. An object of `BakedOverride` is an in-code representation of a model's [`overrides`][overrides] block. It can be used by baked models to return different models depending on its contents. A list of all `BakedOverride`s of an `BakedOverrides` instance can be retrieved through `BakedOverrides#getOverrides()`.
-
-## `BakedModelWrapper`
-
-A `BakedModelWrapper` can be used to modify an already existing `BakedModel`. `BakedModelWrapper` is a subclass of `BakedModel` that accepts another `BakedModel` (the "original" model) in the constructor and by default redirects all methods to the original model. Your implementation can then override only select methods, like so:
+A `DelegateBakedModel` can be used to modify an already existing `BakedModel`. `DelegateBakedModel` is a subclass of `BakedModel` that accepts another `BakedModel` (the "original" model) in the constructor and by default redirects all methods to the original model. Your implementation can then override only select methods, like so:
 
 ```java
-// The generic parameter may optionally be a more specific subclass of BakedModel.
-// If it is, the constructor parameter must match that type.
-public class MyBakedModelWrapper extends BakedModelWrapper<BakedModel> {
+public class MyDelegateBakedModel extends DelegateBakedModel {
     // Pass the original model to super.
-    public MyBakedModelWrapper(BakedModel originalModel) {
+    public MyDelegateBakedModel(BakedModel originalModel) {
         super(originalModel);
     }
     
@@ -97,41 +85,28 @@ After writing your model wrapper class, you must apply the wrappers to the model
 @SubscribeEvent
 public static void modifyBakingResult(ModelEvent.ModifyBakingResult event) {
     // For block models
-    event.getModels().computeIfPresent(
+    event.getBakingResult().blockStateModels().computeIfPresent(
         // The model resource location of the model to modify. Get it from
         // BlockModelShaper#stateToModelLocation with the blockstate to be affected as a parameter.
         BlockModelShaper.stateToModelLocation(MyBlocksClass.EXAMPLE_BLOCK.defaultBlockState()),
         // A BiFunction with the location and the original models as parameters, returning the new model.
-        (location, model) -> new MyBakedModelWrapper(model);
-    );
-    // For item models
-    event.getModels().computeIfPresent(
-        // The model resource location of the model to modify.
-        ModelResourceLocation.inventory(
-            ResourceLocation.fromNamespaceAndPath("examplemod", "example_item")
-        ),
-        // A BiFunction with the location and the original models as parameters, returning the new model.
-        (location, model) -> new MyBakedModelWrapper(model);
+        (location, model) -> new MyDelegateBakedModel(model);
     );
 }
 ```
 
 :::warning
-It is generally encouraged to use a [custom model loader][modelloader] over wrapping baked models in `ModelEvent.ModifyBakingResult` when possible. Custom model loaders can also use `BakedModelWrapper`s if needed.
+It is generally encouraged to use a [custom model loader][modelloader] over wrapping baked models in `ModelEvent.ModifyBakingResult` when possible. Custom model loaders can also use `DelegateBakedModel`s if needed.
 :::
 
 [ao]: https://en.wikipedia.org/wiki/Ambient_occlusion
 [ber]: ../../../blockentities/ber.md
-[bewlr]: ../../../blockentities/ber.md#blockentitywithoutlevelrenderer
 [blockstate]: ../../../blocks/states.md
 [event]: ../../../concepts/events.md
-[bakedoverrides]: #bakedoverrides
-[itemstack]: ../../../items/index.md#itemstacks
+[itemmodels]: ../items/index.md#item-models
 [modbus]: ../../../concepts/events.md#event-buses
 [modelloader]: modelloaders.md
 [mrl]: ../../../misc/resourcelocation.md#modelresourcelocations
-[overrides]: index.md#overrides
 [perspective]: #perspectives
 [rendertype]: index.md#render-types
-[rl]: ../../../misc/resourcelocation.md
 [sides]: ../../../concepts/sides.md
