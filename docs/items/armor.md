@@ -61,9 +61,9 @@ public static final ArmorMaterial COPPER_ARMOR_MATERIAL = new ArmorMaterial(
     0,
     // The tag that determines what items can repair this armor.
     Tags.Items.INGOTS_COPPER,
-    // The relative location of the EquipmentModel JSON discussed below
-    // Points to assets/examplemod/models/equipment/copper.json
-    ResourceLocation.fromNamespaceAndPath("examplemod", "copper")
+    // The resource key of the EquipmentClientInfo JSON discussed below
+    // Points to assets/examplemod/equipment/copper.json
+    ResourceKey.create(EquipmentAssets.ROOT_ID, ResourceLocation.fromNamespaceAndPath("examplemod", "copper"))
 );
 ```
 
@@ -115,10 +115,6 @@ Now, creating armor or an armor-like item does not need to extend `ArmorItem` or
 - Allowing the item to be enchanted via `Item.Properties#enchantable`.
 - Adding your armor to some of the `minecraft:enchantable/*` `ItemTags` so that your item can have certain enchantments applied to it.
 
-:::note
-The only logic that has no alternative to using an `ArmorItem` base is when mobs replace their current held item via `Mob#canReplaceCurrentItem`. Mobs will always check for an instance of `SwordItem`, followed by `BowItem`, `CrossbowItem`, `ArmorItem`, and `DiggerItem`, with all other items not considered for specialized logic.
-:::
-
 ### `Equippable`
 
 `Equippable` is a data component that contains how an entity can equip this item and what handles the rendering in game. This allows any item, regardless of whether it is considered 'armor', to be equipped if this component is available (for example carpets on llamas). Each item with this component can only be equipped to a single `EquipmentSlot`.
@@ -137,10 +133,10 @@ public static final DeferredItem<Item> EQUIPPABLE = ITEMS.registerSimpleItem(
             // This is wrapped with a Holder.
             // Defaults to SoundEvents#ARMOR_EQUIP_GENERIC.
             .setEquipSound(SoundEvents.ARMOR_EQUIP_GENERIC)
-            // The relative location of the EquipmentModel JSON discussed below.
-            // Points to assets/examplemod/models/equipment/equippable.json
+            // The resource key of the EquipmentClientInfo JSON discussed below.
+            // Points to assets/examplemod/equipment/equippable.json
             // When not set, does not render the equipment.
-            .setModel(ResourceLocation.fromNamespaceAndPath("examplemod", "equippable"))
+            .setAsset(ResourceKey.create(EquipmentAssets.ROOT_ID, ResourceLocation.fromNamespaceAndPath("examplemod", "equippable")))
             // The relative location of the texture to overlay on the player screen when wearing (e.g., pumpkin blur).
             // Points to assets/examplemod/textures/equippable.png
             // When not set, does not render an overlay.
@@ -163,21 +159,17 @@ public static final DeferredItem<Item> EQUIPPABLE = ITEMS.registerSimpleItem(
 );
 ```
 
-## Equipment Models
+## Equipment Assets
 
-Now we have some armor in game, but if we try to wear it, nothing will render since we never specified how to render the equipment. To do so, we need to create an `EquipmentModel` JSON at the location specified by `Equippable#model`, relative to the `models/equipment` folder of the [resource pack][respack] (`assets` folder). The `EquipmentModel` specifies the associated textures to use for each layer to render.
+Now we have some armor in game, but if we try to wear it, nothing will render since we never specified how to render the equipment. To do so, we need to create an `EquipmentClientInfo` JSON at the location specified by `Equippable#assetId`, relative to the `equipment` folder of the [resource pack][respack] (`assets` folder). The `EquipmentClientInfo` specifies the associated textures to use for each layer to render.
 
-:::note
-`EquipmentModel` is a bit of a misnomer as it does **not** specify the model to use when rendering, only the textures. The model used is the one passed in during [equipment rendering][rendering].
-:::
+An `EquipmentClientInfo` is functionally a map of `EquipmentClientInfo.LayerType`s to a list of `EquipmentClientInfo.Layer`s to apply.
 
-An `EquipmentModel` is functionally a map of `EquipmentModel.LayerType`s to a list of `EquipmentModel.Layer`s to apply.
+The `LayerType` can be thought of as a group of textures to render for some instance. For example, `LayerType#HUMANOID` is used by the `HumanoidArmorLayer` to render the head, chest, and feet on humanoid entities; `LayerType#WOLF_BODY` is used by `WolfArmorLayer` to render the body armor. These can be combined into one equipment info JSON if they are for the same type of equippable, like copper armor.
 
-The `LayerType` can be thought of as a group of textures to render for some instance. For example, `LayerType#HUMANOID` is used by the `HumanoidArmorLayer` to render the head, chest, and feet on humanoid entities; `LayerType#WOLF_BODY` is used by `WolfArmorLayer` to render the body armor. These can be combined into one equipment model JSON if they are for the same type of equippable, like copper armor.
+The `LayerType` maps to some list of `Layer`s to apply and render the textures in the order provided. A `Layer` effectively represents a single texture to render. The first parameter represents the location of the texture, relative to `textures/entity/equipment`.
 
-The `LayerType` maps to some list of `Layer`s to apply and render the model in the order provided. A `Layer` effectively represents a single texture to render. The first parameter represents the location of the texture, relative to `textures/entity/equipment`.
-
-The second parameter is an optional that indicates whether the [texture can be tinted][tinting] as a `EquipmentModel.Dyeable`. The `Dyeable` object holds an integer that, when present, indicates the default RGB color to tint the texture with. If this optional is not present, then pure white is used.
+The second parameter is an optional that indicates whether the [texture can be tinted][tinting] as a `EquipmentClientInfo.Dyeable`. The `Dyeable` object holds an integer that, when present, indicates the default RGB color to tint the texture with. If this optional is not present, then pure white is used.
 
 :::warning
 For a tint other than the undyed color to be applied to the item, the item must be in the [`ItemTags#DYEABLE`][tag] and have the `DataComponents#DYED_COLOR` component set to some RGB value.
@@ -185,17 +177,17 @@ For a tint other than the undyed color to be applied to the item, the item must 
 
 The third parameter is a boolean that indicates whether the texture provided during rendering should be used instead of the one defined within the `Layer`. An example of this is a custom cape or custom elytra texture for the player.
 
-Let's create a equipment model for the copper armor material. We'll also assume that for each layer there are two textures: one for the actual armor and one that is overlayed and tinted. For the animal armor, we'll say that there is some dynamic texture to be used that can be passed in.
+Let's create an equipment info for the copper armor material. We'll also assume that for each layer there are two textures: one for the actual armor and one that is overlayed and tinted. For the animal armor, we'll say that there is some dynamic texture to be used that can be passed in.
 
 <Tabs>
 <TabItem value="json" label="JSON" default>
 
 ```json5
-// In assets/examplemod/models/equipment/copper.json
+// In assets/examplemod/equipment/copper.json
 {
     // The layer map
     "layers": {
-        // The serialized name of the EquipmentModel.LayerType to apply.
+        // The serialized name of the EquipmentClientInfo.LayerType to apply.
         // For humanoid head, chest, and feet
         "humanoid": [
             // A list of layers to render in the order provided
@@ -258,24 +250,24 @@ Let's create a equipment model for the copper armor material. We'll also assume 
 <TabItem value="datagen" label="Datagen">
 
 ```java
-public class MyEquipmentModelProvider implements DataProvider {
+public class MyEquipmentInfoProvider implements DataProvider {
 
     private final PackOutput.PathProvider path;
 
-    public MyEquipmentModelProvider(PackOutput output) {
-        this.path = output.createPathProvider(PackOutput.Target.RESOURCE_PACK, "models/equipment");
+    public MyEquipmentInfoProvider(PackOutput output) {
+        this.path = output.createPathProvider(PackOutput.Target.RESOURCE_PACK, "equipment");
     }
 
-    private void add(BiConsumer<ResourceLocation, EquipmentModel> registrar) {
+    private void add(BiConsumer<ResourceLocation, EquipmentClientInfo> registrar) {
         registrar.accept(
-            // Must match Equippable#model
+            // Must match Equippable#assetId
             ResourceLocation.fromNamespaceAndPath("examplemod", "copper"),
-            EquipmentModel.builder()
+            EquipmentClientInfo.builder()
                 // For humanoid head, chest, and feet
                 .addLayers(
-                    EquipmentModel.LayerType.HUMANOID,
+                    EquipmentClientInfo.LayerType.HUMANOID,
                     // Base texture
-                    new EquipmentModel.Layer(
+                    new EquipmentClientInfo.Layer(
                         // The relative texture of the armor
                         // Points to assets/examplemod/textures/entity/equipment/copper/outer.png
                         ResourceLocation.fromNamespaceAndPath("examplemod", "copper/outer"),
@@ -283,37 +275,37 @@ public class MyEquipmentModelProvider implements DataProvider {
                         false
                     ),
                     // Overlay texture
-                    new EquipmentModel.Layer(
+                    new EquipmentClientInfo.Layer(
                         // The overlay texture
                         // Points to assets/examplemod/textures/entity/equipment/copper/outer_overlay.png
                         ResourceLocation.fromNamespaceAndPath("examplemod", "copper/outer_overlay"),
                         // An RGB value (always opaque color)
                         // When not specified, set to 0 (meaning transparent or invisible)
-                        Optional.of(new EquipmentModel.Dyeable(Optional.of(0x7683DE))),
+                        Optional.of(new EquipmentClientInfo.Dyeable(Optional.of(0x7683DE))),
                         false
                     )
                 )
                 // For humanoid legs
                 .addLayers(
-                    EquipmentModel.LayerType.HUMANOID_LEGGINGS,
-                    new EquipmentModel.Layer(
+                    EquipmentClientInfo.LayerType.HUMANOID_LEGGINGS,
+                    new EquipmentClientInfo.Layer(
                         // Points to assets/examplemod/textures/entity/equipment/copper/inner.png
                         ResourceLocation.fromNamespaceAndPath("examplemod", "copper/inner"),
                         Optional.empty(),
                         false
                     ),
-                    new EquipmentModel.Layer(
+                    new EquipmentClientInfo.Layer(
                         // Points to assets/examplemod/textures/entity/equipment/copper/inner_overlay.png
                         ResourceLocation.fromNamespaceAndPath("examplemod", "copper/inner_overlay"),
-                        Optional.of(new EquipmentModel.Dyeable(Optional.of(0x7683DE))),
+                        Optional.of(new EquipmentClientInfo.Dyeable(Optional.of(0x7683DE))),
                         false
                     )
                 )
                 // For wolf armor
                 .addLayers(
-                    EquipmentModel.LayerType.WOLF_BODY,
+                    EquipmentClientInfo.LayerType.WOLF_BODY,
                     // Base texture
-                    new EquipmentModel.Layer(
+                    new EquipmentClientInfo.Layer(
                         // Points to assets/examplemod/textures/entity/equipment/copper/wolf.png
                         ResourceLocation.fromNamespaceAndPath("examplemod", "copper/wolf"),
                         Optional.empty(),
@@ -323,9 +315,9 @@ public class MyEquipmentModelProvider implements DataProvider {
                 )
                 // For horse armor
                 .addLayers(
-                    EquipmentModel.LayerType.HORSE_BODY,
+                    EquipmentClientInfo.LayerType.HORSE_BODY,
                     // Base texture
-                    new EquipmentModel.Layer(
+                    new EquipmentClientInfo.Layer(
                         // Points to assets/examplemod/textures/entity/equipment/copper/horse.png
                         ResourceLocation.fromNamespaceAndPath("examplemod", "copper/horse"),
                         Optional.empty(),
@@ -338,18 +330,18 @@ public class MyEquipmentModelProvider implements DataProvider {
 
     @Override
     public CompletableFuture<?> run(CachedOutput cache) {
-        Map<ResourceLocation, EquipmentModel> map = new HashMap<>();
-        this.add((name, model) -> {
-            if (map.putIfAbsent(name, model) != null) {
-                throw new IllegalStateException("Tried to register equipment model twice for id: " + name);
+        Map<ResourceLocation, EquipmentClientInfo> map = new HashMap<>();
+        this.add((name, info) -> {
+            if (map.putIfAbsent(name, info) != null) {
+                throw new IllegalStateException("Tried to register equipment client info twice for id: " + name);
             }
         });
-        return DataProvider.saveAll(cache, EquipmentModel.CODEC, this.pathProvider, map);
+        return DataProvider.saveAll(cache, EquipmentClientInfo.CODEC, this.pathProvider, map);
     }
 
     @Override
     public String getName() {
-        return "Equipment Model Definitions: " + MOD_ID;
+        return "Equipment Client Infos: " + MOD_ID;
     }
 }
 
@@ -361,7 +353,7 @@ public static void gatherData(GatherDataEvent event) {
     // Other providers here
     event.getGenerator().addProvider(
         event.includeClient(),
-        new MyEquipmentModelProvider(output)
+        new MyEquipmentInfoProvider(output)
     );
 }
 ```
@@ -371,9 +363,9 @@ public static void gatherData(GatherDataEvent event) {
 
 ## Equipment Rendering
 
-The equipment models are rendered via the `EquipmentLayerRenderer` in the render function of an `EntityRenderer` or one of its `RenderLayer`s. `EquipmentLayerRenderer` is obtained as part of the render context via `EntityRendererProvider.Context#getEquipmentRenderer`. If the `EquipmentModel`s are required, they are also available via `EntityRendererProvider.Context#getEquipmentModels`.
+The equipment infos are rendered via the `EquipmentLayerRenderer` in the render function of an `EntityRenderer` or one of its `RenderLayer`s. `EquipmentLayerRenderer` is obtained as part of the render context via `EntityRendererProvider.Context#getEquipmentRenderer`. If the `EquipmentClientInfo`s are required, they are also available via `EntityRendererProvider.Context#getEquipmentAssets`.
 
-By default, the following layers render the associated `EquipmentModel.LayerType`:
+By default, the following layers render the associated `EquipmentClientInfo.LayerType`:
 
 | `LayerType`         | `RenderLayer`        | Used by                                                        |
 |:-------------------:|:--------------------:|:---------------------------------------------------------------|
@@ -390,11 +382,11 @@ By default, the following layers render the associated `EquipmentModel.LayerType
 // In some render method where EquipmentLayerRenderer equipmentLayerRenderer is a field
 this.equipmentLayerRenderer.renderLayers(
     // The layer type to render
-    EquipmentModel.LayerType.HUMANOID,
-    // The model id representing the EquipmentModel JSON
-    // This would be set in the `EQUIPPABLE` data component via `model`
-    stack.get(DataComponents.EQUIPPABLE).model().orElseThrow(),
-    // The model to apply the textures to
+    EquipmentClientInfo.LayerType.HUMANOID,
+    // The resource key representing the EquipmentClientInfo JSON
+    // This would be set in the `EQUIPPABLE` data component via `assetId`
+    stack.get(DataComponents.EQUIPPABLE).assetId().orElseThrow(),
+    // The model to apply the equipment info to
     // These are usually separate models from the entity model
     // and are separate ModelLayers linking to a LayerDefinition
     model,
