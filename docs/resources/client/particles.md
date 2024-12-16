@@ -127,7 +127,7 @@ A mismatched list of sprite set particle factories and particle definition files
 :::
 
 :::note
-While particle descriptions must have providers registered a certain way, they are only used if the `ParticleRenderType` (set via `Particle#getRenderType`) uses the `TextureAtlas#LOCATION_PARTICLES` as the shader texture. For vanilla render types, these are `PARTICLE_SHEET_OPAQUE` and `PARTICLE_SHEET_TRANSLUCENT`.
+While particle descriptions must have providers registered a certain way, they are only used if the `RenderType` of the `ParticleRenderType` (set via `Particle#getRenderType`) uses `TextureAtlas#LOCATION_PARTICLES` for the shader texture. For vanilla particle render types, these are `PARTICLE_SHEET_OPAQUE` and `PARTICLE_SHEET_TRANSLUCENT`.
 :::
 
 ### Datagen
