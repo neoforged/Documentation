@@ -109,11 +109,13 @@ Using the custom `neoforge:item_layers` loader, you can also specify extra face 
     "layer1": "minecraft:item/glowstone_dust"
   },
   "neoforge_data": {
-    "1": {
-      "color": "0xFFFF0000",
-      "block_light": 15,
-      "sky_light": 15,
-      "ambient_occlusion": false
+    "layers": {
+      "1": {
+        "color": "0xFFFF0000",
+        "block_light": 15,
+        "sky_light": 15,
+        "ambient_occlusion": false
+      }
     }
   }
 }
