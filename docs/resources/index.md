@@ -16,7 +16,23 @@ Assets, or client-side resources, are all resources that are only relevant on th
 
 NeoForge automatically collects all mod resource packs into the `Mod resources` pack, which sits at the bottom of the Selected Packs side in the resource packs menu. It is currently not possible to disable the `Mod resources` pack. However, resource packs that sit above the `Mod resources` pack override resources defined in a resource pack below them. This mechanic allows resource pack makers to override your mod's resources, and also allows mod developers to override Minecraft resources if needed.
 
-Resource packs can contain [models][models], [blockstate files][bsfile], [textures][textures], [sounds][sounds], [particle definitions][particles] and [translation files][translations].
+Resource packs may contain folders with files affecting the following things:
+
+| Folder Name   | Contents                                |
+|---------------|-----------------------------------------|
+| `atlases`     | Texture Atlas Sources                   |
+| `blockstates` | [Blockstate Files][bsfile]              |
+| `equipment`   | [Equipment Info][equipment]             |
+| `font`        | Font Definitions                        |
+| `items`       | [Client Items][citems]                  |
+| `lang`        | [Translation Files][translations]       |
+| `models`      | [Models][models]                        |
+| `particles`   | [Particle Definitions][particles]       |
+| `post_effect` | Post Processing Screen Effects          |
+| `shaders`     | Metadata, Fragement, and Vertex Shaders |
+| `sounds`      | [Sound Files][sounds]                   |
+| `texts`       | Miscellaneous Text files                |
+| `textures`    | [Textures][textures]                    |
 
 ## Data
 
@@ -32,7 +48,7 @@ There is currently no built-in way to apply a set of custom data packs to every 
 
 Data packs may contain folders with files affecting the following things:
 
-| Folder name                                                                       | Contents                     |
+| Folder Name                                                                       | Contents                     |
 |-----------------------------------------------------------------------------------|------------------------------|
 | `advancement`                                                                     | [Advancements][advancements] |
 | `damage_type`                                                                     | [Damage types][damagetypes]  |
@@ -179,12 +195,14 @@ runs {
 [blockstateprovider]: client/models/datagen.md#block-model-datagen
 [bsfile]: client/models/index.md#blockstate-files
 [chattype]: https://minecraft.wiki/w/Chat_type
+[citems]: client/items/index.md
 [codec]: ../datastorage/codecs.md
 [damagetypes]: server/damagetypes.md
 [datamap]: server/datamaps/index.md
 [datamapprovider]: server/datamaps/index.md#data-generation
 [datapackcmd]: https://minecraft.wiki/w/Commands/datapack
 [datapackprovider]: ../concepts/registries.md#data-generation-for-datapack-registries
+[equipment]: ../items/armor.md#equipment-models
 [event]: ../concepts/events.md
 [eventhandler]: ../concepts/events.md#registering-an-event-handler
 [function]: https://minecraft.wiki/w/Function_(Java_Edition)

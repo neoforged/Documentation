@@ -24,7 +24,7 @@ public class MyMobEffect extends MobEffect {
     }
     
     @Override
-    public boolean applyEffectTick(LivingEntity entity, int amplifier) {
+    public boolean applyEffectTick(ServerLevel level, LivingEntity entity, int amplifier) {
         // Apply your effect logic here.
 
         // If this returns false when shouldApplyEffectTickThisTick returns true, the effect will immediately be removed
@@ -84,7 +84,7 @@ public class MyMobEffect extends InstantenousMobEffect {
     }
 
     @Override
-    public void applyEffectTick(LivingEntity entity, int amplifier) {
+    public void applyEffectTick(ServerLevel level, LivingEntity entity, int amplifier) {
         // Apply your effect logic here.
     }
 }
@@ -139,7 +139,7 @@ MobEffectInstance instance = new MobEffectInstance(...);
 livingEntity.addEffect(instance);
 ```
 
-Similarly, `MobEffectInstance` can also be removed from an `LivingEntity`. Since a `MobEffectInstance` overwrites pre-existing `MobEffectInstance`s of the same `MobEffect` on the entity, there can only ever be one `MobEffectInstance` per `MobEffect` and entity. As such, specifying the `MobEffect` suffices when removing:
+Similarly, `MobEffectInstance`s can also be removed from an `LivingEntity`. Since a `MobEffectInstance` overwrites pre-existing `MobEffectInstance`s of the same `MobEffect` on the entity, there can only ever be one `MobEffectInstance` per `MobEffect` and entity. As such, specifying the `MobEffect` suffices when removing:
 
 ```java
 livingEntity.removeEffect(MobEffects.REGENERATION);

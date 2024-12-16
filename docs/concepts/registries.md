@@ -236,7 +236,10 @@ public static void registerDatapackRegistries(DataPackRegistryEvent.NewRegistry 
             // May be null. If null, registry entries will not be synced to the client at all.
             // May be omitted, which is functionally identical to passing null (a method overload
             // with two parameters is called that passes null to the normal three parameter method).
-            Spell.CODEC
+            Spell.CODEC,
+            // A consumer which configures the constructed registry via the RegistryBuilder.
+            // May be omitted, which is functionally identical to passing builder -> {}.
+            builder -> builder.maxId(256)
     );
 }
 ```

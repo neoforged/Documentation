@@ -1,4 +1,4 @@
-# Model Datagen
+# Model Datagen (TODO, rewrite from scratch, waiting on neoforged/NeoForge#1725)
 
 Like most JSON data, block and item models can be [datagenned][datagen]. Since some things are common between item and block models, so is some of the datagen code.
 
