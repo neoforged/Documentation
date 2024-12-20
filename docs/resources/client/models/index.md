@@ -2,8 +2,8 @@
 
 Models are JSON files that determine the visual shape and texture(s) of a block or item. A model consists of cuboid elements, each with their own size, that then get assigned a texture to each face.
 
-Each item gets an item model assigned to it by its registry name. For example, an item with the registry name `examplemod:example_item` would get the model at `assets/examplemod/models/item/example_item.json` assigned to it. For blocks, this is a bit more complicated, as they get assigned a blockstate file first. See [below][bsfile] for more information.
-
+Items use the associated model(s) defined by its [client item][citem] while blocks use the associated model in the [blockstate file][bsfile]. These locations are relative to the `models` directory, so a model with the registry name `examplemod:item/example_model` would be defined by the JSON at `assets/examplemod/models/item/example_model.json`.
+ 
 ## Specification
 
 _See also: [Model][mcwikimodel] on the [Minecraft Wiki][mcwiki]_
@@ -20,16 +20,14 @@ A model is a JSON file with the following optional properties in the root tag:
     - `minecraft:block/cross`: Model that uses two planes with the same texture, one rotated 45° clockwise and the other rotated 45° counter-clockwise, forming an X when viewed from above (hence the name). Examples include most plants, e.g. grass, saplings and flowers.
     - `minecraft:item/generated`: Parent for classic 2D flat item models. Used by most items in the game. Ignores an `elements` block since its quads are generated from the textures.
     - `minecraft:item/handheld`: Parent for 2D flat item models that appear to be actually held by the player. Used predominantly by tools. Submodel of `item/generated`, which causes it to ignore the `elements` block as well.
-    - `minecraft:builtin/entity`: Specifies no textures other than `particle`. If this is the parent, [`BakedModel#isCustomRenderer()`][iscustomrenderer] returns `true` to allow use of a [`BlockEntityWithoutLevelRenderer`][bewlr].
-    - Block items commonly (but not always) use their corresponding block models as parent. For example, the cobblestone item model uses the parent `minecraft:block/cobblestone`.
+    - Block items commonly (but not always) use their corresponding block models for their [item model][itemmodels]. For example, the cobblestone client item uses the `minecraft:block/cobblestone` model.
 - `ambientocclusion`: Whether to enable [ambient occlusion][ao] or not. Only effective on block models. Defaults to `true`. If your custom block model has weird shading, try setting this to `false`.
-- `render_type`: See [Render Types][rendertype].
+- `render_type`: NeoForge-added. Sets the render type to use. See [Render Types][rendertype] for more information.
 - `gui_light`: Can be `"front"` or `"side"`. If `"front"`, light will come from the front, useful for flat 2D models. If `"side"`, light will come from the side, useful for 3D models (especially block models). Defaults to `"side"`. Only effective on item models.
 - `textures`: A sub-object that maps names (known as texture variables) to [texture locations][textures]. Texture variables can then be used in [elements]. They can also be specified in elements, but left unspecified in order for child models to specify them.
     - Block models should additionally specify a `particle` texture. This texture is used when falling on, running across, or breaking the block.
     - Item models can also use layer textures, named `layer0`, `layer1`, etc., where layers with a higher index are rendered above those with a lower index (e.g. `layer1` would be rendered above `layer0`). Only works if the parent is `item/generated`, and only works for up to 5 layers (`layer0` through `layer4`).
 - `elements`: A list of cuboid [elements].
-- `overrides`: A list of [override models][overrides]. Only effective on item models.
 - `display`: A sub-object that holds the different display options for different [perspectives], see linked article for possible keys. Only effective on item models, but often specified in block models so that item models can inherit the display options. Every perspective is an optional sub-object that may contain the following options, which are applied in that order:
     - `translation`: The translation of the model, specified as `[x, y, z]`.
     - `rotation`: The rotation of the model, specified as `[x, y, z]`.
@@ -51,15 +49,15 @@ Using the optional NeoForge-added `render_type` field, you can set a render type
 - `minecraft:cutout_mipped_all`: Variant of `minecraft:cutout_mipped` which applies mipmapping to item models as well.
 - `minecraft:translucent`: Used for blocks where any pixel may be partially transparent, for example stained glass.
 - `minecraft:tripwire`: Used by blocks with the special requirement of being rendered to the weather target, i.e. tripwire.
+- `neoforge:item_unlit`: NeoForge-added. Should be used by blocks that, when rendered from an item, does not take into account the light directions.
 
 Selecting the correct render type is a question of performance to some degree. Solid rendering is faster than cutout rendering, and cutout rendering is faster than translucent rendering. Because of this, you should specify the "strictest" render type applicable for your use case, as it will also be the fastest.
 
-If you want, you can also add your own render types. To do so, subscribe to the [mod bus][modbus] [event] `RegisterNamedRenderTypesEvent` and `#register` your render types. `#register` has three or four parameters:
+If you want, you can also add your own render types. To do so, subscribe to the [mod bus][modbus] [event] `RegisterNamedRenderTypesEvent` and `#register` your render types. `#register` has three:
 
-- The name of the render type. Will be prefixed with your mod id. For example, using `"my_cutout"` here will provide `examplemod:my_cutout` as a new render type for you to use (provided that your mod id is `examplemod`, of course).
+- The name of the render type. Should be a `ResourceLocation` prefixed with your mod id.
 - The chunk render type. Any of the types in the list returned by `RenderType.chunkBufferLayers()` can be used.
 - The entity render type. Must be a render type with the `DefaultVertexFormat.NEW_ENTITY` vertex format.
-- Optional: The fabulous render type. Must be a render type with the `DefaultVertexFormat.NEW_ENTITY` vertex format. Will be used instead of the regular entity render type if the graphics mode is set to _Fabulous!_. If omitted, falls back to the regular render type. Generally recommended to set if the render type uses transparency in some way.
 
 ### Elements
 
@@ -97,88 +95,6 @@ Extra face data (`neoforge_data`) can be applied to both an element and a single
 - `block_light`: Overrides the block light value used for this face. Defaults to 0.
 - `sky_light`: Overrides the sky light value used for this face. Defaults to 0.
 - `ambient_occlusion`: Disables or enables ambient occlusion for this face. Defaults to the value set in the model.
-
-Using the custom `neoforge:item_layers` loader, you can also specify extra face data to apply to all the geometry in an `item/generated` model. In the following example, layer 1 will be tinted red and glow at full brightness:
-
-```json5
-{
-    "loader": "neoforge:item_layers",
-    "parent": "minecraft:item/generated",
-    "textures": {
-        "layer0": "minecraft:item/stick",
-        "layer1": "minecraft:item/glowstone_dust"
-    },
-    "neoforge_data": {
-        "1": {
-            "color": "0xFFFF0000",
-            "block_light": 15,
-            "sky_light": 15,
-            "ambient_occlusion": false
-        }
-    }
-}
-```
-
-### Overrides
-
-Item overrides can assign a different model to an item based on a float value, called the override value. For example, bows and crossbows use this to change the texture depending on how long they have been drawn. Overrides have both a model and a code side to them.
-
-The model can specify one or multiple override models that should be used when the override value is equal to or greater than the given threshold value. For example, the bow uses two different properties `pulling` and `pull`. `pulling` is treated as a boolean value, with 1 being interpreted as pulling and 0 as not pulling, while `pull` represents how much the bow is currently pulled. It then uses these properties to specify usage of three alternative models when charged to below 65% (`pulling` 1, no `pull` value), 65% (`pulling` 1, `pull` 0.65) and 90% (`pulling` 1, `pull` 0.9). If multiple models apply (because the value keeps on becoming bigger), the last element of the list matches, so make sure your order is correct. The overrides look as follows:
-
-```json5
-{
-    // other stuff here
-    "overrides": [
-        {
-            // pulling = 1
-            "predicate": {
-                "pulling": 1
-            },
-            "model": "item/bow_pulling_0"
-        },
-        {
-            // pulling = 1, pull >= 0.65
-            "predicate": {
-                "pulling": 1,
-                "pull": 0.65
-            },
-            "model": "item/bow_pulling_1"
-        },
-        // pulling = 1, pull >= 0.9
-        {
-            "predicate": {
-                "pulling": 1,
-                "pull": 0.9
-            },
-            "model": "item/bow_pulling_2"
-        }
-    ]
-}
-```
-
-The code side of things is pretty simple. Assuming that we want to add a property named `examplemod:property` to our item, we would use the following code in a [client-side][side] [event handler][eventhandler]:
-
-```java
-@SubscribeEvent
-public static void onClientSetup(FMLClientSetupEvent event) {
-    event.enqueueWork(() -> { // ItemProperties#register is not threadsafe, so we need to call it on the main thread
-        ItemProperties.register(
-            // The item to apply the property to.
-            ExampleItems.EXAMPLE_ITEM,
-            // The id of the property.
-            ResourceLocation.fromNamespaceAndPath("examplemod", "property"),
-            // A reference to a method that calculates the override value.
-            // Parameters are the used item stack, the level context, the player using the item,
-            // and a random seed you can use.
-            (stack, level, player, seed) -> someMethodThatReturnsAFloat()
-        );
-    });
-}
-```
-
-:::info
-Vanilla Minecraft only allows for float values between 0 and 1. NeoForge patches this to allow arbitrary float values.
-:::
 
 ### Root Transforms
 
@@ -230,9 +146,13 @@ In contrast, inside a `multipart` block, elements are combined depending on the 
 - The `when` block specifies either a string representation of a blockstate or a list of properties that must be met for the element to apply. The lists can either be named `"OR"` or `"AND"`, performing the respective logical operation on its contents. Both single blockstate and list values can additionally specify multiple actual values by separating them with `|` (for example `facing=east|facing=west`).
 - The `apply` block specifies the model object or an array of model objects to use. This works exactly like with a `variants` block.
 
+## Client Items
+
+[Client items][citems] are used by the game to assign a model or multiple models to the states of the `ItemStack`. While there are some item-specific fields in the model JSON, client items consume models to render based on context, so most of their information has been moved to their own separate [section][citems].
+
 ## Tinting
 
-Some blocks, such as grass or leaves, change their texture color based on their location and/or properties. [Model elements][elements] can specify a tint index on their faces, which will allow a color handler to handle the respective faces. The code side of things works through two events, one for block color handlers and one for item color handlers. They both work pretty similar, so let's have a look at a block handler first:
+Some blocks, such as grass or leaves, change their texture color based on their location and/or properties. [Model elements][elements] can specify a tint index on their faces, which will allow a color handler to handle the respective faces. The code side of things works through three events, one for block color handlers, one for block tints based on biome (used in conjunction with the block color handlers), and one for [item tint sources explained with client items][itemtints]. They work pretty similar, so let's have a look at a block handler first:
 
 ```java
 // Client-side mod bus event handler
@@ -251,24 +171,20 @@ public static void registerBlockColorHandlers(RegisterColorHandlersEvent.Block e
 }
 ```
 
-Item handlers work pretty much the same, except for some naming and the lambda parameters:
+Here is an example for a color resolver:
 
 ```java
 // Client-side mod bus event handler
 @SubscribeEvent
-public static void registerItemColorHandlers(RegisterColorHandlersEvent.Item event) {
-    // Parameters are the item stack and the tint index.
-    event.register((stack, tintIndex) -> {
-        // Like above, replace with your own calculation. Vanilla values are in the ItemColors class.
-        // Also like above, tint index -1 means no tint and should use a default value instead.
+public static void registerColorResolvers(RegisterColorHandlersEvent.ColorResolvers event) {
+    // Parameters are the current biome, the block's X position, and the block's Z position.
+    event.register((biome, x, z) -> {
+        // Replace with your own calculation. See the BiomeColors class for vanilla references.
+        // Colors are in ARGB format.
         return 0xFFFFFFFF;
-    },
-    // A varargs of items to apply the tinting to
-    EXAMPLE_ITEM.get(), ...);
+    });
 }
 ```
-
-Be aware that the `item/generated` model specifies tint indices for its various layers - `layer0` has tint index 0, `layer1` has tint index 1, etc. Also, remember that block items are items, not blocks, and require an item color handler to be colored.
 
 ## Registering Additional Models
 
@@ -278,49 +194,30 @@ Models that are not associated with a block or item in some way, but are still r
 // Client-side mod bus event handler
 @SubscribeEvent
 public static void registerAdditional(ModelEvent.RegisterAdditional event) {
-    event.register(new ModelResourceLocation(
-        // The id of the model
-        ResourceLocation.fromNamespaceAndPath("examplemod", "block/example_unused_model"),
-        // The string representing what variant of the model this is for
-        // In normal vanilla, this would be one of three values:
-        // - Blocks: The stringified block state
-        // - Items: 'inventory' as it is the inventory model
-        // - Standalone: 'standalone' as this does not refer to any other model
-        "variant_type=true"
-    ));
-
-    // An inventory model example
-    event.register(ModelResourceLocation.inventory(
-        ResourceLocation.fromNamespaceAndPath("examplemod", "item/example_unused_inventory_model")
-    ));
-
-    // A standalone model example
-    event.register(ModelResourceLocation.standalone(
-        ResourceLocation.fromNamespaceAndPath("examplemod", "block/example_unused_standalone_model")
-    ));
+    // The model id, relative to `assets/<namespace>/models/<path>.json`
+    event.register(ResourceLocation.fromNamespaceAndPath("examplemod", "block/example_unused_model"));
 }
 ```
 
 [ao]: https://en.wikipedia.org/wiki/Ambient_occlusion
 [ber]: ../../../blockentities/ber.md
-[bewlr]: ../../../blockentities/ber.md#blockentitywithoutlevelrenderer
 [bsfile]: #blockstate-files
+[citem]: ../items/index.md
 [custommodelloader]: modelloaders.md
 [elements]: #elements
 [event]: ../../../concepts/events.md
-[eventhandler]: ../../../concepts/events.md#registering-an-event-handler
 [extrafacedata]: #extra-face-data
-[iscustomrenderer]: bakedmodel.md#others
+[citems]: ../items/index.md
+[itemmodel]: ../items/index.md#item-models
+[itemtints]: ../items/index.md#tinting
 [mcwiki]: https://minecraft.wiki
 [mcwikiblockstate]: https://minecraft.wiki/w/Tutorials/Models#Block_states
 [mcwikimodel]: https://minecraft.wiki/w/Model
 [mipmapping]: https://en.wikipedia.org/wiki/Mipmap
 [modbus]: ../../../concepts/events.md#event-buses
-[overrides]: #overrides
 [perspectives]: bakedmodel.md#perspectives
 [rendertype]: #render-types
 [roottransforms]: #root-transforms
 [rl]: ../../../misc/resourcelocation.md
-[side]: ../../../concepts/sides.md
 [textures]: ../textures.md
 [tinting]: #tinting
