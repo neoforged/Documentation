@@ -239,7 +239,7 @@ It is also possible to implement `ItemLike` on your custom objects. Simply overr
 [block]: ../blocks/index.md
 [blockstates]: ../blocks/states.md
 [breaking]: ../blocks/index.md#breaking-a-block
-[citems]: ../resources/client/items/index.md
+[citems]: ../resources/client/models/items.md
 [creativetabs]: #creative-tabs
 [datacomponents]: datacomponents.md
 [datagen]: ../resources/index.md#data-generation

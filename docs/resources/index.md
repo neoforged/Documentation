@@ -195,7 +195,7 @@ runs {
 [blockstateprovider]: client/models/datagen.md#block-model-datagen
 [bsfile]: client/models/index.md#blockstate-files
 [chattype]: https://minecraft.wiki/w/Chat_type
-[citems]: client/items/index.md
+[citems]: client/models/items.md
 [codec]: ../datastorage/codecs.md
 [damagetypes]: server/damagetypes.md
 [datamap]: server/datamaps/index.md

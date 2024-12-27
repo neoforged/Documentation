@@ -2,7 +2,7 @@
 
 Models are JSON files that determine the visual shape and texture(s) of a block or item. A model consists of cuboid elements, each with their own size, that then get assigned a texture to each face.
 
-Items use the associated model(s) defined by its [client item][citem] while blocks use the associated model in the [blockstate file][bsfile]. These locations are relative to the `models` directory, so a model with the registry name `examplemod:item/example_model` would be defined by the JSON at `assets/examplemod/models/item/example_model.json`.
+Items use the associated model(s) defined by its [client item][citems] while blocks use the associated model in the [blockstate file][bsfile]. These locations are relative to the `models` directory, so a model with the registry name `examplemod:item/example_model` would be defined by the JSON at `assets/examplemod/models/item/example_model.json`.
  
 ## Specification
 
@@ -202,14 +202,13 @@ public static void registerAdditional(ModelEvent.RegisterAdditional event) {
 [ao]: https://en.wikipedia.org/wiki/Ambient_occlusion
 [ber]: ../../../blockentities/ber.md
 [bsfile]: #blockstate-files
-[citem]: ../items/index.md
 [custommodelloader]: modelloaders.md
 [elements]: #elements
 [event]: ../../../concepts/events.md
 [extrafacedata]: #extra-face-data
-[citems]: ../items/index.md
-[itemmodel]: ../items/index.md#item-models
-[itemtints]: ../items/index.md#tinting
+[citems]: items.md
+[itemmodel]: items.md#a-basic-model
+[itemtints]: items.md#tinting
 [mcwiki]: https://minecraft.wiki
 [mcwikiblockstate]: https://minecraft.wiki/w/Tutorials/Models#Block_states
 [mcwikimodel]: https://minecraft.wiki/w/Model

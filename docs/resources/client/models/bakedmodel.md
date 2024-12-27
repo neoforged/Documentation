@@ -103,7 +103,7 @@ It is generally encouraged to use a [custom model loader][modelloader] over wrap
 [ber]: ../../../blockentities/ber.md
 [blockstate]: ../../../blocks/states.md
 [event]: ../../../concepts/events.md
-[itemmodels]: ../items/index.md#item-models
+[itemmodels]: items.md#rendering-an-item
 [modbus]: ../../../concepts/events.md#event-buses
 [modelloader]: modelloaders.md
 [mrl]: ../../../misc/resourcelocation.md#modelresourcelocations

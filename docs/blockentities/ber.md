@@ -60,70 +60,11 @@ public static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderer
 }
 ```
 
-## `BlockEntityWithoutLevelRenderer`
+## Item Block Rendering
 
-`BlockEntityWithoutLevelRenderer`, colloquially known as BEWLR, is an adaptation of the regular `BlockEntityRenderer` for special [item] rendering (hence "without level", as items do not have level context). Its overall purpose is the same: do special rendering for cases where static models aren't enough.
+As not all block entities with renderers can be rendered using static models, you can create a special renderer to customize the item rendering process. This is done using [`SpecialModelRenderer`s][special]. In these cases, both a special model renderer must be created to render the item correctly, and a corresponding registered special block model renderer for scenarios when a block is being rendered as an item (e.g., enderman carrying a block).
 
-To add a BEWLR, create a class that extends `BlockEntityWithoutLevelRenderer` and overrides `#renderByItem`. It also requires some additional constructor setup:
-
-```java
-public class MyBlockEntityWithoutLevelRenderer extends BlockEntityWithoutLevelRenderer {
-    // We need some boilerplate in the constructor, telling the superclass where to find the central block entity and entity renderers.
-    public MyBlockEntityWithoutLevelRenderer() {
-        super(Minecraft.getInstance().getBlockEntityRenderDispatcher(), Minecraft.getInstance().getEntityModels());
-    }
-    
-    @Override
-    public void renderByItem(ItemStack stack, ItemDisplayContext transform, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
-        // Do the rendering here.
-    }
-}
-```
-
-Keep in mind that, like with BERs, there is only one instance of your BEWLR. Stack-specific properties should therefore be stored in the stack, not the BEWLR.
-
-Unlike BERs, we do not register BEWLRs directly. Instead, we register an instance of `IClientItemExtensions` to the `RegisterClientExtensionsEvent`. `IClientItemExtensions` is an interface that allows us to specify a number of rendering-related behaviors on items, such as (but not limited to) a BEWLR. As such, our implementation of that interface could look like so:
-
-```java
-public class MyClientItemExtensions implements IClientItemExtensions {
-    // Cache our BEWLR in a field.
-    private final MyBlockEntityWithoutLevelRenderer myBEWLR = new MyBlockEntityWithoutLevelRenderer();
-
-    // Return our BEWLR here.
-    @Override
-    public BlockEntityWithoutLevelRenderer getCustomRenderer() {
-        return myBEWLR;
-    }
-}
-```
-
-And then, we can register our `IClientItemExtensions` to the event:
-
-```java
-@SubscribeEvent
-public static void registerClientExtensions(RegisterClientExtensionsEvent event) {
-    event.registerItem(
-            // The only instance of our IClientItemExtensions, and as such, the only instance of our BEWLR.
-            new MyClientItemExtensions(),
-            // A vararg list of items that use this BEWLR.
-            MyItems.ITEM_1, MyItems.ITEM_2
-    );
-}
-```
-
-:::info
-`IClientItemExtensions` are generally expected to be treated as singletons. Do not construct them outside `RegisterClientExtensionsEvent`!
-:::
-
-Finally, the item has to know that it should use the BEWLR for its rendering. This is done by having the final [`BakedModel`][bakedmodel] return true for `#isCustomRenderer`. The easiest way to do this is to have the [item model JSON][model] with a `parent` of `minecraft:builtin/entity`:
-
-```json5
-// In some item model file assets/<mod_id>/models/item/<registry_name>.json
-{
-    "parent": "minecraft: builtin/entity",
-    // ...
-}
-```
+How to do so can be found within the [client item documentation][special].
 
 [block]: ../blocks/index.md
 [blockentity]: index.md
@@ -131,3 +72,4 @@ Finally, the item has to know that it should use the BEWLR for its rendering. Th
 [eventbus]: ../concepts/events.md#event-buses
 [item]: ../items/index.md
 [model]: ../resources/client/models/index.md
+[special]: ../resources/client/models/items.md#special-models
