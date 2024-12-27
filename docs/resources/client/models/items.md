@@ -434,6 +434,9 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
 }
 ```
 
+</TabItem>
+</Tabs>
+
 Creating your own `RangeSelectItemModelProperty` is similar to any other codec-based registry object. You make a class that implements `RangeSelectItemModelProperty`, create a `MapCodec` to encode and decode the object, and register the codec to its registry via `RegisterRangeSelectItemModelPropertyEvent` on the [mod event bus][modbus]. The `RangeSelectItemModelProperty` only contains one method `get`, which takes in the current `ItemStack`, the level the stack is in, the entity holding the stack, and some seeded value to return an arbitrary float to be interpreted by the ranged dispatch model.
 
 ```java
@@ -624,6 +627,9 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
 }
 ```
 
+</TabItem>
+</Tabs>
+
 Creating your own `SelectItemModelProperty` is similar to a codec-based registry object. You make a class that implements `SelectItemModelProperty<T>`, create a `Codec` to serialize and deserialize the property value, create a `MapCodec` to encode and decode the object, and register the codec to its registry via `RegisterSelectItemModelPropertyEvent` on the [mod event bus][modbus]. The `SelectItemModelProperty` has a generic `T` that represents the value to switch on. It only contains one method `get`, which takes in the current `ItemStack`, the level the stack is in, the entity holding the stack, some seeded value, and the display context of the item to return an arbitrary `T` to be interpreted by the select model.
 
 ```java
@@ -781,6 +787,9 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
 }
 ```
 
+</TabItem>
+</Tabs>
+
 Creating your own `ConditionalItemModelProperty` is similar to any other codec-based registry object. You make a class that implements `ConditionalItemModelProperty`, create a `MapCodec` to encode and decode the object, and register the codec to its registry via `RegisterConditionalItemModelPropertyEvent` on the [mod event bus][modbus]. The `RangeSelectItemModelProperty` only contains one method `get`, which takes in the current `ItemStack`, the level the stack is in, the entity holding the stack, some seeded value, and the display context of the item to return an arbitrary boolean to be interpreted by the conditional model (`on_true` or `on_false`).
 
 ```java
@@ -907,6 +916,9 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
     );
 }
 ```
+
+</TabItem>
+</Tabs>
 
 Creating your own `SpecialModelRenderer` is broken into three parts: the `SpecialModelRenderer` instance used to render the item, the `SpecialModelRenderer.Unbaked` instance used to read and write to JSON, and the registration to use the renderer when as an item or, if necessary, when as a block.
 
