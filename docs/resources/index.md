@@ -84,8 +84,7 @@ All data providers extend the `DataProvider` interface and usually require one m
 
 | Class                                                | Method                           | Generates                                                               | Side   | Notes                                                                                                           |
 |------------------------------------------------------|----------------------------------|-------------------------------------------------------------------------|--------|-----------------------------------------------------------------------------------------------------------------|
-| [`BlockStateProvider`][blockstateprovider]           | `registerStatesAndModels()`      | Blockstate files, block models                                          | Client |                                                                                                                 |
-| [`ItemModelProvider`][itemmodelprovider]             | `registerModels()`               | Item models                                                             | Client |                                                                                                                 |
+| [`ModelProvider`][modelprovider]             | `registerModels()`               | Models, Blockstate Files, Client Items models                                                             | Client |                                                                                                                 |
 | [`LanguageProvider`][langprovider]                   | `addTranslations()`              | Translations                                                            | Client | Also requires passing the language in the constructor.                                                          |
 | [`ParticleDescriptionProvider`][particleprovider]    | `addDescriptions()`              | Particle definitions                                                    | Client |                                                                                                                 |
 | [`SoundDefinitionsProvider`][soundprovider]          | `registerSounds()`               | Sound definitions                                                       | Client |                                                                                                                 |
@@ -192,7 +191,6 @@ runs {
 
 [advancementprovider]: server/advancements.md#data-generation
 [advancements]: server/advancements.md
-[blockstateprovider]: client/models/datagen.md#block-model-datagen
 [bsfile]: client/models/index.md#blockstate-files
 [chattype]: https://minecraft.wiki/w/Chat_type
 [citems]: client/models/items.md
@@ -208,7 +206,6 @@ runs {
 [function]: https://minecraft.wiki/w/Function_(Java_Edition)
 [glm]: server/loottables/glm.md
 [glmprovider]: server/loottables/glm.md#datagen
-[itemmodelprovider]: client/models/datagen.md#item-model-datagen
 [itemmodifier]: https://minecraft.wiki/w/Item_modifier
 [langprovider]: client/i18n.md#datagen
 [lifecycle]: ../concepts/events.md#the-mod-lifecycle
@@ -218,6 +215,7 @@ runs {
 [mcwiki]: https://minecraft.wiki
 [mcwikidatapacks]: https://minecraft.wiki/w/Data_pack
 [mcwikiresourcepacks]: https://minecraft.wiki/w/Resource_pack
+[modelprovider]: client/models/datagen.md
 [models]: client/models/index.md
 [packmcmeta]: #packmcmeta
 [packmcmetadatapack]: https://minecraft.wiki/w/Data_pack#pack.mcmeta
