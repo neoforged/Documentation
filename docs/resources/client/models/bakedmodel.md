@@ -1,6 +1,6 @@
 # Baked Models
 
-`BakedModel`s are the in-code representation of a shape with textures. They originate from multiple sources from some call to `UnbakedModel#bake` to resolve the model from the model JSON. Some [block entity renderers][ber] also make use of baked models. There is no limit to how complex a model may be.
+`BakedModel`s are the in-code representation of a shape with textures. Every model JSON, deserialized into an `UnbakedModel`, is resolved into this renderable entry via some call to `UnbakedModel#bake`. Some [block entity renderers][ber] also make use of baked models. There is no limit to how complex a model may be.
 
 Models are stored in the `ModelManager`, which can be accessed through `Minecraft.getInstance().modelManager`. Then, you can call `ModelManager#getModel` to get a certain model by its [`ModelResourceLocation`][mrl]. Mods will basically always reuse a model that was previously automatically loaded and baked.
 

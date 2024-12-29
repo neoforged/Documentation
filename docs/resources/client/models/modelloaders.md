@@ -270,7 +270,11 @@ The default implementation of `CustomLoaderBuilder` holds methods for applying v
 
 ### Reusing the Default Model Loader
 
-In some contexts, it makes sense to reuse the vanilla model loader and just building your model logic on top of that instead of outright replacing it. We can do so using a neat trick: in the model loader,  we simply remove the `loader` property and send it back to the model deserializer, tricking it into thinking that it is a regular unbaked model now. Then, we bake the model during the baking process to pass along to the baked model, where we can the use the model's quads in whatever way we want:
+In some contexts, it makes sense to reuse the vanilla model loader and just building your model logic on top of that instead of outright replacing it. We can do so using a neat trick: in the model loader,  we simply remove the `loader` property and send it back to the model deserializer, tricking it into thinking that it is a regular unbaked model now. Then, we bake the model during the baking process to pass along to the baked model, where we can the use the model's quads in whatever way we want.
+
+:::note
+The following example should only be used if the file only contains a single model JSON, whether on the top-level or nested within some object. If multiple models need to be loaded, then the JSON should either contain references to the other JSON files, or the children objects should be deserialized into `UnbakedModel`s and baked via `UnbakedModel#bakeWithTopModelValues`. Using references is the recommended method.
+:::
 
 ```java
 public class MyUnbakedModelLoader implements UnbakedModelLoader<MyUnbakedModel> {
