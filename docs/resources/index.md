@@ -120,7 +120,6 @@ public class MyDatagenHandler {
         // See below for more details on each of these.
         DataGenerator generator = event.getGenerator();
         PackOutput output = generator.getPackOutput();
-        ExistingFileHelper existingFileHelper = event.getExistingFileHelper();
         CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
 
         // Register the provider.
@@ -143,7 +142,7 @@ The event offers some context for you to use:
 
 - `event.getGenerator()` returns the `DataGenerator` that you register the providers to.
 - `event.getPackOutput()` returns a `PackOutput` that is used by some providers to determine their file output location.
-- `event.getExistingFileHelper()` returns an `ExistingFileHelper` that is used by providers for things that can reference other files (for example block models, which can specify a parent file).
+- `event.getResourceManager(PackType)` returns a `ResourceManager` that can be used by providers to check for already existing files.
 - `event.getLookupProvider()` returns a `CompletableFuture<HolderLookup.Provider>` that is mainly used by tags and datagen registries to reference other, potentially not yet existing elements.
 - `event.includeClient()`, `event.includeServer()`, `event.includeDev()` and `event.includeReports()` are `boolean` methods that allow you to check whether specific command line arguments (see below) are enabled.
 

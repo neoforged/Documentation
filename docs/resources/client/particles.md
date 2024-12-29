@@ -137,8 +137,8 @@ Particle definition files can also be [datagenned][datagen] by extending `Partic
 ```java
 public class MyParticleDescriptionProvider extends ParticleDescriptionProvider {
     // Get the parameters from GatherDataEvent.
-    public AMParticleDefinitionsProvider(PackOutput output, ExistingFileHelper existingFileHelper) {
-        super(output, existingFileHelper);
+    public AMParticleDefinitionsProvider(PackOutput output) {
+        super(output);
     }
 
     // Assumes that all the referenced particles actually exists. Replace "examplemod" with your mod id.
@@ -173,12 +173,11 @@ Don't forget to add the provider to the `GatherDataEvent`:
 public static void gatherData(GatherDataEvent event) {
     DataGenerator generator = event.getGenerator();
     PackOutput output = generator.getPackOutput();
-    ExistingFileHelper existingFileHelper = event.getExistingFileHelper();
 
     // other providers here
     generator.addProvider(
         event.includeClient(),
-        new MyParticleDescriptionProvider(output, existingFileHelper)
+        new MyParticleDescriptionProvider(output)
     );
 }
 ```

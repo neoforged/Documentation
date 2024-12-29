@@ -146,8 +146,8 @@ For the sake of example, let's assume that we want to generate block tags. (All 
 ```java
 public class MyBlockTagsProvider extends BlockTagsProvider {
     // Get parameters from GatherDataEvent.
-    public MyBlockTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider, ExistingFileHelper existingFileHelper) {
-        super(output, lookupProvider, ExampleMod.MOD_ID, existingFileHelper);
+    public MyBlockTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider) {
+        super(output, lookupProvider, ExampleMod.MOD_ID);
     }
 
     // Add your tag entries here.
@@ -224,12 +224,11 @@ Like all data providers, add each tag provider to the `GatherDataEvent`:
 public static void gatherData(GatherDataEvent event) {
     PackOutput output = event.getGenerator().getPackOutput();
     CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
-    ExistingFileHelper existingFileHelper = event.getExistingFileHelper();
 
     // other providers here
     event.getGenerator().addProvider(
         event.includeServer(),
-        new MyBlockTagsProvider(output, lookupProvider, existingFileHelper)
+        new MyBlockTagsProvider(output, lookupProvider)
     );
 }
 ```
@@ -248,9 +247,9 @@ To create a custom tag provider for a custom [registry], or for a vanilla or Neo
 ```java
 public class MyRecipeTypeTagsProvider extends TagsProvider<RecipeType<?>> {
     // Get parameters from GatherDataEvent.
-    public MyRecipeTypeTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider, ExistingFileHelper existingFileHelper) {
+    public MyRecipeTypeTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider) {
         // Second parameter is the registry key we are generating the tags for.
-        super(output, Registries.RECIPE_TYPE, lookupProvider, ExampleMod.MOD_ID, existingFileHelper);
+        super(output, Registries.RECIPE_TYPE, lookupProvider, ExampleMod.MOD_ID);
     }
     
     @Override
@@ -263,14 +262,14 @@ If desirable and applicable, you can also extend `IntrinsicHolderTagsProvider<T>
 ```java
 public class MyAttributeTagsProvider extends IntrinsicHolderTagsProvider<Attribute> {
     // Get parameters from GatherDataEvent.
-    public MyAttributeTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider, ExistingFileHelper existingFileHelper) {
+    public MyAttributeTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider) {
         super(output,
                 Registries.ATTRIBUTE,
                 lookupProvider,
                 // A function that, given an Attribute, returns a ResourceKey<Attribute>.
                 attribute -> BuiltInRegistries.ATTRIBUTE.getResourceKey(attribute).orElseThrow(),
-                ExampleMod.MOD_ID,
-                existingFileHelper);
+                ExampleMod.MOD_ID
+            );
     }
 
     // Attributes can now be used here directly, instead of just their resource keys.

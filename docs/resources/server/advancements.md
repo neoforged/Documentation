@@ -152,11 +152,7 @@ public void performExampleAction(ServerPlayer player, additionalContextParameter
 
 ## Data Generation
 
-Advancements can be [datagenned][datagen] using an `AdvancementProvider`. An `AdvancementProvider` accepts a list of `AdvancementGenerator`s, which actually generate the advancements using `Advancement.Builder`.
-
-:::warning
-Both Minecraft and NeoForge provide a class named `AdvancementProvider`, located at `net.minecraft.data.advancements.AdvancementProvider` and `net.neoforged.neoforge.common.data.AdvancementProvider`, respectively. The NeoForge class is an improvement on the one Minecraft provides, and should always be used in favor of the Minecraft one. The following documentation always assumes usage of the NeoForge `AdvancementProvider` class.
-:::
+Advancements can be [datagenned][datagen] using an `AdvancementProvider`. An `AdvancementProvider` accepts a list of `AdavancementSubProviders`s, which actually generate the advancements using `Advancement.Builder`.
 
 To start, create an instance of `AdvancementProvider` within `GatherDataEvent`:
 
@@ -166,12 +162,11 @@ public static void gatherData(GatherDataEvent event) {
     DataGenerator generator = event.getGenerator();
     PackOutput output = generator.getPackOutput();
     CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
-    ExistingFileHelper existingFileHelper = event.getExistingFileHelper();
 
     generator.addProvider(
             event.includeServer(),
             new AdvancementProvider(
-                output, lookupProvider, existingFileHelper,
+                output, lookupProvider,
                 // Add generators here
                 List.of(...)
             )
@@ -185,10 +180,10 @@ Now, the next step is to fill the list with our generators. To do so, we can eit
 
 ```java
 // Class example
-public class MyAdvancementGenerator extends AdvancementProvider.AdvancementGenerator {
+public class MyAdvancementGenerator implements AdvancementSubProvider {
 
     @Override
-    public void generate(HolderLookup.Provider registries, Consumer<AdvancementHolder> saver, ExistingFileHelper existingFileHelper) {
+    public void generate(HolderLookup.Provider registries, Consumer<AdvancementHolder> saver) {
         // Generate your advancements here.
     }
 }
@@ -196,8 +191,8 @@ public class MyAdvancementGenerator extends AdvancementProvider.AdvancementGener
 // Method Example
 public class ExampleClass {
 
-    // Matches the parameters provided by AdvancementProvider.AdvancementGenerator#generate
-    public static void generateExampleAdvancements(HolderLookup.Provider registries, Consumer<AdvancementHolder> saver, ExistingFileHelper existingFileHelper) {
+    // Matches the parameters provided by AdvancementSubProvider#generate
+    public static void generateExampleAdvancements(HolderLookup.Provider registries, Consumer<AdvancementHolder> saver) {
         // Generate your advancements here.
     }
 }
@@ -206,7 +201,7 @@ public class ExampleClass {
 generator.addProvider(
     event.includeServer(),
     new AdvancementProvider(
-        output, lookupProvider, existingFileHelper,
+        output, lookupProvider,
         // Add generators here
         List.of(
             // Add an instance of our generator to the list parameter. This can be done as many times as you want.
@@ -276,7 +271,7 @@ builder.requirements(AdvancementRequirements.allOf(List.of("pickup_dirt")));
 
 // Save the advancement to disk, using the given resource location. This returns an AdvancementHolder,
 // which may be stored in a variable and used as a parent by other advancement builders.
-builder.save(saver, ResourceLocation.fromNamespaceAndPath("examplemod", "example_advancement"), existingFileHelper);
+builder.save(saver, ResourceLocation.fromNamespaceAndPath("examplemod", "example_advancement"));
 ```
 
 [codec]: ../../datastorage/codecs.md
