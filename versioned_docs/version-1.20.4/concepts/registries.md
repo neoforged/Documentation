@@ -39,7 +39,7 @@ We can then add our registry entries as static final fields (see [the article on
 
 ```java
 public static final DeferredHolder<Block, Block> EXAMPLE_BLOCK = BLOCKS.register(
-        "example_block" // Our registry name.
+        "example_block", // Our registry name.
         () -> new Block(...) // A supplier of the object we want to register.
 );
 ```
@@ -50,7 +50,7 @@ The class `DeferredHolder<R, T extends R>` holds our object. The type parameter 
 
 ```java
 public static final Supplier<Block> EXAMPLE_BLOCK = BLOCKS.register(
-        "example_block" // Our registry name.
+        "example_block", // Our registry name.
         () -> new Block(...) // A supplier of the object we want to register.
 );
 ```
