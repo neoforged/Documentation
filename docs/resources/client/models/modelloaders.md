@@ -294,7 +294,7 @@ public class MyUnbakedModel extends DelegateUnbakedModel {
 
     // Store the model for use below
     public MyUnbakedModel(UnbakedModel model,  /* other parameters here */) {
-       super(model)
+       super(model);
     }
 
     @Override

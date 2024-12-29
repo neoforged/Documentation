@@ -2,7 +2,7 @@
 
 Models are JSON files that determine the visual shape and texture(s) of a block or item. A model consists of cuboid elements, each with their own size, that then get assigned a texture to each face.
 
-Items use the associated model(s) defined by its [client item][citems] while blocks use the associated model in the [blockstate file][bsfile]. These locations are relative to the `models` directory, so a model with the registry name `examplemod:item/example_model` would be defined by the JSON at `assets/examplemod/models/item/example_model.json`.
+Items use the associated model(s) defined by its [client item][citems] while blocks use the associated model in the [blockstate file][bsfile]. These locations are relative to the `models` directory, so a model referenced by the name `examplemod:item/example_model` would be defined by the JSON at `assets/examplemod/models/item/example_model.json`.
  
 ## Specification
 
@@ -53,7 +53,7 @@ Using the optional NeoForge-added `render_type` field, you can set a render type
 
 Selecting the correct render type is a question of performance to some degree. Solid rendering is faster than cutout rendering, and cutout rendering is faster than translucent rendering. Because of this, you should specify the "strictest" render type applicable for your use case, as it will also be the fastest.
 
-If you want, you can also add your own render types. To do so, subscribe to the [mod bus][modbus] [event] `RegisterNamedRenderTypesEvent` and `#register` your render types. `#register` has three:
+If you want, you can also add your own render types. To do so, subscribe to the [mod bus][modbus] [event] `RegisterNamedRenderTypesEvent` and `#register` your render types. `#register` has three parameters:
 
 - The name of the render type. Should be a `ResourceLocation` prefixed with your mod id.
 - The chunk render type. Any of the types in the list returned by `RenderType.chunkBufferLayers()` can be used.
