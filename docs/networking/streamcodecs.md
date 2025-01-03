@@ -332,7 +332,7 @@ Tags or sets of holder wrapped registry objects can be sent using `holderSet`. T
 
 ```java
 public static final StreamCodec<RegistryFriendlyByteBuf, HolderSet<Item>> HOLDER_SET_STREAM_CODEC =
-    BytebufCodecs.holderSet(Registries.ITEM);
+    ByteBufCodecs.holderSet(Registries.ITEM);
 ```
 
 ### Recursive
