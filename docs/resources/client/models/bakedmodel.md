@@ -16,7 +16,7 @@ The most important method of a baked model is `getQuads`. This method is respons
 - A `ModelData`: The extra model data to use. This may contain additional data from the block entity needed for rendering. Supplied by `BakedModel#getModelData`.
 - A `RenderType`: The [render type][rendertype] to use for rendering the block. May be null, indicating that the quads for all render types used by this model should be returned. Otherwise, it is one of the render types returned by `BakedModel#getRenderTypes` (see below).
 
-Models should heavily cache. This is because even though chunks are only rebuilt when a block in them changes, the computations done in this method still need to be as fast as possible and should ideally be cached heavily due to the amount of times this method will be called per chunk section (up to seven times per RenderType used by a given model * amount of RenderTypes used by the respective model * 4096 blocks per chunk section). In addition, [BERs][ber] or entity renderers may actually call this method several times per frame.
+Models should heavily cache. This is because even though chunks are only rebuilt when a block in them changes, the computations done in this method still need to be as fast as possible and should ideally be cached heavily due to the amount of times this method will be called per chunk section (up to seven times per RenderType used by a given model * amount of RenderTypes used by the respective model * 4096 blocks per chunk section). In addition, [BERs][ber] or [entity renderers][entityrenderer] may actually call this method several times per frame.
 
 ### `applyTransform` and `getTransforms`
 
@@ -69,7 +69,7 @@ Minecraft's render engine recognizes a total of 8 perspective types (9 if you in
 
 - An `ItemStack`: The item stack being rendered.
 - A `ClientLevel`: The level the model is being rendered in. This should only be used for querying the level, not mutating it in any way. May be null.
-- A `LivingEntity`: The entity the model is rendered on. May be null, e.g. when rendering from a [block entity renderer][ber].
+- A `LivingEntity`: The [living entity][livingentity] the model is rendered on. May be null, e.g. when rendering from a [block entity renderer][ber].
 - An `int`: A seed for randomizing.
 
 `BakedOverrides` also hold the model's override options as `BakedOverride`s. An object of `BakedOverride` is an in-code representation of a model's [`overrides`][overrides] block. It can be used by baked models to return different models depending on its contents. A list of all `BakedOverride`s of an `BakedOverrides` instance can be retrieved through `BakedOverrides#getOverrides()`.
@@ -124,9 +124,11 @@ It is generally encouraged to use a [custom model loader][modelloader] over wrap
 [ber]: ../../../blockentities/ber.md
 [bewlr]: ../../../blockentities/ber.md#blockentitywithoutlevelrenderer
 [blockstate]: ../../../blocks/states.md
+[entityrenderer]: ../../../entities/renderer.md
 [event]: ../../../concepts/events.md
 [bakedoverrides]: #bakedoverrides
 [itemstack]: ../../../items/index.md#itemstacks
+[livingentity]: ../../../entities/livingentity.md
 [modbus]: ../../../concepts/events.md#event-buses
 [modelloader]: modelloaders.md
 [mrl]: ../../../misc/resourcelocation.md#modelresourcelocations
