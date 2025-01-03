@@ -120,7 +120,7 @@ public static final DeferredRegister<MapCodec<? extends Block>> REGISTRAR = Defe
 
 public static final Supplier<MapCodec<SimpleBlock>> SIMPLE_CODEC = REGISTRAR.register(
     "simple",
-    () -> simpleCodec(SimpleBlock::new)
+    () -> BlockBehaviour.simpleCodec(SimpleBlock::new)
 );
 ```
 

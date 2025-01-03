@@ -43,6 +43,7 @@ Each config value can be supplied with additional context to provide additional 
 | `comment`      | Provides a description of what the config value does. Can provide multiple strings for a multiline comment. |
 | `translation`  | Provides a translation key for the name of the config value.                                                |
 | `worldRestart` | The world must be restarted before the config value can be changed.                                         |
+| `gameRestart`  | The game must be restarted before the config value can be changed.                                          |
 
 ### ConfigValue
 
@@ -168,11 +169,12 @@ Configurations registered under the `STARTUP` type can cause desyncs between the
 
 ## Configuration Events
 
-Operations that occur whenever a config is loaded or reloaded can be done using the `ModConfigEvent.Loading` and `ModConfigEvent.Reloading` events. The events must be [registered][events] to the mod event bus.
+Operations that occur whenever a config is loaded, reloaded, or unloaded can be done using the `ModConfigEvent.Loading`, `ModConfigEvent.Reloading`, and `ModConfigEvent.Unloading` events. The events must be [registered][events] to the mod event bus.
 
 :::caution
 These events are called for all configurations for the mod; the `ModConfig` object provided should be used to denote which configuration is being loaded or reloaded.
 :::
+
 ## Configuration Screen
 
 A configuration screen allows users to edit the config values for a mod while in-game without needing to open any files. The screen will automatically parse your registered config files and populate the screen. 
@@ -208,6 +210,6 @@ To make translating easier, open the configuration screen and visit all of the c
 [toml]: https://toml.io/
 [nightconfig]: https://github.com/TheElectronWill/night-config
 [configtype]: #configuration-types
-[type]: https://github.com/neoforged/FancyModLoader/blob/1b6af92893464a4f477cab310256639f39d41ea7/loader/src/main/java/net/neoforged/fml/config/ModConfig.java#L81-L114
+[type]: https://github.com/neoforged/FancyModLoader/blob/b4a1040118547a37c0f5f58146ac4cecc7817f82/loader/src/main/java/net/neoforged/fml/config/ModConfig.java#L86-L119
 [events]: ../concepts/events.md#registering-an-event-handler
 [client]: ../concepts/sides.md#mod

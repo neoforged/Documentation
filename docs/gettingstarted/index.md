@@ -55,7 +55,7 @@ You should always test your mod in a dedicated server environment. This includes
 [github]: https://github.com/
 [intellij]: https://www.jetbrains.com/idea/
 [jdk]: https://learn.microsoft.com/en-us/java/openjdk/download#openjdk-21
-[mdgmdk]: https://github.com/NeoForgeMDKs/MDK-1.21-ModDevGradle
-[ngmdk]: https://github.com/NeoForgeMDKs/MDK-1.21-NeoGradle
+[mdgmdk]: https://github.com/NeoForgeMDKs/MDK-1.21.4-ModDevGradle
+[ngmdk]: https://github.com/NeoForgeMDKs/MDK-1.21.4-NeoGradle
 [neogradle]: https://docs.neoforged.net/neogradle/docs/
 [properties]: modfiles.md#gradleproperties

@@ -247,9 +247,9 @@ Sound files themselves can of course not be [datagenned][datagen], but `sounds.j
 ```java
 public class MySoundDefinitionsProvider extends SoundDefinitionsProvider {
     // Parameters can be obtained from GatherDataEvent.
-    public MySoundDefinitionsProvider(PackOutput output, ExistingFileHelper existingFileHelper) {
+    public MySoundDefinitionsProvider(PackOutput output) {
         // Use your actual mod id instead of "examplemod".
-        super(output, "examplemod", existingFileHelper);
+        super(output, "examplemod");
     }
 
     @Override
@@ -294,12 +294,11 @@ As with every data provider, don't forget to register the provider to the event:
 public static void gatherData(GatherDataEvent event) {
     DataGenerator generator = event.getGenerator();
     PackOutput output = generator.getPackOutput();
-    ExistingFileHelper existingFileHelper = event.getExistingFileHelper();
 
     // other providers here
     generator.addProvider(
         event.includeClient(),
-        new MySoundDefinitionsProvider(output, existingFileHelper)
+        new MySoundDefinitionsProvider(output)
     );
 }
 ```

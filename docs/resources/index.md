@@ -16,7 +16,23 @@ Assets, or client-side resources, are all resources that are only relevant on th
 
 NeoForge automatically collects all mod resource packs into the `Mod resources` pack, which sits at the bottom of the Selected Packs side in the resource packs menu. It is currently not possible to disable the `Mod resources` pack. However, resource packs that sit above the `Mod resources` pack override resources defined in a resource pack below them. This mechanic allows resource pack makers to override your mod's resources, and also allows mod developers to override Minecraft resources if needed.
 
-Resource packs can contain [models][models], [blockstate files][bsfile], [textures][textures], [sounds][sounds], [particle definitions][particles] and [translation files][translations].
+Resource packs may contain folders with files affecting the following things:
+
+| Folder Name   | Contents                                |
+|---------------|-----------------------------------------|
+| `atlases`     | Texture Atlas Sources                   |
+| `blockstates` | [Blockstate Files][bsfile]              |
+| `equipment`   | [Equipment Info][equipment]             |
+| `font`        | Font Definitions                        |
+| `items`       | [Client Items][citems]                  |
+| `lang`        | [Translation Files][translations]       |
+| `models`      | [Models][models]                        |
+| `particles`   | [Particle Definitions][particles]       |
+| `post_effect` | Post Processing Screen Effects          |
+| `shaders`     | Metadata, Fragement, and Vertex Shaders |
+| `sounds`      | [Sound Files][sounds]                   |
+| `texts`       | Miscellaneous Text files                |
+| `textures`    | [Textures][textures]                    |
 
 ## Data
 
@@ -32,7 +48,7 @@ There is currently no built-in way to apply a set of custom data packs to every 
 
 Data packs may contain folders with files affecting the following things:
 
-| Folder name                                                                       | Contents                     |
+| Folder Name                                                                       | Contents                     |
 |-----------------------------------------------------------------------------------|------------------------------|
 | `advancement`                                                                     | [Advancements][advancements] |
 | `damage_type`                                                                     | [Damage types][damagetypes]  |
@@ -68,8 +84,7 @@ All data providers extend the `DataProvider` interface and usually require one m
 
 | Class                                                | Method                           | Generates                                                               | Side   | Notes                                                                                                           |
 |------------------------------------------------------|----------------------------------|-------------------------------------------------------------------------|--------|-----------------------------------------------------------------------------------------------------------------|
-| [`BlockStateProvider`][blockstateprovider]           | `registerStatesAndModels()`      | Blockstate files, block models                                          | Client |                                                                                                                 |
-| [`ItemModelProvider`][itemmodelprovider]             | `registerModels()`               | Item models                                                             | Client |                                                                                                                 |
+| [`ModelProvider`][modelprovider]             | `registerModels()`               | Models, Blockstate Files, Client Items                                                             | Client |                                                                                                                 |
 | [`LanguageProvider`][langprovider]                   | `addTranslations()`              | Translations                                                            | Client | Also requires passing the language in the constructor.                                                          |
 | [`ParticleDescriptionProvider`][particleprovider]    | `addDescriptions()`              | Particle definitions                                                    | Client |                                                                                                                 |
 | [`SoundDefinitionsProvider`][soundprovider]          | `registerSounds()`               | Sound definitions                                                       | Client |                                                                                                                 |
@@ -105,7 +120,6 @@ public class MyDatagenHandler {
         // See below for more details on each of these.
         DataGenerator generator = event.getGenerator();
         PackOutput output = generator.getPackOutput();
-        ExistingFileHelper existingFileHelper = event.getExistingFileHelper();
         CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
 
         // Register the provider.
@@ -128,7 +142,7 @@ The event offers some context for you to use:
 
 - `event.getGenerator()` returns the `DataGenerator` that you register the providers to.
 - `event.getPackOutput()` returns a `PackOutput` that is used by some providers to determine their file output location.
-- `event.getExistingFileHelper()` returns an `ExistingFileHelper` that is used by providers for things that can reference other files (for example block models, which can specify a parent file).
+- `event.getResourceManager(PackType)` returns a `ResourceManager` that can be used by providers to check for already existing files.
 - `event.getLookupProvider()` returns a `CompletableFuture<HolderLookup.Provider>` that is mainly used by tags and datagen registries to reference other, potentially not yet existing elements.
 - `event.includeClient()`, `event.includeServer()`, `event.includeDev()` and `event.includeReports()` are `boolean` methods that allow you to check whether specific command line arguments (see below) are enabled.
 
@@ -176,21 +190,21 @@ runs {
 
 [advancementprovider]: server/advancements.md#data-generation
 [advancements]: server/advancements.md
-[blockstateprovider]: client/models/datagen.md#block-model-datagen
 [bsfile]: client/models/index.md#blockstate-files
 [chattype]: https://minecraft.wiki/w/Chat_type
+[citems]: client/models/items.md
 [codec]: ../datastorage/codecs.md
 [damagetypes]: server/damagetypes.md
 [datamap]: server/datamaps/index.md
 [datamapprovider]: server/datamaps/index.md#data-generation
 [datapackcmd]: https://minecraft.wiki/w/Commands/datapack
 [datapackprovider]: ../concepts/registries.md#data-generation-for-datapack-registries
+[equipment]: ../items/armor.md#equipment-models
 [event]: ../concepts/events.md
 [eventhandler]: ../concepts/events.md#registering-an-event-handler
 [function]: https://minecraft.wiki/w/Function_(Java_Edition)
 [glm]: server/loottables/glm.md
 [glmprovider]: server/loottables/glm.md#datagen
-[itemmodelprovider]: client/models/datagen.md#item-model-datagen
 [itemmodifier]: https://minecraft.wiki/w/Item_modifier
 [langprovider]: client/i18n.md#datagen
 [lifecycle]: ../concepts/events.md#the-mod-lifecycle
@@ -200,6 +214,7 @@ runs {
 [mcwiki]: https://minecraft.wiki
 [mcwikidatapacks]: https://minecraft.wiki/w/Data_pack
 [mcwikiresourcepacks]: https://minecraft.wiki/w/Resource_pack
+[modelprovider]: client/models/datagen.md
 [models]: client/models/index.md
 [packmcmeta]: #packmcmeta
 [packmcmetadatapack]: https://minecraft.wiki/w/Data_pack#pack.mcmeta
