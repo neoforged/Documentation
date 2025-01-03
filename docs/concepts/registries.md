@@ -41,16 +41,18 @@ public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(
 We can then add our registry entries as static final fields using one of the following methods (see [the article on Blocks][block] for what parameters to add in `new Block()`):
 
 ```java
+// Note: Using register method requires manual setting of Id for ResourceKey, 
+//       while registerBlock does not require manual setting of Id.
 public static final DeferredHolder<Block, Block> EXAMPLE_BLOCK_1 = BLOCKS.register(
         // Our registry name.
-        "example_block" 
+        "example_block",
         // A supplier of the object we want to register.
         () -> new Block(...)
 );
 
 public static final DeferredHolder<Block, SlabBlock> EXAMPLE_BLOCK_2 = BLOCKS.register(
         // Our registry name.
-        "example_block" 
+        "example_block",
         // A function creating the object we want to register
         // given its registry name as a ResourceLocation.
         registryName -> new SlabBlock(...)
@@ -64,14 +66,14 @@ The class `DeferredHolder<R, T extends R>` holds our object. The type parameter 
 ```java
 public static final Supplier<Block> EXAMPLE_BLOCK_1 = BLOCKS.register(
         // Our registry name.
-        "example_block" 
+        "example_block",
         // A supplier of the object we want to register.
         () -> new Block(...)
 );
 
 public static final Supplier<SlabBlock> EXAMPLE_BLOCK_2 = BLOCKS.register(
         // Our registry name.
-        "example_block" 
+        "example_block",
         // A function creating the object we want to register
         // given its registry name as a ResourceLocation.
         registryName -> new SlabBlock(...)
