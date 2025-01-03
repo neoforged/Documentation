@@ -191,7 +191,7 @@ public ItemStack quickMoveStack(Player player, int quickMovedSlotIndex) {
     // The quick moved slot stack
     ItemStack quickMovedStack = ItemStack.EMPTY;
     // The quick moved slot
-    Slot quickMovedSlot = this.slots.get(quickMovedSlotIndex) 
+    Slot quickMovedSlot = this.slots.get(quickMovedSlotIndex);
   
     // If the slot is in the valid range and the slot is not empty
     if (quickMovedSlot != null && quickMovedSlot.hasItem()) {
@@ -215,7 +215,7 @@ public ItemStack quickMoveStack(Player player, int quickMovedSlotIndex) {
             }
 
             // Perform logic on result slot quick move
-            slot.onQuickCraft(rawStack, quickMovedStack);
+            quickMovedSlot.onQuickCraft(rawStack, quickMovedStack);
         }
         // Else if the quick move was performed on the player inventory or hotbar slot
         else if (quickMovedSlotIndex >= 5 && quickMovedSlotIndex < 41) {
