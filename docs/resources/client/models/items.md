@@ -1104,7 +1104,7 @@ Creating your own `SpecialModelRenderer` is broken into three parts: the `Specia
 First, there is the `SpecialModelRenderer`. This works similarly to any other renderer class (e.g. block entity renderers, entity renderers). It should take in the static data used during the rendering process (e.g., the `Model` instance, the `Material` of the texture, etc.). There are two methods to be aware of. First, there is `extractArgument`. This is used to limit the amount of data available to the `render` method by only supplying what is necessary from the `ItemStack`.
 
 :::note
-If you don't know what data you may need, you can just have this return the `ItemStack` in question. If you need no data from the stack, you can instead implement `NoDataSpecialModelRenderer`, which implements this method for you.
+If you don't know what data you may need, you can just have this return the `ItemStack` in question. If you need no data from the stack, you can instead use `NoDataSpecialModelRenderer`, which implements this method for you.
 :::
 
 Next is the `render` method. This takes in value returned from `extractArgument`, the display context of the item, the pose stack to render in, the buffer sources available to use, the packed light, the overlay texture, and a boolean if the stack is foiled (e.g. enchanted). All rendering should happen in this method.
