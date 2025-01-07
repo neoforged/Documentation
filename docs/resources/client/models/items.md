@@ -8,7 +8,7 @@ Client Items are the in-code representation of how an `ItemStack` should be rend
 The client items are stored within the `ModelManager`, which can be accessed through `Minecraft.getInstance().modelManager`. Then, you can call `ModelManager#getItemModel` or `getItemProperties` to get the client item information by its [`ResourceLocation`][rl].
 
 :::warning
-These are not to be confused with [baked models][bakedmodels], which contain the models quads that are actually rendered in-game.
+These are not to be confused with [baked models][bakedmodels], which define the models, along with their quads, that are actually rendered in-game.
 :::
 
 ## Overview
@@ -213,7 +213,7 @@ public record DamageBar(int defaultColor) implements ItemTintSource {
     }
 }
 
-// In some class where the event is registered to the mod event bus
+// In some client class where the event is registered to the mod event bus
 @SubscribeEvent
 public static void registerItemTintSources(RegisterColorHandlersEvent.ItemTintSources event) {
     event.register(
@@ -224,6 +224,9 @@ public static void registerItemTintSources(RegisterColorHandlersEvent.ItemTintSo
     )
 }
 ```
+
+<Tabs>
+<TabItem value="json" label="JSON" default>
 
 ```json5
 // For some item 'examplemod:example_item'
@@ -245,6 +248,36 @@ public static void registerItemTintSources(RegisterColorHandlersEvent.ItemTintSo
     }
 }
 ```
+
+</TabItem>
+
+<TabItem value="datagen" label="Datagen">
+
+```java
+// Assume there is some DeferredItem<Item> EXAMPLE_ITEM
+// Within an extended ModelProvider
+@Override
+protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerators itemModels) {
+    itemModels.itemModelOutput.accept(
+        EXAMPLE_ITEM.get(),
+        new BlockModelWrapper.Unbaked(
+            // Points to 'assets/examplemod/models/item/example_item.json'
+            ModelUtils.getModelLocation(EXAMPLE_ITEM.get()),
+            // A list of tints to apply
+            List.of(
+                // For when tintindex: 0
+                new DamageBar(
+                    // Pure green
+                    0x00FF00
+                )
+            )
+        )
+    );
+}
+```
+
+</TabItem>
+</Tabs>
 
 ## Composite Models
 
@@ -345,11 +378,11 @@ Range dispatch models have the type define some `RangeSelectItemModelProperty` t
             "model": "examplemod:item/example_item"
         },
 
-        // ~~ Properties defined by `Count` ~~
+        // Properties defined by `Count`
         // When true, normalizes the count using its max stack size
         "normalize": true,
 
-        // ~~ Entries with threshold information ~~
+        // Entries with threshold information
         "entries": [
             {
                 // When the count is a third of its current max stack size
@@ -455,7 +488,7 @@ public record AppliedEnchantments() implements RangeSelectItemModelProperty {
     }
 }
 
-// In some class where the event is registered to the mod event bus
+// In some client class where the event is registered to the mod event bus
 @SubscribeEvent
 public static void registerRangeProperties(RegisterRangeSelectItemModelPropertyEvent event) {
     event.register(
@@ -466,6 +499,9 @@ public static void registerRangeProperties(RegisterRangeSelectItemModelPropertyE
     )
 }
 ```
+
+<Tabs>
+<TabItem value="json" label="JSON" default>
 
 ```json5
 // For some item 'examplemod:example_item'
@@ -487,10 +523,7 @@ public static void registerRangeProperties(RegisterRangeSelectItemModelPropertyE
             "model": "examplemod:item/example_item"
         },
 
-        // ~~ Properties defined by `AppliedEnchantments` ~~
-        // N/A (no arguments to constructor)
-
-        // ~~ Entries with threshold information ~~
+        // Entries with threshold information
         "entries": [
             {
                 // When there is at least one enchantment present
@@ -519,6 +552,64 @@ public static void registerRangeProperties(RegisterRangeSelectItemModelPropertyE
 }
 ```
 
+</TabItem>
+
+<TabItem value="datagen" label="Datagen">
+
+```java
+// Assume there is some DeferredItem<Item> EXAMPLE_ITEM
+// Within an extended ModelProvider
+@Override
+protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerators itemModels) {
+    itemModels.itemModelOutput.accept(
+        EXAMPLE_ITEM.get(),
+        new RangeSelectItemModel.Unbaked(
+            new AppliedEnchantments(),
+            // A scalar to multiply to the computed property value
+            // If count was 0.3 and scale was 0.2, then the threshold checked would be 0.3*0.2=0.06
+            0.5,
+            // Entries with threshold information
+            List.of(
+                new RangeSelectItemModel.Entry(
+                    // When there is at least one enchantment present
+                    0.5,
+                    // Can be any unbaked model type
+                    new BlockModelWrapper.Unbaked(
+                        // Points to 'assets/examplemod/models/item/example_item_1.json'
+                        ResourceLocation.fromNamespaceAndPath("examplemod", "item/example_item_1"),
+                        // A list of tints to apply
+                        Collections.emptyList()
+                    )
+                ),
+                new RangeSelectItemModel.Entry(
+                    // When there are at least two enchantments present
+                    1,
+                    // Can be any unbaked model type
+                    new BlockModelWrapper.Unbaked(
+                        // Points to 'assets/examplemod/models/item/example_item_2.json'
+                        ResourceLocation.fromNamespaceAndPath("examplemod", "item/example_item_2"),
+                        // A list of tints to apply
+                        Collections.emptyList()
+                    )
+                )
+            ),
+            // The fallback model to use if no threshold matches
+            Optional.of(
+                new BlockModelWrapper.Unbaked(
+                    // Points to 'assets/examplemod/models/item/example_item.json'
+                    ModelUtils.getModelLocation(EXAMPLE_ITEM.get()),
+                    // A list of tints to apply
+                    Collections.emptyList()
+                )
+            )
+        )
+    );
+}
+```
+
+</TabItem>
+</Tabs>
+
 ### Select Models
 
 Select models are similar to range dispatch models, but they change switch based on some value defined by a `SelectItemModelProperty`, like a switch statement for an enum. The model chosen is the property which exactly matches the value in the switch case. The available `SelectItemModelProperty`s to use can be found in `SelectItemModelProperties`.
@@ -542,10 +633,7 @@ Select models are similar to range dispatch models, but they change switch based
             "model": "examplemod:item/example_item"
         },
 
-        // ~~ Properties defined by `DisplayContext` ~~
-        // N/A (no arguments to constructor)
-
-        // ~~ Switch cases based on Selectable Property ~~
+        // Switch cases based on Selectable Property
         "cases": [
             {
                 // When the display context is `ItemDisplayContext#GUI`
@@ -658,7 +746,7 @@ public record StackRarity() implements SelectItemModelProperty<Rarity> {
     }
 }
 
-// In some class where the event is registered to the mod event bus
+// In some client class where the event is registered to the mod event bus
 @SubscribeEvent
 public static void registerSelectProperties(RegisterSelectItemModelPropertyEvent event) {
     event.register(
@@ -669,6 +757,9 @@ public static void registerSelectProperties(RegisterSelectItemModelPropertyEvent
     )
 }
 ```
+
+<Tabs>
+<TabItem value="json" label="JSON" default>
 
 ```json5
 // For some item 'examplemod:example_item'
@@ -686,10 +777,7 @@ public static void registerSelectProperties(RegisterSelectItemModelPropertyEvent
             "model": "examplemod:item/example_item"
         },
 
-        // ~~ Properties defined by `StackRarity` ~~
-        // N/A (no arguments to constructor)
-
-        // ~~ Switch cases based on Selectable Property ~~
+        // Switch cases based on Selectable Property
         "cases": [
             {
                 // When the rarity is `Rarity#UNCOMMON`
@@ -716,6 +804,64 @@ public static void registerSelectProperties(RegisterSelectItemModelPropertyEvent
 }
 ```
 
+</TabItem>
+
+<TabItem value="datagen" label="Datagen">
+
+```java
+// Assume there is some DeferredItem<Item> EXAMPLE_ITEM
+// Within an extended ModelProvider
+@Override
+protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerators itemModels) {
+    itemModels.itemModelOutput.accept(
+        EXAMPLE_ITEM.get(),
+        new SelectItemModel.Unbaked(
+            new SelectItemModel.UnbakedSwitch(
+                // The `SelectItemModelProperty` to use
+                new StackRarity(),
+                // Switch cases based on selectable property
+                List.of(
+                    new SelectItemModel.SwitchCase(
+                        // The list of cases to match for this model
+                        List.of(Rarity.UNCOMMON),
+                        // Can be any unbaked model type
+                        new BlockModelWrapper.Unbaked(
+                            // Points to 'assets/examplemod/models/item/example_item_1.json'
+                            ResourceLocation.fromNamespaceAndPath("examplemod", "item/example_item_1"),
+                            // A list of tints to apply
+                            Collections.emptyList()
+                        )
+                    ),
+                    new SelectItemModel.SwitchCase(
+                        // The list of cases to match for this model
+                        List.of(Rarity.RARE),
+                        // Can be any unbaked model type
+                        new BlockModelWrapper.Unbaked(
+                            // Points to 'assets/examplemod/models/item/example_item_2.json'
+                            ResourceLocation.fromNamespaceAndPath("examplemod", "item/example_item_2"),
+                            // A list of tints to apply
+                            Collections.emptyList()
+                        )
+                    )
+                )
+            ),
+            // The fallback model to use if no case matches
+            Optional.of(
+                new BlockModelWrapper.Unbaked(
+                    // Points to 'assets/examplemod/models/item/example_item.json'
+                    ModelUtils.getModelLocation(EXAMPLE_ITEM.get()),
+                    // A list of tints to apply
+                    Collections.emptyList()
+                )
+            )
+        )
+    );
+}
+```
+
+</TabItem>
+</Tabs>
+
 ### Conditional Models
 
 Conditional models are the simplest out of the three. The type defines some `ConditionalItemModelProperty` to get a boolean to switch the model on. The model chosen based on whether the returned boolean is true or false. The available `ConditionalItemModelProperty`s to use can be found in `ConditionalItemModelProperties`.
@@ -733,10 +879,7 @@ Conditional models are the simplest out of the three. The type defines some `Con
         // The `ConditionalItemModelProperty` to use
         "property": "minecraft:damaged",
 
-        // ~~ Properties defined by `Damaged` ~~
-        // N/A (no arguments to constructor)
-
-        // ~~ What the boolean outcome is ~~
+        // What the boolean outcome is
         "on_true": {
             // Can be any unbaked model type
             "type": "minecraft:model",
@@ -808,7 +951,7 @@ public record BarVisible() implements ConditionalItemModelProperty {
     }
 }
 
-// In some class where the event is registered to the mod event bus
+// In some client class where the event is registered to the mod event bus
 @SubscribeEvent
 public static void registerConditionalProperties(RegisterConditionalItemModelPropertyEvent event) {
     event.register(
@@ -820,6 +963,9 @@ public static void registerConditionalProperties(RegisterConditionalItemModelPro
 }
 ```
 
+<Tabs>
+<TabItem value="json" label="JSON" default>
+
 ```json5
 // For some item 'examplemod:example_item'
 // JSON at 'assets/examplemod/items/example_item.json'
@@ -830,10 +976,7 @@ public static void registerConditionalProperties(RegisterConditionalItemModelPro
         // The `ConditionalItemModelProperty` to use
         "property": "examplemod:bar_visible",
 
-        // ~~ Properties defined by `BarVisible` ~~
-        // N/A (no arguments to constructor)
-
-        // ~~ What the boolean outcome is ~~
+        // What the boolean outcome is
         "on_true": {
             // Can be any unbaked model type
             "type": "minecraft:model",
@@ -850,6 +993,42 @@ public static void registerConditionalProperties(RegisterConditionalItemModelPro
     }
 }
 ```
+
+</TabItem>
+
+<TabItem value="datagen" label="Datagen">
+
+```java
+// Assume there is some DeferredItem<Item> EXAMPLE_ITEM
+// Within an extended ModelProvider
+@Override
+protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerators itemModels) {
+    itemModels.itemModelOutput.accept(
+        EXAMPLE_ITEM.get(),
+        new ConditionalItemModel.Unbaked(
+            // The property to check
+            new BarVisible(),
+            // When the boolean is true
+            new BlockModelWrapper.Unbaked(
+                // Points to 'assets/examplemod/models/item/example_item_1.json'
+                ResourceLocation.fromNamespaceAndPath("examplemod", "item/example_item_1"),
+                // A list of tints to apply
+                Collections.emptyList()
+            ),
+            // When the boolean is false
+            new BlockModelWrapper.Unbaked(
+                // Points to 'assets/examplemod/models/item/example_item_2.json'
+                ResourceLocation.fromNamespaceAndPath("examplemod", "item/example_item_2"),
+                // A list of tints to apply
+                Collections.emptyList()
+            )
+        )
+    );
+}
+```
+
+</TabItem>
+</Tabs>
 
 ## Special Models
 
@@ -872,7 +1051,7 @@ Not all models can be rendered using the basic model JSON. Some models can be dy
             // The special model renderer to use
             "type": "minecraft:head",
 
-            // ~~ Properties defined by `SkullSpecialRenderer.Unbaked` ~~
+            // Properties defined by `SkullSpecialRenderer.Unbaked`
             // The type of the skull block
             "kind": "wither_skeleton",
             // The texture to use when rendering the head
@@ -922,7 +1101,13 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
 
 Creating your own `SpecialModelRenderer` is broken into three parts: the `SpecialModelRenderer` instance used to render the item, the `SpecialModelRenderer.Unbaked` instance used to read and write to JSON, and the registration to use the renderer when as an item or, if necessary, when as a block.
 
-First, there is the `SpecialModelRenderer`. This works similarly to any other renderer class (e.g. block entity renderers, entity renderers). It should take in the static data used during the rendering process (e.g., the `Model` instance, the `Material` of the texture, etc.). There are two methods to be aware of. First, there is `extractArgument`. This is used to limit the amount of data available to the `render` method by only supplying what is necessary from the `ItemStack`. If you don't know what data you may need, you can just have this return the `ItemStack` in question. If you need no data from the stack, you can instead implement `NoDataSpecialModelRenderer`, which implements this method for you. Next is the `render` method. This takes in value returned from `extractArgument`, the display context of the item, the pose stack to render in, the buffer sources available to use, the packed light, the overlay texture, and a boolean if the stack is foiled (e.g. enchanted). All rendering should happen in this method.
+First, there is the `SpecialModelRenderer`. This works similarly to any other renderer class (e.g. block entity renderers, entity renderers). It should take in the static data used during the rendering process (e.g., the `Model` instance, the `Material` of the texture, etc.). There are two methods to be aware of. First, there is `extractArgument`. This is used to limit the amount of data available to the `render` method by only supplying what is necessary from the `ItemStack`.
+
+:::note
+If you don't know what data you may need, you can just have this return the `ItemStack` in question. If you need no data from the stack, you can instead implement `NoDataSpecialModelRenderer`, which implements this method for you.
+:::
+
+Next is the `render` method. This takes in value returned from `extractArgument`, the display context of the item, the pose stack to render in, the buffer sources available to use, the packed light, the overlay texture, and a boolean if the stack is foiled (e.g. enchanted). All rendering should happen in this method.
 
 ```java
 public record ExampleSpecialRenderer(Model model, Material material) implements SpecialModelRenderer<Boolean> {
@@ -960,6 +1145,9 @@ public record ExampleSpecialRenderer(Model model, Material material) implements 
 
         @Override
         public SpecialModelRenderer<?> bake(EntityModelSet modelSet) {
+            // Resolve resource location to absolute path
+            ResourceLocation textureLoc = this.texture.withPath(path -> "textures/entity/" + path + ".png");
+
             // Get the model and the material to render
             return new ExampleSpecialRenderer(...);
         }
@@ -970,7 +1158,7 @@ public record ExampleSpecialRenderer(Model model, Material material) implements 
 Finally, we register the objects to their necessary locations. For the client items, this is done via `RegisterSpecialModelRendererEvent` on the [mod event bus][modbus]. If the special renderer should also be used as part of a `BlockEntityRenderer`, such as when rendering in some item-like context (e.g., enderman holding the block), then an `Unbaked` version for the block should be registered via `RegisterSpecialBlockModelRendererEvent` on the [mod event bus][modbus].
 
 ```java
-// In some class where the event is registered to the mod event bus
+// In some client class where the event is registered to the mod event bus
 @SubscribeEvent
 public static void registerSpecialRenderers(RegisterSpecialModelRendererEvent event) {
     event.register(
@@ -994,9 +1182,64 @@ public static void registerSpecialBlockRenderers(RegisterSpecialBlockModelRender
 }
 ```
 
-## Rendering an Item
+<Tabs>
+<TabItem value="json" label="JSON" default>
 
-Rendering an item is done in three parts. First, the renderer in question creates an `ItemStackRenderState` to hold the rendering information of the stack. Then, the `ItemModelResolver` updates the `ItemStackRenderState` using one of its methods to update the state to the current item to render. Finally, the item is rendered using the render state's `render` method.
+```json5
+// For some item 'examplemod:example_item'
+// JSON at 'assets/examplemod/items/example_item.json'
+{
+    "model": {
+        "type": "minecraft:special",
+
+        // The parent model to read the particle texture and display transformation from
+        // Points to 'assets/minecraft/models/item/template_skull.json'
+        "base": "minecraft:item/template_skull",
+        "model": {
+            // The special model renderer to use
+            "type": "examplemod:example_special",
+
+            // Properties defined by `ExampleSpecialRenderer.Unbaked`
+            // The texture to use when rendering
+            // Points to 'assets/examplemod/textures/entity/example/example_texture.png'
+            "texture": "examplemod:example/example_texture"
+        }
+    }
+}
+```
+
+</TabItem>
+
+<TabItem value="datagen" label="Datagen">
+
+```java
+// Assume there is some DeferredItem<Item> EXAMPLE_ITEM
+// Within an extended ModelProvider
+@Override
+protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerators itemModels) {
+    itemModels.itemModelOutput.accept(
+        EXAMPLE_ITEM.get(),
+        new SpecialModelWrapper.Unbaked(
+            // The parent model to read the particle texture and display transformation from
+            // Points to 'assets/minecraft/models/item/template_skull.json'
+            ResourceLocation.fromNamespaceAndPath("minecraft", "item/template_skull"),
+            // The special model renderer to use
+            new ExampleSpecialRenderer.Unbaked(
+                // The texture to use when rendering
+                // Points to 'assets/examplemod/textures/entity/example/example_texture.png'
+                ResourceLocation.fromNamespaceAndPath("examplemod", "example/example_texture")
+            )
+        )
+    );
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Manually Rendering an Item
+
+If you need to render an item yourself, such as in some `BlockEntityRenderer` or `EntityRenderer`, it can be achieved through three steps. First, the renderer in question creates an `ItemStackRenderState` to hold the rendering information of the stack. Then, the `ItemModelResolver` updates the `ItemStackRenderState` using one of its methods to update the state to the current item to render. Finally, the item is rendered using the render state's `render` method.
 
 The `ItemStackRenderState` keeps track of the data used to render. Each 'model' is given its own `ItemStackRenderState.LayerRenderState`, which contains the `BakedModel` to render, along with its render type, foil status, tint information, and any special renderers used. Layers are created using the `newLayer` method, and cleared for rendering using the `clear` method. If a predefined number of layers is used, then `ensureCapacity` is used to make sure there are the necessary number of `LayerRenderStates` to render properly. The `ItemStackRenderState` also contains some methods to get the `BakedModel` properties for the first layer except for `pickParticleIcon`, which gets the particle texture for a random layer.
 
@@ -1076,7 +1319,7 @@ public record RenderTypeModelWrapper(BakedModel model, RenderType type) implemen
 Then, we register the map codec via `RegisterItemModelsEvent` on the [mod event bus][modbus].
 
 ```java
-// In some class where the event is registered to the mod event bus
+// In some client class where the event is registered to the mod event bus
 @SubscribeEvent
 public static void registerItemModels(RegisterItemModelsEvent event) {
     event.register(
@@ -1089,6 +1332,9 @@ public static void registerItemModels(RegisterItemModelsEvent event) {
 ```
 
 Finally, we can use the `ItemModel` in our JSON or as part of the datagen process.
+
+<Tabs>
+<TabItem value="json" label="JSON" default>
 
 ```json5
 // For some item 'examplemod:example_item'
@@ -1104,10 +1350,34 @@ Finally, we can use the `ItemModel` in our JSON or as part of the datagen proces
 }
 ```
 
+</TabItem>
+
+<TabItem value="datagen" label="Datagen">
+
+```java
+// Assume there is some DeferredItem<Item> EXAMPLE_ITEM
+// Within an extended ModelProvider
+@Override
+protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerators itemModels) {
+    itemModels.itemModelOutput.accept(
+        EXAMPLE_ITEM.get(),
+        new RenderTypeModelWrapper.Unbaked(
+            // Points to 'assets/examplemod/models/item/example_item.json'
+            ModelUtils.getModelLocation(EXAMPLE_ITEM.get()),
+            // Set the render type to use when rendering
+            Sheets.cutoutBlockSheet()
+        )
+    );
+}
+```
+
+</TabItem>
+</Tabs>
+
 [assets]: ../../index.md#assets
 [bakedmodels]: ../models/bakedmodel.md
 [ber]: ../../../blockentities/ber.md
 [composite]: modelloaders.md#composite-model
-[itemmodel]: #rendering-an-item
+[itemmodel]: #manually-rendering-an-item
 [modbus]: ../../../concepts/events.md#event-buses
 [rl]: ../../../misc/resourcelocation.md

@@ -46,7 +46,7 @@ Other methods in `BakedModel` that you may override and/or query include:
 | `ModelData getModelData(BlockAndTintGetter, BlockPos, BlockState, ModelData)` | Returns the model data to use for the model. This method is passed an existing `ModelData` that is either the result of `BlockEntity#getModelData()` if the block has an associated block entity, or `ModelData.EMPTY` if that is not the case. This method can be used for blocks that need model data, but do not have a block entity, for example for blocks with connected textures.                    |
 | `TextureAtlasSprite getParticleIcon(ModelData)`                               | Returns the particle sprite to use for the model. May use the model data to use different particle sprites for different model data values. NeoForge-added, replacing the vanilla `getParticleIcon()` overload with no parameters.                                                                                                                                                                          |
 | `ChunkRenderTypeSet getRenderTypes(BlockState, RandomSource, ModelData)`      | Returns a `ChunkRenderTypeSet` containing the render type(s) to use for rendering the block model. A `ChunkRenderTypeSet` is a set-backed ordered `Iterable<RenderType>`. By default falls back to [getting the render type from the model JSON][rendertype]. Only used for block models, item models use the overload below.                                                                               |
-| `RenderType getRenderType(ItemStack)`                         | Returns the `RenderType` to use for rendering the item model. By default falls back to the normal model-bound render type lookup. Only used by [item models][itemmodels], block models use the overload above.                                                                                                                            |
+| `RenderType getRenderType(ItemStack)`                         | Returns the `RenderType` to use for rendering the item model. By default falls back to the normal model-bound render type lookup. Only used by [item models][itemmodels], block models use `getRenderTypes`.                                                                                                                            |
 
 ## Perspectives
 
@@ -103,7 +103,7 @@ It is generally encouraged to use a [custom model loader][modelloader] over wrap
 [ber]: ../../../blockentities/ber.md
 [blockstate]: ../../../blocks/states.md
 [event]: ../../../concepts/events.md
-[itemmodels]: items.md#rendering-an-item
+[itemmodels]: items.md#manually-rendering-an-item
 [modbus]: ../../../concepts/events.md#event-buses
 [modelloader]: modelloaders.md
 [mrl]: ../../../misc/resourcelocation.md#modelresourcelocations

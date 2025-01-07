@@ -64,7 +64,7 @@ public static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderer
 
 As not all block entities with renderers can be rendered using static models, you can create a special renderer to customize the item rendering process. This is done using [`SpecialModelRenderer`s][special]. In these cases, both a special model renderer must be created to render the item correctly, and a corresponding registered special block model renderer for scenarios when a block is being rendered as an item (e.g., enderman carrying a block).
 
-How to do so can be found within the [client item documentation][special].
+Please refer to the [client item documentation][special] for more information.
 
 [block]: ../blocks/index.md
 [blockentity]: index.md

@@ -137,7 +137,7 @@ Particle definition files can also be [datagenned][datagen] by extending `Partic
 ```java
 public class MyParticleDescriptionProvider extends ParticleDescriptionProvider {
     // Get the parameters from GatherDataEvent.
-    public AMParticleDefinitionsProvider(PackOutput output) {
+    public MyParticleDescriptionProvider(PackOutput output) {
         super(output);
     }
 

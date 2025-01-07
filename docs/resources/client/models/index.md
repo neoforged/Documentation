@@ -152,7 +152,7 @@ In contrast, inside a `multipart` block, elements are combined depending on the 
 
 ## Tinting
 
-Some blocks, such as grass or leaves, change their texture color based on their location and/or properties. [Model elements][elements] can specify a tint index on their faces, which will allow a color handler to handle the respective faces. The code side of things works through three events, one for block color handlers, one for block tints based on biome (used in conjunction with the block color handlers), and one for [item tint sources explained with client items][itemtints]. They work pretty similar, so let's have a look at a block handler first:
+Some blocks, such as grass or leaves, change their texture color based on their location and/or properties. [Model elements][elements] can specify a tint index on their faces, which will allow a color handler to handle the respective faces. The code side of things works through three events, one for block color handlers, one for block tints based on biome (used in conjunction with the block color handlers), and one for item tint sources. They work pretty similar, so let's have a look at a block handler first:
 
 ```java
 // Client-side mod bus event handler
@@ -185,6 +185,8 @@ public static void registerColorResolvers(RegisterColorHandlersEvent.ColorResolv
     });
 }
 ```
+
+For item tinting, please see the [relevant section in the client items article][itemtints].
 
 ## Registering Additional Models
 

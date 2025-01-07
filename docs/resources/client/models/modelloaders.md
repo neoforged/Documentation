@@ -153,7 +153,7 @@ public class MyUnbakedModel extends AbstractUnbakedModel {
     // - A boolean of whether to use ambient occlusion when rendering the model.
     // - A boolean of whether to use the block light when rendering a model.
     // - The item transforms associated with how this model should be displayed in a given ItemDisplayContext.
-    // - A ContextMap of settings provided by NeoForge. See the NeoForgeModelProperties class for all available properties.
+    // - A ContextMap of settings provided by NeoForge. See the 'NeoForgeModelProperties' class for all available properties.
     @Override
     public BakedModel bake(TextureSlots textures, ModelBaker baker, ModelState modelState, boolean useAmbientOcclusion, boolean usesBlockLight, ItemTransforms itemTransforms, ContextMap additionalProperties) {
         // The true boolean represents if the model is in 3D within the GUI
