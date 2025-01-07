@@ -264,12 +264,12 @@ public class MyAttributeTagsProvider extends IntrinsicHolderTagsProvider<Attribu
     // Get parameters from GatherDataEvent.
     public MyAttributeTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider) {
         super(output,
-                Registries.ATTRIBUTE,
-                lookupProvider,
-                // A function that, given an Attribute, returns a ResourceKey<Attribute>.
-                attribute -> BuiltInRegistries.ATTRIBUTE.getResourceKey(attribute).orElseThrow(),
-                ExampleMod.MOD_ID
-            );
+            Registries.ATTRIBUTE,
+            lookupProvider,
+            // A function that, given an Attribute, returns a ResourceKey<Attribute>.
+            attribute -> BuiltInRegistries.ATTRIBUTE.getResourceKey(attribute).orElseThrow(),
+            ExampleMod.MOD_ID
+        );
     }
 
     // Attributes can now be used here directly, instead of just their resource keys.
