@@ -155,30 +155,30 @@ public class MyBlockTagsProvider extends BlockTagsProvider {
     protected void addTags(HolderLookup.Provider lookupProvider) {
         // Create a tag builder for our tag. This could also be e.g. a vanilla or NeoForge tag.
         this.tag(MY_TAG)
-                // Add entries. This is a vararg parameter.
-                // Non-intrinsic providers must provide ResourceKeys here instead of the actual objects.
-                .add(Blocks.DIRT, Blocks.COBBLESTONE)
-                // Add optional entries that will be ignored if absent. This example uses Botania's Pure Daisy.
-                // Unlike #add, this is not a vararg parameter.
-                .addOptional(ResourceLocation.fromNamespaceAndPath("botania", "pure_daisy"))
-                // Add a tag entry.
-                .addTag(BlockTags.PLANKS)
-                // Add multiple tag entries. This is a vararg parameter.
-                // Can cause unchecked warnings that can safely be suppressed.
-                .addTags(BlockTags.LOGS, BlockTags.WOODEN_SLABS)
-                // Add an optional tag entry that will be ignored if absent.
-                .addOptionalTag(ResourceLocation.fromNamespaceAndPath("c", "ingots/tin"))
-                // Add multiple optional tag entries. This is a vararg parameter.
-                // Can cause unchecked warnings that can safely be suppressed.
-                .addOptionalTags(ResourceLocation.fromNamespaceAndPath("c", "nuggets/tin"), ResourceLocation.fromNamespaceAndPath("c", "storage_blocks/tin"))
-                // Set the replace property to true.
-                .replace()
-                // Set the replace property back to false.
-                .replace(false)
-                // Remove entries. This is a vararg parameter. Accepts either resource locations, resource keys,
-                // tag keys, or (intrinsic providers only) direct values.
-                // Can cause unchecked warnings that can safely be suppressed.
-                .remove(ResourceLocation.fromNamespaceAndPath("minecraft", "crimson_slab"), ResourceLocation.fromNamespaceAndPath("minecraft", "warped_slab"));
+            // Add entries. This is a vararg parameter.
+            // Non-intrinsic providers must provide ResourceKeys here instead of the actual objects.
+            .add(Blocks.DIRT, Blocks.COBBLESTONE)
+            // Add optional entries that will be ignored if absent. This example uses Botania's Pure Daisy.
+            // Unlike #add, this is not a vararg parameter.
+            .addOptional(ResourceLocation.fromNamespaceAndPath("botania", "pure_daisy"))
+            // Add a tag entry.
+            .addTag(BlockTags.PLANKS)
+            // Add multiple tag entries. This is a vararg parameter.
+            // Can cause unchecked warnings that can safely be suppressed.
+            .addTags(BlockTags.LOGS, BlockTags.WOODEN_SLABS)
+            // Add an optional tag entry that will be ignored if absent.
+            .addOptionalTag(ResourceLocation.fromNamespaceAndPath("c", "ingots/tin"))
+            // Add multiple optional tag entries. This is a vararg parameter.
+            // Can cause unchecked warnings that can safely be suppressed.
+            .addOptionalTags(ResourceLocation.fromNamespaceAndPath("c", "nuggets/tin"), ResourceLocation.fromNamespaceAndPath("c", "storage_blocks/tin"))
+            // Set the replace property to true.
+            .replace()
+            // Set the replace property back to false.
+            .replace(false)
+            // Remove entries. This is a vararg parameter. Accepts either resource locations, resource keys,
+            // tag keys, or (intrinsic providers only) direct values.
+            // Can cause unchecked warnings that can safely be suppressed.
+            .remove(ResourceLocation.fromNamespaceAndPath("minecraft", "crimson_slab"), ResourceLocation.fromNamespaceAndPath("minecraft", "warped_slab"));
     }
 }
 ```
