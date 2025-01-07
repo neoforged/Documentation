@@ -49,7 +49,7 @@ Using the optional NeoForge-added `render_type` field, you can set a render type
 - `minecraft:cutout_mipped_all`: Variant of `minecraft:cutout_mipped` which applies mipmapping to item models as well.
 - `minecraft:translucent`: Used for blocks where any pixel may be partially transparent, for example stained glass.
 - `minecraft:tripwire`: Used by blocks with the special requirement of being rendered to the weather target, i.e. tripwire.
-- `neoforge:item_unlit`: NeoForge-added. Should be used by blocks that, when rendered from an item, does not take into account the light directions.
+- `neoforge:item_unlit`: NeoForge-added. Should be used by blocks that, when rendered from an item, do not take the light directions into account.
 
 Selecting the correct render type is a question of performance to some degree. Solid rendering is faster than cutout rendering, and cutout rendering is faster than translucent rendering. Because of this, you should specify the "strictest" render type applicable for your use case, as it will also be the fastest.
 

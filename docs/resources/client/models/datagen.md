@@ -49,7 +49,7 @@ While elaborate and complex models can be created through datagen, it is recomme
 
 ### Creating the Model Instance
 
-Now that we have a `ModelTemplate`, how do we generate the model itself? Well, this is done by calling one of the `ModelTemplate#create*` methods. Although each create method takes in different parameters, at its core, it takes in the `ResourceLocation` representing the name of the file, a `TextureMapping` which maps a `TextureSlot` to some `ResourceLocation` relative to the `textures` directory, and the model output as a `BiConsumer<ResourceLocation, ModelInstance>`. This method create essentially creates the `JsonObject` used to generate the model, throwing an error if any duplicates are provided.
+Now that we have a `ModelTemplate`, we can generate the model itself by calling one of the `ModelTemplate#create*` methods. Although each create method takes in different parameters, at their core, they all take in the `ResourceLocation` representing the name of the file, a `TextureMapping` which maps a `TextureSlot` to some `ResourceLocation` relative to the `textures` directory, and the model output as a `BiConsumer<ResourceLocation, ModelInstance>`. Then, the method essentially creates the `JsonObject` used to generate the model, throwing an error if any duplicates are provided.
 
 :::note
 Calling the base `create` method does not apply the stored suffix. Only `create*` methods that takes in the block or item do so.

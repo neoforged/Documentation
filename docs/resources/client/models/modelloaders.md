@@ -106,7 +106,7 @@ To create your own model loader, you need three classes, plus an event handler:
 To illustrate how these classes are connected, we will follow a model being loaded:
 
 - During model loading, a model JSON with the `loader` property set to your loader is passed to your unbaked model loader. The loader then reads the model JSON and returns an unbaked object using the model JSON's properties.
-- During model baking, the ojbect is baked, returning a baked model.
+- During model baking, the object is baked, returning a baked model.
 - During model rendering, the baked model is used for rendering.
 
 :::note
@@ -151,9 +151,9 @@ public class MyUnbakedModel extends AbstractUnbakedModel {
     // - The model baker. Can be used for baking sub-models and getting sprites from the texture slots.
     // - The model state. This holds the properties from the blockstate file, e.g. rotations and the uvlock boolean.
     // - A boolean of whether to use ambient occlusion when rendering the model.
-    // - A boolean of whether the use the block light when rendering a model.
+    // - A boolean of whether to use the block light when rendering a model.
     // - The item transforms associated with how this model should be displayed in a given ItemDisplayContext.
-    // - A ContextMap of settings provided by NeoForge. See NeoForgeModelProperties for all available properties.
+    // - A ContextMap of settings provided by NeoForge. See the NeoForgeModelProperties class for all available properties.
     @Override
     public BakedModel bake(TextureSlots textures, ModelBaker baker, ModelState modelState, boolean useAmbientOcclusion, boolean usesBlockLight, ItemTransforms itemTransforms, ContextMap additionalProperties) {
         // The true boolean represents if the model is in 3D within the GUI
@@ -266,7 +266,7 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
 
 #### Visibility
 
-The default implementation of `CustomLoaderBuilder` holds methods for applying visibility. You may choose to use or ignore the `visibility` property in your model loader. Currently, only the [composite model loader][composite] and [OBJ loader][obj] makes use of this property.
+The default implementation of `CustomLoaderBuilder` holds methods for applying visibility. You may choose to use or ignore the `visibility` property in your model loader. Currently, only the [composite model loader][composite] and [OBJ loader][obj] make use of this property.
 
 ### Reusing the Default Model Loader
 
@@ -297,14 +297,14 @@ public class MyUnbakedModelLoader implements UnbakedModelLoader<MyUnbakedModel> 
 public class MyUnbakedModel extends DelegateUnbakedModel {
 
     // Store the model for use below
-    public MyUnbakedModel(UnbakedModel model,  /* other parameters here */) {
+    public MyUnbakedModel(UnbakedModel model, /* other parameters here */) {
        super(model);
     }
 
     @Override
     public BakedModel bake(TextureSlots textures, ModelBaker baker, ModelState modelState, boolean useAmbientOcclusion, boolean usesBlockLight, ItemTransforms itemTransforms, ContextMap additionalProperties) {
         BakedModel base = super.bake(textures, baker, modelState, useAmbientOcclusion, usesBlockLight, itemTransforms, additionalProperties);
-        return new MyBakedModel(base,  /* other parameters here */);
+        return new MyBakedModel(base, /* other parameters here */);
     }
 }
 

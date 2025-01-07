@@ -3,7 +3,7 @@ import TabItem from '@theme/TabItem';
 
 # Client Items
 
-Client Items are the in-code representation of how an `ItemStack` should be rendered within the game, specifying what models to use given what state. The client items rea located within the `items` subdirectory within the [`assets` folder][assets], specified by the relative location within `DataComponents#ITEM_MODEL`. By default, this is the registry name of the object (e.g. `minecraft:apple` would be located at `assets/minecraft/items/apple.json` by default).
+Client Items are the in-code representation of how an `ItemStack` should be rendered within the game, specifying what models to use given what state. The client items are located within the `items` subdirectory within the [`assets` folder][assets], specified by the relative location within `DataComponents#ITEM_MODEL`. By default, this is the registry name of the object (e.g. `minecraft:apple` would be located at `assets/minecraft/items/apple.json` by default).
 
 The client items are stored within the `ModelManager`, which can be accessed through `Minecraft.getInstance().modelManager`. Then, you can call `ModelManager#getItemModel` or `getItemProperties` to get the client item information by its [`ResourceLocation`][rl].
 
@@ -25,7 +25,7 @@ The JSON of a client item can be broken into two parts: the model, defined by `m
     // Defines the model to render
     "model": {
         "type": "minecraft:model",
-        // Points to model JSON relative to the 'models' directory
+        // Points to a model JSON relative to the 'models' directory
         // Located at 'assets/examplemod/models/item/example_item.json'
         "model": "examplemod:item/example_item"
     },
@@ -52,7 +52,7 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
         new ClientItem(
             // Defines the model to render
             new BlockModelWrapper.Unbaked(
-                // Points to model JSON relative to the 'models' directory
+                // Points to a model JSON relative to the 'models' directory
                 // Located at 'assets/examplemod/models/item/example_item.json'
                 ModelUtils.getModelLocation(EXAMPLE_ITEM.get()),
                 Collections.emptyList()
@@ -86,7 +86,7 @@ The `type` field within `model` determines how to choose the model to render for
 {
     "model": {
         "type": "minecraft:model",
-        // Points to model JSON relative to the 'models' directory
+        // Points to a model JSON relative to the 'models' directory
         // Located at 'assets/examplemod/models/item/example_item.json'
         "model": "examplemod:item/example_item"
     }
@@ -105,7 +105,7 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
     itemModels.itemModelOutput.accept(
         EXAMPLE_ITEM.get(),
         new BlockModelWrapper.Unbaked(
-            // Points to model JSON relative to the 'models' directory
+            // Points to a model JSON relative to the 'models' directory
             // Located at 'assets/examplemod/models/item/example_item.json'
             ModelUtils.getModelLocation(EXAMPLE_ITEM.get()),
             Collections.emptyList()
@@ -119,7 +119,7 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
 
 ### Tinting
 
-Like most models, they can change the color of the specified texture based on the properties of the stack. As such, the `minecraft:model` type has the `tints` field to define the opaque colors to apply. These are known as `ItemTintSource`s, which are defined in `ItemTintSources`. They also have a `type` field to define which source to use. The `tintindex` they are applied to is specified by its index into the list.
+Like most models, client items can change the color of the specified texture based on the properties of the stack. As such, the `minecraft:model` type has the `tints` field to define the opaque colors to apply. These are known as `ItemTintSource`s, which are defined in `ItemTintSources`. They also have a `type` field to define which source to use. The `tintindex` they are applied to is specified by their index within the list.
 
 <Tabs>
 <TabItem value="json" label="JSON" default>
@@ -248,7 +248,7 @@ public static void registerItemTintSources(RegisterColorHandlersEvent.ItemTintSo
 
 ## Composite Models
 
-SSometimes, you may want to register multiple models for a single item. While this can be done directly with the [composite model loader][composite], for item models, there is a custom `minecraft:composite` type, which takes a list of models to render.
+Sometimes, you may want to register multiple models for a single item. While this can be done directly with the [composite model loader][composite], for item models, there is a custom `minecraft:composite` type which takes a list of models to render.
 
 <Tabs>
 <TabItem value="json" label="JSON" default>
@@ -320,7 +320,7 @@ Some items change their state depending on the data stored in their stack (e.g.,
 
 ### Range Dispatch Models
 
-Range dispatch models are the most similar to the item override some pre-1.21.4. Effectively, the type defines some `RangeSelectItemModelProperty` to get some float to switch the model on. Each entry then has some threshold value which the float must be greater than to render. The model chosen is the one with the closest threshold value that is not over the property value (e.g., if the property values is `4` with thresholds `3` and `5`, then the model associated with `3` will be rendered). The available `RangeSelectItemModelProperty`s to use can be found in `RangeSelectItemModelProperties`.
+Range dispatch models have the type define some `RangeSelectItemModelProperty` to get some float to switch the model on. Each entry then has some threshold value which the float must be greater than to render. The model chosen is the one with the closest threshold value that is not over the property value (e.g., if the property values is `4` with thresholds `3` and `5`, then the model associated with `3` will be rendered, and if the value was `6`, then the model associated with `5` would be rendered). The available `RangeSelectItemModelProperty`s to use can be found in `RangeSelectItemModelProperties`.
 
 <Tabs>
 <TabItem value="json" label="JSON" default>
@@ -1073,7 +1073,7 @@ public record RenderTypeModelWrapper(BakedModel model, RenderType type) implemen
 }
 ```
 
-Finally, we register the map codec via `RegisterItemModelsEvent` on the [mod event bus][modbus].
+Then, we register the map codec via `RegisterItemModelsEvent` on the [mod event bus][modbus].
 
 ```java
 // In some class where the event is registered to the mod event bus
