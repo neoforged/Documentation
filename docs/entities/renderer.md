@@ -166,7 +166,8 @@ public static final ModelLayerLocation MY_LAYER = new ModelLayerLocation(
     // Should be the name of the entity this layer belongs to.
     // May be more generic if this layer can be used on multiple entities.
     ResourceLocation.fromNamespaceAndPath("examplemod", "example_entity"),
-    // The name of the layer itself.
+    // The name of the layer itself. Should be main for the entity's base model,
+    // and a more descriptive name (e.g. "wings") for more specific layers.
     "main"
 );
 

@@ -68,9 +68,8 @@ public static final Supplier<EntityType<MyEntity>> MY_ENTITY = ENTITY_TYPES.regi
     // How often update packets are sent for this entity, in once every x ticks. This is set to higher values
     // for entities that have predictable movement patterns, for example projectiles. Defaults to 3.
     .updateInterval(10)
-    // Build the entity type. The parameter is a string used for datafixing; mods generally
-    // do not utilize this and can safely pass null here instead.
-    .build(null)
+    // Build the entity type. The parameter should be the same as the entity id.
+    .build("my_entity")
 );
 ```
 
@@ -111,7 +110,7 @@ There are also some other properties that are only set on one or two `MobCategor
 
 ## The Entity Class
 
-To begin, we create an `Entity` subclass. Alongside a constructor, `Entity` (which is an abstract class) defines three required methods that we are required to implement. These will be explained in the [Data and Networking article][data], in order to not further bloat this article.
+To begin, we create an `Entity` subclass. Alongside a constructor, `Entity` (which is an abstract class) defines four required methods that we are required to implement. The first three will be explained in the [Data and Networking article][data], in order to not further bloat this article, and `#hurtServer` is explained in the [Damaging Entities section][damaging].
 
 ```java
 public class MyEntity extends Entity {
@@ -130,6 +129,11 @@ public class MyEntity extends Entity {
 
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {}
+
+    @Override
+    public boolean hurtServer(ServerLevel level, DamageSource damageSource, float amount) {
+        return true;
+    }
 }
 ```
 
@@ -171,7 +175,7 @@ if (!level.isClientSide()) {
 }
 ```
 
-This will be used for pretty much all non-living entities. Players should obviously not be spawned yourself, and `Mob`s have [their own ways of spawning][mobspawn] (though they can also be added via `#addFreshEntity`).
+This will be used for pretty much all non-living entities. Players should obviously not be spawned yourself, `Mob`s have [their own ways of spawning][mobspawn] (though they can also be added via `#addFreshEntity`), and vanilla [projectiles][projectile] also have static helpers for spawning in the `Projectile` class.
 
 ### Damaging Entities
 
@@ -179,7 +183,7 @@ _See also [Left-Clicking an Item][leftclick]._
 
 While not all entities have the concept of hit points, they can still all receive damage. This is not only used by things like mobs and players: If you cast your mind to item entities (dropped items), they too can take damage from sources like fire or cacti, in which case they are usually deleted immediately.
 
-Damaging an entity is possible by calling `Entity#hurt`. `Entity#hurt` takes two arguments: the [`DamageSource`][damagesource] and the damage amount, as a float in half hearts. For example, calling `entity.hurt(entity.damageSources().wither(), 4.25)` will cause a little over two hearts of wither damage.
+Damaging an entity is possible by calling either `Entity#hurt` or `Entity#hurtOrSimulate`, the difference between those two is explained below. Both methods take two arguments: the [`DamageSource`][damagesource] and the damage amount, as a float in half hearts. For example, calling `entity.hurt(entity.damageSources().wither(), 4.25)` will cause a little over two hearts of wither damage.
 
 In turn, entities can also modify that behavior. This isn't done by overriding `#hurt`, as it is a final method. Rather, there are two methods `#hurtServer` and `#hurtClient` that each handle damage logic for the corresponding side. `#hurtClient` is commonly used to tell the client that an attack has succeeded, even though that may not always be true, mainly for playing attack sounds and other effects regardless. For changing damage behavior, we mainly care about `#hurtServer`, which we can override like so:
 
@@ -188,12 +192,17 @@ In turn, entities can also modify that behavior. This isn't done by overriding `
 // The boolean return value determines whether the entity was actually damaged or not.
 public boolean hurtServer(ServerLevel level, DamageSource damageSource, float amount) {
     if (damageSource.is(DamageTypeTags.IS_FIRE)) {
+        // This assumes that super#hurt() is implemented. Common other ways to do this
+        // are to set some field yourself. Vanilla implementations vary greatly across different entities.
+        // Notably, living entities usually call #actuallyHurt, which in turn calls #setHealth.
         return super.hurt(level, damageSource, amount * 2);
     } else {
         return false;
     }
 }
 ```
+
+This server/client separation is also the difference between `Entity#hurt` and `Entity#hurtOrSimulate`: `Entity#hurt` only runs on the server (and calls `Entity#hurtServer`), whereas `Entity#hurtOrSimulate` runs on both sides, calling `Entity#hurtServer` or `Entity#hurtClient` depending on the side.
 
 It is also possible to modify damage done to entities that do not belong to you, i.e. those added by Minecraft or other mods, through events. These events contain a lot of code specific to `LivingEntity`s; as such, their documentation resides in the [Damage Events section][damageevents] within the [Living Entities article][livingentity].
 
@@ -233,11 +242,14 @@ Picking is the process of selecting the thing that the player is currently looki
 @Nullable
 public ItemStack getPickResult() {
     // Assumes that MY_CUSTOM_ITEM is a DeferredItem<?>, see the Items article for more information.
+    // If the entity should not be pickable, it is advised to return null here.
     return new ItemStack(MY_CUSTOM_ITEM.get());
 }
 ```
 
-Your entity can also be disabled from picking entirely. The primary use case for this would be multipart entities, such as the ender dragon, where the parent entity has picking disabled, but the parts have it enabled again, for finer hitbox tuning. Picking can be disabled like so:
+While entities should generally be pickable, there are some niche cases where this isn't desirable. A vanilla use case for this is the ender dragon, which consists of multiple parts. The parent entity has picking disabled, but the parts have it enabled again, for finer hitbox tuning.
+
+If you have a similarly niche use case, your entity can also be disabled from picking entirely like so:
 
 ```java
 @Override
@@ -253,7 +265,7 @@ If you want to do the picking (i.e. ray casting) yourself, you can call `Entity#
 
 _Not to be confused with [Data Attachments][dataattachments]._
 
-Entity attachments are used to define visual attachment points for the entity. Using this system, it can be defined where things like passengers or name tags will be displayed relative to the entity itself.
+Entity attachments are used to define visual attachment points for the entity. Using this system, it can be defined where things like passengers or name tags will be displayed relative to the entity itself. The entity itself controls only the default position of the attachment, and the attachment can then define an offset from that default.
 
 When building the `EntityType`, any amount of attachment points can be set by calling `EntityType.Builder#attach`. This method accepts an `EntityAttachment`, which defines the attachment to consider, and three floats to define the position (x/y/z). The position should be defined relative to where the default value of the attachment would be.
 
@@ -286,7 +298,9 @@ Alternatively, attachments can be defined yourself by calling `EntityAttachments
 ```java
 // In some EntityType<?> creation
 EntityType.Builder.of(...)
-    // This EntityAttachments will make name tags float half a block above the top end of the entity's hitbox.
+    // This EntityAttachment will make name tags float half a block above the ground.
+    // However, most living entities will have the default for this to be at the top of their hitbox instead.
+    // Therefore, the name tag will actually appear half a block above the top of the living entity's hitbox.
     .attach(EntityAttachment.NAME_TAG, 0, 0.5f, 0)
     .build();
 ```
@@ -409,6 +423,7 @@ A new projectile can be created by extending `Projectile` or a fitting subclass,
 [block]: ../blocks/index.md
 [damageevents]: livingentity.md#damage-events
 [damagesource]: ../resources/server/damagetypes.md#creating-and-using-damage-sources
+[damaging]: #damaging-entities
 [data]: data.md
 [dataattachments]: ../datastorage/attachments.md
 [entity]: #the-entity-class

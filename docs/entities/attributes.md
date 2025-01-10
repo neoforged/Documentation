@@ -44,11 +44,12 @@ The following attributes are in the `minecraft` namespace, and their in-code val
 | `spawn_reinforcements`           | `SPAWN_REINFORCEMENTS_CHANCE`    | `[0,1]`        | 0             | The chance for zombies to spawn other zombies. This is only relevant on hard difficulty, as zombie reinforcements do not occur on normal difficulty or lower.         |
 | `step_height`                    | `STEP_HEIGHT`                    | `[0,10]`       | 0.6           | The step height of the entity, in blocks. If this is 1, the player can walk up 1-block ledges like they were slabs.                                                   |
 | `submerged_mining_speed`         | `SUBMERGED_MINING_SPEED`         | `[0,20]`       | 0.2           | How fast the entity can mine blocks, as a multiplicative modifier, only if the entity is underwater. See [Mining Speed][miningspeed] for more information.            |
-| `sweeping_damage_ratio`          | `SWEEPING_DAMAGE_RATIO`          | `[0,1]`        | 0.6           | The amount of damage done by sweep attacks, in percent of the main attack. This is a value in percent, i.e. 0 is no damage, 0.5 is half damage, and 1 is full damage. |
+| `sweeping_damage_ratio`          | `SWEEPING_DAMAGE_RATIO`          | `[0,1]`        | 0             | The amount of damage done by sweep attacks, in percent of the main attack. This is a value in percent, i.e. 0 is no damage, 0.5 is half damage, and 1 is full damage. |
+| `tempt_range`                    | `TEMPT_RANGE`                    | `[0,2048]`     | 10            | The range at which the entity can be tempted using items. Mainly for passive animals, e.g. cows or pigs.                                                              |
 | `water_movement_efficiency`      | `WATER_MOVEMENT_EFFICIENCY`      | `[0,1]`        | 0             | A movement speed multiplier that is applied when the entity is underwater.                                                                                            |
 
 :::warning
-Some attribute caps are set relatively arbitrarily by Mojang. This is especially notable for armor, which is capped at 30. This is mitigated by some mods that change these values.
+Some attribute caps are set relatively arbitrarily by Mojang. This is especially notable for armor, which is capped at 30. NeoForge doesn't touch those caps, however there are mods to change them.
 :::
 
 ### NeoForge
@@ -58,7 +59,7 @@ The following attributes are in the `neoforge` namespace, and their in-code valu
 | Name               | In Code            | Range      | Default Value | Usage                                                                                                                                                |
 |--------------------|--------------------|------------|---------------|------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `creative_flight`  | `CREATIVE_FLIGHT`  | `[0,1]`    | 0             | Determines whether creative flight for the entity is enabled (\> 0) or disabled (\<\= 0).                                                            |
-| `nametag_distance` | `NAMETAG_DISTANCE` | `[0,64]`   | 64            | How far the nametag of the entity will be visible, in blocks.                                                                                        |
+| `nametag_distance` | `NAMETAG_DISTANCE` | `[0,32]`   | 32            | How far the nametag of the entity will be visible, in blocks.                                                                                        |
 | `swim_speed`       | `SWIM_SPEED`       | `[0,1024]` | 1             | A movement speed multiplier that is applied when the entity is underwater. This is applied independently from `minecraft:water_movement_efficiency`. |
 
 ## Default Attributes

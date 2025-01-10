@@ -308,7 +308,7 @@ destroySpeed = /* The PlayerEvent.BreakSpeed event is fired here, allowing modde
 return destroySpeed;
 ```
 
-The exact code for this can be found in `Player#getDigSpeed` for reference.
+The exact code for this can be found in `Player#getDestroySpeed` for reference.
 
 ### Ticking
 

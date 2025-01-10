@@ -197,7 +197,7 @@ graph LR;
 
 ## Spawning
 
-In addition to the [regular ways of spawning][spawning], `Mob`s can also be spawned through some other means. `ArmorStand`s can be spawned through regular means, and `Player`s should not be instantiated yourself, except for `FakePlayer`s.
+In addition to the [regular ways of spawning][spawning] - that is, the `/summon` command and the in-code way via `Level#addFreshEntity` -, `Mob`s can also be spawned through some other means. `ArmorStand`s can be spawned through regular means, and `Player`s should not be instantiated yourself, except for `FakePlayer`s.
 
 ### Spawn Eggs
 
@@ -209,16 +209,12 @@ DeferredItem<SpawnEggItem> MY_ENTITY_SPAWN_EGG = ITEMS.registerItem("my_entity_s
     properties -> new SpawnEggItem(
         // The entity type to spawn.
         MY_ENTITY_TYPE.get(),
-        // The colors to use for the spawn egg. The first one is the base/background color,
-        // the second one is the spots/highlight color.
-        0xff0000,
-        0x00ff00,
         // The properties passed into the lambda, with any additional setup.
         properties
     ));
 ```
 
-As an item like any other, the item should be added to a [creative tab][creative], and a [model] and [translation] should be added.
+As an item like any other, the item should be added to a [creative tab][creative], and a [client item][clientitem], [model] and [translation] should be added.
 
 ### Natural Spawning
 
@@ -257,6 +253,7 @@ This section is a work in progress.
 [addspawncosts]: ../worldgen/biomemodifier.md#add-spawn-costs
 [addspawns]: ../worldgen/biomemodifier.md#add-spawns
 [attributes]: attributes.md
+[clientitem]: ../resources/client/models/items.md
 [containers]: ../blockentities/container.md
 [creative]: ../items/index.md#creative-tabs
 [damage]: index.md#damaging-entities
