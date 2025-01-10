@@ -23,7 +23,6 @@ Like with basic blocks, for basic items that need no special functionality (thin
     - This **must** be set on every item; otherwise, an exception will be thrown.
 - `overrideDescription` - Sets the translation key of the item. The created `Component` is stored in `DataComponents#ITEM_NAME`.
 - `useBlockDescriptionPrefix` - Convenience helper that calls `overrideDescription` with the translation key `block.<modid>.<registry_name>`. This should be called on any `BlockItem`.
-- `overrideModel` - Sets the `ResourceLocation` representing the item model and expands to `assets/<namespace>/models/item/<path>.json`. The `ResourceLocation` is stored in `DataComponents#ITEM_MODEL`.
 - `requiredFeatures` - Sets the required feature flags for this item. This is mainly used for vanilla's feature locking system in minor versions. It is discouraged to use this, unless you're integrating with a system locked behind feature flags by vanilla.
 - `stacksTo` - Sets the max stack size (via `DataComponents#MAX_STACK_SIZE`) of this item. Defaults to 64. Used e.g. by ender pearls or other items that only stack to 16.
 - `durability` - Sets the durability (via `DataComponents#MAX_DAMAGE`) of this item and the initial damage to 0 (via `DataComponents#DAMAGE`). Defaults to 0, which means "no durability". For example, iron tools use 250 here. Note that setting the durability automatically locks the max stack size to 1.
@@ -133,9 +132,9 @@ If you keep your registered blocks in a separate class, you should classload you
 
 ### Resources
 
-If you register your item and get your item (via `/give` or through a [creative tab][creativetabs]), you will find it to be missing a proper model and texture. This is because textures and models  are handled by Minecraft's resource system.
+If you register your item and get your item (via `/give` or through a [creative tab][creativetabs]), you will find it to be missing a proper model and texture. This is because textures and models are handled by Minecraft's resource system.
 
-To apply a simple texture to an item, you must add an item model JSON and a texture PNG. See the section on [resources][resources] for more information.
+To apply a simple texture to an item, you must create a client item, model JSON, and a texture PNG. See the section on [client items][citems] for more information.
 
 ## `ItemStack`s
 
@@ -240,6 +239,7 @@ It is also possible to implement `ItemLike` on your custom objects. Simply overr
 [block]: ../blocks/index.md
 [blockstates]: ../blocks/states.md
 [breaking]: ../blocks/index.md#breaking-a-block
+[citems]: ../resources/client/models/items.md
 [creativetabs]: #creative-tabs
 [datacomponents]: datacomponents.md
 [datagen]: ../resources/index.md#data-generation
@@ -252,6 +252,5 @@ It is also possible to implement `ItemLike` on your custom objects. Simply overr
 [modbus]: ../concepts/events.md#event-buses
 [recipes]: ../resources/server/recipes/index.md
 [registering]: ../concepts/registries.md#methods-for-registering
-[resources]: ../resources/index.md#assets
 [sides]: ../concepts/sides.md
 [tools]: tools.md

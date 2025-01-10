@@ -147,10 +147,7 @@ Creating any tool or multitool-like item (i.e. an item that combines two or more
 - Overriding `IItemExtension#canPerformAction` to determine what [`ItemAbility`s][itemability] the item can perform.
 - Calling `IBlockExtension#getToolModifiedState` if you want your item to modify the block state on right click based on the `ItemAbility`s.
 - Adding your tool to some of the `minecraft:enchantable/*` `ItemTags` so that your item can have certain enchantments applied to it.
-
-:::note
-The only logic that has no alternative to using a `DiggerItem` or `SwordItem` base is when mobs replace their current held item via `Mob#canReplaceCurrentItem`. Mobs will always check for an instance of `SwordItem`, followed by `BowItem`, `CrossbowItem`, `ArmorItem`, and `DiggerItem`, with all other items not considered for specialized logic.
-:::
+- Adding your tool to some of the `minecraft:*_preferred_weapons` tags to allow mobs to favor your weapon to pickup and use.
 
 ## `ItemAbility`s
 

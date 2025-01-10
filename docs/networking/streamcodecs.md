@@ -306,11 +306,11 @@ Custom registries must be syncable by calling `RegistryBuilder#sync` and setting
 ```java
 // Registry object
 public static final StreamCodec<RegistryFriendlyByteBuf, Item> VALUE_STREAM_CODEC =
-    BytebufCodecs.registry(Registries.ITEM);
+    ByteBufCodecs.registry(Registries.ITEM);
 
 // Holder of registry object
 public static final StreamCodec<RegistryFriendlyByteBuf, Holder<Item>> HOLDER_STREAM_CODEC =
-    BytebufCodecs.holderRegistry(Registries.ITEM);
+    ByteBufCodecs.holderRegistry(Registries.ITEM);
 ```
 
 `holder` returns a holder wrapped registry object. This method sends over an id representing the registry object, or the registry object itself if the provided `Holder` is a direct reference. To do so, `holder` also takes in the stream codec of the registry object.
@@ -332,7 +332,7 @@ Tags or sets of holder wrapped registry objects can be sent using `holderSet`. T
 
 ```java
 public static final StreamCodec<RegistryFriendlyByteBuf, HolderSet<Item>> HOLDER_SET_STREAM_CODEC =
-    BytebufCodecs.holderSet(Registries.ITEM);
+    ByteBufCodecs.holderSet(Registries.ITEM);
 ```
 
 ### Recursive
