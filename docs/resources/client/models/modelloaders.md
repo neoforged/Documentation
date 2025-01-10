@@ -46,68 +46,9 @@ Then, we can disable and enable individual parts in a child model of `examplemod
 
 To [datagen][modeldatagen] this model, use the custom loader class `CompositeModelBuilder`.
 
-### Dynamic Fluid Container Model
-
-The dynamic fluid container model, also called dynamic bucket model after its most common use case, is used for items that represent a fluid container (such as a bucket or a tank) and want to show the fluid within the model. This only works if there is a fixed amount of fluids (e.g. only lava and powder snow) that can be used, use a [`BlockEntityWithoutLevelRenderer`][bewlr] instead if the fluid is arbitrary.
-
-```json5
-{
-    "loader": "neoforge:fluid_container",
-    // Required. Must be a valid fluid id.
-    "fluid": "minecraft:water",
-    // The loader generally expects two textures: base and fluid.
-    "textures": {
-        // The base container texture, i.e. the equivalent of an empty bucket.
-        "base": "examplemod:item/custom_container",
-        // The fluid texture, i.e. the equivalent of water in a bucket.
-        "fluid": "examplemod:item/custom_container_fluid"
-    },
-    // Optional, defaults to false. Whether to flip the model upside down, for gaseous fluids.
-    "flip_gas": true,
-    // Optional, defaults to true. Whether to have the cover act as the mask.
-    "cover_is_mask": false,
-    // Optional, defaults to true. Whether to apply the fluid's luminosity to the item model.
-    "apply_fluid_luminosity": false,
-}
-```
-
-:::note
-If you would like to apply a tint to the fluid texture, you will need to [register an `ItemColor`][tint]. An instance with the fluid tinting logic can be created from `DynamicFluidContainerModel.Colors`:
-
-```java
-// Client-side mod bus event handler
-@SubscribeEvent
-public static void registerItemColorHandlers(RegisterColorHandlersEvent.Item event) {
-    event.register(new DynamicFluidContainerModel.Colors(), EXAMPLE_BUCKET.get(), ...);
-}
-```
+:::warning
+The composite model loader should not be used for models used by [client items][citems]. Instead, they should use the [composite model][itemcomposite] provided in the definition itself.
 :::
-
-Very often, dynamic fluid container models will directly use the bucket model. This is done by specifying the `neoforge:item_bucket` parent model, like so:
-
-```json5
-{
-    "loader": "neoforge:fluid_container",
-    "parent": "neoforge:item/bucket",
-    // Replace with your own fluid.
-    "fluid": "minecraft:water"
-    // Optional properties here. Note that the textures are handled by the parent.
-}
-```
-
-To [datagen][modeldatagen] this model, use the custom loader class `DynamicFluidContainerModelBuilder`.
-
-### Elements Model
-
-An elements model consists of block model [elements][elements] and an optional [root transform][transform]. Intended mainly for usage outside regular model rendering, for example within a [BER][ber].
-
-```json5
-{
-    "loader": "neoforge:elements",
-    "elements": [...],
-    "transform": {...}
-}
-```
 
 ### Empty Model
 
@@ -118,36 +59,6 @@ An empty model just renders nothing at all.
     "loader": "neoforge:empty"
 }
 ```
-
-### Item Layer Model
-
-Item layer models are a variant of the standard `item/generated` model that offer the following additional features:
-
-- Unlimited amount of layers (instead of the default 5)
-- Per-layer [render types][rendertype]
-
-```json5
-{
-    "loader": "neoforge:item_layers",
-    "textures": {
-        "layer0": "...",
-        "layer1": "...",
-        "layer2": "...",
-        "layer3": "...",
-        "layer4": "...",
-        "layer5": "...",
-    },
-    "render_types": {
-        // Map render types to layer numbers. For example, layers 0, 2 and 4 will use cutout.
-        "minecraft:cutout": [0, 2, 4],
-        "minecraft:cutout_mipped": [1, 3],
-        "minecraft:translucent": [5]
-    },
-    // other stuff the default loader allows here
-}
-```
-
-To [datagen][modeldatagen] this model, use the custom loader class `ItemLayerModelBuilder`.
 
 ### OBJ Model
 
@@ -182,166 +93,90 @@ The OBJ model loader allows you to use Wavefront `.obj` 3D models in the game, a
 
 To [datagen][modeldatagen] this model, use the custom loader class `ObjModelBuilder`.
 
-### Separate Transforms Model
-
-A separate transforms model can be used to switch between different models based on the perspective. The perspectives are the same as for the `display` block in a [normal model][model]. This works by specifying a base model (as a fallback) and then specifying per-perspective override models. Note that each of these can be fully-fledged models if you so desire, but it is usually easiest to just refer to another model by using a child model of that model, like so:
-
-```json5
-{
-    "loader": "neoforge:separate_transforms",
-    // Use the cobblestone model normally.
-    "base": {
-        "parent": "minecraft:block/cobblestone"
-    },
-    // Use the stone model only when dropped.
-    "perspectives": {
-        "ground": {
-            "parent": "minecraft:block/stone"
-        }
-    }
-}
-```
-
-To [datagen][modeldatagen] this model, use the custom loader class `SeparateTransformsModelBuilder`.
-
 ## Creating Custom Model Loaders
 
 To create your own model loader, you need three classes, plus an event handler:
 
-- A geometry loader class
-- A geometry class
-- A dynamic [baked model][bakedmodel] class
-- A [client-side][sides] [event handler][event] for `ModelEvent.RegisterGeometryLoaders` that registers the geometry loader
+- An `UnbakedModelLoader` class
+- An `UnbakedModel` class
+- A [baked model][bakedmodel] class, usually a `SimpleBakedModel` instance, or `IDynamicBakedModel` if the `ModelData` is required
+- A [client-side][sides] [event handler][event] for `ModelEvent.RegisterLoaders` that registers the unbaked model loader
+- Optional: A [client-side][sides] [event handler][event] for `RegisterClientReloadListenersEvent` for model loaders that cache data about what is being loaded
 
 To illustrate how these classes are connected, we will follow a model being loaded:
 
-- During model loading, a model JSON with the `loader` property set to your loader is passed to your geometry loader. The geometry loader then reads the model JSON and returns a geometry object using the model JSON's properties.
-- During model baking, the geometry is baked, returning a dynamic baked model.
-- During model rendering, the dynamic baked model is used for rendering.
+- During model loading, a model JSON with the `loader` property set to your loader is passed to your unbaked model loader. The loader then reads the model JSON and returns an unbaked object using the model JSON's properties.
+- During model baking, the object is baked, returning a baked model.
+- During model rendering, the baked model is used for rendering.
 
-Let's illustrate this further through a basic class setup. The geometry loader class is named `MyGeometryLoader`, the geometry class is named `MyGeometry`, and the dynamic baked model class is named `MyDynamicModel`:
+:::note
+If you are creating a custom model loader for a model used by an item, depending on the use case, it would be better to create a new `ItemModel` instead. For example, a model that uses or generates `BakedModel`s would make more sense as an `ItemModel` while a model that renders a different data format (like `.obj`) should create a new model loader.
+:::
+
+Let's illustrate this further through a basic class setup. The loader class is named `MyUnbakedModelLoader`, the unbaked class is named `MyUnbakedModel`, and we construct a `SimpleBakedModel` instance. We will also assume that the model loader requires some cache:
 
 ```java
-public class MyGeometryLoader implements IGeometryLoader<MyGeometry> {
-    // It is highly recommended to use a singleton pattern for geometry loaders, as all models can be loaded through one loader.
-    public static final MyGeometryLoader INSTANCE = new MyGeometryLoader();
+public class MyUnbakedModelLoader implements UnbakedModelLoader<MyUnbakedModel>, ResourceManagerReloadListener {
+    // It is highly recommended to use a singleton pattern for unbaked model loaders, as all models can be loaded through one loader.
+    public static final MyUnbakedModelLoader INSTANCE = new MyUnbakedModelLoader();
     // The id we will use to register this loader. Also used in the loader datagen class.
     public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath("examplemod", "my_custom_loader");
     
     // In accordance with the singleton pattern, make the constructor private.        
-    private MyGeometryLoader() {}
+    private MyUnbakedModelLoader() {}
+
+    @Override
+    public void onResourceManagerReload(ResourceManager resourceManager) {
+        // Handle any cache clearing logic
+    }
     
     @Override
-    public MyGeometry read(JsonObject jsonObject, JsonDeserializationContext context) throws JsonParseException {
+    public MyUnbakedModel read(JsonObject jsonObject, JsonDeserializationContext context) throws JsonParseException {
         // Use the given JsonObject and, if needed, the JsonDeserializationContext to get properties from the model JSON.
-        // The MyGeometry constructor may have constructor parameters (see below).
-        return new MyGeometry();
+        // The MyUnbakedModel constructor may have constructor parameters (see below).
+        return new MyUnbakedModel();
     }
 }
 
-public class MyGeometry implements IUnbakedGeometry<MyGeometry> {
+// AbstractUnbakedModel is used as the base unbaked model for custom models.
+// Adds support for vanilla and NeoForge properties but leaves the bake method
+// for modder implementation.
+public class MyUnbakedModel extends AbstractUnbakedModel {
     // The constructor may have any parameters you need, and store them in fields for further usage below.
-    // If the constructor has parameters, the constructor call in MyGeometryLoader#read must match them.
-    public MyGeometry() {}
+    // If the constructor has parameters, the constructor call in MyUnbakedModelLoader#read must match them.
+    public MyUnbakedModel() {}
 
-    // Method responsible for model baking, returning our dynamic model. Parameters in this method are:
-    // - The geometry baking context. Contains many properties that we will pass into the model, e.g. light and ao values.
-    // - The model baker. Can be used for baking sub-models.
-    // - The sprite getter. Maps materials (= texture variables) to TextureAtlasSprites. Materials can be obtained from the context.
-    //   For example, to get a model's particle texture, call spriteGetter.apply(context.getMaterial("particle"));
+    // Method responsible for model baking, returning our baked model. Parameters in this method are:
+    // - The map of texture names to their associated materials.
+    // - The model baker. Can be used for baking sub-models and getting sprites from the texture slots.
     // - The model state. This holds the properties from the blockstate file, e.g. rotations and the uvlock boolean.
-    // - The item overrides. This is the code representation of an "overrides" block in an item model.
+    // - A boolean of whether to use ambient occlusion when rendering the model.
+    // - A boolean of whether to use the block light when rendering a model.
+    // - The item transforms associated with how this model should be displayed in a given ItemDisplayContext.
+    // - A ContextMap of settings provided by NeoForge. See the 'NeoForgeModelProperties' class for all available properties.
     @Override
-    public BakedModel bake(IGeometryBakingContext context, ModelBaker baker, Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelState, List<ItemOverride> overrides) {
-        // See info on the parameters below.
-        return new MyDynamicModel(context.useAmbientOcclusion(), context.isGui3d(), context.useBlockLight(),
-            spriteGetter.apply(context.getMaterial("particle")), new BakedOverrides(baker, overrides));
+    public BakedModel bake(TextureSlots textures, ModelBaker baker, ModelState modelState, boolean useAmbientOcclusion, boolean usesBlockLight, ItemTransforms itemTransforms, ContextMap additionalProperties) {
+        // The true boolean represents if the model is in 3D within the GUI
+        var builder = new SimpleBakedModel.Builder(useAmbientOcclusion, usesBlockLight, true, itemTransforms);
+        // Sets the particle texture
+        builder.particle(baker.findSprite(textures, TextureSlot.PARTICLE.getId()));
+        // Add the baked quads (call as many times as necessary)
+        builder.addUnculledFace(...) // or addCulledFace(Direction, BakedQuad)
+        // Create the baked model
+        return builder.build(additionalProperties.getOrDefault(NeoForgeModelProperties.RENDER_TYPE, RenderTypeGroup.EMPTY));
     }
 
     // Method responsible for correctly resolving parent properties. Required if this model loads any nested models or reuses the vanilla loader on itself (see below).
     @Override
-    public void resolveDependencies(UnbakedModel.Resolver resolver, IGeometryBakingContext context) {
-        // UnbakedModel#resolveDependencies
+    public void resolveDependencies(ResolvableModel.Resolver resolver) {
+        // ResolvableModel.Resolver#resolve
     }
 
-    // Gets the name of the components that can be configured via IGeometryBakingContext
-    // Usually empty unless there are child components
+    // Add properties to the context map used for baking
     @Override
-    public Set<String> getConfigurableComponentNames() {
-        return Set.of();
-    }
-}
-
-// BakedModelWrapper can be used as well to return default values for most methods, allowing you to only override what actually needs to be overridden.
-public class MyDynamicModel implements IDynamicBakedModel {
-    // Material of the missing texture. Its sprite can be used as a fallback when needed.
-    private static final Material MISSING_TEXTURE = 
-        new Material(TextureAtlas.LOCATION_BLOCKS, MissingTextureAtlasSprite.getLocation());
-
-    // Attributes for use in the methods below. Optional, the methods may also use constant values if applicable.
-    private final boolean useAmbientOcclusion;
-    private final boolean isGui3d;
-    private final boolean usesBlockLight;
-    private final TextureAtlasSprite particle;
-    private final BakedOverrides overrides;
-
-    // The constructor does not require any parameters other than the ones for instantiating the final fields.
-    // It may specify any additional parameters to store in fields you deem necessary for your model to work.
-    public MyDynamicModel(boolean useAmbientOcclusion, boolean isGui3d, boolean usesBlockLight, TextureAtlasSprite particle, BakedOverrides overrides) {
-        this.useAmbientOcclusion = useAmbientOcclusion;
-        this.isGui3d = isGui3d;
-        this.usesBlockLight = usesBlockLight;
-        this.particle = particle;
-        this.overrides = overrides;
-    }
-
-    // Use our attributes. Refer to the article on baked models for more information on the method's effects.
-    @Override
-    public boolean useAmbientOcclusion() {
-        return useAmbientOcclusion;
-    }
-
-    @Override
-    public boolean isGui3d() {
-        return isGui3d;
-    }
-
-    @Override
-    public boolean usesBlockLight() {
-        return usesBlockLight;
-    }
-
-    @Override
-    public TextureAtlasSprite getParticleIcon() {
-        // Return MISSING_TEXTURE.sprite() if you don't need a particle, e.g. when in an item model context.
-        return particle;
-    }
-
-    @Override
-    public BakedOverrides overrides() {
-        // Return BakedOverrides.EMPTY when in a block model context.
-        return overrides;
-    }
-
-    // Override this to true if you want to use a custom block entity renderer instead of the default renderer.
-    @Override
-    public boolean isCustomRenderer() {
-        return false;
-    }
-
-    // This is where the magic happens. Return a list of the quads to render here. Parameters are:
-    // - The blockstate being rendered. May be null if rendering an item.
-    // - The side being culled against. May be null, which means quads that cannot be occluded should be returned.
-    // - A client-bound random source you can use for randomizing stuff.
-    // - The extra data to use. Originates from a block entity (if present), or from BakedModel#getModelData().
-    // - The render type for which quads are being requested.
-    // NOTE: This may be called many times in quick succession, up to several times per block.
-    // This should be as fast as possible and use caching wherever applicable.
-    @Override
-    public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, RandomSource rand, ModelData extraData, @Nullable RenderType renderType) {
-        List<BakedQuad> quads = new ArrayList<>();
-        // add elements to the quads list as needed here
-        return quads;
+    public void fillAdditionalProperties(ContextMap.Builder propertiesBuilder) {
+        super.fillAdditionalProperties(propertiesBuilder);
+        // Add additional properties below by calling withParameter(ContextKey<T>, T)
     }
 }
 ```
@@ -351,8 +186,15 @@ When all is done, don't forget to actually register your loader, otherwise all t
 ```java
 // Client-side mod bus event handler
 @SubscribeEvent
-public static void registerGeometryLoaders(ModelEvent.RegisterGeometryLoaders event) {
-    event.register(MyGeometryLoader.ID, MyGeometryLoader.INSTANCE);
+public static void registerGeometryLoaders(ModelEvent.RegisterLoaders event) {
+    event.register(MyUnbakedModelLoader.ID, MyUnbakedModelLoader.INSTANCE);
+}
+
+// If you are caching data in the model loader:
+// Client-side mod bus event handler
+@SubscribeEvent
+public static void onRegisterReloadListeners(RegisterClientReloadListenersEvent event) {
+    event.registerReloadListener(MyUnbakedModelLoader.INSTANCE);
 }
 ```
 
@@ -361,23 +203,26 @@ public static void registerGeometryLoaders(ModelEvent.RegisterGeometryLoaders ev
 Of course, we can also [datagen] our models. To do so, we need a class that extends `CustomLoaderBuilder`:
 
 ```java
-// This assumes a block model. Use ItemModelBuilder as the generic parameter instead 
-// if you're making a custom item model.
-public class MyLoaderBuilder extends CustomLoaderBuilder<BlockModelBuilder> {
-    public MyLoaderBuilder(BlockModelBuilder parent, ExistingFileHelper existingFileHelper) {
+public class MyLoaderBuilder extends CustomLoaderBuilder {
+    public MyLoaderBuilder() {
         super(
             // Your model loader's id.
-            MyGeometryLoader.ID,
-            // The parent builder we use. This is always the first constructor parameter.
-            parent,
-            // The existing file helper we use. This is always the second constructor parameter.
-            existingFileHelper,
+            MyUnbakedModelLoader.ID,
             // Whether the loader allows inline vanilla elements as a fallback if the loader is absent.
             false
         );
     }
     
     // Add fields and setters for the fields here. The fields can then be used below.
+
+    @Override
+    protected CustomLoaderBuilder copyInternal() {
+        // Create a new instance of your loader builder and copy the properties from this builder
+        // to the new instance.
+        MyLoaderBuilder builder = new MyLoaderBuilder();
+        // builder.<field> = this.<field>;
+        return builder;
+    }
     
     // Serialize the model to JSON.
     @Override
@@ -392,65 +237,84 @@ public class MyLoaderBuilder extends CustomLoaderBuilder<BlockModelBuilder> {
 To use this loader builder, do the following during block (or item) [model datagen][modeldatagen]:
 
 ```java
-// This assumes a BlockStateProvider. Use getBuilder("my_cool_block") directly in an ItemModelProvider.
-// The parameter for customLoader() is a BiFunction. The parameters of the BiFunction
-// are the result of the getBuilder() call and the provider's ExistingFileHelper.
-MyLoaderBuilder loaderBuilder = models().getBuilder("my_cool_block").customLoader(MyLoaderBuilder::new);
+// This assumes an extension of ModelProvider and a DeferredBlock<Block> EXAMPLE_BLOCK.
+// The parameter for customLoader() is a Supplier to construct the builder and a Consumer to set to associated properties.
+@Override
+protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerators itemModels) {
+    blockModels.createTrivialBlock(
+        // The block to generate the model for
+        EXAMPLE_BLOCK.get(),
+        TexturedModel.createDefault(
+            // A mapping used to get the textures
+            block -> new TextureMapping().put(
+                TextureSlot.ALL, TextureMapping.getBlockTexture(block)
+            ),
+            // The model template builder used to create the JSON
+            ExtendedModelTemplateBuilder.builder()
+                // Say we are using a custom model loader
+                .customLoader(MyLoaderBuilder::new, loader -> {
+                    // Set any required fields here
+                })
+                // Textures required by the model
+                .requiredTextureSlot(TextureSlot.ALL)
+                // Call build once complete
+                .build()
+        )
+    )
+}
 ```
-
-Then, call your field setters on the `loaderBuilder`.
 
 #### Visibility
 
-The default implementation of `CustomLoaderBuilder` holds methods for applying visibility. You may choose to use or ignore the `visibility` property in your model loader. Currently, only the [composite model loader][composite] makes use of this property.
+The default implementation of `CustomLoaderBuilder` holds methods for applying visibility. You may choose to use or ignore the `visibility` property in your model loader. Currently, only the [composite model loader][composite] and [OBJ loader][obj] make use of this property.
 
 ### Reusing the Default Model Loader
 
-In some contexts, it makes sense to reuse the vanilla model loader and just building your model logic on top of that instead of outright replacing it. We can do so using a neat trick: In the model loader, we simply remove the `loader` property and send it back to the model deserializer, tricking it into thinking that it is a regular model now. We then pass it to the geometry, bake the model geometry there (like the default geometry handler would) and pass it along to the dynamic model, where we can then use the model's quads in whatever way we want:
+In some contexts, it makes sense to reuse the vanilla model loader and just building your model logic on top of that instead of outright replacing it. We can do so using a neat trick: in the model loader,  we simply remove the `loader` property and send it back to the model deserializer, tricking it into thinking that it is a regular unbaked model now. Then, we bake the model during the baking process to pass along to the baked model, where we can the use the model's quads in whatever way we want.
+
+:::note
+The following example should only be used if the file only contains a single model JSON, whether on the top-level or nested within some object. If multiple models need to be loaded, then the JSON should either contain references to the other JSON files, or the children objects should be deserialized into `UnbakedModel`s and baked via `UnbakedModel#bakeWithTopModelValues`. Using references is the recommended method.
+:::
 
 ```java
-public class MyGeometryLoader implements IGeometryLoader<MyGeometry> {
-    public static final MyGeometryLoader INSTANCE = new MyGeometryLoader();
-    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(...);
+public class MyUnbakedModelLoader implements UnbakedModelLoader<MyUnbakedModel> {
+    public static final MyUnbakedModelLoader INSTANCE = new MyUnbakedModelLoader();
+    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath("examplemod", "my_custom_loader");
     
-    private MyGeometryLoader() {}
-    
+    private MyUnbakedModelLoader() {}
+
     @Override
-    public MyGeometry read(JsonObject jsonObject, JsonDeserializationContext context) throws JsonParseException {
-        // Trick the deserializer into thinking this is a normal model by removing the loader field and then passing it back into the deserializer.
+    public MyUnbakedModel read(JsonObject jsonObject, JsonDeserializationContext context) throws JsonParseException {
+        // Trick the deserializer into thinking this is a normal model by removing the loader field
+        // Then, pass it to the deserializer.
         jsonObject.remove("loader");
-        BlockModel base = context.deserialize(jsonObject, BlockModel.class);
-        // other stuff here if needed
-        return new MyGeometry(base);
+        UnbakedModel model = context.deserialize(jsonObject, UnbakedModel.class);
+        return new MyUnbakedModel(model, /* other parameters here */);
     }
 }
 
-public class MyGeometry implements IUnbakedGeometry<MyGeometry> {
-    private final BlockModel base;
+// We extend the delegate class as that stores the wrapped model
+public class MyUnbakedModel extends DelegateUnbakedModel {
 
-    // Store the block model for usage below.            
-    public MyGeometry(BlockModel base) {
-        this.base = base;
+    // Store the model for use below
+    public MyUnbakedModel(UnbakedModel model, /* other parameters here */) {
+       super(model);
     }
 
     @Override
-    public BakedModel bake(IGeometryBakingContext context, ModelBaker baker, Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelState, List<ItemOverride> overrides) {
-        BakedModel bakedBase = this.base.bake(baker, spriteGetter, modelState);
-        return new MyDynamicModel(bakedBase, /* other parameters here */);
-    }
-
-    @Override
-    public void resolveDependencies(UnbakedModel.Resolver resolver, IGeometryBakingContext context) {
-        this.base.resolveDependencies(resolver);
+    public BakedModel bake(TextureSlots textures, ModelBaker baker, ModelState modelState, boolean useAmbientOcclusion, boolean usesBlockLight, ItemTransforms itemTransforms, ContextMap additionalProperties) {
+        BakedModel base = super.bake(textures, baker, modelState, useAmbientOcclusion, usesBlockLight, itemTransforms, additionalProperties);
+        return new MyBakedModel(base, /* other parameters here */);
     }
 }
 
-public class MyDynamicModel implements IDynamicBakedModel {
-    private final BakedModel base;
+// We extend the delegate class as that stores the wrapped model
+public class MyDynamicModel extends DelegateBakedModel {
+
     // other fields here
 
     public MyDynamicModel(BakedModel base, /* other parameters here */) {
-        this.base = base;
+        super(base);
         // set other fields here
     }
 
@@ -460,29 +324,19 @@ public class MyDynamicModel implements IDynamicBakedModel {
     public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, RandomSource rand, ModelData extraData, @Nullable RenderType renderType) {
         List<BakedQuad> quads = new ArrayList<>();
         // Add the base model's quads. Can also do something different with the quads here, depending on what you need.
-        quads.addAll(this.base.getQuads(state, side, rand, extraData, renderType));
+        quads.addAll(this.parent.getQuads(state, side, rand, extraData, renderType));
         // add other elements to the quads list as needed here
         return quads;
-    }
-    
-    // Apply the base model's transforms to our model as well.
-    @Override
-    public BakedModel applyTransform(ItemDisplayContext transformType, PoseStack poseStack, boolean applyLeftHandTransform) {
-        return this.base.applyTransform(transformType, poseStack, applyLeftHandTransform);
     }
 }
 ```
 
 [bakedmodel]: bakedmodel.md
-[ber]: ../../../blockentities/ber.md
-[bewlr]: ../../../blockentities/ber.md#blockentitywithoutlevelrenderer
+[citems]: items.md
 [composite]: #composite-model
 [datagen]: ../../index.md#data-generation
-[elements]: index.md#elements
 [event]: ../../../concepts/events.md#registering-an-event-handler
-[model]: index.md#specification
+[itemcomposite]: #TODO
 [modeldatagen]: datagen.md
-[rendertype]: index.md#render-types
+[obj]: #obj-model
 [sides]: ../../../concepts/sides.md
-[tint]: index.md#tinting
-[transform]: index.md#root-transforms
