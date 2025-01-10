@@ -146,8 +146,8 @@ For the sake of example, let's assume that we want to generate block tags. (All 
 ```java
 public class MyBlockTagsProvider extends BlockTagsProvider {
     // Get parameters from GatherDataEvent.
-    public MyBlockTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider, ExistingFileHelper existingFileHelper) {
-        super(output, lookupProvider, ExampleMod.MOD_ID, existingFileHelper);
+    public MyBlockTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider) {
+        super(output, lookupProvider, ExampleMod.MOD_ID);
     }
 
     // Add your tag entries here.
@@ -155,30 +155,30 @@ public class MyBlockTagsProvider extends BlockTagsProvider {
     protected void addTags(HolderLookup.Provider lookupProvider) {
         // Create a tag builder for our tag. This could also be e.g. a vanilla or NeoForge tag.
         this.tag(MY_TAG)
-                // Add entries. This is a vararg parameter.
-                // Non-intrinsic providers must provide ResourceKeys here instead of the actual objects.
-                .add(Blocks.DIRT, Blocks.COBBLESTONE)
-                // Add optional entries that will be ignored if absent. This example uses Botania's Pure Daisy.
-                // Unlike #add, this is not a vararg parameter.
-                .addOptional(ResourceLocation.fromNamespaceAndPath("botania", "pure_daisy"))
-                // Add a tag entry.
-                .addTag(BlockTags.PLANKS)
-                // Add multiple tag entries. This is a vararg parameter.
-                // Can cause unchecked warnings that can safely be suppressed.
-                .addTags(BlockTags.LOGS, BlockTags.WOODEN_SLABS)
-                // Add an optional tag entry that will be ignored if absent.
-                .addOptionalTag(ResourceLocation.fromNamespaceAndPath("c", "ingots/tin"))
-                // Add multiple optional tag entries. This is a vararg parameter.
-                // Can cause unchecked warnings that can safely be suppressed.
-                .addOptionalTags(ResourceLocation.fromNamespaceAndPath("c", "nuggets/tin"), ResourceLocation.fromNamespaceAndPath("c", "storage_blocks/tin"))
-                // Set the replace property to true.
-                .replace()
-                // Set the replace property back to false.
-                .replace(false)
-                // Remove entries. This is a vararg parameter. Accepts either resource locations, resource keys,
-                // tag keys, or (intrinsic providers only) direct values.
-                // Can cause unchecked warnings that can safely be suppressed.
-                .remove(ResourceLocation.fromNamespaceAndPath("minecraft", "crimson_slab"), ResourceLocation.fromNamespaceAndPath("minecraft", "warped_slab"));
+            // Add entries. This is a vararg parameter.
+            // Non-intrinsic providers must provide ResourceKeys here instead of the actual objects.
+            .add(Blocks.DIRT, Blocks.COBBLESTONE)
+            // Add optional entries that will be ignored if absent. This example uses Botania's Pure Daisy.
+            // Unlike #add, this is not a vararg parameter.
+            .addOptional(ResourceLocation.fromNamespaceAndPath("botania", "pure_daisy"))
+            // Add a tag entry.
+            .addTag(BlockTags.PLANKS)
+            // Add multiple tag entries. This is a vararg parameter.
+            // Can cause unchecked warnings that can safely be suppressed.
+            .addTags(BlockTags.LOGS, BlockTags.WOODEN_SLABS)
+            // Add an optional tag entry that will be ignored if absent.
+            .addOptionalTag(ResourceLocation.fromNamespaceAndPath("c", "ingots/tin"))
+            // Add multiple optional tag entries. This is a vararg parameter.
+            // Can cause unchecked warnings that can safely be suppressed.
+            .addOptionalTags(ResourceLocation.fromNamespaceAndPath("c", "nuggets/tin"), ResourceLocation.fromNamespaceAndPath("c", "storage_blocks/tin"))
+            // Set the replace property to true.
+            .replace()
+            // Set the replace property back to false.
+            .replace(false)
+            // Remove entries. This is a vararg parameter. Accepts either resource locations, resource keys,
+            // tag keys, or (intrinsic providers only) direct values.
+            // Can cause unchecked warnings that can safely be suppressed.
+            .remove(ResourceLocation.fromNamespaceAndPath("minecraft", "crimson_slab"), ResourceLocation.fromNamespaceAndPath("minecraft", "warped_slab"));
     }
 }
 ```
@@ -222,14 +222,13 @@ Like all data providers, add each tag provider to the `GatherDataEvent`:
 ```java
 @SubscribeEvent
 public static void gatherData(GatherDataEvent event) {
-    PackOutput output = generator.getPackOutput();
+    PackOutput output = event.getGenerator().getPackOutput();
     CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
-    ExistingFileHelper existingFileHelper = event.getExistingFileHelper();
 
     // other providers here
     event.getGenerator().addProvider(
         event.includeServer(),
-        new MyBlockTagsProvider(output, lookupProvider, existingFileHelper)
+        new MyBlockTagsProvider(output, lookupProvider)
     );
 }
 ```
@@ -248,9 +247,9 @@ To create a custom tag provider for a custom [registry], or for a vanilla or Neo
 ```java
 public class MyRecipeTypeTagsProvider extends TagsProvider<RecipeType<?>> {
     // Get parameters from GatherDataEvent.
-    public MyRecipeTypeTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider, ExistingFileHelper existingFileHelper) {
+    public MyRecipeTypeTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider) {
         // Second parameter is the registry key we are generating the tags for.
-        super(output, Registries.RECIPE_TYPE, lookupProvider, ExampleMod.MOD_ID, existingFileHelper);
+        super(output, Registries.RECIPE_TYPE, lookupProvider, ExampleMod.MOD_ID);
     }
     
     @Override
@@ -261,16 +260,16 @@ public class MyRecipeTypeTagsProvider extends TagsProvider<RecipeType<?>> {
 If desirable and applicable, you can also extend `IntrinsicHolderTagsProvider<T>` instead of `TagsProvider<T>`, allowing you to pass in objects directly rather than just their resource keys. This additionally requires a function parameter that returns a resource key for a given object. Using attribute tags as an example:
 
 ```java
-public class MyAttributeTagsProvider extends TagsProvider<Attribute> {
+public class MyAttributeTagsProvider extends IntrinsicHolderTagsProvider<Attribute> {
     // Get parameters from GatherDataEvent.
-    public MyAttributeTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider, ExistingFileHelper existingFileHelper) {
+    public MyAttributeTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider) {
         super(output,
-                Registries.ATTRIBUTE,
-                lookupProvider,
-                // A function that, given an Attribute, returns a ResourceKey<Attribute>.
-                attribute -> BuiltInRegistries.ATTRIBUTE.getResourceKey(attribute).orElseThrow(),
-                ExampleMod.MOD_ID,
-                existingFileHelper);
+            Registries.ATTRIBUTE,
+            lookupProvider,
+            // A function that, given an Attribute, returns a ResourceKey<Attribute>.
+            attribute -> BuiltInRegistries.ATTRIBUTE.getResourceKey(attribute).orElseThrow(),
+            ExampleMod.MOD_ID
+        );
     }
 
     // Attributes can now be used here directly, instead of just their resource keys.

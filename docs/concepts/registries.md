@@ -43,14 +43,14 @@ We can then add our registry entries as static final fields using one of the fol
 ```java
 public static final DeferredHolder<Block, Block> EXAMPLE_BLOCK_1 = BLOCKS.register(
         // Our registry name.
-        "example_block" 
+        "example_block",
         // A supplier of the object we want to register.
         () -> new Block(...)
 );
 
 public static final DeferredHolder<Block, SlabBlock> EXAMPLE_BLOCK_2 = BLOCKS.register(
         // Our registry name.
-        "example_block" 
+        "example_block",
         // A function creating the object we want to register
         // given its registry name as a ResourceLocation.
         registryName -> new SlabBlock(...)
@@ -64,14 +64,14 @@ The class `DeferredHolder<R, T extends R>` holds our object. The type parameter 
 ```java
 public static final Supplier<Block> EXAMPLE_BLOCK_1 = BLOCKS.register(
         // Our registry name.
-        "example_block" 
+        "example_block",
         // A supplier of the object we want to register.
         () -> new Block(...)
 );
 
 public static final Supplier<SlabBlock> EXAMPLE_BLOCK_2 = BLOCKS.register(
         // Our registry name.
-        "example_block" 
+        "example_block",
         // A function creating the object we want to register
         // given its registry name as a ResourceLocation.
         registryName -> new SlabBlock(...)
@@ -236,7 +236,10 @@ public static void registerDatapackRegistries(DataPackRegistryEvent.NewRegistry 
             // May be null. If null, registry entries will not be synced to the client at all.
             // May be omitted, which is functionally identical to passing null (a method overload
             // with two parameters is called that passes null to the normal three parameter method).
-            Spell.CODEC
+            Spell.CODEC,
+            // A consumer which configures the constructed registry via the RegistryBuilder.
+            // May be omitted, which is functionally identical to passing builder -> {}.
+            builder -> builder.maxId(256)
     );
 }
 ```

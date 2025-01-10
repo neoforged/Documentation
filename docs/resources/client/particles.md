@@ -127,7 +127,7 @@ A mismatched list of sprite set particle factories and particle definition files
 :::
 
 :::note
-While particle descriptions must have providers registered a certain way, they are only used if the `ParticleRenderType` (set via `Particle#getRenderType`) uses the `TextureAtlas#LOCATION_PARTICLES` as the shader texture. For vanilla render types, these are `PARTICLE_SHEET_OPAQUE` and `PARTICLE_SHEET_TRANSLUCENT`.
+While particle descriptions must have providers registered a certain way, they are only used if the `RenderType` of the `ParticleRenderType` (set via `Particle#getRenderType`) uses `TextureAtlas#LOCATION_PARTICLES` for the shader texture. For vanilla particle render types, these are `PARTICLE_SHEET_OPAQUE` and `PARTICLE_SHEET_TRANSLUCENT`.
 :::
 
 ### Datagen
@@ -137,8 +137,8 @@ Particle definition files can also be [datagenned][datagen] by extending `Partic
 ```java
 public class MyParticleDescriptionProvider extends ParticleDescriptionProvider {
     // Get the parameters from GatherDataEvent.
-    public AMParticleDefinitionsProvider(PackOutput output, ExistingFileHelper existingFileHelper) {
-        super(output, existingFileHelper);
+    public MyParticleDescriptionProvider(PackOutput output) {
+        super(output);
     }
 
     // Assumes that all the referenced particles actually exists. Replace "examplemod" with your mod id.
@@ -173,12 +173,11 @@ Don't forget to add the provider to the `GatherDataEvent`:
 public static void gatherData(GatherDataEvent event) {
     DataGenerator generator = event.getGenerator();
     PackOutput output = generator.getPackOutput();
-    ExistingFileHelper existingFileHelper = event.getExistingFileHelper();
 
     // other providers here
     generator.addProvider(
         event.includeClient(),
-        new MyParticleDescriptionProvider(output, existingFileHelper)
+        new MyParticleDescriptionProvider(output)
     );
 }
 ```

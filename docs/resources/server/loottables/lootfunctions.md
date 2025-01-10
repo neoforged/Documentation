@@ -769,17 +769,48 @@ It is currently not possible to create this function during datagen.
 
 ## `minecraft:set_custom_model_data`
 
-Sets the custom model data of the result item stack.
+Sets the custom model data of the resulting item stack to use during rendering.
 
 ```json5
 {
     "function": "minecraft:set_custom_model_data",
-    // The custom model data value to use. This can also be a number provider.
-    "value": 4
+    // The float used during item model selection for the specified index
+    // for a client item with a `minecraft:custom_model_data` range property.
+    "floats": [
+        // Will select the model where the property is less than 0.5 when "index": 0
+        0.5,
+        // Will select the model where the property is less than 0.25 when "index": 1
+        0.25
+    ],
+    // The boolean used during item model selection for the specified index
+    // for a client item with a `minecraft:custom_model_data` condition property.
+    "flags": [
+        // Will select the model where the condition is true when "index": 0
+        true,
+        // Will select the model where the condition is false when "index": 1
+        false
+    ],
+    // The string used during item model selection for the specified index
+    // for a client item with a `minecraft:custom_model_data` select property.
+    "strings": [
+        // Will select the model with the "dummy" case when "index": 0
+        "dummy",
+        // Will select the model with the "example" case when "index": 1
+        "example"
+    ],
+    // The tint color to use for the specified index for a client item
+    // with a `minecraft:custom_model_data` tint source.
+    // 0xFF000000 is ORed with this value for an opaque color.
+    "colors": [
+        // Blue when "index": 0
+        255,
+        // Green when "index": 1
+        65280
+    ]
 }
 ```
 
-It is currently not possible to create this function during datagen.
+During datagen, call `new SetCustomModelDataFunction()` with the list of conditions, optional number providers, booleans, strings, and number providers to construct the associated object.
 
 ## `minecraft:filtered`
 

@@ -110,6 +110,18 @@ In order to use the advantages of inheritance, some events do not directly exten
 If you listen to an `abstract` event, your game will crash, as this is never what you want. You always want to listen to one of the subevents instead.
 :::
 
+```mermaid
+graph TD;
+    Event-->BlockEvent;
+    BlockEvent-->BlockDropsEvent;
+    Event-->EntityEvent;
+    EntityEvent-->LivingEvent;
+    LivingEvent-->PlayerEvent;
+    PlayerEvent-->CanPlayerSleepEvent;
+
+    class Event,BlockEvent,EntityEvent,LivingEvent,PlayerEvent red;
+```
+
 ### Cancellable Events
 
 Some events implement the `ICancellableEvent` interface. These events can be cancelled using `#setCanceled(boolean canceled)`, and the cancellation status can be checked using `#isCanceled()`. If an event is cancelled, other event handlers for this event will not run, and some kind of behavior that is associated with "cancelling" is enabled. For example, cancelling `LivingChangeTargetEvent` will prevent the entity's target entity from changing.
@@ -185,12 +197,12 @@ Then, during `InterModProcessEvent`, you can use `InterModComms#getMessages` to 
 
 Next to the lifecycle events, there are a few miscellaneous events that are fired on the mod event bus, mostly for legacy reasons. These are generally events where you can register, set up, or initialize various things. Most of these events are not ran in parallel in contrast to the lifecycle events. A few examples:
 
-- `RegisterColorHandlersEvent.Block`, `.Item`, `.ColorResolvers` 
+- `RegisterColorHandlersEvent.Block`, `.ItemTintSources`, `.ColorResolvers` 
 - `ModelEvent.BakingCompleted`
 - `TextureAtlasStitchedEvent`
 
 :::warning
-Most of these events are planned to be moved to the main event bus in a future version.
+Most of these events are planned to be moved to the game event bus in a future version.
 :::
 
 [modbus]: #event-buses

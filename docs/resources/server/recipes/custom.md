@@ -86,7 +86,7 @@ public class RightClickBlockRecipe implements Recipe<RightClickBlockInput> {
 
 ## Recipe Book Categories
 
-A `RecipeBookCategory` simply defines a group to display this recipe within in a recipe book. For example, an iron pickaxe crafting recipe would show up in the `RecipeBookCategories#CARFTING_EQUIPMENT` while a cooked cod recipe would show up in `#FURNANCE_FOOD` or `#SMOKER_FOOD`. Each recipe has one associated `RecipeBookCategory`. The vanilla categories can be found in `RecipeBookCategories`.
+A `RecipeBookCategory` simply defines a group to display this recipe within in a recipe book. For example, an iron pickaxe crafting recipe would show up in the `RecipeBookCategories#CRAFTING_EQUIPMENT` while a cooked cod recipe would show up in `#FURNANCE_FOOD` or `#SMOKER_FOOD`. Each recipe has one associated `RecipeBookCategory`. The vanilla categories can be found in `RecipeBookCategories`.
 
 :::note
 There are two cooked cod recipes, one for the furnance and one for the smoker. The furnace and smoker recipes have different book categories.

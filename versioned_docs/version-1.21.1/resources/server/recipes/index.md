@@ -301,7 +301,7 @@ public class RightClickBlockRecipeSerializer implements RecipeSerializer<RightCl
 Like with the type, we register our serializer:
 
 ```java
-public static final DeferredRegister<RecipeType<?>> RECIPE_SERIALIZERS =
+public static final DeferredRegister<RecipeSerializer<?>> RECIPE_SERIALIZERS =
         DeferredRegister.create(Registries.RECIPE_SERIALIZER, ExampleMod.MOD_ID);
 
 public static final Supplier<RecipeSerializer<RightClickBlockRecipe>> RIGHT_CLICK_BLOCK =
@@ -429,7 +429,7 @@ public abstract class SimpleRecipeBuilder implements RecipeBuilder {
     protected final ItemStack result;
     protected final Map<String, Criterion<?>> criteria = new LinkedHashMap<>();
     @Nullable
-    protected final String group;
+    protected String group;
 
     // It is common for constructors to accept the result item stack.
     // Alternatively, static builder methods are also possible.
