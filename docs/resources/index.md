@@ -88,7 +88,7 @@ All data providers extend the `DataProvider` interface and usually require one m
 | [`LanguageProvider`][langprovider]                   | `addTranslations()`              | Translations                                                            | Client | Also requires passing the language in the constructor.                                                          |
 | [`ParticleDescriptionProvider`][particleprovider]    | `addDescriptions()`              | Particle definitions                                                    | Client |                                                                                                                 |
 | [`SoundDefinitionsProvider`][soundprovider]          | `registerSounds()`               | Sound definitions                                                       | Client |                                                                                                                 |
-| `SpriteSourceProvider`                               | `gather()`                       | Sprite sources / atlases                                                | Client |                                                                                                                 |
+| [`SpriteSourceProvider`][spritesourceprovider]                               | `gather()`                       | Sprite sources / atlases                                                | Client |                                                                                                                 |
 | [`AdvancementProvider`][advancementprovider]         | `generate()`                     | Advancements                                                            | Server | Make sure to use the NeoForge variant, not the Minecraft one.                                                   |
 | [`LootTableProvider`][loottableprovider]             | `generate()`                     | Loot tables                                                             | Server | Requires extra methods and classes to work properly, see linked article for details.                            |
 | [`RecipeProvider`][recipeprovider]                   | `buildRecipes(RecipeOutput)`     | Recipes                                                                 | Server |                                                                                                                 |
@@ -232,3 +232,4 @@ runs {
 [textures]: client/textures/index.md
 [translations]: client/i18n.md#language-files
 [txtatlas]: client/textures/atlases.md#texture-atlas-sources
+[spritesourceprovider]: client/textures/atlases.md#datagen
