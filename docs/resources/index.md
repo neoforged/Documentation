@@ -229,6 +229,6 @@ runs {
 [sounds]: client/sounds.md
 [tags]: server/tags.md
 [tagsprovider]: server/tags.md#datagen
-[textures]: client/textures.md
+[textures]: client/textures/index.md
 [translations]: client/i18n.md#language-files
 [txtatlas]: client/textures/atlases.md#texture-atlas-sources
