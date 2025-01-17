@@ -20,7 +20,7 @@ Resource packs may contain folders with files affecting the following things:
 
 | Folder Name   | Contents                                |
 |---------------|-----------------------------------------|
-| `atlases`     | Texture Atlas Sources                   |
+| `atlases`     | [Texture Atlas Sources][txtatlas]       |
 | `blockstates` | [Blockstate Files][bsfile]              |
 | `equipment`   | [Equipment Info][equipment]             |
 | `font`        | Font Definitions                        |
@@ -231,3 +231,4 @@ runs {
 [tagsprovider]: server/tags.md#datagen
 [textures]: client/textures.md
 [translations]: client/i18n.md#language-files
+[txtatlas]: client/textures/atlases.md#texture-atlas-sources

@@ -61,7 +61,7 @@ The second `#blit` adds an additional integer at the end which represents the ti
 
 #### `blitSprite`
 
-`#blitSprite` is a special implementation of `#blit` where the texture is written to the GUI texture atlas. Most textures that overlay the background, such as the 'burn progress' overlay in furnace GUIs, are sprites. All sprite textures are relative to `textures/gui/sprites` and do not need to specify the file extension.
+`#blitSprite` is a special implementation of `#blit` where the texture is written to the GUI [texture atlas][txtatlas]. Most textures that overlay the background, such as the 'burn progress' overlay in furnace GUIs, are sprites. All sprite textures are relative to `textures/gui/sprites` and do not need to specify the file extension.
 
 ```java
 // Points to 'assets/examplemod/textures/gui/sprites/container/example_container/example_sprite.png'
@@ -424,3 +424,4 @@ private void registerScreens(RegisterMenuScreensEvent event) {
 [component]: ../resources/client/i18n.md#components
 [keymapping]: ../misc/keymappings.md#inside-a-gui
 [modbus]: ../concepts/events.md#event-buses
+[txtatlas]: ../resources/client/textures/atlases.md
