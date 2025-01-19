@@ -211,10 +211,10 @@ The following file declares 2 sprites contained within the same texture located 
  //// TODO `paletted_permutations`
 :::
 
-
 ## Datagen
 
-Like many resources in Minecraft, texture atlas sources can be proceduraly generated using [datagen][dtgn]. To do so, we extend `SpriteSourceProvider` and override the `gather()` method:
+Like many resources in Minecraft, texture atlas sources can be proceduraly generated using [datagen][dtgn].
+To do so, we extend `SpriteSourceProvider` and override the `gather()` method:
 
 ```Java
 public class MySpriteSourceProvider extends SpriteSourceProvider {
@@ -237,7 +237,28 @@ public class MySpriteSourceProvider extends SpriteSourceProvider {
 
     // Adds the "resources/assets/example_mod/textures/gui/sprites" folder
     // as a source for the atlas
-    sources.addSource(new DirectoryLister("gui/sprites", ""));
+    gui.addSource(new DirectoryLister("gui/sprites", ""));
+  }
+}
+```
+
+This new subclass of `SpriteSourceProvider` can then be registered under the `GatherDataEvent.Client` event:
+
+```java
+@EventBusSubscriber(modid = ExampleMod.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+public class DataGenerators {
+
+  @SubscribeEvent
+  public static void gatherData(GatherDataEvent.Client event) {
+    
+    DataGenerator generator = event.getGenerator();
+    PackOutput packOutput = generator.getPackOutput();
+    CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
+
+    // Registers the new `SpriteSourceProvider`
+    // The fisrt parameter is `true` because Texture Atlases are client
+    // resources and we know that this event is only fired for client resources
+    generator.addProvider(true, new MySpriteSourceProvider(packOutput, lookupProvider));
   }
 }
 ```
