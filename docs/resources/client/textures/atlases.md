@@ -230,14 +230,19 @@ public class MySpriteSourceProvider extends SpriteSourceProvider {
   @Override
   protected void gather ()
   {
-    // Creates a new "gui" atlas for the mod's namespace
-    SourceList gui = atlas(
-      ResourceLocation.fromNamespaceAndPath("example_mod", "gui")
+    // Creates a new texture atlas source for the "blocks" atlas
+    SourceList blocks = atlas(
+      ResourceLocation.fromNamespaceAndPath("example_mod", "blocks")
     );
 
-    // Adds the "resources/assets/example_mod/textures/gui/sprites" folder
-    // as a source for the atlas
-    gui.addSource(new DirectoryLister("gui/sprites", ""));
+    /* Adds the "resources/assets/example_mod/textures/blocks"
+       directory as a source for the atlas.
+
+       Adding "block/" at the start of every ResourceLocation's path.
+
+       This will result in "example_mod:block/<my_block>".
+    */
+    gui.addSource(new DirectoryLister("blocks", "block/"));
   }
 }
 ```
@@ -245,7 +250,7 @@ public class MySpriteSourceProvider extends SpriteSourceProvider {
 This new subclass of `SpriteSourceProvider` can then be registered under the `GatherDataEvent.Client` event:
 
 ```java
-@EventBusSubscriber(modid = ExampleMod.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+@EventBusSubscriber(modid = "example_mod", bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class DataGenerators {
 
   @SubscribeEvent
