@@ -312,23 +312,24 @@ Finally, we use our `RegistrySetBuilder` in an actual data provider, and registe
 
 ```java
 @SubscribeEvent
-public static void onGatherData(GatherDataEvent event) {
-    CompletableFuture<HolderLookup.Provider> lookupProvider = event.getGenerator().addProvider(
-        // Only run datapack generation when server data is being generated
-        event.includeServer(),
-        // Create the provider
-        output -> new DatapackBuiltinEntriesProvider(
-            output,
-            event.getLookupProvider(),
-            // Our registry set builder to generate the data from.
-            new RegistrySetBuilder().add(...),
-            // A set of mod ids we are generating. Usually only your own mod id.
-            Set.of("yourmodid")
-        )
-    ).getRegistryProvider();
-    
-    // Use the lookup provider generated from your datapack entries as input
-    //   to all other data providers.
+public static void onGatherData(GatherDataEvent.Client event) {
+    // Adds the generated registry objects to the current lookup provider for use
+    // in other datagen.
+    this.createDatapackRegistryObjects(
+        // Our registry set builder to generate the data from.
+        new RegistrySetBuilder().add(...),
+        // (Optional) A biconsumer that takes in any conditions to load the object
+        // associated with the resource key
+        conditions -> {
+            conditions.accept(resourceKey, condition);
+        },
+        // (Optional) A set of mod ids we are generating the entries for
+        // By default, supplies the mod id of the current mod container.
+        Set.of("yourmodid")
+    );
+
+    // You can use the lookup provider with your generated entries by either calling one
+    // of the `#create*` methods or grabbing the actual lookup via `#getLookupProvider`
     // ...
 }
 ```

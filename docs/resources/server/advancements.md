@@ -154,23 +154,18 @@ public void performExampleAction(ServerPlayer player, additionalContextParameter
 
 Advancements can be [datagenned][datagen] using an `AdvancementProvider`. An `AdvancementProvider` accepts a list of `AdavancementSubProviders`s, which actually generate the advancements using `Advancement.Builder`.
 
-To start, create an instance of `AdvancementProvider` within `GatherDataEvent`:
+To start, create an instance of `AdvancementProvider` within one of the `GatherDataEvent`s:
 
 ```java
 @SubscribeEvent
-public static void gatherData(GatherDataEvent event) {
-    DataGenerator generator = event.getGenerator();
-    PackOutput output = generator.getPackOutput();
-    CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
+public static void gatherData(GatherDataEvent.Client event) {
+    // Call event.createDatapackRegistryObjects(...) first if adding datapack objects
 
-    generator.addProvider(
-            event.includeServer(),
-            new AdvancementProvider(
-                output, lookupProvider,
-                // Add generators here
-                List.of(...)
-            )
-    );
+    event.createProvider((output, lookupProvider) -> new AdvancementProvider(
+        output, lookupProvider,
+        // Add generators here
+        List.of(...)
+    ));
 
      // Other providers
 }
@@ -197,20 +192,17 @@ public class ExampleClass {
     }
 }
 
-// In GatherDataEvent
-generator.addProvider(
-    event.includeServer(),
-    new AdvancementProvider(
-        output, lookupProvider,
-        // Add generators here
-        List.of(
-            // Add an instance of our generator to the list parameter. This can be done as many times as you want.
-            // Having multiple generators is purely for organization, all functionality can be achieved with a single generator.
-            new MyAdvancementGenerator(),
-            ExampleClass::generateExampleAdvancements
-        )
+// In one of the `GatherDataEvent`s
+event.createProvider((output, lookupProvider) -> new AdvancementProvider(
+    output, lookupProvider,
+    // Add generators here
+    List.of(
+        // Add an instance of our generator to the list parameter. This can be done as many times as you want.
+        // Having multiple generators is purely for organization, all functionality can be achieved with a single generator.
+        new MyAdvancementGenerator(),
+        ExampleClass::generateExampleAdvancements
     )
-);
+));
 ```
 
 To generate an advancement, you want to use an `Advancement.Builder`:
