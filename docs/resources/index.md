@@ -80,7 +80,13 @@ Data generation, colloquially known as datagen, is a way to programmatically gen
 
 Datagen is run through the Data run configuration, which is generated for you alongside the Client and Server run configurations. The data run configuration follows the [mod lifecycle][lifecycle] until after the registry events are fired. It then fires one of the [`GatherDataEvent`s][event], in which you can register your to-be-generated objects in the form of data providers, writes said objects to disk, and ends the process.
 
-There are two subtypes which operate on the [**physical side**][physicalside]: `GatherDataEvent.Client` and `GatherDataEvent.Server`.  `GatherDataEvent.Client` should contain all providers to generate while `GatherDataEvent.Server` should only contain the providers used to generate datapack entries. As such, all examples shown will use `GatherDataEvent.Client`, as that event is also what is fired by the default `clientData` configuration provided by the MDK.
+There are two subtypes which operate on the [**physical side**][physicalside]: `GatherDataEvent.Client` and `GatherDataEvent.Server`.  `GatherDataEvent.Client` may contain all providers to generate. `GatherDataEvent.Server`, on the other hand, may only contain the providers used to generate datapack entries.
+
+:::note
+There are two recommendations on how to register your providers. The former is to register all of them in `GatherDataEvent.Client` and use the `runClientData` task to generate the data. The latter is to register client providers to `GatherDataEvent.Client` and server providers to `GatherDataEvent.Server`, generating them by running the `runClientData` and `runServerData` tasks, respectively.
+
+As the MDK uses the former solution by setting up the default `clientData` configuration, all examples shown will use the former by registering all providers to `GatherDataEvent.Client`.
+:::
 
 All data providers extend the `DataProvider` interface and usually require one method to be overridden. The following is a list of noteworthy data generators Minecraft and NeoForge offer (the linked articles add further information, such as helper methods):
 
