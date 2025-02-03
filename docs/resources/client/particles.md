@@ -136,7 +136,7 @@ Particle definition files can also be [datagenned][datagen] by extending `Partic
 
 ```java
 public class MyParticleDescriptionProvider extends ParticleDescriptionProvider {
-    // Get the parameters from GatherDataEvent.
+    // Get the parameters from `GatherDataEvent.Client`.
     public MyParticleDescriptionProvider(PackOutput output) {
         super(output);
     }
@@ -166,19 +166,12 @@ public class MyParticleDescriptionProvider extends ParticleDescriptionProvider {
 }
 ```
 
-Don't forget to add the provider to the `GatherDataEvent`:
+Don't forget to add the provider to the `GatherDataEvent.Client`:
 
 ```java
 @SubscribeEvent
-public static void gatherData(GatherDataEvent event) {
-    DataGenerator generator = event.getGenerator();
-    PackOutput output = generator.getPackOutput();
-
-    // other providers here
-    generator.addProvider(
-        event.includeClient(),
-        new MyParticleDescriptionProvider(output)
-    );
+public static void gatherData(GatherDataEvent.Client event) {
+    event.createProvider(MyParticleDescriptionProvider::new);
 }
 ```
 

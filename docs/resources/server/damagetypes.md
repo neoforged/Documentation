@@ -95,32 +95,29 @@ Other damage type-specific behavior, such as invulnerability checks, is often ru
 
 _For more info, see [Data Generation for Datapack Registries][drdatagen]._
 
-Damage type JSON files can be [datagenned][datagen]. Since damage types are a datapack registry, we add a `DatapackBuiltinEntriesProvider` to the `GatherDataEvent` and put our damage types in the `RegistrySetBuilder`:
+Damage type JSON files can be [datagenned][datagen]. Since damage types are a datapack registry, we add a `DatapackBuiltinEntriesProvider` via `GatherDataEvent#createDatapackRegistryObjects` and put our damage types in the `RegistrySetBuilder`:
 
 ```java
 // In your datagen class
 @SubscribeEvent
-public static void onGatherData(GatherDataEvent event) {
-    CompletableFuture<HolderLookup.Provider> lookupProvider = event.getGenerator().addProvider(
-            event.includeServer(),
-            output -> new DatapackBuiltinEntriesProvider(output, event.getLookupProvider(), new RegistrySetBuilder()
-                    // Add a datapack builtin entry provider for damage types. If this lambda becomes longer,
-                    // this should probably be extracted into a separate method for the sake of readability.
-                    .add(Registries.DAMAGE_TYPE, bootstrap -> {
-                        // Use new DamageType() to create an in-code representation of a damage type.
-                        // The parameters map to the values of the JSON file, in the order seen above.
-                        // All parameters except for the message id and the exhaustion value are optional.
-                        bootstrap.register(EXAMPLE_DAMAGE, new DamageType(EXAMPLE_DAMAGE.location(),
-                                DamageScaling.WHEN_CAUSED_BY_LIVING_NON_PLAYER,
-                                0.1f,
-                                DamageEffects.HURT,
-                                DeathMessageType.DEFAULT))
-                    })
-                    // Add datapack providers for other datapack entries, if applicable.
-                    .add(...),
-                    Set.of(ExampleMod.MOD_ID)
+public static void onGatherData(GatherDataEvent.Client event) {
+    event.createDatapackRegistryObjects(new RegistrySetBuilder()
+        // Add a datapack builtin entry provider for damage types. If this lambda becomes longer,
+        // this should probably be extracted into a separate method for the sake of readability.
+        .add(Registries.DAMAGE_TYPE, bootstrap -> {
+            // Use new DamageType() to create an in-code representation of a damage type.
+            // The parameters map to the values of the JSON file, in the order seen above.
+            // All parameters except for the message id and the exhaustion value are optional.
+            bootstrap.register(EXAMPLE_DAMAGE, new DamageType(EXAMPLE_DAMAGE.location(),
+                DamageScaling.WHEN_CAUSED_BY_LIVING_NON_PLAYER,
+                0.1f,
+                DamageEffects.HURT,
+                DeathMessageType.DEFAULT)
             )
-    ).getRegistryProvider();
+        })
+        // Add datapack providers for other datapack entries, if applicable.
+        .add(...)
+    );
 
     // ...
 }

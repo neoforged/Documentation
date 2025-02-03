@@ -167,7 +167,7 @@ public class MyRecipeProvider extends RecipeProvider {
 
     // The runner to add to the data generator
     public static class Runner extends RecipeProvider.Runner {
-        // Get the parameters from GatherDataEvent.
+        // Get the parameters from the `GatherDataEvent`s.
         public Runner(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider) {
             super(output, lookupProvider);
         }
@@ -184,20 +184,14 @@ Of note is the `RecipeOutput` parameter. Minecraft uses this object to automatic
 
 Recipes themselves are commonly added through subclasses of `RecipeBuilder`. Listing all vanilla recipe builders is beyond the scope of this article (they are explained in the [Built-In Recipe Types article][builtin]), however creating your own builder is explained [in the custom recipes page][customdatagen].
 
-Like all other data providers, recipe providers must be registered to `GatherDataEvent` like so:
+Like all other data providers, recipe providers must be registered to the `GatherDataEvent`s like so:
 
 ```java
 @SubscribeEvent
-public static void gatherData(GatherDataEvent event) {
-    DataGenerator generator = event.getGenerator();
-    PackOutput output = generator.getPackOutput();
-    CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
+public static void gatherData(GatherDataEvent.Client event) {
+    // Call event.createDatapackRegistryObjects(...) first if adding datapack objects
 
-    // other providers here
-    generator.addProvider(
-            event.includeServer(),
-            new MyRecipeProvider.Runner(output, lookupProvider)
-    );
+    event.createProvider(MyRecipeProvider.Runner::new);
 }
 ```
 

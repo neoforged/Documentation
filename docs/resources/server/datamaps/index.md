@@ -365,16 +365,10 @@ Like all data providers, don't forget to add the provider to the event:
 
 ```java
 @SubscribeEvent
-public static void gatherData(GatherDataEvent event) {
-    DataGenerator generator = event.getGenerator();
-    PackOutput output = generator.getPackOutput();
-    CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
+public static void gatherData(GatherDataEvent.Client event) {
+    // Call event.createDatapackRegistryObjects(...) first if adding datapack objects
 
-    // other providers here
-    generator.addProvider(
-            event.includeServer(),
-            new MyDataMapProvider(output, lookupProvider)
-    );
+    event.createProvider(MyDataMapProvider::new);
 }
 ```
 

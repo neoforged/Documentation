@@ -145,7 +145,7 @@ For the sake of example, let's assume that we want to generate block tags. (All 
 
 ```java
 public class MyBlockTagsProvider extends BlockTagsProvider {
-    // Get parameters from GatherDataEvent.
+    // Get parameters from one of the `GatherDataEvent`s.
     public MyBlockTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider) {
         super(output, lookupProvider, ExampleMod.MOD_ID);
     }
@@ -217,19 +217,14 @@ This example results in the following tag JSON:
 }
 ```
 
-Like all data providers, add each tag provider to the `GatherDataEvent`:
+Like all data providers, add each tag provider to the `GatherDataEvent`s:
 
 ```java
 @SubscribeEvent
-public static void gatherData(GatherDataEvent event) {
-    PackOutput output = event.getGenerator().getPackOutput();
-    CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
+public static void gatherData(GatherDataEvent.Client event) {
+    // Call event.createDatapackRegistryObjects(...) first if adding datapack objects
 
-    // other providers here
-    event.getGenerator().addProvider(
-        event.includeServer(),
-        new MyBlockTagsProvider(output, lookupProvider)
-    );
+    event.createProvider(MyBlockTagsProvider::new);
 }
 ```
 
@@ -246,7 +241,7 @@ To create a custom tag provider for a custom [registry], or for a vanilla or Neo
 
 ```java
 public class MyRecipeTypeTagsProvider extends TagsProvider<RecipeType<?>> {
-    // Get parameters from GatherDataEvent.
+    // Get parameters from the `GatherDataEvent`s.
     public MyRecipeTypeTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider) {
         // Second parameter is the registry key we are generating the tags for.
         super(output, Registries.RECIPE_TYPE, lookupProvider, ExampleMod.MOD_ID);
@@ -261,7 +256,7 @@ If desirable and applicable, you can also extend `IntrinsicHolderTagsProvider<T>
 
 ```java
 public class MyAttributeTagsProvider extends IntrinsicHolderTagsProvider<Attribute> {
-    // Get parameters from GatherDataEvent.
+    // Get parameters from the `GatherDataEvent`s.
     public MyAttributeTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider) {
         super(output,
             Registries.ATTRIBUTE,
