@@ -213,6 +213,10 @@ public static final Holder<Attribute> MY_ATTRIBUTE = ATTRIBUTES.register("my_att
 
 And that's it! Just don't forget to register your `DeferredRegister` to the mod bus, and off you go.
 
+:::info
+We use `Holder<Attribute>` here, instead of `Supplier<RangedAttribute>` like with many other registered objects, as it makes working with entities a lot easier (most entity methods expect `Holder<Attribute>`s). If, for some reason, you need a `Supplier<RangedAttribute>` (or a supplier of any other subclass of `Attribute`), you should use `DeferredHolder<Attribute, RangedAttribute>` as the type.
+:::
+
 [equipment]: ../blockentities/container.md#containers-on-entitys
 [event]: ../concepts/events.md
 [livingentity]: livingentity.md

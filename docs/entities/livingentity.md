@@ -226,30 +226,6 @@ For each chunk and mob category, it is checked whether there are less than `MobC
 
 If the conditions are met, an entry is randomly chosen from the relevant biome's spawn data, and spawning occurs if a suitable position can be found. There are at most three attempts to find a random position; if no position can be found, no spawning will occur.
 
-## AI and Navigation
-
-One of the `Mob` subclass's main features is the AI system, as this is of course not applicable to players or armor stands. It tells the mob where to go, what to do and whom to attack.
-
-There are two implementations of this system: the goal system and the brain system. Both of these systems then use a subclass of `PathNavigation` to calculate the path to their desired position.
-
-### Goals
-
-:::info
-This section is a work in progress.
-:::
-
-### Brains
-
-:::info
-This section is a work in progress.
-:::
-
-### Navigation
-
-:::info
-This section is a work in progress.
-:::
-
 [addspawncosts]: ../worldgen/biomemodifier.md#add-spawn-costs
 [addspawns]: ../worldgen/biomemodifier.md#add-spawns
 [attributes]: attributes.md

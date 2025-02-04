@@ -3,7 +3,7 @@ sidebar_position: 2
 ---
 # Data and Networking
 
-An entity without data is quite useless, as such storing data on an entity is essential. All entities store some default data, such as their type and their position. This article will explain how to add your own data, as well as how to synchronize that data.
+An entity without data is quite useless, as such, storing data on an entity is essential. All entities store some default data, such as their type and their position. This article will explain how to add your own data, as well as how to synchronize that data.
 
 The most simple way to add data is as a field in your `Entity` class. You can then interact with this data in any way you wish. However, this quickly becomes very annoying as soon as you have to synchronize that data. This is because most entity logic is run on the server only, and it is only occasionally (depending on the [`EntityType`][entitytype]'s `clientUpdateInterval` value) that an update is sent to the client; this is also the cause for easily noticeable entity "lags" when the server's tick speed is too slow.
 
@@ -35,7 +35,7 @@ public class MyEntity extends Entity {
 ```
 
 :::danger
-While the compiler will allow you to use a class other than the owning class as the first parameter in `SynchedEntityData#defineId()`, this can and will lead to hard-to-debug issues and as such should be avoided.
+While the compiler will allow you to use a class other than the owning class as the first parameter in `SynchedEntityData#defineId()`, doing so can and will lead to hard-to-debug issues and, as such, is to be avoided at all costs. (This also includes adding fields via mixins or similar methods.)
 :::
 
 We must then define default values in the `defineSynchedData` method, like so:
@@ -78,9 +78,33 @@ protected void addAdditionalSaveData(CompoundTag tag) {
 
 ## Custom Spawn Data
 
-In some cases, there is custom data needed for your entity on the client when it is spawned, but that same data doesn't change over time. When this is the case, you can implement the `IEntityWithComplexSpawn` interface on your entity and use its two methods `#writeSpawnData` and `#readSpawnData` to write/read data to/from the network buffer.
+In some cases, there is custom data needed for your entity on the client when it is spawned, but that same data doesn't change over time. When this is the case, you can implement the `IEntityWithComplexSpawn` interface on your entity and use its two methods `#writeSpawnData` and `#readSpawnData` to write/read data to/from the network buffer:
 
-Additionally, you can send your own packets upon spawning. To do so, override `IEntityExtension#sendPairingData` and send your packets there like any other packet. Please refer to the [Networking articles][networking] for more information.
+```java
+@Override
+public void writeSpawnData(RegistryFriendlyByteBuf buf) {
+    buf.writeInt(1234);
+}
+
+@Override
+public void readSpawnData(RegistryFriendlyByteBuf buf) {
+    int i = buf.readInt();
+}
+```
+
+Additionally, you can send your own packets upon spawning. To do so, override `IEntityExtension#sendPairingData` and send your packets there like any other packet:
+
+```java
+@Override
+public void sendPairingData(ServerPlayer player, Consumer<CustomPacketPayload> packetConsumer) {
+    // Call super for some base functionality.
+    super.sendPairingData(player, packetConsumer);
+    // Add your own packets.
+    packetConsumer.accept(new MyPacket(...));
+}
+```
+
+Please refer to the [Networking articles][networking] for more information on custom network packets.
 
 ## Data Attachments
 
