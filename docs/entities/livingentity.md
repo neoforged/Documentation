@@ -220,11 +220,34 @@ As an item like any other, the item should be added to a [creative tab][creative
 
 _See also [Entities/`MobCategory`][mobcategory], [Worldgen/Biome Modifers/Add Spawns][addspawns], [Worldgen/Biome Modifers/Add Spawn Costs][addspawncosts]; and [Spawn Cycle][spawncycle] on the [Minecraft Wiki][mcwiki]._
 
-Natural spawning is performed every tick for entities where `MobCategory#isFriendly()` is true, and every 400 ticks (\= 20 seconds) for entities where `MobCategory#isFriendly()` is false. If `MobCategory#isPersistent()` returns true, this process additionally also happens on chunk generation.
+Natural spawning is performed every tick for entities where `MobCategory#isFriendly()` is true (all non-monster entities by default), and every 400 ticks (\= 20 seconds) for entities where `MobCategory#isFriendly()` is false (all monsters). If `MobCategory#isPersistent()` returns true (mainly animals), this process additionally also happens on chunk generation.
 
-For each chunk and mob category, it is checked whether there are less than `MobCategory#getMaxInstancesPerChunk() * loadedChunks / 289` in the world. Additionally, for each chunk, it is required that there are less than `MobCategory#getMaxInstancesPerChunk()` entities of that `MobCategory` near at least one player (near means that the distance between mob and player \<\= 128) for spawning of that `MobCategory` to occur.
+For each chunk and mob category, it is checked whether the spawn cap is hit. More technically, this is a check for whether there are less than `MobCategory#getMaxInstancesPerChunk() * loadedChunks / 289` entities of that `MobCategory` in the surrounding `loadedChunks` area, where `loadedChunks` is at most the 17x17 chunk area centered on the current chunk, or fewer chunks if less chunks are loaded (due to render distance or similar reasons).
+
+Next, for each chunk, it is required that there are less than `MobCategory#getMaxInstancesPerChunk()` entities of that `MobCategory` near at least one player (near means that the distance between mob and player \<\= 128) for spawning of that `MobCategory` to occur.
 
 If the conditions are met, an entry is randomly chosen from the relevant biome's spawn data, and spawning occurs if a suitable position can be found. There are at most three attempts to find a random position; if no position can be found, no spawning will occur.
+
+#### Example
+
+Sound complex? Let's go through this with an example for animals in plains biomes.
+
+In the plains biome, every tick, the game tries to spawn entities from the `CREATURE` mob category, which contains the following entries:
+
+```json5
+[
+    {"type": "minecraft:sheep",   "minCount": 4, "maxCount": 4, "weight": 12},
+    {"type": "minecraft:pig",     "minCount": 4, "maxCount": 4, "weight": 10},
+    {"type": "minecraft:chicken", "minCount": 4, "maxCount": 4, "weight": 10},
+    {"type": "minecraft:cow",     "minCount": 4, "maxCount": 4, "weight": 8 },
+    {"type": "minecraft:horse",   "minCount": 2, "maxCount": 6, "weight": 5 },
+    {"type": "minecraft:donkey",  "minCount": 1, "maxCount": 3, "weight": 1 }
+]
+```
+
+Since the spawn cap for `CREATURE` is 10, the up to 17x17 chunks centered on the chunk are scanned for other `CREATURE`-type entities. If \<\= 10 * chunkCount / 289 entities are found (which basically just means that near the unloaded chunks, the chance for spawns becomes higher), each found entity is distance-checked to the nearest player. If the distance is greater than 128 for at least one of them, spawning can occur.
+
+If all those checks pass, a spawn entry is chosen from the above list based on the weights. Let's assume pigs were chosen. The game then checks a random position in the chunk for whether it would be suitable for spawning the entity. If the position is suitable, the entities are spawned according to the min and max counts specified in the spawn data (so exactly 4 pigs in our case). If the position is not suitable, the game tries again twice with different position. If no position is found still, spawning is canceled.
 
 [addspawncosts]: ../worldgen/biomemodifier.md#add-spawn-costs
 [addspawns]: ../worldgen/biomemodifier.md#add-spawns
