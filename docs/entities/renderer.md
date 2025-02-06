@@ -86,7 +86,7 @@ public static void registerRenderStateModifiers(RegisterRenderStateModifiersEven
         // The modifier itself. This is a BiConsumer of the entity and the entity render state.
         // Exact generic types are inferred from the generics in the renderer class used.
         (entity, state) -> state.setRenderData(EXAMPLE_CONTEXT, "Hello World!");
-    )
+    );
 }
 ```
 
