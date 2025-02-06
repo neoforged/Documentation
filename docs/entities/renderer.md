@@ -69,9 +69,36 @@ That's literally it. Extend the class, add your field, change the generic type i
 
 ### Render State Modifications
 
-:::info
-This section is a work in progress.
+In addition to being able to define new entity render states, NeoForge introduces a system that allows modifying existing render states.
+
+To do so, a `ContextKey<T>` (where `T` is the type of the data you want to change) can be created and stored in a static field. Then, you can use it in an event handler for the `RegisterRenderStateModifiersEvent` like so:
+
+```java
+public static final ContextKey<String> EXAMPLE_CONTEXT = new ContextKey<>(
+    // The id of your context key. Used for distinguishing between keys internally.
+    ResourceLocation.fromNamespaceAndPath("examplemod", "example_context"));
+
+@SubscribeEvent
+public static void registerRenderStateModifiers(RegisterRenderStateModifiersEvent event) {
+    event.registerEntityModifier(
+        // The renderer class this modifier should target.
+        HumanoidMobRenderer.class,
+        // The modifier itself. This is a BiConsumer of the entity and the entity render state.
+        // Exact generic types are inferred from the generics in the renderer class used.
+        (entity, state) -> state.setRenderData(EXAMPLE_CONTEXT, "Hello World!");
+    )
+}
+```
+
+:::tip
+By passing `null` as the second parameter to `EntityRenderState#setRenderData`, the value can be cleared. For example:
+
+```java
+state.setRenderData(EXAMPLE_CONTEXT, null);
+```
 :::
+
+This data can then be retrieved via `EntityRenderState#getRenderData` where needed. Helper methods `#getRenderDataOrThrow` and `#getRenderDataOrDefault` are available as well.
 
 ## Hierarchy
 
