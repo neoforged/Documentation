@@ -22,6 +22,7 @@ public class MyEntityRenderer extends EntityRenderer<Entity, EntityRenderState> 
     }
 
     // Tell the render engine how to create a new entity render state.
+    @Override
     public EntityRenderState createRenderState() {
         return new EntityRenderState();
     }
@@ -29,6 +30,7 @@ public class MyEntityRenderer extends EntityRenderer<Entity, EntityRenderState> 
     // Update the render state by copying the needed values from the passed entity to the passed state.
     // Both Entity and EntityRenderState may be replaced with more concrete types,
     // based on the generic types that have been passed to the supertype.
+    @Override
     public void extractRenderState(Entity entity, EntityRenderState state, float partialTick) {
         super.extractRenderState(entity, state, partialTick);
         // Extract and store any additional values in the state here.
@@ -36,6 +38,7 @@ public class MyEntityRenderer extends EntityRenderer<Entity, EntityRenderState> 
     
     // Actually render the entity. The first parameter matches the render state's generic type.
     // Calling super will handle leash and name tag rendering for you, if applicable.
+    @Override
     public void render(EntityRenderState state, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
         super.render(state, entityYaw, partialTick, poseStack, bufferSource, packedLight);
         // do your own rendering here
@@ -62,7 +65,13 @@ public class MyEntityRenderState extends EntityRenderState {
 }
 ```
 
-That's literally it. Extend the class, add your field, and off you go. The only thing left to do now is to update that `stackInHand` field in `EntityRenderer#extractRenderState`, as explained above.
+That's literally it. Extend the class, add your field, change the generic type in `EntityRenderer` to your class, and off you go. The only thing left to do now is to update that `stackInHand` field in `EntityRenderer#extractRenderState`, as explained above.
+
+### Render State Modifications
+
+:::info
+This section is a work in progress.
+:::
 
 ## Hierarchy
 
@@ -95,20 +104,32 @@ graph LR;
 
 As with the various entity classes, use what fits your use case most. Be aware that many of these classes have corresponding type bounds in their generics; for example, `LivingEntityRenderer` has type bounds for `LivingEntity` and `LivingEntityRenderState`.
 
-## Entity Models and Layer Definitions
+## Entity Models, Layer Definitions and Render Layers
 
-Many renderers, especially the `LivingEntityRenderer` and its subclasses, make use of `EntityModel`s. `EntityModel`s are basically a list of cubes and associated textures for the renderer to use. They are commonly created statically when the entity renderer's constructor is first created.
+More complex entity renderers, notably `LivingEntityRenderer`, use a layer system, where each layer is represented as a `RenderLayer`. A renderer can use multiple `RenderLayer`s, and the renderer can decide what layer(s) to render at what time. For example, the elytra uses a separate layer that is rendered independently of the `LivingEntity` wearing it. Similarly, player capes are also a separate layer.
 
-Entity models use a layer system, where each layer is represented as a `LayerDefinition`. A renderer can use multiple layers, and the renderer can decide what layer(s) to render at what time. For example, the elytra uses a separate layer that is rendered independently of the `LivingEntity` wearing it. Similarly, player capes are also a separate layer.
+`RenderLayer`s define a `#render` method, which - surprise! - renders the layer. As with most other render methods, you can basically render whatever you want in here. However, a very common use case is to render a separate model in here, for example for armor or similar pieces of equipment.
 
-### Creating a Layer Definition
+For this, we first need a model we can render. We use the `EntityModel` class to do this. `EntityModel`s are basically a list of cubes and associated textures for the renderer to use. They are commonly created statically when the entity renderer's constructor is first created.
 
-With all that out of the way, let's create an entity model ourselves:
+:::note
+Since we now operate on `LivingEntityRenderer`s, the following code will assume that `MyEntity extends LivingEntity` and `MyEntityRenderState extends LivingEntityRenderState`, to match generic type bounds.
+:::
+
+### Creating an Entity Model Class and a Layer Definition
+
+Let's start by creating an entity model class:
 
 ```java
-// You may use a more specific subtype of EntityRenderState in the generic.
-// If you do, all uses of EntityRenderState within the class will change to that more specific subtype.
-public class MyEntityModel extends EntityModel<EntityRenderState> {
+public class MyEntityModel extends EntityModel<MyEntityRenderState> {}
+```
+
+Note that in the above example, we directly extend `EntityModel`; depending on your use case, it might be more appropriate to use one of the subclasses instead. When creating a new model, it is recommended you have a look at whatever existing model is closest to your use case, and then work from there.
+
+Next, we create a `LayerDefinition`. A `LayerDefinition` is basically a list of cubes that we can then bake to an `EntityModel`. Defining a `LayerDefinition` looks something like this:
+
+```java
+public class MyEntityModel extends EntityModel<MyEntityRenderState> {
     // A static method in which we create our layer definition. createBodyLayer() is the name
     // most vanilla models use. If you have multiple layers, you will have multiple of these static methods.
     public static LayerDefinition createBodyLayer() {
@@ -148,8 +169,6 @@ public class MyEntityModel extends EntityModel<EntityRenderState> {
 }
 ```
 
-Note that in the above example, we directly extend `EntityModel`; depending on your use case, it might be more appropriate to use one of the subclasses instead. When creating a new model, it is recommended you have a look at whatever existing model is closest to your use case, and then work from there.
-
 :::tip
 The [Blockbench][blockbench] modeling program is a great help in creating entity models. To do so, choose the Modded Entity option when creating your model in Blockbench.
 
@@ -158,7 +177,7 @@ Blockbench also has an option to export models as a `LayerDefinition` creation m
 
 ### Registering a Layer Definition
 
-Once we have our entity layer definition, we also need to register it in `EntityRenderersEvent.RegisterLayerDefinitions`. To do so, we need a `ModelLayerLocation`, which essentially acts as an identifier for our layer (remember, one entity can have multiple layers).
+Once we have our entity layer definition, we need to register it in `EntityRenderersEvent.RegisterLayerDefinitions`. To do so, we need a `ModelLayerLocation`, which essentially acts as an identifier for our layer (remember, one entity can have multiple layers).
 
 ```java
 // Our ModelLayerLocation.
@@ -178,9 +197,200 @@ public static void registerLayerDefinitions(EntityRenderersEvent.RegisterLayerDe
 }
 ```
 
-### Adding a Layer Definition to an Entity
+### Creating a Render Layer and Baking a Layer Definition
 
-In some contexts, you might also want to add a new layer to an existing entity. For example, you might want to render some extra equipment on an entity when worn. This can be done like so:
+The next step is to bake the layer definition, something for which we will first return to the entity model class:
+
+```java
+public class MyEntityModel extends EntityModel<MyEntityRenderState> {
+    // Storing specific model parts as fields for use below.
+    private final ModelPart head;
+    
+    // The ModelPart passed here is the root of our baked model.
+    // We will get to the actual baking in just a moment.
+    public MyEntityModel(ModelPart root) {
+        // Store the head part for use below.
+        this.head = root.getChild("head");
+    }
+
+    public static LayerDefinition createBodyLayer() {...}
+
+    // Use this method to update the model rotations, visibility etc. from the render state. If you change the
+    // generic parameter of the EntityModel superclass, this parameter type changes with it.
+    @Override
+    public void setupAnim(MyEntityRenderState state) {
+        // Calling super to reset all values to default.
+        super.setupAnim(state);
+        // Change the model parts.
+        head.visible = state.myBoolean();
+        head.xRot = state.myXRotation();
+        head.yRot = state.myYRotation();
+        head.zRot = state.myZRotation();
+    }
+}
+```
+
+Now that our model is able to properly receive a baked `ModelPart`, we can create our `RenderLayer` subclass and use it for baking the `LayerDefinition` like so:
+
+```java
+// The generic parameters need the proper types you used everywhere else up to this point.
+public class MyRenderLayer extends RenderLayer<MyEntityRenderState, MyEntityModel> {
+    private final MyEntityModel model;
+    
+    // Create the render layer. The renderer parameter is required for passing to super.
+    // Other parameters can be added as needed. For example, we need the EntityModelSet for model baking.
+    public MyRenderLayer(MyEntityRenderer renderer, EntityModelSet entityModelSet) {
+        super(renderer);
+        // Bake and store our layer definition, using the ModelLayerLocation from back when we registered the layer definition.
+        // If applicable, you can also store multiple models this way and use them below.
+        this.model = new MyEntityModel(entityModelSet.bakeLayer(MY_LAYER));
+    }
+
+    @Override
+    public void render(PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, MyEntityRenderState renderState, float yRot, float xRot) {
+        // Render the layer here. We have stored the entity model in a field, you probably want to use it in some way.
+    }
+}
+```
+
+### Adding a Render Layer to an Entity Renderer
+
+Finally, to tie it all together, we can add the layer to our renderer (which, if you remember, now needs to be a living renderer) like so:
+
+```java
+// Plugging in our custom render state class as the generic type.
+// Also, we need to implement RenderLayerParent. Some existing renderers, such as LivingEntityRenderer, do this for you.
+public class MyEntityRenderer 
+        extends LivingEntityRenderer<MyEntity, MyEntityRenderState>
+        implements RenderLayerParent<MyEntityRenderState, MyEntityModel> {
+    public MyEntityRenderer(EntityRendererProvider.Context context) {
+        super(context);
+        // Add the layer. Get the EntityModelSet from the context.
+        this.addLayer(new MyRenderLayer(this, context.getModelSet()));
+    }
+
+    public MyEntityRenderState createRenderState() {
+        return new MyEntityRenderState();
+    }
+
+    @Override
+    public void extractRenderState(MyEntity entity, MyEntityRenderState state, float partialTick) {
+        super.extractRenderState(entity, state, partialTick);
+        // Extract your own stuff here, see the beginning of the article.
+    }
+
+    @Override
+    public void render(MyEntityRenderState state, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
+        // Calling super will automatically render the layer for you.
+        super.render(state, entityYaw, partialTick, poseStack, bufferSource, packedLight);
+        // Then, do custom rendering here, if applicable.
+    }
+}
+```
+
+### All At Once
+
+A bit much? Since this system is quite complex, here's all the components listed again with (almost) no fluff:
+
+```java
+public class MyEntity extends LivingEntity {...}
+```
+
+```java
+public class MyEntityRenderState extends LivingEntityRenderState {...}
+```
+
+```java
+public class MyEntityModel extends EntityModel<MyEntityRenderState> {
+    public static final ModelLayerLocation MY_LAYER = new ModelLayerLocation(
+            ResourceLocation.fromNamespaceAndPath("examplemod", "example_entity"),
+            "main"
+    );
+    private final ModelPart head;
+    
+    public MyEntityModel(ModelPart root) {
+        this.head = root.getChild("head");
+        // ...
+    }
+
+    public static LayerDefinition createBodyLayer() {
+        MeshDefinition mesh = new MeshDefinition();
+        PartDefinition root = mesh.getRoot();
+        PartDefinition head = root.addOrReplaceChild(
+            "head",
+            CubeListBuilder.create().texOffs(10, 20).addBox(-5, -5, -5, 10, 10, 10),
+            PartPose.offset(0, 8, 0)
+        );
+        // ...
+        return LayerDefinition.create(mesh, 64, 32);
+    }
+
+    @Override
+    public void setupAnim(MyEntityRenderState state) {
+        super.setupAnim(state);
+        // ...
+    }
+}
+```
+
+```java
+public class MyRenderLayer extends RenderLayer<MyEntityRenderState, MyEntityModel> {
+    private final MyEntityModel model;
+    
+    public MyRenderLayer(MyEntityRenderer renderer, EntityModelSet entityModelSet) {
+        super(renderer);
+        this.model = new MyEntityModel(entityModelSet.bakeLayer(MyEntityModel.MY_LAYER));
+    }
+
+    @Override
+    public void render(PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, MyEntityRenderState renderState, float yRot, float xRot) {
+        // ...
+    }
+}
+```
+
+```java
+public class MyEntityRenderer
+        extends LivingEntityRenderer<MyEntity, MyEntityRenderState>
+        implements RenderLayerParent<MyEntityRenderState, MyEntityModel> {
+    public MyEntityRenderer(EntityRendererProvider.Context context) {
+        super(context);
+        this.addLayer(new MyRenderLayer(this, context.getModelSet()));
+    }
+
+    public MyEntityRenderState createRenderState() {
+        return new MyEntityRenderState();
+    }
+
+    @Override
+    public void extractRenderState(MyEntity entity, MyEntityRenderState state, float partialTick) {
+        super.extractRenderState(entity, state, partialTick);
+        // ...
+    }
+
+    @Override
+    public void render(MyEntityRenderState state, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
+        super.render(state, entityYaw, partialTick, poseStack, bufferSource, packedLight);
+        // ...
+    }
+}
+```
+
+```java
+@SubscribeEvent
+public static void registerLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event) {
+    event.add(MyEntityModel.MY_LAYER, MyEntityModel::createBodyLayer);
+}
+
+@SubscribeEvent
+public static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
+    event.registerEntityRenderer(MY_ENTITY_TYPE.get(), MyEntityRenderer::new);
+}
+```
+
+## Modifying Existing Entity Renderers
+
+In some scenarios, it is desirable to add to an existing entity renderer, e.g. for rendering additional effects on an existing entity. Most of the time, this will affect living entities, i.e., entities with a `LivingEntityRenderer`. This enables us to add [render layers][renderlayer] to an entity like so:
 
 ```java
 @SubscribeEvent
@@ -189,11 +399,12 @@ public static void addLayers(EntityRenderersEvent.AddLayers event) {
     for (EntityType<?> entityType : event.getEntityTypes()) {
         // Get our renderer.
         EntityRenderer<?, ?> renderer = event.getRenderer(entityType);
-        // Null-check the renderer. You could add more checks here. For example, a common check is
-        // `instanceof LivingEntityRenderer<?, ?>` to only target living entity renderers.
+        // Null-check the renderer. You could add more checks here,
+        // e.g., instanceof checks to only target specific renderer classes.
         if (renderer != null) {
-            // Add the layer to the renderer. Reuses the ModelLayerLocation from above.
-            renderer.addLayer(MY_LAYER);
+            // Add the layer to the renderer. Like above, construct a new MyRenderLayer.
+            // The EntityModelSet can be retrieved from the event through #getEntityModels.
+            renderer.addLayer(new MyRenderLayer(renderer, event.getEntityModels()));
         }
     }
 }
@@ -209,7 +420,7 @@ public static void addPlayerLayers(EntityRenderersEvent.AddLayers event) {
         // Get the associated PlayerRenderer.
         if (event.getSkin(skin) instanceof PlayerRenderer playerRenderer) {
             // Add the layer to the renderer.
-            playerRenderer.addLayer(MY_LAYER);
+            playerRenderer.addLayer(new MyRenderLayer(playerRenderer, event.getEntityModels()));
         }
     }
 }
