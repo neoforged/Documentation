@@ -81,10 +81,18 @@ public static final ContextKey<String> EXAMPLE_CONTEXT = new ContextKey<>(
 @SubscribeEvent
 public static void registerRenderStateModifiers(RegisterRenderStateModifiersEvent event) {
     event.registerEntityModifier(
-        // The renderer class this modifier should target.
-        HumanoidMobRenderer.class,
+        // A TypeToken for the renderer, this is required due to generics nonsense.
+        // The two explicit generic parameters are REQUIRED for type safety to work correctly.
+        new TypeToken<LivingEntityRenderer<LivingEntity, LivingEntityRenderState, ?>>(),
         // The modifier itself. This is a BiConsumer of the entity and the entity render state.
         // Exact generic types are inferred from the generics in the renderer class used.
+        (entity, state) -> state.setRenderData(EXAMPLE_CONTEXT, "Hello World!");
+    );
+    
+    // Overload of the above method that accepts a Class<?>.
+    // This should ONLY be used for renderers without any generics, such as PlayerRenderer.
+    event.registerEntityModifier(
+        PlayerRenderer.class,
         (entity, state) -> state.setRenderData(EXAMPLE_CONTEXT, "Hello World!");
     );
 }
