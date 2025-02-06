@@ -428,11 +428,122 @@ public static void addPlayerLayers(EntityRenderersEvent.AddLayers event) {
 
 ## Animations
 
-:::info
-This section is a work in progress.
+NeoForge adds an optional system that allows entity animations to be defined in JSON files, similar to third-party libraries such as [GeckoLib][geckolib]. Animations are defined in JSON files located at `assets/<namespace>/neoforge/animations/entity/<path>.json` (so for the [resource location][rl] `examplemod:example`, the file would be located at `assets/examplemod/neoforge/animations/entity/example.json`). The format of an animation file is as follows:
+
+```json5
+{
+    // The duration of the animation, in seconds.
+    "length": 1.5,
+    // Whether the animation should loop (true) or stop (false) when finished.
+    // Optional, defaults to false.
+    "loop": true,
+    // A list of parts to be animated, and their animation data.
+    "animations": [
+        {
+            // The name of the part to be animated.
+            // Must match the name of a part defined in your LayerDefinition (see above).
+            "bone": "head",
+            // The value to be changed. See below for available targets.
+            "target": "minecraft:rotation",
+            // A list of keyframes for the part.
+            "keyframes": [
+                {
+                    // The timestamp of the keyframe. Should be between 0 and the animation length.
+                    "timestamp": 0.5,
+                    // The actual "value" of the keyframe.
+                    "target": [22.5, 0, 0],
+                    // The interpolation method to use. See below for available methods.
+                    "interpolation": "minecraft:linear"
+                }
+            ]
+        }
+    ]
+}
+```
+
+:::tip
+It is highly recommended to use this system in combination with the [Blockbench][blockbench] modeling software, which offers an animation to JSON plugin.
 :::
 
+In your model, you can then use the animation like so:
+
+```java
+public class MyEntityModel extends EntityModel<MyEntityRenderState> {
+    // Create and store a reference to the model.
+    public static final AnimationHolder EXAMPLE_ANIMATION =
+            Model.getAnimation(ResourceLocation.fromNamespaceAndPath("examplemod", "example"));
+    
+    // Other stuff here.
+    
+    @Override
+    public void setupAnim(MyEntityRenderState state) {
+        super.setupAnim(state);
+        // Other stuff here.
+        
+        animate(
+            // Get the animation state to use from your EntityRenderState.
+            state.myAnimationState,
+            // Your animation holder.
+            EXAMPLE_ANIMATION,
+            // Your entity age, in ticks.
+            state.ageInTicks
+        );
+        // A specialized version of animate(), designed for walking animations.
+        animateWalk(EXAMPLE_ANIMATION, state.walkAnimationPos, state.walkAnimationSpeed, 1, 1);
+        // A version of animate() that only applies the first frame of animation.
+        applyStatic(EXAMPLE_ANIMATION).
+    }
+}
+```
+
+### Keyframe Targets
+
+NeoForge adds the following keyframe targets out of the box:
+
+- `minecraft:position`: The target values are set as the position values of the part.
+- `minecraft:rotation`: The target values are set as the rotation values of the part.
+- `minecraft:scale`: The target values are set as the scale values of the part.
+
+Custom values can be added by creating a new `AnimationTarget` and registering it in `RegisterJsonAnimationTypesEvent` like so:
+
+```java
+@SubscribeEvent
+public static void registerJsonAnimationTypes(RegisterJsonAnimationTypesEvent event) {
+    event.registerTarget(
+        // The name of the new target, to be used in JSON and other places.
+        ResourceLocation.fromNamespaceAndPath("examplemod", "example"),
+        // The AnimationTarget to register.
+        new AnimationTarget(...)
+    );
+}
+```
+
+### Keyframe Interpolations
+
+NeoForge adds the following keyframe interpolations out of the box:
+
+- `minecraft:linear`: Linear interpolation.
+- `minecraft:catmullrom`: Interpolation along a [Catmull-Rom spline][catmullrom].
+
+Custom interpolations can be added by creating a new `AnimationChannel.Interpolation` (which is a functional interface) and registering it in `RegisterJsonAnimationTypesEvent` like so:
+
+```java
+@SubscribeEvent
+public static void registerJsonAnimationTypes(RegisterJsonAnimationTypesEvent event) {
+    event.registerInterpolation(
+        // The name of the new interpolation, to be used in JSON and other places.
+        ResourceLocation.fromNamespaceAndPath("examplemod", "example"),
+        // The AnimationChannel.Interpolation to register.
+        (vector, keyframeDelta, keyframes, currentKeyframe, nextKeyframe, scale) -> {...}
+    );
+}
+```
+
 [blockbench]: https://www.blockbench.net/
+[catmullrom]: https://en.wikipedia.org/wiki/Cubic_Hermite_spline#Catmull–Rom_spline
 [events]: ../concepts/events.md
+[geckolib]: https://github.com/bernie-g/geckolib
 [livingentity]: livingentity.md
+[renderlayer]: #creating-a-render-layer-and-baking-a-layer-definition
+[rl]: ../misc/resourcelocation.md
 [sides]: ../concepts/sides.md
