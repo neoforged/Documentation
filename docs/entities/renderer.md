@@ -81,9 +81,9 @@ public static final ContextKey<String> EXAMPLE_CONTEXT = new ContextKey<>(
 @SubscribeEvent
 public static void registerRenderStateModifiers(RegisterRenderStateModifiersEvent event) {
     event.registerEntityModifier(
-        // A TypeToken for the renderer, this is required due to generics nonsense.
-        // The two explicit generic parameters are REQUIRED for type safety to work correctly.
-        new TypeToken<LivingEntityRenderer<LivingEntity, LivingEntityRenderState, ?>>(),
+        // A TypeToken for the renderer. It is REQUIRED for this to be instantiated as an anonymous class
+        // (i.e., with {} at the end) and to have explicit generic parameters, due to generics nonsense.
+        new TypeToken<LivingEntityRenderer<LivingEntity, LivingEntityRenderState, ?>>(){},
         // The modifier itself. This is a BiConsumer of the entity and the entity render state.
         // Exact generic types are inferred from the generics in the renderer class used.
         (entity, state) -> state.setRenderData(EXAMPLE_CONTEXT, "Hello World!");
