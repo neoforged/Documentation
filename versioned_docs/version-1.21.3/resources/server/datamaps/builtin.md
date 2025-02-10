@@ -226,7 +226,7 @@ Example:
 
 ## `neoforge:villager_types`
 
-Allows configuring the villager type that will spawn when in a certain biome, as a replacement for `VillagerType#BY_BIOME`. It is located at `neoforge/data_maps/worldgen/biome/villager_types.json` and its objects have the following structure:
+Allows configuring the villager type that will spawn based on its biome, as a replacement for `VillagerType#BY_BIOME` (which will be ignored in 1.22). It is located at `neoforge/data_maps/worldgen/biome/villager_types.json` and its objects have the following structure:
 
 ```json5
 {
