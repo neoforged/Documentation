@@ -200,31 +200,6 @@ Example:
 }
 ```
 
-## `neoforge:waxables`
-
-Allows configuring the block a block will turn into when waxed (right clicked with a honeycomb), as a replacement for `HoneycombItem#WAXABLES`. This data map is also used to build a reverse dewaxing map (for scraping with an axe). It is located at `neoforge/data_maps/block/waxables.json` and its objects have the following structure:
-
-```json5
-{
-    // The waxed variant of this block
-    "waxed": "minecraft:iron_block"
-}
-```
-
-Example:
-
-```json5
-{
-    "values": {
-        // Make gold blocks turn into iron blocks once waxed
-        "minecraft:gold_block": {
-            "waxed": "minecraft:iron_block"
-        }
-    }
-}
-```
-
-
 ## `neoforge:villager_types`
 
 Allows configuring the villager type that will spawn based on its biome, as a replacement for `VillagerType#BY_BIOME` (which will be ignored in 1.22). It is located at `neoforge/data_maps/worldgen/biome/villager_types.json` and its objects have the following structure:
@@ -246,6 +221,30 @@ Example:
         // Make villagers in the jungle biome be of the desert type
         "minecraft:jungle": {
             "villager_type": "minecraft:desert"
+        }
+    }
+}
+```
+
+## `neoforge:waxables`
+
+Allows configuring the block a block will turn into when waxed (right clicked with a honeycomb), as a replacement for `HoneycombItem#WAXABLES`. This data map is also used to build a reverse dewaxing map (for scraping with an axe). It is located at `neoforge/data_maps/block/waxables.json` and its objects have the following structure:
+
+```json5
+{
+    // The waxed variant of this block
+    "waxed": "minecraft:iron_block"
+}
+```
+
+Example:
+
+```json5
+{
+    "values": {
+        // Make gold blocks turn into iron blocks once waxed
+        "minecraft:gold_block": {
+            "waxed": "minecraft:iron_block"
         }
     }
 }
