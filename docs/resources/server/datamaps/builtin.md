@@ -224,5 +224,32 @@ Example:
 }
 ```
 
+
+## `neoforge:villager_types`
+
+Allows configuring the villager type that will spawn based on its biome, as a replacement for `VillagerType#BY_BIOME` (which will be ignored in 1.22). It is located at `neoforge/data_maps/worldgen/biome/villager_types.json` and its objects have the following structure:
+
+```json5
+{
+    // The villager type that will spawn in this biome
+    // If no villager type is specified for a biome, then `minecraft:plains` will be used
+    "villager_type": "minecraft:desert"
+    
+}
+```
+
+Example:
+
+```json5
+{
+    "values": {
+        // Make villagers in the jungle biome be of the desert type
+        "minecraft:jungle": {
+            "villager_type": "minecraft:desert"
+        }
+    }
+}
+```
+
 [datacomponent]: ../../../items/datacomponents.md
 [datamap]: index.md
