@@ -231,8 +231,8 @@ Allows configuring the villager type that will spawn based on its biome, as a re
 ```json5
 {
     // The villager type that will spawn in this biome
+    // If no villager type is specified for a biome, then `minecraft:plains` will be used
     "villager_type": "minecraft:desert"
-    //  If a biome is not present the default villager type of `minecraft:plains` will be used
 }
 ```
 
