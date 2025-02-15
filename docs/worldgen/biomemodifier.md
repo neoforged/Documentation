@@ -626,7 +626,7 @@ public record ExampleBiomeModifier(HolderSet<Biome> biomes, int value) implement
 private static final DeferredRegister<MapCodec<? extends BiomeModifier>> BIOME_MODIFIERS =
     DeferredRegister.create(NeoForgeRegistries.Keys.BIOME_MODIFIER_SERIALIZERS, MOD_ID);
 
-public static final Supplier<MapCodec<? extends ExampleBiomeModifier>> EXAMPLE_BIOME_MODIFIER =
+public static final Supplier<MapCodec<ExampleBiomeModifier>> EXAMPLE_BIOME_MODIFIER =
     BIOME_MODIFIERS.register("example_biome_modifier", () -> RecordCodecBuilder.mapCodec(instance ->
         instance.group(
             Biome.LIST_CODEC.fieldOf("biomes").forGetter(ExampleBiomeModifier::biomes),
