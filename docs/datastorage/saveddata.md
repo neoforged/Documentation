@@ -29,12 +29,12 @@ For example, if a SD was named "example" within the Nether, then a file would be
 public class ExampleSavedData extends SavedData {
 
     // Create new instance of saved data
-    public ExampleSavedData create() {
+    public static ExampleSavedData create() {
         return new ExampleSavedData();
     }
 
     // Load existing instance of saved data
-    public ExampleSavedData load(CompoundTag tag, HolderLookup.Provider lookupProvider) {
+    public static ExampleSavedData load(CompoundTag tag, HolderLookup.Provider lookupProvider) {
         ExampleSavedData data = this.create();
         // Load saved data
         return data;
