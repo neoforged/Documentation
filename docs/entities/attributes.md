@@ -90,6 +90,27 @@ public static void createDefaultAttributes(EntityAttributeCreationEvent event) {
 Some classes have specialized versions of `LivingEntity#createLivingAttributes`. For example, the `Monster` class has a method named `Monster#createMonsterAttributes` that can be used instead.
 :::
 
+In some situations, for example when making [your own attributes][custom], it is needed to add attributes to an existing entity's `AttributeSupplier`. This is done through the `EntityAttributeModificationEvent` like so:
+
+```java
+@SubscribeEvent
+public static void modifyDefaultAttributes(EntityAttributeModificationEvent event) {
+    event.add(
+        // The EntityType to add the attribute for.
+        EntityType.VILLAGER,
+        // The Holder<Attribute> to add to the EntityType. Can also be a custom attribute.
+        Attributes.ARMOR,
+        // The attribute value to add.
+        // Can be omitted, if so, the attribute's default value will be used instead.
+        10.0
+    );
+    // We can also check if a given EntityType already has a given attribute.
+    if (event.has(EntityType.VILLAGER, Attributes.ARMOR)) {
+        event.add(...);
+    }
+}
+```
+
 ## Querying Attributes
 
 Attribute values are stored on entities in an `AttributeMap`, which is basically a `Map<Attribute, AttributeInstance>`. Attribute instances are basically what item stacks are to items, i.e. whereas an attribute is a registered singleton, attribute instances are concrete attribute objects bound to a concrete entity.
@@ -214,9 +235,14 @@ public static final Holder<Attribute> MY_ATTRIBUTE = ATTRIBUTES.register("my_att
 And that's it! Just don't forget to register your `DeferredRegister` to the mod bus, and off you go.
 
 :::info
-We use `Holder<Attribute>` here, instead of `Supplier<RangedAttribute>` like with many other registered objects, as it makes working with entities a lot easier (most entity methods expect `Holder<Attribute>`s). If, for some reason, you need a `Supplier<RangedAttribute>` (or a supplier of any other subclass of `Attribute`), you should use `DeferredHolder<Attribute, RangedAttribute>` as the type.
+We use `Holder<Attribute>` here instead of `Supplier<RangedAttribute>` like with many other registered objects, as it makes working with entities a lot easier (most entity methods expect `Holder<Attribute>`s).
+
+If, for some reason, you need a `Supplier<RangedAttribute>` (or a supplier of any other subclass of `Attribute`), you should use `DeferredHolder<Attribute, RangedAttribute>` as the type.
+
+The same rules also apply for any other `Attribute` subclass, i.e., we generally use `Holder<Attribute>` instead of `Supplier<PercentageAttribute>` or `Supplier<BooleanAttribute>`.
 :::
 
+[custom]: #custom-attributes
 [equipment]: ../blockentities/container.md#containers-on-entitys
 [event]: ../concepts/events.md
 [livingentity]: livingentity.md

@@ -197,7 +197,7 @@ graph LR;
 
 ## Spawning
 
-In addition to the [regular ways of spawning][spawning] - that is, the `/summon` command and the in-code way via `Level#addFreshEntity` -, `Mob`s can also be spawned through some other means. `ArmorStand`s can be spawned through regular means, and `Player`s should not be instantiated yourself, except for `FakePlayer`s.
+In addition to the [regular ways of spawning][spawning] - that is, the `/summon` command and the in-code way via `EntityType#spawn` or `Level#addFreshEntity` -, `Mob`s can also be spawned through some other means. `ArmorStand`s can be spawned through regular means, and `Player`s should not be instantiated yourself, except for `FakePlayer`s.
 
 ### Spawn Eggs
 

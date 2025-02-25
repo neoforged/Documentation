@@ -317,7 +317,7 @@ public class MyEntityRenderer
     @Override
     public void render(MyEntityRenderState state, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
         // Calling super will automatically render the layer for you.
-        super.render(state, entityYaw, partialTick, poseStack, bufferSource, packedLight);
+        super.render(state, poseStack, bufferSource, packedLight);
         // Then, do custom rendering here, if applicable.
     }
 }
@@ -463,7 +463,9 @@ public static void addPlayerLayers(EntityRenderersEvent.AddLayers event) {
 
 ## Animations
 
-NeoForge adds an optional system that allows entity animations to be defined in JSON files, similar to third-party libraries such as [GeckoLib][geckolib]. Animations are defined in JSON files located at `assets/<namespace>/neoforge/animations/entity/<path>.json` (so for the [resource location][rl] `examplemod:example`, the file would be located at `assets/examplemod/neoforge/animations/entity/example.json`). The format of an animation file is as follows:
+Minecraft includes an animation system for entity models through the `AnimationState` class. NeoForge adds a system that allows these entity animations to be defined in JSON files, similar to third-party libraries such as [GeckoLib][geckolib].
+
+Animations are defined in JSON files located at `assets/<namespace>/neoforge/animations/entity/<path>.json` (so for the [resource location][rl] `examplemod:example`, the file would be located at `assets/examplemod/neoforge/animations/entity/example.json`). The format of an animation file is as follows:
 
 ```json5
 {
@@ -475,15 +477,17 @@ NeoForge adds an optional system that allows entity animations to be defined in 
     // A list of parts to be animated, and their animation data.
     "animations": [
         {
-            // The name of the part to be animated.
-            // Must match the name of a part defined in your LayerDefinition (see above).
+            // The name of the part to be animated. Must match the name of a part
+            // defined in your LayerDefinition (see above). If there are multiple matches,
+            // the first match from the performed depth-first search will be picked.
             "bone": "head",
             // The value to be changed. See below for available targets.
             "target": "minecraft:rotation",
             // A list of keyframes for the part.
             "keyframes": [
                 {
-                    // The timestamp of the keyframe. Should be between 0 and the animation length.
+                    // The timestamp of the keyframe, in seconds.
+                    // Should be between 0 and the animation length.
                     "timestamp": 0.5,
                     // The actual "value" of the keyframe.
                     "target": [22.5, 0, 0],
@@ -497,7 +501,7 @@ NeoForge adds an optional system that allows entity animations to be defined in 
 ```
 
 :::tip
-It is highly recommended to use this system in combination with the [Blockbench][blockbench] modeling software, which offers an animation to JSON plugin.
+It is highly recommended to use this system in combination with the [Blockbench][blockbench] modeling software, which offers an [animation to JSON plugin][bbplugin].
 :::
 
 In your model, you can then use the animation like so:
@@ -574,6 +578,7 @@ public static void registerJsonAnimationTypes(RegisterJsonAnimationTypesEvent ev
 }
 ```
 
+[bbplugin]: https://www.blockbench.net/plugins/animation_to_json
 [blockbench]: https://www.blockbench.net/
 [catmullrom]: https://en.wikipedia.org/wiki/Cubic_Hermite_spline#Catmull–Rom_spline
 [events]: ../concepts/events.md

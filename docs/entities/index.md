@@ -22,8 +22,8 @@ The relationship between `EntityType`s and `Entity`s is similar to that of [`Ite
 Let's create our `EntityType` registry and register an `EntityType` for it, assuming we have a class `MyEntity` that extends `Entity` (see [below][entity] for more information). All methods on `EntityType.Builder`, except for the `#build` call at the end, are optional.
 
 ```java
-public static final DeferredRegister<EntityType<?>> ENTITY_TYPES =
-    DeferredRegister.create(Registries.ENTITY_TYPE, ExampleMod.MOD_ID);
+public static final DeferredRegister.Entities ENTITY_TYPES =
+    DeferredRegister.createEntities(ExampleMod.MOD_ID);
 
 public static final Supplier<EntityType<MyEntity>> MY_ENTITY = ENTITY_TYPES.register(
     "my_entity",
@@ -72,14 +72,6 @@ public static final Supplier<EntityType<MyEntity>> MY_ENTITY = ENTITY_TYPES.regi
     .build("my_entity")
 );
 ```
-
-:::warning
-Sometimes, there may be generic bounds errors with the entity type and the entity constructor. If this happens, the easiest solution is often to use an explicit generic type for `EntityType.Builder#of`, like so:
-
-```java
-() -> EntityType.Builder.<MyEntity>of(...)
-```
-:::
 
 ### `MobCategory`
 
@@ -151,6 +143,10 @@ public MyEntity(Level level, double x, double y, double z) {
 }
 ```
 
+:::warning
+Custom constructors should never have exactly two parameters, as that will cause confusion with the `(EntityType, Level)` constructor above.
+:::
+
 And now, we are free to do basically whatever we want with our entity. The following subsections will display a variety of common entity use cases.
 
 ### Data Storage on Entities
@@ -175,7 +171,13 @@ if (!level.isClientSide()) {
 }
 ```
 
+Alternatively, you can also call `EntityType#spawn`, which is especially recommended when spawning [living entities][livingentity], as it does some additional setup, such as firing the spawn [events][event].
+
 This will be used for pretty much all non-living entities. Players should obviously not be spawned yourself, `Mob`s have [their own ways of spawning][mobspawn] (though they can also be added via `#addFreshEntity`), and vanilla [projectiles][projectile] also have static helpers for spawning in the `Projectile` class.
+
+:::info
+Alternatively, you can also call `EntityType#spawn`, which does most of this, along with some convenience operations, for you.
+:::
 
 ### Damaging Entities
 
@@ -427,6 +429,7 @@ A new projectile can be created by extending `Projectile` or a fitting subclass,
 [data]: data.md
 [dataattachments]: ../datastorage/attachments.md
 [entity]: #the-entity-class
+[event]: ../concepts/events.md
 [extenum]: ../advanced/extensibleenums.md
 [hierarchy]: #entity-class-hierarchy
 [hitresult]: ../items/interactions.md#hitresults

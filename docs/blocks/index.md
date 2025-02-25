@@ -285,15 +285,31 @@ The mining speed is calculated from the block's hardness, the used [tool]'s spee
 ```java
 // This will return the tool's mining speed, or 1 if the held item is either empty, not a tool,
 // or not applicable for the block being broken.
-float destroySpeed = item.getDestroySpeed();
+float destroySpeed = item.getDestroySpeed(blockState);
 // If we have an applicable tool, add the minecraft:mining_efficiency attribute as an additive modifier.
 if (destroySpeed > 1) {
     destroySpeed += player.getAttributeValue(Attributes.MINING_EFFICIENCY);
 }
-// Apply effects from haste, conduit power, and slowness multiplicatively.
-if (player.hasEffect(MobEffects.DIG_SPEED))     { destroySpeed *= ...; }
-if (player.hasEffect(MobEffects.CONDUIT_POWER)) { destroySpeed *= ...; }
-if (player.hasEffect(MobEffects.DIG_SLOWDOWN))  { destroySpeed *= ...; }
+// Apply effects from haste or conduit power.
+if (player.hasEffect(MobEffects.DIG_SPEED) || player.hasEffect(MobEffects.CONDUIT_POWER)) {
+    int haste = player.hasEffect(MobEffects.DIG_SPEED)
+        ? player.getEffect(MobEffects.DIG_SPEED).getAmplifier()
+        : 0;
+    int conduitPower = player.hasEffect(MobEffects.CONDUIT_POWER)
+        ? player.getEffect(MobEffects.CONDUIT_POWER).getAmplifier()
+        : 0;
+    int amplifier = Math.max(haste, conduitPower);
+    destroySpeed *= 1 + (amplifier + 1) * 0.2f;
+}
+// Apply slowness effect.
+if (player.hasEffect(MobEffects.DIG_SLOWDOWN)) {
+    destroySpeed *= switch (player.getEffect(MobEffects.DIG_SLOWDOWN).getAmplifier()) {
+        case 0 -> 0.3F;
+        case 1 -> 0.09F;
+        case 2 -> 0.0027F;
+        default -> 8.1E-4F;
+    };
+}
 // Add the minecraft:block_break_speed attribute as a multiplicative modifier.
 destroySpeed *= player.getAttributeValue(Attributes.BLOCK_BREAK_SPEED);
 // If the player is underwater, apply the underwater mining speed penalty multiplicatively.
