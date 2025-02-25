@@ -149,7 +149,7 @@ GLMs can be [datagenned][datagen]. This is done by subclassing `GlobalLootModifi
 
 ```java
 public class MyGlobalLootModifierProvider extends GlobalLootModifierProvider {
-    // Get the PackOutput from GatherDataEvent.
+    // Get the parameters from the `GatherDataEvent`s.
     public MyGlobalLootModifierProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
         super(output, registries, ExampleMod.MOD_ID);
     }
@@ -173,15 +173,14 @@ public class MyGlobalLootModifierProvider extends GlobalLootModifierProvider {
 }
 ```
 
-And like all data providers, you must register the provider to `GatherDataEvent`:
+And like all data providers, you must register the provider to the `GatherDataEvent`s:
 
 ```java
 @SubscribeEvent
-public static void onGatherData(GatherDataEvent event) {
-    event.getGenerator().addProvider(
-        event.includeServer(),
-        output -> new MyGlobalLootModifierProvider(output, event.getLookupProvider())
-    );
+public static void onGatherData(GatherDataEvent.Client event) {
+    // Call event.createDatapackRegistryObjects(...) first if adding datapack objects
+
+    event.createProvider(MyGlobalLootModifierProvider::new);
 }
 ```
 

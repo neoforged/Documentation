@@ -347,14 +347,8 @@ public class MyEquipmentInfoProvider implements DataProvider {
 
 // Listening to the mod event bus
 @SubscribeEvent
-public static void gatherData(GatherDataEvent event) {
-    PackOutput output = generator.getPackOutput();
-
-    // Other providers here
-    event.getGenerator().addProvider(
-        event.includeClient(),
-        new MyEquipmentInfoProvider(output)
-    );
+public static void gatherData(GatherDataEvent.Client event) {
+    event.createProvider(MyEquipmentInfoProvider::new);
 }
 ```
 

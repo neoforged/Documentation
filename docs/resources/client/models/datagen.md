@@ -117,15 +117,8 @@ And like all data providers, don't forget to register your provider to the event
 
 ```java
 @SubscribeEvent
-public static void gatherData(GatherDataEvent event) {
-    DataGenerator generator = event.getGenerator();
-    PackOutput output = generator.getPackOutput();
-
-    // other providers here
-    generator.addProvider(
-        event.includeClient(),
-        new ExampleModelProvider(output)
-    );
+public static void gatherData(GatherDataEvent.Client event) {
+    event.createProvider(ExampleModelProvider::new);
 }
 ```
 

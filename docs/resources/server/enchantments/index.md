@@ -206,7 +206,7 @@ The parameters to `ConditionalEffect.codec` are the codec for the generic `Condi
 
 ## Enchantment Data Generation
 
-Enchantment JSON files can be created automatically using the [data generation] system by passing a `RegistrySetBuilder` into `DatapackBuiltInEntriesProvider`. The JSON will be placed in `<project root>/src/generated/data/<modid>/enchantment/<path>.json`.
+Enchantment JSON files can be created automatically using the [data generation] system by passing a `RegistrySetBuilder` into `DatapackBuiltInEntriesProvider` via `GatherDataEvent#createDatapackRegistryObjects`. The JSON will be placed in `<project root>/src/generated/data/<modid>/enchantment/<path>.json`.
 
 For more information on how `RegistrySetBuilder` and `DatapackBuiltinEntriesProvider` work, please see the article on [Data Generation for Datapack Registries]. 
 
@@ -215,7 +215,7 @@ For more information on how `RegistrySetBuilder` and `DatapackBuiltinEntriesProv
 
 ```java
 
-// This RegistrySetBuilder should be passed into a DatapackBuiltinEntriesProvider in your GatherDataEvent handler.
+// This RegistrySetBuilder should be passed into a DatapackBuiltinEntriesProvider in your `GatherDataEvent`s listener.
 RegistrySetBuilder BUILDER = new RegistrySetBuilder();
 BUILDER.add(
     Registries.ENCHANTMENT,

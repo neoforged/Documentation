@@ -78,7 +78,15 @@ _See also: [`pack.mcmeta` (Resource Pack)][packmcmetaresourcepack] and [`pack.mc
 
 Data generation, colloquially known as datagen, is a way to programmatically generate JSON resource files, in order to avoid the tedious and error-prone process of writing them by hand. The name is a bit misleading, as it works for assets as well as data.
 
-Datagen is run through the Data run configuration, which is generated for you alongside the Client and Server run configurations. The data run configuration follows the [mod lifecycle][lifecycle] until after the registry events are fired. It then fires the [`GatherDataEvent`][event], in which you can register your to-be-generated objects in the form of data providers, writes said objects to disk, and ends the process.
+Datagen is run through the Data run configuration, which is generated for you alongside the Client and Server run configurations. The data run configuration follows the [mod lifecycle][lifecycle] until after the registry events are fired. It then fires one of the [`GatherDataEvent`s][event], in which you can register your to-be-generated objects in the form of data providers, writes said objects to disk, and ends the process.
+
+There are two subtypes which operate on the [**physical side**][physicalside]: `GatherDataEvent.Client` and `GatherDataEvent.Server`.  `GatherDataEvent.Client` may contain all providers to generate. `GatherDataEvent.Server`, on the other hand, may only contain the providers used to generate datapack entries.
+
+:::note
+There are two recommendations on how to register your providers. The former is to register all of them in `GatherDataEvent.Client` and use the `runClientData` task to generate the data. The latter is to register client providers to `GatherDataEvent.Client` and server providers to `GatherDataEvent.Server`, generating them by running the `runClientData` and `runServerData` tasks, respectively.
+
+As the MDK uses the former solution by setting up the default `clientData` configuration, all examples shown will use the former by registering all providers to `GatherDataEvent.Client`.
+:::
 
 All data providers extend the `DataProvider` interface and usually require one method to be overridden. The following is a list of noteworthy data generators Minecraft and NeoForge offer (the linked articles add further information, such as helper methods):
 
@@ -115,36 +123,43 @@ public class MyRecipeProvider extends RecipeProvider {
 @EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD, modid = "examplemod")
 public class MyDatagenHandler {
     @SubscribeEvent
-    public static void gatherData(GatherDataEvent event) {
-        // Data generators may require some of these as constructor parameters.
-        // See below for more details on each of these.
-        DataGenerator generator = event.getGenerator();
-        PackOutput output = generator.getPackOutput();
-        CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
+    public static void gatherData(GatherDataEvent.Client event) {
+        // Data providers should start by calling event.createDatapackRegistryObjects(...)
+        // to register their datapack registry objects. This allows other providers
+        // to use these objects during their own data generation.
+
+        // From there, providers can generally be registered using event.createProvider(...),
+        // which acts as a function that provides the PackOutput and optionally the
+        // CompletableFuture<HolderLookup.Provider>.
 
         // Register the provider.
-        generator.addProvider(
-                // A boolean that determines whether the data should actually be generated.
-                // The event provides methods that determine this:
-                // event.includeClient(), event.includeServer(),
-                // event.includeDev() and event.includeReports().
-                // Since recipes are server data, we only run them in a server datagen.
-                event.includeServer(),
-                // Our provider.
-                new MyRecipeProvider(output, lookupProvider)
-        );
+        event.createProvider(MyRecipeProvider::new);
         // Other data providers here.
+
+        // If you want to create a datapack within the global pack, you can call
+        // DataGenerator#getBuiltinDatapack. From there, you must use the
+        // PackGenerator#addProvider method to add any providers to that pack.
+        DataGenerator.PackGenerator examplePack = event.getGenerator().getBuiltinDatapack(
+            true, // Should always be true.
+            "examplemod", // The mod id.
+            "example_pack" // The name of the pack.
+        );
+        
+        examplePack.addProvider(output -> ...);
     }
 }
 ```
 
-The event offers some context for you to use:
+The event offers some helpers and context for you to use:
 
+- `event.createDatapackRegistryObjects(...)` creates and registers a `DatapackBuiltinEntriesProvider` using the provided `RegistrySetBuilder`. It also forces any future use of the lookup provider to contain your datagenned entries.
+- `event.createProvider(...)` registers a provider by providing the `PackOutput` and optionally the `CompletableFuture<HolderLookup.Provider>` as part of a lambda.
+- `event.createBlockAndItemTags(...)` registers a `TagsProvider<Block>` and `TagsProvider<Item>` by constructing the `TagsProvider<Item>` using the `TagsProvider<Block>`.
 - `event.getGenerator()` returns the `DataGenerator` that you register the providers to.
 - `event.getPackOutput()` returns a `PackOutput` that is used by some providers to determine their file output location.
 - `event.getResourceManager(PackType)` returns a `ResourceManager` that can be used by providers to check for already existing files.
 - `event.getLookupProvider()` returns a `CompletableFuture<HolderLookup.Provider>` that is mainly used by tags and datagen registries to reference other, potentially not yet existing elements.
-- `event.includeClient()`, `event.includeServer()`, `event.includeDev()` and `event.includeReports()` are `boolean` methods that allow you to check whether specific command line arguments (see below) are enabled.
+- `event.includeDev()` and `event.includeReports()` are `boolean` methods that allow you to check whether specific command line arguments (see below) are enabled.
 
 ### Command Line Arguments
 
@@ -155,8 +170,6 @@ The data generator can accept several command line arguments:
 - `--existing path/to/folder`: Tells the data generator to consider the given folder when checking for existing files. Like with the output, it is recommended to use Gradle's `file(...).getAbsolutePath()`.
 - `--existing-mod examplemod`: Tells the data generator to consider the resources in the given mod's JAR file when checking for existing files.
 - Generator modes (all of these are boolean arguments and do not need any additional arguments):
-    - `--includeClient`: Whether to generate client resources (assets). Check at runtime with `GatherDataEvent#includeClient()`.
-    - `--includeServer`: Whether to generate server resources (data). Check at runtime with `GatherDataEvent#includeServer()`.
     - `--includeDev`: Whether to run dev tools. Generally shouldn't be used by mods. Check at runtime with `GatherDataEvent#includeDev()`.
     - `--includeReports`: Whether to dump a list of registered objects. Check at runtime with `GatherDataEvent#includeReports()`.
     - `--all`: Enable all generator modes.
@@ -167,7 +180,7 @@ All arguments can be added to the run configurations by adding the following to 
 runs {
     // other run configurations here
 
-    data {
+    clientData {
         programArguments.addAll '--arg1', 'value1', '--arg2', 'value2', '--all' // boolean args have no value
     }
 }
@@ -179,11 +192,10 @@ For example, to replicate the default arguments, you could specify the following
 runs {
     // other run configurations here
 
-    data {
+    clientData {
         programArguments.addAll '--mod', 'examplemod', // insert your own mod id
                 '--output', file('src/generated/resources').getAbsolutePath(),
-                '--includeClient',
-                '--includeServer'
+                '--all'
     }
 }
 ```
@@ -221,6 +233,7 @@ runs {
 [packmcmetaresourcepack]: https://minecraft.wiki/w/Resource_pack#Contents
 [particleprovider]: client/particles.md#datagen
 [particles]: client/particles.md
+[physicalside]: ../concepts/sides.md#the-physical-side
 [predicate]: https://minecraft.wiki/w/Predicate
 [recipeprovider]: server/recipes/index.md#data-generation
 [recipes]: server/recipes/index.md

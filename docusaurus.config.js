@@ -185,7 +185,7 @@ const config = {
             ],
           },
         ],
-        copyright: `Copyright © 2016, under the MIT license. Built with Docusaurus.`,
+        copyright: `Copyright © ${new Date().getFullYear()}, under the MIT license. Built with Docusaurus.`,
       },
       prism: {
         theme: lightTheme,
