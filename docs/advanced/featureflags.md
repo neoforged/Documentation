@@ -262,7 +262,7 @@ Feature packs can be generated during regular mod datagen. This is best used in 
 
 ```java
 @SubscribeEvent
-public static void gatherData(final GatherDataEvent event) {
+public static void gatherData(final GatherDataEvent.Client event) {
     DataGenerator generator = event.getGenerator();
     
     // To generate a feature pack, you must first obtain a pack generator instance for the desired pack.

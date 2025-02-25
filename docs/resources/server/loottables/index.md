@@ -257,21 +257,20 @@ Loot tables can be [datagenned][datagen] by registering a `LootTableProvider` an
 
 ```java
 @SubscribeEvent
-public static void onGatherData(GatherDataEvent event) {
-    event.getGenerator().addProvider(
-            event.includeServer(),
-            output -> new LootTableProvider(
-                    output,
-                    // A set of required table resource locations. These are later verified to be present.
-                    // It is generally not recommended for mods to validate existence,
-                    // therefore we pass in an empty set.
-                    Set.of(),
-                    // A list of sub provider entries. See below for what values to use here.
-                    List.of(...),
-                    // The registry access
-                    event.getLookupProvider()
-            )
-    );
+public static void onGatherData(GatherDataEvent.Client event) {
+    // Call event.createDatapackRegistryObjects(...) first if adding datapack objects
+
+    event.createProvider((output, lookupProvider) -> new LootTableProvider(
+        output,
+        // A set of required table resource locations. These are later verified to be present.
+        // It is generally not recommended for mods to validate existence,
+        // therefore we pass in an empty set.
+        Set.of(),
+        // A list of sub provider entries. See below for what values to use here.
+        List.of(...),
+        // The registry access
+        lookupProvider
+    ));
 }
 ```
 

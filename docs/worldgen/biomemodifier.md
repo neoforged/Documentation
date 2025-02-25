@@ -60,7 +60,7 @@ public static final ResourceKey<BiomeModifier> NO_OP_EXAMPLE = ResourceKey.creat
 );
 
 // BUILDER is a RegistrySetBuilder passed to DatapackBuiltinEntriesProvider
-// in a listener for GatherDataEvent.
+// in a listener for the `GatherDataEvent`s.
 BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
     // Register the biome modifiers.
     bootstrap.register(NO_OP_EXAMPLE, NoneBiomeModifier.INSTANCE);
@@ -106,7 +106,7 @@ public static final ResourceKey<BiomeModifier> ADD_FEATURES_EXAMPLE = ResourceKe
 );
 
 // BUILDER is a RegistrySetBuilder passed to DatapackBuiltinEntriesProvider
-// in a listener for GatherDataEvent.
+// in a listener for the `GatherDataEvent`s.
 BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
     // Lookup any necessary registries.
     // Static registries only need to be looked up if you need to grab the tag data.
@@ -174,7 +174,7 @@ public static final ResourceKey<BiomeModifier> REMOVE_FEATURES_EXAMPLE = Resourc
 );
 
 // BUILDER is a RegistrySetBuilder passed to DatapackBuiltinEntriesProvider
-// in a listener for GatherDataEvent.
+// in a listener for the `GatherDataEvent`s.
 BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
     // Lookup any necessary registries.
     // Static registries only need to be looked up if you need to grab the tag data.
@@ -250,7 +250,7 @@ public static final ResourceKey<BiomeModifier> ADD_SPAWNS_EXAMPLE = ResourceKey.
 );
 
 // BUILDER is a RegistrySetBuilder passed to DatapackBuiltinEntriesProvider
-// in a listener for GatherDataEvent.
+// in a listener for the `GatherDataEvent`s.
 BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
     // Lookup any necessary registries.
     // Static registries only need to be looked up if you need to grab the tag data.
@@ -307,7 +307,7 @@ public static final ResourceKey<BiomeModifier> REMOVE_SPAWNS_EXAMPLE = ResourceK
 );
 
 // BUILDER is a RegistrySetBuilder passed to DatapackBuiltinEntriesProvider
-// in a listener for GatherDataEvent.
+// in a listener for the `GatherDataEvent`s.
 BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
     // Lookup any necessary registries.
     // Static registries only need to be looked up if you need to grab the tag data.
@@ -374,7 +374,7 @@ public static final ResourceKey<BiomeModifier> ADD_SPAWN_COSTS_EXAMPLE = Resourc
 );
 
 // BUILDER is a RegistrySetBuilder passed to DatapackBuiltinEntriesProvider
-// in a listener for GatherDataEvent.
+// in a listener for the `GatherDataEvent`s.
 BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
     // Lookup any necessary registries.
     // Static registries only need to be looked up if you need to grab the tag data.
@@ -433,7 +433,7 @@ public static final ResourceKey<BiomeModifier> REMOVE_SPAWN_COSTS_EXAMPLE = Reso
 );
 
 // BUILDER is a RegistrySetBuilder passed to DatapackBuiltinEntriesProvider
-// in a listener for GatherDataEvent.
+// in a listener for the `GatherDataEvent`s.
 BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
     // Lookup any necessary registries.
     // Static registries only need to be looked up if you need to grab the tag data.
@@ -489,7 +489,7 @@ public static final ResourceKey<BiomeModifier> ADD_CARVERS_EXAMPLE = ResourceKey
 );
 
 // BUILDER is a RegistrySetBuilder passed to DatapackBuiltinEntriesProvider
-// in a listener for GatherDataEvent.
+// in a listener for the `GatherDataEvent`s.
 BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
     // Lookup any necessary registries.
     // Static registries only need to be looked up if you need to grab the tag data.
@@ -543,7 +543,7 @@ public static final ResourceKey<BiomeModifier> REMOVE_CARVERS_EXAMPLE = Resource
 );
 
 // BUILDER is a RegistrySetBuilder passed to DatapackBuiltinEntriesProvider
-// in a listener for GatherDataEvent.
+// in a listener for the `GatherDataEvent`s.
 BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
     // Lookup any necessary registries.
     // Static registries only need to be looked up if you need to grab the tag data.
@@ -618,7 +618,7 @@ public record ExampleBiomeModifier(HolderSet<Biome> biomes, int value) implement
 
     @Override
     public MapCodec<? extends BiomeModifier> codec() {
-        return EXAMPLE_BIOME_MODIFIER.value();
+        return EXAMPLE_BIOME_MODIFIER.get();
     }
 }
 
@@ -626,7 +626,7 @@ public record ExampleBiomeModifier(HolderSet<Biome> biomes, int value) implement
 private static final DeferredRegister<MapCodec<? extends BiomeModifier>> BIOME_MODIFIERS =
     DeferredRegister.create(NeoForgeRegistries.Keys.BIOME_MODIFIER_SERIALIZERS, MOD_ID);
 
-public static final Holder<MapCodec<? extends BiomeModifier>> EXAMPLE_BIOME_MODIFIER =
+public static final Supplier<MapCodec<ExampleBiomeModifier>> EXAMPLE_BIOME_MODIFIER =
     BIOME_MODIFIERS.register("example_biome_modifier", () -> RecordCodecBuilder.mapCodec(instance ->
         instance.group(
             Biome.LIST_CODEC.fieldOf("biomes").forGetter(ExampleBiomeModifier::biomes),
@@ -650,7 +650,7 @@ public static final ResourceKey<BiomeModifier> EXAMPLE_MODIFIER = ResourceKey.cr
 );
 
 // BUILDER is a RegistrySetBuilder passed to DatapackBuiltinEntriesProvider
-// in a listener for GatherDataEvent.
+// in a listener for the `GatherDataEvent`s.
 BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
     // Lookup any necessary registries.
     // Static registries only need to be looked up if you need to grab the tag data.
