@@ -1213,7 +1213,7 @@ public static void registerSpecialBlockRenderers(RegisterSpecialBlockModelRender
 <TabItem value="datagen" label="Datagen">
 
 ```java
-// Assume there is some DeferredItem<ExampleFluidContainerItem> EXAMPLE_ITEM
+// Assume there is some DeferredItem<Item> EXAMPLE_ITEM
 // Within an extended ModelProvider
 @Override
 protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerators itemModels) {
@@ -1300,7 +1300,7 @@ For the fluid tint to apply to the fluid texture, the item in question must have
 <TabItem value="datagen" label="Datagen">
 
 ```java
-// Assume there is some DeferredItem<Item> EXAMPLE_ITEM
+// Assume there is some DeferredItem<ExampleFluidContainerItem> EXAMPLE_ITEM
 // Within an extended ModelProvider
 @Override
 protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerators itemModels) {
