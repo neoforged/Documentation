@@ -1239,7 +1239,7 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
 
 ## Dynamic Fluid Container
 
-NeoForge adds an item model that constructure a dynamic fluid container, capable of re-texturing itself at runtime to match the contained fluid.
+NeoForge adds an item model that constructs a dynamic fluid container, capable of re-texturing itself at runtime to match the contained fluid.
 
 :::note
 For the fluid tint to apply to the fluid texture, the item in question must have a `Capabilities.FluidHandler.ITEM` attached. If your item does not directly use `BucketItem` (not a subtype either), then you need to [register the capability to your item][capability].
@@ -1283,12 +1283,14 @@ For the fluid tint to apply to the fluid texture, the item in question must have
         },
 
         // When true, rotates the model 180 degrees
+        // For this to apply, the fluid cannot be empty and its density must be negative or zero
         // Defaults to false
         "flip_gas": true,
         // When true, uses the cover texture as a mask for the base texture
         // Defaults to true
         "cover_is_mask": true,
         // When true, sets the lightmap of the fluid texture layer to its max value
+        // For this to apply, the fluid's light level must be greater than zero
         // Defaults to true
         "apply_fluid_luminosity": false
     }
