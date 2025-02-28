@@ -1237,6 +1237,120 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
 </TabItem>
 </Tabs>
 
+## Dynamic Fluid Container
+
+NeoForge adds an item model that constructs a dynamic fluid container, capable of re-texturing itself at runtime to match the contained fluid.
+
+:::note
+For the fluid tint to apply to the fluid texture, the item in question must have a `Capabilities.FluidHandler.ITEM` attached. If your item does not directly use `BucketItem` (not a subtype either), then you need to [register the capability to your item][capability].
+:::
+
+<Tabs>
+<TabItem value="json" label="JSON" default>
+
+```json5
+// For some item 'examplemod:example_item'
+// JSON at 'assets/examplemod/items/example_item.json'
+{
+    "model": {
+        "type": "neoforge:fluid_container",
+
+        // The textures used to construct the container
+        // These are in reference to the block atlas, so they are relative to the `textures` directory
+        "textures": {
+            // Sets the model particle sprite
+            // If not set, uses the first texture that is not null:
+            // - Fluid still texture
+            // - Container base texture
+            // - Container cover texture, if not used as a mask
+            // Points to 'assets/minecraft/textures/item/bucket.png'
+            "particle": "minecraft:item/bucket",
+            // Sets the texture to use on the first layer, generally the container of the fluid
+            // If not set, the layer will not be added
+            // Points to 'assets/minecraft/textures/item/bucket.png'
+            "base": "minecraft:item/bucket",
+            // Sets the texture to use as the mask for the still fluid texture
+            // Areas where the fluid is seen should be pure white
+            // If not set or the fluid is empty, then the layer is not rendered
+            // Points to 'assets/neoforge/textures/item/mask/bucket_fluid.png'
+            "fluid": "neoforge:item/mask/bucket_fluid",
+            // Sets the texture to use as either
+            // - The overlay texture when 'cover_is_mask' is false
+            // - The mask to apply to the base texture (should be pure white to see) when 'cover_is_mask' is true
+            // If not set or no base texture is set when 'cover_is_mask' is true, then the layer is not rendered
+            // Points to 'assets/neoforge/textures/item/mask/bucket_fluid_cover.png'
+            "cover": "neoforge:item/mask/bucket_fluid_cover",
+        },
+
+        // When true, rotates the model 180 degrees for fluids whose density is negative or zero
+        // Defaults to false
+        "flip_gas": true,
+        // When true, uses the cover texture as a mask for the base texture
+        // Defaults to true
+        "cover_is_mask": true,
+        // When true, sets the lightmap of the fluid texture layer to its max value
+        // for fluids whose light level is greater than zero
+        // Defaults to true
+        "apply_fluid_luminosity": false
+    }
+}
+```
+
+</TabItem>
+
+<TabItem value="datagen" label="Datagen">
+
+```java
+// Assume there is some DeferredItem<ExampleFluidContainerItem> EXAMPLE_ITEM
+// Within an extended ModelProvider
+@Override
+protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerators itemModels) {
+    itemModels.itemModelOutput.accept(
+        EXAMPLE_ITEM.get(),
+        new DynamicFluidContainerModel.Unbaked(
+            // The textures used to construct the container
+            // These are in reference to the block atlas, so they are relative to the `textures` directory
+            new DynamicFluidContainerModel.Textures(
+                // Sets the model particle sprite
+                // If not set, uses the first texture that is not null:
+                // - Fluid still texture
+                // - Container base texture
+                // - Container cover texture, if not used as a mask
+                // Points to 'assets/minecraft/textures/item/bucket.png'
+                Optional.of(ResourceLocation.withDefaultNamespace("item/bucket")),
+                // Sets the texture to use on the first layer, generally the container of the fluid
+                // If not set, the layer will not be added
+                // Points to 'assets/minecraft/textures/item/bucket.png'
+                Optional.of(ResourceLocation.withDefaultNamespace("item/bucket")),
+                // Sets the texture to use as the mask for the still fluid texture
+                // Areas where the fluid is seen should be pure white
+                // If not set or the fluid is empty, then the layer is not rendered
+                // Points to 'assets/neoforge/textures/item/mask/bucket_fluid.png'
+                Optional.of(ResourceLocation.fromNamespaceAndPath("neoforge", "item/mask/bucket_fluid")),
+                // Sets the texture to use as either
+                // - The overlay texture when 'cover_is_mask' is false
+                // - The mask to apply to the base texture (should be pure white to see) when 'cover_is_mask' is true
+                // If not set or no base texture is set when 'cover_is_mask' is true, then the layer is not rendered
+                // Points to 'assets/neoforge/textures/item/mask/bucket_fluid_cover.png'
+                Optional.of(ResourceLocation.fromNamespaceAndPath("neoforge", "item/mask/bucket_fluid_cover"))
+            ),
+            // When true, rotates the model 180 degrees
+            // Defaults to false
+            true,
+            // When true, uses the cover texture as a mask for the base texture
+            // Defaults to true
+            true,
+            // When true, sets the lightmap of the fluid texture layer to its max value
+            // Defaults to true
+            false
+        )
+    );
+}
+```
+
+</TabItem>
+</Tabs>
+
 ## Manually Rendering an Item
 
 If you need to render an item yourself, such as in some `BlockEntityRenderer` or `EntityRenderer`, it can be achieved through three steps. First, the renderer in question creates an `ItemStackRenderState` to hold the rendering information of the stack. Then, the `ItemModelResolver` updates the `ItemStackRenderState` using one of its methods to update the state to the current item to render. Finally, the item is rendered using the render state's `render` method.
@@ -1377,6 +1491,7 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
 [assets]: ../../index.md#assets
 [bakedmodels]: ../models/bakedmodel.md
 [ber]: ../../../blockentities/ber.md
+[capability]: ../../../datastorage/capabilities.md#registering-capabilities
 [composite]: modelloaders.md#composite-model
 [itemmodel]: #manually-rendering-an-item
 [modbus]: ../../../concepts/events.md#event-buses
