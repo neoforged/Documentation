@@ -120,6 +120,7 @@ graph TD;
     PlayerEvent-->CanPlayerSleepEvent;
 
     class Event,BlockEvent,EntityEvent,LivingEvent,PlayerEvent red;
+    class BlockDropsEvent,CanPlayerSleepEvent blue;
 ```
 
 ### Cancellable Events

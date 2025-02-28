@@ -279,7 +279,7 @@ public class ConsumableClientItemExtensions implements IClientItemExtensions {
 
 ### Overriding Sounds on Entity
 
-Sometimes, an entity may want to play a different sound while consuming an item. In those instances, the `LivingEntity` instance can implement `Consumable.OverrideConsumeSound` and have `getConsumeSound` return the `SoundEvent` they want their entity to play.
+Sometimes, an entity may want to play a different sound while consuming an item. In those instances, the [`LivingEntity`][livingentity] instance can implement `Consumable.OverrideConsumeSound` and have `getConsumeSound` return the `SoundEvent` they want their entity to play.
 
 ```java
 public class MyEntity extends LivingEntity implements Consumable.OverrideConsumeSound {
@@ -360,6 +360,7 @@ The contents of a [potion][potions] via `PotionContents` is another `ConsumableL
 [food]: #food
 [hunger]: https://minecraft.wiki/w/Hunger#Mechanics
 [item]: index.md
+[livingentity]: ../entities/livingentity.md
 [modbus]: ../concepts/events.md#event-buses
 [mobeffectinstance]: mobeffects.md#mobeffectinstances
 [particles]: ../resources/client/particles.md
