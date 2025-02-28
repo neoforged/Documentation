@@ -1282,15 +1282,14 @@ For the fluid tint to apply to the fluid texture, the item in question must have
             "cover": "neoforge:item/mask/bucket_fluid_cover",
         },
 
-        // When true, rotates the model 180 degrees
-        // For this to apply, the fluid cannot be empty and its density must be negative or zero
+        // When true, rotates the model 180 degrees for fluids whose density is negative or zero
         // Defaults to false
         "flip_gas": true,
         // When true, uses the cover texture as a mask for the base texture
         // Defaults to true
         "cover_is_mask": true,
         // When true, sets the lightmap of the fluid texture layer to its max value
-        // For this to apply, the fluid's light level must be greater than zero
+        // for fluids whose light level is greater than zero
         // Defaults to true
         "apply_fluid_luminosity": false
     }
