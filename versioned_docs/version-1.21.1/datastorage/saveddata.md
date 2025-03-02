@@ -26,18 +26,18 @@ For example, if a SD was named "example" within the Nether, then a file would be
 
 ```java
 // In some class
-public ExampleSavedData create() {
+public static ExampleSavedData create() {
     return new ExampleSavedData();
 }
 
-public ExampleSavedData load(CompoundTag tag, HolderLookup.Provider lookupProvider) {
-    ExampleSavedData data = this.create();
+public static ExampleSavedData load(CompoundTag tag, HolderLookup.Provider lookupProvider) {
+    ExampleSavedData data = ExampleSavedData.create();
     // Load saved data
     return data;
 }
 
 // In some method within the class
-netherDataStorage.computeIfAbsent(new Factory<>(this::create, this::load), "example");
+netherDataStorage.computeIfAbsent(new Factory<>(ExampleSavedData::create, ExampleSavedData::load), "example");
 ```
 
 If a SD is not specific to a level, the SD should be attached to the Overworld, which can be obtained from `MinecraftServer#overworld`. The Overworld is the only dimension that is never fully unloaded and as such makes it perfect to store multi-level data on.
