@@ -39,6 +39,7 @@ public class ExampleSavedData extends SavedData {
 
     @Override
     public CompoundTag save(CompoundTag tag) {
+        // Write data to tag
         return tag;
     }
 

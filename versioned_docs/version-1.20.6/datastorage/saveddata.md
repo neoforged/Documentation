@@ -31,14 +31,14 @@ public class ExampleSavedData extends SavedData {
     }
 
     // Load existing instance of saved data
-    public static ExampleSavedData load(CompoundTag tag) {
+    public static ExampleSavedData load(CompoundTag tag, HolderLookup.Provider lookupProvider) {
         ExampleSavedData data = ExampleSavedData.create();
         // Load saved data
         return data;
     }
 
     @Override
-    public CompoundTag save(CompoundTag tag) {
+    public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {
         // Write data to tag
         return tag;
     }
