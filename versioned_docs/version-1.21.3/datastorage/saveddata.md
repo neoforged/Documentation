@@ -35,7 +35,7 @@ public class ExampleSavedData extends SavedData {
 
     // Load existing instance of saved data
     public static ExampleSavedData load(CompoundTag tag, HolderLookup.Provider lookupProvider) {
-        ExampleSavedData ExampleSavedData = this.create();
+        ExampleSavedData data = ExampleSavedData.create();
         // Load saved data
         return data;
     }
