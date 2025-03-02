@@ -7,7 +7,7 @@ import TabItem from '@theme/TabItem';
 
 # Armor
 
-Armors are [items][item] whose primary use is to protect an entity from damage using a variety of resistances and effects. Many mods add new armor sets (for example copper armor).
+Armors are [items][item] whose primary use is to protect a [`LivingEntity`][livingentity] from damage using a variety of resistances and effects. Many mods add new armor sets (for example copper armor).
 
 ## Custom Armor Sets
 
@@ -402,8 +402,9 @@ this.equipmentLayerRenderer.renderLayers(
 [item]: index.md
 [datacomponents]: datacomponents.md
 [enchantment]: ../resources/server/enchantments/index.md#enchantment-costs-and-levels
+[livingentity]: ../entities/livingentity.md
 [registering]: ../concepts/registries.md#methods-for-registering
-[rendering]: #equipement-rendering
+[rendering]: #equipment-rendering
 [respack]: ../resources/index.md#assets
 [tag]: ../resources/server/tags.md
 [tinting]: ../resources/client/models/index.md#tinting

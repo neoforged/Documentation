@@ -20,7 +20,7 @@ The most important method of a baked model is `getQuads`. This method is respons
 - A `ModelData`: The extra model data to use. This may contain additional data from the block entity needed for rendering. Supplied by `BakedModel#getModelData`.
 - A `RenderType`: The [render type][rendertype] to use for rendering the block. May be null, indicating that the quads for all render types used by this model should be returned. Otherwise, it is one of the render types returned by `BakedModel#getRenderTypes` (see below).
 
-Models should heavily cache. This is because even though chunks are only rebuilt when a block in them changes, the computations done in this method still need to be as fast as possible and should ideally be cached heavily due to the amount of times this method will be called per chunk section (up to seven times per RenderType used by a given model * amount of RenderTypes used by the respective model * 4096 blocks per chunk section). In addition, [BERs][ber] or entity renderers may actually call this method several times per frame.
+Models should heavily cache. This is because even though chunks are only rebuilt when a block in them changes, the computations done in this method still need to be as fast as possible and should ideally be cached heavily due to the amount of times this method will be called per chunk section (up to seven times per RenderType used by a given model * amount of RenderTypes used by the respective model * 4096 blocks per chunk section). In addition, [BERs][ber] or [entity renderers][entityrenderer] may actually call this method several times per frame.
 
 ### `applyTransform` and `getTransforms`
 
@@ -102,8 +102,10 @@ It is generally encouraged to use a [custom model loader][modelloader] over wrap
 [ao]: https://en.wikipedia.org/wiki/Ambient_occlusion
 [ber]: ../../../blockentities/ber.md
 [blockstate]: ../../../blocks/states.md
+[entityrenderer]: ../../../entities/renderer.md
 [event]: ../../../concepts/events.md
 [itemmodels]: items.md#manually-rendering-an-item
+[livingentity]: ../../../entities/livingentity.md
 [modbus]: ../../../concepts/events.md#event-buses
 [modelloader]: modelloaders.md
 [mrl]: ../../../misc/resourcelocation.md#modelresourcelocations
