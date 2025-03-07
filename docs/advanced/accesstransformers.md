@@ -1,3 +1,6 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 # Access Transformers
 
 Access Transformers (ATs for short) allow for widening the visibility and modifying the `final` flags of classes, methods, and fields. They allow modders to access and modify otherwise inaccessible members in classes outside their control.
@@ -10,7 +13,21 @@ Adding an Access Transformer to your mod project is as simple as adding a single
 
 Access Transformers need to be declared in `build.gradle`. AT files can be specified anywhere as long as they are copied to the `resources` output directory on compilation.
 
-```groovy
+<Tabs groupId="build-system">
+<TabItem value="moddevgradle" label="ModDevGradle" default>
+
+```gradle
+// In build.gradle:
+// This block is where your mappings version is also specified
+neoForge {
+    accessTransformers = project.files('src/main/resources/META-INF/accesstransformer.cfg')
+}
+```
+
+</TabItem>
+<TabItem value="neogradle" label="NeoGradle">
+
+```gradle
 // In build.gradle:
 // This block is where your mappings version is also specified
 minecraft {
@@ -19,6 +36,9 @@ minecraft {
     }
 }
 ```
+
+</TabItem>
+</Tabs>
 
 By default, NeoForge will search for `META-INF/accesstransformer.cfg`. If the `build.gradle` specifies access transformers in any other location, then their location needs to be defined within `neoforge.mods.toml`:
 
@@ -32,7 +52,23 @@ file="META-INF/accesstransformer.cfg"
 
 Additionally, multiple AT files can be specified and will be applied in order. This can be useful for larger mods with multiple packages.
 
-```groovy
+<Tabs groupId="build-system">
+<TabItem value="moddevgradle" label="ModDevGradle" default>
+
+```gradle
+// In build.gradle:
+neoForge {
+    accessTransformers = project.files(
+        'src/main/resources/accesstransformer_main.cfg',
+        'src/additions/resources/accesstransformer_additions.cfg'
+    )
+}
+```
+
+</TabItem>
+<TabItem value="neogradle" label="NeoGradle">
+
+```gradle
 // In build.gradle:
 minecraft {
     accessTransformers {
@@ -41,6 +77,9 @@ minecraft {
     }
 }
 ```
+
+</TabItem>
+</Tabs>
 
 ```toml
 # In neoforge.mods.toml
