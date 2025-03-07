@@ -95,6 +95,26 @@ const config = {
         },
       },
     ],
+    [
+      "@docusaurus/plugin-content-docs",
+      {
+        id: "moddevgradle",
+        path: "moddevgradle",
+        routeBasePath: "moddevgradle",
+        sidebarPath: require.resolve("./sidebarsMDG.js"),
+        lastVersion: "current",
+        includeCurrentVersion: true,
+        versions: {
+          current: {
+            label: "MDG2",
+          },
+          "1.x": {
+            label: "MDG1",
+            path: "1.x",
+          }
+        },
+      },
+    ],
   ],
 
   themeConfig:
@@ -121,6 +141,13 @@ const config = {
           },
           {
             type: "docSidebar",
+            sidebarId: "mdgSidebar",
+            position: "left",
+            docsPluginId: "moddevgradle",
+            label: "ModDevGradle Documentation",
+          },
+          {
+            type: "docSidebar",
             sidebarId: "ngSidebar",
             position: "left",
             docsPluginId: "neogradle",
@@ -129,6 +156,11 @@ const config = {
           {
             type: "docsVersionDropdown",
             position: "right",
+          },
+          {
+            type: "docsVersionDropdown",
+            position: "right",
+            docsPluginId: "moddevgradle",
           },
           {
             type: "docsVersionDropdown",
@@ -156,6 +188,10 @@ const config = {
               {
                 to: "/docs/gettingstarted/",
                 label: "NeoForge Documentation",
+              },
+              {
+                to: "/moddevgradle/docs/",
+                label: "ModDevGradle Documentation",
               },
               {
                 to: "/neogradle/docs/",
