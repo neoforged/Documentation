@@ -176,19 +176,29 @@ public class MyEntityModel extends EntityModel<MyEntityRenderState> {
         PartDefinition head = root.addOrReplaceChild(
             // The name of the part.
             "head",
-            // The CubeListBuilder we want to add. While it is possible to add multiple cubes into one part,
-            // it is generally discouraged and only one cube per PartDefinition should be used.
+            // The CubeListBuilder we want to add.
             CubeListBuilder.create()
                 // The UV coordinates to use within the texture. Texture binding itself is explained below.
                 // In this example, we start at U=10, V=20.
                 .texOffs(10, 20)
-                // Add our cube. Again, while multiple can be added, it is recommended to only add one.
+                // Add our cube. May be called multiple times to add multiple cubes.
+                // This is relative to the parent part. For the root part, it is relative to the entity's position.
+                // Be aware that the y axis is flipped, i.e. "up" is subtractive and "down" is additive.
                 .addBox(
-                    // The origin of the cube, relative to the parent object's position.
+                    // The top-left-back corner of the cube, relative to the parent object's position.
                     -5, -5, -5,
                     // The size of the cube.
                     10, 10, 10
-                ),
+                )
+                // Call texOffs and addBox again to add another cube.
+                .texOffs(30, 40)
+                .addBox(-1, -1, -1, 1, 1, 1)
+                // Various overloads of addBox() are available, which allow for additional operations
+                // such as texture mirroring, texture scaling, specifying the directions to be rendered,
+                // and a global scale to all cubes, known as a CubeDeformation.
+                // This example uses the latter, please check the usages of the individual methods for more examples.
+                .texOffs(50, 60)
+                .addBox(5, 5, 5, 4, 4, 4, CubeDeformation.extend(1.2f)),
             // An additional offset to apply to all elements of the CubeListBuilder. Besides PartPose#offset,
             // PartPose#offsetAndRotation is also available. This can be reused across multiple PartDefinitions.
             PartPose.offset(0, 8, 0)
@@ -244,6 +254,8 @@ public class MyEntityModel extends EntityModel<MyEntityRenderState> {
     // The ModelPart passed here is the root of our baked model.
     // We will get to the actual baking in just a moment.
     public MyEntityModel(ModelPart root) {
+        // The super constructor call can optionally specify a RenderType.
+        super(root);
         // Store the head part for use below.
         this.head = root.getChild("head");
     }
@@ -295,12 +307,12 @@ Finally, to tie it all together, we can add the layer to our renderer (which, if
 ```java
 // Plugging in our custom render state class as the generic type.
 // Also, we need to implement RenderLayerParent. Some existing renderers, such as LivingEntityRenderer, do this for you.
-public class MyEntityRenderer 
-        extends LivingEntityRenderer<MyEntity, MyEntityRenderState>
-        implements RenderLayerParent<MyEntityRenderState, MyEntityModel> {
+public class MyEntityRenderer extends LivingEntityRenderer<MyEntity, MyEntityRenderState, MyEntityModel> {
     public MyEntityRenderer(EntityRendererProvider.Context context) {
-        super(context);
-        // Add the layer. Get the EntityModelSet from the context.
+        // For LivingEntityRenderer, the super constructor requires a "base" model and a shadow radius to be supplied.
+        super(context, new MyEntityModel(entityModelSet.bakeLayer(MY_LAYER)), 0.5f);
+        // Add the layer. Get the EntityModelSet from the context. For the purpose of the example,
+        // we ignore that the render layer renders the "base" model, this would be a different model in practice.
         this.addLayer(new MyRenderLayer(this, context.getModelSet()));
     }
 
@@ -319,6 +331,14 @@ public class MyEntityRenderer
         // Calling super will automatically render the layer for you.
         super.render(state, poseStack, bufferSource, packedLight);
         // Then, do custom rendering here, if applicable.
+    }
+
+    // getTextureLocation is an abstract method in LivingEntityRenderer that we need to override.
+    // The texture path is relative to textures/entity, so in this example, the texture should be located at
+    // assets/examplemod/textures/entity/example_entity.png. The texture will then be supplied to and used by the model.
+    @Override
+    public ResourceLocation getTextureLocation(MyEntityRenderState state) {
+        return ResourceLocation.fromNamespaceAndPath("examplemod", "example_entity");
     }
 }
 ```
@@ -344,6 +364,7 @@ public class MyEntityModel extends EntityModel<MyEntityRenderState> {
     private final ModelPart head;
     
     public MyEntityModel(ModelPart root) {
+        super(root);
         this.head = root.getChild("head");
         // ...
     }
@@ -385,11 +406,9 @@ public class MyRenderLayer extends RenderLayer<MyEntityRenderState, MyEntityMode
 ```
 
 ```java
-public class MyEntityRenderer
-        extends LivingEntityRenderer<MyEntity, MyEntityRenderState>
-        implements RenderLayerParent<MyEntityRenderState, MyEntityModel> {
+public class MyEntityRenderer extends LivingEntityRenderer<MyEntity, MyEntityRenderState, MyEntityModel> {
     public MyEntityRenderer(EntityRendererProvider.Context context) {
-        super(context);
+        super(context, new MyEntityModel(entityModelSet.bakeLayer(MY_LAYER)), 0.5f);
         this.addLayer(new MyRenderLayer(this, context.getModelSet()));
     }
 
@@ -407,6 +426,11 @@ public class MyEntityRenderer
     public void render(MyEntityRenderState state, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
         super.render(state, entityYaw, partialTick, poseStack, bufferSource, packedLight);
         // ...
+    }
+
+    @Override
+    public ResourceLocation getTextureLocation(MyEntityRenderState state) {
+        return ResourceLocation.fromNamespaceAndPath("examplemod", "example_entity");
     }
 }
 ```
@@ -460,6 +484,10 @@ public static void addPlayerLayers(EntityRenderersEvent.AddLayers event) {
     }
 }
 ```
+
+:::note
+Both of these examples assume that the generics in `MyRenderLayer` have been adjusted for the corresponding types. After all, you won't be able to use a render layer for `MyEntity` with a `PlayerRenderer`.
+:::
 
 ## Animations
 

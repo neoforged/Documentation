@@ -40,7 +40,7 @@ public static final Supplier<EntityType<MyEntity>> MY_ENTITY = ENTITY_TYPES.regi
     // The width and height, in blocks. The width is used in both horizontal directions.
     // This also means that non-square footprints are not supported. Default is 0.6f and 1.8f.
     .sized(1.0f, 1.0f)
-    // The spawn dimensions. This is used by mobs that spawn in varying sizes.
+    // A multiplicative factor (scalar) used by mobs that spawn in varying sizes.
     // In vanilla, these are only slimes and magma cubes, both of which use 4.0f.
     .spawnDimensionsScale(4.0f)
     // The eye height, in blocks from the bottom of the size. Defaults to height * 0.85.
@@ -136,9 +136,9 @@ While `Entity` can be extended directly, it often makes sense to use one of its 
 If required (e.g. because you're spawning entities from code), you can also add custom constructors. These generally hardcode the entity type as a reference to the registered object, like so:
 
 ```java
-public MyEntity(Level level, double x, double y, double z) {
+public MyEntity(EntityType<? extends MyEntity> type, Level level, double x, double y, double z) {
     // Delegates to the factory constructor, using the EntityType we registered before.
-    this(MY_ENTITY.get(), level);
+    this(type, level);
     this.setPos(x, y, z);
 }
 ```
@@ -301,8 +301,7 @@ Alternatively, attachments can be defined yourself by calling `EntityAttachments
 // In some EntityType<?> creation
 EntityType.Builder.of(...)
     // This EntityAttachment will make name tags float half a block above the ground.
-    // However, most living entities will have the default for this to be at the top of their hitbox instead.
-    // Therefore, the name tag will actually appear half a block above the top of the living entity's hitbox.
+    // If this is not set, it will default to the entity's hitbox height.
     .attach(EntityAttachment.NAME_TAG, 0, 0.5f, 0)
     .build();
 ```
