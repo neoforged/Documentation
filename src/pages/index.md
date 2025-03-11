@@ -20,6 +20,14 @@ If you would like to contribute to the docs, read [Contributing to the Docs][con
         </div>
         <div class="col col--6" style={{padding: '10px'}}>
             <Card
+                title="NeoForge User Guide"
+                body="Learn how to install and use NeoForge in your client or server environment."
+                link="/userguide/docs/"
+                linkTitle="Get Started"
+            />
+        </div>
+        <div class="col col--6" style={{padding: '10px'}}>
+            <Card
                 title="NeoGradle Documentation"
                 body="Learn about the Gradle plugin empowering developers to create mods for NeoForge and develop NeoForge itself."
                 link="/neogradle/docs/"
