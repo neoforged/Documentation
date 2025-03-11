@@ -45,8 +45,8 @@ While the `group` property in the `build.gradle` is only necessary if you plan t
 
 The group id should be set to your top-level package. See [Packaging][packaging] for more information.
 
-```text
-// In your gradle.properties file
+```properties
+# In your gradle.properties file
 mod_group_id=com.example
 ```
 
