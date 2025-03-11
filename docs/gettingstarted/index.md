@@ -17,8 +17,7 @@ Make sure you are using a 64-bit JVM. One way of checking is to run `java -versi
 
 ## Setting Up the Workspace
 
-- Open the Mod Developer Kit (MDK) (either [ModDevGradle][mdgmdk] or [NeoGradle][ngmdk]) GitHub repository, click "Use this template" and clone the newly-created repository to your local machine.
-      - If you do not want to use GitHub, or if you want to get the template for an older commit, you can also download the ZIP of the repository (under Code -> Download ZIP) and extract it.
+- Open the [Mod Generator page][modgenerator], enter the values for your mod, and click "Download Mod Project".
 - Open your IDE and import the Gradle project. Eclipse and IntelliJ IDEA will do this automatically for you. If you have an IDE that does not do this, you can also do it via the `gradlew` terminal command.
       - When doing this for the first time, Gradle will download all dependencies of NeoForge, including Minecraft itself, and decompile them. This can take a fair amount of time (up to an hour, depending on your hardware and network strength).
       - Whenever you make a change to the Gradle files, the Gradle changes will need to be reloaded, either through the "Reload Gradle" button in your IDE, or again through the `gradlew` terminal command.
@@ -55,7 +54,6 @@ You should always test your mod in a dedicated server environment. This includes
 [github]: https://github.com/
 [intellij]: https://www.jetbrains.com/idea/
 [jdk]: https://learn.microsoft.com/en-us/java/openjdk/download#openjdk-21
-[mdgmdk]: https://github.com/NeoForgeMDKs/MDK-1.21.4-ModDevGradle
-[ngmdk]: https://github.com/NeoForgeMDKs/MDK-1.21.4-NeoGradle
+[modgenerator]: https://neoforged.net/mod-generator/
 [neogradle]: https://docs.neoforged.net/neogradle/docs/
 [properties]: modfiles.md#gradleproperties
