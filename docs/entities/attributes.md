@@ -105,6 +105,7 @@ public static void modifyDefaultAttributes(EntityAttributeModificationEvent even
         10.0
     );
     // We can also check if a given EntityType already has a given attribute.
+    // In this example, if villagers don't have the armor attribute already, we add it.
     if (event.has(EntityType.VILLAGER, Attributes.ARMOR)) {
         event.add(...);
     }

@@ -40,7 +40,7 @@ public class MyEntityRenderer extends EntityRenderer<Entity, EntityRenderState> 
     // Calling super will handle leash and name tag rendering for you, if applicable.
     @Override
     public void render(EntityRenderState state, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
-        super.render(state, entityYaw, partialTick, poseStack, bufferSource, packedLight);
+        super.render(state, poseStack, bufferSource, packedLight);
         // do your own rendering here
     }
 }
@@ -199,8 +199,10 @@ public class MyEntityModel extends EntityModel<MyEntityRenderState> {
                 // This example uses the latter, please check the usages of the individual methods for more examples.
                 .texOffs(50, 60)
                 .addBox(5, 5, 5, 4, 4, 4, CubeDeformation.extend(1.2f)),
-            // An additional offset to apply to all elements of the CubeListBuilder. Besides PartPose#offset,
+            // The initial positioning to apply to all elements of the CubeListBuilder. Besides PartPose#offset,
             // PartPose#offsetAndRotation is also available. This can be reused across multiple PartDefinitions.
+            // This may not be used by all models. For example, making custom armor layers will use the associated
+            // player (or other humanoid) renderer's PartPose instead to have the armor "snap" to the player model.
             PartPose.offset(0, 8, 0)
         );
         // We can now add children to any PartDefinition, thus creating a hierarchy.
@@ -424,7 +426,7 @@ public class MyEntityRenderer extends LivingEntityRenderer<MyEntity, MyEntityRen
 
     @Override
     public void render(MyEntityRenderState state, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
-        super.render(state, entityYaw, partialTick, poseStack, bufferSource, packedLight);
+        super.render(state, poseStack, bufferSource, packedLight);
         // ...
     }
 
@@ -458,12 +460,12 @@ public static void addLayers(EntityRenderersEvent.AddLayers event) {
     for (EntityType<?> entityType : event.getEntityTypes()) {
         // Get our renderer.
         EntityRenderer<?, ?> renderer = event.getRenderer(entityType);
-        // Null-check the renderer. You could add more checks here,
-        // e.g., instanceof checks to only target specific renderer classes.
-        if (renderer != null) {
+        // We check if our render layer is supported by the renderer.
+        // If you want a more general-purpose render layer, you will need to work with wildcard generics.
+        if (renderer instanceof MyEntityRenderer myEntityRenderer) {
             // Add the layer to the renderer. Like above, construct a new MyRenderLayer.
             // The EntityModelSet can be retrieved from the event through #getEntityModels.
-            renderer.addLayer(new MyRenderLayer(renderer, event.getEntityModels()));
+            myEntityRenderer.addLayer(new MyRenderLayer(renderer, event.getEntityModels()));
         }
     }
 }
@@ -478,16 +480,13 @@ public static void addPlayerLayers(EntityRenderersEvent.AddLayers event) {
     for (PlayerSkin.Model skin : event.getSkins()) {
         // Get the associated PlayerRenderer.
         if (event.getSkin(skin) instanceof PlayerRenderer playerRenderer) {
-            // Add the layer to the renderer.
+            // Add the layer to the renderer. This assumes that the render layer
+            // has proper generics to support players and player renderers.
             playerRenderer.addLayer(new MyRenderLayer(playerRenderer, event.getEntityModels()));
         }
     }
 }
 ```
-
-:::note
-Both of these examples assume that the generics in `MyRenderLayer` have been adjusted for the corresponding types. After all, you won't be able to use a render layer for `MyEntity` with a `PlayerRenderer`.
-:::
 
 ## Animations
 

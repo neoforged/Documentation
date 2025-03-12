@@ -175,10 +175,6 @@ Alternatively, you can also call `EntityType#spawn`, which is especially recomme
 
 This will be used for pretty much all non-living entities. Players should obviously not be spawned yourself, `Mob`s have [their own ways of spawning][mobspawn] (though they can also be added via `#addFreshEntity`), and vanilla [projectiles][projectile] also have static helpers for spawning in the `Projectile` class.
 
-:::info
-Alternatively, you can also call `EntityType#spawn`, which does most of this, along with some convenience operations, for you.
-:::
-
 ### Damaging Entities
 
 _See also [Left-Clicking an Item][leftclick]._
