@@ -106,11 +106,13 @@ public static void modifyDefaultAttributes(EntityAttributeModificationEvent even
     );
     // We can also check if a given EntityType already has a given attribute.
     // In this example, if villagers don't have the armor attribute already, we add it.
-    if (event.has(EntityType.VILLAGER, Attributes.ARMOR)) {
+    if (!event.has(EntityType.VILLAGER, Attributes.ARMOR)) {
         event.add(...);
     }
 }
 ```
+
+Be aware that unlike some other registries, custom attributes existing do not block vanilla clients from connecting to a NeoForge server. If a vanilla client connects, it will only receive the attributes in the `minecraft` namespace.
 
 ## Querying Attributes
 
