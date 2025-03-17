@@ -3,7 +3,7 @@ sidebar_position: 6
 ---
 # Mob Effects & Potions
 
-Status effects, sometimes known as potion effects and referred to in-code as `MobEffect`s, are effects that influence an entity every tick. This article explains how to use them, what the difference between an effect and a potion is, and how to add your own.
+Status effects, sometimes known as potion effects and referred to in-code as `MobEffect`s, are effects that influence a [`LivingEntity`][livingentity] every tick. This article explains how to use them, what the difference between an effect and a potion is, and how to add your own.
 
 ## Terminology
 
@@ -65,7 +65,7 @@ public static final Holder<MobEffect> MY_MOB_EFFECT = MOB_EFFECTS.register("my_m
 ));
 ```
 
-The `MobEffect` class also provides default functionality for adding attribute modifiers to affected entities. For example, the speed effect adds an attribute modifier for movement speed. Effect attribute modifiers are added like so:
+The `MobEffect` class also provides default functionality for adding [attribute modifiers][attributemodifier] to affected entities, and also removing them when the effect expires or is removed through other means. For example, the speed effect adds an attribute modifier for movement speed. Effect attribute modifiers are added like so:
 
 ```java
 public static final Holder<MobEffect> MY_MOB_EFFECT = MOB_EFFECTS.register("my_mob_effect", () -> new MyMobEffect(...)
@@ -194,11 +194,13 @@ public static void registerBrewingRecipes(RegisterBrewingRecipesEvent event) {
 }
 ```
 
+[attributemodifier]: ../entities/attributes.md#attribute-modifiers
 [block]: ../blocks/index.md
 [commonsetup]: ../concepts/events.md#event-buses
 [datapack]: ../resources/index.md#data
 [events]: ../concepts/events.md
 [item]: index.md
 [itemstack]: index.md#itemstacks
+[livingentity]: ../entities/livingentity.md
 [registration]: ../concepts/registries.md#methods-for-registering
 [uuidgen]: https://www.uuidgenerator.net/version4

@@ -297,6 +297,23 @@ I'm within an admonition!
 :::
 ```
 
+### Diagrams
+
+Diagrams can be created using the [Mermaid library][mermaid].
+
+When creating a diagram, a convention is used to make `abstract` classes red and non-`abstract` classes blue.
+
+````md
+<!-- Class1 is abstract, Class2 is not -->
+```mermaid
+graph LR;
+    Class1-->Class2;
+    
+    class Class1 red;
+    class Class2 blue;
+```
+````
+
 [docs]: https://github.com/neoforged/Documentation
 
 [npm]: https://www.npmjs.com/
@@ -313,6 +330,7 @@ I'm within an admonition!
 [eck]: http://math.hws.edu/javanotes/
 
 [docusaurus]: https://docusaurus.io/docs/markdown-features
+[mermaid]: https://mermaid.js.org/intro/
 [mdx]: https://mdxjs.com/guides/
 
 [admonition]: https://docusaurus.io/docs/markdown-features/admonitions

@@ -1,6 +1,6 @@
 # Block Entities
 
-Block entities allow the storage of data on [blocks][block] in cases where [block states][blockstate] are not suitable. This is especially the case for data with a non-finite amount of options, such as inventories. Block entities are stationary and bound to a block, but otherwise share many similarities with entities, hence the name.
+Block entities allow the storage of data on [blocks][block] in cases where [block states][blockstate] are not suitable. This is especially the case for data with a non-finite amount of options, such as inventories. Block entities are stationary and bound to a block, but otherwise share many similarities with [entities], hence the name.
 
 :::note
 If you have a finite and reasonably small amount (= a few hundred at most) of possible states for your block, you might want to consider using [block states][blockstate] instead.
@@ -237,6 +237,7 @@ It is important that you do safety checks, as the `BlockEntity` might already be
 [blockreg]: ../blocks/index.md#basic-blocks
 [blockstate]: ../blocks/states.md
 [dataattachments]: ../datastorage/attachments.md
+[entities]: ../entities/index.md
 [modbus]: ../concepts/events.md#event-buses
 [nbt]: ../datastorage/nbt.md
 [networking]: ../networking/index.md

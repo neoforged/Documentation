@@ -89,7 +89,7 @@ tag.get("Tag");
 
 ## Usages of NBT
 
-NBT is used in a lot of places in Minecraft. Some of the most common examples include [`BlockEntity`][blockentity]s and `Entity`s.
+NBT is used in a lot of places in Minecraft. Some of the most common examples include [`BlockEntity`][blockentity]s and [`Entity`s][entity].
 
 :::note
 `ItemStack`s abstract away the usage of NBT into [data components][datacomponents].
@@ -102,4 +102,5 @@ NBT is used in a lot of places in Minecraft. Some of the most common examples in
 [blockentity]: ../blockentities/index.md
 [datapack]: ../resources/index.md#data
 [datacomponents]: ../items/datacomponents.md
+[entity]: ../entities/index.md
 [nbtwiki]: https://minecraft.wiki/w/NBT_format

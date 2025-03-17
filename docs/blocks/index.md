@@ -25,8 +25,8 @@ After registering the block, all references to the new `my_block` should use thi
 
 ```java
 level.getBlockState(position) // returns the blockstate placed in the given level (world) at the given position
-        //highlight-next-line
-        .is(MyBlockRegistrationClass.MY_BLOCK);
+    //highlight-next-line
+    .is(MyBlockRegistrationClass.MY_BLOCK);
 ```
 
 This approach also has the convenient effect that `block1 == block2` works and can be used instead of Java's `equals` method (using `equals` still works, of course, but is pointless since it compares by reference anyway).
@@ -69,16 +69,16 @@ So for example, a simple implementation would look something like this:
 ```java
 //BLOCKS is a DeferredRegister.Blocks
 public static final DeferredBlock<Block> MY_BETTER_BLOCK = BLOCKS.register(
-        "my_better_block", 
-        registryName -> new Block(BlockBehaviour.Properties.of()
-                //highlight-start
-                .setId(ResourceKey.create(Registries.BLOCK, registryName))
-                .destroyTime(2.0f)
-                .explosionResistance(10.0f)
-                .sound(SoundType.GRAVEL)
-                .lightLevel(state -> 7)
-                //highlight-end
-        ));
+    "my_better_block", 
+    registryName -> new Block(BlockBehaviour.Properties.of()
+        //highlight-start
+        .setId(ResourceKey.create(Registries.BLOCK, registryName))
+        .destroyTime(2.0f)
+        .explosionResistance(10.0f)
+        .sound(SoundType.GRAVEL)
+        .lightLevel(state -> 7)
+        //highlight-end
+    ));
 ```
 
 For further documentation, see the source code of `BlockBehaviour.Properties`. For more examples, or to look at the values used by Minecraft, have a look at the `Blocks` class.
@@ -104,7 +104,6 @@ If the block subclass only takes in the `BlockBehaviour.Properties`, then `Block
 ```java
 // For some block subclass
 public class SimpleBlock extends Block {
-
     public SimpleBlock(BlockBehavior.Properties properties) {
         // ...
     }
@@ -129,7 +128,6 @@ If the block subclass contains more parameters, then [`RecordCodecBuilder#mapCod
 ```java
 // For some block subclass
 public class ComplexBlock extends Block {
-
     public ComplexBlock(int value, BlockBehavior.Properties properties) {
         // ...
     }
@@ -170,19 +168,19 @@ We already discussed how to create a `DeferredRegister.Blocks` [above], as well 
 public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks("yourmodid");
 
 public static final DeferredBlock<Block> EXAMPLE_BLOCK = BLOCKS.register(
-        "example_block", registryName -> new Block(
-            BlockBehaviour.Properties.of()
-                // The ID must be set on the block
-                .setId(ResourceKey.create(Registries.BLOCK, registryName))
-        )
+    "example_block", registryName -> new Block(
+        BlockBehaviour.Properties.of()
+            // The ID must be set on the block
+            .setId(ResourceKey.create(Registries.BLOCK, registryName))
+    )
 );
 
 // Same as above, except that the block properties are constructed eagerly.
 // setId is also called internally on the properties object.
 public static final DeferredBlock<Block> EXAMPLE_BLOCK = BLOCKS.registerBlock(
-        "example_block",
-        Block::new, // The factory that the properties will be passed into.
-        BlockBehaviour.Properties.of() // The properties to use.
+    "example_block",
+    Block::new, // The factory that the properties will be passed into.
+    BlockBehaviour.Properties.of() // The properties to use.
 );
 ```
 
@@ -190,8 +188,8 @@ If you want to use `Block::new`, you can leave out the factory entirely:
 
 ```java
 public static final DeferredBlock<Block> EXAMPLE_BLOCK = BLOCKS.registerSimpleBlock(
-        "example_block",
-        BlockBehaviour.Properties.of() // The properties to use.
+    "example_block",
+    BlockBehaviour.Properties.of() // The properties to use.
 );
 ```
 
@@ -209,7 +207,7 @@ In several situations, multiple methods of `Block` are used at different times. 
 
 ### Placing a Block
 
-Block placement logic is called from `BlockItem#useOn` (or some subclass's implementation thereof, such as in `PlaceOnWaterBlockItem`, which is used for lily pads). For more information on how the game gets there, see the [Interaction Pipeline][interactionpipeline]. In practice, this means that as soon as a `BlockItem` is right-clicked (for example a cobblestone item), this behavior is called.
+Block placement logic is called from `BlockItem#useOn` (or some subclass's implementation thereof, such as in `PlaceOnWaterBlockItem`, which is used for lily pads). For more information on how the game gets there, see [Right-Clicking Items][rightclick]. In practice, this means that as soon as a `BlockItem` is right-clicked (for example a cobblestone item), this behavior is called.
 
 - Several prerequisites are checked, for example that you are not in spectator mode, that all required feature flags for the block are enabled or that the target position is not outside the world border. If at least one of these checks fails, the pipeline ends.
 - `BlockBehaviour#canBeReplaced` is called for the block currently at the position where the block is attempted to be placed. If it returns `false`, the pipeline ends. Prominent cases that return `true` here are tall grass or snow layers.
@@ -241,11 +239,10 @@ while (leftClickIsBeingHeld()) {
 }
 ```
 
-The following subsections further break down these stages into actual method calls.
+The following subsections further break down these stages into actual method calls. For information about how the game gets from left-clicking to this pipeline, see [Left-Clicking an Item][leftclick].
 
 #### The "Initiating" Stage
 
-- Client-only: `InputEvent.InteractionKeyMappingTriggered` is fired with the left mouse button and the main hand. If the event is canceled, the pipeline ends.
 - Several prerequisites are checked, for example that you are not in spectator mode, that all required feature flags for the `ItemStack` in your main hand are enabled or that the block in question is not outside the world border. If at least one of these checks fails, the pipeline ends.
 - `PlayerInteractEvent.LeftClickBlock` is fired. If the event is canceled, the pipeline ends.
     - Note that when the event is canceled on the client, no packets are sent to the server and thus no logic runs on the server.
@@ -281,6 +278,54 @@ The following subsections further break down these stages into actual method cal
         - Server-only: `BlockDropsEvent` is fired. If the event is canceled, then nothing is dropped when the block breaks. Otherwise, every `ItemEntity` in `BlockDropsEvent#getDrops` is added to the current level.
 - Server-only: `Block#popExperience` is called with the result of the previous `IBlockExtension#getExpDrop` call, if that call returned a value greater than 0.
 
+#### Mining Speed
+
+The mining speed is calculated from the block's hardness, the used [tool]'s speed, and several entity [attributes] according to the following rules:
+
+```java
+// This will return the tool's mining speed, or 1 if the held item is either empty, not a tool,
+// or not applicable for the block being broken.
+float destroySpeed = item.getDestroySpeed(blockState);
+// If we have an applicable tool, add the minecraft:mining_efficiency attribute as an additive modifier.
+if (destroySpeed > 1) {
+    destroySpeed += player.getAttributeValue(Attributes.MINING_EFFICIENCY);
+}
+// Apply effects from haste or conduit power.
+if (player.hasEffect(MobEffects.DIG_SPEED) || player.hasEffect(MobEffects.CONDUIT_POWER)) {
+    int haste = player.hasEffect(MobEffects.DIG_SPEED)
+        ? player.getEffect(MobEffects.DIG_SPEED).getAmplifier()
+        : 0;
+    int conduitPower = player.hasEffect(MobEffects.CONDUIT_POWER)
+        ? player.getEffect(MobEffects.CONDUIT_POWER).getAmplifier()
+        : 0;
+    int amplifier = Math.max(haste, conduitPower);
+    destroySpeed *= 1 + (amplifier + 1) * 0.2f;
+}
+// Apply slowness effect.
+if (player.hasEffect(MobEffects.DIG_SLOWDOWN)) {
+    destroySpeed *= switch (player.getEffect(MobEffects.DIG_SLOWDOWN).getAmplifier()) {
+        case 0 -> 0.3F;
+        case 1 -> 0.09F;
+        case 2 -> 0.0027F;
+        default -> 8.1E-4F;
+    };
+}
+// Add the minecraft:block_break_speed attribute as a multiplicative modifier.
+destroySpeed *= player.getAttributeValue(Attributes.BLOCK_BREAK_SPEED);
+// If the player is underwater, apply the underwater mining speed penalty multiplicatively.
+if (player.isEyeInFluid(FluidTags.WATER)) {
+    destroySpeed *= player.getAttributeValue(Attributes.SUBMERGED_MINING_SPEED);
+}
+// If the player is trying to break a block in mid-air, make the player mine 5 times slower.
+if (!player.onGround()) {
+    destroySpeed /= 5;
+}
+destroySpeed = /* The PlayerEvent.BreakSpeed event is fired here, allowing modders to further modify this value. */;
+return destroySpeed;
+```
+
+The exact code for this can be found in `Player#getDestroySpeed` for reference.
+
 ### Ticking
 
 Ticking is a mechanism that updates (ticks) parts of the game every 1 / 20 seconds, or 50 milliseconds ("one tick"). Blocks provide different ticking methods that are called in different ways.
@@ -306,19 +351,21 @@ Random ticks occur every tick for a set amount of blocks in a chunk. That set am
 Random ticking is used by a wide range of mechanics in Minecraft, such as plant growth, ice and snow melting, or copper oxidizing.
 
 [above]: #one-block-to-rule-them-all
+[attributes]: ../entities/attributes.md
 [below]: #deferredregisterblocks-helpers
 [blockentities]: ../blockentities/index.md
 [blockstates]: states.md
 [bsfile]: ../resources/client/models/index.md#blockstate-files
 [codec]: ../datastorage/codecs.md#records
-[events]: ../concepts/events.md
-[interactionpipeline]: ../items/interactionpipeline.md
 [item]: ../items/index.md
+[leftclick]: ../items/interactions.md#left-clicking-an-item
 [model]: ../resources/client/models/index.md
 [randomtick]: #random-ticking
 [registration]: ../concepts/registries.md#methods-for-registering
 [resources]: ../resources/index.md#assets
+[rightclick]: ../items/interactions.md#right-clicking-an-item
 [sounds]: ../resources/client/sounds.md
 [textures]: ../resources/client/textures.md
+[tool]: ../items/tools.md
 [usingblocks]: #using-blocks
 [usingblockstates]: states.md#using-blockstates

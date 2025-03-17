@@ -140,7 +140,7 @@ A `HolderSet` can be created from a `TagKey` via `Registry#getOrThrow`.
 Creating any tool or multitool-like item (i.e. an item that combines two or more tools into one, e.g. an axe and a pickaxe as one item) does not need to extend any of the existing `DiggerItem`s or `SwordItem`. It simply can be implemented using a combination of the following parts:
 
 - Adding a `Tool` with your own rules by setting `DataComponents#TOOL` via `Item.Properties#component`.
-- Adding attributes to the item (e.g. attack damage, attack speed) via `Item.Properties#attributes`.
+- Adding [attribute modifiers][attributemodifier] to the item (e.g. attack damage, attack speed) via `Item.Properties#attributes`.
 - Adding item durability via `Item.Properties#durability`.
 - Allowing the item to be repaired via `Item.Properties#repariable`.
 - Allowing the item to be enchanted via `Item.Properties#enchantable`.

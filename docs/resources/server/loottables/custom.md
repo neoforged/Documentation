@@ -6,7 +6,7 @@ All loot table related registries follow a similar pattern. To add a new registr
 
 ## Custom Loot Entry Types
 
-To create a custom loot entry type, extend `LootPoolEntryContainer` or one of its two direct subclasses, `LootPoolSingletonContainer` or `CompositeEntryBase`. For the sake of example, we want to create a loot entry type that returns the drops of a entity - this is purely for example purposes, in practice it would be more ideal to directly reference the other loot table. Let's start by creating our loot entry type class:
+To create a custom loot entry type, extend `LootPoolEntryContainer` or one of its two direct subclasses, `LootPoolSingletonContainer` or `CompositeEntryBase`. For the sake of example, we want to create a loot entry type that returns the drops of a [entity] - this is purely for example purposes, in practice it would be more ideal to directly reference the other loot table. Let's start by creating our loot entry type class:
 
 ```java
 // We extend LootPoolSingletonContainer since we have a "finite" set of drops.
@@ -295,4 +295,5 @@ public class RandomEnchantmentWithLevelFunction extends LootItemConditionalFunct
 ```
 
 [codec]: ../../../datastorage/codecs.md
+[entity]: ../../../entities/index.md
 [registries]: ../../../concepts/registries.md#methods-for-registering
