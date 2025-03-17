@@ -10,7 +10,7 @@ If you would like to contribute to the docs, read [Contributing to the Docs][con
 
 <div class="container">
     <div class="row">
-        <div class="col col--6" style={{padding: '10px'}}>
+        <div class="col" style={{padding: '10px'}}>
             <Card
                 title="NeoForge Documentation"
                 body="Learn how to create your first mod using NeoForge, and discover the vast APIs it provides."
@@ -18,10 +18,20 @@ If you would like to contribute to the docs, read [Contributing to the Docs][con
                 linkTitle="Get Started"
             />
         </div>
+    </div>
+    <div class="row">
+        <div class="col col--6" style={{padding: '10px'}}>
+            <Card
+                title="ModDevGradle Documentation"
+                body="Learn about the Gradle plugin empowering developers to create mods for NeoForge."
+                link="/moddevgradle/docs/"
+                linkTitle="Read More"
+            />
+        </div>
         <div class="col col--6" style={{padding: '10px'}}>
             <Card
                 title="NeoGradle Documentation"
-                body="Learn about the Gradle plugin empowering developers to create mods for NeoForge and develop NeoForge itself."
+                body="Learn about the Gradle plugin used to develop NeoForge itself."
                 link="/neogradle/docs/"
                 linkTitle="Read More"
             />

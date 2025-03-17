@@ -1,3 +1,6 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 # Resources
 
 Resources are external files that are used by the game, but are not code. The most prominent kinds of resources are textures, however, many other types of resources exist in the Minecraft ecosystem. Of course, all these resources require a consumer on the code side, so the consuming systems are grouped in this section as well.
@@ -176,7 +179,10 @@ The data generator can accept several command line arguments:
 
 All arguments can be added to the run configurations by adding the following to your `build.gradle`:
 
-```groovy
+<Tabs groupId="build-system">
+<TabItem value="moddevgradle" label="ModDevGradle" default>
+
+```gradle
 runs {
     // other run configurations here
 
@@ -186,9 +192,28 @@ runs {
 }
 ```
 
+</TabItem>
+<TabItem value="neogradle" label="NeoGradle">
+
+```gradle
+runs {
+    // other run configurations here
+
+    clientData {
+        arguments.addAll '--arg1', 'value1', '--arg2', 'value2', '--all' // boolean args have no value
+    }
+}
+```
+
+</TabItem>
+</Tabs>
+
 For example, to replicate the default arguments, you could specify the following:
 
-```groovy
+<Tabs groupId="build-system">
+<TabItem value="moddevgradle" label="ModDevGradle" default>
+
+```gradle
 runs {
     // other run configurations here
 
@@ -199,6 +224,24 @@ runs {
     }
 }
 ```
+
+</TabItem>
+<TabItem value="neogradle" label="NeoGradle">
+
+```gradle
+runs {
+    // other run configurations here
+
+    clientData {
+        arguments.addAll '--mod', 'examplemod', // insert your own mod id
+                '--output', file('src/generated/resources').getAbsolutePath(),
+                '--all'
+    }
+}
+```
+
+</TabItem>
+</Tabs>
 
 [advancementprovider]: server/advancements.md#data-generation
 [advancements]: server/advancements.md
