@@ -68,9 +68,25 @@ public static final Supplier<EntityType<MyEntity>> MY_ENTITY = ENTITY_TYPES.regi
     // How often update packets are sent for this entity, in once every x ticks. This is set to higher values
     // for entities that have predictable movement patterns, for example projectiles. Defaults to 3.
     .updateInterval(10)
-    // Build the entity type. The parameter should be the same as the entity id.
-    .build("my_entity")
+    // Build the entity type using a resource key. The second parameter should be the same as the entity id.
+    .build(ResourceKey.create(
+        Registries.ENTITY_TYPE,
+        ResourceLocation.fromNamespaceAndPath("examplemod", "my_entity")
+    ))
 );
+
+// Shorthand version to avoid boilerplate. The following call is the same as
+// ENTITY_TYPES.register("my_entity", () -> EntityType.Builder.of(MyEntity::new, MobCategory.MISC).build(
+//     ResourceKey.create(Registries.ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath("examplemod", "my_entity"))
+// );
+public static final Supplier<EntityType<MyEntity>> MY_ENTITY =
+    ENTITY_TYPES.registerEntityType("my_entity", MyEntity::new, MobCategory.MISC);
+
+// Shorthand version that still allows calling additional builder methods
+// by supplying a UnaryOperator<EntityType.Builder> parameter.
+public static final Supplier<EntityType<MyEntity>> MY_ENTITY = ENTITY_TYPES.registerEntityType(
+    "my_entity", MyEntity::new, MobCategory.MISC,
+    builder -> builder.sized(2.0f, 2.0f).eyeHeight(1.5f).updateInterval(5));
 ```
 
 ### `MobCategory`
