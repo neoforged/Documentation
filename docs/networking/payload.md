@@ -36,7 +36,7 @@ public record MyData(String name, int age) implements CustomPacketPayload {
         ByteBufCodecs.VAR_INT,
         MyData::age,
         MyData::new
-    )
+    );
     
     @Override
     public CustomPacketPayload.Type<? extends CustomPacketPayload> type() {
