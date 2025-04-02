@@ -94,7 +94,7 @@ public ExampleMod(IEventBus modBus) {
 ```
 
 :::info
-There are specialized variants of `DeferredRegister`s for blocks, items, and data components that provide helper methods: [`DeferredRegister.Blocks`][defregblocks], [`DeferredRegister.Items`][defregitems], and [`DeferredRegister.DataComponents`][defregcomp], respectively.
+There are specialized variants of `DeferredRegister`s for blocks, items, and data components that provide helper methods: [`DeferredRegister.Blocks`][defregblocks], [`DeferredRegister.Items`][defregitems], [`DeferredRegister.DataComponents`][defregcomp], and [`DeferredRegister.Entities`][defregentity] respectively.
 :::
 
 ### `RegisterEvent`
@@ -342,6 +342,7 @@ public static void onGatherData(GatherDataEvent.Client event) {
 [datapack]: ../resources/index.md#data
 [defregblocks]: ../blocks/index.md#deferredregisterblocks-helpers
 [defregcomp]: ../items/datacomponents.md#creating-custom-data-components
+[defregentity]: ../entities/index.md#entitytype
 [defregitems]: ../items/index.md#deferredregisteritems
 [event]: events.md
 [item]: ../items/index.md
