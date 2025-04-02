@@ -8,7 +8,7 @@ This section includes information about how to set up a NeoForge workspace, and 
 - An installation of the Java 21 Development Kit (JDK) and 64-bit Java Virtual Machine (JVM). NeoForge recommends and officially supports the [Microsoft builds of OpenJDK][jdk], but any other JDK should work as well.
 
 :::caution
-Make sure you are using a 64-bit JVM. One way of checking is to run `java -version` in a terminal. Issues may arise when using a 32-bit JVM, due to 32-bit JVMs running out of support for a lot of things.
+Make sure you are using a 64-bit JVM. One way of checking is to run `java -version` in a terminal. Minecraft does not support 32-bit JVMs.
 :::
 
 - Familiarity with an Integrated Development Environment (IDE) of your choice.
