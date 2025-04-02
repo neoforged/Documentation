@@ -254,29 +254,29 @@ The following subsections further break down these stages into actual method cal
 - `PlayerInteractEvent.LeftClickBlock` is fired. If the event is canceled, the pipeline moves to the "finishing" stage.
     - Note that when the event is canceled on the client, no packets are sent to the server and thus no logic runs on the server.
     - However, canceling this event on the server will still cause client code to run, which can lead to desyncs!
-- `Block#getDestroyProgress` is called and added to the internal destroy progress counter.
-    - `Block#getDestroyProgress` returns a float value between 0 and 1, representing how much the destroy progress counter should be increased every tick.
+- `BlockBehaviour#getDestroyProgress` is called and added to the internal destroy progress counter.
+    - `BlockBehaviour#getDestroyProgress` returns a float value between 0 and 1, representing how much the destroy progress counter should be increased every tick.
 - The progress overlay (cracking texture) is updated accordingly.
 - If the destroy progress is greater than 1.0 (i.e. completed, i.e. the block should be broken), the "mining" stage is exited and the "actually breaking" stage is entered.
 
 #### The "Actually Breaking" Stage
 
-- `Item#canAttackBlock` is called. If it returns `false` (determining that the block should not be broken), the pipeline moves to the "finishing" stage.
+- `Item#canDestroyBlock` is called. If it returns `false` (determining that the block should not be broken), the pipeline moves to the "finishing" stage.
 - `Player#canUseGameMasterBlocks` is called if the block is an instance of `GameMasterBlock`. This determines whether the player has the ability to destroy creative-only blocks. If `false`, the pipeline moves to the "finishing" stage.
 - Server-only: `Player#blockActionRestricted` is called. This determines whether the current player cannot break the block. If `true`, the pipeline moves to the "finishing" stage.
-- Server-only: `BlockEvent.BreakEvent` is fired. If canceled or `getExpToDrop` returns -1, the pipeline moves to the "finishing" stage. The initial canceled state is determined by the above three methods.
-    - Server-only: `PlayerEvent.HarvestCheck` is fired. If `canHarvest` returns `false` or the `BlockState` passed into the break event is null, then the initial exp for the event will be 0.
-    - Server-only: `IBlockExtension#getExpDrop` is called if `PlayerEvent.HarvestCheck#canHarvest` returns `true`. This value is passed to `BlockEvent.BreakEvent#getExpToDrop` to be used later in the pipeline.
-- Server-only: `IBlockExtension#canHarvestBlock` is called. This determines whether the block can be harvested, i.e. broken with drops.
-- `IBlockExtension#onDestroyedByPlayer` is called. If it returns `false`, the pipeline moves to the "finishing" stage. In that `IBlockExtension#onDestroyedByPlayer` call:
-    - `Block#playerWillDestroy` is called.
-    - The blockstate is removed from the level via a `Level#setBlock` call with `Blocks.AIR.defaultBlockState()` as the blockstate parameter.
+- Server-only: `BlockEvent.BreakEvent` is fired. If canceled, the pipeline moves to the "finishing" stage. The initial canceled state is determined by the above three methods.
+- `Block#playerWillDestroy` is called.
+- Server-only: `IBlockExtension#canHarvestBlock` is called. This determines whether the block can be harvested, i.e. broken with drops. This will be ignored if `Player#preventsBlockDrops` returns true.
+    - Server-only: `PlayerEvent.HarvestCheck` is fired if `IBlockExtension#canHarvestBlock` is not overriden without its super call. If `canHarvest` returns `false`, then `Block#playerDestroy` will not be called, preventing any resources or experience from dropping.
+- `IBlockExtension#onDestroyedByPlayer` is called. If it returns `false`, the pipeline moves to the "finishing" stage.
+    - The blockstate is removed from the level via a `Level#setBlock` call with `Blocks.AIR.defaultBlockState()` or the current logged fluid as the blockstate parameter.
         - In that `Level#setBlock` call, `Block#onRemove` is called.
-- `Block#destroy` is called.
-- Server-only: If the previous call to `IBlockExtension#canHarvestBlock` returned `true`, `Block#playerDestroy` is called.
-    - Server-only: `Block#dropResources` is called. This determines what drops from the block when mined.
-        - Server-only: `BlockDropsEvent` is fired. If the event is canceled, then nothing is dropped when the block breaks. Otherwise, every `ItemEntity` in `BlockDropsEvent#getDrops` is added to the current level.
-- Server-only: `Block#popExperience` is called with the result of the previous `IBlockExtension#getExpDrop` call, if that call returned a value greater than 0.
+    - `Block#destroy` is called if `IBlockExtension#onDestroyedByPlayer` returns `true`.
+- Server-only: If the previous call to `IBlockExtension#canHarvestBlock` and `IBlockExtension#onDestroyedByPlayer` return `true`, then `Block#playerDestroy` is called.
+    - Server-only: `Block#dropResources` is called. This determines what drops from the block when mined, including experience.
+        - Server-only: `BlockDropsEvent` is fired. If the event is canceled, then nothing is dropped when the block breaks. Otherwise, every `ItemEntity` in `BlockDropsEvent#getDrops` is added to the current level. Additionally, `Block#popExperience` is called if `getDroppedExperience` is greater than 0.
+            - Server-only: `IBlockExtension#getExpDrop` is called, augmented by `EnchantmentHelper#processBlockExperience`. This is the initial value set for `BlockDropsEvent#getDroppedExperience` before potentally being modified.
+- Server-only: `PlayerDestroyItemEvent` is fired if the item used to mine the block broke at any point in the above process.
 
 #### Mining Speed
 
@@ -291,9 +291,9 @@ if (destroySpeed > 1) {
     destroySpeed += player.getAttributeValue(Attributes.MINING_EFFICIENCY);
 }
 // Apply effects from haste or conduit power.
-if (player.hasEffect(MobEffects.DIG_SPEED) || player.hasEffect(MobEffects.CONDUIT_POWER)) {
-    int haste = player.hasEffect(MobEffects.DIG_SPEED)
-        ? player.getEffect(MobEffects.DIG_SPEED).getAmplifier()
+if (player.hasEffect(MobEffects.HASTE) || player.hasEffect(MobEffects.CONDUIT_POWER)) {
+    int haste = player.hasEffect(MobEffects.HASTE)
+        ? player.getEffect(MobEffects.HASTE).getAmplifier()
         : 0;
     int conduitPower = player.hasEffect(MobEffects.CONDUIT_POWER)
         ? player.getEffect(MobEffects.CONDUIT_POWER).getAmplifier()
@@ -302,8 +302,8 @@ if (player.hasEffect(MobEffects.DIG_SPEED) || player.hasEffect(MobEffects.CONDUI
     destroySpeed *= 1 + (amplifier + 1) * 0.2f;
 }
 // Apply slowness effect.
-if (player.hasEffect(MobEffects.DIG_SLOWDOWN)) {
-    destroySpeed *= switch (player.getEffect(MobEffects.DIG_SLOWDOWN).getAmplifier()) {
+if (player.hasEffect(MobEffects.MINING_FATIGUE)) {
+    destroySpeed *= switch (player.getEffect(MobEffects.MINING_FATIGUE).getAmplifier()) {
         case 0 -> 0.3F;
         case 1 -> 0.09F;
         case 2 -> 0.0027F;
