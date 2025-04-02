@@ -17,6 +17,7 @@ Here you can find a list of primers on how to port from old versions to the curr
 | 1.21   -> 1.21.1   | [Primer by ChampionAsh5357][121to1211]  |
 | 1.21.1 -> 1.21.2/3 | [Primer by ChampionAsh5357][1211to1212] |
 | 1.21.3 -> 1.21.4   | [Primer by ChampionAsh5357][1213to1214] |
+| 1.21.4 -> 1.21.5   | [Primer by ChampionAsh5357][1214to1215] |
 
 [112to114]: https://gist.github.com/williewillus/353c872bcf1a6ace9921189f6100d09a
 [114to115]: https://gist.github.com/williewillus/30d7e3f775fe93c503bddf054ef3f93e
@@ -31,3 +32,4 @@ Here you can find a list of primers on how to port from old versions to the curr
 [121to1211]: https://github.com/neoforged/.github/blob/main/primers/1.21.1/index.md
 [1211to1212]: https://github.com/neoforged/.github/blob/main/primers/1.21.2/index.md
 [1213to1214]: https://github.com/neoforged/.github/blob/main/primers/1.21.4/index.md
+[1214to1215]: https://github.com/neoforged/.github/blob/main/primers/1.21.5/index.md
