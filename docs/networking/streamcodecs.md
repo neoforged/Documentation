@@ -45,6 +45,7 @@ Unless you are manually handling the buffer object, you will generally never cal
 | `FLOAT`        | `Float`       |
 | `DOUBLE`       | `Double`      |
 | `BYTE_ARRAY`   | `byte[]`\*    |
+| `LONG_ARRAY`   | `long[]`      |
 | `STRING_UTF8`  | `String`\*\*  |
 | `TAG`          | `Tag`         |
 | `COMPOUND_TAG` | `CompoundTag` |
@@ -117,7 +118,7 @@ public static StreamCodec<ByteBuf, ExampleObject> =
 
 ### Composites
 
-Stream codecs can read and write objects via `StreamCodec#composite`. Each composite stream codec defines a list of stream codecs and getters which are read/written in the order they are provided. `composite` has overloads up to eight parameters.
+Stream codecs can read and write objects via `StreamCodec#composite`. Each composite stream codec defines a list of stream codecs and getters which are read/written in the order they are provided. `composite` has overloads up to nine parameters.
 
 Every two parameters in a `composite` represents the stream codec used to read/write the field and a getter to get the field to encode from the object. The final parameter is a function to create a new instance of the object when decoding.
 
