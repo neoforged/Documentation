@@ -48,16 +48,24 @@ There is currently no built-in way to apply a set of custom data packs to every 
 
 Data packs may contain folders with files affecting the following things:
 
-| Folder Name                                                                       | Contents                     |
-|-----------------------------------------------------------------------------------|------------------------------|
-| `advancement`                                                                     | [Advancements][advancements] |
-| `damage_type`                                                                     | [Damage types][damagetypes]  |
-| `loot_table`                                                                      | [Loot tables][loottables]    |
-| `recipe`                                                                          | [Recipes][recipes]           |
-| `tags`                                                                            | [Tags][tags]                 |
-| `neoforge/data_maps`                                                              | [Data maps][datamap]         |
-| `neoforge/loot_modifiers`                                                         | [Global loot modifiers][glm] |
-| `dimension`, `dimension_type`, `structure`, `worldgen`, `neoforge/biome_modifier` | Worldgen files               |
+| Folder Name                                                                                    | Contents                     |
+|------------------------------------------------------------------------------------------------|------------------------------|
+| `advancement`                                                                                  | [Advancements][advancements] |
+| `banner_pattern`                                                                               | Banner patterns              |
+| `cat_variant`, `chicken_variant`, `cow_variant`, `frog_variant`, `pig_variant`, `wolf_variant` | Entity variants              |
+| `damage_type`                                                                                  | [Damage types][damagetypes]  |
+| `enchantment`, `enchantment_provider`                                                          | [Enchantments][enchantment]  |
+| `instrument`, `jukebox_song`, `wolf_sound_variant`                                             | Sound reference metadata     |
+| `painting_variant`                                                                             | Paintings                    |
+| `loot_table`                                                                                   | [Loot tables][loottables]    |
+| `recipe`                                                                                       | [Recipes][recipes]           |
+| `tags`                                                                                         | [Tags][tags]                 |
+| `test_environment`, `test_instance`                                                            | [Game tests][gmt]            |
+| `trial_spawner`                                                                                | Combat challenges            |
+| `trim_material`, `trim_pattern`                                                                | Armor trims                  |
+| `neoforge/data_maps`                                                                           | [Data maps][datamap]         |
+| `neoforge/loot_modifiers`                                                                      | [Global loot modifiers][glm] |
+| `dimension`, `dimension_type`, `structure`, `worldgen`, `neoforge/biome_modifier`              | Worldgen files               |
 
 Additionally, they may also contain subfolders for some systems that integrate with commands. These systems are rarely used in conjunction with mods, but worth mentioning regardless:
 
@@ -110,13 +118,26 @@ All of these providers follow the same pattern. First, you create a subclass and
 
 ```java
 public class MyRecipeProvider extends RecipeProvider {
-    public MyRecipeProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider) {
-        super(output, lookupProvider);
+    public MyRecipeProvider(HolderLookup.Provider registries, RecipeOutput output) {
+        super(registries, output);
     }
 
     @Override
-    protected void buildRecipes(RecipeOutput output) {
+    protected void buildRecipes() {
         // Register your recipes here.
+    }
+
+    // The data provider class
+    public static class Runner extends RecipeProvider.Runner {
+
+        public Runner(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
+            super(output, registries);
+        }
+
+        @Override
+        protected abstract RecipeProvider createRecipeProvider(HolderLookup.Provider registries, RecipeOutput output) {
+            return new MyRecipeProvider(registries, output);
+        }
     }
 }
 
@@ -133,7 +154,7 @@ public class MyDatagenHandler {
         // CompletableFuture<HolderLookup.Provider>.
 
         // Register the provider.
-        event.createProvider(MyRecipeProvider::new);
+        event.createProvider(MyRecipeProvider.Runner::new);
         // Other data providers here.
 
         // If you want to create a datapack within the global pack, you can call
@@ -181,7 +202,7 @@ runs {
     // other run configurations here
 
     clientData {
-        programArguments.addAll '--arg1', 'value1', '--arg2', 'value2', '--all' // boolean args have no value
+        arguments.addAll '--arg1', 'value1', '--arg2', 'value2', '--all' // boolean args have no value
     }
 }
 ```
@@ -193,7 +214,7 @@ runs {
     // other run configurations here
 
     clientData {
-        programArguments.addAll '--mod', 'examplemod', // insert your own mod id
+        arguments.addAll '--mod', 'examplemod', // insert your own mod id
                 '--output', file('src/generated/resources').getAbsolutePath(),
                 '--all'
     }
@@ -211,12 +232,14 @@ runs {
 [datamapprovider]: server/datamaps/index.md#data-generation
 [datapackcmd]: https://minecraft.wiki/w/Commands/datapack
 [datapackprovider]: ../concepts/registries.md#data-generation-for-datapack-registries
+[enchantment]: server/enchantments/index.md
 [equipment]: ../items/armor.md#equipment-models
 [event]: ../concepts/events.md
 [eventhandler]: ../concepts/events.md#registering-an-event-handler
 [function]: https://minecraft.wiki/w/Function_(Java_Edition)
 [glm]: server/loottables/glm.md
 [glmprovider]: server/loottables/glm.md#datagen
+[gmt]: ../misc/gametest.md
 [itemmodifier]: https://minecraft.wiki/w/Item_modifier
 [langprovider]: client/i18n.md#datagen
 [lifecycle]: ../concepts/events.md#the-mod-lifecycle
