@@ -708,7 +708,7 @@ To datagen optional entries for biome tags, the datagen code would look somethin
 protected void addTags(HolderLookup.Provider registries) {
     this.tag(OPTIONAL_BIOMES_TAG)
         // Must be a ResourceLocation representing the registry object
-        .addOptional(WinterDropBiomes.PALE_GARDEN.location());
+        .addOptional(Biomes.PALE_GARDEN.location());
 }
 ```
 
