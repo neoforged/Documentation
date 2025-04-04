@@ -156,6 +156,10 @@ public class MyBlockEntity extends BaseContainerBlockEntity {
 
 Keep in mind that this class is a `BlockEntity` and a `Container` at the same time. This means that you can use the class as a supertype for your block entity to get a functioning block entity with a pre-implemented container.
 
+:::note
+`BlockEntity`s that implement `Container` handle dropping its contents by default. If you choose not to implement `Container`, then you will need to handle the [removal logic][beremove].
+:::
+
 ### `WorldlyContainer`
 
 `WorldlyContainer` is a sub-interface of `Container` that allows accessing slots of the given `Container` by `Direction`. It is mainly intended for block entities that only expose parts of their container to a particular side. For example, this could be used by a machine that outputs to one side and takes inputs from all other sides, or vice-versa. A simple implementation of the interface could look like this:
@@ -303,6 +307,7 @@ The inventory contents are stored in three `public final NonNullList<ItemStack>`
 
 When iterating over the inventory contents, it is recommended to iterate over `items`, then over `armor` and then over `offhand`, to be consistent with vanilla behavior.
 
+[beremove]: index.md#removing-block-entities
 [block]: ../blocks/index.md
 [blockentity]: index.md
 [component]: ../resources/client/i18n.md#components
