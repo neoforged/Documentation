@@ -54,7 +54,7 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
             new BlockModelWrapper.Unbaked(
                 // Points to a model JSON relative to the 'models' directory
                 // Located at 'assets/examplemod/models/item/example_item.json'
-                ModelUtils.getModelLocation(EXAMPLE_ITEM.get()),
+                ModelLocationUtils.getModelLocation(EXAMPLE_ITEM.get()),
                 Collections.emptyList()
             ),
             // Defines some settings to use during the rendering process
@@ -107,7 +107,7 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
         new BlockModelWrapper.Unbaked(
             // Points to a model JSON relative to the 'models' directory
             // Located at 'assets/examplemod/models/item/example_item.json'
-            ModelUtils.getModelLocation(EXAMPLE_ITEM.get()),
+            ModelLocationUtils.getModelLocation(EXAMPLE_ITEM.get()),
             Collections.emptyList()
         )
     );
@@ -165,7 +165,7 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
         EXAMPLE_ITEM.get(),
         new BlockModelWrapper.Unbaked(
             // Points to 'assets/examplemod/models/item/example_item.json'
-            ModelUtils.getModelLocation(EXAMPLE_ITEM.get()),
+            ModelLocationUtils.getModelLocation(EXAMPLE_ITEM.get()),
             // A list of tints to apply
             List.of(
                 // For when tintindex: 0
@@ -262,7 +262,7 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
         EXAMPLE_ITEM.get(),
         new BlockModelWrapper.Unbaked(
             // Points to 'assets/examplemod/models/item/example_item.json'
-            ModelUtils.getModelLocation(EXAMPLE_ITEM.get()),
+            ModelLocationUtils.getModelLocation(EXAMPLE_ITEM.get()),
             // A list of tints to apply
             List.of(
                 // For when tintindex: 0
@@ -457,7 +457,7 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
             Optional.of(
                 new BlockModelWrapper.Unbaked(
                     // Points to 'assets/examplemod/models/item/example_item.json'
-                    ModelUtils.getModelLocation(EXAMPLE_ITEM.get()),
+                    ModelLocationUtils.getModelLocation(EXAMPLE_ITEM.get()),
                     // A list of tints to apply
                     Collections.emptyList()
                 )
@@ -597,7 +597,7 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
             Optional.of(
                 new BlockModelWrapper.Unbaked(
                     // Points to 'assets/examplemod/models/item/example_item.json'
-                    ModelUtils.getModelLocation(EXAMPLE_ITEM.get()),
+                    ModelLocationUtils.getModelLocation(EXAMPLE_ITEM.get()),
                     // A list of tints to apply
                     Collections.emptyList()
                 )
@@ -705,7 +705,7 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
             Optional.of(
                 new BlockModelWrapper.Unbaked(
                     // Points to 'assets/examplemod/models/item/example_item.json'
-                    ModelUtils.getModelLocation(EXAMPLE_ITEM.get()),
+                    ModelLocationUtils.getModelLocation(EXAMPLE_ITEM.get()),
                     // A list of tints to apply
                     Collections.emptyList()
                 )
@@ -849,7 +849,7 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
             Optional.of(
                 new BlockModelWrapper.Unbaked(
                     // Points to 'assets/examplemod/models/item/example_item.json'
-                    ModelUtils.getModelLocation(EXAMPLE_ITEM.get()),
+                    ModelLocationUtils.getModelLocation(EXAMPLE_ITEM.get()),
                     // A list of tints to apply
                     Collections.emptyList()
                 )
@@ -1477,7 +1477,7 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
         EXAMPLE_ITEM.get(),
         new RenderTypeModelWrapper.Unbaked(
             // Points to 'assets/examplemod/models/item/example_item.json'
-            ModelUtils.getModelLocation(EXAMPLE_ITEM.get()),
+            ModelLocationUtils.getModelLocation(EXAMPLE_ITEM.get()),
             // Set the render type to use when rendering
             Sheets.cutoutBlockSheet()
         )
