@@ -23,7 +23,7 @@ Tools are almost completely implemented through seven [data components][datacomp
 
 - `DataComponents#MAX_DAMAGE` and `#DAMAGE` for durability
 - `#MAX_STACK_SIZE` to set the stack size to `1`
-- `#REPAIRABLE` for reepairing a tool in an anvil
+- `#REPAIRABLE` for repairing a tool in an anvil
 - `#ENCHANTABLE` for the maximum [enchanting][enchantment] value
 - `#ATTRIBUTE_MODIFIERS` for attack damage and attack speed
 - `#TOOL` for mining information
