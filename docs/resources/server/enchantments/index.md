@@ -97,7 +97,7 @@ A new enchantment can be added by creating a JSON file in your namespace's `ench
 
 The `max_cost` and `min_cost` fields specify boundaries for how much enchanting power is needed to create this enchantment. There is a somewhat convoluted procedure to actually make use of these values, however.
 
-First, the table takes into account the return value of `IBlockExtension#getEnchantPowerBonus()` for the surrounding blocks. From this, it calls `EnchantmentHelper#getEnchantmentCost` to derive a 'base level' for each slot. This level is shown in-game as the green numbers besides the enchantments in the menu. For each enchantment, the base level is modified twice by a random value derived from the item's enchantability (its return value from `IItemExtension#getEnchantmentValue()`), like so:
+First, the table takes into account the return value of `IBlockExtension#getEnchantPowerBonus()` for the surrounding blocks. From this, it calls `EnchantmentHelper#getEnchantmentCost` to derive a 'base level' for each slot. This level is shown in-game as the green numbers besides the enchantments in the menu. For each enchantment, the base level is modified twice by a random value derived from the item's enchantability (its return value extracted from the `DataComponents#ENCHANTABLE` data component via `Enchantable#value`), like so:
 
 `(Modified Level) = (Base Level) + random.nextInt(e / 4 + 1) + random.nextInt(e / 4 + 1)`, where `e` is the enchantability score.
 
@@ -244,10 +244,10 @@ BUILDER.add(
                 3, 
 
                 // The minimum cost of the enchantment. The first parameter is base cost, the second is cost per level.
-                new Enchantment.Cost(3, 1), 
+                Enchantment.dynamicCost(3, 1), 
 
                 // The maximum cost of the enchantment. As above.
-                new Enchantment.Cost(4, 2), 
+                Enchantment.dynamicCost(4, 2), 
 
                 // The anvil cost of the enchantment.
                 2, 
