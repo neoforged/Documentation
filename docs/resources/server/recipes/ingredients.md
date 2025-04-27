@@ -79,7 +79,7 @@ public class MinEnchantedIngredient implements ICustomIngredient {
     //   If not, this should be as exact as possible, but doesn't need to be super accurate.
     // In our case, we use all items in the tag.
     @Override
-    public Stream<Holder<Item>> getItems() {
+    public Stream<Holder<Item>> items() {
         return BuiltInRegistries.ITEM.getOrThrow(tag).stream();
     }
 }

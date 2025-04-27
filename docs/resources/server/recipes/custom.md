@@ -182,7 +182,7 @@ These are the available slot displays provided by Vanilla and NeoForge:
 - `SlotDisplay.WithRemainder`: A slot that represents some input that has some crafting remainder.
 - `SlotDisplay.AnyFuel`: A slot that represents all fuel items.
 - `SlotDisplay.Composite`: A slot that represents a combination of other slot displays.
-- `SlotDisplay.SmithingTrimDemoSlotDisplay`: A slot that represents a random smithing drim being applied to some base with the given material.
+- `SlotDisplay.SmithingTrimDemoSlotDisplay`: A slot that represents a random smithing trim being applied to some base with the given material.
 - `FluidSlotDisplay`: A slot that represents a fluid.
 - `FluidStackSlotDisplay`: A slot that represents a fluid stack.
 - `FluidTagSlotDisplay`: A slot that represents a fluid tag.
