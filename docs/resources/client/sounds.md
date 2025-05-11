@@ -210,18 +210,22 @@ Minecraft offers various methods to play sounds, and it is sometimes unclear whi
 
 ### `Level`
 
-- `playSeededSound(Player player, double x, double y, double z, Holder<SoundEvent> soundEvent, SoundSource soundSource, float volume, float pitch, long seed)`
+- `playSeededSound(Entity entity, double x, double y, double z, Holder<SoundEvent> soundEvent, SoundSource soundSource, float volume, float pitch, long seed)`
     - Client behavior: If the player passed in is the local player, play the sound event to the player at the given location, otherwise no-op.
     - Server behavior: A packet instructing the client to play the sound event to the player at the given location is sent to all players except the one passed in.
     - Usage: Call from client-initiated code that will run on both sides. The server not playing it to the initiating player prevents playing the sound event twice to them. Alternatively, call from server-initiated code (e.g. a [block entity][be]) with a `null` player to play the sound to everyone.
-- `playSound(Player player, double x, double y, double z, SoundEvent soundEvent, SoundSource soundSource, float volume, float pitch)`
+- `playSound(Entity entity, double x, double y, double z, SoundEvent soundEvent, SoundSource soundSource, float volume, float pitch)`
     - Forwards to `playSeededSound` with a random seed selected and the holder wrapped around the `SoundEvent`
-- `playSound(Player player, BlockPos pos, SoundEvent soundEvent, SoundSource soundSource, float volume, float pitch)`
+- `playSound(Entity entity, BlockPos pos, SoundEvent soundEvent, SoundSource soundSource, float volume, float pitch)`
     - Forwards to the above method with `x`, `y` and `z` taking the values of `pos.getX() + 0.5`, `pos.getY() + 0.5` and `pos.getZ() + 0.5`, respectively.
 - `playLocalSound(double x, double y, double z, SoundEvent soundEvent, SoundSource soundSource, float volume, float pitch, boolean distanceDelay)`
     - Client behavior: Plays the sound to the player at the given location. Does not send anything to the server. If `distanceDelay` is `true`, delays the sound based on the distance to the player.
     - Server behavior: No-op.
     - Usage: Called from custom packets sent from the server. Vanilla uses this for thunder sounds.
+- `playPlayerSound(SoundEvent soundEvent, SoundSource soundSource, float volume, float pitch)`
+    - Client behavior: Plays the sound that is bound to the player's location. Does not send anything to the server.
+    - Server behavior: No-op.
+    - Usage: Vanilla uses this for ambient block sounds.
 
 ### `ClientLevel`
 
