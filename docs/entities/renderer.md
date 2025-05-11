@@ -318,6 +318,7 @@ public class MyEntityRenderer extends LivingEntityRenderer<MyEntity, MyEntityRen
         this.addLayer(new MyRenderLayer(this, context.getModelSet()));
     }
 
+    @Override
     public MyEntityRenderState createRenderState() {
         return new MyEntityRenderState();
     }
@@ -414,6 +415,7 @@ public class MyEntityRenderer extends LivingEntityRenderer<MyEntity, MyEntityRen
         this.addLayer(new MyRenderLayer(this, context.getModelSet()));
     }
 
+    @Override
     public MyEntityRenderState createRenderState() {
         return new MyEntityRenderState();
     }
@@ -546,7 +548,7 @@ public class MyEntityModel extends EntityModel<MyEntityRenderState> {
         super.setupAnim(state);
         // Other stuff here.
         
-        animate(
+        this.animate(
             // Get the animation state to use from your EntityRenderState.
             state.myAnimationState,
             // Your animation holder.
@@ -555,9 +557,9 @@ public class MyEntityModel extends EntityModel<MyEntityRenderState> {
             state.ageInTicks
         );
         // A specialized version of animate(), designed for walking animations.
-        animateWalk(EXAMPLE_ANIMATION, state.walkAnimationPos, state.walkAnimationSpeed, 1, 1);
+        this.animateWalk(EXAMPLE_ANIMATION, state.walkAnimationPos, state.walkAnimationSpeed, 1, 1);
         // A version of animate() that only applies the first frame of animation.
-        applyStatic(EXAMPLE_ANIMATION).
+        this.applyStatic(EXAMPLE_ANIMATION).
     }
 }
 ```
