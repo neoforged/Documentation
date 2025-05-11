@@ -11,9 +11,7 @@ Armors are [items][item] whose primary use is to protect a [`LivingEntity`][livi
 
 ## Custom Armor Sets
 
-An armor set for a humanoid entity typically consists of four items: a helmet for the head, a chestplate for the chest, leggings for the legs, and boots for the feet. There is also armor for wolves, horses, and llamas that are applied to a 'body' armor slot specifically for animals. All of these items are generally implemented through `ArmorItem` and `AnimalArmorItem`, respectively.
-
-Armors are almost completely implemented through seven [data components][datacomponents]: 
+An armor set for a humanoid entity typically consists of four items: a helmet for the head, a chestplate for the chest, leggings for the legs, and boots for the feet. There is also armor for wolves, horses, and llamas that are applied to a 'body' armor slot specifically for animals. All of these items are generally implemented through seven [data components][datacomponents]: 
 
 - `DataComponents#MAX_DAMAGE` and `#DAMAGE` for durability
 - `#MAX_STACK_SIZE` to set the stack size to `1`
@@ -22,7 +20,7 @@ Armors are almost completely implemented through seven [data components][datacom
 - `#ATTRIBUTE_MODIFIERS` for armor, armor toughness, and knockback resistance
 - `#EQUIPPABLE` for how the entity can equip the item.
 
-`ArmorItem` and `AnimalArmorItem` use `ArmorMaterial` combined with `ArmorType` or `AnimalArmorItem.BodyType` respectively to set up the components. Reference values can be found within `ArmorMaterials`. This example uses a copper armor material, which you can adjust the values as needed.
+Commonly, each armor is setup using `Item.Properties#humanoidArmor` for humanoid entities, `wolfArmor` for wolves, and `horseArmor` for horses. They all use `ArmorMaterial` combined with `ArmorType` for humanoids to set up the components. Reference values can be found within `ArmorMaterials`. This example uses a copper armor material, which you can adjust the values as needed.
 
 ```java
 public static final ArmorMaterial COPPER_ARMOR_MATERIAL = new ArmorMaterial(
@@ -67,46 +65,42 @@ public static final ArmorMaterial COPPER_ARMOR_MATERIAL = new ArmorMaterial(
 );
 ```
 
-Now that we have our `ArmorMaterial`, we can use it for [registering] armor. `ArmorItem` takes in the `ArmorMaterial` and the `ArmorType` representing where the item can be equipped. `AnimalArmorItem`, on the other hand takes in the `ArmorMaterial` and the `AnimalArmorItem.BodyType`. It also can optionally take in the an equip sound and whether to apply the durability and repairable components.
+Now that we have our `ArmorMaterial`, we can use it for [registering] armor:
 
 ```java
 // ITEMS is a DeferredRegister.Items
-public static final DeferredItem<ArmorItem> COPPER_HELMET = ITEMS.registerItem(
+public static final DeferredItem<Item> COPPER_HELMET = ITEMS.registerItem(
     "copper_helmet",
-    props -> new ArmorItem(
-        // The material to use.
-        COPPER_ARMOR_MATERIAL,
-        // The type of armor to create.
-        ArmorType.HELMET,
-        // The item properties.
-        props
+    props -> new Item(
+        props.humanoidArmor(
+            // The material to use.
+            COPPER_ARMOR_MATERIAL,
+            // The type of armor to create.
+            ArmorType.HELMET
+        )
     )
 );
 
-public static final DeferredItem<ArmorItem> COPPER_CHESTPLATE =
-    ITEMS.registerItem("copper_chestplate", props -> new ArmorItem(...));
-public static final DeferredItem<ArmorItem> COPPER_LEGGINGS =
-    ITEMS.registerItem("copper_chestplate", props -> new ArmorItem(...));
-public static final DeferredItem<ArmorItem> COPPER_BOOTS =
-    ITEMS.registerItem("copper_chestplate", props -> new ArmorItem(...));
+public static final DeferredItem<Item> COPPER_CHESTPLATE =
+    ITEMS.registerItem("copper_chestplate", props -> new Item(props.humanoidArmor(...)));
+public static final DeferredItem<Item> COPPER_LEGGINGS =
+    ITEMS.registerItem("copper_chestplate", props -> new Item(props.humanoidArmor(...)));
+public static final DeferredItem<Item> COPPER_BOOTS =
+    ITEMS.registerItem("copper_chestplate", props -> new Item(props.humanoidArmor(...)));
 
-public static final DeferredItem<AnimalArmorItem> COPPER_WOLF_ARMOR = ITEMS.registerItem(
+public static final DeferredItem<Item> COPPER_WOLF_ARMOR = ITEMS.registerItem(
     "copper_wolf_armor",
-    props -> new AnimalArmorItem(
+    props -> new Item(
         // The material to use.
-        COPPER_ARMOR_MATERIAL,
-        // The body type the armor can be worn by.
-        AnimalArmorItem.BodyType.CANINE,
-        // The item properties.
-        props
+        props.wolfArmor(COPPER_ARMOR_MATERIAL)
     )
 );
 
-public static final DeferredItem<AnimalArmorItem> COPPER_HORSE_ARMOR =
-    ITEMS.registerItem("copper_horse_armor", props -> new AnimalArmorItem(...));
+public static final DeferredItem<Item> COPPER_HORSE_ARMOR =
+    ITEMS.registerItem("copper_horse_armor", props -> new Item(props.horseArmor(...)));
 ```
 
-Now, creating armor or an armor-like item does not need to extend `ArmorItem` or `AnimalArmorItem`. It simply can be implemented using a combination of the following parts:
+If you want to create armor or an armor-like item from scratch, it can be implemented using a combination of the following parts:
 
 - Adding a `Equippable` with your own requirements by setting `DataComponents#EQUIPPABLE` via `Item.Properties#component`.
 - Adding attributes to the item (e.g. armor, toughness, knockback) via `Item.Properties#attributes`.
@@ -117,7 +111,7 @@ Now, creating armor or an armor-like item does not need to extend `ArmorItem` or
 
 ### `Equippable`
 
-`Equippable` is a data component that contains how an entity can equip this item and what handles the rendering in game. This allows any item, regardless of whether it is considered 'armor', to be equipped if this component is available (for example carpets on llamas). Each item with this component can only be equipped to a single `EquipmentSlot`.
+`Equippable` is a data component that contains how an entity can equip this item and what handles the rendering in game. This allows any item, regardless of whether it is considered 'armor', to be equipped if this component is available (for example saddles or carpets on llamas). Each item with this component can only be equipped to a single `EquipmentSlot`.
 
 An `Equippable` can be created either by directly calling the record constructor or via `Equippable#builder`, which sets the defaults for each field, folowed by `build` once finished:
 
@@ -125,7 +119,7 @@ An `Equippable` can be created either by directly calling the record constructor
 // Assume there is some DeferredRegister.Items ITEMS
 public static final DeferredItem<Item> EQUIPPABLE = ITEMS.registerSimpleItem(
     "equippable",
-    new Item.Properties().copmonent(
+    new Item.Properties().component(
         DataComponents.EQUIPPABLE,
         // Sets the slot that this item can be equipped to.
         Equippable.builder(EquipmentSlot.HELMET)
@@ -154,6 +148,9 @@ public static final DeferredItem<Item> EQUIPPABLE = ITEMS.registerSimpleItem(
             // Must also be a damageable item.
             // Defaults to true.
             .setDamageOnHurt(false)
+            // Whether the item can be equipped onto another entity on interaction (e.g., right click).
+            // Defaults to false.
+            .setEquipOnInteract(true)
             .build()
     )
 );
@@ -193,12 +190,12 @@ Let's create an equipment info for the copper armor material. We'll also assume 
             // A list of layers to render in the order provided
             {
                 // The relative texture of the armor
-                // Points to assets/examplemod/textures/entity/equipment/copper/outer.png
+                // Points to assets/examplemod/textures/entity/equipment/humanoid/copper/outer.png
                 "texture": "examplemod:copper/outer"
             },
             {
                 // The overlay texture
-                // Points to assets/examplemod/textures/entity/equipment/copper/outer_overlay.png
+                // Points to assets/examplemod/textures/entity/equipment/humanoid/copper/outer_overlay.png
                 "texture": "examplemod:copper/outer_overlay",
                 // When specified, allows the texture to be tinted the color in DataComponents#DYED_COLOR
                 // Otherwise, cannot be tinted
@@ -213,11 +210,11 @@ Let's create an equipment info for the copper armor material. We'll also assume 
         // For humanoid legs
         "humanoid_leggings": [
             {
-                // Points to assets/examplemod/textures/entity/equipment/copper/inner.png
+                // Points to assets/examplemod/textures/entity/equipment/humanoid_leggings/copper/inner.png
                 "texture": "examplemod:copper/inner"
             },
             {
-                // Points to assets/examplemod/textures/entity/equipment/copper/inner_overlay.png
+                // Points to assets/examplemod/textures/entity/equipment/humanoid_leggings/copper/inner_overlay.png
                 "texture": "examplemod:copper/inner_overlay",
                 "dyeable": {
                     "color_when_undyed": 7767006
@@ -227,7 +224,7 @@ Let's create an equipment info for the copper armor material. We'll also assume 
         // For wolf armor
         "wolf_body": [
             {
-                // Points to assets/examplemod/textures/entity/equipment/copper/wolf.png
+                // Points to assets/examplemod/textures/entity/equipment/wolf_body/copper/wolf.png
                 "texture": "examplemod:copper/wolf",
                 // When true, uses the texture passed into the layer renderer instead
                 "use_player_texture": true
@@ -236,7 +233,7 @@ Let's create an equipment info for the copper armor material. We'll also assume 
         // For horse armor
         "horse_body": [
             {
-                // Points to assets/examplemod/textures/entity/equipment/copper/horse.png
+                // Points to assets/examplemod/textures/entity/equipment/horse_body/copper/horse.png
                 "texture": "examplemod:copper/horse",
                 "use_player_texture": true
             }
@@ -269,7 +266,7 @@ public class MyEquipmentInfoProvider implements DataProvider {
                     // Base texture
                     new EquipmentClientInfo.Layer(
                         // The relative texture of the armor
-                        // Points to assets/examplemod/textures/entity/equipment/copper/outer.png
+                        // Points to assets/examplemod/textures/entity/equipment/humanoid/copper/outer.png
                         ResourceLocation.fromNamespaceAndPath("examplemod", "copper/outer"),
                         Optional.empty(),
                         false
@@ -277,7 +274,7 @@ public class MyEquipmentInfoProvider implements DataProvider {
                     // Overlay texture
                     new EquipmentClientInfo.Layer(
                         // The overlay texture
-                        // Points to assets/examplemod/textures/entity/equipment/copper/outer_overlay.png
+                        // Points to assets/examplemod/textures/entity/equipment/humanoid/copper/outer_overlay.png
                         ResourceLocation.fromNamespaceAndPath("examplemod", "copper/outer_overlay"),
                         // An RGB value (always opaque color)
                         // When not specified, set to 0 (meaning transparent or invisible)
@@ -289,13 +286,13 @@ public class MyEquipmentInfoProvider implements DataProvider {
                 .addLayers(
                     EquipmentClientInfo.LayerType.HUMANOID_LEGGINGS,
                     new EquipmentClientInfo.Layer(
-                        // Points to assets/examplemod/textures/entity/equipment/copper/inner.png
+                        // Points to assets/examplemod/textures/entity/equipment/humanoid_leggings/copper/inner.png
                         ResourceLocation.fromNamespaceAndPath("examplemod", "copper/inner"),
                         Optional.empty(),
                         false
                     ),
                     new EquipmentClientInfo.Layer(
-                        // Points to assets/examplemod/textures/entity/equipment/copper/inner_overlay.png
+                        // Points to assets/examplemod/textures/entity/equipment/humanoid_leggings/copper/inner_overlay.png
                         ResourceLocation.fromNamespaceAndPath("examplemod", "copper/inner_overlay"),
                         Optional.of(new EquipmentClientInfo.Dyeable(Optional.of(0x7683DE))),
                         false
@@ -306,7 +303,7 @@ public class MyEquipmentInfoProvider implements DataProvider {
                     EquipmentClientInfo.LayerType.WOLF_BODY,
                     // Base texture
                     new EquipmentClientInfo.Layer(
-                        // Points to assets/examplemod/textures/entity/equipment/copper/wolf.png
+                        // Points to assets/examplemod/textures/entity/equipment/wolf_body/copper/wolf.png
                         ResourceLocation.fromNamespaceAndPath("examplemod", "copper/wolf"),
                         Optional.empty(),
                         // When true, uses the texture passed into the layer renderer instead
@@ -318,7 +315,7 @@ public class MyEquipmentInfoProvider implements DataProvider {
                     EquipmentClientInfo.LayerType.HORSE_BODY,
                     // Base texture
                     new EquipmentClientInfo.Layer(
-                        // Points to assets/examplemod/textures/entity/equipment/copper/horse.png
+                        // Points to assets/examplemod/textures/entity/equipment/horse_body/copper/horse.png
                         ResourceLocation.fromNamespaceAndPath("examplemod", "copper/horse"),
                         Optional.empty(),
                         true
@@ -361,14 +358,22 @@ The equipment infos are rendered via the `EquipmentLayerRenderer` in the render 
 
 By default, the following layers render the associated `EquipmentClientInfo.LayerType`:
 
-| `LayerType`         | `RenderLayer`        | Used by                                                        |
-|:-------------------:|:--------------------:|:---------------------------------------------------------------|
-| `HUMANOID`          | `HumanoidArmorLayer` | Player, humanoid mobs (e.g., zombies, skeletons), armor stands |
-| `HUMANOID_LEGGINGS` | `HumanoidArmorLayer` | Player, humanoid mobs (e.g., zombies, skeletons), armor stands |
-| `WINGS`             | `WingsLayer`         | Player, humanoid mobs (e.g., zombies, skeletons), armor stands |
-| `WOLF_BODY`         | `WolfArmorLayer`     | Wolf                                                           |
-| `HORSE_BODY`        | `HorseArmorLayer`    | Horse                                                          |
-| `LLAMA_BODY`        | `LlamaDecorLayer`    | Llama, trader llama                                            |
+| `LayerType`             | `RenderLayer`          | Used by                                                        |
+|:-----------------------:|:----------------------:|:---------------------------------------------------------------|
+| `HUMANOID`              | `HumanoidArmorLayer`   | Player, humanoid mobs (e.g., zombies, skeletons), armor stands |
+| `HUMANOID_LEGGINGS`     | `HumanoidArmorLayer`   | Player, humanoid mobs (e.g., zombies, skeletons), armor stands |
+| `WINGS`                 | `WingsLayer`           | Player, humanoid mobs (e.g., zombies, skeletons), armor stands |
+| `WOLF_BODY`             | `WolfArmorLayer`       | Wolf                                                           |
+| `HORSE_BODY`            | `HorseArmorLayer`      | Horse                                                          |
+| `LLAMA_BODY`            | `LlamaDecorLayer`      | Llama, trader llama                                            |
+| `PIG_SADDLE`            | `SimpleEquipmentLayer` | Pig                                                            |
+| `STRIDER_SADDLE`        | `SimpleEquipmentLayer` | Strider                                                        |
+| `CAMEL_SADDLE`          | `SimpleEquipmentLayer` | Camel                                                          |
+| `HORSE_SADDLE`          | `SimpleEquipmentLayer` | Horse                                                          |
+| `DONKEY_SADDLE`         | `SimpleEquipmentLayer` | Donkey                                                         |
+| `MULE_SADDLE`           | `SimpleEquipmentLayer` | Mule                                                           |
+| `ZOMBIE_HORSE_SADDLE`   | `SimpleEquipmentLayer` | Zombie Horse                                                   |
+| `SKELETON_HORSE_SADDLE` | `SimpleEquipmentLayer` | Skeleton Horse                                                 |
 
 `EquipmentLayerRenderer` has only one method to render the equipment layers, aptly named `renderLayers`:
 

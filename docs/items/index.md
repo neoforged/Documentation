@@ -28,7 +28,7 @@ Like with basic blocks, for basic items that need no special functionality (thin
 - `durability` - Sets the durability (via `DataComponents#MAX_DAMAGE`) of this item and the initial damage to 0 (via `DataComponents#DAMAGE`). Defaults to 0, which means "no durability". For example, iron tools use 250 here. Note that setting the durability automatically locks the max stack size to 1.
 - `fireResistant` - Makes item entities that use this item immune to fire and lava (via `DataComponents#FIRE_RESISTANT`). Used by various netherite items.
 - `rarity` - Sets the rarity of this item (via `DataComponents#RARITY`). Currently, this simply changes the item's color. `Rarity` is an enum consisting of the four values `COMMON` (white, default), `UNCOMMON` (yellow), `RARE` (aqua) and `EPIC` (light purple). Be aware that mods may add more rarity types.
-- `setNoRepair` - Disables anvil and crafting grid repairing for this item. Unused in vanilla.
+- `setNoCombineRepair` - Disables grindstone and crafting grid repairing for this item. Unused in vanilla.
 - `jukeboxPlayable` - Sets the resource key of the datapack `JukeboxSong` to play when inserted into a jukebox.
 - `food` - Sets the [`FoodProperties`][food] of this item (via `DataComponents#FOOD`).
 
