@@ -408,11 +408,12 @@ When rendering the label, you do **not** need to specify the `leftPos` and `topP
 
 ## Registering an AbstractContainerScreen
 
-To use an `AbstractContainerScreen` with a menu, it needs to be registered. This can be done by calling `register` within the `RegisterMenuScreensEvent` on the [**mod event bus**][modbus].
+To use an `AbstractContainerScreen` with a menu, it needs to be registered. This can be done by calling `register` within the `RegisterMenuScreensEvent` on the [**mod event bus**][modbus], for example in the `ClientModEvents` class.
 
 ```java
 // Event is listened to on the mod event bus
-private void registerScreens(RegisterMenuScreensEvent event) {
+@SubscribeEvent
+public static void registerScreens(RegisterMenuScreensEvent event) {
     event.register(MY_MENU.get(), MyContainerScreen::new);
 }
 ```
