@@ -32,15 +32,15 @@ In any case, the attachment **must be registered** to the `NeoForgeRegistries.AT
 private static final DeferredRegister<AttachmentType<?>> ATTACHMENT_TYPES = DeferredRegister.create(NeoForgeRegistries.ATTACHMENT_TYPES, MOD_ID);
 
 // Serialization via INBTSerializable
-private static final Supplier<AttachmentType<ItemStackHandler>> HANDLER = ATTACHMENT_TYPES.register(
+public static final Supplier<AttachmentType<ItemStackHandler>> HANDLER = ATTACHMENT_TYPES.register(
     "handler", () -> AttachmentType.serializable(() -> new ItemStackHandler(1)).build()
 );
 // Serialization via codec
-private static final Supplier<AttachmentType<Integer>> MANA = ATTACHMENT_TYPES.register(
+public static final Supplier<AttachmentType<Integer>> MANA = ATTACHMENT_TYPES.register(
     "mana", () -> AttachmentType.builder(() -> 0).serialize(Codec.INT).build()
 );
 // No serialization
-private static final Supplier<AttachmentType<SomeCache>> SOME_CACHE = ATTACHMENT_TYPES.register(
+public static final Supplier<AttachmentType<SomeCache>> SOME_CACHE = ATTACHMENT_TYPES.register(
     "some_cache", () -> AttachmentType.builder(() -> new SomeCache()).build()
 );
 
