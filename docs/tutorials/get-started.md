@@ -1,3 +1,0 @@
----
-sidebar-position: 1
----
