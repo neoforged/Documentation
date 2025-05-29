@@ -54,3 +54,22 @@ public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
 :::danger
 Note that all ArgumentTypes are abstract and you need to use child, as `string()` in this example.
 :::
+### Suggestion
+You can suggest (implement auto-completion) things with method `suggest(SuggestionProvider)` just after a `.then` expression.
+A `SuggestionPovider` take this form:
+```java
+// A list of suggestion
+private static final List<String> ACTIONS = List.of("add", "sub", "set");
+
+private static final SuggestionProvider<CommandSourceStack> ACTION_SUGGESTIONS = (context, builder) ->
+    SharedSuggestionProvider.suggest(ACTIONS, builder); // We use ACTIONS list
+```
+:::note
+Users aren't obliged to use suggestions. If you want to error when gived argument doesn't match with suggestion, you can do in the execute statement:
+```java
+if(!ACTIONS.contains(arg)) { // Arg is already declared
+    context.getSource().sendFailure(Component.literal("Invalid action (add/sub/set)")); // As return send_succes method, but it send failure (red message)
+    return 0; // Ensure to stop the function
+}
+```
+:::
