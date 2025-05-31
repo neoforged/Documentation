@@ -1,46 +1,608 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 # Game Tests
 
-Game Tests are a way to run in-game unit tests. The system was designed to be scalable and in parallel to run large numbers of different tests efficiently. Testing object interactions and behaviors are simply a few of the many applications of this framework.
+Game Tests are a way to run in-game unit tests. The system was designed to be scalable and in parallel to run large numbers of different tests efficiently. Testing object interactions and behaviors are simply a few of the many applications of this framework. While part of the system is implemented via [datapacks], some parts need to first be registered in code to effectively use.
 
 ## Creating a Game Test
 
-A standard Game Test follows three basic steps:
+A standard Game Test follows four basic steps:
 
 1. A structure, or template, is loaded holding the scene on which the interaction or behavior is tested.
-1. A method conducts the logic to perform on the scene.
-1. The method logic executes. If a successful state is reached, then the test succeeds. Otherwise, the test fails and the result is stored within a lectern adjacent to the scene.
+1. An environment for the test to run in.
+1. A registered function to run the logic. If a sucessful state is reached, then the test succeeds. Otherwise, the test fails and the result is stored within a lectern adjacent to the scene.
+1. A test instance to link the other three objects together.
 
-As such, to create a Game Test, there must be an existing template holding the initial start state of the scene and a method which provides the logic of execution.
+## The Test Data
 
-### The Test Method
+All test instances hold some `TestData` which defines how a game test should be run, from its initial configurations to the environment and structure template to use. As the `TestData` is serialized as a `MapCodec`, the data is stored at the root level of the file along with all the other instance-specific parameters.
 
-A Game Test method is a `Consumer<GameTestHelper>` reference, meaning it takes in a `GameTestHelper` and returns nothing. For a Game Test method to be recognized, it must have a `@GameTest` annotation:
+<Tabs>
+<TabItem value="json" label="JSON" default>
+
+```json5
+// For some game test examplemod:example_test
+// In 'data/examplemod/test_instance/example_test.json'
+{
+    // `TestData`
+
+    // The environment to run the test in
+    // Points to 'data/examplemod/test_environment/example_environment.json'
+    "environment": "examplemod:example_environment",
+
+    // The structure used for the game test
+    // Points to 'data/examplemod/structure/example_structure.nbt'
+    "structure": "examplemod:example_structure",
+
+    // The number of ticks that the game test will run until it automatically fails
+    "max_ticks": 400,
+
+    // The number of ticks that are used to setup everying required for the game test
+    // This is not counted towards the maximum number of ticks the test can take
+    // If not specified, defaults to 0
+    "setup_ticks": 50,
+
+    // Whether the test is required to succeed to mark the batch run as successful
+    // If not specified, defaults to true
+    "required": true,
+
+    // Specifies how the structure and all subsequent helper methods should be rotated for the test
+    // If not specified, nothing is rotated
+    // Can be 'none', 'clockwise_90', '180', 'counterclockwise_90'
+    "rotation": "clockwise_90",
+
+    // When true, the test can only be ran through the `/test` command
+    // If not specified, defaults to false
+    "manual_only": true,
+
+    // Specifies the maximum number of times that the test can be reran
+    // If not specified, defaults to 1
+    "max_attempts": 3,
+
+    // Specifies the minimum number of successes that must occur for a test to be marked as successful
+    // This must be less than or equal to the maximum number of attempts allowed
+    // If not specified, defaults to 1
+    "required_successes": 1,
+
+    // Returns whether the structure boundary should keep the top empty
+    // This is currently only used in block-based test instances
+    // If not specified, defaults to false 
+    "sky_access": false
+
+    // ...
+}
+```
+
+</TabItem>
+
+<TabItem value="datagen" label="Datagen">
 
 ```java
-public class ExampleGameTests {
-    @GameTest
-    public static void exampleTest(GameTestHelper helper) {
-        // Do stuff
+// Let's assume we have some test environment
+public static final ResourceKey<TestEnvironmentDefinition> EXAMPLE_ENVIRONMENT = ResourceKey.create(
+    Registries.TEST_ENVIRONMENT,
+    ResourceLocation.fromNamespaceAndPath("examplemod", "example_environment")
+);
+
+// The event is registered on the mod event bus.
+@SubscribeEvent
+public void gatherData(GatherDataEvent.Client event) {
+    event.createDatapackRegistryObjects(
+        new RegistrySetBuilder().add(Registries.TEST_INSTANCE, bootstrap -> {
+            // Use this to get the test environments
+            HolderGetter<TestEnvironmentDefinition> environments = bootstrap.lookup(Registries.TEST_ENVIRONMENT);
+
+            // Register a game test
+            // Any fields not relevant to the test data are hidden
+            bootstrap.register(..., new FunctionGameTestInstance(...,
+                new TestData<>(
+                    // The environment to run the test in
+                    // Points to 'data/examplemod/test_environment/example_environment.json'
+                    environments.getOrThrow(EXAMPLE_ENVIRONMENT),
+
+                    // The structure used for the game test
+                    // Points to 'data/examplemod/structure/example_structure.nbt'
+                    ResourceLocation.fromNamespaceAndPath("examplemod", "example_structure"),
+
+                    // The number of ticks that the game test will run until it automatically fails
+                    400,
+
+                    // The number of ticks that are used to setup everying required for the game test
+                    // This is not counted towards the maximum number of ticks the test can take
+                    // If not specified, defaults to 0
+                    50,
+
+                    // Whether the test is required to succeed to mark the batch run as successful
+                    // If not specified, defaults to true
+                    true,
+
+                    // Specifies how the structure and all subsequent helper methods should be rotated for the test
+                    // If not specified, nothing is rotated
+                    // Can be 'none', 'clockwise_90', '180', 'counterclockwise_90'
+                    Rotation.CLOCKWISE_90,
+
+                    // When true, the test can only be ran through the `/test` command
+                    // If not specified, defaults to false
+                    true,
+
+                    // Specifies the maximum number of times that the test can be reran
+                    // If not specified, defaults to 1
+                    3,
+
+                    // Specifies the minimum number of successes that must occur for a test to be marked as successful
+                    // This must be less than or equal to the maximum number of attempts allowed
+                    // If not specified, defaults to 1
+                    1,
+
+                    // Returns whether the structure boundary should keep the top empty
+                    // This is currently only used in block-based test instances
+                    // If not specified, defaults to false 
+                    false
+                )
+            ));
+        })
+    );
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Structure Templates
+
+Game Tests are performed within scenes loaded by structures, or templates. All templates define the dimensions of the scene and the initial data (blocks and entities) that will be loaded. The template must be stored as an `.nbt` file within `data/<namespace>/structure`. `TestData#structure` references the NBT file using a relative `ResourceLocation` (e.g., `examplemod:example_structure` points to `data/examplemod/structure/example_structure.nbt`)
+
+## Test Environments
+
+All game tests run in some `TestEnvironmentDefinition`, determining how the current `ServerLevel` should be set up. Then, once the test has finished, the environment is tore down, letting the next instance or instances run. All environments are batched, meaning that if multiple test instances have the same environment, they will run at the same time. All test environments are located within `data/<namespace>/test_environment/<path>.json`.
+
+Vanilla provides `minecraft:default`, which does not modify the `ServerLevel`. However, there are other supported definition types that can be used to construct an environment.
+
+### Game Rules
+
+This environment type sets the game rules to use for the test. During teardown, the game rules are reset to their default value.
+
+<Tabs>
+<TabItem value="json" label="JSON" default>
+
+```json5
+// examplemod:example_environment
+// In 'data/examplemod/test_environment/example_environment.json'
+{
+    "type": "minecraft:game_rules",
+
+    // A list of game rules with boolean values to set
+    "bool_rules": [
+        {
+            // The name of the rule
+            "rule": "doFireTick",
+            "value": false
+        }
+        // ...
+    ],
+
+    // A list of game rules with integer values to set
+    "int_rules": [
+        {
+            "rule": "playersSleepingPercentage",
+            "value": 50
+        }
+        // ...
+    ]
+}
+```
+
+</TabItem>
+
+<TabItem value="datagen" label="Datagen">
+
+```java
+// Let's assume we have some test environment
+public static final ResourceKey<TestEnvironmentDefinition> EXAMPLE_ENVIRONMENT = ResourceKey.create(
+    Registries.TEST_ENVIRONMENT,
+    ResourceLocation.fromNamespaceAndPath("examplemod", "example_environment")
+);
+
+// The event is registered on the mod event bus.
+@SubscribeEvent
+public void gatherData(GatherDataEvent.Client event) {
+    event.createDatapackRegistryObjects(
+        new RegistrySetBuilder().add(Registries.TEST_ENVIRONMENT, bootstrap -> {
+
+            // Register the environment
+            bootstrap.register(
+                EXAMPLE_ENVIRONMENT,
+                new TestEnvironmentDefinition.SetGameRules(
+                    // A list of game rules with boolean values to set
+                    List.of(
+                        new TestEnvironmentDefinition.SetGameRules.Entry(
+                            // The game rule
+                            GameRules.RULE_DOFIRETICK,
+                            GameRules.BooleanValue.create(false)
+                        )
+                        // ...
+                    ),
+                    // A list of game rules with integer values to set
+                    List.of(
+                        new TestEnvironmentDefinition.SetGameRules.Entry(
+                            // The game rule
+                            GameRules.RULE_PLAYERS_SLEEPING_PERCENTAGE,
+                            GameRules.IntegerValue.create(50)
+                        )
+                        // ...
+                    )
+                )
+            );
+        })
+    );
+}
+```
+
+### Time of Day
+
+This environment type sets the time to some non-negative integer, like how the `/time set <number>` command is used.
+
+<Tabs>
+<TabItem value="json" label="JSON" default>
+
+```json5
+// examplemod:example_environment
+// In 'data/examplemod/test_environment/example_environment.json'
+{
+    "type": "minecraft:time_of_day",
+
+    // Sets the time of day in the world
+    // Common values:
+    // - Day      -> 1000
+    // - Noon     -> 6000
+    // - Night    -> 13000
+    // - Midnight -> 18000
+    "time": 13000
+}
+```
+
+</TabItem>
+
+<TabItem value="datagen" label="Datagen">
+
+```java
+// Let's assume we have some test environment
+public static final ResourceKey<TestEnvironmentDefinition> EXAMPLE_ENVIRONMENT = ResourceKey.create(
+    Registries.TEST_ENVIRONMENT,
+    ResourceLocation.fromNamespaceAndPath("examplemod", "example_environment")
+);
+
+// The event is registered on the mod event bus.
+@SubscribeEvent
+public void gatherData(GatherDataEvent.Client event) {
+    event.createDatapackRegistryObjects(
+        new RegistrySetBuilder().add(Registries.TEST_ENVIRONMENT, bootstrap -> {
+
+            // Register the environment
+            bootstrap.register(
+                EXAMPLE_ENVIRONMENT,
+                new TestEnvironmentDefinition.TimeOfDay(
+                    // Sets the time of day in the world
+                    // Common values:
+                    // - Day      -> 1000
+                    // - Noon     -> 6000
+                    // - Night    -> 13000
+                    // - Midnight -> 18000
+                    13000
+                )
+            );
+        })
+    );
+}
+```
+
+### Weather
+
+This environment type sets the weather, like to how the `/weather` command is used.
+
+<Tabs>
+<TabItem value="json" label="JSON" default>
+
+```json5
+// examplemod:example_environment
+// In 'data/examplemod/test_environment/example_environment.json'
+{
+    "type": "minecraft:weather",
+
+    // Can be one of three values:
+    // - clear   (No weather)
+    // - rain    (Rain)
+    // - thunder (Rain and thunder)
+    "weather": "thunder"
+}
+```
+
+</TabItem>
+
+<TabItem value="datagen" label="Datagen">
+
+```java
+// Let's assume we have some test environment
+public static final ResourceKey<TestEnvironmentDefinition> EXAMPLE_ENVIRONMENT = ResourceKey.create(
+    Registries.TEST_ENVIRONMENT,
+    ResourceLocation.fromNamespaceAndPath("examplemod", "example_environment")
+);
+
+// The event is registered on the mod event bus.
+@SubscribeEvent
+public void gatherData(GatherDataEvent.Client event) {
+    event.createDatapackRegistryObjects(
+        new RegistrySetBuilder().add(Registries.TEST_ENVIRONMENT, bootstrap -> {
+
+            // Register the environment
+            bootstrap.register(
+                EXAMPLE_ENVIRONMENT,
+                new TestEnvironmentDefinition.Weather(
+                    // Can be one of three values:
+                    // - clear   (No weather)
+                    // - rain    (Rain)
+                    // - thunder (Rain and thunder)
+                    TestEnvironmentDefinition.Weather.Type.THUNDER
+                )
+            );
+        })
+    );
+}
+```
+
+### Minecraft Functions
+
+This environment type provides two ResourceLocations to `mcfunction`s to setup and teardown the level, respectively.
+
+<Tabs>
+<TabItem value="json" label="JSON" default>
+
+```json5
+// examplemod:example_environment
+// In 'data/examplemod/test_environment/example_environment.json'
+{
+    "type": "minecraft:function",
+
+    // The setup mcfunction to use
+    // If not specified, nothing will be ran
+    // Points to 'data/examplemod/function/example/setup.mcfunction'
+    "setup": "examplemod:example/setup",
+
+    // The teardown mcfunction to use
+    // If not specified, nothing will be ran
+    // Points to 'data/examplemod/function/example/teardown.mcfunction'
+    "teardown": "examplemod:example/teardown"
+}
+```
+
+</TabItem>
+
+<TabItem value="datagen" label="Datagen">
+
+```java
+// Let's assume we have some test environment
+public static final ResourceKey<TestEnvironmentDefinition> EXAMPLE_ENVIRONMENT = ResourceKey.create(
+    Registries.TEST_ENVIRONMENT,
+    ResourceLocation.fromNamespaceAndPath("examplemod", "example_environment")
+);
+
+// The event is registered on the mod event bus.
+@SubscribeEvent
+public void gatherData(GatherDataEvent.Client event) {
+    event.createDatapackRegistryObjects(
+        new RegistrySetBuilder().add(Registries.TEST_ENVIRONMENT, bootstrap -> {
+
+            // Register the environment
+            bootstrap.register(
+                EXAMPLE_ENVIRONMENT,
+                new TestEnvironmentDefinition.Functions(
+                    // The setup mcfunction to use
+                    // If not specified, nothing will be ran
+                    // Points to 'data/examplemod/function/example/setup.mcfunction'
+                    Optional.of(ResourceLocation.fromNamespaceAndPath("examplemod", "example/setup")),
+
+                    // The teardown mcfunction to use
+                    // If not specified, nothing will be ran
+                    // Points to 'data/examplemod/function/example/teardown.mcfunction'
+                    Optional.of(ResourceLocation.fromNamespaceAndPath("examplemod", "example/teardown"))
+                )
+            );
+        })
+    );
+}
+```
+
+### Composites
+
+Multiple environments can be merged using the composite environment type. The list of definitions can take in either a reference to an existing definiton, or an inlined definition.
+
+<Tabs>
+<TabItem value="json" label="JSON" default>
+
+```json5
+// examplemod:example_environment
+// In 'data/examplemod/test_environment/example_environment.json'
+{
+    "type": "minecraft:all_of",
+
+    // A list of test environments to use
+    // Can either specified the registry name or the environment itself
+    "definitions": [
+        // Points to 'data/minecraft/test_environment/default.json'
+        "minecraft:default",
+        {
+            // A raw environment definition
+            "type": "..."
+        }
+        // ...
+    ]
+}
+```
+
+</TabItem>
+
+<TabItem value="datagen" label="Datagen">
+
+```java
+// Let's assume we have some test environment
+public static final ResourceKey<TestEnvironmentDefinition> EXAMPLE_ENVIRONMENT = ResourceKey.create(
+    Registries.TEST_ENVIRONMENT,
+    ResourceLocation.fromNamespaceAndPath("examplemod", "example_environment")
+);
+
+// The event is registered on the mod event bus.
+@SubscribeEvent
+public void gatherData(GatherDataEvent.Client event) {
+    event.createDatapackRegistryObjects(
+        new RegistrySetBuilder().add(Registries.TEST_ENVIRONMENT, bootstrap -> {
+            // Getting existing environments
+            HolderGetter<TestEnvironmentDefinition> environments = bootstrap.lookup(Registries.TEST_ENVIRONMENT);
+
+            // Register the environment
+            bootstrap.register(
+                EXAMPLE_ENVIRONMENT,
+                new TestEnvironmentDefinition.AllOf(
+                    List.of(
+                        // Points to 'data/minecraft/test_environment/default.json'
+                        environments.getOrThrow(GameTestEnvironments.DEFAULT_KEY),
+                        Holder.direct(
+                            // Create a new TestEnvironmentDefinition here
+                            ...
+                        )
+                        // ...
+                    )
+                )
+            );
+        })
+    );
+}
+```
+
+### Custom Definition Types
+
+A custom `TestEnvironmentDefinition` type provides three methods: `setup` to modify the `ServerLevel`, `tearndown` to reset what was modified, and `codec` to provide the `MapCodec` to encode and decode the type:
+
+```java
+public record ExampleEnvironmentType(int value1, boolean value2) implements TestEnvironmentDefinition {
+
+    // Construct the map codec to register
+    public static final MapCodec<ExampleEnvironmentType> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+            Codec.INT.fieldOf("value1").forGetter(ExampleEnvironmentType::value1),
+            Codec.BOOL.fieldOf("value2").forGetter(ExampleEnvironmentType::value2)
+        ).apply(instance, ExampleEnvironmentType::new)
+    );
+
+    @Override
+    public void setup(ServerLevel level) {
+        // Setup whatever is necessary here
+    }
+
+    @Override
+    public void teardown(ServerLevel level) {
+        // Undo whatever was changed within the setup method
+        // This should either return to default or the previous value
+    }
+
+    @Override
+    public MapCodec<ExampleEnvironmentType> codec() {
+        return EXAMPLE_ENVIRONMENT_CODEC.get();
     }
 }
 ```
 
-The `@GameTest` annotation also contains members which configure how the game test should run.
+Then, the `MapCodec` can be [registered]:
+
 
 ```java
-// In some class
-@GameTest(
-    setupTicks = 20L, // The test spends 20 ticks to set up for execution
-    required = false // The failure is logged but does not affect the execution of the batch
-)
-public static void exampleConfiguredTest(GameTestHelper helper) {
-    // Do stuff
+public static final DeferredRegister<MapCodec<? extends TestEnvironmentDefinition>> TEST_ENVIRONMENT_DEFINITION_TYPES = DeferredRegister.create(
+        BuiltInRegistries.TEST_ENVIRONMENT_DEFINITION_TYPE,
+        "examplemod"
+);
+
+public static final Supplier<MapCodec<ExampleEnvironmentType>> EXAMPLE_ENVIRONMENT_CODEC = TEST_ENVIRONMENT_DEFINITION_TYPES.register(
+    "example_environment_type",
+    () -> RecordCodecBuilder.mapCodec(instance -> instance.group(
+            Codec.INT.fieldOf("value1").forGetter(ExampleEnvironmentType::value1),
+            Codec.BOOL.fieldOf("value2").forGetter(ExampleEnvironmentType::value2)
+        ).apply(instance, ExampleEnvironmentType::new)
+    )
+);
+```
+
+Finally, the type can then be used in your environment definition:
+
+<Tabs>
+<TabItem value="json" label="JSON" default>
+
+```json5
+// examplemod:example_environment
+// In 'data/examplemod/test_environment/example_environment.json'
+{
+    "type": "examplemod:example_environment_type",
+
+    "value1": 0,
+    "value2": true
 }
 ```
 
-#### Relative Positioning
+</TabItem>
 
-All `GameTestHelper` methods translate relative coordinates within the structure template scene to its absolute coordinates using the structure block's current location. To allow for easy conversion between relative and absolute positioning, `GameTestHelper#absolutePos` and `GameTestHelper#relativePos` can be used respectively.
+<TabItem value="datagen" label="Datagen">
+
+```java
+// Let's assume we have some test environment
+public static final ResourceKey<TestEnvironmentDefinition> EXAMPLE_ENVIRONMENT = ResourceKey.create(
+    Registries.TEST_ENVIRONMENT,
+    ResourceLocation.fromNamespaceAndPath("examplemod", "example_environment")
+);
+
+// The event is registered on the mod event bus.
+@SubscribeEvent
+public void gatherData(GatherDataEvent.Client event) {
+    event.createDatapackRegistryObjects(
+        new RegistrySetBuilder().add(Registries.TEST_ENVIRONMENT, bootstrap -> {
+
+            // Register the environment
+            bootstrap.register(
+                EXAMPLE_ENVIRONMENT,
+                new ExampleEnvironmentType(
+                    0, true
+                )
+            );
+        })
+    );
+}
+```
+
+## The Test Function
+
+The basic concept of game tests are structured around running some method that takes in a `GameTestHelper` and returning nothing. Calling the methods within the `GameTestHelper` determines whether the test suceeds or fails. Each test function is [registered], allowing it to be referenced in a test instance:
+
+```java
+public class ExampleFunctions {
+
+    // Here is our example function
+    public static void exampleTest(GameTestHelper helper) {
+        // Do Stuff
+    }
+}
+
+// Register our function for use
+public static final DeferredRegister<Consumer<GameTestHelper>> TEST_FUNCTION = DeferredRegister.create(
+        BuiltInRegistries.TEST_FUNCTION,
+        "examplemod"
+);
+
+public static final DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>> EXAMPLE_FUNCTION = TEST_FUNCTION.register(
+    "example_function",
+    () -> ExampleFunctions::exampleTest
+);
+```
+
+### Relative Positioning
+
+All test functions translate relative coordinates within the structure template scene to its absolute coordinates using the structure block's current location. To allow for easy conversion between relative and absolute positioning, `GameTestHelper#absolutePos` and `GameTestHelper#relativePos` can be used respectively.
 
 The relative position of a structure template can be obtained in-game by loading the structure via the [test command][test], placing the player at the wanted location, and finally running the `/test pos` command. This will grab the coordinates of the player relative to the closest structure within 200 blocks of the player. The command will export the relative position as a copyable text component in the chat to be used as a final local variable.
 
@@ -52,9 +614,9 @@ The local variable generated by `/test pos` can specify its reference name by ap
 ```
 :::
 
-#### Successful Completion
+### Successful Completion
 
-A Game Test method is responsible for one thing: marking the test was successful on a valid completion. If no success state was achieved before the timeout is reached (as defined by `GameTest#timeoutTicks`), then the test automatically fails.
+A test function is responsible for one thing: marking the test was successful on a valid completion. If no success state was achieved before the timeout is reached (as defined by `TestData#maxTicks`), then the test automatically fails.
 
 There are many abstracted methods within `GameTestHelper` which can be used to define a successful state; however, four are extremely important to be aware of.
 
@@ -69,7 +631,7 @@ Method               | Description
 Game Tests are executed every tick until the test is marked as a success. As such, methods which schedule success on a given tick must be careful to always fail on any previous tick.
 :::
 
-#### Scheduling Actions
+### Scheduling Actions
 
 Not all actions will occur when a test begins. Actions can be scheduled to occur at specific times or intervals:
 
@@ -79,135 +641,337 @@ Method           | Description
 `#runAfterDelay` | The action is ran `x` ticks after the current tick.
 `#onEachTick`    | The action is ran every tick.
 
-#### Assertions
+### Assertions
 
 At any time during a Game Test, an assertion can be made to check if a given condition is true. There are numerous assertion methods within `GameTestHelper`; however, it simplifies to throwing a `GameTestAssertException` whenever the appropriate state is not met.
 
-### Generated Test Methods
+## Registering The Test Instance
 
-If Game Test methods need to be generated dynamically, a test method generator can be created. These methods take in no parameters and return a collection of `TestFunction`s. For a test method generator to be recognized, it must have a `@GameTestGenerator` annotation:
+With the `TestData`, `TestEnvironmentDefinition`, and test function in hand, we can now link everything together through a `GameTestInstance`. Each test instance is what represents a single game test to run. All test instances are located within `data/<namespace>/test_instance/<path>.json`.
 
-```java
-public class ExampleGameTests {
-    @GameTestGenerator
-    public static Collection<TestFunction> exampleTests() {
-        // Return a collection of TestFunctions
-    }
+### Function-Based Tests
+
+`FunctionGameTestInstance` links a `TestData` to some registered test function. The test instance will run the test function when called.
+
+<Tabs>
+<TabItem value="json" label="JSON" default>
+
+```json5
+// For some game test examplemod:example_test
+// In 'data/examplemod/test_instance/example_test.json'
+{
+    // `TestData`
+
+    "environment": "examplemod:example_environment",
+    "structure": "examplemod:example_structure",
+    "max_ticks": 400,
+    "setup_ticks": 50,
+    "required": true,
+    "rotation": "clockwise_90",
+    "manual_only": true,
+    "max_attempts": 3,
+    "required_successes": 1,
+    "sky_access": false,
+
+    // `FunctionGameTestInstance`
+    "type": "minecraft:function",
+
+    // Points to a 'Consumer<GameTestHelper>' in the test function registry
+    "function": "examplemod:example_function"
 }
 ```
 
-#### TestFunction
+</TabItem>
 
-A `TestFunction` is the boxed information held by the `@GameTest` annotation and the method running the test.
-
-:::tip
-Any methods annotated using `@GameTest` are translated into a `TestFunction` using `GameTestRegistry#turnMethodIntoTestFunction`. That method can be used as a reference for creating `TestFunction`s without the use of the annotation.
-:::
-
-### Batching
-
-Game Tests can be executed in batches instead of registration order. A test can be added to a batch by having the same supplied `GameTest#batch` string.
-
-On its own, batching does not provide anything useful. However, batching can be used to perform setup and teardown states on the current level the tests are running in. This is done by annotating a method with either `@BeforeBatch` for setup or `@AfterBatch` for takedown. The `#batch` methods must match the string supplied to the game test.
-
-Batch methods are `Consumer<ServerLevel>` references, meaning they take in a `ServerLevel` and return nothing:
+<TabItem value="datagen" label="Datagen">
 
 ```java
-public class ExampleGameTests {
-    @BeforeBatch(batch = "firstBatch")
-    public static void beforeTest(ServerLevel level) {
-        // Perform setup
-    }
+// The test instance key
+public static final ResourceKey<GameTestInstance> EXAMPLE_TEST_INSTANCE = ResourceKey.create(
+    Registries.TEST_INSTANCE,
+    ResourceLocation.fromNamespaceAndPath("examplemod", "example_test")
+);
 
-    @GameTest(batch = "firstBatch")
-    public static void exampleTest2(GameTestHelper helper) {
-        // Do stuff
-    }
+// Let's assume we have some test environment
+public static final ResourceKey<TestEnvironmentDefinition> EXAMPLE_ENVIRONMENT = ResourceKey.create(
+    Registries.TEST_ENVIRONMENT,
+    ResourceLocation.fromNamespaceAndPath("examplemod", "example_environment")
+);
+
+// The event is registered on the mod event bus.
+@SubscribeEvent
+public void gatherData(GatherDataEvent.Client event) {
+    event.createDatapackRegistryObjects(
+        new RegistrySetBuilder().add(Registries.TEST_INSTANCE, bootstrap -> {
+            // Use this to get the test environments
+            HolderGetter<TestEnvironmentDefinition> environments = bootstrap.lookup(Registries.TEST_ENVIRONMENT);
+
+            // Register a game test
+            // Any fields not relevant to the test data are hidden
+            bootstrap.register(EXAMPLE_TEST_INSTANCE,
+                new FunctionGameTestInstance(
+                    // Points to a 'Consumer<GameTestHelper>' in the test function registry
+                    EXAMPLE_FUNCTION.getKey()
+                    new TestData<>(
+                        environments.getOrThrow(EXAMPLE_ENVIRONMENT),
+                        ResourceLocation.fromNamespaceAndPath("examplemod", "example_structure"),
+                        400,
+                        50,
+                        true,
+                        Rotation.CLOCKWISE_90,
+                        true,
+                        3,
+                        1,
+                        false
+                    )
+            ));
+        })
+    );
 }
 ```
 
-## Registering a Game Test
+### Block-Based Tests
 
-A Game Test must be registered to be ran in-game. There are two methods of doing so: via the `@GameTestHolder` annotation or `RegisterGameTestsEvent`. Both registration methods still require the test methods to be annotated with either `@GameTest`, `@GameTestGenerator`, `@BeforeBatch`, or `@AfterBatch`.
+`BlockBasedTestInstance` is a special kind of test instance that relies on redstone signals sent and received by `Blocks#TEST_BLOCK`s. For this test to work, the structure template must contain at least two test blocks: one and only one set to `TestBlockMode#START` and one set to `TestBlockMode#ACCEPT`. When the test starts, the starting test block is triggered, sending a fifteen signal pulse for one tick. It is expected that this signal eventually triggers other test blocks in either `LOG`, `FAIL`, or `ACCEPT` states. `LOG` test blocks also send a fifteen signal pulse when activated. `ACCEPT` and `FAIL` test blocks either cause the test instance to succeed or fail, respectively. `ACCEPT` always takes precedence over `FAIL` on a given tick.
 
-### GameTestHolder
+<Tabs>
+<TabItem value="json" label="JSON" default>
 
-The `@GameTestHolder` annotation registers any test methods within the type (class, interface, enum, or record). `@GameTestHolder` contains a single method which has multiple uses. In this instance, the supplied `#value` must be the mod id of the mod; otherwise, the test will not run under default configurations.
+```json5
+// For some game test examplemod:example_test
+// In 'data/examplemod/test_instance/example_test.json'
+{
+    // `TestData`
 
-```java
-@GameTestHolder(MODID)
-public class ExampleGameTests {
-    // ...
+    "environment": "examplemod:example_environment",
+    "structure": "examplemod:example_structure",
+    "max_ticks": 400,
+    "setup_ticks": 50,
+    "required": true,
+    "rotation": "clockwise_90",
+    "manual_only": true,
+    "max_attempts": 3,
+    "required_successes": 1,
+    "sky_access": false,
+
+    // `BlockBasedTestInstance`
+    "type": "minecraft:block_based"
 }
 ```
 
-### RegisterGameTestsEvent
+</TabItem>
 
-`RegisterGameTestsEvent` can also register either classes or methods using `#register`. The event listener must be [added][event] to the mod event bus. Test methods registered this way must supply their mod id to `GameTest#templateNamespace` on every method annotated with `@GameTest`.
+<TabItem value="datagen" label="Datagen">
 
 ```java
-// In some class
+// The test instance key
+public static final ResourceKey<GameTestInstance> EXAMPLE_TEST_INSTANCE = ResourceKey.create(
+    Registries.TEST_INSTANCE,
+    ResourceLocation.fromNamespaceAndPath("examplemod", "example_test")
+);
+
+// Let's assume we have some test environment
+public static final ResourceKey<TestEnvironmentDefinition> EXAMPLE_ENVIRONMENT = ResourceKey.create(
+    Registries.TEST_ENVIRONMENT,
+    ResourceLocation.fromNamespaceAndPath("examplemod", "example_environment")
+);
+
+// The event is registered on the mod event bus.
+@SubscribeEvent
+public void gatherData(GatherDataEvent.Client event) {
+    event.createDatapackRegistryObjects(
+        new RegistrySetBuilder().add(Registries.TEST_INSTANCE, bootstrap -> {
+            // Use this to get the test environments
+            HolderGetter<TestEnvironmentDefinition> environments = bootstrap.lookup(Registries.TEST_ENVIRONMENT);
+
+            // Register a game test
+            // Any fields not relevant to the test data are hidden
+            bootstrap.register(EXAMPLE_TEST_INSTANCE,
+                new BlockBasedTestInstance(
+                    new TestData<>(
+                        environments.getOrThrow(EXAMPLE_ENVIRONMENT),
+                        ResourceLocation.fromNamespaceAndPath("examplemod", "example_structure"),
+                        400,
+                        50,
+                        true,
+                        Rotation.CLOCKWISE_90,
+                        true,
+                        3,
+                        1,
+                        false
+                    )
+            ));
+        })
+    );
+}
+```
+
+### Custom Test Instances
+
+If you need to implement your own test-based logic for whatever reason, `GameTestInstance` can be extended. Two methods must be implemented: `run`, which represents the test function; and `typeDescription`, which provides a description of the test instance. If the test instance should be used in datagen, it must have a `MapCodec` to be [registered].
+
+```java
+public class ExampleTestInstance extends GameTestInstance {
+
+    public ExampleTestInstance(int value1, boolean value2, TestData<Holder<TestEnvironmentDefinition>> info) {
+        super(info);
+    }
+
+    @Override
+    public void run(GameTestHelper helper) {
+        // Run whatever game test commands you want
+        helper.assertBlockPresent(...);
+
+        // Make sure you have some way to succeed
+        helper.succeedIf(() -> ...);
+    }
+
+    @Override
+    public MapCodec<ExampleTestInstance> codec() {
+        return EXAMPLE_INSTANCE_CODEC.get();
+    }
+
+    @Override
+    protected MutableComponent typeDescription() {
+        // Provides a description about what this test is supposed to be
+        // Should use a translatable component
+        return Component.literal("Example Test Instance");
+    }
+}
+
+// Register our test instance for use
+public static final DeferredRegister<MapCodec<? extends GameTestInstance>> TEST_INSTANCE = DeferredRegister.create(
+        BuiltInRegistries.TEST_INSTANCE_TYPE,
+        "examplemod"
+);
+
+public static final Supplier<MapCodec<? extends GameTestInstance>> EXAMPLE_INSTANCE_CODEC = TEST_INSTANCE.register(
+    "example_test_instance",
+    () -> RecordCodecBuilder.mapCodec(instance -> instance.group(
+            Codec.INT.fieldOf("value1").forGetter(test -> test.value1),
+            Codec.BOOL.fieldOf("value2").forGetter(test -> test.value2),
+            TestData.CODEC.forGetter(ExampleTestInstance::info)
+        ).apply(instance, ExampleTestInstance::new)
+    )
+);
+```
+
+Then, the test instance can be used in a datapack:
+
+<Tabs>
+<TabItem value="json" label="JSON" default>
+
+```json5
+// For some game test examplemod:example_test
+// In 'data/examplemod/test_instance/example_test.json'
+{
+    // `TestData`
+
+    "environment": "examplemod:example_environment",
+    "structure": "examplemod:example_structure",
+    "max_ticks": 400,
+    "setup_ticks": 50,
+    "required": true,
+    "rotation": "clockwise_90",
+    "manual_only": true,
+    "max_attempts": 3,
+    "required_successes": 1,
+    "sky_access": false,
+
+    // `ExampleTestInstance`
+    "type": "examplemod:example_test_instance",
+
+    "value1": 0,
+    "value2": true
+}
+```
+
+</TabItem>
+
+<TabItem value="datagen" label="Datagen">
+
+```java
+// The test instance key
+public static final ResourceKey<GameTestInstance> EXAMPLE_TEST_INSTANCE = ResourceKey.create(
+    Registries.TEST_INSTANCE,
+    ResourceLocation.fromNamespaceAndPath("examplemod", "example_test")
+);
+
+// Let's assume we have some test environment
+public static final ResourceKey<TestEnvironmentDefinition> EXAMPLE_ENVIRONMENT = ResourceKey.create(
+    Registries.TEST_ENVIRONMENT,
+    ResourceLocation.fromNamespaceAndPath("examplemod", "example_environment")
+);
+
+// The event is registered on the mod event bus.
+@SubscribeEvent
+public void gatherData(GatherDataEvent.Client event) {
+    event.createDatapackRegistryObjects(
+        new RegistrySetBuilder().add(Registries.TEST_INSTANCE, bootstrap -> {
+            // Use this to get the test environments
+            HolderGetter<TestEnvironmentDefinition> environments = bootstrap.lookup(Registries.TEST_ENVIRONMENT);
+
+            // Register a game test
+            // Any fields not relevant to the test data are hidden
+            bootstrap.register(EXAMPLE_TEST_INSTANCE,
+                new ExampleTestInstance(
+                    0,
+                    true,
+                    new TestData<>(
+                        environments.getOrThrow(EXAMPLE_ENVIRONMENT),
+                        ResourceLocation.fromNamespaceAndPath("examplemod", "example_structure"),
+                        400,
+                        50,
+                        true,
+                        Rotation.CLOCKWISE_90,
+                        true,
+                        3,
+                        1,
+                        false
+                    )
+            ));
+        })
+    );
+}
+```
+
+### Skipping the Datapack
+
+If you don't want to use a datapack to construct your game tests, you can instead listen to the `RegisterGameTestsEvent` on the [mod event bus][event] and register your environments and test instances via `registerEnvironment` and `registerTest`, respectively.
+
+```java
+// On the mod event bus
+@SubscribeEvent
 public void registerTests(RegisterGameTestsEvent event) {
-    event.register(ExampleGameTests.class);
-}
+    Holder<TestEnvironmentDefinition> environment = event.registerEnvironment(
+        // The name of the test environment
+        EXAMPLE_ENVIRONMENT.location(),
+        // A varargs of test environment definitions
+        new ExampleEnvironmentType(
+            0, true
+        )
+    );
 
-// In ExampleGameTests
-@GameTest(templateNamespace = MODID)
-public static void exampleTest3(GameTestHelper helper) {
-    // Perform setup
-}
-```
-
-:::note
-The value supplied to `GameTestHolder#value` and `GameTest#templateNamespace` can be different from the current mod id. The configuration within the [buildscript][namespaces] would need to be changed.
-:::
-
-## Structure Templates
-
-Game Tests are performed within scenes loaded by structures, or templates. All templates define the dimensions of the scene and the initial data (blocks and entities) that will be loaded. The template must be stored as an `.nbt` file within `data/<namespace>/structure`.
-
-:::tip
-A structure template can be created and saved using a structure block.
-:::
-
-The location of the template is specified by a few factors:
-
-- If the namespace of the template is specified.
-- If the class should be prepended to the name of the template.
-- If the name of the template is specified.
-
-The namespace of the template is determined by `GameTest#templateNamespace`, then `GameTestHolder#value` if not specified, then `minecraft` if neither is specified.
-
-The simple class name is not prepended to the name of the template if the `@PrefixGameTestTemplate` is applied to a class or method with the test annotations and set to `false`. Otherwise, the simple class name is made lowercase and prepended and followed by a dot before the template name.
-
-The name of the template is determined by `GameTest#template`. If not specified, then the lowercase name of the method is used instead.
-
-```java
-// Modid for all structures will be MODID
-@GameTestHolder(MODID)
-public class ExampleGameTests {
-
-    // Class name is prepended, template name is not specified
-    // Template Location at 'modid:examplegametests.exampletest'
-    @GameTest
-    public static void exampleTest(GameTestHelper helper) { /*...*/ }
-
-    // Class name is not prepended, template name is not specified
-    // Template Location at 'modid:exampletest2'
-    @PrefixGameTestTemplate(false)
-    @GameTest
-    public static void exampleTest2(GameTestHelper helper) { /*...*/ }
-
-    // Class name is prepended, template name is specified
-    // Template Location at 'modid:examplegametests.test_template'
-    @GameTest(template = "test_template")
-    public static void exampleTest3(GameTestHelper helper) { /*...*/ }
-
-    // Class name is not prepended, template name is specified
-    // Template Location at 'modid:test_template2'
-    @PrefixGameTestTemplate(false)
-    @GameTest(template = "test_template2")
-    public static void exampleTest4(GameTestHelper helper) { /*...*/ }
+    event.registerTest(
+        // The name of the test instance
+        EXAMPLE_TEST_INSTANCE.location(),
+        new ExampleTestInstance(
+            0,
+            true,
+            new TestData<>(
+                environments.getOrThrow(EXAMPLE_ENVIRONMENT),
+                ResourceLocation.fromNamespaceAndPath("examplemod", "example_structure"),
+                400,
+                50,
+                true,
+                Rotation.CLOCKWISE_90,
+                true,
+                3,
+                1,
+                false
+            )
+        )
+    );
 }
 ```
 
@@ -231,52 +995,20 @@ Subcommands follow the test command: `/test <subcommand>`.
 
 Game Tests provide additional configuration settings within a buildscript (the `build.gradle` file) to run and integrate into different settings.
 
-### Enabling Other Namespaces
-
-If the buildscript was [setup as recommended][buildscript], then only Game Tests under the current mod id would be enabled. To enable other namespaces to load Game Tests from, a run configuration must set the property `neoforge.enabledGameTestNamespaces` to a string specifying each namespace separated by a comma. If the property is empty or not set, then all namespaces will be loaded.
-
-```gradle
-// Inside a run configuration
-property 'neoforge.enabledGameTestNamespaces', 'modid1,modid2,modid3'
-```
-
-:::caution
-There must be no spaces in-between namespaces; otherwise, the namespace will not be loaded correctly.
-:::
-
 ### Game Test Server Run Configuration
 
 The Game Test Server is a special configuration which runs a build server. The build server returns an exit code of the number of required, failed Game Tests. All failed tests, whether required or optional, are logged. This server can be run using `gradlew runGameTestServer`.
 
-<details>
-<summary>Important information on NeoGradle</summary>
-
-:::caution
-Due to a quirk in how Gradle works, by default, if a task forces a system exit, the Gradle daemon will be killed, causing the Gradle runner to report a build failure. NeoGradle sets by default a force exit on run tasks such that any subprojects are not executed in sequence. However, as such, the Game Test Server will always fail.
-
-This can be fixed by disabling the force exit on the run configuration using the `#setForceExit` method:
-
-```gradle
-// Game Test Server run configuration
-gameTestServer {
-    // ...
-    setForceExit false
-}
-```
-:::
-</details>
-
-
 ### Enabling Game Tests in Other Run Configurations
 
-By default, only the `client`, `server`, and `gameTestServer` run configurations have Game Tests enabled. If another run configuration should run Game Tests, then the `neoforge.enableGameTest` property must be set to `true`.
+By default, only the `client` and `gameTestServer` run configurations have Game Tests enabled. If another run configuration should run Game Tests, then the `neoforge.enableGameTest` property must be set to `true`.
 
 ```gradle
 // Inside a run configuration
 property 'neoforge.enableGameTest', 'true'
 ```
 
+[datapacks]: ../resources/index.md#data
+[registered]: ../concepts/registries.md#methods-for-registering
 [test]: #running-game-tests
-[namespaces]: #enabling-other-namespaces
 [event]: ../concepts/events.md#registering-an-event-handler
-[buildscript]: ../gettingstarted/index.md#simple-buildgradle-customizations
