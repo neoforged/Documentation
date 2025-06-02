@@ -7,6 +7,8 @@ Enchantments are special effects that can be applied to tools and other items. A
 
 A new enchantment can be added by creating a JSON file in your namespace's `enchantment` datapack subfolder. For example, to create an enchantment called `examplemod:example_enchant`, one would create a file `data/examplemod/enchantment/example_enchantment.json`. 
 
+To allow this enchantment to appear in an enchanting table, you must add it to the `minecraft:enchantment/in_enchanting_table` tag (a wrapper for the `minecraft:enchantment/non_treasure` tag). 
+
 ## Enchantment JSON Format
 
 ```json5
@@ -28,6 +30,7 @@ A new enchantment can be added by creating a JSON file in your namespace's `ench
     // (Optional) Which items this enchantment appears for in the enchanting table.
     // Can be an item, list of items, or item tag.
     // If left unspecified, this is the same as `supported_items`.
+    // Ignored for enchantments without the in_enchanting_table tag.
     "primary_items": [
         "examplemod:item_a",
         "examplemod:item_b"
