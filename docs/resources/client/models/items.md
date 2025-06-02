@@ -8,7 +8,7 @@ Client Items are the in-code representation of how an `ItemStack` should be rend
 The client items are stored within the `ModelManager`, which can be accessed through `Minecraft.getInstance().modelManager`. Then, you can call `ModelManager#getItemModel` or `getItemProperties` to get the client item information by its [`ResourceLocation`][rl].
 
 :::warning
-These are not to be confused with [baked models][bakedmodels], which define the models, along with their quads, that are actually rendered in-game.
+These are not to be confused with the actual [models that are baked and actually rendered][models] in-game.
 :::
 
 ## Overview
@@ -1359,7 +1359,7 @@ The `ItemStackRenderState` keeps track of the data used to render. Each 'model' 
 
 `ItemModelResolver` is responsible for updating the `ItemStackRenderState`. This is done through either `updateForLiving` for items held by living entities, `updateForNonLiving` for items held by other kinds of entities, and `updateForTopItem` for all other cases. These methods take in the render state, stack to render, and current display context. The other parameters update information about the held hand, level, entity, and seeded value. Each method calls `ItemStackRenderState#clear` before calling `update` on the `ItemModel` obtained from  `DataComponents#ITEM_MODEL`. The `ItemModelResolver` can always be obtained via `Minecraft#getItemModelResolver` if you are not within some renderer context (e.g., `BlockEntityRenderer`, `EntityRenderer`).
 
-## Custom Item Model Defintions
+## Custom Item Model Definitions
 
 Creating your own `ItemModel` is broken into three parts: the `ItemModel` instance used update the render state, the `ItemModel.Unbaked` instance used to read and write to JSON, and the registration to use the `ItemModel`.
 
@@ -1367,10 +1367,10 @@ Creating your own `ItemModel` is broken into three parts: the `ItemModel` instan
 Please make sure to check that your required item model can not be created with the existing systems above. In most cases, it is not necessary to create a custom `ItemModel`.
 :::
 
-First, there is the `ItemModel`. This is responsible for updating the `ItemStackRenderState` such that the item is rendered correctly. It should take in the static data used during the rendering process (e.g., the `BakedModel` instance, property information, etc.). The only method is `update`, which takes in the render state, stack, model resolver, display context, level, holding entity, and some seeded value to update the `ItemStackRenderState`. `ItemStackRenderState` should be the only parameter modified, with the rest treated as read-only data.
+First, there is the `ItemModel`. This is responsible for updating the `ItemStackRenderState` such that the item is rendered correctly. It should take in the static data used during the rendering process (e.g., the list of `BakedQuads`, property information, etc.). The only method is `update`, which takes in the render state, stack, model resolver, display context, level, holding entity, and some seeded value to update the `ItemStackRenderState`. `ItemStackRenderState` should be the only parameter modified, with the rest treated as read-only data.
 
 ```java
-public record RenderTypeModelWrapper(BakedModel model, RenderType type) implements ItemModel {
+public record RenderTypeModelWrapper(List<BakedQuad> quads, ModelRenderProperties properties, RenderType type) implements ItemModel {
 
     // Update the render state
     @Override
@@ -1380,7 +1380,10 @@ public record RenderTypeModelWrapper(BakedModel model, RenderType type) implemen
         if (stack.hasFoil()) {
             layerState.setFoilType(ItemStackRenderState.FoilType.STANDARD);
         }
-        layerState.setupBlockModel(this.model, this.type);
+        layerState.setExtents(BlockModelWrapper.computeExtents(this.quads));
+        layerState.setRenderType(this.type);
+        this.properties.applyToLayer(layerState, displayContext);
+        layerState.prepareQuadList().addAll(this.quads);
     }
 }
 ```
@@ -1388,7 +1391,7 @@ public record RenderTypeModelWrapper(BakedModel model, RenderType type) implemen
 Next is the `ItemModel.Unbaked` instance. This should contain data that can be read from a file to determine what to pass into the item model. This also contains two methods: `bake`, which is used to construct the `ItemModel` instance; and `type`, which defines the `MapCodec` to use for encoding/decoding to file.
 
 ```java
-public record RenderTypeModelWrapper(BakedModel model, RenderType type) implements ItemModel {
+public record RenderTypeModelWrapper(List<BakedQuad> quads, ModelRenderProperties properties, RenderType type) implements ItemModel {
 
     // ...
 
@@ -1411,15 +1414,22 @@ public record RenderTypeModelWrapper(BakedModel model, RenderType type) implemen
 
         @Override
         public void resolveDependencies(ResolvableModel.Resolver resolver) {
-            // Resolve model dependencies, so pass in all known resource locations
-            resolver.resolve(this.model);
+            // Mark all dependencies for this item model
+            resolver.markDependency(this.model);
         }
 
         @Override
         public ItemModel bake(ItemModel.BakingContext context) {
-            // Get the baked model and return
-            BakedModel baked = context.bake(this.model);
-            return new RenderTypeModelWrapper(baked, this.type);
+            // Get the baked quads and return
+            ModelBaker baker = context.blockModelBaker();
+            ResolvedModel resolvedModel = baker.getModel(this.model);
+            TextureSlots slots = resolvedModel.getTopTextureSlots();
+
+            return new RenderTypeModelWrapper(
+                resolvedModel.bakeTopGeometry(slots, baker, BlockModelRotation.X0_Y0).getAll(),
+                ModelRenderProperties.fromResolvedModel(baker, resolvedModel, slots),
+                this.type
+            );
         }
 
         @Override
@@ -1489,10 +1499,10 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
 </Tabs>
 
 [assets]: ../../index.md#assets
-[bakedmodels]: ../models/bakedmodel.md
 [ber]: ../../../blockentities/ber.md
 [capability]: ../../../datastorage/capabilities.md#registering-capabilities
 [composite]: modelloaders.md#composite-model
 [itemmodel]: #manually-rendering-an-item
 [modbus]: ../../../concepts/events.md#event-buses
+[models]: ../models/resolvedmodel.md
 [rl]: ../../../misc/resourcelocation.md
