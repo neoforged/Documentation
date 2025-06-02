@@ -1504,5 +1504,5 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
 [composite]: modelloaders.md#composite-model
 [itemmodel]: #manually-rendering-an-item
 [modbus]: ../../../concepts/events.md#event-buses
-[models]: ../models/resolvedmodel.md
+[models]: modelsystem.md
 [rl]: ../../../misc/resourcelocation.md

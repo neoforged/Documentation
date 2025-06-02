@@ -231,7 +231,7 @@ public static void registerAdditional(ModelEvent.RegisterStandalone event) {
 [mcwikimodel]: https://minecraft.wiki/w/Model
 [mipmapping]: https://en.wikipedia.org/wiki/Mipmap
 [modbus]: ../../../concepts/events.md#event-buses
-[perspectives]: model.md#perspectives
+[perspectives]: modelsystem.md#perspectives
 [rendertype]: #render-types
 [roottransforms]: #root-transforms
 [rl]: ../../../misc/resourcelocation.md

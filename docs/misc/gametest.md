@@ -239,6 +239,9 @@ public void gatherData(GatherDataEvent.Client event) {
 }
 ```
 
+</TabItem>
+</Tabs>
+
 ### Time of Day
 
 This environment type sets the time to some non-negative integer, like how the `/time set <number>` command is used.
@@ -297,6 +300,9 @@ public void gatherData(GatherDataEvent.Client event) {
 }
 ```
 
+</TabItem>
+</Tabs>
+
 ### Weather
 
 This environment type sets the weather, like to how the `/weather` command is used.
@@ -350,6 +356,9 @@ public void gatherData(GatherDataEvent.Client event) {
     );
 }
 ```
+
+</TabItem>
+</Tabs>
 
 ### Minecraft Functions
 
@@ -412,6 +421,9 @@ public void gatherData(GatherDataEvent.Client event) {
     );
 }
 ```
+
+</TabItem>
+</Tabs>
 
 ### Composites
 
@@ -478,6 +490,9 @@ public void gatherData(GatherDataEvent.Client event) {
     );
 }
 ```
+
+</TabItem>
+</Tabs>
 
 ### Custom Definition Types
 
@@ -574,6 +589,9 @@ public void gatherData(GatherDataEvent.Client event) {
     );
 }
 ```
+
+</TabItem>
+</Tabs>
 
 ## The Test Function
 
@@ -730,6 +748,9 @@ public void gatherData(GatherDataEvent.Client event) {
 }
 ```
 
+</TabItem>
+</Tabs>
+
 ### Block-Based Tests
 
 `BlockBasedTestInstance` is a special kind of test instance that relies on redstone signals sent and received by `Blocks#TEST_BLOCK`s. For this test to work, the structure template must contain at least two test blocks: one and only one set to `TestBlockMode#START` and one set to `TestBlockMode#ACCEPT`. When the test starts, the starting test block is triggered, sending a fifteen signal pulse for one tick. It is expected that this signal eventually triggers other test blocks in either `LOG`, `FAIL`, or `ACCEPT` states. `LOG` test blocks also send a fifteen signal pulse when activated. `ACCEPT` and `FAIL` test blocks either cause the test instance to succeed or fail, respectively. `ACCEPT` always takes precedence over `FAIL` on a given tick.
@@ -805,6 +826,9 @@ public void gatherData(GatherDataEvent.Client event) {
     );
 }
 ```
+
+</TabItem>
+</Tabs>
 
 ### Custom Test Instances
 
@@ -934,6 +958,9 @@ public void gatherData(GatherDataEvent.Client event) {
     );
 }
 ```
+
+</TabItem>
+</Tabs>
 
 ### Skipping the Datapack
 
