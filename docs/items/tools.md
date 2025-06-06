@@ -7,7 +7,7 @@ Tools are [items][item] whose primary use is to break [blocks][block]. Many mods
 
 ## Custom Tool Sets
 
-A tool set typically consists of five items: a pickaxe, an axe, a shovel, a hoe and a sword. (Swords aren't tools in the classical sense, but are included here for consistency as well. All of these tools are implemented using the following eight [data components][datacomponents]:
+A tool set typically consists of five items: a pickaxe, an axe, a shovel, a hoe and a sword (swords aren't tools in the classical sense, but are included here for consistency as well). All of these tools are implemented using the following eight [data components][datacomponents]:
 
 - `DataComponents#MAX_DAMAGE` and `#DAMAGE` for durability
 - `#MAX_STACK_SIZE` to set the stack size to `1`

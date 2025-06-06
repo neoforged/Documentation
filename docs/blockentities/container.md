@@ -157,7 +157,7 @@ public class MyBlockEntity extends BaseContainerBlockEntity {
 Keep in mind that this class is a `BlockEntity` and a `Container` at the same time. This means that you can use the class as a supertype for your block entity to get a functioning block entity with a pre-implemented container.
 
 :::note
-`BlockEntity`s that implement `Container` handle dropping its contents by default. If you choose not to implement `Container`, then you will need to handle the [removal logic][beremove].
+`BlockEntity`s that implement `Container` handle dropping their contents by default. If you choose not to implement `Container`, then you will need to handle the [removal logic][beremove].
 :::
 
 ### `WorldlyContainer`
