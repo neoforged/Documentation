@@ -70,7 +70,7 @@ public static final DeferredItem<Item> COPPER_HOE = ITEMS.registerItem("copper_h
 ```
 
 :::note
-`tool` takes in two additional parameters: the `TagKey` representing what blocks can be mined, and the number of seconds to disable blockers (e.g., shields).
+`tool` takes in two additional parameters: the `TagKey` representing what blocks can be mined, and the number of seconds that blockers (e.g., shields) are disabled for when hit.
 :::
 
 ### Tags
