@@ -86,10 +86,10 @@ dispatcher.register(
 );
 ```
 ### Side requirement
-In your `register` method, you have a parameter `dispatcher`. In addition to enabling registration, it gave some informations about tick game context. One of these information is `#getCommandSelection`, which returns whether it is multiplayer or singleplayer.
+In your `register` method, you get a parameter `dispatcher` from the `RegisterCommandsEvent`. In addition to enabling registration, it gave some informations about tick game context. One of these information is `#getCommandSelection`, which returns whether it is multiplayer or singleplayer.
 ```java
 public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
-        if(event.getCommandSelection() == Commands.CommandSelection.DEDICATED) { // INTEGRATED for singleplayer
+        if(dispatcher.getCommandSelection() == Commands.CommandSelection.DEDICATED) { // INTEGRATED for singleplayer
             dispatcher.register(
                 Commands.literal("multiplayercommand")
                         // then code action
