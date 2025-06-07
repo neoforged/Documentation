@@ -2,17 +2,14 @@
 sidebar-position: 7
 ---
 # Commands
-Commands are useful in vanilla Minecraft, but even more so with mods. They are the quickest way to access and modify data.
-Commands allow you to:
-- Use permission levels.
-- Access anything in your mod.
-- Be used anywhere on the map, generally without the need for specific items or other physical objects.
+Commands are useful in vanilla Minecraft, but even more so with mods. They are the quickest way to perform operations for players.
 ## Creating a command
 To create a command, you need to create a [register][registries.md] method, that receives a `CommandDispatcher<CommandSourceStack>` argument, the source of command registration.
 This dispatcher has a method called `register` that allows new commands to be added and receives a `LiteralArgumentBuilder<S>` argument.
 To build this argument builder, there is a method, `Commands.literal`, which returns this argument type.
 ```java
-public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
+public static void register(CommandDispatcher<CommandSourceStack> dispatcher,
+    CommandBuildContext context, CommandSelection selection) {
     dispatcher.register (
         Commands.literal("commandname") // The name of your command
         .execute(context -> { // Here is what the command do, where context is a CommandContext<CommandSourceStack>
@@ -24,22 +21,22 @@ public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
 ```
 Here we use `#executes` to launch the command.
 
-Then, register the command in an event like this:
+Then, register the command in an event (with the game vent bus) like this:
 ```java
-@SubscribeEvent
+@SubscribeEvent // You can also use #addEventListener
 public static void onRegisterCommands(RegisterCommandsEvent event) {
     ModCommands.register(event.getDispatcher());
 }
 ```
-What Neoforge do in this case, it's that it call event `RegisterCommandEvent` when loading game, and our code say to call `#register` with an `dispatcher` argument, the global source of all commands. Now is the command ready to use!
+Now is the command ready to be used!
 ## Arguments
 At this point, our command always performs the same action, which is not very useful.
-Here is a list of principal argument types:
-- Integer
-- String
-- Entity, BlockPos, Item...
-They are located on path `neoforge/net/minecraft/commands/` and native types (int and string) are locked in brigadier class.
-Argument are invoked by `#then(Commands.argument("name", argument_type))` you can get it with `Type varname = <argument_type>.get<argument>(context, "name")`
+
+The interface `ArgumentType` construct argument and give way to receives it.
+All argument types are located on path `neoforge/net/minecraft/commands/` and native types (as int or string) are locked in brigadier class.
+All that classes extends `ArgumentType<T>` or implements `ArgumentType<itself>`.
+
+Argument are invoked by `#then(Commands.argument("name", argument_type))` you can usually get it through `Type varname = <argument_type>.get<argument>(context, "name")`
 Here is an example:
 ```java
 public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
@@ -49,14 +46,14 @@ public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         .execute(context -> {
             String message = StringArgumentType.getString(context, "message"); // Same name as above
             ServerPlayer player = context.getSource(); // Who is executing the command
-            player.sendServerMessage(message);
+            player.sendSystemMessage(Component.literal(message));
             return Command.SINGLE_SUCCES;
         })
     );
 }
 ```
 :::danger
-Note that all ArgumentTypes are abstract and you need to use child, as `#string()` in this example.
+Note that certains ArgumentTypes as `StringArgumentType` can't be directly used and you need to use childs, as `#string()` in this example.
 :::
 ### Suggestion
 You can suggest (implement auto-completion) things with method `#suggest(SuggestionProvider)` just after a `#then` expression.
@@ -80,17 +77,14 @@ if(!ACTIONS.contains(arg)) { // Arg is already declared
 ## Other features
 As many Neoforge elements, command has his own set of function that make our life better...
 ### Execution conditions
-You can use the `#requires` method after `Commands.literal` function to require some things with based on an function that take one argument: `context`.
+You can use the `#requires` method after `Commands.literal` function to require some things with based on an function that take one argument: `source` (player that execute the command).
 ```java
 // In the register function
 dispatcher.register(
     Commands.literal("opcommand")
-        .requires(context -> context.hasPermission(2))
+        .requires(source -> source.hasPermission(2)) // persmission level: 0 = none, 4 = admin
 );
 ```
-:::note
-Of course, you can place `#requires` in a `if` statement or only when certains parameters equals to somethings.
-:::
 ### Side requirement
 In your `register` method, you have a parameter `dispatcher`. In addition to enabling registration, it gave some informations about tick game context. One of these information is `#getCommandSelection`, which returns whether it is multiplayer or singleplayer.
 ```java
