@@ -2,13 +2,15 @@
 sidebar-position: 7
 ---
 # Commands
-Commands are very useful in vanilla Minecraft and even more so with mods. They are the quickest way to access and modify data.
-Commands allow to:
+Commands are useful in vanilla Minecraft, but even more so with mods. They are the quickest way to access and modify data.
+Commands allow you to:
 - Use permission levels.
-- Access to anything in your mod.
-- Allow use anywhere on the map, generally without specific items or other physical objects.
+- Access anything in your mod.
+- Be used anywhere on the map, generally without the need for specific items or other physical objects.
 ## Creating a command
-To create a command, you need to create a new class and put this code:
+To create a command, you need to create a [register][registries.md] method, that receives a `CommandDispatcher<CommandSourceStack>` argument, the source of command registration.
+This dispatcher has a method called `register` that allows new commands to be added and receives a `LiteralArgumentBuilder<S>` argument.
+To build this argument builder, there is a method, `Commands.literal`, which returns this argument type.
 ```java
 public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
     dispatcher.register (
@@ -20,7 +22,9 @@ public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
     );
 }
 ```
-And then, register the command in your event handler (of anywhere as an event) like this:
+Here we use `#executes` to launch the command.
+
+Then, register the command in an event like this:
 ```java
 @SubscribeEvent
 public static void onRegisterCommands(RegisterCommandsEvent event) {
@@ -29,8 +33,8 @@ public static void onRegisterCommands(RegisterCommandsEvent event) {
 ```
 What Neoforge do in this case, it's that it call event `RegisterCommandEvent` when loading game, and our code say to call `#register` with an `dispatcher` argument, the global source of all commands. Now is the command ready to use!
 ## Arguments
-At this point, our command execute always the same action, and it's not very useful...
-Here is a list of principals argument types:
+At this point, our command always performs the same action, which is not very useful.
+Here is a list of principal argument types:
 - Integer
 - String
 - Entity, BlockPos, Item...
@@ -100,6 +104,7 @@ public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
     }
 ```
 ### `Commands.literal`
+The `Commands.Literal` class is used in the build process to store the command name. However, it has other uses, as detailed below.
 `Commands.literal` or other one-state argument create temporally a new argument (in this case, a string) with one possibility, making special path. Then use `#executes` to lauch the command only if this argument is exactly somethings. If not, it continue workflow.
 ```java
 dispatcher.register(
@@ -115,8 +120,5 @@ dispatcher.register(
 ```
 Here, if the first argument is `get`, we directy execute the command, otherwise we take another argument `value`.
 :::danger
-If you use `Commands.literal`, you will always need to put related instructions in this `then` block. Otherwise will you get an error of a strange behavior.
-:::
-:::note
-Now you have all stuff needed to create your own command. Remind that all structures are possible, and you can make evevrythings like invoking suggestion only if...
+If you use `Commands.literal` as a single-possibility argument, you will always need to put the related instructions in the then block. Otherwise, you will get an error or strange behaviour.
 :::
