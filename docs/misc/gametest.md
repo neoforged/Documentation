@@ -3,7 +3,7 @@ import TabItem from '@theme/TabItem';
 
 # Game Tests
 
-Game Tests are a way to run in-game unit tests. The system was designed to be scalable and in parallel to run large numbers of different tests efficiently. Testing object interactions and behaviors are simply a few of the many applications of this framework. While part of the system is implemented via [datapacks], some parts need to first be registered in code to effectively use.
+Game Tests are a way to run in-game unit tests. The system was designed to be scalable and in parallel to run large numbers of different tests efficiently. Testing object interactions and behaviors are simply a few of the many applications of this framework. As the system can either be implemented fully in-code or via [datapacks], both will be shown below.
 
 ## Creating a Game Test
 
@@ -496,7 +496,7 @@ public void gatherData(GatherDataEvent.Client event) {
 
 ### Custom Definition Types
 
-A custom `TestEnvironmentDefinition` type provides three methods: `setup` to modify the `ServerLevel`, `tearndown` to reset what was modified, and `codec` to provide the `MapCodec` to encode and decode the type:
+A custom `TestEnvironmentDefinition` type provides three methods: `setup` to modify the `ServerLevel`, `teardown` to reset what was modified, and `codec` to provide the `MapCodec` to encode and decode the type:
 
 ```java
 public record ExampleEnvironmentType(int value1, boolean value2) implements TestEnvironmentDefinition {

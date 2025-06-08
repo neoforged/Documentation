@@ -2,6 +2,10 @@
 
 A model is simply a shape. It can be a cube, a collection of cubes, a collection of triangles, or any other geometrical shape (or collection of geometrical shape). For most contexts, it is not relevant how a model is defined, as everything will end up baked into a `QuadCollection` anyway. As such, NeoForge adds the ability to register custom model loaders that can transform any model you want into the baked format for the game to use.
 
+:::note
+When implementing a custom loader, all models -- whether the JSON, block state definition, or item model -- should heavily cache. For block states, even though chunks are only rebuilt when a block in them changes, they are still called up to seven times per `RenderType` used by a given model * amount of `RenderType`s used by the respective model * 4096 blocks per chunk section, with [BERs][ber] or [entity renderers][entityrenderer] potentially rendering a model several times per frame. For item models, the number of times they are rendered multiple times per frame because of the `RenderType`.
+:::
+
 ## Model Loaders
 
 The entry point for a block model remains the model JSON file. However, you can specify a `loader` field in the root of the JSON that will swap out the default loader for your own loader. A custom model loader may ignore all fields the default loader requires.
@@ -112,13 +116,13 @@ To illustrate how these classes are connected, we will follow a model being load
 - During model rendering, the `QuadCollection`, along with any other information required by the [client item][citems] or [block state definition][blockstatedefinition] is used in rendering.
 
 :::note
-If you are creating a custom model loader for a model used by an item or block state, depending on the use case, it would be better to create a new `ItemModel` or `BlockStateModel` instead. For example, a model that use or generates `QuadCollection`s would make more sense as an `ItemModel` or `BlockStateModel`  while a model that renders a different data format (like `.obj`) should create a new model loader.
+If you are creating a custom model loader for a model used by an item or block state, depending on the use case, it might be better to create a new `ItemModel` or `BlockStateModel` instead. For example, a model that uses or generates `QuadCollection`s would make more sense as an `ItemModel` or `BlockStateModel`, while a model that parses a different data format (like `.obj`) should use a new model loader.
 :::
 
-Let's illustrate this further through a basic class setup. The loader class is named `MyUnbakedModelLoader`, the unbaked class is named `MyUnbakedModel`, the unbaked geometry called `MyUnbakedGeometry`, and the existing `QuadCollection`. We will also assume that the model loader requires some cache:
+Let's illustrate this further through a basic class setup. The loader class is named `MyUnbakedModelLoader`, the unbaked class is named `MyUnbakedModel`, and the unbaked geometry is called `MyUnbakedGeometry`. We will also assume that the model loader requires some cache:
 
 ```java
-// This is the call used to load the model into its unbaked format
+// This is the class used to load the model into its unbaked format
 public class MyUnbakedModelLoader implements UnbakedModelLoader<MyUnbakedModel>, ResourceManagerReloadListener {
     // It is highly recommended to use a singleton pattern for unbaked model loaders, as all models can be loaded through one loader.
     public static final MyUnbakedModelLoader INSTANCE = new MyUnbakedModelLoader();
@@ -153,7 +157,7 @@ public class MyUnbakedModelLoader implements UnbakedModelLoader<MyUnbakedModel>,
 public class MyUnbakedGeometry implements ExtendedUnbakedGeometry {
 
     public MyUnbakedGeometry(...) {
-        // Read the in the unbaked quads
+        // Store the unbaked quads to bake
     }
 
     // Method responsible for model baking, returning the quad collection. Parameters in this method are:
@@ -173,8 +177,8 @@ public class MyUnbakedGeometry implements ExtendedUnbakedGeometry {
     }
 }
 
-// The unbaked model, contains all the read information from the JSON
-// Provides the basic settings and geometry
+// The unbaked model contains all the information read from the JSON.
+// It provides the basic settings and geometry.
 // Using AbstractUnbakedModel sets the Vanilla and NeoForge properties methods
 public class MyUnbakedModel extends AbstractUnbakedModel {
 
@@ -368,7 +372,7 @@ To illustrate how these classes are connected, we will follow a block state mode
 
 - During definition loading, a block state model within a variant, multipart, or [custom definition][customdefinition] with the `type` property set to your loader is decoded to your `CustomUnbakedBlockStateModel`.
 - During model baking, `CustomUnbakedBlockStateModel#bake` is called, returning a `BlockStateModel`, which contains some list of `BlockModelPart`s.
-- During model rendering, `BlockStateModel#collectParts`, collects the list of `BlockModelPart`s to render.
+- During model rendering, `BlockStateModel#collectParts` collects the list of `BlockModelPart`s to render.
 
 Let's illustrate this further through a basic class setup. The baked model is named `MyBlockStateModel`, the unbaked class is an inner record `MyBlockStateModel.Unbaked`, model parts is called `MyBlockModelPart`, the unbaked part class is an inner record `MyBlockModelPart.Unbaked`, and the `ModelState` is named `MyModelState`:
 
@@ -451,7 +455,7 @@ public record MyBlockModelPart(QuadCollection quads, boolean useAmbientOcclusion
 public record MyBlockStateModel(MyBlockModelPart model) implements DynamicBlockStateModel {
 
     // Sets the particle icon
-    // While it needs to be implemented, any actual logic should be relegated to the level-aware version
+    // While it needs to be implemented, any actual logic should be delegated to the level-aware version
     @Override
     public TextureAtlasSprite particleIcon() {
         return this.model.particleIcon();
@@ -530,7 +534,7 @@ Of course, we can also [datagen] our models. To do so, we need a class that exte
 // The builder used to construct the block state JSON
 public class MyBlockStateModelBuilder extends CustomBlockStateModelBuilder {
 
-    private MyBlockModelPart.Unbaked model = null;
+    private MyBlockModelPart.Unbaked model;
 
     public MyBlockStateModelBuilder() {}
     
@@ -599,7 +603,7 @@ While individual block state models handle the loading of a single block state, 
 
 ### Creating Custom Block State Definition Loaders
 
-To create your own block state definition loader, you need two class, plus an event handler:
+To create your own block state definition loader, you need two classes, plus an event handler:
 
 - A `CustomBlockModelDefinition` class to load the block state definition
 - A `BlockStateModel.UnbakedRoot` class to bake a block state to its `BlockStateModel`
@@ -608,7 +612,7 @@ To create your own block state definition loader, you need two class, plus an ev
 To illustrate how these classes are connected, we will follow a block state model being loaded:
 
 - During definition loading, a block state definition with the `neoforge:definition_type` property set to your loader is decoded to a `CustomBlockModelDefinition`.
-- Then, `CustomBlockModelDefinition#instantiate` is called to map all possible block states to their `BlockStateModel.UnbakedRoot`. For simple cases, this is constructed via `BlockStateModel.Unbaked#asRoot`. Complicated instances create their on `BlockStateModel.UnbakedRoot`.
+- Then, `CustomBlockModelDefinition#instantiate` is called to map all possible block states to their `BlockStateModel.UnbakedRoot`. For simple cases, this is constructed via `BlockStateModel.Unbaked#asRoot`. Complicated instances create their own `BlockStateModel.UnbakedRoot`.
 - During model baking, `BlockStateModel.UnbakedRoot#bake` is called, returning a `BlockStateModel` for some `BlockState`.
 
 Let's illustrate this further through a basic class setup. The block model definition is named `MyBlockModelDefinition` and we will reuse `BlockStateModel.Unbaked#asRoot` to construct the `BlockStateModel.UnbakedRoot`:
@@ -674,7 +678,7 @@ public class MyBlockModelDefinitionGenerator implements BlockModelDefinitionGene
     @Override
     public Block block() {
         // Returns the block you are generating the definition file for
-        return this.block
+        return this.block;
     }
 
     @Override

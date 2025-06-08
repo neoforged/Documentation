@@ -7,25 +7,10 @@ Models are stored in the `ModelManager`, which can be accessed through `Minecraf
 
 ## Common Models and Geometry
 
-The basic model JSON (in `assets/<namespace>/models`) are deserialized into an `UnbakedModel`. The `UnbakedModel` is generally one step short of its baked output, containing some general form of the general properties. The most important thing it contains is the `UnbakedGeometry` via `UnbakedModel#geometry`, which represents the data to become `BakedQuad`s. These quads are inlined into the item and block state model by (eventually) calling `UnbakedGeometry#bake`. This commonly constructs a `QuadCollection`, which contains that list of `BakedQuad`s which can be rendered at anytime or only if a given direction is not culled.
+The basic model JSON (in `assets/<namespace>/models`) are deserialized into an `UnbakedModel`. The `UnbakedModel` is generally one step short of its baked output, containing some general form of the general properties. The most important thing it contains is the `UnbakedGeometry` via `UnbakedModel#geometry`, which represents the data to become `BakedQuad`s. These quads are inlined into the item and block state model by (eventually) calling `UnbakedGeometry#bake`. This commonly constructs a `QuadCollection`, which contains that list of `BakedQuad`s which can be rendered at anytime or only if a given direction is not culled. Now, a quad compares to a triangle in a modeling program (and in most other games), however due to Minecraft's general focus on squares, the developers elected to use quads (4 vertices) instead of triangles (3 vertices) for rendering in Minecraft.
 
-Now, a quad compares to a triangle in a modeling program (and in most other games), however due to Minecraft's general focus on squares, the developers elected to use quads (4 vertices) instead of triangles (3 vertices) for rendering in Minecraft.
+The `UnbakedModel` contains information that is either used by the [block state definition][bsd], [item models][itemmodelsection], or both. For example, `useAmbientOcclusion` is used exclusively by the block state definition, `guiLight` and `transforms` are used exclusively by the item model, and `textureSlots` and `parent` are used by both.
 
-:::note
-Models should heavily cache. This is because even though chunks are only rebuilt when a block in them changes, the computations done in this method still need to be as fast as possible and should ideally be cached heavily due to the amount of times this method will be called per chunk section (up to seven times per RenderType used by a given model * amount of RenderTypes used by the respective model * 4096 blocks per chunk section). In addition, [BERs][ber] or [entity renderers][entityrenderer] may actually call this method several times per frame.
-
-This is also true for block state definitions and item models.
-:::
-
-Here are some other methods available within the `UnbakedModel`:
-
-| Signature                          |   Effect                                                                                 |
-|------------------------------------|------------------------------------------------------------------------------------------|
-| `Boolean useAmbientOcclusion()`    | Whether to use [ambient occlusion][ao] or not.                                           |
-| `UnbakedModel.GuiLight guiLight()` | Whether this model renders as 3d (`SIDE`) or flat (`FRONT`) in GUI slots.                |
-| `ItemTransforms transforms()`      | Returns the transforms that can be applied when as an item via its `ItemDisplayContext`. |
-| `TextureSlots.Data textureSlots()` | Returns the texture data that is mapped onto the geometry.                               |
-| `ResourceLocation parent()`        | Returns the parent model that this model will be merged with.                            |
 
 During the baking process, every `UnbakedModel` is wrapped in a `ResolvedModel` that are obtained by the `ModelBaker` for an item or block state. As the name implies, a `ResolvedModel` is an `UnbakedModel` with all lingering references resolved. The associated data can then be obtained from the `getTop*` methods, which compute the properties and geometry from the current model and its parents. Baking the `ResolvedModel` to its `QuadCollection` is typically done here by calling `ResolvedModel#bakeTopGeometry`.
 
@@ -145,10 +130,11 @@ It is generally encouraged to use a [custom model loader][modelloader] over wrap
 [ao]: https://en.wikipedia.org/wiki/Ambient_occlusion
 [ber]: ../../../blockentities/ber.md
 [blockstate]: ../../../blocks/states.md
+[bsd]: #block-state-definitions
 [clientitem]: items.md
-[entityrenderer]: ../../../entities/renderer.md
 [event]: ../../../concepts/events.md
 [itemmodels]: items.md#manually-rendering-an-item
+[itemmodelsection]: #item-models
 [livingentity]: ../../../entities/livingentity.md
 [modbus]: ../../../concepts/events.md#event-buses
 [modelloader]: modelloaders.md

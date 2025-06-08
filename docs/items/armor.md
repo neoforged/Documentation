@@ -20,7 +20,7 @@ An armor set for a humanoid entity typically consists of four items: a helmet fo
 - `#ATTRIBUTE_MODIFIERS` for armor, armor toughness, and knockback resistance
 - `#EQUIPPABLE` for how the entity can equip the item.
 
-Commonly, each armor is setup using `Item.Properties#humanoidArmor` for humanoid entities, `wolfArmor` for wolves, and `horseArmor` for horses. They all use `ArmorMaterial` combined with `ArmorType` for humanoids to set up the components. Reference values can be found within `ArmorMaterials`. This example uses a copper armor material, which you can adjust the values as needed.
+Commonly, each armor is setup using `Item.Properties#humanoidArmor` for humanoid entities, `wolfArmor` for wolves, and `horseArmor` for horses. They all use `ArmorMaterial` combined with `ArmorType` for humanoids to set up the components. Reference values can be found within `ArmorMaterials`. This example uses a copper armor material, which you can adjust the values of as needed.
 
 ```java
 public static final ArmorMaterial COPPER_ARMOR_MATERIAL = new ArmorMaterial(
@@ -111,7 +111,7 @@ If you want to create armor or an armor-like item from scratch, it can be implem
 
 ### `Equippable`
 
-`Equippable` is a data component that contains how an entity can equip this item and what handles the rendering in game. This allows any item, regardless of whether it is considered 'armor', to be equipped if this component is available (for example saddles or carpets on llamas). Each item with this component can only be equipped to a single `EquipmentSlot`.
+`Equippable` is a data component that contains how an entity can equip this item and what handles the rendering in game. This allows any item, regardless of whether it is considered 'armor', to be equipped if this component is available (e.g., saddles, carpets on llamas). Each item with this component can only be equipped to a single `EquipmentSlot`.
 
 An `Equippable` can be created either by directly calling the record constructor or via `Equippable#builder`, which sets the defaults for each field, folowed by `build` once finished:
 

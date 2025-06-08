@@ -17,7 +17,7 @@ A tool set typically consists of five items: a pickaxe, an axe, a shovel, a hoe 
 - `#TOOL` for mining information
 - `#WEAPON` for damage taken by the item and shield disabling
 
-Commonly, each tool is setup using `Item.Properties#tool`, `#sword`, or one of tool's delegates (`pickaxe`, `axe`, `hoe`, `shovel`). These are typically handled by passing in the utility record `ToolMaterial`. Note that other items usually considered tools, such as shears, are not included in this hierarchy. Instead, they directly extend `Item` and handle the breaking logic themselves.
+Commonly, each tool is setup using `Item.Properties#tool`, `#sword`, or one of tool's delegates (`pickaxe`, `axe`, `hoe`, `shovel`). These are typically handled by passing in the utility record `ToolMaterial`. Note that other items usually considered tools, such as shears, do not have their common mining logic implemented through data components. Instead, they directly extend `Item` and handle the mining by overriding the relevant methods. Interact behavior (right-click by default) also does not have a data component, meaning that shovels, axes, and hoes have their own tool classes `ShovelItem`, `AxeItem`, and `HoeItem` respectively.
 
 To create a standard set of tools, you must first define a `ToolMaterial`. Reference values can be found within the constants in `ToolMaterial`. This example uses copper tools, you can use your own material here and adjust the values as needed.
 

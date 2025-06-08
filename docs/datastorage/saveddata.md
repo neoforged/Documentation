@@ -25,7 +25,7 @@ public class ExampleSavedData extends SavedData {
 
 ## `SavedDataType`
 
-As the `SavedData` is simply an object, there needs to be some sort of associated identifier. Additionally, we also need to read and write the data to disk. This is where the `SavedDataType` comes in. It takes in the identifier of the saved data, a default constructor for when no data is present, and a codec used to encode and decode the data. The identifier is treated as the path location within the associated world folder and level dimension like so: `./<world_folder>/<level_name>/data/<identifier>.dat`. Any missing directories will be created, including those used as part of the identifier.
+As the `SavedData` is simply an object, there needs to be some sort of associated identifier. Additionally, we also need to read and write the data to disk. This is where the `SavedDataType` comes in. It takes in the identifier of the saved data, a default constructor for when no data is present, and a [codec] used to encode and decode the data. The identifier is treated as the path location within the associated world folder and level dimension like so: `./<world_folder>/<level_name>/data/<identifier>.dat`. Any missing directories will be created, including those used as part of the identifier.
 
 :::note
 There is an additional fourth parameter for the `DataFixTypes`, but as NeoForge does not support data fixers, all vanilla use cases have been patched to allow null values.
@@ -114,3 +114,5 @@ netherDataStorage.computeIfAbsent(ContextExampleSavedData.ID);
 ```
 
 If a SD is not specific to a level, the SD should be attached to the Overworld, which can be obtained from `MinecraftServer#overworld`. The Overworld is the only dimension that is never fully unloaded and as such makes it perfect to store multi-level data on.
+
+[codec]: codecs.md
