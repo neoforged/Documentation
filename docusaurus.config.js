@@ -98,6 +98,22 @@ const config = {
         },
       },
     ],
+    [
+      "@docusaurus/plugin-content-docs",
+      {
+        id: "userguide",
+        path: "userguide",
+        routeBasePath: "userguide",
+        sidebarPath: require.resolve("./sidebarsUG.js"),
+        lastVersion: "current",
+        includeCurrentVersion: true,
+        versions: {
+          current: {
+            label: "1.20.2-latest",
+          },
+        },
+      },
+    ],
   ],
 
   themeConfig:
@@ -121,6 +137,13 @@ const config = {
             sidebarId: "mainSidebar",
             position: "left",
             label: "NeoForge Documentation",
+          },
+          {
+            type: "docSidebar",
+            sidebarId: "ugSidebar",
+            position: "left",
+            docsPluginId: "userguide",
+            label: "NeoForge User Guide",
           },
           {
             type: "docSidebar",
