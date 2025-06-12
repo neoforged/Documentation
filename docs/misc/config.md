@@ -182,6 +182,7 @@ A configuration screen allows users to edit the config values for a mod while in
 A mod can use the built-in configuration screen that NeoForge provides. Mods can extend `ConfigurationScreen` to change the behavior of the default screen or make their own configuration screen. Mods can also create their own screen from scratch and provide that custom screen to NeoForge through the below extension point.
 
 A configuration screen can be registered for a mod by registering a `IConfigScreenFactory` extension point during mod construction on the [client]:
+
 ```java
 // In the main client mod file
 public ExampleModClient(ModContainer container) {

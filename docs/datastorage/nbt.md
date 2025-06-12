@@ -52,39 +52,41 @@ Several helpers exist here, for example, `putIntArray` also has a convenience me
 Of course, we can also get values from that tag:
 
 ```java
-int color = tag.getInt("Color");
-String level = tag.getString("Level");
-double d = tag.getDouble("IAmRunningOutOfIdeasForNamesHere");
+Optional<Integer> color = tag.getInt("Color");
+Optional<String> level = tag.getString("Level");
+Optional<Double> d = tag.getDouble("IAmRunningOutOfIdeasForNamesHere");
 ```
 
-Number types will return 0 if absent. Strings will return `""` if absent. More complex types (lists, arrays, compounds) will throw an exception if absent.
-
-As such, we want to safeguard by checking if a tag element exists:
+As it is unknown whether the tag is present or not, the values returned are optional-wrapped. A default can be specified using one of the `*Or*` methods for primitive types. `ListTag`s can be defaulted via `getListOrEmpty` while `CompoundTag`s via `getCompoundOrEmpty`. Primitive array types have no `*Or*` equivalent.
 
 ```java
-boolean hasColor = tag.contains("Color");
-boolean hasColorMoreExplicitly = tag.contains("Color", Tag.TAG_INT);
+int color = tag.getIntOr("Color", 0xffffff);
+String level = tag.getStringOr("Level", "minecraft:overworld");
+double d = tag.getDoubleOr("IAmRunningOutOfIdeasForNamesHere", 1d);
 ```
 
-The `TAG_INT` constant is defined in `Tag`, which is the super interface for all tag types. Most tag types besides `CompoundTag` are mostly internal, for example `ByteTag` or `StringTag`, though the direct `CompoundTag#get` and `#put` methods can work with them if you ever stumble across some.
 
-There is one obvious exception, though: `ListTag`s. Working with these is special because when getting a list tag through `CompoundTag#getList`, you must also specify the list type. So getting a list of strings, for example, would work like this:
+All tag types implement the `Tag` interface. Most tag types besides `CompoundTag` are mostly internal, for example `ByteTag` or `StringTag`, though the direct `CompoundTag#get` and `#put` methods can work with them if you ever stumble across some.
 
-```java
-ListTag list = tag.getList("SomeListHere", Tag.TAG_STRING);
-```
-
-Similarly, when creating a `ListTag`, you must also specify the list type during creation:
+There is one obvious exception, though: `ListTag`s. Working with these is special because these are associated with some tag type, computed internally:
 
 ```java
-ListTag list = new ListTag(List.of("Value1", "Value2"), Tag.TAG_STRING);
+ListTag newList = new ListTag();
+// Adds the tags to the list
+newList.add(StringTag.valueOf("Value1"));
+newList.add(StringTag.valueOf("Value2"));
+
+// Getting the tag
+ListTag getList = tag.getListOrEmpty("SomeListHere");
 ```
 
 Finally, working with `CompoundTag`s inside other `CompoundTag`s directly utilizes `CompoundTag#get` and `#put`:
 
 ```java
 tag.put("Tag", new CompoundTag());
-tag.get("Tag");
+
+// Can use regular `get` as well if you want to handle null case instead
+tag.getCompoundOrEmpty("Tag");
 ```
 
 ## Usages of NBT

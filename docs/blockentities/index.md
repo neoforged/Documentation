@@ -34,6 +34,9 @@ public static final Supplier<BlockEntityType<MyBlockEntity>> MY_BLOCK_ENTITY = B
         () -> new BlockEntityType<>(
                 // The supplier to use for constructing the block entity instances.
                 MyBlockEntity::new,
+                // An optional value that, when true, only allows players with OP permissions
+                // to load NBT data (e.g. placing a block item)
+                false,
                 // A vararg of blocks that can have this block entity.
                 // This assumes the existence of the referenced blocks as DeferredBlock<Block>s.
                 MyBlocks.MY_BLOCK_1.get(), MyBlocks.MY_BLOCK_2.get()
@@ -126,6 +129,38 @@ public class MyBlockEntity extends BlockEntity {
 In both methods, it is important that you call super, as that adds basic information such as the position. The tag names `id`, `x`, `y`, `z`, `NeoForgeData` and `neoforge:attachments` are reserved by the super methods, and as such, you should not use them yourself.
 
 Of course, you will want to set other values and not just work with defaults. You can do so freely, like with any other field. However, if you want the game to save those changes, you must call `#setChanged()` afterward, which marks the block entity's chunk as dirty (= in need of being saved). If you do not call that method, the block entity might get skipped during saving, as Minecraft's saving system only saves chunks that have been marked as dirty.
+
+### Removing Block Entities
+
+Sometimes, you may want the block entity to export its stored data on removal (e.g., dropping its inventory when broken by the player). In these instances, the logic should be handled within `BlockEntity#preRemoveSideEffects`. By default, if your block entity drops implements [`Container`][container], then the block entity will drop its stored contents.
+
+```java
+public class MyBlockEntity extends BlockEntity {
+
+    @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        super.preRemoveSideEffects(pos, state);
+        // Perform any remaining export logic on removal here.
+    }
+}
+```
+
+:::warning
+Blocks that are removed with the `Block.UPDATE_SKIP_BLOCK_ENTITY_SIDEEFFECTS` flag set will not call this method. This is commonly the case when using the clone commands or if a structure is placed in strict mode.
+:::
+
+If neighboring blocks need to know about the block entity breaking (e.g., inventory outputing a redstone signal through a comparator), then your block should override `BlockBehaviour#affectNeighborsAfterRemoval`. Block entities which output a redstone signal typically call `Containers#updateNeighboursAfterDestroy` here.
+
+```java
+public class MyEntityBlock extends Block implements EntityBlock {
+
+    @Override
+    protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean movedByPiston) {
+        // Handle whatever logic you want to execute on the surrounding neighbors
+        Containers.updateNeighboursAfterDestroy(state, level, pos);
+    }
+}
+```
 
 ## Tickers
 
@@ -236,6 +271,7 @@ It is important that you do safety checks, as the `BlockEntity` might already be
 [block]: ../blocks/index.md
 [blockreg]: ../blocks/index.md#basic-blocks
 [blockstate]: ../blocks/states.md
+[container]: container.md
 [dataattachments]: ../datastorage/attachments.md
 [entities]: ../entities/index.md
 [modbus]: ../concepts/events.md#event-buses

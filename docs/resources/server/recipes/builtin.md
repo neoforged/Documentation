@@ -139,7 +139,9 @@ Transmute recipes are a special type of single item crafting recipes where the i
     "group": "shulker_box_dye",
     "input": "#minecraft:shulker_boxes",
     "material": "minecraft:blue_dye",
-    "result": "minecraft:blue_shulker_box"
+    "result": {
+        "id": "minecraft:blue_shulker_box"
+    }
 }
 ```
 
@@ -150,7 +152,7 @@ Like before, let's digest this line for line:
 - `group`: This optional string property creates a group in the recipe book. Recipes in the same group will be displayed as one in the recipe book, which typically makes sense for transmuted recipes.
 - `input`: The [ingredient] to transmute.
 - `material`: The [ingredient] that transforms the stack into its result.
-- `result`: The result of the recipe. This is an item, as the stack would be constructed given the components of the input.
+- `result`: The result of the recipe. This is [an item stack's JSON representation][itemjson].
 
 And then, let's have a look at how you'd generate this recipe in `RecipeProvider#buildRecipes`:
 
@@ -302,14 +304,13 @@ This recipe serializer is for transforming two input items into one, preserving 
 
 ```json5
 {
-  "type": "minecraft:smithing_transform",
-  "addition": "#minecraft:netherite_tool_materials",
-  "base": "minecraft:diamond_axe",
-  "result": {
-    "count": 1,
-    "id": "minecraft:netherite_axe"
-  },
-  "template": "minecraft:netherite_upgrade_smithing_template"
+    "type": "minecraft:smithing_transform",
+    "addition": "#minecraft:netherite_tool_materials",
+    "base": "minecraft:diamond_axe",
+    "result": {
+        "id": "minecraft:netherite_axe"
+    },
+    "template": "minecraft:netherite_upgrade_smithing_template"
 }
 ```
 
@@ -349,10 +350,11 @@ Trim smithing is the process of applying armor trims to armor:
 
 ```json5
 {
-  "type": "minecraft:smithing_trim",
-  "addition": "#minecraft:trim_materials",
-  "base": "#minecraft:trimmable_armor",
-  "template": "minecraft:bolt_armor_trim_smithing_template"
+    "type": "minecraft:smithing_trim",
+    "addition": "#minecraft:trim_materials",
+    "base": "#minecraft:trimmable_armor",
+    "pattern": "minecraft:spire",
+    "template": "minecraft:bolt_armor_trim_smithing_template"
 }
 ```
 
@@ -362,6 +364,7 @@ Again, let's break this down into its bits:
 - `base`: The base [ingredient] of the recipe. All vanilla use cases use the `minecraft:trimmable_armor` tag here.
 - `template`: The template [ingredient] of the recipe. All vanilla use cases use a smithing trim template here.
 - `addition`: The addition [ingredient] of the recipe. All vanilla use cases use the `minecraft:trim_materials` tag here.
+- `pattern`: The trim pattern applied to the base ingredient.
 
 This recipe serializer is notably missing a result field. This is because it uses the base input and "applies" the template and addition items on it, i.e., it sets the base's components based on the other inputs and uses the result of that operation as the recipe's result.
 
@@ -375,6 +378,8 @@ SmithingTrimRecipeBuilder.smithingTrim(
         this.tag(ItemTags.TRIMMABLE_ARMOR),
         // The addition ingredient.
         this.tag(ItemTags.TRIM_MATERIALS),
+        // The trim pattern to apply to the base.
+        this.registries.lookupOrThrow(Registries.TRIM_PATTERN).getOrThrow(TrimPatterns.SPIRE),
         // The recipe book category.
         RecipeCategory.MISC
 )

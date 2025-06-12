@@ -10,12 +10,17 @@ Texture metadata can be specified in a file named exactly the same as the textur
 
 ```json5
 {
-    // Whether the texture will be blurred if needed. Defaults to false.
-    // Currently specified by the codec, but unused otherwise both in the files and in code.
-    "blur": true,
-    // Whether the texture will be clamped if needed. Defaults to false.
-    // Currently specified by the codec, but unused otherwise both in the files and in code.
-    "clamp": true,
+    // Metadata for a general texture
+    "texture": {
+        // Whether the texture will be blurred if needed. Defaults to false.
+        // Currently specified by the codec, but unused otherwise both in the files and in code.
+        "blur": true,
+        // Whether the texture will be clamped if needed. Defaults to false.
+        // Currently specified by the codec, but unused otherwise both in the files and in code.
+        "clamp": true
+    },
+
+    // Metadata for a texture used as a gui sprite
     "gui": {
         // Specifies how the texture will be scaled if needed. Can be one of these three:
         "scaling": {
@@ -43,7 +48,9 @@ Texture metadata can be specified in a file named exactly the same as the textur
             "stretch_inner": true
         }
     },
-    // See below.
+
+    // Metadata for an animated texture
+    // See below
     "animation": {}
 }
 ```

@@ -335,7 +335,7 @@ graph LR;
     ItemFrame-->GlowItemFrame;
     HangingEntity-->Painting;
     Entity-->PartEntity;
-    PartEntity-->EnderDragonPart;
+    Entity-->EnderDragonPart;
     Entity-->VehicleEntity;
     VehicleEntity-->AbstractBoat;
     AbstractBoat-->AbstractChestBoat;
@@ -407,14 +407,16 @@ graph LR;
     Projectile-->ShulkerBullet;
     Projectile-->ThrowableProjectile;
     ThrowableProjectile-->ThrowableItemProjectile;
+    ThrowableItemProjectile-->AbstractThrownPotion;
+    AbstractThrownPotion-->ThrownLingeringPotion;
+    AbstractThrownPotion-->ThrownSplashPotion;
     ThrowableItemProjectile-->Snowball;
     ThrowableItemProjectile-->ThrownEgg;
     ThrowableItemProjectile-->ThrownEnderpearl;
     ThrowableItemProjectile-->ThrownExperienceBottle;
-    ThrowableItemProjectile-->ThrownPotion;
 
-    class Projectile,AbstractArrow,AbstractHurtingProjectile,AbstractWindCharge,Fireball,ThrowableProjectile,ThrowableItemProjectile red;
-    class Arrow,SpectralArrow,ThrownTrident,BreezeWindCharge,WindCharge,DragonFireball,LargeFireball,SmallFireball,WitherSkull,FireworkRocketEntity,FishingHook,LlamaSpit,ShulkerBullet,Snowball,ThrownEgg,ThrownEnderpearl,ThrownExperienceBottle,ThrownPotion blue;
+    class Projectile,AbstractArrow,AbstractHurtingProjectile,AbstractWindCharge,Fireball,ThrowableProjectile,ThrowableItemProjectile,AbstractThrownPotion red;
+    class Arrow,SpectralArrow,ThrownTrident,BreezeWindCharge,WindCharge,DragonFireball,LargeFireball,SmallFireball,WitherSkull,FireworkRocketEntity,FishingHook,LlamaSpit,ShulkerBullet,Snowball,ThrownEgg,ThrownEnderpearl,ThrownExperienceBottle,ThrownLingeringPotion,ThrownSplashPotion blue;
 ```
 
 Of note are the three direct abstract subclasses of `Projectile`:

@@ -19,8 +19,9 @@ public class MyBlockEntityRenderer implements BlockEntityRenderer<MyBlockEntity>
     // - bufferSource:  The buffer source to get vertex buffers from.
     // - packedLight:   The light value of the block entity.
     // - packedOverlay: The current overlay value of the block entity, usually OverlayTexture.NO_OVERLAY.
+    // - cameraPos:     The position of the renderer's camera.
     @Override
-    public void render(MyBlockEntity blockEntity, float partialTick, PoseStack stack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
+    public void render(MyBlockEntity blockEntity, float partialTick, PoseStack stack, MultiBufferSource bufferSource, int packedLight, int packedOverlay, Vec3 cameraPos) {
         // Do the rendering here.
     }
 }

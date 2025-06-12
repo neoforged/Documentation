@@ -312,12 +312,13 @@ Finally, to tie it all together, we can add the layer to our renderer (which, if
 public class MyEntityRenderer extends LivingEntityRenderer<MyEntity, MyEntityRenderState, MyEntityModel> {
     public MyEntityRenderer(EntityRendererProvider.Context context) {
         // For LivingEntityRenderer, the super constructor requires a "base" model and a shadow radius to be supplied.
-        super(context, new MyEntityModel(entityModelSet.bakeLayer(MY_LAYER)), 0.5f);
+        super(context, new MyEntityModel(context.bakeLayer(MY_LAYER)), 0.5f);
         // Add the layer. Get the EntityModelSet from the context. For the purpose of the example,
         // we ignore that the render layer renders the "base" model, this would be a different model in practice.
         this.addLayer(new MyRenderLayer(this, context.getModelSet()));
     }
 
+    @Override
     public MyEntityRenderState createRenderState() {
         return new MyEntityRenderState();
     }
@@ -410,10 +411,11 @@ public class MyRenderLayer extends RenderLayer<MyEntityRenderState, MyEntityMode
 ```java
 public class MyEntityRenderer extends LivingEntityRenderer<MyEntity, MyEntityRenderState, MyEntityModel> {
     public MyEntityRenderer(EntityRendererProvider.Context context) {
-        super(context, new MyEntityModel(entityModelSet.bakeLayer(MY_LAYER)), 0.5f);
+        super(context, new MyEntityModel(context.bakeLayer(MY_LAYER)), 0.5f);
         this.addLayer(new MyRenderLayer(this, context.getModelSet()));
     }
 
+    @Override
     public MyEntityRenderState createRenderState() {
         return new MyEntityRenderState();
     }
@@ -546,7 +548,7 @@ public class MyEntityModel extends EntityModel<MyEntityRenderState> {
         super.setupAnim(state);
         // Other stuff here.
         
-        animate(
+        this.animate(
             // Get the animation state to use from your EntityRenderState.
             state.myAnimationState,
             // Your animation holder.
@@ -555,9 +557,9 @@ public class MyEntityModel extends EntityModel<MyEntityRenderState> {
             state.ageInTicks
         );
         // A specialized version of animate(), designed for walking animations.
-        animateWalk(EXAMPLE_ANIMATION, state.walkAnimationPos, state.walkAnimationSpeed, 1, 1);
+        this.animateWalk(EXAMPLE_ANIMATION, state.walkAnimationPos, state.walkAnimationSpeed, 1, 1);
         // A version of animate() that only applies the first frame of animation.
-        applyStatic(EXAMPLE_ANIMATION).
+        this.applyStatic(EXAMPLE_ANIMATION).
     }
 }
 ```

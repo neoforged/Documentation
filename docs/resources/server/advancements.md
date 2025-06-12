@@ -11,10 +11,10 @@ An advancement JSON file may contain the following entries:
 - `parent`: The parent advancement ID of this advancement. Circular references will be detected and cause a loading failure. Optional; if absent, this advancement will be considered a root advancement. Root advancements are advancements that have no parent set. They will be the root of their [advancement tree][tree].
 - `display`: The object holding several properties used for display of the advancement in the advancement GUI. Optional; if absent, this advancement will be invisible, but can still be triggered.
     - `icon`: A [JSON representation of an item stack][itemstackjson].
-    - `text`: A [text component][text] to use as the advancement's title.
+    - `title`: A [text component][text] to use as the advancement's title.
     - `description`: A [text component][text] to use as the advancement's description.
     - `frame`: The frame type of the advancement. Accepts `challenge`, `goal` and `task`. Optional, defaults to `task`.
-    - `background`: The texture to use for the tree background. This is not relative to the `textures` directory, i.e. the `textures/` folder prefix must be included. Optional, defaults to the missing texture. Only effective on root advancements.
+    - `background`: The texture to use for the tree background. This is relative to the `textures` directory, i.e. the `textures/` folder prefix should not be included. Optional, defaults to the missing texture. Only effective on root advancements.
     - `show_toast`: Whether to show a toast in the top right corner on completion. Optional, defaults to true.
     - `announce_to_chat`: Whether to announce advancement completion in the chat. Optional, defaults to true.
     - `hidden`: Whether to hide this advancement and all children from the advancement GUI until it is completed. Has no effect on root advancements themselves, but still hides all of their children. Optional, defaults to false.

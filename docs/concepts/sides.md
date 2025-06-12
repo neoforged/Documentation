@@ -69,7 +69,6 @@ public class ExampleMod {
 public class ExampleModClient {
     public ExampleModClient(IEventBus modBus) {
         // Perform logic in that should only be executed on the physical client
-        Minecraft.getInstance().whatever();
     }
 }
 

@@ -130,7 +130,6 @@ The features system allows mods to demand that certain settings, software, or ha
 | Feature          | Description                                                                                                                                                                                                | Example                             |
 |------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------|
 | `javaVersion`   | The acceptable version range of the Java version, expressed as a [Maven Version Range][mvr]. This should be the supported version used by Minecraft.                                                       | `features={javaVersion="[17,)"}`  |
-| `openGLVersion` | The acceptable version range of the OpenGL version, expressed as a [Maven Version Range][mvr]. Minecraft requires OpenGL 3.2 or newer. If you want to require a newer OpenGL version, you can do so here.  | `features={openGLVersion="[4.6,)"}` |
 
 ### Access Transformer-Specific Properties
 

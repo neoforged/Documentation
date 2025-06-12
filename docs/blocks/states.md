@@ -56,7 +56,7 @@ To implement a blockstate property, in your block class, create or reference a `
 
 The class `BlockStateProperties` contains shared vanilla properties which should be used or referenced whenever possible, in place of creating your own properties.
 
-Once you have your property constant, override `Block#createBlockStateDefinition(StateDefinition$Builder)` in your block class. In that method, call `StateDefinition.Builder#add(YOUR_PROPERTY);`. `StateDefinition.Builder#add` has a vararg parameter, so if you have multiple properties, you can add them all in one go.
+Once you have your property constant, override `Block#createBlockStateDefinition(StateDefinition.Builder)` in your block class. In that method, call `StateDefinition.Builder#add(YOUR_PROPERTY);`. `StateDefinition.Builder#add` has a vararg parameter, so if you have multiple properties, you can add them all in one go.
 
 Every block will also have a default state. If nothing else is specified, the default state uses the default value of every property. You can change the default state by calling the `Block#registerDefaultState(BlockState)` method from your constructor.
 
@@ -75,7 +75,7 @@ public class EndPortalFrameBlock extends Block {
         super(pProperties);
         // stateDefinition.any() returns a random BlockState from an internal set,
         // we don't care because we're setting all values ourselves anyway
-        registerDefaultState(stateDefinition.any()
+        this.registerDefaultState(stateDefinition.any()
                 .setValue(FACING, Direction.NORTH)
                 .setValue(EYE, false)
         );
@@ -135,9 +135,12 @@ To help setting the update flags correctly, there are a number of `int` constant
 - `Block.UPDATE_SUPPRESS_DROPS` disables block drops for the old block at that position.
 - `Block.UPDATE_MOVE_BY_PISTON` is only used by piston code to signal that the block was moved by a piston. This is mainly responsible for delaying light engine updates.
 - `Block.UPDATE_SKIP_SHAPE_UPDATE_ON_WIRE` is used by the `ExperimentalRedstoneWireEvaluator` to signal if the shape should be skipped. This is set only when the power strength is changed from not a placement or that the original source on the signal is not the current wire.
+- `Block.UPDATE_SKIP_BLOCK_ENTITY_SIDEEFFECTS` prevents `BlockEntity#preRemoveSideEffects` from being called. This typically prevents block entities from emptying their contents.
+- `Block.UPDATE_SKIP_ON_PLACE` prevents `Block#onPlace` from being called. This typically prevents any blocks from handling their initial behavior (e.g. updating rails to attach to other blocks, spawning an golem).
+- `Block.UPDATE_NONE` is an alias for `Block.UPDATE_INVISIBLE | Block.UPDATE_SKIP_BLOCK_ENTITY_SIDEEFFECTS`.
 - `Block.UPDATE_ALL` is an alias for `Block.UPDATE_NEIGHBORS | Block.UPDATE_CLIENTS`.
 - `Block.UPDATE_ALL_IMMEDIATE` is an alias for `Block.UPDATE_NEIGHBORS | Block.UPDATE_CLIENTS | Block.UPDATE_IMMEDIATE`.
-- `Block.UPDATE_NONE` is an alias for `Block.UPDATE_INVISIBLE`.
+- `Block.UPDATE_SKIP_ALL_SIDEEFFECTS` is an alias for `Block.UPDATE_SKIP_ON_PLACE | Block.UPDATE_SKIP_BLOCK_ENTITY_SIDEEFFECTS | Block.UPDATE_SUPPRESS_DROPS | Block.UPDATE_KNOWN_SHAPE`
 
 There is also a convenience method `Level#setBlockAndUpdate(BlockPos pos, BlockState state)` that calls `setBlock(pos, state, Block.UPDATE_ALL)` internally.
 

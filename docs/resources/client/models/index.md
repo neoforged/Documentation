@@ -10,7 +10,7 @@ _See also: [Model][mcwikimodel] on the [Minecraft Wiki][mcwiki]_
 
 A model is a JSON file with the following optional properties in the root tag:
 
-- `loader`: NeoForge-added. Sets a custom model loader. See [Custom Model Loaders][custommodelloader] for more information.
+- `loader`: NeoForge-added. Sets a custom model loader. See [Model Loaders][custommodelloader] for more information.
 - `parent`: Sets a parent model, in the form of a [resource location][rl] relative to the `models` folder. All parent properties will be applied and then overridden by the properties set in the declaring model. Common parents include:
     - `minecraft:block/block`: The common parent of all block models.
     - `minecraft:block/cube`: Parent of all models that use a 1x1x1 cube model.
@@ -131,11 +131,12 @@ The second way is to specify a JSON object containing any combination of the fol
 
 _See also: [Blockstate files][mcwikiblockstate] on the [Minecraft Wiki][mcwiki]_
 
-Blockstate files are used by the game to assign different models to different [blockstates]. There must be exactly one blockstate file per block registered to the game. Specifying block models for blockstates works in two mutually exclusive ways: via variants or via multipart.
+Blockstate files are used by the game to assign different models to different [blockstates]. There must be exactly one blockstate file per block registered to the game. Specifying block models for blockstates works in three mutually exclusive ways: via variants, multipart, or the NeoForge added definition type.
 
 Inside a `variants` block, there is an element for each blockstate. This is the predominant way of associating blockstates with models, used by the vast majority of blocks.
 - The key is the string representation of the blockstate without the block name, so for example `"type=top,waterlogged=false"` for a non-waterlogged top slab, or `""` for a block with no properties. It is worth noting that unused properties may be omitted. For example, if the `waterlogged` property has no influence on the model chosen, two objects `type=top,waterlogged=false` and `type=top,waterlogged=true` may be collapsed into one `type=top` object. This also means that an empty string is valid for every block.
 - The value is either a single model object or an array of model objects. If an array of model objects is used, a model will be randomly chosen from it. A model object consists of the following data:
+    - `type`: NeoForge-added. Sets a custom block state model loader. See [Block State Model Loaders][bsmmodelloader] for more information.
     - `model`: A path to a model file location, relative to the namespace's `models` folder, for example `minecraft:block/cobblestone`.
     - `x` and `y`: Rotation of the model on the x-axis/y-axis. Limited to steps of 90 degrees. Optional each, defaults to 0.
     - `uvlock`: Whether to lock the UVs of the model when rotating or not. Optional, defaults to false.
@@ -145,6 +146,8 @@ In contrast, inside a `multipart` block, elements are combined depending on the 
 
 - The `when` block specifies either a string representation of a blockstate or a list of properties that must be met for the element to apply. The lists can either be named `"OR"` or `"AND"`, performing the respective logical operation on its contents. Both single blockstate and list values can additionally specify multiple actual values by separating them with `|` (for example `facing=east|facing=west`).
 - The `apply` block specifies the model object or an array of model objects to use. This works exactly like with a `variants` block.
+
+Finally, a `neoforge:definition_type` can specify a custom model loader to register the block state file See [Block State Definition Loaders][bsdmodelloader] for more information.
 
 ## Client Items
 
@@ -188,23 +191,35 @@ public static void registerColorResolvers(RegisterColorHandlersEvent.ColorResolv
 
 For item tinting, please see the [relevant section in the client items article][itemtints].
 
-## Registering Additional Models
+## Registering Standalone Models
 
-Models that are not associated with a block or item in some way, but are still required in other contexts (e.g. [block entity renderers][ber]), can be registered through `ModelEvent.RegisterAdditional`:
+Models that are not associated with a block or item in some way, but are still required in other contexts (e.g. [block entity renderers][ber]), can be registered through `ModelEvent.RegisterStandalone`:
 
 ```java
+// This can be any type as long as it can be obtained from the ResolvedModel and the ModelBaker
+public static final StandaloneModelKey<QuadCollection> EXAMPLE_KEY = new StandaloneModelKey<>(
+    // The model id, relative to `assets/<namespace>/models/<path>.json`
+    ResourceLocation.fromNamespaceAndPath("examplemod", "block/example_unused_model")
+);
+
 // Client-side mod bus event handler
 @SubscribeEvent
-public static void registerAdditional(ModelEvent.RegisterAdditional event) {
-    // The model id, relative to `assets/<namespace>/models/<path>.json`
-    event.register(ResourceLocation.fromNamespaceAndPath("examplemod", "block/example_unused_model"));
+public static void registerAdditional(ModelEvent.RegisterStandalone event) {
+    event.register(
+        // The model to get
+        EXAMPLE_KEY,
+        // The data of the model we care about, in this case the baked quads to render
+        StandaloneModelBaker.quadCollection()
+    );
 }
 ```
 
 [ao]: https://en.wikipedia.org/wiki/Ambient_occlusion
 [ber]: ../../../blockentities/ber.md
 [bsfile]: #blockstate-files
-[custommodelloader]: modelloaders.md
+[bsdmodelloader]: modelloaders.md#block-state-definition-loaders
+[bsmmodelloader]: modelloaders.md#block-state-model-loaders
+[custommodelloader]: modelloaders.md#model-loaders
 [elements]: #elements
 [event]: ../../../concepts/events.md
 [extrafacedata]: #extra-face-data
@@ -216,7 +231,7 @@ public static void registerAdditional(ModelEvent.RegisterAdditional event) {
 [mcwikimodel]: https://minecraft.wiki/w/Model
 [mipmapping]: https://en.wikipedia.org/wiki/Mipmap
 [modbus]: ../../../concepts/events.md#event-buses
-[perspectives]: bakedmodel.md#perspectives
+[perspectives]: modelsystem.md#perspectives
 [rendertype]: #render-types
 [roottransforms]: #root-transforms
 [rl]: ../../../misc/resourcelocation.md

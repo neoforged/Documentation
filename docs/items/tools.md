@@ -7,30 +7,19 @@ Tools are [items][item] whose primary use is to break [blocks][block]. Many mods
 
 ## Custom Tool Sets
 
-A tool set typically consists of five items: a pickaxe, an axe, a shovel, a hoe and a sword. (Swords aren't tools in the classical sense, but are included here for consistency as well.) All of those items have their corresponding class: `PickaxeItem`, `AxeItem`, `ShovelItem`, `HoeItem` and `SwordItem`, respectively. The class hierarchy of tools looks as follows:
-
-```text
-Item
-- DiggerItem
-    - AxeItem
-    - HoeItem
-    - PickaxeItem
-    - ShovelItem
-- SwordItem
-```
-
-Tools are almost completely implemented through seven [data components][datacomponents]:
+A tool set typically consists of five items: a pickaxe, an axe, a shovel, a hoe and a sword (swords aren't tools in the classical sense, but are included here for consistency as well). All of these tools are implemented using the following eight [data components][datacomponents]:
 
 - `DataComponents#MAX_DAMAGE` and `#DAMAGE` for durability
 - `#MAX_STACK_SIZE` to set the stack size to `1`
-- `#REPAIRABLE` for reepairing a tool in an anvil
+- `#REPAIRABLE` for repairing a tool in an anvil
 - `#ENCHANTABLE` for the maximum [enchanting][enchantment] value
 - `#ATTRIBUTE_MODIFIERS` for attack damage and attack speed
 - `#TOOL` for mining information
+- `#WEAPON` for damage taken by the item and shield disabling
 
-For `DiggerItem` and `SwordItem`, they are simply delegates that set up the components via the utility record `ToolMaterial`. Note that other items usually considered tools, such as shears, are not included in this hierarchy. Instead, they directly extend `Item` and hold the breaking logic themselves.
+Commonly, each tool is setup using `Item.Properties#tool`, `#sword`, or one of tool's delegates (`pickaxe`, `axe`, `hoe`, `shovel`). These are typically handled by passing in the utility record `ToolMaterial`. Note that other items usually considered tools, such as shears, do not have their common mining logic implemented through data components. Instead, they directly extend `Item` and handle the mining by overriding the relevant methods. Interact behavior (right-click by default) also does not have a data component, meaning that shovels, axes, and hoes have their own tool classes `ShovelItem`, `AxeItem`, and `HoeItem` respectively.
 
-To create a standard set of tools using a `DiggerItem` or `SwordItem`, you must first define a `ToolMaterial`. Reference values can be found within the constants in `ToolMaterial`. This example uses copper tools, you can use your own material here and adjust the values as needed.
+To create a standard set of tools, you must first define a `ToolMaterial`. Reference values can be found within the constants in `ToolMaterial`. This example uses copper tools, you can use your own material here and adjust the values as needed.
 
 ```java
 // We place copper somewhere between stone and iron.
@@ -54,30 +43,35 @@ public static final ToolMaterial COPPER_MATERIAL = new ToolMaterial(
 );
 ```
 
-Now that we have our `ToolMaterial`, we can use it for [registering] tools. All tool constructors have the same four parameters.
+Now that we have our `ToolMaterial`, we can use it for [registering] tools. All `tool` delegates have the same three parameters:
 
 ```java
 // ITEMS is a DeferredRegister.Items
-public static final DeferredItem<SwordItem> COPPER_SWORD = ITEMS.registerItem(
+public static final DeferredItem<Item> COPPER_SWORD = ITEMS.registerItem(
     "copper_sword",
-    props -> new SwordItem(
-        // The material to use.
-        COPPER_MATERIAL,
-        // The type-specific attack damage bonus. 3 for swords, 1.5 for shovels, 1 for pickaxes, varying for axes and hoes.
-        3,
-        // The type-specific attack speed modifier. The player has a default attack speed of 4, so to get to the desired
-        // value of 1.6f, we use -2.4f. -2.4f for swords, -3f for shovels, -2.8f for pickaxes, varying for axes and hoes.
-        -2.4f,
+    props -> new Item(
         // The item properties.
-        props
+        props.sword(
+            // The material to use.
+            COPPER_MATERIAL,
+            // The type-specific attack damage bonus. 3 for swords, 1.5 for shovels, 1 for pickaxes, varying for axes and hoes.
+            3,
+            // The type-specific attack speed modifier. The player has a default attack speed of 4, so to get to the desired
+            // value of 1.6f, we use -2.4f. -2.4f for swords, -3f for shovels, -2.8f for pickaxes, varying for axes and hoes.
+            -2.4f,
+        )
     )
 );
 
-public static final DeferredItem<AxeItem> COPPER_AXE = ITEMS.registerItem("copper_axe", props -> new AxeItem(...));
-public static final DeferredItem<PickaxeItem> COPPER_PICKAXE = ITEMS.registerItem("copper_pickaxe", props -> new PickaxeItem(...));
-public static final DeferredItem<ShovelItem> COPPER_SHOVEL = ITEMS.registerItem("copper_shovel", props -> new ShovelItem(...));
-public static final DeferredItem<HoeItem> COPPER_HOE = ITEMS.registerItem("copper_hoe", props -> new HoeItem(...));
+public static final DeferredItem<Item> COPPER_AXE = ITEMS.registerItem("copper_axe", props -> new Item(props.axe(...)));
+public static final DeferredItem<Item> COPPER_PICKAXE = ITEMS.registerItem("copper_pickaxe", props -> new Item(props.pickaxe(...)));
+public static final DeferredItem<Item> COPPER_SHOVEL = ITEMS.registerItem("copper_shovel", props -> new Item(props.shovel(...)));
+public static final DeferredItem<Item> COPPER_HOE = ITEMS.registerItem("copper_hoe", props -> new Item(props.hoe(...)));
 ```
+
+:::note
+`tool` takes in two additional parameters: the `TagKey` representing what blocks can be mined, and the number of seconds that blockers (e.g., shields) are disabled for when hit.
+:::
 
 ### Tags
 
@@ -129,7 +123,7 @@ If you want to check if a tool can make a block state drop its blocks, call `Too
 
 ## Custom Tools
 
-Custom tools can be created by adding a `Tool` [data component][datacomponents] (via `DataComponents#TOOL`) to the list of default components on your item via `Item.Properties#component`. `DiggerItem` is an implementation which takes in a `ToolMaterial`, as explained above, to construct the `Tool`, along with a few other basic components such as attributes and durability.
+Custom tools can be created by adding a `Tool` [data component][datacomponents] (via `DataComponents#TOOL`) to the list of default components on your item via `Item.Properties#component`.
 
 A `Tool` contains a list of `Tool.Rule`s, the default mining speed when holding the tool (`1` by default), and the amount of damage the tool should take when mining a block (`1` by default). A `Tool.Rule` contains three pieces of information: a `HolderSet` of blocks to apply the rule to, an optional speed at which to mine the blocks in the set, and an optional boolean at which to determine whether these blocks can drop from this tool. If the optional are not set, then the other rules will be checked. The default behavior if all rules fail is the default mining speed and that the block cannot be dropped.
 
@@ -137,23 +131,25 @@ A `Tool` contains a list of `Tool.Rule`s, the default mining speed when holding 
 A `HolderSet` can be created from a `TagKey` via `Registry#getOrThrow`.
 :::
 
-Creating any tool or multitool-like item (i.e. an item that combines two or more tools into one, e.g. an axe and a pickaxe as one item) does not need to extend any of the existing `DiggerItem`s or `SwordItem`. It simply can be implemented using a combination of the following parts:
+Creating any tool or multitool-like item (i.e. an item that combines two or more tools into one, e.g. an axe and a pickaxe as one item) is possible without using any of the existing `ToolMaterial` references. It can be implemented using a combination of the following parts:
 
 - Adding a `Tool` with your own rules by setting `DataComponents#TOOL` via `Item.Properties#component`.
 - Adding [attribute modifiers][attributemodifier] to the item (e.g. attack damage, attack speed) via `Item.Properties#attributes`.
 - Adding item durability via `Item.Properties#durability`.
 - Allowing the item to be repaired via `Item.Properties#repariable`.
 - Allowing the item to be enchanted via `Item.Properties#enchantable`.
+- Allowing the item to be used as a weapon and potentially disable blockers by setting `DataComponents#WEAPON` via `Item.Properties#component`.
 - Overriding `IItemExtension#canPerformAction` to determine what [`ItemAbility`s][itemability] the item can perform.
 - Calling `IBlockExtension#getToolModifiedState` if you want your item to modify the block state on right click based on the `ItemAbility`s.
 - Adding your tool to some of the `minecraft:enchantable/*` `ItemTags` so that your item can have certain enchantments applied to it.
 - Adding your tool to some of the `minecraft:*_preferred_weapons` tags to allow mobs to favor your weapon to pickup and use.
 
+For shields, you can apply the [`DataComponents#EQUIPPABLE`][equippable] data component for the offhand and `DataComponents#BLOCKS_ATTACKS` for reducing damage to the held entity when active.
+
 ## `ItemAbility`s
 
 `ItemAbility`s are an abstraction over what an item can and cannot do. This includes both left-click and right-click behavior. NeoForge provides default `ItemAbility`s in the `ItemAbilities` class:
 
-- Digging abilities. These exist for all four `DiggerItem` types as mentioned above, as well as sword and shears digging.
 - Axe right-click abilities for stripping (logs), scraping (oxidized copper), and unwaxing (waxed copper).
 - Shovel right-click abilities for flattening (dirt paths) and dousing (campfires).
 - Shear abilities for harvesting (honeycombs), removing armor (armored wolves), carving (pumpkins), disarming (tripwires), and trimming (stop plants from growing).
@@ -166,6 +162,7 @@ To query if an `ItemStack` can perform a certain `ItemAbility`, call `IItemStack
 [block]: ../blocks/index.md
 [datacomponents]: datacomponents.md
 [enchantment]: ../resources/server/enchantments/index.md#enchantment-costs-and-levels
+[equippable]: armor.md#equippable
 [item]: index.md
 [itemability]: #itemabilitys
 [registering]: ../concepts/registries.md#methods-for-registering

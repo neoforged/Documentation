@@ -114,7 +114,7 @@ To add a new extensible enum to NeoForge, there are at least two required things
 
 Further action is required depending on specific details about the enum:
 
-- If the enum has an int ID parameter which should match the entry's ordinal, then the enum should be annotated with `@NumberedEnum` with the ID's parameter index as the annotation's value if it's not the first parameter
+- If the enum has an int ID parameter which should match the entry's ordinal, then the enum should be annotated with `@IndexedEnum` with the ID's parameter index as the annotation's value if it's not the first parameter
 - If the enum has a String name parameter which is used for serialization and should therefore be namespaced, then the enum should be annotated with `@NamedEnum` with the name's parameter index as the annotation's value if it's not the first parameter
 - If the enum is sent over the network, then it should be annotated with `@NetworkedEnum` with the annotation's parameter specifying in which direction the values may be sent (clientbound, serverbound or bidirectional)
 - If the enum has constructors which are not usable by mods (i.e. because they require registry objects on an enum that may be initialized before modded registration runs), then they should be annotated with `@ReservedConstructor`
@@ -125,6 +125,13 @@ The `getExtensionInfo` method will be transformed at runtime to provide a dynami
 
 ```java
 // This is an example, not an actual enum within Vanilla
+
+// The first argument must match the enum constant's ordinal
+@net.neoforged.fml.common.asm.enumextension.IndexedEnum
+// The second argument is a string that must be prefixed with the mod id
+@net.neoforged.fml.common.asm.enumextension.NamedEnum(1)
+// This enum is used in networking and must be checked for mismatches between the client and server
+@net.neoforged.fml.common.asm.enumextension.NetworkedEnum(net.neoforged.fml.common.asm.enumextension.NetworkedEnum.NetworkCheck.BIDIRECTIONAL)
 public enum ExampleEnum implements net.neoforged.fml.common.asm.enumextension.IExtensibleEnum {
     // VALUE_1 represents the name parameter here
     VALUE_1(0, "value_1", false),

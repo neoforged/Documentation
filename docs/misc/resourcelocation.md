@@ -29,12 +29,6 @@ Some places, for example registries, use `ResourceLocation`s directly. Some othe
 
 Whether the `ResourceLocation` expects a file suffix, or what exactly the resource location resolves to, depends on the use case.
 
-## `ModelResourceLocation`s
-
-`ModelResourceLocation`s are a special kind of resource location for block states that includes a third part, called the variant. Minecraft uses these mainly to differentiate between different variants of models. The variant is the comma-delimited string of property-value pairs for blockstates (for example `facing=north,waterlogged=false`, empty for blocks with no blockstate properties), appended to a regular resource location with a `#`.
-
-`ModelResourceLocation` is a [client only][sides] class. This means that servers referencing this class will crash with a `NoClassDefFoundError`.
-
 ## `ResourceKey`s
 
 `ResourceKey`s combine a registry id with a registry name. An example would be a registry key with the registry id `minecraft:item` and the registry name `minecraft:diamond_sword`. Unlike a `ResourceLocation`, `ResourceKey`s actually refer to a unique element, thus being able to clearly identify an element. They are most commonly used in contexts where many different registries come in contact with one another. A common use case are datapacks, especially worldgen.
