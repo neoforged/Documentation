@@ -57,7 +57,7 @@ Like all registry objects, `MobEffect`s must be registered, like so:
 
 ```java
 //MOB_EFFECTS is a DeferredRegister<MobEffect>
-public static final Supplier<MyMobEffect> MY_MOB_EFFECT = MOB_EFFECTS.register("my_mob_effect", () -> new MyMobEffect(
+public static final Holder<MyMobEffect> MY_MOB_EFFECT = MOB_EFFECTS.register("my_mob_effect", () -> new MyMobEffect(
         //Can be either BENEFICIAL, NEUTRAL or HARMFUL. Used to determine the potion tooltip color of this effect.
         MobEffectCategory.BENEFICIAL,
         //The color of the effect particles.
@@ -68,7 +68,7 @@ public static final Supplier<MyMobEffect> MY_MOB_EFFECT = MOB_EFFECTS.register("
 The `MobEffect` class also provides default functionality for adding attribute modifiers to affected entities. For example, the speed effect adds an attribute modifier for movement speed. Effect attribute modifiers are added like so:
 
 ```java
-public static final Supplier<MyMobEffect> MY_MOB_EFFECT = MOB_EFFECTS.register("my_mob_effect", () -> new MyMobEffect(...)
+public static final Holder<MyMobEffect> MY_MOB_EFFECT = MOB_EFFECTS.register("my_mob_effect", () -> new MyMobEffect(...)
         .addAttributeModifier(Attributes.ATTACK_DAMAGE, ResourceLocation.fromNamespaceAndPath("examplemod", "effect.strength"), 2.0, AttributeModifier.Operation.ADD_VALUE)
 );
 ```

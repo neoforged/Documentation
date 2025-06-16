@@ -54,7 +54,7 @@ Like all registry objects, `MobEffect`s must be registered, like so:
 
 ```java
 //MOB_EFFECTS is a DeferredRegister<MobEffect>
-public static final Supplier<MyMobEffect> MY_MOB_EFFECT = MOB_EFFECTS.register("my_mob_effect", () -> new MyMobEffect(
+public static final Holder<MyMobEffect> MY_MOB_EFFECT = MOB_EFFECTS.register("my_mob_effect", () -> new MyMobEffect(
         //Can be either BENEFICIAL, NEUTRAL or HARMFUL. Used to determine the potion tooltip color of this effect.
         MobEffectCategory.BENEFICIAL,
         //The color of the effect particles.
@@ -66,7 +66,7 @@ The `MobEffect` class also provides default functionality for adding attribute m
 
 ```java
 public static final String MY_MOB_EFFECT_UUID = "01234567-89ab-cdef-0123-456789abcdef";
-public static final Supplier<MyMobEffect> MY_MOB_EFFECT = MOB_EFFECTS.register("my_mob_effect", () -> new MyMobEffect(...)
+public static final Holder<MyMobEffect> MY_MOB_EFFECT = MOB_EFFECTS.register("my_mob_effect", () -> new MyMobEffect(...)
         .addAttributeModifier(Attribute.ATTACK_DAMAGE, MY_MOB_EFFECT_UUID, 2.0, AttributeModifier.Operation.ADD_VALUE)
 );
 ```
