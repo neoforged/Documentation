@@ -21,7 +21,7 @@ public static void register(CommandDispatcher<CommandSourceStack> dispatcher,
 ```
 Here we use `#executes` to launch the command.
 
-Then, register the command in an event (with the game vent bus) like this:
+Then, register the command in an event (with the game event bus) like this:
 ```java
 @SubscribeEvent // You can also use #addEventListener
 public static void onRegisterCommands(RegisterCommandsEvent event) {
