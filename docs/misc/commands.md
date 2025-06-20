@@ -14,7 +14,7 @@ public static void register(CommandDispatcher<CommandSourceStack> dispatcher,
         Commands.literal("commandname") // The name of your command
         .execute(context -> { // Here is what the command do, where context is a CommandContext<CommandSourceStack>
             // Put action here
-            return Command.SINGLE_SUCCES; // send succes to server
+            return Command.SINGLE_SUCCESS; // send success to server
         })
     );
 }
