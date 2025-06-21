@@ -247,3 +247,35 @@ An entry in `neoforge.mods.toml` does not need a corresponding `@Mod` annotation
 [versioning]: versioning.md
 [enumextension]: ../advanced/extensibleenums.md
 [featureflags]: ../advanced/featureflags.md
+## Mod Files Tree
+```
+<modrootfolder>
+ |-- src
+ |    |-- main
+ |    |    |-- java
+ |    |    |    |-- <webprocessor>
+ |    |    |    |    |-- <username>
+ |    |    |    |    |    |-- <modid>
+ |    |    |    |    |    |    |-- <modname>.java
+ |    |    |    |    |    |    |-- config.java
+ |    |    |-- resources
+ |    |    |    |-- assets
+ |    |    |    |    |-- minecraft
+ |    |    |    |    |-- <modid>
+ |    |    |    |-- data
+ |    |    |    |    |-- minecraft
+ |    |    |    |    |-- <modid>
+ |    |-- test
+ |-- build.gradle
+ |-- gradle.properties
+ |-- gradlew   (file)
+ |-- gradlew.bat
+ |-- settings.gradle
+```
+The `<modrootfolder>` contain all your mod files.
+
+The `gradle`, `.gradle`, `build` and `run` folders are automatically generated and should not normally be modified.
+
+The `src` folder is the center of modding. `test` is optionnal. `java` is the source code and `resources` is explained here [resources].
+
+The java folder is always build as `java/<webprocessor>/<username>/<modid>` where `<webprocessor>` is a [web domains type][https://en.wikipedia.org/wiki/List_of_Internet_top-level_domains] and `<username>` is your pseudo. Then, in the last child, it's always a `<modid>.java` file, as `ExampleMod.java` and a `config.java` (see [config][config.md]). Packages are also descripted in [structuring.md].
