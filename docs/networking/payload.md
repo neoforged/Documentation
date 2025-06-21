@@ -6,7 +6,7 @@ sidebar_position: 1
 Payloads are a way to send arbitrary data between the client and the server. They are registered using the `PayloadRegistrar` from the `RegisterPayloadHandlersEvent` event.
 
 ```java
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus
 public static void register(final RegisterPayloadHandlersEvent event) {
     // Sets the current network version
     final PayloadRegistrar registrar = event.registrar("1");
@@ -50,7 +50,7 @@ As you can see from the example above the `CustomPacketPayload` interface requir
 Finally, we can register this payload with the registrar:
 
 ```java
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus
 public static void register(final RegisterPayloadHandlersEvent event) {
     final PayloadRegistrar registrar = event.registrar("1");
     registrar.playBidirectional(
@@ -95,7 +95,7 @@ Here a couple of things are of note:
 If you need to do some computation that is resource intensive, then the work should be done on the network thread, instead of blocking the main thread. This is done by setting the `HandlerThread` of the `PayloadRegistrar` to `HandlerThread#NETWORK` via `PayloadRegistrar#executesOn` before registering the payload.
 
 ```java
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus
 public static void register(final RegisterPayloadHandlersEvent event) {
     final PayloadRegistrar registrar = event.registrar("1")
         .executesOn(HandlerThread.NETWORK); // All subsequent payloads will register on the network thread

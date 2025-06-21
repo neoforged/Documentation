@@ -95,30 +95,28 @@ public class MyRecipeProvider extends RecipeProvider {
     }
 }
 
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD, modid = "examplemod")
-public class MyDatagenHandler {
-    @SubscribeEvent
-    public static void gatherData(GatherDataEvent event) {
-        // Data generators may require some of these as constructor parameters.
-        // See below for more details on each of these.
-        DataGenerator generator = event.getGenerator();
-        PackOutput output = generator.getPackOutput();
-        ExistingFileHelper existingFileHelper = event.getExistingFileHelper();
-        CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
-        
-        // Register the provider.
-        generator.addProvider(
-                // A boolean that determines whether the data should actually be generated.
-                // The event provides methods that determine this:
-                // event.includeClient(), event.includeServer(),
-                // event.includeDev() and event.includeReports().
-                // Since recipes are server data, we only run them in a server datagen.
-                event.includeServer(),
-                // Our provider.
-                new MyRecipeProvider(output)
-        );
-        // Other data providers here.
-    }
+// In some event handler class
+@SubscribeEvent // on the mod event bus
+public static void gatherData(GatherDataEvent event) {
+    // Data generators may require some of these as constructor parameters.
+    // See below for more details on each of these.
+    DataGenerator generator = event.getGenerator();
+    PackOutput output = generator.getPackOutput();
+    ExistingFileHelper existingFileHelper = event.getExistingFileHelper();
+    CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
+    
+    // Register the provider.
+    generator.addProvider(
+            // A boolean that determines whether the data should actually be generated.
+            // The event provides methods that determine this:
+            // event.includeClient(), event.includeServer(),
+            // event.includeDev() and event.includeReports().
+            // Since recipes are server data, we only run them in a server datagen.
+            event.includeServer(),
+            // Our provider.
+            new MyRecipeProvider(output)
+    );
+    // Other data providers here.
 }
 ```
 

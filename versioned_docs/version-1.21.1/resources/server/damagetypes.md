@@ -99,7 +99,7 @@ Damage type JSON files can be [datagenned][datagen]. Since damage types are a da
 
 ```java
 // In your datagen class
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus
 public static void onGatherData(GatherDataEvent event) {
     CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
     event.getGenerator().addProvider(

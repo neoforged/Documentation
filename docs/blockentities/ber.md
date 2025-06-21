@@ -32,7 +32,7 @@ Only one BER may exist for a given `BlockEntityType<?>`. Therefore, values that 
 When you have created your BER, you must also register it to `EntityRenderersEvent.RegisterRenderers`, an [event] fired on the [mod event bus][eventbus]:
 
 ```java
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus only on the physical client
 public static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
     event.registerBlockEntityRenderer(
             // The block entity type to register the renderer for.
@@ -51,8 +51,8 @@ public class MyBlockEntityRenderer implements BlockEntityRenderer<MyBlockEntity>
     public void render( /* ... */ ) { /* ... */ }
 }
 
-// In your event handler class
-@SubscribeEvent
+// In some event handler class
+@SubscribeEvent // on the mod event bus only on the physical client
 public static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
     event.registerBlockEntityRenderer(MyBlockEntities.MY_BLOCK_ENTITY.get(),
             // Pass the context to an empty (default) constructor call

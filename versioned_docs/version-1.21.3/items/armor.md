@@ -353,8 +353,7 @@ public class MyEquipmentModelProvider implements DataProvider {
     }
 }
 
-// Listening to the mod event bus
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus
 public static void gatherData(GatherDataEvent event) {
     PackOutput output = generator.getPackOutput();
 

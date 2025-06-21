@@ -120,33 +120,31 @@ public class MyRecipeProvider extends RecipeProvider {
     }
 }
 
-@EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD, modid = "examplemod")
-public class MyDatagenHandler {
-    @SubscribeEvent
-    public static void gatherData(GatherDataEvent.Client event) {
-        // Data providers should start by calling event.createDatapackRegistryObjects(...)
-        // to register their datapack registry objects. This allows other providers
-        // to use these objects during their own data generation.
+// In some event handler class
+@SubscribeEvent // on the mod event bus
+public static void gatherData(GatherDataEvent.Client event) {
+    // Data providers should start by calling event.createDatapackRegistryObjects(...)
+    // to register their datapack registry objects. This allows other providers
+    // to use these objects during their own data generation.
 
-        // From there, providers can generally be registered using event.createProvider(...),
-        // which acts as a function that provides the PackOutput and optionally the
-        // CompletableFuture<HolderLookup.Provider>.
+    // From there, providers can generally be registered using event.createProvider(...),
+    // which acts as a function that provides the PackOutput and optionally the
+    // CompletableFuture<HolderLookup.Provider>.
 
-        // Register the provider.
-        event.createProvider(MyRecipeProvider::new);
-        // Other data providers here.
+    // Register the provider.
+    event.createProvider(MyRecipeProvider::new);
+    // Other data providers here.
 
-        // If you want to create a datapack within the global pack, you can call
-        // DataGenerator#getBuiltinDatapack. From there, you must use the
-        // PackGenerator#addProvider method to add any providers to that pack.
-        DataGenerator.PackGenerator examplePack = event.getGenerator().getBuiltinDatapack(
-            true, // Should always be true.
-            "examplemod", // The mod id.
-            "example_pack" // The name of the pack.
-        );
-        
-        examplePack.addProvider(output -> ...);
-    }
+    // If you want to create a datapack within the global pack, you can call
+    // DataGenerator#getBuiltinDatapack. From there, you must use the
+    // PackGenerator#addProvider method to add any providers to that pack.
+    DataGenerator.PackGenerator examplePack = event.getGenerator().getBuiltinDatapack(
+        true, // Should always be true.
+        "examplemod", // The mod id.
+        "example_pack" // The name of the pack.
+    );
+    
+    examplePack.addProvider(output -> ...);
 }
 ```
 

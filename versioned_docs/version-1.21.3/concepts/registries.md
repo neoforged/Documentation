@@ -102,8 +102,8 @@ There are specialized variants of `DeferredRegister`s for blocks, items, and dat
 `RegisterEvent` is the second way to register objects. This [event][event] is fired for each registry, after the mod constructors (since those are where `DeferredRegister`s register their internal event handlers) and before the loading of configs. `RegisterEvent` is fired on the mod event bus.
 
 ```java
-@SubscribeEvent
-public void register(RegisterEvent event) {
+@SubscribeEvent // on the mod event bus
+public static void register(RegisterEvent event) {
     event.register(
             // This is the registry key of the registry.
             // Get these from BuiltInRegistries for vanilla registries,
@@ -185,8 +185,8 @@ public static final Registry<YourRegistryContents> SPELL_REGISTRY = new Registry
 Then, tell the game that the registry exists by registering them to the root registry in `NewRegistryEvent`:
 
 ```java
-@SubscribeEvent
-static void registerRegistries(NewRegistryEvent event) {
+@SubscribeEvent // on the mod event bus
+public static void registerRegistries(NewRegistryEvent event) {
     event.register(SPELL_REGISTRY);
 }
 ```
@@ -198,7 +198,7 @@ public static final DeferredRegister<Spell> SPELLS = DeferredRegister.create(SPE
 public static final Supplier<Spell> EXAMPLE_SPELL = SPELLS.register("example_spell", () -> new Spell(...));
 
 // Alternatively:
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus
 public static void register(RegisterEvent event) {
     event.register(SPELL_REGISTRY_KEY, registry -> {
         registry.register(ResourceLocation.fromNamespaceAndPath("yourmodid", "example_spell"), () -> new Spell(...));
@@ -224,7 +224,7 @@ Custom datapack registries do not require a `Registry` to be constructed. Instea
 ```java
 public static final ResourceKey<Registry<Spell>> SPELL_REGISTRY_KEY = ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath("yourmodid", "spells"));
 
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus
 public static void registerDatapackRegistries(DataPackRegistryEvent.NewRegistry event) {
     event.dataPackRegistry(
             // The registry key.
@@ -308,7 +308,7 @@ new RegistrySetBuilder()
 Finally, we use our `RegistrySetBuilder` in an actual data provider, and register that data provider to the event:
 
 ```java
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus
 public static void onGatherData(GatherDataEvent event) {
     CompletableFuture<HolderLookup.Provider> lookupProvider = event.getGenerator().addProvider(
         // Only run datapack generation when server data is being generated

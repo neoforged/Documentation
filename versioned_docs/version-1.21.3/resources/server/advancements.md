@@ -161,7 +161,7 @@ Both Minecraft and NeoForge provide a class named `AdvancementProvider`, located
 To start, create an instance of `AdvancementProvider` within `GatherDataEvent`:
 
 ```java
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus
 public static void gatherData(GatherDataEvent event) {
     DataGenerator generator = event.getGenerator();
     PackOutput output = generator.getPackOutput();

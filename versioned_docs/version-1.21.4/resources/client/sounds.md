@@ -290,7 +290,7 @@ public class MySoundDefinitionsProvider extends SoundDefinitionsProvider {
 As with every data provider, don't forget to register the provider to the event:
 
 ```java
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus
 public static void gatherData(GatherDataEvent.Client event) {
     event.createProvider(MySoundDefinitionsProvider::new);
 }

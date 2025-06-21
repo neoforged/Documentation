@@ -117,7 +117,7 @@ Anvils have two input slots and one output slot. The only vanilla use cases are 
 
 ```java
 // This example allows repairing a stone pickaxe with a full stack of dirt, consuming half the stack, for 3 levels.
-@SubscribeEvent
+@SubscribeEvent // on the game event bus
 public static void onAnvilUpdate(AnvilUpdateEvent event) {
     ItemStack left = event.getLeft();
     ItemStack right = event.getRight();
@@ -328,7 +328,7 @@ Now that all parts of your recipe are complete, you can make yourself some recip
 In our case, however, we want to apply the recipe when an item is right-clicked on a block. We will do so using an [event handler][event]. Keep in mind that this is an example implementation, and you can alter this in any way you like (so long as you run it on the server).
 
 ```java
-@SubscribeEvent
+@SubscribeEvent // on the game event bus
 public static void useItemOnBlock(UseItemOnBlockEvent event) {
     // Skip if we are not in the block-dictated phase of the event. See the event's javadocs for details.
     if (event.getUsePhase() != UseItemOnBlockEvent.UsePhase.BLOCK) return;
@@ -401,7 +401,7 @@ Recipes themselves are commonly added through subclasses of `RecipeBuilder`. Lis
 Like all other data providers, recipe providers must be registered to `GatherDataEvent` like so:
 
 ```java
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus
 public static void gatherData(GatherDataEvent event) {
     DataGenerator generator = event.getGenerator();
     PackOutput output = generator.getPackOutput();

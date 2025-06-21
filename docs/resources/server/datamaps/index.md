@@ -147,8 +147,8 @@ public static final DataMapType<Item, ExampleData> EXAMPLE_DATA = DataMapType.bu
 Finally, register the data map during the [`RegisterDataMapTypesEvent`][events] on the [mod event bus][modbus]:
 
 ```java
-@SubscribeEvent
-private static void registerDataMapTypes(RegisterDataMapTypesEvent event) {
+@SubscribeEvent // on the mod event bus
+public static void registerDataMapTypes(RegisterDataMapTypesEvent event) {
     event.register(EXAMPLE_DATA);
 }
 ```
@@ -176,8 +176,8 @@ As data maps can be used on any registry, they must be queried through `Holder`s
 You can then query the data map value via `Holder#getData(DataMapType)`. If an object does not have a data map value attached, the method will return `null`. Reusing our `ExampleData` from before, let's use them to heal the player whenever he picks them up:
 
 ```java
-@SubscribeEvent
-private static void itemPickup(ItemPickupEvent event) {
+@SubscribeEvent // on the game event bus
+public static void itemPickup(ItemPickupEvent event) {
     ItemStack stack = event.getItemStack();
     // Get a Holder<Item> via ItemStack#getItemHolder.
     Holder<Item> holder = stack.getItemHolder();
@@ -364,7 +364,7 @@ This would then result in the following JSON file:
 Like all data providers, don't forget to add the provider to the event:
 
 ```java
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus
 public static void gatherData(GatherDataEvent.Client event) {
     // Call event.createDatapackRegistryObjects(...) first if adding datapack objects
 

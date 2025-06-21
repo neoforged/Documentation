@@ -94,7 +94,7 @@ public class MyBakedModelWrapper extends BakedModelWrapper<BakedModel> {
 After writing your model wrapper class, you must apply the wrappers to the models it should affect. Do so in a [client-side][sides] [event handler][event] for `ModelEvent.ModifyBakingResult`:
 
 ```java
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus only on the physical client
 public static void modifyBakingResult(ModelEvent.ModifyBakingResult event) {
     // For block models
     event.getModels().computeIfPresent(

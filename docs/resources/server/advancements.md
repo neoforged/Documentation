@@ -157,7 +157,7 @@ Advancements can be [datagenned][datagen] using an `AdvancementProvider`. An `Ad
 To start, create an instance of `AdvancementProvider` within one of the `GatherDataEvent`s:
 
 ```java
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus
 public static void gatherData(GatherDataEvent.Client event) {
     // Call event.createDatapackRegistryObjects(...) first if adding datapack objects
 

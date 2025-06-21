@@ -153,8 +153,8 @@ public class ConsumableClientItemExtensions implements IClientItemExtensions {
     // Implement methods here
 }
 
-// In some event listener class
-@SubscribeEvent
+// In some event handler class
+@SubscribeEvent // on the mod event bus only on the physical client
 public static void registerClientExtensions(RegisterClientExtensionsEvent event) {
     event.registerItem(
         // The instance of the item extensions

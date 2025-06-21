@@ -220,7 +220,7 @@ This example results in the following tag JSON:
 Like all data providers, add each tag provider to the `GatherDataEvent`:
 
 ```java
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus
 public static void gatherData(GatherDataEvent event) {
     PackOutput output = generator.getPackOutput();
     CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();

@@ -149,8 +149,9 @@ Afterwards, a static instance should be declared to hold the initialized seriali
 // In some serializer class
 public static final ExampleIngredientSerializer INSTANCE = new ExampleIngredientSerializer();
 
-// In some handler class
-public void registerSerializers(RegisterEvent event) {
+// In some event handler class
+@SubscribeEvent // on the mod event bus
+public static void registerSerializers(RegisterEvent event) {
   event.register(ForgeRegistries.Keys.RECIPE_SERIALIZERS,
     helper -> CraftingHelper.register(registryName, INSTANCE)
   );

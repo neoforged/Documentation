@@ -49,7 +49,7 @@ public class MyEntityRenderer extends EntityRenderer<Entity, EntityRenderState> 
 Now that we have our entity renderer, we also need to register it and connect it to its owning entity. This is done in [`EntityRenderersEvent.RegisterRenderers`][events] like so:
 
 ```java
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus only on the physical client
 public static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
     event.registerEntityRenderer(MY_ENTITY_TYPE.get(), MyEntityRenderer::new);
 }
@@ -78,7 +78,7 @@ public static final ContextKey<String> EXAMPLE_CONTEXT = new ContextKey<>(
     // The id of your context key. Used for distinguishing between keys internally.
     ResourceLocation.fromNamespaceAndPath("examplemod", "example_context"));
 
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus only on the physical client
 public static void registerRenderStateModifiers(RegisterRenderStateModifiersEvent event) {
     event.registerEntityModifier(
         // A TypeToken for the renderer. It is REQUIRED for this to be instantiated as an anonymous class
@@ -237,7 +237,7 @@ public static final ModelLayerLocation MY_LAYER = new ModelLayerLocation(
     "main"
 );
 
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus only on the physical client
 public static void registerLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event) {
     // Add our layer here.
     event.add(MY_LAYER, MyEntityModel::createBodyLayer);
@@ -440,12 +440,12 @@ public class MyEntityRenderer extends LivingEntityRenderer<MyEntity, MyEntityRen
 ```
 
 ```java
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus only on the physical client
 public static void registerLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event) {
     event.add(MyEntityModel.MY_LAYER, MyEntityModel::createBodyLayer);
 }
 
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus only on the physical client
 public static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
     event.registerEntityRenderer(MY_ENTITY_TYPE.get(), MyEntityRenderer::new);
 }
@@ -456,7 +456,7 @@ public static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderer
 In some scenarios, it is desirable to add to an existing entity renderer, e.g. for rendering additional effects on an existing entity. Most of the time, this will affect living entities, i.e., entities with a `LivingEntityRenderer`. This enables us to add [render layers][renderlayer] to an entity like so:
 
 ```java
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus only on the physical client
 public static void addLayers(EntityRenderersEvent.AddLayers event) {
     // Add a layer to every single entity type.
     for (EntityType<?> entityType : event.getEntityTypes()) {
@@ -476,7 +476,7 @@ public static void addLayers(EntityRenderersEvent.AddLayers event) {
 For players, a bit of special-casing is required because there can actually be multiple player renderers. These are managed separately by the event. We can interact with them like so:
 
 ```java
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus only on the physical client
 public static void addPlayerLayers(EntityRenderersEvent.AddLayers event) {
     // Iterate over all possible player models.
     for (PlayerSkin.Model skin : event.getSkins()) {
@@ -575,7 +575,7 @@ NeoForge adds the following keyframe targets out of the box:
 Custom values can be added by creating a new `AnimationTarget` and registering it in `RegisterJsonAnimationTypesEvent` like so:
 
 ```java
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus only on the physical client
 public static void registerJsonAnimationTypes(RegisterJsonAnimationTypesEvent event) {
     event.registerTarget(
         // The name of the new target, to be used in JSON and other places.
@@ -596,7 +596,7 @@ NeoForge adds the following keyframe interpolations out of the box:
 Custom interpolations can be added by creating a new `AnimationChannel.Interpolation` (which is a functional interface) and registering it in `RegisterJsonAnimationTypesEvent` like so:
 
 ```java
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus only on the physical client
 public static void registerJsonAnimationTypes(RegisterJsonAnimationTypesEvent event) {
     event.registerInterpolation(
         // The name of the new interpolation, to be used in JSON and other places.

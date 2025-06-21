@@ -1,6 +1,9 @@
 ---
 sidebar_position: 3
 ---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 # Events
 
 One of NeoForge's main features is the event system. Events are fired for various things that happen in the game. For example, there are events for when the player right clicks, when a player or another entity jumps, when blocks are rendered, when the game is loaded, etc. A modder can subscribe event handlers to each of these events, and then perform their desired behavior inside these event handlers.
@@ -79,7 +82,18 @@ public class YourMod {
 
 ### `@EventBusSubscriber`
 
+<Tabs defaultValue="latest">
+<TabItem value="latest" label="Latest">
+
+We can go one step further and also annotate the event handler class with `@EventBusSubscriber`. This annotation is discovered automatically by NeoForge, allowing you to remove all event-related code from the mod constructor. In essence, it is equivalent to calling `NeoForge.EVENT_BUS.register(EventHandler.class)` and `modBus.register(EventHandler.class)` at the end of the mod constructor. This means that all handlers must be static, too.
+
+</TabItem>
+<TabItem value="21.3.77" label="[21.3.0,21.3.77]">
+
 We can go one step further and also annotate the event handler class with `@EventBusSubscriber`. This annotation is discovered automatically by NeoForge, allowing you to remove all event-related code from the mod constructor. In essence, it is equivalent to calling `NeoForge.EVENT_BUS.register(EventHandler.class)` at the end of the mod constructor. This means that all handlers must be static, too.
+
+</TabItem>
+</Tabs>
 
 While not required, it is highly recommended to specify the `modid` parameter in the annotation, in order to make debugging easier (especially when it comes to mod conflicts).
 
@@ -135,16 +149,16 @@ Some events have three potential return states represented by `TriState`, or a `
 An event with three potential return states has some `set*` method to set the desired outcome.
 
 ```java
-// In some class where the listeners are subscribed to the game event bus
+// In some event handler class
 
-@SubscribeEvent
-public void renderNameTag(RenderNameTagEvent.CanRender event) {
+@SubscribeEvent // on the game event bus
+public static void renderNameTag(RenderNameTagEvent.CanRender event) {
     // Uses TriState to set the return state
     event.setCanRender(TriState.FALSE);
 }
 
-@SubscribeEvent
-public void mobDespawn(MobDespawnEvent event) {
+@SubscribeEvent // on the game event bus
+public static void mobDespawn(MobDespawnEvent event) {
     // Uses a Result enum to set the return state
     event.setResult(MobDespawnEvent.Result.DENY);
 }
@@ -168,7 +182,19 @@ Event handlers that use `@EventBusSubscriber` can specify the side as the `value
 
 While most events are posted on the `NeoForge.EVENT_BUS`, some events are posted on the mod event bus instead. These are generally called mod bus events. Mod bus events can be distinguished from regular events by their superinterface `IModBusEvent`.
 
+<Tabs defaultValue="latest">
+<TabItem value="latest" label="Latest">
+
+The mod event bus is passed to you as a parameter in the mod constructor, and you can then subscribe mod bus events to it. If you use `@EventBusSubscriber`, the event will automatically be subscribed to the correct bus.
+
+</TabItem>
+<TabItem value="21.3.77" label="[21.3.0,21.3.77]">
+
 The mod event bus is passed to you as a parameter in the mod constructor, and you can then subscribe mod bus events to it. If you use `@EventBusSubscriber`, you can also set the bus as an annotation parameter, like so: `@EventBusSubscriber(bus = Bus.MOD, modid = "yourmodid")`. The default bus is `Bus.GAME`.
+
+</TabItem>
+</Tabs>
+
 
 ### The Mod Lifecycle
 

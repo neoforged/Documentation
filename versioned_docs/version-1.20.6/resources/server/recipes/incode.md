@@ -23,7 +23,8 @@ Anvils are responsible for taking a damaged input and given some material or a s
 ```java
 // Checks whether the left and right items are correct
 // When true, sets the output, level experience cost, and material amount
-public void updateAnvil(AnvilUpdateEvent event) {
+@SubscribeEvent // on the game event bus
+public static void updateAnvil(AnvilUpdateEvent event) {
     if (event.getLeft().is(...) && event.getRight().is(...)) {
         event.setOutput(...);
         event.setCost(...);

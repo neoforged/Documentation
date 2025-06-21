@@ -12,9 +12,8 @@ A `KeyMapping` can be registered by listening to the `RegisterKeyMappingsEvent` 
 // Key mapping is lazily initialized so it doesn't exist until it is registered
 public static final Lazy<KeyMapping> EXAMPLE_MAPPING = Lazy.of(() -> /*...*/);
 
-// Event is on the mod event bus only on the physical client
-@SubscribeEvent
-public void registerBindings(RegisterKeyMappingsEvent event) {
+@SubscribeEvent // on the mod event bus only on the physical client
+public static void registerBindings(RegisterKeyMappingsEvent event) {
     event.register(EXAMPLE_MAPPING.get());
 }
 ```
@@ -96,8 +95,8 @@ A `KeyMapping` can be checked to see whether it has been clicked. Depending on w
 Within the game, a mapping should be checked by listening to `ClientTickEvent.Post` on the [event bus][eventbus] and checking `KeyMapping#consumeClick` within a while loop. `#consumeClick` will return `true` only the number of times the input was performed and not already previously handled, so it won't infinitely stall the game.
 
 ```java
-// Event is on the NeoForge event bus only on the physical client
-public void onClientTick(ClientTickEvent.Post event) {
+@SubscribeEvent // on the game event bus only on the physical client
+public static void onClientTick(ClientTickEvent.Post event) {
     while (EXAMPLE_MAPPING.get().consumeClick()) {
         // Execute logic to perform on click here
     }

@@ -221,8 +221,7 @@ public static final Item COMPONENT_EXAMPLE = REGISTRAR.register("component",
 If the data component should be added to an existing item that belongs to Vanilla or another mod, then `ModifyDefaultComponentEvent` should be listened for on the [**mod event bus**][modbus]. The event provides the `modify` and `modifyMatching` methods which allows the `DataComponentPatch.Builder` to be modified for the associated items. The builder can either `#set` components or `#remove` existing components.
 
 ```java
-// Listened to on the mod event bus
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus
 public void modifyComponents(ModifyDefaultComponentsEvent event) {
     // Sets the component on melon seeds
     event.modify(Items.MELON_SEEDS, builder ->

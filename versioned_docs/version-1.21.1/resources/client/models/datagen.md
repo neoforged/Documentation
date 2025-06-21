@@ -143,7 +143,7 @@ In some cases, the blockstates don't need special casing, but the models do. For
 Finally, don't forget to register your block state provider to the event:
 
 ```java
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus
 public static void gatherData(GatherDataEvent event) {
     DataGenerator generator = event.getGenerator();
     PackOutput output = generator.getPackOutput();
@@ -261,7 +261,7 @@ public class MyItemModelProvider extends ItemModelProvider {
 And like all data providers, don't forget to register your provider to the event:
 
 ```java
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus
 public static void gatherData(GatherDataEvent event) {
     DataGenerator generator = event.getGenerator();
     PackOutput output = generator.getPackOutput();

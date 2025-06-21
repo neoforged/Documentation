@@ -89,7 +89,7 @@ public class MyParticleProvider implements ParticleProvider<SimpleParticleType> 
 Your particle provider must then be associated with the particle type in the [client-side][side] [mod bus][modbus] [event] `RegisterParticleProvidersEvent`:
 
 ```java
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus only on the physical client
 public static void registerParticleProviders(RegisterParticleProvidersEvent event) {
     // There are multiple ways to register providers, all differing in the functional type they provide in the
     // second parameter. For example, #registerSpriteSet represents a Function<SpriteSet, ParticleProvider<?>>:
@@ -161,7 +161,7 @@ public class MyParticleDescriptionProvider extends ParticleDescriptionProvider {
 Don't forget to add the provider to the `GatherDataEvent`:
 
 ```java
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus
 public static void gatherData(GatherDataEvent event) {
     DataGenerator generator = event.getGenerator();
     PackOutput output = generator.getPackOutput();

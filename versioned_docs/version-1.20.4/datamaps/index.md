@@ -71,6 +71,7 @@ Only reference holders will return a value in that method. `Direct` holders will
 
 To continue the example above, we can implement our intended behaviour as follows:
 ```java
+@SubscribeEvent  // on the game event bus
 public static void onItemDrop(final ItemTossEvent event) {
     final ItemStack stack = event.getEntity().getItem();
     // ItemStack has a getItemHolder method that will return a Holder<Item> which points to the item the stack is of

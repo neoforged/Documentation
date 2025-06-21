@@ -146,8 +146,9 @@ public class ExampleGameTests {
 `RegisterGameTestsEvent` can also register either classes or methods using `#register`. The event listener must be [added][event] to the mod event bus. Test methods registered this way must supply their mod id to `GameTest#templateNamespace` on every method annotated with `@GameTest`.
 
 ```java
-// In some class
-public void registerTests(RegisterGameTestsEvent event) {
+// In some event handler class
+@SubscribeEvent // on the mod event bus
+public static void registerTests(RegisterGameTestsEvent event) {
     event.register(ExampleGameTests.class);
 }
 

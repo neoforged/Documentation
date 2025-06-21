@@ -3,9 +3,8 @@
 [Tags] can be generated for a mod by subclassing `TagsProvider` and implementing `#addTags`. After implementation, the provider must be [added][datagen] to the `DataGenerator`.
 
 ```java
-// On the MOD event bus
-@SubscribeEvent
-public void gatherData(GatherDataEvent event) {
+@SubscribeEvent // on the mod event bus
+public static void gatherData(GatherDataEvent event) {
     event.getGenerator().addProvider(
         // Tell generator to run only when server data are generating
         event.includeServer(),

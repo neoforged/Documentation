@@ -34,8 +34,8 @@ public class MyBlockEntityRenderer implements BlockEntityRenderer {
     // Implement #render method here and any other logic
 }
 
-// In another class using some method to listen to this event
-@SubscribeEvent
+// In some event handler class
+@SubscribeEvent // on the mod event bus only on the physical client
 public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
     event.registerBlockEntityRenderer(MyBlockEntityTypes.MYBE.get(), MyBlockEntityRenderer::new);
 }

@@ -213,8 +213,8 @@ public record DamageBar(int defaultColor) implements ItemTintSource {
     }
 }
 
-// In some client class where the event is registered to the mod event bus
-@SubscribeEvent
+// In some event handler class
+@SubscribeEvent // on the mod event bus only on the physical client
 public static void registerItemTintSources(RegisterColorHandlersEvent.ItemTintSources event) {
     event.register(
         // The name to reference as the type
@@ -488,8 +488,8 @@ public record AppliedEnchantments() implements RangeSelectItemModelProperty {
     }
 }
 
-// In some client class where the event is registered to the mod event bus
-@SubscribeEvent
+// In some event handler class
+@SubscribeEvent // on the mod event bus only on the physical client
 public static void registerRangeProperties(RegisterRangeSelectItemModelPropertyEvent event) {
     event.register(
         // The name to reference as the type
@@ -746,8 +746,8 @@ public record StackRarity() implements SelectItemModelProperty<Rarity> {
     }
 }
 
-// In some client class where the event is registered to the mod event bus
-@SubscribeEvent
+// In some event handler class
+@SubscribeEvent // on the mod event bus only on the physical client
 public static void registerSelectProperties(RegisterSelectItemModelPropertyEvent event) {
     event.register(
         // The name to reference as the type
@@ -951,8 +951,8 @@ public record BarVisible() implements ConditionalItemModelProperty {
     }
 }
 
-// In some client class where the event is registered to the mod event bus
-@SubscribeEvent
+// In some event handler class
+@SubscribeEvent // on the mod event bus only on the physical client
 public static void registerConditionalProperties(RegisterConditionalItemModelPropertyEvent event) {
     event.register(
         // The name to reference as the type
@@ -1158,8 +1158,8 @@ public record ExampleSpecialRenderer(Model model, Material material) implements 
 Finally, we register the objects to their necessary locations. For the client items, this is done via `RegisterSpecialModelRendererEvent` on the [mod event bus][modbus]. If the special renderer should also be used as part of a `BlockEntityRenderer`, such as when rendering in some item-like context (e.g., enderman holding the block), then an `Unbaked` version for the block should be registered via `RegisterSpecialBlockModelRendererEvent` on the [mod event bus][modbus].
 
 ```java
-// In some client class where the event is registered to the mod event bus
-@SubscribeEvent
+// In some event handler class
+@SubscribeEvent // on the mod event bus only on the physical client
 public static void registerSpecialRenderers(RegisterSpecialModelRendererEvent event) {
     event.register(
         // The name to reference as the type
@@ -1171,7 +1171,7 @@ public static void registerSpecialRenderers(RegisterSpecialModelRendererEvent ev
 
 // For rendering a block in an item-like context
 // Assume some DeferredBlock<ExampleBlock> EXAMPLE_BLOCK
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus only on the physical client
 public static void registerSpecialBlockRenderers(RegisterSpecialBlockModelRendererEvent event) {
     event.register(
         // The block to render for
@@ -1443,8 +1443,8 @@ public record RenderTypeModelWrapper(List<BakedQuad> quads, ModelRenderPropertie
 Then, we register the map codec via `RegisterItemModelsEvent` on the [mod event bus][modbus].
 
 ```java
-// In some client class where the event is registered to the mod event bus
-@SubscribeEvent
+// In some event handler class
+@SubscribeEvent // on the mod event bus only on the physical client
 public static void registerItemModels(RegisterItemModelsEvent event) {
     event.register(
         // The name to reference as the type

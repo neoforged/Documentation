@@ -181,7 +181,7 @@ There are a couple of ways for users to obtain a feature pack, namely installing
 Built-in packs are bundled with your mod and are made available to the game using the `AddPackFindersEvent` event.
 
 ```java
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus
 public static void addFeaturePacks(final AddPackFindersEvent event) {
     event.addPackFinders(
             // Path relative to your mods 'resources' pointing towards this pack
@@ -261,7 +261,7 @@ _See also: [Datagen](../resources/index.md#data-generation)_
 Feature packs can be generated during regular mod datagen. This is best used in combination with built-in packs, but it is also possible to zip up the generated result and share it as an external pack. Just choose one, i.e. don't provide it as an external pack and also bundle it as a built-in pack.
 
 ```java
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus
 public static void gatherData(final GatherDataEvent event) {
     DataGenerator generator = event.getGenerator();
     

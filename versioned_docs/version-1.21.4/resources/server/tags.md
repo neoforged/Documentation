@@ -220,7 +220,7 @@ This example results in the following tag JSON:
 Like all data providers, add each tag provider to the `GatherDataEvent`s:
 
 ```java
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus
 public static void gatherData(GatherDataEvent.Client event) {
     // Call event.createDatapackRegistryObjects(...) first if adding datapack objects
 
