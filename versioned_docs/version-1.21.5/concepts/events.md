@@ -82,7 +82,18 @@ public class YourMod {
 
 ### `@EventBusSubscriber`
 
+<Tabs defaultValue="latest">
+<TabItem value="latest" label="Latest">
+
+We can go one step further and also annotate the event handler class with `@EventBusSubscriber`. This annotation is discovered automatically by NeoForge, allowing you to remove all event-related code from the mod constructor. In essence, it is equivalent to calling `NeoForge.EVENT_BUS.register(EventHandler.class)` and `modBus.register(EventHandler.class)` at the end of the mod constructor. This means that all handlers must be static, too.
+
+</TabItem>
+<TabItem value="21.5.78" label="[21.5.0,21.5.78]">
+
 We can go one step further and also annotate the event handler class with `@EventBusSubscriber`. This annotation is discovered automatically by NeoForge, allowing you to remove all event-related code from the mod constructor. In essence, it is equivalent to calling `NeoForge.EVENT_BUS.register(EventHandler.class)` at the end of the mod constructor. This means that all handlers must be static, too.
+
+</TabItem>
+</Tabs>
 
 While not required, it is highly recommended to specify the `modid` parameter in the annotation, in order to make debugging easier (especially when it comes to mod conflicts).
 
@@ -172,7 +183,18 @@ Event handlers that use `@EventBusSubscriber` can specify the side as the `value
 
 While most events are posted on the `NeoForge.EVENT_BUS`, some events are posted on the mod event bus instead. These are generally called mod bus events. Mod bus events can be distinguished from regular events by their superinterface `IModBusEvent`.
 
+<Tabs defaultValue="latest">
+<TabItem value="latest" label="Latest">
+
+The mod event bus is passed to you as a parameter in the mod constructor, and you can then subscribe mod bus events to it. If you use `@EventBusSubscriber`, the event will automatically be subscribed to the correct bus.
+
+</TabItem>
+<TabItem value="21.5.78" label="[21.5.0,21.5.78]">
+
 The mod event bus is passed to you as a parameter in the mod constructor, and you can then subscribe mod bus events to it. If you use `@EventBusSubscriber`, you can also set the bus as an annotation parameter, like so: `@EventBusSubscriber(bus = Bus.MOD, modid = "yourmodid")`. The default bus is `Bus.GAME`.
+
+</TabItem>
+</Tabs>
 
 ### The Mod Lifecycle
 
