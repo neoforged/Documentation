@@ -196,7 +196,7 @@ An item can be added to an existing `CreativeModeTab` via the `BuildCreativeMode
 
 ```java
 //MyItemsClass.MY_ITEM is a Supplier<? extends Item>, MyBlocksClass.MY_BLOCK is a Supplier<? extends Block>
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus
 public static void buildContents(BuildCreativeModeTabContentsEvent event) {
     // Is this the tab we want to add to?
     if (event.getTabKey() == CreativeModeTabs.INGREDIENTS) {

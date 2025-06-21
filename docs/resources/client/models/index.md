@@ -158,8 +158,7 @@ Finally, a `neoforge:definition_type` can specify a custom model loader to regis
 Some blocks, such as grass or leaves, change their texture color based on their location and/or properties. [Model elements][elements] can specify a tint index on their faces, which will allow a color handler to handle the respective faces. The code side of things works through three events, one for block color handlers, one for block tints based on biome (used in conjunction with the block color handlers), and one for item tint sources. They work pretty similar, so let's have a look at a block handler first:
 
 ```java
-// Client-side mod bus event handler
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus only on the physical client
 public static void registerBlockColorHandlers(RegisterColorHandlersEvent.Block event) {
     // Parameters are the block's state, the level the block is in, the block's position, and the tint index.
     // The level and position may be null.
@@ -177,8 +176,7 @@ public static void registerBlockColorHandlers(RegisterColorHandlersEvent.Block e
 Here is an example for a color resolver:
 
 ```java
-// Client-side mod bus event handler
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus only on the physical client
 public static void registerColorResolvers(RegisterColorHandlersEvent.ColorResolvers event) {
     // Parameters are the current biome, the block's X position, and the block's Z position.
     event.register((biome, x, z) -> {
@@ -202,8 +200,7 @@ public static final StandaloneModelKey<QuadCollection> EXAMPLE_KEY = new Standal
     ResourceLocation.fromNamespaceAndPath("examplemod", "block/example_unused_model")
 );
 
-// Client-side mod bus event handler
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus only on the physical client
 public static void registerAdditional(ModelEvent.RegisterStandalone event) {
     event.register(
         // The model to get

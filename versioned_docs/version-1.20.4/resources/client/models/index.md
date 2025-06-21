@@ -161,7 +161,7 @@ The model can specify one or multiple override models that should be used when t
 The code side of things is pretty simple. Assuming that we want to add a property named `examplemod:property` to our item, we would use the following code in a [client-side][side] [event handler][eventhandler]:
 
 ```java
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus only on the physical client
 public static void onClientSetup(FMLClientSetupEvent event) {
     event.enqueueWork(() -> { // ItemProperties#register is not threadsafe, so we need to call it on the main thread
         ItemProperties.register(
@@ -237,7 +237,7 @@ In contrast, inside a `multipart` block, elements are combined depending on the 
 Some blocks, such as grass or leaves, change their texture color based on their location and/or properties. [Model elements][elements] can specify a tint index on their faces, which will allow a color handler to handle the respective faces. The code side of things works through two events, one for block color handlers and one for item color handlers. They both work pretty similar, so let's have a look at a block handler first:
 
 ```java
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus only on the physical client
 public static void registerBlockColorHandlers(RegisterColorHandlersEvent.Block event) {
     // Parameters are the block's state, the level the block is in, the block's position, and the tint index.
     // The level and position may be null.
@@ -254,7 +254,7 @@ public static void registerBlockColorHandlers(RegisterColorHandlersEvent.Block e
 Item handlers work pretty much the same, except for some naming and the lambda parameters:
 
 ```java
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus only on the physical client
 public static void registerItemColorHandlers(RegisterColorHandlersEvent.Item event) {
     // Parameters are the item stack and the tint index.
     event.register((stack, tintIndex) -> {
@@ -272,8 +272,7 @@ Be aware that the `item/generated` model specifies tint indices for its various 
 Models that are not associated with a block or item in some way, but are still required in other contexts (e.g. [block entity renderers][ber]), can be registered through `ModelEvent.RegisterAdditional`:
 
 ```java
-// Client-side mod bus event handler
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus only on the physical client
 public static void registerAdditional(ModelEvent.RegisterAdditional event) {
     event.register(new ResourceLocation("examplemod", "block/example_unused_model"));
 }

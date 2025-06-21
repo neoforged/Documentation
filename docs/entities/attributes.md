@@ -67,7 +67,7 @@ The following attributes are in the `neoforge` namespace, and their in-code valu
 When creating a `LivingEntity`, it is required to register a set of default attributes for them. When an entity is [spawned][spawning] in, its default attributes are set on it. Default attributes are registered in the [`EntityAttributeCreationEvent`][event] like so:
 
 ```java
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus
 public static void createDefaultAttributes(EntityAttributeCreationEvent event) {
     event.put(
         // Your entity type.
@@ -93,7 +93,7 @@ Some classes have specialized versions of `LivingEntity#createLivingAttributes`.
 In some situations, for example when making [your own attributes][custom], it is needed to add attributes to an existing entity's `AttributeSupplier`. This is done through the `EntityAttributeModificationEvent` like so:
 
 ```java
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus
 public static void modifyDefaultAttributes(EntityAttributeModificationEvent event) {
     event.add(
         // The EntityType to add the attribute for.

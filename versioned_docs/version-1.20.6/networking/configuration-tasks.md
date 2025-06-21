@@ -9,7 +9,7 @@ This phase can also be used by mods to configure the client before the player jo
 The first step to using the configuration phase is to register a configuration task. This can be done by registering a new configuration task in the `RegisterConfigurationTasksEvent` event.
 
 ```java
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus
 public static void register(final RegisterConfigurationTasksEvent event) {
     event.register(new MyConfigurationTask());
 }
@@ -69,7 +69,7 @@ public record MyConfigurationTask(ServerConfigurationListener listener) implemen
 To use such a configuration task, the listener needs to be captured in the `RegisterConfigurationTasksEvent` event.
 
 ```java
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus
 public static void register(final RegisterConfigurationTasksEvent event) {
     event.register(new MyConfigurationTask(event.getListener()));
 }

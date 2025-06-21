@@ -253,7 +253,7 @@ builder.save(saver, ResourceLocation.fromNamespaceAndPath("examplemod", "example
 Of course, don't forget to add your provider to the `GatherDataEvent`:
 
 ```java
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus
 public static void gatherData(GatherDataEvent event) {
     DataGenerator generator = event.getGenerator();
     PackOutput output = generator.getPackOutput();

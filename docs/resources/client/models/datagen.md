@@ -116,7 +116,7 @@ public class ExampleModelProvider extends ModelProvider {
 And like all data providers, don't forget to register your provider to the event:
 
 ```java
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus
 public static void gatherData(GatherDataEvent.Client event) {
     event.createProvider(ExampleModelProvider::new);
 }

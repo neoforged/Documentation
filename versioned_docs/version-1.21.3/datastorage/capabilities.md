@@ -257,7 +257,8 @@ They need to be registered in the `RegisterCapabilitiesEvent`.
 Block providers are registered with `registerBlock`. For example:
 
 ```java
-private static void registerCapabilities(RegisterCapabilitiesEvent event) {
+@SubscribeEvent // on the mod event bus
+public static void registerCapabilities(RegisterCapabilitiesEvent event) {
     event.registerBlock(
         Capabilities.ItemHandler.BLOCK, // capability to register for
         (level, pos, state, be, side) -> <return the IItemHandler>,

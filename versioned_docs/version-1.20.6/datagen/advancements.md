@@ -7,9 +7,8 @@ NeoForge provides an extension for the `AdvancementProvider` called `net.neoforg
 :::
 
 ```java
-// On the MOD event bus
-@SubscribeEvent
-public void gatherData(GatherDataEvent event) {
+@SubscribeEvent // on the mod event bus
+public static void gatherData(GatherDataEvent event) {
     event.getGenerator().addProvider(
         // Tell generator to run only when server data are generating
         event.includeServer(),

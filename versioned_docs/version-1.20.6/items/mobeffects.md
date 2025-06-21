@@ -173,8 +173,7 @@ Now that your potion is added, potion items are available for your potion. Howev
 Potions are traditionally made in the Brewing Stand. Unfortunately, Mojang does not provide [datapack][datapack] support for brewing recipes, so we have to be a little old-fashioned and add our recipes through code via the `RegisterBrewingRecipesEvent` event. This is done like so:
 
 ```java
-// Using some method to listen to the event
-@SubscribeEvent
+@SubscribeEvent // on the game event bus
 public static void registerBrewingRecipes(RegisterBrewingRecipesEvent event) {
     // Gets the builder to add recipes to
     PotionBrewing.Builder builder = event.getBuilder();

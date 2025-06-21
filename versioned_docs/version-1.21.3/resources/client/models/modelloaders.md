@@ -75,8 +75,7 @@ The dynamic fluid container model, also called dynamic bucket model after its mo
 If you would like to apply a tint to the fluid texture, you will need to [register an `ItemColor`][tint]. An instance with the fluid tinting logic can be created from `DynamicFluidContainerModel.Colors`:
 
 ```java
-// Client-side mod bus event handler
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus only on the physical client
 public static void registerItemColorHandlers(RegisterColorHandlersEvent.Item event) {
     event.register(new DynamicFluidContainerModel.Colors(), EXAMPLE_BUCKET.get(), ...);
 }
@@ -349,8 +348,7 @@ public class MyDynamicModel implements IDynamicBakedModel {
 When all is done, don't forget to actually register your loader, otherwise all the work will have been for nothing:
 
 ```java
-// Client-side mod bus event handler
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus only on the physical client
 public static void registerGeometryLoaders(ModelEvent.RegisterGeometryLoaders event) {
     event.register(MyGeometryLoader.ID, MyGeometryLoader.INSTANCE);
 }

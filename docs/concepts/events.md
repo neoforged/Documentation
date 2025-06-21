@@ -1,6 +1,9 @@
 ---
 sidebar_position: 3
 ---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 # Events
 
 One of NeoForge's main features is the event system. Events are fired for various things that happen in the game. For example, there are events for when the player right clicks, when a player or another entity jumps, when blocks are rendered, when the game is loaded, etc. A modder can subscribe event handlers to each of these events, and then perform their desired behavior inside these event handlers.
@@ -136,16 +139,16 @@ Some events have three potential return states represented by `TriState`, or a `
 An event with three potential return states has some `set*` method to set the desired outcome.
 
 ```java
-// In some class where the listeners are subscribed to the game event bus
+// In some event handler class
 
-@SubscribeEvent
-public void renderNameTag(RenderNameTagEvent.CanRender event) {
+@SubscribeEvent // on the game event bus
+public static void renderNameTag(RenderNameTagEvent.CanRender event) {
     // Uses TriState to set the return state
     event.setCanRender(TriState.FALSE);
 }
 
-@SubscribeEvent
-public void mobDespawn(MobDespawnEvent event) {
+@SubscribeEvent // on the game event bus
+public static void mobDespawn(MobDespawnEvent event) {
     // Uses a Result enum to set the return state
     event.setResult(MobDespawnEvent.Result.DENY);
 }

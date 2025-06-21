@@ -207,15 +207,13 @@ public class MyUnbakedModel extends AbstractUnbakedModel {
 When all is done, don't forget to actually register your loader:
 
 ```java
-// Client-side mod bus event handler
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus only on the physical client
 public static void registerLoaders(ModelEvent.RegisterLoaders event) {
     event.register(MyUnbakedModelLoader.ID, MyUnbakedModelLoader.INSTANCE);
 }
 
 // If you are caching data in the model loader:
-// Client-side mod bus event handler
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus only on the physical client
 public static void onRegisterReloadListeners(RegisterClientReloadListenersEvent event) {
     event.registerReloadListener(MyUnbakedModelLoader.INSTANCE);
 }
@@ -519,8 +517,7 @@ public record MyBlockStateModel(MyBlockModelPart model) implements DynamicBlockS
 When all is done, don't forget to actually register your loader:
 
 ```java
-// Client-side mod bus event handler
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus only on the physical client
 public static void registerDefinitions(RegisterBlockStateModels event) {
     event.registerModel(MyBlockStateModel.Unbaked.ID, MyBlockStateModel.Unbaked.CODEC);
 }
@@ -649,8 +646,7 @@ public record MyBlockModelDefinition(MyBlockStateModel.Unbaked model) implements
 When all is done, don't forget to actually register your loader:
 
 ```java
-// Client-side mod bus event handler
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus only on the physical client
 public static void registerDefinitions(RegisterBlockStateModels event) {
     event.registerDefinition(MyBlockModelDefinition.ID, MyBlockModelDefinition.CODEC);
 }

@@ -125,14 +125,14 @@ An event with three potential return states has some `set*` method to set the de
 ```java
 // In some class where the listeners are subscribed to the game event bus
 
-@SubscribeEvent
-public void renderNameTag(RenderNameTagEvent event) {
+@SubscribeEvent // on the game event bus
+public static void renderNameTag(RenderNameTagEvent event) {
     // Uses TriState to set the return state
     event.setCanRender(TriState.FALSE);
 }
 
-@SubscribeEvent
-public void mobDespawn(MobDespawnEvent event) {
+@SubscribeEvent // on the game event bus
+public static void mobDespawn(MobDespawnEvent event) {
     // Uses a Result enum to set the return state
     event.setResult(MobDespawnEvent.Result.DENY);
 }

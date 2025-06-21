@@ -124,7 +124,7 @@ Anvils have two input slots and one output slot. The only vanilla use cases are 
 
 ```java
 // This example allows repairing a stone pickaxe with a full stack of dirt, consuming half the stack, for 3 levels.
-@SubscribeEvent
+@SubscribeEvent // on the game event bus
 public static void onAnvilUpdate(AnvilUpdateEvent event) {
     ItemStack left = event.getLeft();
     ItemStack right = event.getRight();
@@ -187,7 +187,7 @@ Recipes themselves are commonly added through subclasses of `RecipeBuilder`. Lis
 Like all other data providers, recipe providers must be registered to the `GatherDataEvent`s like so:
 
 ```java
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus
 public static void gatherData(GatherDataEvent.Client event) {
     // Call event.createDatapackRegistryObjects(...) first if adding datapack objects
 

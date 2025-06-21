@@ -124,8 +124,7 @@ NeoForge allows users to specify their own `ExtendedRecipeBookCategory` as a sea
 // In some location
 public static final ExtendedRecipeBookCategory RIGHT_CLICK_BLOCK_SEARCH_CATEGORY = new ExtendedRecipeBookCategory() {};
 
-// On the mod event bus
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus
 public static void registerSearchCategories(RegisterRecipeBookSearchCategoriesEvent event) {
     event.register(
         // The search category
@@ -553,8 +552,7 @@ public class ServerRightClickBlockRecipes {
         return ServerRightClickBlockRecipes.inputs;
     }
 
-    // On the game event bus
-    @SubscribeEvent
+    @SubscribeEvent // on the mod event bus
     public static void addListener(AddReloadListenerEvent event) {
         // Register server reload listener
         ServerRightClickBlockRecipes.inputs = new ServerRightClickBlockRecipeInputs(
@@ -563,8 +561,7 @@ public class ServerRightClickBlockRecipes {
         event.addListener(ServerRightClickBlockRecipes.inputs);
     }
 
-    // On the game event bus
-    @SubscribeEvent
+    @SubscribeEvent // on the game event bus
     public static void datapackSync(OnDatapackSyncEvent event) {
         // Send to client
         ServerRightClickBlockRecipes.inputs.syncToClient(event.getRelevantPlayers());
@@ -600,8 +597,7 @@ public class RightClickBlockRecipes {
 Then, using the synced inputs, we can check the game for the used inputs:
 
 ```java
-// On the game event bus
-@SubscribeEvent
+@SubscribeEvent // on the game event bus
 public static void useItemOnBlock(UseItemOnBlockEvent event) {
     // Skip if we are not in the block-dictated phase of the event. See the event's javadocs for details.
     if (event.getUsePhase() != UseItemOnBlockEvent.UsePhase.BLOCK) return;

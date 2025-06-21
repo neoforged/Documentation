@@ -147,7 +147,8 @@ public class ExampleGameTests {
 
 ```java
 // In some class
-public void registerTests(RegisterGameTestsEvent event) {
+@SubscribeEvent // on the mod event bus
+public static void registerTests(RegisterGameTestsEvent event) {
   event.register(ExampleGameTests.class);
 }
 

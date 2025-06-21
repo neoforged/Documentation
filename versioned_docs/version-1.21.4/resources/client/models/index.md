@@ -155,8 +155,7 @@ In contrast, inside a `multipart` block, elements are combined depending on the 
 Some blocks, such as grass or leaves, change their texture color based on their location and/or properties. [Model elements][elements] can specify a tint index on their faces, which will allow a color handler to handle the respective faces. The code side of things works through three events, one for block color handlers, one for block tints based on biome (used in conjunction with the block color handlers), and one for item tint sources. They work pretty similar, so let's have a look at a block handler first:
 
 ```java
-// Client-side mod bus event handler
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus only on the physical client
 public static void registerBlockColorHandlers(RegisterColorHandlersEvent.Block event) {
     // Parameters are the block's state, the level the block is in, the block's position, and the tint index.
     // The level and position may be null.
@@ -174,8 +173,7 @@ public static void registerBlockColorHandlers(RegisterColorHandlersEvent.Block e
 Here is an example for a color resolver:
 
 ```java
-// Client-side mod bus event handler
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus only on the physical client
 public static void registerColorResolvers(RegisterColorHandlersEvent.ColorResolvers event) {
     // Parameters are the current biome, the block's X position, and the block's Z position.
     event.register((biome, x, z) -> {
@@ -193,8 +191,7 @@ For item tinting, please see the [relevant section in the client items article][
 Models that are not associated with a block or item in some way, but are still required in other contexts (e.g. [block entity renderers][ber]), can be registered through `ModelEvent.RegisterAdditional`:
 
 ```java
-// Client-side mod bus event handler
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus only on the physical client
 public static void registerAdditional(ModelEvent.RegisterAdditional event) {
     // The model id, relative to `assets/<namespace>/models/<path>.json`
     event.register(ResourceLocation.fromNamespaceAndPath("examplemod", "block/example_unused_model"));

@@ -256,7 +256,7 @@ List<ItemStack> containerList = table.fill(container, params, someSeed);
 Loot tables can be [datagenned][datagen] by registering a `LootTableProvider` and providing a list of `LootTableSubProvider` in the constructor:
 
 ```java
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus
 public static void onGatherData(GatherDataEvent.Client event) {
     // Call event.createDatapackRegistryObjects(...) first if adding datapack objects
 

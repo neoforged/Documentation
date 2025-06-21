@@ -176,7 +176,7 @@ public class MyGlobalLootModifierProvider extends GlobalLootModifierProvider {
 And like all data providers, you must register the provider to `GatherDataEvent`:
 
 ```java
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus
 public static void onGatherData(GatherDataEvent event) {
     event.getGenerator().addProvider(
         event.includeServer(),

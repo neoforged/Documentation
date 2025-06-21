@@ -184,15 +184,13 @@ public class MyUnbakedModel extends AbstractUnbakedModel {
 When all is done, don't forget to actually register your loader, otherwise all the work will have been for nothing:
 
 ```java
-// Client-side mod bus event handler
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus only on the physical client
 public static void registerGeometryLoaders(ModelEvent.RegisterLoaders event) {
     event.register(MyUnbakedModelLoader.ID, MyUnbakedModelLoader.INSTANCE);
 }
 
 // If you are caching data in the model loader:
-// Client-side mod bus event handler
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus only on the physical client
 public static void onRegisterReloadListeners(RegisterClientReloadListenersEvent event) {
     event.registerReloadListener(MyUnbakedModelLoader.INSTANCE);
 }

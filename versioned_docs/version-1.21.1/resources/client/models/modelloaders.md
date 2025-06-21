@@ -330,8 +330,7 @@ public class MyDynamicModel implements IDynamicBakedModel {
 When all is done, don't forget to actually register your loader, otherwise all the work will have been for nothing:
 
 ```java
-// Client-side mod bus event handler
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus only on the physical client
 public static void registerGeometryLoaders(ModelEvent.RegisterGeometryLoaders event) {
     event.register(MyGeometryLoader.ID, MyGeometryLoader.INSTANCE);
 }

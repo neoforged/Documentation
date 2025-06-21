@@ -85,9 +85,8 @@ public static final ResourceKey<TestEnvironmentDefinition> EXAMPLE_ENVIRONMENT =
     ResourceLocation.fromNamespaceAndPath("examplemod", "example_environment")
 );
 
-// The event is registered on the mod event bus.
-@SubscribeEvent
-public void gatherData(GatherDataEvent.Client event) {
+@SubscribeEvent // on the mod event bus
+public static void gatherData(GatherDataEvent.Client event) {
     event.createDatapackRegistryObjects(
         new RegistrySetBuilder().add(Registries.TEST_INSTANCE, bootstrap -> {
             // Use this to get the test environments
@@ -204,9 +203,8 @@ public static final ResourceKey<TestEnvironmentDefinition> EXAMPLE_ENVIRONMENT =
     ResourceLocation.fromNamespaceAndPath("examplemod", "example_environment")
 );
 
-// The event is registered on the mod event bus.
-@SubscribeEvent
-public void gatherData(GatherDataEvent.Client event) {
+@SubscribeEvent // on the mod event bus
+public static void gatherData(GatherDataEvent.Client event) {
     event.createDatapackRegistryObjects(
         new RegistrySetBuilder().add(Registries.TEST_ENVIRONMENT, bootstrap -> {
 
@@ -276,9 +274,8 @@ public static final ResourceKey<TestEnvironmentDefinition> EXAMPLE_ENVIRONMENT =
     ResourceLocation.fromNamespaceAndPath("examplemod", "example_environment")
 );
 
-// The event is registered on the mod event bus.
-@SubscribeEvent
-public void gatherData(GatherDataEvent.Client event) {
+@SubscribeEvent // on the mod event bus
+public static void gatherData(GatherDataEvent.Client event) {
     event.createDatapackRegistryObjects(
         new RegistrySetBuilder().add(Registries.TEST_ENVIRONMENT, bootstrap -> {
 
@@ -335,9 +332,8 @@ public static final ResourceKey<TestEnvironmentDefinition> EXAMPLE_ENVIRONMENT =
     ResourceLocation.fromNamespaceAndPath("examplemod", "example_environment")
 );
 
-// The event is registered on the mod event bus.
-@SubscribeEvent
-public void gatherData(GatherDataEvent.Client event) {
+@SubscribeEvent // on the mod event bus
+public static void gatherData(GatherDataEvent.Client event) {
     event.createDatapackRegistryObjects(
         new RegistrySetBuilder().add(Registries.TEST_ENVIRONMENT, bootstrap -> {
 
@@ -396,9 +392,8 @@ public static final ResourceKey<TestEnvironmentDefinition> EXAMPLE_ENVIRONMENT =
     ResourceLocation.fromNamespaceAndPath("examplemod", "example_environment")
 );
 
-// The event is registered on the mod event bus.
-@SubscribeEvent
-public void gatherData(GatherDataEvent.Client event) {
+@SubscribeEvent // on the mod event bus
+public static void gatherData(GatherDataEvent.Client event) {
     event.createDatapackRegistryObjects(
         new RegistrySetBuilder().add(Registries.TEST_ENVIRONMENT, bootstrap -> {
 
@@ -463,9 +458,8 @@ public static final ResourceKey<TestEnvironmentDefinition> EXAMPLE_ENVIRONMENT =
     ResourceLocation.fromNamespaceAndPath("examplemod", "example_environment")
 );
 
-// The event is registered on the mod event bus.
-@SubscribeEvent
-public void gatherData(GatherDataEvent.Client event) {
+@SubscribeEvent // on the mod event bus
+public static void gatherData(GatherDataEvent.Client event) {
     event.createDatapackRegistryObjects(
         new RegistrySetBuilder().add(Registries.TEST_ENVIRONMENT, bootstrap -> {
             // Getting existing environments
@@ -572,9 +566,8 @@ public static final ResourceKey<TestEnvironmentDefinition> EXAMPLE_ENVIRONMENT =
     ResourceLocation.fromNamespaceAndPath("examplemod", "example_environment")
 );
 
-// The event is registered on the mod event bus.
-@SubscribeEvent
-public void gatherData(GatherDataEvent.Client event) {
+@SubscribeEvent // on the mod event bus
+public static void gatherData(GatherDataEvent.Client event) {
     event.createDatapackRegistryObjects(
         new RegistrySetBuilder().add(Registries.TEST_ENVIRONMENT, bootstrap -> {
 
@@ -716,9 +709,8 @@ public static final ResourceKey<TestEnvironmentDefinition> EXAMPLE_ENVIRONMENT =
     ResourceLocation.fromNamespaceAndPath("examplemod", "example_environment")
 );
 
-// The event is registered on the mod event bus.
-@SubscribeEvent
-public void gatherData(GatherDataEvent.Client event) {
+@SubscribeEvent // on the mod event bus
+public static void gatherData(GatherDataEvent.Client event) {
     event.createDatapackRegistryObjects(
         new RegistrySetBuilder().add(Registries.TEST_INSTANCE, bootstrap -> {
             // Use this to get the test environments
@@ -797,9 +789,8 @@ public static final ResourceKey<TestEnvironmentDefinition> EXAMPLE_ENVIRONMENT =
     ResourceLocation.fromNamespaceAndPath("examplemod", "example_environment")
 );
 
-// The event is registered on the mod event bus.
-@SubscribeEvent
-public void gatherData(GatherDataEvent.Client event) {
+@SubscribeEvent // on the mod event bus
+public static void gatherData(GatherDataEvent.Client event) {
     event.createDatapackRegistryObjects(
         new RegistrySetBuilder().add(Registries.TEST_INSTANCE, bootstrap -> {
             // Use this to get the test environments
@@ -927,9 +918,8 @@ public static final ResourceKey<TestEnvironmentDefinition> EXAMPLE_ENVIRONMENT =
     ResourceLocation.fromNamespaceAndPath("examplemod", "example_environment")
 );
 
-// The event is registered on the mod event bus.
-@SubscribeEvent
-public void gatherData(GatherDataEvent.Client event) {
+@SubscribeEvent // on the mod event bus
+public static void gatherData(GatherDataEvent.Client event) {
     event.createDatapackRegistryObjects(
         new RegistrySetBuilder().add(Registries.TEST_INSTANCE, bootstrap -> {
             // Use this to get the test environments
@@ -967,9 +957,8 @@ public void gatherData(GatherDataEvent.Client event) {
 If you don't want to use a datapack to construct your game tests, you can instead listen to the `RegisterGameTestsEvent` on the [mod event bus][event] and register your environments and test instances via `registerEnvironment` and `registerTest`, respectively.
 
 ```java
-// On the mod event bus
-@SubscribeEvent
-public void registerTests(RegisterGameTestsEvent event) {
+@SubscribeEvent // on the mod event bus
+public static void registerTests(RegisterGameTestsEvent event) {
     Holder<TestEnvironmentDefinition> environment = event.registerEnvironment(
         // The name of the test environment
         EXAMPLE_ENVIRONMENT.location(),

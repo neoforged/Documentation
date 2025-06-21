@@ -54,7 +54,7 @@ Dynamically cancelling attacks is basically adding a non-deterministic invulnera
 Reduction modifier callbacks allow you to modify a part of the performed damage reduction. For example, it would allow you to reduce the effect of armor damage reduction by 50%. This would then also propagate correctly to mob effects, which then have a different damage amount to work with, etc. A reduction modifier callback can be added like so:
 
 ```java
-@SubscribeEvent
+@SubscribeEvent // on the game event bus
 public static void decreaseArmor(LivingIncomingDamageEvent event) {
     // We only apply this decrease to players and leave zombies etc. unchanged
     if (event.getEntity() instanceof Player) {

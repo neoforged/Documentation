@@ -3,7 +3,7 @@
 Payloads are a way to send arbitrary data between the client and the server. They are registered using the `PayloadRegistrar` from the `RegisterPayloadHandlersEvent` event.
 
 ```java
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus
 public static void register(final RegisterPayloadHandlersEvent event) {
     // Sets the current network version
     final PayloadRegistrar registrar = event.registrar("1");
@@ -47,7 +47,7 @@ As you can see from the example above the `CustomPacketPayload` interface requir
 Finally, we can register this payload with the registrar:
 
 ```java
-@SubscribeEvent
+@SubscribeEvent // on the mod event bus
 public static void register(final RegisterPayloadHandlersEvent event) {
     final PayloadRegistrar registrar = event.registrar("1");
     registrar.playBidirectional(

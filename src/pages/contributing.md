@@ -274,6 +274,21 @@ public void run() {
 ```
 ````
 
+#### Events
+
+Events in code blocks should use the `EventBusSubscriber` format: public static method with a `SubscribeEvent` annotation. The annotation must be followed by a comment indicating the bus the event will be registered to. The comment should also specify if the event handler should be registered on a given side.
+
+```java
+@SubscribeEvent // on the <bus name> event bus [only on the physical <side name>]
+public static void methodName(EventName event) {
+    // Code goes here
+}
+```
+
+:::note
+The events page is exempted as it describes the different methods of event handler registration.
+:::
+
 ### Links
 
 All links should use brackets (`[]`) to refer to a link specified on the bottom of the markdown page. The second pair of brackets can be omitted if the name between the first pair of brackets is used.
