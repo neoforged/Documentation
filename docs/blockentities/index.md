@@ -91,17 +91,17 @@ public static final DeferredBlock<MyEntityBlock> MY_BLOCK_2 =
 
 ## Storing Data
 
-One of the main purposes of `BlockEntity`s is to store data. Data storage on block entities can happen in two ways: directly reading and writing [NBT][nbt], or using [data attachments][dataattachments]. This section will cover reading and writing NBT directly; for data attachments, please refer to the linked article.
+One of the main purposes of `BlockEntity`s is to store data. Data storage on block entities can happen in two ways: reading and writing to a [value I/O][valueio], or using [data attachments][dataattachments]. This section will cover reading and writing to value I/O; for data attachments, please refer to the linked article.
 
 :::info
-The main purpose of data attachments is, as the name suggests, attaching data to existing block entities, such as those provided by vanilla or other mods. For your own mod's block entities, saving and loading directly to and from NBT is preferred.
+The main purpose of data attachments is, as the name suggests, attaching data to existing block entities, such as those provided by vanilla or other mods. For your own mod's block entities, saving and loading directly to and from the value I/O is preferred.
 :::
 
-Data can be read from and written to a `CompoundTag` using the `#loadAdditional` and `#saveAdditional` methods, respectively. These methods are called when the block entity is synced to disk or over the network.
+Data can be read from and written to [value accesses][valueio] using the `#loadAdditional` and `#saveAdditional` methods, respectively. These methods are called when the block entity is synced to disk or over the network.
 
 ```java
 public class MyBlockEntity extends BlockEntity {
-    // This can be any value of any type you want, so long as you can somehow serialize it to NBT.
+    // This can be any value of any type you want, so long as you can somehow serialize it to the value accesses.
     // We will use an int for the sake of example.
     private int value;
 
@@ -109,19 +109,19 @@ public class MyBlockEntity extends BlockEntity {
         super(MY_BLOCK_ENTITY.get(), pos, state);
     }
 
-    // Read values from the passed CompoundTag here.
+    // Read values from the passed ValueInput here.
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        // Will default to 0 if absent. See the NBT article for more information.
-        this.value = tag.getInt("value");
+    public void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        // Will default to 0 if absent. See the ValueIO article for more information.
+        this.value = input.getIntOr("value", 0);
     }
 
-    // Save values into the passed CompoundTag here.
+    // Save values into the passed ValueOutput here.
     @Override
-    public void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
-        tag.putInt("value", this.value);
+    public void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        output.putInt("value", this.value);
     }
 }
 ```
@@ -207,19 +207,17 @@ A chunk is loaded (and by extension, this method is utilized) each time it is re
 public class MyBlockEntity extends BlockEntity {
     // ...
 
-    // Create an update tag here. For block entities with only a few fields, this can just call #saveAdditional.
+    // Create an update tag here. For block entities with only a few fields, this can just call #saveWithoutMetadata.
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-        CompoundTag tag = new CompoundTag();
-        saveAdditional(tag, registries);
-        return tag;
+        return this.saveWithoutMetadata(registries);
     }
 
-    // Handle a received update tag here. The default implementation calls #loadAdditional here,
+    // Handle a received update tag here. The default implementation calls #loadWithComponents here,
     // so you do not need to override this method if you don't plan to do anything beyond that.
     @Override
-    public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
-        super.handleUpdateTag(tag, registries);
+    public void handleUpdateTag(ValueInput input) {
+        super.handleUpdateTag(input);
     }
 }
 ```
@@ -235,9 +233,7 @@ public class MyBlockEntity extends BlockEntity {
     // Create an update tag here, like above.
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-        CompoundTag tag = new CompoundTag();
-        saveAdditional(tag, registries);
-        return tag;
+        return this.saveWithoutMetadata(registries);
     }
 
     // Return our packet here. This method returning a non-null result tells the game to use this packet for syncing.
@@ -249,10 +245,10 @@ public class MyBlockEntity extends BlockEntity {
     }
 
     // Optionally: Run some custom logic when the packet is received.
-    // The super/default implementation forwards to #loadAdditional.
+    // The super/default implementation forwards to #loadWithComponents.
     @Override
-    public void onDataPacket(Connection connection, ClientboundBlockEntityDataPacket packet, HolderLookup.Provider registries) {
-        super.onDataPacket(connection, packet, registries);
+    public void onDataPacket(Connection connection, ValueInput input) {
+        super.onDataPacket(connection, input);
         // Do whatever you need to do here.
     }
 }
@@ -279,3 +275,4 @@ It is important that you do safety checks, as the `BlockEntity` might already be
 [networking]: ../networking/index.md
 [registration]: ../concepts/registries.md#methods-for-registering
 [setblock]: ../blocks/states.md#levelsetblock
+[valueio]: ../datastorage/valueio.md
