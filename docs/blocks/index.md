@@ -247,7 +247,7 @@ The following subsections further break down these stages into actual method cal
 - `PlayerInteractEvent.LeftClickBlock` is fired. If the event is canceled, the pipeline ends.
     - Note that when the event is canceled on the client, no packets are sent to the server and thus no logic runs on the server.
     - However, canceling this event on the server will still cause client code to run, which can lead to desyncs!
-- `Block#attack` is called.
+- `BlockBehaviour#attack` is called.
 
 #### The "Mining" Stage
 
