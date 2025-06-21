@@ -271,7 +271,6 @@ It is important that you do safety checks, as the `BlockEntity` might already be
 [dataattachments]: ../datastorage/attachments.md
 [entities]: ../entities/index.md
 [modbus]: ../concepts/events.md#event-buses
-[nbt]: ../datastorage/nbt.md
 [networking]: ../networking/index.md
 [registration]: ../concepts/registries.md#methods-for-registering
 [setblock]: ../blocks/states.md#levelsetblock
