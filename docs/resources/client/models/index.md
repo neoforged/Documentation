@@ -22,7 +22,7 @@ A model is a JSON file with the following optional properties in the root tag:
     - `minecraft:item/handheld`: Parent for 2D flat item models that appear to be actually held by the player. Used predominantly by tools. Submodel of `item/generated`, which causes it to ignore the `elements` block as well.
     - Block items commonly (but not always) use their corresponding block models for their [item model][itemmodels]. For example, the cobblestone client item uses the `minecraft:block/cobblestone` model.
 - `ambientocclusion`: Whether to enable [ambient occlusion][ao] or not. Only effective on block models. Defaults to `true`. If your custom block model has weird shading, try setting this to `false`.
-- `render_type`: NeoForge-added. Sets the render type to use. See [Render Types][rendertype] for more information.
+- `render_type`: NeoForge-added. Sets the render type group to use. See [Render Type Groups][rendertype] for more information.
 - `gui_light`: Can be `"front"` or `"side"`. If `"front"`, light will come from the front, useful for flat 2D models. If `"side"`, light will come from the side, useful for 3D models (especially block models). Defaults to `"side"`. Only effective on item models.
 - `textures`: A sub-object that maps names (known as texture variables) to [texture locations][textures]. Texture variables can then be used in [elements]. They can also be specified in elements, but left unspecified in order for child models to specify them.
     - Block models should additionally specify a `particle` texture. This texture is used when falling on, running across, or breaking the block.
@@ -39,24 +39,24 @@ A model is a JSON file with the following optional properties in the root tag:
 If you're having trouble finding out how exactly to specify something, have a look at a vanilla model that does something similar.
 :::
 
-### Render Types
+### Render Type Groups
 
-Using the optional NeoForge-added `render_type` field, you can set a render type for your model. If this is not set (as is the case in all vanilla models), the game will fall back to the render types hardcoded in `ItemBlockRenderTypes`. If `ItemBlockRenderTypes` doesn't contain the render type for that block either, it will fall back to `minecraft:solid`. Vanilla provides the following default render types:
+Using the optional NeoForge-added `render_type` field, you can set a render type group for you model. A render type group is made up of two parts: a `ChunkSectionLayer` for how the model should render when used as a block, and a `RenderType` for how the model should render as an item. If this is not set (as is the case in all vanilla models), the game will fall back to the layers and render types hardcoded in `ItemBlockRenderTypes`. If `ItemBlockRenderTypes` doesn't contain the layer or render types, it will fall back to `ChunkSectionLayer#SOLID` for the block and `Sheets#TRANSLUCENT_ITEM_CULL_BLOCK_SHEET` for the item. Vanilla and NeoForge exposes the following render type groups:
 
-- `minecraft:solid`: Used for fully solid blocks, such as stone.
-- `minecraft:cutout`: Used for blocks where any pixel is either fully solid or fully transparent, i.e. with either full or no transparency, for example glass.
+- `minecraft:solid`: Used for fully solid models, such as stone.
+- `minecraft:cutout`: Used for models where any pixel is either fully solid or fully transparent, i.e. with either full or no transparency, for example glass.
 - `minecraft:cutout_mipped`: Variant of `minecraft:cutout` that will scale down textures at large distances to avoid visual artifacts ([mipmapping]). Does not apply the mipmapping to item rendering, as it is usually undesired on items and may cause artifacts. Used for example by leaves.
 - `minecraft:cutout_mipped_all`: Variant of `minecraft:cutout_mipped` which applies mipmapping to item models as well.
-- `minecraft:translucent`: Used for blocks where any pixel may be partially transparent, for example stained glass.
-- `minecraft:tripwire`: Used by blocks with the special requirement of being rendered to the weather target, i.e. tripwire.
-- `neoforge:item_unlit`: NeoForge-added. Should be used by blocks that, when rendered from an item, do not take the light directions into account.
+- `minecraft:translucent`: Used for models where any pixel may be partially transparent, for example stained glass.
+- `minecraft:tripwire`: Used by models with the special requirement of being rendered to the weather target, i.e. tripwire.
+- `neoforge:item_unlit`: NeoForge-added. Should be used by models that, when rendered from an item, do not take the light directions into account.
 
-Selecting the correct render type is a question of performance to some degree. Solid rendering is faster than cutout rendering, and cutout rendering is faster than translucent rendering. Because of this, you should specify the "strictest" render type applicable for your use case, as it will also be the fastest.
+Selecting the correct render type group is a question of performance to some degree. Solid rendering is faster than cutout rendering, and cutout rendering is faster than translucent rendering. Because of this, you should specify the "strictest" render type applicable for your use case, as it will also be the fastest.
 
-If you want, you can also add your own render types. To do so, subscribe to the [mod bus][modbus] [event] `RegisterNamedRenderTypesEvent` and `#register` your render types. `#register` has three parameters:
+If you want, you can also add your own render type group. To do so, subscribe to the [mod bus][modbus] [event] `RegisterNamedRenderTypesEvent` and `#register` your render type groups. `#register` has three parameters:
 
-- The name of the render type. Should be a `ResourceLocation` prefixed with your mod id.
-- The chunk render type. Any of the types in the list returned by `RenderType.chunkBufferLayers()` can be used.
+- The name of the render type group. Should be a `ResourceLocation` prefixed with your mod id.
+- The chunk render type group. Any `ChunkSectionLayer` can be used.
 - The entity render type. Must be a render type with the `DefaultVertexFormat.NEW_ENTITY` vertex format.
 
 ### Elements
@@ -195,18 +195,31 @@ Models that are not associated with a block or item in some way, but are still r
 
 ```java
 // This can be any type as long as it can be obtained from the ResolvedModel and the ModelBaker
+// The type should be whatever is the generic type of the UnbakedStandaloneModel<T>
 public static final StandaloneModelKey<QuadCollection> EXAMPLE_KEY = new StandaloneModelKey<>(
-    // The model id, relative to `assets/<namespace>/models/<path>.json`
-    ResourceLocation.fromNamespaceAndPath("examplemod", "block/example_unused_model")
+    new ModelDebugName() {
+        @Override
+        public String debugName() {
+            // A name for the standalone model
+            // Can be any string, but it should contain the mod id
+            return "examplemod: Example Model";
+        }
+    }
 );
+
+
 
 @SubscribeEvent // on the mod event bus only on the physical client
 public static void registerAdditional(ModelEvent.RegisterStandalone event) {
     event.register(
         // The model to get
         EXAMPLE_KEY,
-        // The data of the model we care about, in this case the baked quads to render
-        StandaloneModelBaker.quadCollection()
+        // An UnbakedStandaloneModel<T> we care about, in this case one that returns a QuadCollection
+        // Can use the static methods from SimpleUnbakedStandaloneModel<T> for simplicity
+        SimpleUnbakedStandaloneModel.quadCollection(
+            // The model id, relative to `assets/<namespace>/models/<path>.json`
+            ResourceLocation.fromNamespaceAndPath("examplemod", "block/example_unused_model")
+        )
     );
 }
 ```
