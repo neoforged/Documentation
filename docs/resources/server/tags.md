@@ -118,30 +118,33 @@ HolderSet<Block> blockTag = BuiltInRegistries.acquireBootstrapRegistrationLookup
 
 ## Datagen
 
-Like many other JSON files, tags can be [datagenned][datagen]. Each kind of tag has its own datagen base class - one class for block tags, one for item tags, etc. -, and as such, we need one class for each kind of tag as well. All of these classes extend from the `TagsProvider<T>` base class, with `T` again being the type of the tag (`Block`, `Item`, etc.) The following table shows a list of tag providers for different objects:
+Like many other JSON files, tags can be [datagenned][datagen]. Each kind of tag has its own datagen base class - one class for block tags, one for item tags, etc. -, and as such, we need one class for each kind of tag as well. All of these classes extend from the `TagsProvider<T>` base class, with `T` again being the type of the tag (`Block`, `Item`, etc.) The `TagsProvider`s are then further grouped into two categories: `IntrinsicHolderTagsProvider<T>` for typically static registry objects, allowing you to directly pass the object to the tag; and `KeyTagProvider` for typically datapack registry objects, allowing you to pass the `ResourceKey` of an object to the tag.
 
-| Type                       | Tag Provider Class                     |
-|----------------------------|----------------------------------------|
-| `BannerPattern`            | `BannerPatternTagsProvider`            |
-| `Biome`                    | `BiomeTagsProvider`                    |
-| `Block`                    | `BlockTagsProvider`                    |
-| `CatVariant`               | `CatVariantTagsProvider`               |
-| `DamageType`               | `DamageTypeTagsProvider`               |
-| `Enchantment`              | `EnchantmentTagsProvider`              |
-| `EntityType`               | `EntityTypeTagsProvider`               |
-| `FlatLevelGeneratorPreset` | `FlatLevelGeneratorPresetTagsProvider` |
-| `Fluid`                    | `FluidTagsProvider`                    |
-| `GameEvent`                | `GameEventTagsProvider`                |
-| `Instrument`               | `InstrumentTagsProvider`               |
-| `Item`                     | `ItemTagsProvider`                     |
-| `PaintingVariant`          | `PaintingVariantTagsProvider`          |
-| `PoiType`                  | `PoiTypeTagsProvider`                  |
-| `Structure`                | `StructureTagsProvider`                |
-| `WorldPreset`              | `WorldPresetTagsProvider`              |
+The following table shows a list of tag providers for different objects:
 
-Of note is the `IntrinsicHolderTagsProvider<T>` class, which is a subclass of `TagsProvider<T>` and a common superclass for `BlockTagsProvider`, `ItemTagsProvider`, `FluidTagsProvider`, `EntityTypeTagsProvider`, and `GameEventTagsProvider`. These classes (from now on called intrinsic providers for simplicity) have some additional functionality for generation that will be outlined in a moment.
+| Type                       | Tag Provider Class                     | Provider Type                 |
+|----------------------------|----------------------------------------|-------------------------------|
+| `BannerPattern`            | `BannerPatternTagsProvider`            | `KeyTagProvider`              |
+| `Biome`                    | `BiomeTagsProvider`                    | `KeyTagProvider`              |
+| `Block`                    | `BlockTagsProvider`\*                  | `IntrinsicHolderTagsProvider` |
+| `DamageType`               | `DamageTypeTagsProvider`               | `KeyTagProvider`              |
+| `Dialog`                   | `DialogTagsProvider`                   | `KeyTagProvider`              |
+| `Enchantment`              | `EnchantmentTagsProvider`              | `KeyTagProvider`              |
+| `EntityType`               | `EntityTypeTagsProvider`               | `IntrinsicHolderTagsProvider` |
+| `FlatLevelGeneratorPreset` | `FlatLevelGeneratorPresetTagsProvider` | `IntrinsicHolderTagsProvider` |
+| `Fluid`                    | `FluidTagsProvider`                    | `KeyTagProvider`              |
+| `GameEvent`                | `GameEventTagsProvider`                | `KeyTagProvider`              |
+| `Instrument`               | `InstrumentTagsProvider`               | `KeyTagProvider`              |
+| `Item`                     | `ItemTagsProvider`\*                   | `IntrinsicHolderTagsProvider` |
+| `PaintingVariant`          | `PaintingVariantTagsProvider`          | `KeyTagProvider`              |
+| `PoiType`                  | `PoiTypeTagsProvider`                  | `KeyTagProvider`              |
+| `Structure`                | `StructureTagsProvider`                | `KeyTagProvider`              |
+| `WorldPreset`              | `WorldPresetTagsProvider`              | `KeyTagProvider`              |
 
-For the sake of example, let's assume that we want to generate block tags. (All other classes work the same with their respective tag types.)
+
+\* These providers are provided by NeoForge.
+
+For the sake of example, let's assume that we want to generate block tags (an intrinsic holder):
 
 ```java
 public class MyBlockTagsProvider extends BlockTagsProvider {
@@ -153,32 +156,32 @@ public class MyBlockTagsProvider extends BlockTagsProvider {
     // Add your tag entries here.
     @Override
     protected void addTags(HolderLookup.Provider lookupProvider) {
-        // Create a tag builder for our tag. This could also be e.g. a vanilla or NeoForge tag.
+        // Create a TagAppender of registry objects for our tag. This could also be e.g. a vanilla or NeoForge tag.
         this.tag(MY_TAG)
             // Add entries. This is a vararg parameter.
-            // Non-intrinsic providers must provide ResourceKeys here instead of the actual objects.
+            // Key tag providers must provide ResourceKeys here instead of the actual objects.
             .add(Blocks.DIRT, Blocks.COBBLESTONE)
             // Add optional entries that will be ignored if absent. This example uses Botania's Pure Daisy.
-            // Unlike #add, this is not a vararg parameter.
-            .addOptional(ResourceLocation.fromNamespaceAndPath("botania", "pure_daisy"))
+            // This is not a vararg parameter.
+            .add(TagEntry.optionalElement(ResourceLocation.fromNamespaceAndPath("botania", "pure_daisy")))
             // Add a tag entry.
             .addTag(BlockTags.PLANKS)
             // Add multiple tag entries. This is a vararg parameter.
             // Can cause unchecked warnings that can safely be suppressed.
             .addTags(BlockTags.LOGS, BlockTags.WOODEN_SLABS)
             // Add an optional tag entry that will be ignored if absent.
-            .addOptionalTag(ResourceLocation.fromNamespaceAndPath("c", "ingots/tin"))
+            .addOptionalTag(ItemTags.create(ResourceLocation.fromNamespaceAndPath("c", "ingots/tin")))
             // Add multiple optional tag entries. This is a vararg parameter.
             // Can cause unchecked warnings that can safely be suppressed.
-            .addOptionalTags(ResourceLocation.fromNamespaceAndPath("c", "nuggets/tin"), ResourceLocation.fromNamespaceAndPath("c", "storage_blocks/tin"))
+            .addOptionalTags(ItemTags.create(ResourceLocation.fromNamespaceAndPath("c", "nuggets/tin")), ItemTags.create(ResourceLocation.fromNamespaceAndPath("c", "storage_blocks/tin")))
             // Set the replace property to true.
             .replace()
             // Set the replace property back to false.
             .replace(false)
-            // Remove entries. This is a vararg parameter. Accepts either resource locations, resource keys,
-            // tag keys, or (intrinsic providers only) direct values.
+            // Remove entries. This is a vararg parameter.
+            // Key tag providers must provide ResourceKeys here instead of the actual objects.
             // Can cause unchecked warnings that can safely be suppressed.
-            .remove(ResourceLocation.fromNamespaceAndPath("minecraft", "crimson_slab"), ResourceLocation.fromNamespaceAndPath("minecraft", "warped_slab"));
+            .remove(Blocks.CRIMSON_SLAB, Blocks.WARPED_SLAB);
     }
 }
 ```
@@ -228,16 +231,9 @@ public static void gatherData(GatherDataEvent.Client event) {
 }
 ```
 
-`ItemTagsProvider` has an additional helper method called `#copy`. It is intended for the common use case of item tags mirroring block tags:
-
-```java
-// In an ItemTagsProvider's #addTags method, assuming types TagKey<Block> and TagKey<Item> for the two parameters.
-this.copy(EXAMPLE_BLOCK_TAG, EXAMPLE_ITEM_TAG);
-```
-
 ### Custom Tag Providers
 
-To create a custom tag provider for a custom [registry], or for a vanilla or NeoForge registry that doesn't have a tag provider by default, you can also create custom tag providers like so (using recipe type tags as an example):
+A custom tag provider, whether for an existing or custom [registry], can be created by simply extending `TagsProvider<T>`, where `T` is the registry object you are generating a tag for.
 
 ```java
 public class MyRecipeTypeTagsProvider extends TagsProvider<RecipeType<?>> {
@@ -252,30 +248,154 @@ public class MyRecipeTypeTagsProvider extends TagsProvider<RecipeType<?>> {
 }
 ```
 
-If desirable and applicable, you can also extend `IntrinsicHolderTagsProvider<T>` instead of `TagsProvider<T>`, allowing you to pass in objects directly rather than just their resource keys. This additionally requires a function parameter that returns a resource key for a given object. Using attribute tags as an example:
+From here, tags are generated from the provider by creating a `TagBuilder` via `getOrCreateRawBuilder`. The builder contains methods to add or remove elements and tags by their `ResourceLocation`. Additionally, the builder can specify the `replace` property:
 
 ```java
-public class MyAttributeTagsProvider extends IntrinsicHolderTagsProvider<Attribute> {
-    // Get parameters from the `GatherDataEvent`s.
-    public MyAttributeTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider) {
-        super(output,
-            Registries.ATTRIBUTE,
-            lookupProvider,
-            // A function that, given an Attribute, returns a ResourceKey<Attribute>.
-            attribute -> BuiltInRegistries.ATTRIBUTE.getResourceKey(attribute).orElseThrow(),
-            ExampleMod.MOD_ID
-        );
-    }
+public class MyRecipeTypeTagsProvider extends TagsProvider<RecipeType<?>> {
+    
+    // ...
 
-    // Attributes can now be used here directly, instead of just their resource keys.
+    // Lets assume the following TagKey<RecipeType<?>> SMELTERS, CRAFTERS, SMITHERS
     @Override
-    protected void addTags(HolderLookup.Provider lookupProvider) { /*...*/ }
+    protected void addTags(HolderLookup.Provider lookupProvider) {
+        // Create a TagBuilder for `ResourceLocation`s.
+        this.getOrCreateRawBuilder(MY_TAG)
+            // Add entries.
+            .addElement(ResourceLocation.fromNamespaceAndPath("minecraft", "crafting"))
+            .addElement(ResourceLocation.fromNamespaceAndPath("minecraft", "smelting"))
+            // Add optional entries that will be ignored if absent.
+            .addOptionalElement(ResourceLocation.fromNamespaceAndPath("minecraft", "blasting"))
+            // Add a tag entry.
+            .addTag(SMELTERS.location())
+            // Add an optional tag entry that will be ignored if absent.
+            .addOptionalTag(CRAFTERS.location())
+            // Set the replace property to true.
+            .replace()
+            // Set the replace property back to false.
+            .replace(false)
+            // Remove entries.
+            .removeElement(ResourceLocation.fromNamespaceAndPath("minecraft", "campfire_cooking"))
+            // Remove a tag entry.
+            .removeTag(SMITHERS.location());
+    }
 }
 ```
 
-:::info
-`TagsProvider` also exposes the `#getOrCreateRawBuilder` method, returning a `TagBuilder`. A `TagBuilder` allows adding raw `ResourceLocation`s to a tag, which can be useful in some scenarios. The `TagsProvider.TagAppender<T>` class, which is returned by `TagsProvider#tag`, is simply a wrapper around `TagBuilder`.
-:::
+Currently, the entire tag is being constructed from `ResourceLocation`s. However, specifying the raw identifier every time can become tedious, especially when the `ResourceKey` or the direct object is available. That's where `TagAppender` comes in. `TagAppender<E, T>` is functionally a wrapper around a `TagBuilder` that takes in some arbitrary entry object `E` and converts it into `TagBuilder` calls for the registry object `T`. The `TagAppender` can be remapped into any arbitrary object via `map`, provided there is a way to convert the new object type into the previous entry object `E`. This is basically what `KeyTagProvider` and `IntrinsicHolderTagsProvider` are doing. They provide a method `tag` that creates a `TagAppender` that maps `ResourceKey`s to `ResourceLocation`s or direct objects to `ResourceLocation`s, respectively:
+
+```java
+
+public class MyRecipeTypeTagsProvider extends TagsProvider<RecipeType<?>> {
+    
+    // ...
+
+    // Lets assume the following TagKey<RecipeType<?>> SMELTERS, CRAFTERS, SMITHERS
+    @Override
+    protected void addTags(HolderLookup.Provider lookupProvider) {
+        // Create the TagAppender for `ResourceLocation`s.
+        this.tag(MY_TAG)
+            // Replace property info
+            .replace()
+            // Handle any optional elements that may not be present
+            .addOptional(ResourceLocation.fromNamespaceAndPath("examplemod", "example_type"))
+            // Can take in a TagKey
+            .addOptionalTag(CRAFTERS)
+
+            // Map to ResourceKey (KeyTagProvider)
+            .map((Function<ResourceKey<RecipeType<?>>, ResourceLocation>) ResourceKey::location)
+            .add(BuiltInRegistries.RECIPE_TYPE.getResourceKey(RecipeType.CRAFTING).orElseThrow())
+
+            // Map to direct object (IntrinsicHolderTagsProvider)
+            .map((Function<RecipeType<?>, ResourceKey<RecipeType<?>>) type -> BuiltInRegistries.RECIPE_TYPE.getResourceKey(type).orElseThrow())
+            .add(RecipeType.SMELTING)
+            .addTag(SMELTERS)
+            .remove(RecipeType.CAMPFIRE_COOKING)
+            .remove(SMITHERS);
+    }
+
+    private TagAppender<ResourceLocation, RecipeType<?>> tag(TagKey<RecipeType<?>> tag) {
+        // Create the builder
+        TagBuilder builder = this.getOrCreateRawBuilder(tag);
+
+        // Generate the appender (can use TagAppender#forBuilder) instead
+        return new TagAppender<ResourceLocation, T>() {
+
+            @Override
+            public TagAppender<ResourceLocation, T> add(ResourceLocation element) {
+                builder.addElement(element);
+                return this;
+            }
+
+            @Override
+            public TagAppender<ResourceLocation, T> addOptional(ResourceLocation element) {
+                builder.addOptionalElement(element);
+                return this;
+            }
+
+            @Override
+            public TagAppender<ResourceLocation, T> addTag(TagKey<T> tag) {
+                builder.addTag(tag.location());
+                return this;
+            }
+
+            @Override
+            public TagAppender<ResourceLocation, T> addOptionalTag(TagKey<T> tag) {
+                builder.addOptionalTag(tag.location());
+                return this;
+            }
+
+            // For situations where you cannot access the current entry object
+            @Override
+            public TagAppender<ResourceLocation, T> add(TagEntry entry) {
+                builder.add(entry);
+                return this;
+            }
+
+            @Override
+            public TagAppender<ResourceLocation, T> replace(boolean value) {
+                builder.replace(value);
+                return this;
+            }
+
+            @Override
+            public TagAppender<ResourceLocation, T> remove(ResourceLocation element) {
+                builder.removeElement(element);
+                return this;
+            }
+
+            @Override
+            public TagAppender<ResourceKey<T>, T> remove(TagKey<T> tag) {
+                builder.removeTag(tag.location());
+                return this;
+            }
+        };
+    }
+}
+```
+
+#### Copying Tag Contents
+
+NeoForge providers a special type of `IntrinsicHolderTagsProvider` called `BlockTagCopyingItemTagProvider`, intended for item tags that mirror the contents of its associated block tags. Instead of using the `TagAppender`, instead call `copy`, passing the block tag to copy to the item tag.
+
+```java
+public class ExampleBlockTagCopyingItemTagProvider extends BlockTagCopyingItemTagProvider {
+
+    public ExampleBlockTagCopyingItemTagProvider(
+        PackOutput output,
+        CompletableFuture<HolderLookup.Provider> lookupProvider,
+        CompletableFuture<TagLookup<Block>> blockTags // Obtained from BlockTagsProvider#contentsGetter
+    ) {
+        super(output, lookupProvider, blockTags, ExampleMod.MOD_ID);
+    }
+
+    @Override
+    protected void addTags(HolderLookup.Provider lookupProvider) {
+        // Assuming types TagKey<Block> and TagKey<Item> for the two parameters
+        this.copy(EXAMPLE_BLOCK_TAG, EXAMPLE_ITEM_TAG);
+    }
+
+}
+```
 
 [damagetype]: damagetypes.md
 [datagen]: ../index.md#data-generation
