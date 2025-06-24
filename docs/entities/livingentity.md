@@ -13,7 +13,7 @@ _See also: [Attributes][attributes]._
 
 One of the most notable features that sets living entities apart from others is the fully-fleshed health system. Living entities generally have a max health, a current health and sometimes things such as armor or natural regeneration.
 
-By default, max health is determined by the `minecraft:generic.max_health` [attribute][attributes], and the current health is set to the same value when [spawning]. When the entity is damaged by calling [`Entity#hurt`][hurt] on it, the current health is decreased according to the damage calculations. Many entities, such as zombies, will by default then remain at that reduced health value, while some, such as players, can heal these lost hit points again.
+By default, max health is determined by the `minecraft:generic.max_health` [attribute][attributes], and the current health is set to the same value when [spawning]. When the entity is damaged by calling [`Entity#hurtServer`][hurt] on it, the current health is decreased according to the damage calculations. Many entities, such as zombies, will by default then remain at that reduced health value, while some, such as players, can heal these lost hit points again.
 
 To get or set the max health value, the attribute is read or written directly, like so:
 
@@ -127,9 +127,8 @@ graph LR;
     Mob-->AmbientCreature;
     AmbientCreature-->Bat;
     Mob-->EnderDragon;
-    Mob-->FlyingMob;
-    FlyingMob-->Ghast;
-    FlyingMob-->Phantom;
+    Mob-->Ghast;
+    Mob-->Phantom;
     Mob-->PathfinderMob;
     PathfinderMob-->AbstractGolem;
     AbstractGolem-->IronGolem;
@@ -157,7 +156,7 @@ graph LR;
     Mob-->Slime;
     Slime-->MagmaCube;
     
-    class Mob,AmbientCreature,FlyingMob,PathfinderMob,AbstractGolem,AgeableMob,AbstractVillager,AgeableWaterCreature,Animal,Monster,WaterAnimal,AbstractFish,AbstractSchoolingFish red;
+    class Mob,AmbientCreature,PathfinderMob,AbstractGolem,AgeableMob,AbstractVillager,AgeableWaterCreature,Animal,Monster,WaterAnimal,AbstractFish,AbstractSchoolingFish red;
     class Bat,EnderDragon,Ghast,Phantom,IronGolem,Shulker,SnowGolem,Villager,WanderingTrader,Dolphin,Squid,GlowSquid,Allay,Cod,Salmon,TropicalFish,Pufferfish,Tadpole,Slime,MagmaCube blue;
 ```
 

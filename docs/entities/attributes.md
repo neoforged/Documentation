@@ -47,6 +47,8 @@ The following attributes are in the `minecraft` namespace, and their in-code val
 | `sweeping_damage_ratio`          | `SWEEPING_DAMAGE_RATIO`          | `[0,1]`        | 0             | The amount of damage done by sweep attacks, in percent of the main attack. This is a value in percent, i.e. 0 is no damage, 0.5 is half damage, and 1 is full damage. |
 | `tempt_range`                    | `TEMPT_RANGE`                    | `[0,2048]`     | 10            | The range at which the entity can be tempted using items. Mainly for passive animals, e.g. cows or pigs.                                                              |
 | `water_movement_efficiency`      | `WATER_MOVEMENT_EFFICIENCY`      | `[0,1]`        | 0             | A movement speed multiplier that is applied when the entity is underwater.                                                                                            |
+| `waypoint_transmit_range`        | `WAYPOINT_TRANSMIT_RANGE`        | `[0,60000000]` | 0             | The range at which an entity can transmit its location to some waypoint tracker. |
+| `waypoint_receive_range`         | `WAYPOINT_RECEIVE_RANGE`         | `[0,60000000]` | 0             | The range at which an entity can receive another transmitter.                    |
 
 :::warning
 Some attribute caps are set relatively arbitrarily by Mojang. This is especially notable for armor, which is capped at 30. NeoForge doesn't touch those caps, however there are mods to change them.
