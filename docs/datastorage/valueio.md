@@ -3,11 +3,11 @@ sidebar_position: 3
 ---
 # Value I/O
 
-The Value I/O system is another serialization tool used to provide indirect access to read from or write to the backing data element, such as [`CompoundTag`s for NBT][nbt]
+The Value I/O system is a standardized serialization method to manipulate data of some backing object, such as [`CompoundTag`s for NBT][nbt].
 
 ## Inputs and Outputs
 
-The Value I/O system is made up of two parts: a `ValueOutput` that objects write to during serialization, and a `ValueInput` that objects read from during deserialization. The implementing methods typically only take in the `ValueOutput` or `ValueInput` as its parameter, returning nothing. Then, using the I/O access, data is put in or gotten from, respectively, using some string key.
+The Value I/O system is made up of two parts: a `ValueOutput` that writes to the object during serialization, and a `ValueInput` that reads from the object during deserialization. Implementing methods typically take in the `ValueOutput` or `ValueInput` as its only parameter, returning nothing. The value I/O expects the backing object to be a dictionary of string keys to object values. Using the provided methods, the value I/O then read or writes information to the backing object.
 
 ```java
 // For some BlockEntity subclass
@@ -39,7 +39,7 @@ protected void readAdditionalSaveData(ValueInput input) {
 
 ### Primitives
 
-Value I/O contains methods for reading and writing certain primitives. `ValueOutput` methods are prefixed with `put*`, taking in the key and the primitive. `ValueInput` methods are named as `get*Or`, taking in the key to retrieve and a default if none is present.
+Value I/O contains methods for reading and writing certain primitives. `ValueOutput` methods are prefixed with `put*`, taking in the key and the primitive value. `ValueInput` methods are named as `get*Or`, taking in the key and a default if none is present.
 
 | Java Type | `ValueOutput` | `ValueInput`                 |
 |:---------:|:-------------:|:----------------------------:|
@@ -62,7 +62,12 @@ protected void saveAdditional(ValueOutput output) {
     super.saveAdditional(output);
     
     // Write data to the output
-    output.putBoolean("boolValue", true);
+    output.putBoolean(
+        // The string key
+        "boolValue",
+        // The value associated with this key
+        true
+    );
     output.putString("stringValue", "Hello world!");
 }
 
@@ -73,7 +78,12 @@ protected void loadAdditional(ValueInput input) {
     // Read data from the input
 
     // Defaults to false if not present
-    boolean boolValue = input.getBooleanOr("boolValue", false);
+    boolean boolValue = input.getBooleanOr(
+        // The string key to retrieve
+        "boolValue",
+        // The default value to return if the key is not present
+        false
+    );
 
     // Defaults to 'Dummy!' if not present
     String stringValue = input.getStringOr("stringValue", "Dummy!");
@@ -84,7 +94,7 @@ protected void loadAdditional(ValueInput input) {
 
 ### Codecs
 
-[`Codec`s][codec] can also be used to store and read values from the value access. In Vanilla, all `Codec`s are handled using a `RegistryOps`, allowing datapack entries to be used. `ValueOutput#store` and `storeNullable` take in the key, the codec to write the object, and the object itself. `storeNullable` will not write anything if the object is `null`. `ValueInput#read` can read the object by taking in the key and the codec, returning an `Optional`-wrapped object.
+[`Codec`s][codec] can also be used to store and read values from the value access. In Vanilla, all `Codec`s are handled using a `RegistryOps`, allowing the storage of datapack entries. `ValueOutput#store` and `storeNullable` take in the key, the codec to write the object, and the object itself. `storeNullable` will not write anything if the object is `null`. `ValueInput#read` can read the object by taking in the key and the codec, returning an `Optional`-wrapped object.
 
 ```java
 // For some BlockEntity subclass
@@ -134,14 +144,14 @@ protected void loadAdditional(ValueInput input) {
 ```
 
 :::warning
-The `MapCodec` will write any keys to the root value access, potentially overwriting existing data. Make sure than any keys within the `MapCodec` are distinct from those written manually.
+The `MapCodec` will write any keys to the value access, potentially overwriting existing data. Make sure than any keys within the `MapCodec` are distinct from other keys.
 :::
 
 ### Lists
 
 Lists can be created and read from through one of two methods: child value accesses or [`Codec`s].
 
-A list is created via `ValueOutput#childrenList`, taking in some key. This returns a `ValueOutput.ValueOutputList`, which acts as a write-only list of value objects. A new value object can be added to the list via `ValueOutputList#addChild`. This returns a `ValueOutput` to write the value object data to. The list can then be read using `ValueInput#childrenList`, or `childrenListOrEmpty` if it should default to an empty list. These methods return a `ValueInput.ValueInputList`, which acts as a read-only iterable or stream (via `stream`).
+A list is created via `ValueOutput#childrenList`, taking in some key. This returns a `ValueOutput.ValueOutputList`, which acts as a write-only list of value objects. A new value object can be added to the list via `ValueOutputList#addChild`. This returns a `ValueOutput` to write the value object data to. The list can then be read using `ValueInput#childrenList`, or `childrenListOrEmpty` to default to an empty list when not present. These methods return a `ValueInput.ValueInputList`, which acts as a read-only iterable or stream (via `stream`).
 
 ```java
 // For some BlockEntity subclass
@@ -265,7 +275,7 @@ protected void loadAdditional(ValueInput input) {
 
 ## ValueIOSerializable
 
-`ValueIOSerializable` is an interface for objects that can be serialized and deserialized using value accesses. NeoForge uses this API to handle [data attachments][attachments]. The interface provides two methods: `serialize` to write the object to a `ValueOutput`, and `deserialize` to read the object from a `ValueInput`.
+`ValueIOSerializable` is an NeoForge-added interface for objects that can be serialized and deserialized using value accesses. NeoForge uses this API to handle [data attachments][attachments]. The interface provides two methods: `serialize` to write the object to a `ValueOutput`, and `deserialize` to read the object from a `ValueInput`.
 
 ```java
 public class ExampleObject implements ValueIOSerializable {
@@ -304,8 +314,15 @@ TagValueOutput output = TagValueOutput.createWithContext(
 
 CompoundTag tag = output.buildResult();
 
+// Collect the errors
+ProblemReporter.Collector reporter = new ProblemReporter.Collector(
+    // Optionally takes in the root path element
+    // Some objects (e.g., block entities, entities) have a #problemPath() method that can be supplied
+    new RootFieldPathElement("example_object")
+);
+
 TagValueInput input = TagValueInput.create(
-    ProblemReporter.DISCARDING,
+    reporter,
     lookupProvider,
     tag
 );
