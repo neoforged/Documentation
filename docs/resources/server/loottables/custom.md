@@ -254,13 +254,14 @@ public class RandomEnchantmentWithLevelFunction extends LootItemConditionalFunct
         RandomSource random = context.getRandom();
         List<Holder<Enchantment>> stream = this.enchantments
                 .map(HolderSet::stream)
-                .orElseGet(() -> context.getLevel().registryAccess().registryOrThrow(Registries.ENCHANTMENT).listElements().map(Function.identity()))
+                .orElseGet(() -> context.getLevel().registryAccess().lookupOrThrow(Registries.ENCHANTMENT).listElements().map(Function.identity()))
                 .filter(e -> e.value().canEnchant(stack))
                 .toList();
         Optional<Holder<Enchantment>> optional = Util.getRandomSafe(list, random);
         if (optional.isEmpty()) {
             LOGGER.warn("Couldn't find a compatible enchantment for {}", stack);
         } else {
+            Holder<Enchantment> enchantment = optional.get();
             if (stack.is(Items.BOOK)) {
                 stack = new ItemStack(Items.ENCHANTED_BOOK);
             }

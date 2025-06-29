@@ -26,7 +26,7 @@ Make sure you are using a 64-bit JVM. One way of checking is to run `java -versi
 
 Many of the basic properties of your mod can be changed in the `gradle.properties` file. This includes basic things like the mod name or the mod version. For more information, see the comments in the `gradle.properties` file, or see [the documentation of the `gradle.properties` file][properties].
 
-If you want to modify the build process beyond that, you can edit the `build.gradle` file. NeoGradle, the Gradle plugin for NeoForge, provides several configuration options, a few of which are explained by comments in the `build.gradle` files. For full documentation, see the [NeoGradle documentation][neogradle].
+If you want to modify the build process beyond that, you can edit the `build.gradle` and `settings.gradle` file. The Gradle plugins provided by NeoForge, either [ModDevGradle][mdg] or [NeoGradle][ng], provide several configuration options, a few of which are explained within the buildscript as comments.
 
 :::caution
 Only edit the `build.gradle` and `settings.gradle` files if you know what you are doing. All basic properties can be set via `gradle.properties`.
@@ -57,5 +57,4 @@ You should always test your mod in a dedicated server environment. This includes
 [mdg]: https://github.com/neoforged/ModDevGradle
 [modgen]: https://neoforged.net/mod-generator/
 [ng]: https://github.com/neoforged/NeoGradle
-[neogradle]: https://docs.neoforged.net/neogradle/docs/
 [properties]: modfiles.md#gradleproperties

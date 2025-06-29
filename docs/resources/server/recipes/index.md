@@ -129,9 +129,9 @@ public static void onAnvilUpdate(AnvilUpdateEvent event) {
     ItemStack left = event.getLeft();
     ItemStack right = event.getRight();
     if (left.is(Items.STONE_PICKAXE) && right.is(Items.DIRT) && right.getCount() >= 64) {
-        event.setOutput(Items.STONE_PICKAXE);
+        event.setOutput(new ItemStack(Items.STONE_PICKAXE));
         event.setMaterialCost(32);
-        event.setCost(3);
+        event.setXpCost(3);
     }
 }
 ```
@@ -147,6 +147,41 @@ The `ShapedRecipePattern` class, responsible for holding the in-memory represent
 :::danger
 `ShapedRecipePattern#setCraftingSize` is not thread-safe. It must be wrapped in an `event#enqueueWork` call.
 :::
+
+### Client-Side Recipes
+
+By default, Vanilla does not send any recipes to the [logical client][logicalside]. Instead, the `RecipeDisplay` is synced when a recipe is unlocked in the recipe book, and the `RecipePropertySet` / `SelectableRecipe.SingleInputSet` for proper behavior during interactions. However, these use cases are limited in scope, especially when more data is needed from the recipe itself. In these instances, NeoForge provides a may to send the full recipes for a given `RecipeType` to the client.
+
+There are two events that must be listened to on the [game event bus][events]: `OnDatapackSyncEvent` and `RecipesReceivedEvent`. First, specify the `RecipeType`s to sync to the client by calling `OnDatapackSyncEvent#sendRecipes`. Then, the recipes can be accessed from the provided `RecipeMap` via `RecipesReceivedEvent#getRecipeMap`. Additionally, any recipes stored on the client should be cleared once the player logs out from the world via `ClientPlayerNetworkEvent.LoggingOut`
+
+```java
+// Assume we have some custom RecipeType<ExampleRecipe> EXAMPLE_RECIPE_TYPE
+
+@SubscribeEvent // on the game event bus
+public static void datapackSync(OnDatapackSyncEvent event) {
+    // Specify what recipe types to sync to the client
+    event.sendRecipes(EXAMPLE_RECIPE_TYPE);
+}
+
+// In some class only on the physical client
+
+private static final List<RecipeHolder<ExampleRecipe>> EXAMPLE_RECIPES = new ArrayList<>();
+
+@SubscribeEvent // on the game event bus only on the physical client
+public static void recipesReceived(RecipesReceivedEvent event) {
+    // Store the recipes you want
+    
+    // First remove the previous recipes
+    EXAMPLE_RECIPES.clear();
+    EXAMPLE_RECIPES.addAll(event.getRecipeMap().byType(EXAMPLE_RECIPE_TYPE));
+}
+
+@SubscribeEvent // on the game event bus only on the physical client
+public static void clientLogOut(ClientPlayerNetworkEvent.LoggingOut event) {
+    // Clear the stored recipes on world log out
+    EXAMPLE_RECIPES.clear();
+}
+```
 
 ## Data Generation
 
@@ -173,7 +208,7 @@ public class MyRecipeProvider extends RecipeProvider {
         }
 
         @Override
-        protected abstract RecipeProvider createRecipeProvider(HolderLookup.Provider provider, RecipeOutput output) {
+        protected RecipeProvider createRecipeProvider(HolderLookup.Provider provider, RecipeOutput output) {
             return new MyRecipeProvider(provider, output);
         }
     }
@@ -208,5 +243,6 @@ The recipe provider also adds helpers for common scenarios, such as `twoByTwoPac
 [datagen]: #data-generation
 [event]: ../../../concepts/events.md
 [ingredients]: ingredients.md
+[logicalside]: ../../../concepts/sides.md#the-logical-side
 [streamcodec]: ../../../networking/streamcodecs.md
 [tags]: ../tags.md

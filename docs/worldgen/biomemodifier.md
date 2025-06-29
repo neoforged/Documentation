@@ -673,7 +673,7 @@ This will then result in the following JSON being created:
 ```json5
 // In data/examplemod/neoforge/biome_modifier/example_modifier.json
 {
-    // The registy key of the MapCodec for the modifier
+    // The registry key of the MapCodec for the modifier
     "type": "examplemod:example_biome_modifier",
     // All additional settings are applied to the root object
     "biomes": "#c:is_overworld",

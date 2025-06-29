@@ -130,10 +130,10 @@ public class MyEntity extends Entity {
 
     // See the Data and Networking article for information about these methods.
     @Override
-    protected void readAdditionalSaveData(CompoundTag compoundTag) {}
+    protected void readAdditionalSaveData(ValueInput input) {}
 
     @Override
-    protected void addAdditionalSaveData(CompoundTag compoundTag) {}
+    protected void addAdditionalSaveData(ValueOutput output) {}
 
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {}
@@ -206,10 +206,10 @@ In turn, entities can also modify that behavior. This isn't done by overriding `
 // The boolean return value determines whether the entity was actually damaged or not.
 public boolean hurtServer(ServerLevel level, DamageSource damageSource, float amount) {
     if (damageSource.is(DamageTypeTags.IS_FIRE)) {
-        // This assumes that super#hurt() is implemented. Common other ways to do this
+        // This assumes that super#hurtServer() is implemented. Common other ways to do this
         // are to set some field yourself. Vanilla implementations vary greatly across different entities.
         // Notably, living entities usually call #actuallyHurt, which in turn calls #setHealth.
-        return super.hurt(level, damageSource, amount * 2);
+        return super.hurtServer(level, damageSource, amount * 2);
     } else {
         return false;
     }
@@ -239,8 +239,8 @@ public void tick() {
     // Always call super unless you have a good reason not to.
     super.tick();
     // Run this code once every 5 ticks, and make sure we spawn the particle on the server.
-    if (this.tickCount % 5 == 0 && !level().isClientSide()) {
-        level().addParticle(...);
+    if (this.tickCount % 5 == 0 && !this.level().isClientSide()) {
+        this.level().addParticle(...);
     }
 }
 ```
@@ -335,7 +335,7 @@ graph LR;
     ItemFrame-->GlowItemFrame;
     HangingEntity-->Painting;
     Entity-->PartEntity;
-    Entity-->EnderDragonPart;
+    PartEntity-->EnderDragonPart;
     Entity-->VehicleEntity;
     VehicleEntity-->AbstractBoat;
     AbstractBoat-->AbstractChestBoat;
@@ -362,7 +362,7 @@ Let's break these down:
 - `Projectile`: The base class for various projectiles, including arrows, fireballs, snowballs, fireworks and similar entities. Read more about them [below][projectile].
 - `LivingEntity`: The base class for anything "living", in the sense of it having things like hit points, equipment, [mob effects][mobeffect] and some other properties. Includes things such as monsters, animals, villagers, and players. Read more about them in the [Living Entities article][livingentity].
 - `BlockAttachedEntity`: The base class for entities that are immobile and attached to blocks. Includes leash knots, item frames and paintings. The subclasses mainly serve the purpose of reusing common code.
-- `PartEntity`: The base class for part entities, i.e. entities made up of multiple smaller entities. Vanilla currently only uses this for the Ender Dragon.
+- `PartEntity`: A NeoForge-added base class for part entities, i.e. entities made up of multiple smaller entities. `EnderDragonPart` is patched to extend `PartEntity` instead of `Entity`.
 - `VehicleEntity`: The base class for boats and minecarts. While these entities loosely share the concept of hit points with `LivingEntity`s, they do not share many other properties with them and are as such kept separated. The subclasses mainly serve the purpose of reusing common code.
 
 There are also several entities that are direct subclasses of `Entity`, simply because there was no other fitting superclass. Most of these should be self-explanatory:

@@ -29,11 +29,12 @@ Every frame on the [physical client][physicalside], the `Minecraft` class update
         - `minecraft:generic.attack_damage` attribute modifiers from the main hand item are added to the base damage.
         - `CriticalHitEvent` is fired. If the event's `#isCriticalHit` method returns true, the base damage is multiplied with the value returned from the event's `#getDamageMultiplier` method, which defaults to 1.5 if [a number of conditions][critical] pass and 1.0 otherwise, but may be modified by the event.
         - Enchantment bonus damage is added to the base damage, resulting in the final damage value.
-        - [`Entity#hurt`][hurt] is called. If it returns false, the pipeline ends.
-        - If the target is an instance of `LivingEntity`, `LivingEntity#knockback` is called.
+        - `SweepAttackEvent` is fired. If the event's `isSweeping` method returns true, then the player will perform a sweep attack. By default, this checks if the attack cooldown is > 90%, the attack is not a critical hit, the player is on the ground and not moving faster than their `minecraft:generic.movement_speed` attribute value.
+        - [`Entity#hurtOrSimulate`][hurt] is called. If it returns false, the pipeline ends.
+        - If the target is an instance of `LivingEntity` and the attack strength is greater than 90%, the player is sprinting, and the `minecraft:attack_knockback` attribute value after being modified by enchantments is greater than 0, `LivingEntity#knockback` is called.
             - Within that method, `LivingKnockBackEvent` is fired.
-        - If the attack cooldown is > 90%, the attack is not a critical hit, the player is on the ground and not moving faster than their `minecraft:generic.movement_speed` attribute value, a sweep attack is performed on nearby `LivingEntity`s.
-            - Within that method, `LivingEntity#knockback` is called again, which in turn fires `LivingKnockBackEvent` a second time.
+        - The player performs a sweep attack on nearby `LivingEntity`s based on `SweepAttackEvent#isSweeping`.
+            - Within that method, `LivingEntity#knockback` is called again if the entity is in reach of the player and `Entity#hurtServer` returns true, which in turn fires `LivingKnockBackEvent` another time.
         - `Item#hurtEnemy` is called. This can be used for post-attack effects. For example, the mace launches the player back in the air here, if applicable.
         - `Item#postHurtEnemy` is called. Durability damage is applied here.
     - If you are looking at a [block] that is within your reach:
@@ -61,17 +62,17 @@ During the right-clicking pipeline, a number of methods returning one of two res
     - If you are looking at a [block] that is within your reach and not outside the world border:
         - `PlayerInteractEvent.RightClickBlock` is fired. If the event is canceled, the pipeline ends. You may also specifically deny only block or item usage in this event.
         - `IItemExtension#onItemUseFirst` is called. If it returns a definitive result, the pipeline ends.
-        - If the player is not sneaking and the event does not deny block usage, `UseItemOnBlockEvent` is fired. If the event is canceled, the cancellation result is used. Otherwise, `Block#useItemOn` is called. If it returns a definitive result, the pipeline ends.
-        - If the `InteractionResult` is `TRY_WITH_EMPTY_HAND` and the executing hand is the main hand, then `Block#useWithoutItem` is called. If it returns a definitive result, the pipeline ends.
+        - If the player is not sneaking and the event does not deny block usage, `UseItemOnBlockEvent` is fired. If the event is canceled, the cancellation result is used. Otherwise, `BlockBehaviour#useItemOn` is called. If it returns a definitive result, the pipeline ends.
+        - If the `InteractionResult` is `TRY_WITH_EMPTY_HAND` and the executing hand is the main hand, then `BlockBehaviour#useWithoutItem` is called. If it returns a definitive result, the pipeline ends.
         - If the event does not deny item usage, `Item#useOn` is called. If it returns a definitive result, the pipeline ends.
 - `Item#use` is called. If it returns a definitive result, the pipeline ends.
 - The above process runs a second time, this time with the off hand instead of the main hand.
 
 ### `InteractionResult`
 
-`InteractionResult` is a sealed interface that respresents the result of some interaction between an item or an empty hand and some object (e.g. entities, blocks, etc.). The interface is broken into four records, where there are six potential default states.
+`InteractionResult` is a sealed interface that represents the result of some interaction between an item or an empty hand and some object (e.g. entities, blocks, etc.). The interface is broken into four records, where there are six potential default states.
 
-First there is `InteractionResult.Success`, which indicates that the operation should be considered sucessful, ending the pipeline. A successful state has two parameters: the `SwingSource`, which indicates whether the entity should swing on the respective [logical side][side]; and the `InteractionResult.ItemContext`, which holds whether the interaction was caused by a held item, and what the held item transformed into after use. The swing source is determined by one of the default states: `InteractionResult#SUCCESS` for client swing, `InteractionResult#SUCCESS_SERVER` for server swing, and `InteractionResult#CONSUME` for no swing. The item context is set via `Success#heldItemTransformedTo` if the `ItemStack` changed, or `withoutItem` if there wasn't an interaction between the held item and the object. The default sets there was an item interaction but no transformation.
+First there is `InteractionResult.Success`, which indicates that the operation should be considered successful, ending the pipeline. A successful state has two parameters: the `SwingSource`, which indicates whether the entity should swing on the respective [logical side][side]; and the `InteractionResult.ItemContext`, which holds whether the interaction was caused by a held item, and what the held item transformed into after use. The swing source is determined by one of the default states: `InteractionResult#SUCCESS` for client swing, `InteractionResult#SUCCESS_SERVER` for server swing, and `InteractionResult#CONSUME` for no swing. The item context is set via `Success#heldItemTransformedTo` if the `ItemStack` changed, or `withoutItem` if there wasn't an interaction between the held item and the object. The default sets there was an item interaction but no transformation.
 
 ```java
 // In some method that returns an interaction result
@@ -103,7 +104,7 @@ return InteractionResult.CONSUME.withoutItem();
 
 This is the only instance where the transformed `ItemStack` is used from a `Success` variant (`SUCCESS`, `SUCCESS_SERVER`, `CONSUME`). The resulting `ItemStack` set by `Success#heldItemTransformedTo` replaces the `ItemStack` the usage was initiated with, if it has changed.
 
-The default implementation of `Item#use` returns `InteractionResult#CONSUME` when the item is edible (has `DataComponents#CONSUMABLE`) and the player can eat the item (because they are hungry, or because the item is always edible) and `InteractionResult#FAIL` when the item is edible (has `DataComponents#CONSUMABLE`) but the player cannot eat the item. If the item is equippable (has `DataComponents#EQUIPPABLE`), then it returns `InteractionResult#SUCCESS` on swap with the held item replaced by the swaped item (via `heldItemTransformedTo`), or `InteractionResult#FAIL` if the enchantment on the armor has the `EnchantmentEffectComponents#PREVENT_ARMOR_CHANGE` component. Otherwise `InteractionResult#PASS` is returned.
+The default implementation of `Item#use` returns `InteractionResult#CONSUME` when the item is edible (has `DataComponents#CONSUMABLE`) and the player can eat the item (because they are hungry, or because the item is always edible) and `InteractionResult#FAIL` when the item is edible (has `DataComponents#CONSUMABLE`) but the player cannot eat the item. If the item is equippable (has `DataComponents#EQUIPPABLE`), then it returns `InteractionResult#SUCCESS` on swap with the held item replaced by the swapped item (via `heldItemTransformedTo`), or `InteractionResult#FAIL` if the enchantment on the armor has the `EnchantmentEffectComponents#PREVENT_ARMOR_CHANGE` component. Otherwise `InteractionResult#PASS` is returned.
 
 Returning `InteractionResult#FAIL` here while considering the main hand will prevent offhand behavior from running. If you want offhand behavior to run (which you usually want), return `InteractionResult#PASS` instead.
 
@@ -114,14 +115,17 @@ Returning `InteractionResult#FAIL` here while considering the main hand will pre
 - Depending on what you are looking at (using the `HitResult` in `Minecraft.getInstance().hitResult`), different things happen:
     - If you are looking at an [entity] that is within your reach:
         - If `Entity#isPickable` returns false, the pipeline ends.
-        - If you are not in creative, the pipeline ends.
-        - `IEntityExtension#getPickedResult` is called. The resulting `ItemStack` is added to the player's inventory.
+        - If `Player#canInteractWithEntity` returns false, the pipeline ends.
+        - `Entity#getPickResult` is called. A hotbar slot that matches the resulting `ItemStack` is set active, if such a hotbar slot exists. Otherwise, if the player is in creative, the resulting `ItemStack` is added to the player's inventory.
             - By default, this method forwards to `Entity#getPickResult`, which can be overridden by modders.
     - If you are looking at a [block] that is within your reach:
-        - `Block#getCloneItemStack` is called and becomes the "selected" `ItemStack`.
+        - `IBlockExtension#getCloneItemStack` is called (which by default delegates to `BlockBehaviour#getCloneItemStack`) and becomes the "selected" `ItemStack`.
             - By default, this returns the `Item` representation of the `Block`.
-        - If the Control key is held down, the player is in creative and the targeted block has a [`BlockEntity`][blockentity], the `BlockEntity`'s data is added to the "selected" `ItemStack`.
-        - If the player is in creative, the "selected" `ItemStack` is added to the player's inventory. Otherwise, a hotbar slot that matches the "selected" item is set active, if such a hotbar slot exists.
+        - If the Control key is held down, the player is in creative and the targeted block has a [`BlockEntity`][blockentity]:
+            - The `BlockEntity`'s data is obtained from `BlockEntity#saveCustomOnly`
+                - `BlockEntity#removeComponentsFromTag` is called as a post processing step.
+            - The `BlockEntity`'s data is added to the "selected" `ItemStack` via `DataComponents#BLOCK_ENTITY_DATA`.
+        - A hotbar slot that matches the "selected" `ItemStack` is set active, if such a hotbar slot exists. Otherwise, if the player is in creative, the "selected" `ItemStack` is added to the player's inventory.
 
 [attribute]: ../entities/attributes.md
 [attributemodifier]: ../entities/attributes.md#attribute-modifiers

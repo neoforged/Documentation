@@ -126,7 +126,7 @@ public boolean keyPressed(int key, int scancode, int mods) {
 ```
 
 :::note
-If you do not own the screen which you are trying to check a **key** for, you can listen to the `Pre` or `Post` events of `ScreenEvent.KeyPressed` on the [event bus][eventbus] instead.
+If you do not own the screen which you are trying to check a **key** for, you can listen to the `Pre` or `Post` events of `ScreenEvent.KeyPressed` on the [game event bus][eventbus] instead.
 :::
 
 `#mouseClicked` takes in the mouse's x position, y position, and the button clicked. A mouse button can be checked against a mapping by creating the input using `InputConstants.Type#getOrCreate` with the `MOUSE` input.
@@ -144,7 +144,7 @@ public boolean mouseClicked(double x, double y, int button) {
 ```
 
 :::note
-If you do not own the screen which you are trying to check a **mouse** for, you can listen to the `Pre` or `Post` events of `ScreenEvent.MouseButtonPressed` on the [event bus][eventbus] instead.
+If you do not own the screen which you are trying to check a **mouse** for, you can listen to the `Pre` or `Post` events of `ScreenEvent.MouseButtonPressed` on the [game event bus][eventbus] instead.
 :::
 
 [eventbus]: ../concepts/events.md#registering-an-event-handler

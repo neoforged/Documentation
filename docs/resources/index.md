@@ -18,21 +18,22 @@ NeoForge automatically collects all mod resource packs into the `Mod resources` 
 
 Resource packs may contain folders with files affecting the following things:
 
-| Folder Name   | Contents                                |
-|---------------|-----------------------------------------|
-| `atlases`     | Texture Atlas Sources                   |
-| `blockstates` | [Blockstate Files][bsfile]              |
-| `equipment`   | [Equipment Info][equipment]             |
-| `font`        | Font Definitions                        |
-| `items`       | [Client Items][citems]                  |
-| `lang`        | [Translation Files][translations]       |
-| `models`      | [Models][models]                        |
-| `particles`   | [Particle Definitions][particles]       |
-| `post_effect` | Post Processing Screen Effects          |
-| `shaders`     | Metadata, Fragement, and Vertex Shaders |
-| `sounds`      | [Sound Files][sounds]                   |
-| `texts`       | Miscellaneous Text files                |
-| `textures`    | [Textures][textures]                    |
+| Folder Name      | Contents                                |
+|------------------|-----------------------------------------|
+| `atlases`        | Texture Atlas Sources                   |
+| `blockstates`    | [Blockstate Files][bsfile]              |
+| `equipment`      | [Equipment Info][equipment]             |
+| `font`           | Font Definitions                        |
+| `items`          | [Client Items][citems]                  |
+| `lang`           | [Translation Files][translations]       |
+| `models`         | [Models][models]                        |
+| `particles`      | [Particle Definitions][particles]       |
+| `post_effect`    | Post Processing Screen Effects          |
+| `shaders`        | Metadata, Fragement, and Vertex Shaders |
+| `sounds`         | [Sound Files][sounds]                   |
+| `texts`          | Miscellaneous Text files                |
+| `textures`       | [Textures][textures]                    |
+| `waypoint_style` | Waypoint Icon Metadata                  |
 
 ## Data
 
@@ -54,6 +55,8 @@ Data packs may contain folders with files affecting the following things:
 | `banner_pattern`                                                                               | Banner patterns              |
 | `cat_variant`, `chicken_variant`, `cow_variant`, `frog_variant`, `pig_variant`, `wolf_variant` | Entity variants              |
 | `damage_type`                                                                                  | [Damage types][damagetypes]  |
+| `datapacks`                                                                                    | Built-in datapacks           |
+| `dialog`                                                                                       | Dialog menus                 |
 | `enchantment`, `enchantment_provider`                                                          | [Enchantments][enchantment]  |
 | `instrument`, `jukebox_song`, `wolf_sound_variant`                                             | Sound reference metadata     |
 | `painting_variant`                                                                             | Paintings                    |
@@ -100,12 +103,12 @@ All data providers extend the `DataProvider` interface and usually require one m
 
 | Class                                                | Method                           | Generates                                                               | Side   | Notes                                                                                                           |
 |------------------------------------------------------|----------------------------------|-------------------------------------------------------------------------|--------|-----------------------------------------------------------------------------------------------------------------|
-| [`ModelProvider`][modelprovider]             | `registerModels()`               | Models, Blockstate Files, Client Items                                                             | Client |                                                                                                                 |
+| [`ModelProvider`][modelprovider]                     | `registerModels()`               | Models, Blockstate Files, Client Items                                                             | Client |                                                                                                                 |
 | [`LanguageProvider`][langprovider]                   | `addTranslations()`              | Translations                                                            | Client | Also requires passing the language in the constructor.                                                          |
 | [`ParticleDescriptionProvider`][particleprovider]    | `addDescriptions()`              | Particle definitions                                                    | Client |                                                                                                                 |
 | [`SoundDefinitionsProvider`][soundprovider]          | `registerSounds()`               | Sound definitions                                                       | Client |                                                                                                                 |
 | `SpriteSourceProvider`                               | `gather()`                       | Sprite sources / atlases                                                | Client |                                                                                                                 |
-| [`AdvancementProvider`][advancementprovider]         | `generate()`                     | Advancements                                                            | Server | Make sure to use the NeoForge variant, not the Minecraft one.                                                   |
+| [`AdvancementProvider`][advancementprovider]         | `generate()`                     | Advancements                                                            | Server | Requires extra classes to work properly, see linked article for details.                                                   |
 | [`LootTableProvider`][loottableprovider]             | `generate()`                     | Loot tables                                                             | Server | Requires extra methods and classes to work properly, see linked article for details.                            |
 | [`RecipeProvider`][recipeprovider]                   | `buildRecipes(RecipeOutput)`     | Recipes                                                                 | Server |                                                                                                                 |
 | [Various subclasses of `TagsProvider`][tagsprovider] | `addTags(HolderLookup.Provider)` | Tags                                                                    | Server | Several specialized subclasses exist, see linked article for details.                                           |
