@@ -66,7 +66,7 @@ Minecraft's render engine recognizes a total of 8 perspective types (9 if you in
 | `FIXED`                   | `"fixed"`                 | Item frames                                                                                                      |
 | `NONE`                    | `"none"`                  | Fallback purposes in code, should not be used in JSON                                                            |
 
-NeoForge allows the `ItemDisplayContext` to be [extended] for use in custom render calls. Modded `ItemDisplayContext` may specify a fallback transform to use if none is specified in the model. Otherwise, behavior will be the same as Vanilla.
+NeoForge allows the `ItemDisplayContext` to be [extended] for use in custom render calls. Modded `ItemDisplayContext`s may specify a fallback transform to use if none is specified in the model. Otherwise, behavior will be the same as vanilla.
 
 ## Modifying a Baking Result
 
