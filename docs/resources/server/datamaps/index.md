@@ -290,7 +290,7 @@ That way, after both files are applied, the final result will be (an in-memory r
 {
     "values": {
         "minecraft:carrot": {
-            "somekey1": "value1"
+            "somekey2": "value2"
         }
     }
 }
