@@ -490,11 +490,11 @@ Once a screen has been initialized, the `#init` method is called. The `init` met
 
 There are three ways to add a widget to a screen, each serving a separate purpose:
 
-Method                 | Description
-:---:                  | :---
-`addWidget`           | Adds a widget that is interactable and narrated, but not rendered.
-`addRenderableOnly`   | Adds a widget that will only be rendered; it is not interactable or narrated.
-`addRenderableWidget` | Adds a widget that is interactable, narrated, and rendered.
+| Method               | Description                                                                   |
+|:--------------------:|:------------------------------------------------------------------------------|
+|`addWidget`           | Adds a widget that is interactable and narrated, but not rendered.            |
+|`addRenderableOnly`   | Adds a widget that will only be rendered; it is not interactable or narrated. |
+|`addRenderableWidget` | Adds a widget that is interactable, narrated, and rendered.                   |
 
 Typically, `addRenderableWidget` will be used most often.
 
@@ -620,10 +620,8 @@ public MyContainerScreen(MyMenu menu, Inventory playerInventory, Component title
     this.titleLabelX = 10;
     this.inventoryLabelX = 10;
 
-    /*
-     * If the 'imageHeight' is changed, 'inventoryLabelY' must also be
-     * changed as the value depends on the 'imageHeight' value.
-     */
+    // If the 'imageHeight' is changed, 'inventoryLabelY' must also be
+    // changed as the value depends on the 'imageHeight' value.
 }
 ```
 
@@ -658,10 +656,8 @@ public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTi
     // Submits the widgets and labels to be rendered
     super.render(graphics, mouseX, mouseY, partialTick);
 
-    /*
-     * This method is added by the container screen to submit
-     * the tooltip of the hovered slot in the tooltip stratum.
-     */
+    // This method is added by the container screen to submit
+    // the tooltip of the hovered slot in the tooltip stratum.
     this.renderTooltip(graphics, mouseX, mouseY);
 }
 ```
@@ -676,14 +672,12 @@ private static final ResourceLocation BACKGROUND_LOCATION = ResourceLocation.fro
 
 @Override
 protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
-    /*
-     * Submits the background texture. 'leftPos' and 'topPos' should
-     * already represent the top left corner of where the texture
-     * should be rendered as it was precomputed from the 'imageWidth'
-     * and 'imageHeight'. The two zeros represent the integer u/v
-     * coordinates inside the PNG file, whose size is represented by
-     * the last two integers (typically 256 x 256).
-     */
+    // Submits the background texture. 'leftPos' and 'topPos' should
+    // already represent the top left corner of where the texture
+    // should be rendered as it was precomputed from the 'imageWidth'
+    // and 'imageHeight'. The two zeros represent the integer u/v
+    // coordinates inside the PNG file, whose size is represented by
+    // the last two integers (typically 256 x 256).
     graphics.blit(
         RenderPipelines.GUI_TEXTURED,
         BACKGROUND_LOCATION,

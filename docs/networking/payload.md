@@ -49,11 +49,13 @@ public record MyData(String name, int age) implements CustomPacketPayload {
         // We wrap the method call in a physical side check to prevent
         // classloading client classes on a dedicated server
         if (FMLEnvironment.dist.isClient()) {
+            // This should be its own, separate class that you are creating
             ClientPayloadHandler.handleDataOnMain(this, context);
         }
     }
 
     public void handleServer(IPayloadContext context) {
+        // This should be its own, separate class that you are creating
         ServerPayloadHandler.handleDataOnMain(this, context);
     }
 }
@@ -118,11 +120,13 @@ public record MyData(String name, int age) implements CustomPacketPayload {
         // We wrap the method call in a physical side check to prevent
         // classloading client classes on a dedicated server
         if (FMLEnvironment.dist.isClient()) {
+            // This should be its own, separate class that you are creating
             ClientPayloadHandler.handleDataOnNetwork(this, context);
         }
     }
 
     public void handleServer(IPayloadContext context) {
+        // This should be its own, separate class that you are creating
         ServerPayloadHandler.handleDataOnNetwork(this, context);
     }
 }
