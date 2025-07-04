@@ -243,7 +243,7 @@ public ItemStack quickMoveStack(Player player, int quickMovedSlotIndex) {
 
         if (rawStack.isEmpty()) {
             // If the raw stack has completely moved out of the slot, set the slot to the empty stack
-            quickMovedSlot.set(ItemStack.EMPTY);
+            quickMovedSlot.setByPlayer(ItemStack.EMPTY);
         } else {
             // Otherwise, notify the slot that that the stack count has changed
             quickMovedSlot.setChanged();
@@ -284,7 +284,7 @@ A `MenuProvider` can easily be created using `SimpleMenuProvider`, which takes i
 // In some implementation with access to the Player on the logical server (e.g. ServerPlayer instance)
 // Assume we have ServerPlayer serverPlayer
 serverPlayer.openMenu(new SimpleMenuProvider(
-    (containerId, playerInventory, player) -> new MyMenu(containerId, playerInventory),
+    (containerId, playerInventory, player) -> new MyMenu(containerId, playerInventory, /* server parameters */),
     Component.translatable("menu.title.examplemod.mymenu")
 ));
 ```

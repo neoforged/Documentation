@@ -11,7 +11,7 @@ A standard Game Test follows four basic steps:
 
 1. A structure, or template, is loaded holding the scene on which the interaction or behavior is tested.
 1. An environment for the test to run in.
-1. A registered function to run the logic. If a sucessful state is reached, then the test succeeds. Otherwise, the test fails and the result is stored within a lectern adjacent to the scene.
+1. A registered function to run the logic. If a successful state is reached, then the test succeeds. Otherwise, the test fails and the result is stored within a lectern adjacent to the scene.
 1. A test instance to link the other three objects together.
 
 ## The Test Data
@@ -38,7 +38,7 @@ All test instances hold some `TestData` which defines how a game test should be 
     // The number of ticks that the game test will run until it automatically fails
     "max_ticks": 400,
 
-    // The number of ticks that are used to setup everying required for the game test
+    // The number of ticks that are used to setup everything required for the game test
     // This is not counted towards the maximum number of ticks the test can take
     // If not specified, defaults to 0
     "setup_ticks": 50,
@@ -107,7 +107,7 @@ public static void gatherData(GatherDataEvent.Client event) {
                     // The number of ticks that the game test will run until it automatically fails
                     400,
 
-                    // The number of ticks that are used to setup everying required for the game test
+                    // The number of ticks that are used to setup everything required for the game test
                     // This is not counted towards the maximum number of ticks the test can take
                     // If not specified, defaults to 0
                     50,
@@ -588,7 +588,7 @@ public static void gatherData(GatherDataEvent.Client event) {
 
 ## The Test Function
 
-The basic concept of game tests are structured around running some method that takes in a `GameTestHelper` and returning nothing. Calling the methods within the `GameTestHelper` determines whether the test suceeds or fails. Each test function is [registered], allowing it to be referenced in a test instance:
+The basic concept of game tests are structured around running some method that takes in a `GameTestHelper` and returning nothing. Calling the methods within the `GameTestHelper` determines whether the test succeeds or fails. Each test function is [registered], allowing it to be referenced in a test instance:
 
 ```java
 public class ExampleFunctions {

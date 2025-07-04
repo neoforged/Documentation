@@ -61,18 +61,18 @@ this.getEntityData().set(MY_DATA, 1);
 
 ## `readAdditionalSaveData` and `addAdditionalSaveData`
 
-These two methods are used to read and write data to disk. They work by loading/saving your values from/to an [NBT tag][nbt], like so:
+These two methods are used to read and write data to disk. They work by loading/saving your values from/to a [value I/O][valueio], like so:
 
 ```java
 // Assume that an `int data` exists in the class.
 @Override
-protected void readAdditionalSaveData(CompoundTag tag) {
-    this.data = tag.getInt("my_data");
+protected void readAdditionalSaveData(ValueInput input) {
+    this.data = input.getIntOr("my_data", 0);
 }
 
 @Override
-protected void addAdditionalSaveData(CompoundTag tag) {
-    tag.putInt("my_data", this.data);
+protected void addAdditionalSaveData(ValueOutput output) {
+    output.putInt("my_data", this.data);
 }
 ```
 
@@ -117,7 +117,7 @@ For syncing, you can also always opt to use a custom packet to send additional i
 [attachment]: ../datastorage/attachments.md
 [custom]: #custom-network-messages
 [entitytype]: index.md#entitytype
-[nbt]: ../datastorage/nbt.md
 [networking]: ../networking/index.md
 [registration]: ../concepts/registries.md#methods-for-registering
 [streamcodec]: ../networking/streamcodecs.md
+[valueio]: ../datastorage/valueio.md

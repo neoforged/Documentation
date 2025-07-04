@@ -42,6 +42,22 @@ public record MyData(String name, int age) implements CustomPacketPayload {
     public CustomPacketPayload.Type<? extends CustomPacketPayload> type() {
         return TYPE;
     }
+
+    // Handle the payloads
+
+    public void handleClient(IPayloadContext context) {
+        // We wrap the method call in a physical side check to prevent
+        // classloading client classes on a dedicated server
+        if (FMLEnvironment.dist.isClient()) {
+            // This should be its own, separate class that you are creating
+            ClientPayloadHandler.handleDataOnMain(this, context);
+        }
+    }
+
+    public void handleServer(IPayloadContext context) {
+        // This should be its own, separate class that you are creating
+        ServerPayloadHandler.handleDataOnMain(this, context);
+    }
 }
 ```
 
@@ -57,8 +73,8 @@ public static void register(final RegisterPayloadHandlersEvent event) {
         MyData.TYPE,
         MyData.STREAM_CODEC,
         new DirectionalPayloadHandler<>(
-            ClientPayloadHandler::handleDataOnMain,
-            ServerPayloadHandler::handleDataOnMain
+            MyData::handleClient,
+            MyData::handleServer
         )
     );
 }
@@ -91,10 +107,30 @@ Here a couple of things are of note:
 - The handling method here gets the payload, and a contextual object.
 - The handling method of the payload is, by default, invoked on the main thread.
 
-
 If you need to do some computation that is resource intensive, then the work should be done on the network thread, instead of blocking the main thread. This is done by setting the `HandlerThread` of the `PayloadRegistrar` to `HandlerThread#NETWORK` via `PayloadRegistrar#executesOn` before registering the payload.
 
 ```java
+public record MyData(String name, int age) implements CustomPacketPayload {
+    
+    // ...
+    
+    // Handle the payloads
+
+    public void handleClient(IPayloadContext context) {
+        // We wrap the method call in a physical side check to prevent
+        // classloading client classes on a dedicated server
+        if (FMLEnvironment.dist.isClient()) {
+            // This should be its own, separate class that you are creating
+            ClientPayloadHandler.handleDataOnNetwork(this, context);
+        }
+    }
+
+    public void handleServer(IPayloadContext context) {
+        // This should be its own, separate class that you are creating
+        ServerPayloadHandler.handleDataOnNetwork(this, context);
+    }
+}
+
 @SubscribeEvent // on the mod event bus
 public static void register(final RegisterPayloadHandlersEvent event) {
     final PayloadRegistrar registrar = event.registrar("1")
@@ -103,8 +139,8 @@ public static void register(final RegisterPayloadHandlersEvent event) {
         MyData.TYPE,
         MyData.STREAM_CODEC,
         new DirectionalPayloadHandler<>(
-            ClientPayloadHandler::handleDataOnNetwork,
-            ServerPayloadHandler::handleDataOnNetwork
+            MyData::handleClient,
+            MyData::handleServer
         )
     );
 }

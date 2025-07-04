@@ -299,13 +299,12 @@ mob.setDropChance(EquipmentSlot.FEET, 1f);
 
 The player's inventory is implemented through the `Inventory` class, a class implementing `Container` as well as the `Nameable` interface mentioned earlier. An instance of that `Inventory` is then stored as a field named `inventory` on the `Player`, accessible via `Player#getInventory`. The inventory can be interacted with like any other container.
 
-The inventory contents are stored in three `public final NonNullList<ItemStack>`s:
+The inventory contents are stored in two places:
 
-- The `items` list covers the 36 main inventory slots, including the nine hotbar slots (indices 0-8).
-- The `armor` list is a list of length 4, containing armor for the `FEET`, `LEGS`, `CHEST`, and `HEAD`, in that order. This list uses `EquipmentSlot` accessors, similar to `Mob`s (see above).
-- The `offhand` list contains only the offhand slot, i.e. has a length of 1.
+- The `NonNullList<ItemStack> items` list covers the 36 main inventory slots, including the nine hotbar slots (indices 0-8).
+- The `EntityEquipment equipment` map stores the `EquipmentSlot` stacks: the armor slots (`FEET`, `LEGS`, `CHEST`, `HEAD`), `OFFHAND`, `BODY`, and `SADDLE`, in that order.  
 
-When iterating over the inventory contents, it is recommended to iterate over `items`, then over `armor` and then over `offhand`, to be consistent with vanilla behavior.
+When iterating over the inventory contents, it is recommended to iterate over `items`, then over `equipment` using `Inventory#EQUIPMENT_SLOT_MAPPING` for the indices.
 
 [beremove]: index.md#removing-block-entities
 [block]: ../blocks/index.md

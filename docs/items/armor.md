@@ -123,7 +123,7 @@ public static final DeferredItem<Item> EQUIPPABLE = ITEMS.registerSimpleItem(
         DataComponents.EQUIPPABLE,
         // Sets the slot that this item can be equipped to.
         Equippable.builder(EquipmentSlot.HELMET)
-            // Determines the sound played when equipping this armor.
+            // Determines the sound played when equipping this item.
             // This is wrapped with a Holder.
             // Defaults to SoundEvents#ARMOR_EQUIP_GENERIC.
             .setEquipSound(SoundEvents.ARMOR_EQUIP_GENERIC)
@@ -151,6 +151,13 @@ public static final DeferredItem<Item> EQUIPPABLE = ITEMS.registerSimpleItem(
             // Whether the item can be equipped onto another entity on interaction (e.g., right click).
             // Defaults to false.
             .setEquipOnInteract(true)
+            // When true, an item with the SHEAR_REMOVE_ARMOR item ability can remove the equipped item.
+            // Defaults to false.
+            .setCanBeSheared(true)
+            // The sound to play when shearing this equipped item.
+            // This is wrapped with a holder.
+            // Defaults to SoundEvents#SHEARS_SNIP.
+            .setShearingSound(SoundEvents.SADDLE_UNEQUIP)
             .build()
     )
 );
@@ -373,6 +380,7 @@ By default, the following layers render the associated `EquipmentClientInfo.Laye
 | `MULE_SADDLE`           | `SimpleEquipmentLayer` | Mule                                                           |
 | `ZOMBIE_HORSE_SADDLE`   | `SimpleEquipmentLayer` | Zombie Horse                                                   |
 | `SKELETON_HORSE_SADDLE` | `SimpleEquipmentLayer` | Skeleton Horse                                                 |
+| `HAPPY_GHAST_BODY`      | `SimpleEquipmentLayer` | Happy Ghast                                                    |
 
 `EquipmentLayerRenderer` has only one method to render the equipment layers, aptly named `renderLayers`:
 
