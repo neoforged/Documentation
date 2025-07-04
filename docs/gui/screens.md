@@ -605,9 +605,9 @@ Field             | Description
 `inventoryLabelY` | The relative y coordinate of where the player inventory name will be rendered.
 
 :::caution
-In a previous section, it mentioned that precomputed relative coordinates should be set in the `#init` method. This still remains true, as the values mentioned here are not precomputed coordinates but static values and relativized coordinates.
+In a previous section, it was mentioned that precomputed relative coordinates should be set in the `#init` method. This still remains true, as the values mentioned here are not precomputed coordinates but static values and relativized coordinates.
 
-The image values are static and non changing as they represent the background texture size. To make things easier when rendering, two additional values (`leftPos` and `topPos`) are precomputed in the `init` method which marks the top left corner of where the background will be rendered. The label coordinates are relative to these values.
+The image values are static and non-changing, as they represent the background texture size. To make things easier when rendering, two additional values (`leftPos` and `topPos`) are precomputed in the `init` method, marking the top left corner of where the background will be rendered. The label coordinates are relative to these values.
 
 The `leftPos` and `topPos` is also used as a convenient way to render the background as they already represent the position to pass into `GuiGraphics#blit`.
 :::
@@ -647,7 +647,7 @@ protected void containerTick() {
 
 ### Rendering the Container Screen
 
-The container screen uses all three strata to submit its elements. First, the background stratum submits the background texture via `#renderBg`. Then, the render stratum submits the widgets like before via `#render` followed by any text via `#renderLabels`. `AbstractContainerScreen` also provides the helper method `renderTooltip` to submit the tooltip to the tooltip stratum.
+The container screen uses all three strata to submit its elements. First, the background stratum submits the background texture via `#renderBg`. Then, the render stratum submits the widgets like before via `#render` followed by any text via `#renderLabels`. Finally, `AbstractContainerScreen` also provides the helper method `renderTooltip` to submit the tooltip to the tooltip stratum.
 
 Starting with `render`, the most common override (and typically the only case) calls the super to submit the container screen elements, followed by `renderTooltip`.
 

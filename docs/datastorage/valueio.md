@@ -186,7 +186,7 @@ protected void loadAdditional(ValueInput input) {
 `Codec`s provide a list variant for data objects via `ValueOutput#list`. This takes in a key and some `Codec`, returning a `ValueOutput.TypedOutputList`. A `TypedOutputList` is the same as `ValueOutputList`, except it operates on the data object instead of using another value access. Elements can be added to the list via `TypedOutputList#add`. Then, similarly, the list can then be read using `ValueInput#list` or `listOrEmpty`, returning a `TypedValueInput`.
 
 :::note
-Tha main difference between a `TypedValueOutput` / `TypedValueInput` and a `Codec#listOf` is how errors are handled. For a `Codec#listOf`, a failed entry will result in the entire object being marked as an error `DataResult`. Meanwhile, a typed value access handles the error typically through a `ProblemReporter`. In Vanilla,  `Codec#listOf` provides more flexibility since `ProblemReporter`s are specified when creating the value access. However, custom value access usage can implement either depending on the use case.
+The main difference between a `TypedValueOutput` / `TypedValueInput` and a `Codec#listOf` is how errors are handled. For a `Codec#listOf`, a failed entry will result in the entire object being marked as an error `DataResult`. Meanwhile, a typed value access handles the error typically through a `ProblemReporter`. In vanilla, `Codec#listOf` provides more flexibility since `ProblemReporter`s are specified when creating the value access. However, custom value access usage can implement either depending on the use case.
 :::
 
 ```java
@@ -298,7 +298,7 @@ public class ExampleObject implements ValueIOSerializable {
 
 Value access for [NBTs][nbt] is handled via `TagValueOutput` and `TagValueInput`.
 
-A `TagValueOutput` can be created via `createWithContext` or `createWithoutContext`, `*withContext` means that the output has access to the `HolderLookup.Provider`, which provides the datapack entries. `*withoutContext` does not provide any datapack access. Vanilla only uses `createWithContext`. Once the `ValueOutput` has been used, the `CompoundTag` can be retrieved via `TagValueOutput#buildResult`. A `TagValueInput`, on the other hand, can be created via `create`, taking in the `HolderLookup.Provider` and the `CompoundTag` the input is accessing.
+A `TagValueOutput` can be created via `createWithContext` or `createWithoutContext`, `createWithContext` means that the output has access to the `HolderLookup.Provider`, which provides the datapack entries, while `createWithoutContext` does not provide any datapack access. Vanilla only uses `createWithContext`. Once the `ValueOutput` has been used, the `CompoundTag` can be retrieved via `TagValueOutput#buildResult`. A `TagValueInput`, on the other hand, can be created via `create`, taking in the `HolderLookup.Provider` and the `CompoundTag` the input is accessing.
 
 Both value accesses also take in a `ProblemReporter`. The `ProblemReporter` is used to collect all internal errors during the read/write process. Currently, this only tracks `Codec` errors. How the errors are handled are up to the modder. Vanilla implementations throw if the `ProblemReporter` is not empty.
 

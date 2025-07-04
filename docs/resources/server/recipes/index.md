@@ -152,7 +152,7 @@ The `ShapedRecipePattern` class, responsible for holding the in-memory represent
 
 By default, Vanilla does not send any recipes to the [logical client][logicalside]. Instead, the `RecipeDisplay` is synced when a recipe is unlocked in the recipe book, and the `RecipePropertySet` / `SelectableRecipe.SingleInputSet` for proper behavior during interactions. However, these use cases are limited in scope, especially when more data is needed from the recipe itself. In these instances, NeoForge provides a may to send the full recipes for a given `RecipeType` to the client.
 
-There are two events that must be listened to on the [game event bus][events]: `OnDatapackSyncEvent` and `RecipesReceivedEvent`. First, specify the `RecipeType`s to sync to the client by calling `OnDatapackSyncEvent#sendRecipes`. Then, the recipes can be accessed from the provided `RecipeMap` via `RecipesReceivedEvent#getRecipeMap`. Additionally, any recipes stored on the client should be cleared once the player logs out from the world via `ClientPlayerNetworkEvent.LoggingOut`
+There are two events that must be listened to on the [game event bus][events]: `OnDatapackSyncEvent` and `RecipesReceivedEvent`. First, specify the `RecipeType`s to sync to the client by calling `OnDatapackSyncEvent#sendRecipes`. Then, the recipes can be accessed from the provided `RecipeMap` via `RecipesReceivedEvent#getRecipeMap`. Additionally, any recipes stored on the client should be cleared once the player logs out of the world via `ClientPlayerNetworkEvent.LoggingOut`.
 
 ```java
 // Assume we have some custom RecipeType<ExampleRecipe> EXAMPLE_RECIPE_TYPE
@@ -169,10 +169,10 @@ private static final List<RecipeHolder<ExampleRecipe>> EXAMPLE_RECIPES = new Arr
 
 @SubscribeEvent // on the game event bus only on the physical client
 public static void recipesReceived(RecipesReceivedEvent event) {
-    // Store the recipes you want
-    
     // First remove the previous recipes
     EXAMPLE_RECIPES.clear();
+
+    // Then store the recipes you want
     EXAMPLE_RECIPES.addAll(event.getRecipeMap().byType(EXAMPLE_RECIPE_TYPE));
 }
 
