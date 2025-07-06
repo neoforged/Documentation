@@ -97,11 +97,11 @@ One of the main purposes of `BlockEntity`s is to store data. Data storage on blo
 The main purpose of data attachments is, as the name suggests, attaching data to existing block entities, such as those provided by vanilla or other mods. For your own mod's block entities, saving and loading directly to and from the value I/O is preferred.
 :::
 
-Data can be read from and written to [value accesses][valueio] using the `#loadAdditional` and `#saveAdditional` methods, respectively. These methods are called when the block entity is synced to disk or over the network.
+Data can be read from and written to [value I/O][valueio] using the `#loadAdditional` and `#saveAdditional` methods, respectively. These methods are called when the block entity is synced to disk or over the network.
 
 ```java
 public class MyBlockEntity extends BlockEntity {
-    // This can be any value of any type you want, so long as you can somehow serialize it to the value accesses.
+    // This can be any value of any type you want, so long as you can somehow serialize it to the value I/O.
     // We will use an int for the sake of example.
     private int value;
 

@@ -14,7 +14,7 @@ The render phase, as the name implies, renders the elements to the screen. First
 
 ### Relative Coordinates
 
-Whenever anything is submitted to the render state, there needs to be some coordinates which specifies where the element will be rendered. With numerous abstractions, most of Minecraft's rendering calls take X and Y coordinate plane. X values increase from left to right, while Y values increase from top to bottom. However, the coordinates are not fixed to a specified range. Their range can change depending on the size of the screen and the “GUI scale” specified within the game’s options. As such, extra care must be taken to ensure the coordinates values passed to rendering calls scale properly—are relativized correctly—to the changeable screen size.
+Whenever anything is submitted to the render state, there needs to be some coordinates which specifies where the element will be rendered. With numerous abstractions, most of Minecraft's rendering calls accept X and Y coordinates. X values increase from left to right, while Y values increase from top to bottom. However, the coordinates are not fixed to a specified range. Their range can change depending on the size of the screen and the GUI scale specified within the game’s options. As such, extra care must be taken to ensure the coordinates values passed to rendering calls scale properly - are relativized correctly - to the changeable screen size.
 
 Information on how to relativize your coordinates is in the [screen] section.
 
@@ -84,7 +84,7 @@ The `GuiRenderState` is made up of `GuiRenderState.Node`s as a doubly-linked lis
 Although `ScreenArea#bounds` is marked as nullable, a element being submitted to the render state will not be added if the bounds is not defined. The method is only nullable as elements submitted during the render phase are added to the current node rather than computing its node based on the bounds.
 :::
 
-Each node list is known as a stratum within the render state. A render state can have multiple strata by calling `GuiGraphics#nextStratum`, creating a new node list. The new stratum will render on above all the previous stratum's elements (e.g., item tooltips). You cannot navigate back to the previous stratum once you call `nextStratum`.
+Each node list is known as a stratum within the render state. A render state can have multiple strata by calling `GuiGraphics#nextStratum`, creating a new node list. The new stratum will render above all the previous stratum's elements (e.g., item tooltips). You cannot navigate back to the previous stratum once you call `nextStratum`.
 
 ### `GuiElementRenderState`
 
@@ -92,7 +92,7 @@ A `GuiElementRenderState` holds the metadata on how a GUI element is rendered to
 
 `scissorArea` crops the area where the element can render. If `scissorArea` is `null`, then the entire element is rendered to the screen. Similarly, if the `scissorArea` rectangle does not intersect with the `bounds`, then nothing will be rendered.
 
-The remaining three methods handles the actual rendering of the element. `pipeline` defines the shaders and metadata used by the element. `textureSetup` can specify either `Sampler0`, `Sampler1`, `Sampler2`, or some combination in the fragment shader. Finally, `buildVertices` passes the vertices to upload to the buffer. It takes in the `VertexConsumer` to pass the vertices to and the `Z` coordinate to use.
+The remaining three methods handle the actual rendering of the element. `pipeline` defines the shaders and metadata used by the element. `textureSetup` can specify either `Sampler0`, `Sampler1`, `Sampler2`, or some combination in the fragment shader. Finally, `buildVertices` passes the vertices to upload to the buffer. It takes in the `VertexConsumer` to pass the vertices to, as well as the Z coordinate to use.
 
 NeoForge adds the method `GuiGraphics#submitGuiElementRenderState` to submit a custom element render state if the available methods provided by `GuiGraphics` is not enough.
 
@@ -160,7 +160,7 @@ graphics.submitGuiElementRenderState(new GuiElementRenderState() {
 
 ### Element Ordering
 
-So far, the elements shown above have only been operating on XY coordinates. The Z coordinate, on the other hand, is automatically computed based upon the elements render order. Starting at a Z of `0`, each element is render `0.01` ahead of the previous. 3D elements are drawn to a 2D texture before being rendered to the screen, so Z-fighting rarely, if ever, occurs.
+So far, the elements shown above have only been operating on XY coordinates. The Z coordinate, on the other hand, is automatically computed based upon the elements render order. Starting at a Z of `0`, each element is rendered `0.01` in front of the previous element. 3D elements are drawn to a 2D texture before being rendered to the screen, so Z-fighting rarely, if ever, occurs.
 
 During the render phase, each stratum is rendered in order, with the nodes in the node list rendered from 'down' to 'up'. But what about within a given node? This is handled via the `GuiRenderer#ELEMENT_SORT_COMPARATOR`, which sorts elements based on their `GuiElementRenderState#scissorArea`, `pipeline`, then `textureSetup`.
 
@@ -168,7 +168,7 @@ During the render phase, each stratum is rendered in order, with the nodes in th
 Glyphs rendered for text are not sorted and will always render after all elements in the current node.
 :::
 
-Elements with no specified `scissorArea` will always be rendered first, followed by the top Y, the bottom Y, the left X, and finally the right X. If the `scissorArea` for two elements match, the the sort key of the `pipeline` (via `RenderPipeline#getSortKey`) will be used. The sort key is based on the order that the `RenderPipeline`s are built, which, in vanilla is the classloading of static constants within `RenderPipelines`. If the sort keys match, then the `textureSetup` is used. Elements with no specified `textureSetup` are ordered first, followed by the sort key (via `TextureSetup#getSortKey`) of texture elements.
+Elements with no specified `scissorArea` will always be rendered first, followed by the top Y, the bottom Y, the left X, and finally the right X. If the `scissorArea` for two elements match, the sort key of the `pipeline` (via `RenderPipeline#getSortKey`) will be used. The sort key is based on the order that the `RenderPipeline`s are built in, which in vanilla is the classloading of static constants within `RenderPipelines`. If the sort keys match, then the `textureSetup` is used. Elements with no specified `textureSetup` are ordered first, followed by the sort key (via `TextureSetup#getSortKey`) of texture elements.
 
 :::warning
 On a technical level, element ordering is not deterministic.
@@ -196,9 +196,9 @@ Finally, there is the `fillGradient` method, which draws a rectangle with a vert
 
 ### Strings
 
-Strings, `Component`s, and `FormattedCharSequence`s are submitted using a `GuiTextRenderState`. Each string is drawn though its `Font`, which is used to create a `BakedGlyph.GlyphInstance` and optionally a `BakedGlyph.Effect`, using the specified `GlyphRenderTypes#guiPipeline`. The text render state is then transformed into `GlyphRenderState`s and potentially a `GlyphEffectRenderState` per character in the string during the render phase.
+Strings, `Component`s, and `FormattedCharSequence`s are submitted using a `GuiTextRenderState`. Each string is drawn through the provided `Font`, which is used to create a `BakedGlyph.GlyphInstance` and optionally a `BakedGlyph.Effect`, using the specified `GlyphRenderTypes#guiPipeline`. The text render state is then transformed into `GlyphRenderState`s and potentially a `GlyphEffectRenderState` per character in the string during the render phase.
 
-There are two alignment of strings that can be rendered: a left-aligned string (`drawString`) and a center-aligned string (`drawCenteredString`). These both take in the font the string will be rendered in, the string to draw, the X coordinate representing the left or center of the string respectively, the top Y coordinate, and the color. The left-aligned strings may also take in whether to draw a drop shadow for the text.
+There are two alignments strings can be rendered with: a left-aligned string (`drawString`) and a center-aligned string (`drawCenteredString`). These both take in the font the string will be rendered in, the string to draw, the X coordinate representing the left or center of the string respectively, the top Y coordinate, and the color. The left-aligned strings may also take in whether to draw a drop shadow for the text.
 
 If the text should be wrapped within a given bounds, then `drawWordWrap` can be used instead. If the text should have some sort of rectangle backdrop, then `drawStringWithBackdrop` can be used. They both submit a left-aligned string by default.
 
@@ -210,7 +210,7 @@ Strings should typically be passed in as [`Component`s][component] as they handl
 
 Textures are submitted through a `BlitRenderState`, which draws the textures through blitting, hence the method name `blit`. The `BlitRenderState` copies the bits of an image and draws them directly to the screen.
 
-Each `blit` method takes in a `RenderPipeline`, which determines how to render the texture, and a `ResourceLocation`, which represents teh absolute location of the texture:
+Each `blit` method takes in a `RenderPipeline`, which determines how to render the texture, and a `ResourceLocation`, which represents the absolute location of the texture:
 
 ```java
 // Points to 'assets/examplemod/textures/gui/container/example_container.png'
@@ -219,7 +219,7 @@ private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAn
 
 While there are many different `blit` overloads, we will only discuss two of them.
 
-The first `blit` takes in two integers, than two floats, and finally four more integers, assuming the image is on a PNG file. It takes in the left X and top Y screen coordinate, the left X and top Y coordinate within the PNG, the width and height of the image to render, and the width and height of the PNG file.
+The first `blit` takes in two integers, then two floats, and finally four more integers, assuming the image is on a PNG file. It takes in the left X and top Y screen coordinate, the left X and top Y coordinate within the PNG, the width and height of the image to render, and the width and height of the PNG file.
 
 :::tip
 The size of the PNG file must be specified so that the coordinates can be normalized to obtain the associated UV values.
@@ -300,13 +300,13 @@ Items are submitted using a `GuiItemRenderState`. The item render state is then 
 
 `renderItem` takes in an `ItemStack`, in addition to the left X and top Y coordinate on screen. It can optionally take in the holding `LivingEntity`, the current `Level` the stack is in, and a seeded value. There is also an alternative `renderFakeItem` which sets the `LivingEntity` to `null`.
 
-The item decorations-such as the durability bar, cooldown, and count-is handled through `renderItemDecorations`. It takes in the same parameters as the base `renderItem`, in addition to the `Font` and a count text override.
+The item decorations - such as the durability bar, cooldown, and count - is handled through `renderItemDecorations`. It takes in the same parameters as the base `renderItem`, in addition to the `Font` and a count text override.
 
 ### Tooltips
 
 Tooltips are submitted through a variety of the above render states. The tooltip methods are broken into two categories: 'next frame' and 'immediate'. Both methods takes in the `Font` to render the text, some list of `Component`s, an optional `TooltipComponent` for special rendering, the left X and top Y, a `ClientTooltipPositioner` for adjusting the location, and the background and frame texture.
 
-Next frame tooltips don't actually submit the tooltip on the next frame, but instead defer the tooltip submission until after `Screen#render` is called. The tooltip is added to a new stratum, meaning it will render on top of all elements in the screen. Next frame methods are in the form of `set*Tooltip*ForNextFrame`. They also can take in an addition boolean indicating whether to override the currently deferred tooltip if present, and an `ItemStack` that the rendered tooltip should use.
+Next frame tooltips don't actually submit the tooltip on the next frame, but instead defer the tooltip submission until after `Screen#render` is called. The tooltip is added to a new stratum, meaning it will render on top of all elements in the screen. Next frame methods are in the form of `set*Tooltip*ForNextFrame`. They also can take in an additional boolean indicating whether to override the currently deferred tooltip if present, and an `ItemStack` that the rendered tooltip should use.
 
 Immediate tooltips, on the other hand, are submitted immediately when the method is called. Immediate methods are in the form of `renderTooltip`. They also take in the `ItemStack` that the tooltip is hovering over.
 
@@ -318,7 +318,7 @@ Picture-in-Picture (PiP) allows for arbitrary objects to be drawn to the screen.
 Items that exceed the default 16x16 bounds, when `ClientItem.Properties#oversizedInGui` is true, use the `OversizedItemRenderer` PiP as its rendering mechanism.
 :::
 
-Each PiP submits a `PictureInPictureRenderState` to render an object to the screen. Similarly to `GuiElementRenderState`, `PictureInPictureRenderState` also extends `ScreenArea` to define its `bounds` and the scissor via `scissorArea`. `PictureInPicture` then defines the render location and size of the picture, specifying the left X (`x0`), the right X (`x1`), the top Y (`y0`), and the bottom Y (`y1`). The element within the picture can also be `scale`d by some float value. Finally, an additional `pose` can be used to transform the XY coordinates of the picture. By default, this is the identity pose as generally, the rendered object is already transformed within the picture itself. For ease of implementation, the `bounds` can be computed using `PictureInPictureRenderState#getBounds`, though if the `pose` is modified, you will need to implement your own logic.
+Each PiP submits a `PictureInPictureRenderState` to render an object to the screen. Similarly to `GuiElementRenderState`, `PictureInPictureRenderState` also extends `ScreenArea` to define its `bounds` and the scissor via `scissorArea`. `PictureInPictureRenderState` then defines the render location and size of the picture, specifying the left X (`x0`), the right X (`x1`), the top Y (`y0`), and the bottom Y (`y1`). The element within the picture can also be `scale`d by some float value. Finally, an additional `pose` can be used to transform the XY coordinates of the picture. By default, this is the identity pose as generally, the rendered object is already transformed within the picture itself. For ease of implementation, the `bounds` can be computed using `PictureInPictureRenderState#getBounds`, though if the `pose` is modified, you will need to implement your own logic.
 
 ```java
 // Other parameters can be added, but this is the minimum required to implement all methods
@@ -347,7 +347,7 @@ public record ExampleRenderState(
 }
 ```
 
-To draw and submit the PiP render state to a picture, each PiP has its own `PictureInPictureRenderer<T>`, where `T` is the implemented `PictureInPictureRenderState`. There are numerous methods that can be overridden, allowing the user almost full control of the entire pipeline, but there are three that must be implemented. First is `getRenderStateClass`, which simply returns the class of the `PictureInPictureRenderState`. This was originally used in Vanilla to register what render state the renderer was used for, but NeoForge patches this out in favor of a different registration mechanism. Then, there is `getTextureLabel`, which provides a unique debug label for the picture being written to. Finally, there is `renderToTexture`, which is actually draws the object to the picture, similar to other render methods.
+To draw and submit the PiP render state to a picture, each PiP has its own `PictureInPictureRenderer<T>`, where `T` is the implemented `PictureInPictureRenderState`. There are numerous methods that can be overridden, allowing the user almost full control of the entire pipeline, but there are three that must be implemented. First is `getRenderStateClass`, which simply returns the class of the `PictureInPictureRenderState`. This was originally used in vanilla to register what render state the renderer was used for, but NeoForge patches this out in favor of a different registration mechanism. Then, there is `getTextureLabel`, which provides a unique debug label for the picture being written to. Finally, there is `renderToTexture`, which actually draws the object to the picture, similar to other render methods.
 
 ```java
 public class ExampleRenderer extends PictureInPictureRenderer<ExampleRenderState> {
@@ -395,8 +395,8 @@ public class ExampleRenderer extends PictureInPictureRenderer<ExampleRenderState
 
     @Override
     protected boolean textureIsReadyToBlit(ExampleRenderState renderState) {
-        // When true, this reuse the already written-to picture instead of
-        // constructing a new picture and writing to it using `blitTexture`.
+        // When true, this reuses the already written-to picture instead of
+        // constructing a new picture and writing to it using `renderToTexture`.
         // This should only be true if it is guaranteed that two elements will
         // be rendered *exactly* the same.
         return super.textureIsReadyToBlit(renderState);
@@ -529,7 +529,7 @@ Since screens are subtypes of `GuiEventListener`s, the input handlers can also b
 
 ### Rendering the Screen
 
-Screen submit their elements through `#renderWithTooltip` in three different strata: the background stratum, the render stratum, and the optional tooltip stratum.
+Screens submit their elements through `#renderWithTooltip` in three different strata: the background stratum, the render stratum, and the optional tooltip stratum.
 
 The background stratum elements are submitted first via `#renderBackground`, generally containing any blurring or background textures.
 
@@ -706,7 +706,7 @@ protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
 ```
 
 :::note
-When submitting the label, you do **not** need to specify the `leftPos` and `topPos` offset. Those have already been translated within the `PoseStack` so everything within this method is submitted relative to those coordinates.
+When submitting the label, you do **not** need to specify the `leftPos` and `topPos` offset. Those have already been translated within the `Matrix3x2fStack` so everything within this method is submitted relative to those coordinates.
 :::
 
 ## Registering an AbstractContainerScreen

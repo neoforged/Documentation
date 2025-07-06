@@ -7,7 +7,7 @@ The Value I/O system is a standardized serialization method to manipulate data o
 
 ## Inputs and Outputs
 
-The Value I/O system is made up of two parts: a `ValueOutput` that writes to the object during serialization, and a `ValueInput` that reads from the object during deserialization. Implementing methods typically take in the `ValueOutput` or `ValueInput` as its only parameter, returning nothing. The value I/O expects the backing object to be a dictionary of string keys to object values. Using the provided methods, the value I/O then read or writes information to the backing object.
+The Value I/O system is made up of two parts: a `ValueOutput` that writes to the object during serialization, and a `ValueInput` that reads from the object during deserialization. Implementing methods typically take in the `ValueOutput` or `ValueInput` as its only parameter, returning nothing. The value I/O expects the backing object to be a dictionary of string keys to object values. Using the provided methods, the value I/O then reads or writes information to the backing object.
 
 ```java
 // For some BlockEntity subclass
@@ -94,7 +94,7 @@ protected void loadAdditional(ValueInput input) {
 
 ### Codecs
 
-[`Codec`s][codec] can also be used to store and read values from the value access. In Vanilla, all `Codec`s are handled using a `RegistryOps`, allowing the storage of datapack entries. `ValueOutput#store` and `storeNullable` take in the key, the codec to write the object, and the object itself. `storeNullable` will not write anything if the object is `null`. `ValueInput#read` can read the object by taking in the key and the codec, returning an `Optional`-wrapped object.
+[`Codec`s][codec] can also be used to store and read values from the value I/O. In Vanilla, all `Codec`s are handled using a `RegistryOps`, allowing the storage of datapack entries. `ValueOutput#store` and `storeNullable` take in the key, the codec to write the object, and the object itself. `storeNullable` will not write anything if the object is `null`. `ValueInput#read` can read the object by taking in the key and the codec, returning an `Optional`-wrapped object.
 
 ```java
 // For some BlockEntity subclass
@@ -144,12 +144,12 @@ protected void loadAdditional(ValueInput input) {
 ```
 
 :::warning
-The `MapCodec` will write any keys to the value access, potentially overwriting existing data. Make sure than any keys within the `MapCodec` are distinct from other keys.
+The `MapCodec` will write any keys to the value access, potentially overwriting existing data. Make sure that any keys within the `MapCodec` are distinct from other keys.
 :::
 
 ### Lists
 
-Lists can be created and read from through one of two methods: child value accesses or [`Codec`s].
+Lists can be created and read from through one of two methods: child value I/Os or [`Codec`s].
 
 A list is created via `ValueOutput#childrenList`, taking in some key. This returns a `ValueOutput.ValueOutputList`, which acts as a write-only list of value objects. A new value object can be added to the list via `ValueOutputList#addChild`. This returns a `ValueOutput` to write the value object data to. The list can then be read using `ValueInput#childrenList`, or `childrenListOrEmpty` to default to an empty list when not present. These methods return a `ValueInput.ValueInputList`, which acts as a read-only iterable or stream (via `stream`).
 
@@ -183,10 +183,10 @@ protected void loadAdditional(ValueInput input) {
 }
 ```
 
-`Codec`s provide a list variant for data objects via `ValueOutput#list`. This takes in a key and some `Codec`, returning a `ValueOutput.TypedOutputList`. A `TypedOutputList` is the same as `ValueOutputList`, except it operates on the data object instead of using another value access. Elements can be added to the list via `TypedOutputList#add`. Then, similarly, the list can then be read using `ValueInput#list` or `listOrEmpty`, returning a `TypedValueInput`.
+`Codec`s provide a list variant for data objects via `ValueOutput#list`. This takes in a key and some `Codec`, returning a `ValueOutput.TypedOutputList`. A `TypedOutputList` is the same as `ValueOutputList`, except it operates on the data object instead of using another value I/O. Elements can be added to the list via `TypedOutputList#add`. Then, similarly, the list can then be read using `ValueInput#list` or `listOrEmpty`, returning a `TypedValueInput`.
 
 :::note
-The main difference between a `TypedValueOutput` / `TypedValueInput` and a `Codec#listOf` is how errors are handled. For a `Codec#listOf`, a failed entry will result in the entire object being marked as an error `DataResult`. Meanwhile, a typed value access handles the error typically through a `ProblemReporter`. In vanilla, `Codec#listOf` provides more flexibility since `ProblemReporter`s are specified when creating the value access. However, custom value access usage can implement either depending on the use case.
+The main difference between a `TypedValueOutput` / `TypedValueInput` and a `Codec#listOf` is how errors are handled. For a `Codec#listOf`, a failed entry will result in the entire object being marked as an error `DataResult`. Meanwhile, a typed value I/O handles the error typically through a `ProblemReporter`. In vanilla, `Codec#listOf` provides more flexibility since `ProblemReporter`s are specified when creating the value I/O. However, custom value I/O usage can implement either depending on the use case.
 :::
 
 ```java
@@ -275,7 +275,7 @@ protected void loadAdditional(ValueInput input) {
 
 ## ValueIOSerializable
 
-`ValueIOSerializable` is an NeoForge-added interface for objects that can be serialized and deserialized using value accesses. NeoForge uses this API to handle [data attachments][attachments]. The interface provides two methods: `serialize` to write the object to a `ValueOutput`, and `deserialize` to read the object from a `ValueInput`.
+`ValueIOSerializable` is a NeoForge-added interface for objects that can be serialized and deserialized using value I/Os. NeoForge uses this API to handle [data attachments][attachments]. The interface provides two methods: `serialize` to write the object to a `ValueOutput`, and `deserialize` to read the object from a `ValueInput`.
 
 ```java
 public class ExampleObject implements ValueIOSerializable {
@@ -296,11 +296,11 @@ public class ExampleObject implements ValueIOSerializable {
 
 ### NBT
 
-Value access for [NBTs][nbt] is handled via `TagValueOutput` and `TagValueInput`.
+Value I/O for [NBTs][nbt] is handled via `TagValueOutput` and `TagValueInput`.
 
 A `TagValueOutput` can be created via `createWithContext` or `createWithoutContext`, `createWithContext` means that the output has access to the `HolderLookup.Provider`, which provides the datapack entries, while `createWithoutContext` does not provide any datapack access. Vanilla only uses `createWithContext`. Once the `ValueOutput` has been used, the `CompoundTag` can be retrieved via `TagValueOutput#buildResult`. A `TagValueInput`, on the other hand, can be created via `create`, taking in the `HolderLookup.Provider` and the `CompoundTag` the input is accessing.
 
-Both value accesses also take in a `ProblemReporter`. The `ProblemReporter` is used to collect all internal errors during the read/write process. Currently, this only tracks `Codec` errors. How the errors are handled are up to the modder. Vanilla implementations throw if the `ProblemReporter` is not empty.
+Both value I/Os also take in a `ProblemReporter`. The `ProblemReporter` is used to collect all internal errors during the read/write process. Currently, this only tracks `Codec` errors. How the errors are handled is up to the modder. Vanilla implementations throw if the `ProblemReporter` is not empty.
 
 ```java
 // Assume we have access to a HolderLookup.Provider lookupProvider

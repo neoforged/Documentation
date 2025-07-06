@@ -150,7 +150,7 @@ The `ShapedRecipePattern` class, responsible for holding the in-memory represent
 
 ### Client-Side Recipes
 
-By default, vanilla does not send any recipes to the [logical client][logicalside]. Instead, the `RecipePropertySet` / `SelectableRecipe.SingleInputSet` is synced to handle proper client-side behavior during user interactions. Additionally, when a recipe is unlocked in the recipe book, its `RecipeDisplay` is synced. However, these two cases are limited in scope, especially when more data is needed from the recipe itself. In these instances, NeoForge provides a may to send the full recipes for a given `RecipeType` to the client.
+By default, vanilla does not send any recipes to the [logical client][logicalside]. Instead, the `RecipePropertySet` / `SelectableRecipe.SingleInputSet` is synced to handle proper client-side behavior during user interactions. Additionally, when a recipe is unlocked in the recipe book, its `RecipeDisplay` is synced. However, these two cases are limited in scope, especially when more data is needed from the recipe itself. In these instances, NeoForge provides a way to send the full recipes for a given `RecipeType` to the client.
 
 There are two events that must be listened to on the [game event bus][events]: `OnDatapackSyncEvent` and `RecipesReceivedEvent`. First, specify the `RecipeType`s to sync to the client by calling `OnDatapackSyncEvent#sendRecipes`. Then, the recipes can be accessed from the provided `RecipeMap` via `RecipesReceivedEvent#getRecipeMap`. Additionally, any recipes stored on the client should be cleared once the player logs out of the world via `ClientPlayerNetworkEvent.LoggingOut`.
 

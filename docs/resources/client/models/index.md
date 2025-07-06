@@ -56,7 +56,7 @@ Selecting the correct render type group is a question of performance to some deg
 If you want, you can also add your own render type group. To do so, subscribe to the [mod bus][modbus] [event] `RegisterNamedRenderTypesEvent` and `#register` your render type groups. `#register` has three parameters:
 
 - The name of the render type group. Should be a `ResourceLocation` prefixed with your mod id.
-- The chunk render type group. Any `ChunkSectionLayer` can be used.
+- The chunk section layer. Any `ChunkSectionLayer` can be used.
 - The entity render type. Must be a render type with the `DefaultVertexFormat.NEW_ENTITY` vertex format.
 
 ### Elements

@@ -289,7 +289,7 @@ public class MyRecipeTypeTagsProvider extends TagsProvider<RecipeType<?>> {
     
     // ...
 
-    // Lets assume the following TagKey<RecipeType<?>> SMELTERS, CRAFTERS, SMITHERS
+    // Let's assume we have the TagKey<RecipeType<?>>s SMELTERS, CRAFTERS, SMITHERS
     @Override
     protected void addTags(HolderLookup.Provider lookupProvider) {
         // Create the TagAppender for `ResourceLocation`s.
@@ -375,7 +375,7 @@ public class MyRecipeTypeTagsProvider extends TagsProvider<RecipeType<?>> {
 
 #### Copying Tag Contents
 
-NeoForge providers a special type of `IntrinsicHolderTagsProvider` called `BlockTagCopyingItemTagProvider`, intended for item tags that mirror the contents of its associated block tags. Instead of using the `TagAppender`, instead call `copy`, passing the block tag to copy to the item tag.
+NeoForge provides a special type of `IntrinsicHolderTagsProvider` called `BlockTagCopyingItemTagProvider`, intended for item tags that mirror the contents of its associated block tags. Instead of using the `TagAppender`, instead call `copy`, passing the block tag to copy to the item tag.
 
 ```java
 public class ExampleBlockTagCopyingItemTagProvider extends BlockTagCopyingItemTagProvider {
