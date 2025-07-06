@@ -1359,7 +1359,7 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
 
 If you need to render an item yourself, such as in some `BlockEntityRenderer` or `EntityRenderer`, it can be achieved through three steps. First, the renderer in question creates an `ItemStackRenderState` to hold the rendering information of the stack. Then, the `ItemModelResolver` updates the `ItemStackRenderState` using one of its methods to update the state to the current item to render. Finally, the item is rendered using the render state's `render` method.
 
-The `ItemStackRenderState` keeps track of the data used to render. Each 'model' is given its own `ItemStackRenderState.LayerRenderState`, which contains the `BakedQuad`s to render, along with its render type, foil status, tint information, extents, and any special renderers used. Layers are created using the `newLayer` method, and cleared for rendering using the `clear` method. If a predefined number of layers is used, then `ensureCapacity` is used to make sure there are the necessary number of `LayerRenderStates` to render properly.
+The `ItemStackRenderState` keeps track of the data used to render. Each 'model' is given its own `ItemStackRenderState.LayerRenderState`, which contains the `BakedQuad`s to render, along with its render type, foil status, tint information, animated flag, extents, model identity elements, and any special renderers used. Layers are created using the `newLayer` method, and cleared for rendering using the `clear` method. If a predefined number of layers is used, then `ensureCapacity` is used to make sure there are the necessary number of `LayerRenderStates` to render properly.
 
 `ItemModelResolver` is responsible for updating the `ItemStackRenderState`. This is done through either `updateForLiving` for items held by living entities, `updateForNonLiving` for items held by other kinds of entities, and `updateForTopItem` for all other cases. These methods take in the render state, stack to render, and current display context. The other parameters update information about the held hand, level, entity, and seeded value. Each method calls `ItemStackRenderState#clear` before calling `update` on the `ItemModel` obtained from  `DataComponents#ITEM_MODEL`. The `ItemModelResolver` can always be obtained via `Minecraft#getItemModelResolver` if you are not within some renderer context (e.g., `BlockEntityRenderer`, `EntityRenderer`).
 
@@ -1374,17 +1374,33 @@ Please make sure to check that your required item model can not be created with 
 First, there is the `ItemModel`. This is responsible for updating the `ItemStackRenderState` such that the item is rendered correctly. It should take in the static data used during the rendering process (e.g., the list of `BakedQuad`s, property information, etc.). The only method is `update`, which takes in the render state, stack, model resolver, display context, level, holding entity, and some seeded value to update the `ItemStackRenderState`. `ItemStackRenderState` should be the only parameter modified, with the rest treated as read-only data.
 
 ```java
-public record RenderTypeModelWrapper(List<BakedQuad> quads, ModelRenderProperties properties, RenderType type) implements ItemModel {
+public record RenderTypeModelWrapper(List<BakedQuad> quads, List<ItemTintSource> tints, ModelRenderProperties properties, RenderType type) implements ItemModel {
 
     // Update the render state
     @Override
     public void update(ItemStackRenderState state, ItemStack stack, ItemModelResolver resolver, ItemDisplayContext displayContext, @Nullable ClientLevel level, @Nullable LivingEntity entity, int seed) {
+        // Set the identity used by the model
+        state.appendModelIdentityElement(this);
+
         // Create a new layer to render the model in
         ItemStackRenderState.LayerRenderState layerState = state.newLayer();
 
         // Sets the foil to use
         if (stack.hasFoil()) {
             layerState.setFoilType(ItemStackRenderState.FoilType.STANDARD);
+            state.appendModelIdentityElement(ItemStackRenderState.FoilType.STANDARD);
+            layerState.setAnimated();
+        }
+
+
+        // Apply the tint sources
+        int tintSize = this.tints.size();
+        int[] tintLayers = layerState.prepareTintLayers(tintSize);
+
+        for (int idx = 0; idx < tintSize; idx++) {
+            int tintColor = this.tints.get(idx).calculate(stack, level, entity);
+            tintLayers[idx] = tintColor;
+            state.appendModelIdentityElement(tintColor);
         }
 
         // Computes the bounds of the model to render on screen
@@ -1406,11 +1422,11 @@ public record RenderTypeModelWrapper(List<BakedQuad> quads, ModelRenderPropertie
 Next is the `ItemModel.Unbaked` instance. This should contain data that can be read from a file to determine what to pass into the item model. This also contains two methods: `bake`, which is used to construct the `ItemModel` instance; and `type`, which defines the `MapCodec` to use for encoding/decoding to file.
 
 ```java
-public record RenderTypeModelWrapper(List<BakedQuad> quads, ModelRenderProperties properties, RenderType type) implements ItemModel {
+public record RenderTypeModelWrapper(List<BakedQuad> quads, List<ItemTintSource> tints, ModelRenderProperties properties, RenderType type) implements ItemModel {
 
     // ...
 
-     public record Unbaked(ResourceLocation model, RenderType type) implements ItemModel.Unbaked {
+     public record Unbaked(ResourceLocation model, List<ItemTintSource> tints, RenderType type) implements ItemModel.Unbaked {
         // Create a render type map for the codec
         private static final BiMap<String, RenderType> RENDER_TYPES = Util.make(HashBiMap.create(), map -> {
             map.put("translucent_item", Sheets.translucentItemSheet());
@@ -1422,6 +1438,7 @@ public record RenderTypeModelWrapper(List<BakedQuad> quads, ModelRenderPropertie
         public static final MapCodec<RenderTypeModelWrapper.Unbaked> MAP_CODEC = RecordCodecBuilder.mapCodec(instance ->
             instance.group(
                 ResourceLocation.CODEC.fieldOf("model").forGetter(RenderTypeModelWrapper.Unbaked::model),
+                ItemTintSources.CODEC.listOf().optionalFieldOf("tints", List.of()).forGetter(RenderTypeModelWrapper.Unbaked::tints)
                 RENDER_TYPE_CODEC.fieldOf("render_type").forGetter(RenderTypeModelWrapper.Unbaked::type)
             )
             .apply(instance, RenderTypeModelWrapper.Unbaked::new)
@@ -1442,6 +1459,7 @@ public record RenderTypeModelWrapper(List<BakedQuad> quads, ModelRenderPropertie
 
             return new RenderTypeModelWrapper(
                 resolvedModel.bakeTopGeometry(slots, baker, BlockModelRotation.X0_Y0).getAll(),
+                this.tints,
                 ModelRenderProperties.fromResolvedModel(baker, resolvedModel, slots),
                 this.type
             );
@@ -1483,6 +1501,8 @@ Finally, we can use the `ItemModel` in our JSON or as part of the datagen proces
         "type": "examplemod:render_type",
         // Points to 'assets/examplemod/models/item/example_item.json'
         "model": "examplemod:item/example_item",
+        // Any tints to apply to the model texture
+        "tints": []
         // Set the render type to use when rendering
         "render_type": "cutout_block"
     }
@@ -1503,6 +1523,8 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
         new RenderTypeModelWrapper.Unbaked(
             // Points to 'assets/examplemod/models/item/example_item.json'
             ModelLocationUtils.getModelLocation(EXAMPLE_ITEM.get()),
+            // Any tints to apply to the model texture
+            List.of(),
             // Set the render type to use when rendering
             Sheets.cutoutBlockSheet()
         )

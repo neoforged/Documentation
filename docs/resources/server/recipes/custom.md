@@ -505,8 +505,8 @@ public class ServerRightClickBlockRecipeInputs implements ResourceManagerReloadL
                 inputItems.addAll(recipe.getInputItem().items());
             });
         
-        this.inputStates = Set.unmodifiableSet(inputStates);
-        this.inputItems = Set.unmodifiableSet(inputItems);
+        this.inputStates = Set.copyOf(inputStates);
+        this.inputItems = Set.copyOf(inputItems);
     }
 
     public void syncToClient(Stream<ServerPlayer> players) {
@@ -532,8 +532,8 @@ public record ClientRightClickBlockRecipeInputs(
 ) implements RightClickBlockRecipeInputs {
 
     public ClientRightClickBlockRecipeInputs(Set<BlockState> inputStates, Set<Holder<Item>> inputItems) {
-        this.inputStates = Set.unmodifiableSet(inputStates);
-        this.inputItems = Set.unmodifiableSet(inputItems);
+        this.inputStates = Set.copyOf(inputStates);
+        this.inputItems = Set.copyOf(inputItems);
     }
 }
 
@@ -638,8 +638,8 @@ public class ServerRightClickBlockRecipeInputs implements ResourceManagerReloadL
                     inputItems.addAll(recipe.getInputItem().items());
                 });
             
-            this.inputStates = Set.unmodifiableSet(inputStates);
-            this.inputItems = Set.unmodifiableSet(inputItems);
+            this.inputStates = Set.copyOf(inputStates);
+            this.inputItems = Set.copyOf(inputItems);
         }
     }
 
@@ -660,8 +660,8 @@ public record ClientRightClickBlockRecipeInputs(
 ) implements RightClickBlockRecipeInputs {
 
     public ClientRightClickBlockRecipeInputs(Set<BlockState> inputStates, Set<Holder<Item>> inputItems) {
-        this.inputStates = Set.unmodifiableSet(inputStates);
-        this.inputItems = Set.unmodifiableSet(inputItems);
+        this.inputStates = Set.copyOf(inputStates);
+        this.inputItems = Set.copyOf(inputItems);
     }
 }
 

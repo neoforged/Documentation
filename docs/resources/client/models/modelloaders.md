@@ -2,10 +2,6 @@
 
 A model is simply a shape. It can be a cube, a collection of cubes, a collection of triangles, or any other geometrical shape (or collection of geometrical shape). For most contexts, it is not relevant how a model is defined, as everything will end up baked into a `QuadCollection` anyway. As such, NeoForge adds the ability to register custom model loaders that can transform any model you want into the baked format for the game to use.
 
-:::note
-When implementing a custom loader, all models -- whether the JSON, block state definition, or item model -- should heavily cache. For block states, even though chunks are only rebuilt when a block in them changes, they are still called up to seven times per `RenderPipeline` used by a given model * amount of `RenderPipeline`s used by the respective model * 4096 blocks per chunk section, with [BERs][ber] or [entity renderers][entityrenderer] potentially rendering a model several times per frame. For item models, the number of times they are rendered multiple times per frame because of the `RenderPipeline`.
-:::
-
 ## Model Loaders
 
 The entry point for a block model remains the model JSON file. However, you can specify a `loader` field in the root of the JSON that will swap out the default loader for your own loader. A custom model loader may ignore all fields the default loader requires.

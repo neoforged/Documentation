@@ -298,7 +298,7 @@ public class ExampleObject implements ValueIOSerializable {
 
 Value I/O for [NBTs][nbt] is handled via `TagValueOutput` and `TagValueInput`.
 
-A `TagValueOutput` can be created via `createWithContext` or `createWithoutContext`, `createWithContext` means that the output has access to the `HolderLookup.Provider`, which provides the datapack entries, while `createWithoutContext` does not provide any datapack access. Vanilla only uses `createWithContext`. Once the `ValueOutput` has been used, the `CompoundTag` can be retrieved via `TagValueOutput#buildResult`. A `TagValueInput`, on the other hand, can be created via `create`, taking in the `HolderLookup.Provider` and the `CompoundTag` the input is accessing.
+A `TagValueOutput` can be created via `createWithContext` or `createWithoutContext`, `createWithContext` means that the output has access to the `HolderLookup.Provider`, which provides the all registries entries (static and datapack), while `createWithoutContext` does not provide any datapack access. Vanilla only uses `createWithContext`. Once the `ValueOutput` has been used, the `CompoundTag` can be retrieved via `TagValueOutput#buildResult`. A `TagValueInput`, on the other hand, can be created via `create`, taking in the `HolderLookup.Provider` and the `CompoundTag` the input is accessing.
 
 Both value I/Os also take in a `ProblemReporter`. The `ProblemReporter` is used to collect all internal errors during the read/write process. Currently, this only tracks `Codec` errors. How the errors are handled is up to the modder. Vanilla implementations throw if the `ProblemReporter` is not empty.
 

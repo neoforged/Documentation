@@ -183,6 +183,10 @@ public static void clientLogOut(ClientPlayerNetworkEvent.LoggingOut event) {
 }
 ```
 
+:::warning
+If you are planning on syncing recipes for your recipe type, `OnDatapackSyncEvent` should be called on both physical sides. All worlds, including singleplayer, have a delineation between the server and client, meaning that referencing a datapack registry entry from the server on the client will likely crash the game.
+:::
+
 ## Data Generation
 
 Like most other JSON files, recipes can be datagenned. For recipes, we want to extend the `RecipeProvider` class and override `#buildRecipes`, and extend the `RecipeProvider.Runner` class to pass to the data generator:

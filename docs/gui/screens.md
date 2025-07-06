@@ -177,11 +177,7 @@ Glyphs rendered for text are not sorted and will always render after all element
 Elements with no specified `scissorArea` will always be rendered first, followed by the top Y, the bottom Y, the left X, and finally the right X. If the `scissorArea` for two elements match, the sort key of the `pipeline` (via `RenderPipeline#getSortKey`) will be used. The sort key is based on the order that the `RenderPipeline`s are built in, which in vanilla is the classloading of static constants within `RenderPipelines`. If the sort keys match, then the `textureSetup` is used. Elements with no specified `textureSetup` are ordered first, followed by the sort key (via `TextureSetup#getSortKey`) of texture elements.
 
 :::warning
-On a technical level, element ordering is not deterministic.
-
-Between game runs, mods with custom element render states may create their `RenderPipeline`s before the vanilla class is loaded. As such, pipelines should be created during the `RegisterRenderPipelinesEvent` on the mod event bus, even if they are not registered for precompilation.
-
-Between client ticks, the `TextureSetup` provided will have a different hash code if one of the textures are present. This is because the stored `GpuTextureView` does not implement `hashCode`, instead using the system identity code. Depending on what the `hashCode` flag is set to, the generated hash code may be randomly generated. This is the case for the default flag value.
+On a technical level, element ordering is not deterministic due to the `RenderPipeline` and `TextureSetup`. This is because the goal of sorting is not determinism, but rather to render the elements with the least amount of pipeline and texture switches possible.
 :::
 
 ## Methods in `GuiGraphics`
@@ -214,9 +210,7 @@ Strings should typically be passed in as [`Component`s][component] as they handl
 
 ### Textures
 
-Textures are submitted through a `BlitRenderState`, which draws the textures through blitting, hence the method name `blit`. The `BlitRenderState` copies the bits of an image and draws them directly to the screen.
-
-Each `blit` method takes in a `RenderPipeline`, which determines how to render the texture, and a `ResourceLocation`, which represents the absolute location of the texture:
+Textures are submitted through a `BlitRenderState`, hence the method name `blit`. The `BlitRenderState` copies the bits of an image and renders them to the screen through the `RenderPipeline` parameter. Each `blit` also takes in a `ResourceLocation`, which represents the absolute location of the texture:
 
 ```java
 // Points to 'assets/examplemod/textures/gui/container/example_container.png'
@@ -318,7 +312,7 @@ Immediate tooltips, on the other hand, are submitted immediately when the method
 
 ### Picture-in-Picture
 
-Picture-in-Picture (PiP) allows for arbitrary objects to be drawn to the screen. Instead of drawing directly to the output, PiP draws the object to an intermediary texture, or a 'picture', that is then submitted to the `GuiRenderState` as a `BlitRenderState` during the render phase. `GuiGraphics` provides methods for maps, entities, player skins, book models, banner pattern, signs, and the profiler chart via `submit*RenderState`.
+Picture-in-Picture (PiP) allows for arbitrary objects to be drawn to the screen. Instead of drawing directly to the output, PiP draws the object to an intermediary texture, or a 'picture', that is then submitted to the `GuiRenderState` as a `BlitRenderState` during the render phase. `GuiGraphics` provides methods for maps, entities, player skins, book models, banner pattern, signs, and the profiler chart via `submit*RenderState`. NeoForge fixes a bug that allows rendering multiple instances of a PiP render state for any given frame.
 
 :::note
 Items that exceed the default 16x16 bounds, when `ClientItem.Properties#oversizedInGui` is true, use the `OversizedItemRenderer` PiP as its rendering mechanism.
@@ -353,7 +347,11 @@ public record ExampleRenderState(
 }
 ```
 
-To draw and submit the PiP render state to a picture, each PiP has its own `PictureInPictureRenderer<T>`, where `T` is the implemented `PictureInPictureRenderState`. There are numerous methods that can be overridden, allowing the user almost full control of the entire pipeline, but there are three that must be implemented. First is `getRenderStateClass`, which simply returns the class of the `PictureInPictureRenderState`. This was originally used in vanilla to register what render state the renderer was used for, but NeoForge patches this out in favor of a different registration mechanism. Then, there is `getTextureLabel`, which provides a unique debug label for the picture being written to. Finally, there is `renderToTexture`, which actually draws the object to the picture, similar to other render methods.
+To draw and submit the PiP render state to a picture, each PiP has its own `PictureInPictureRenderer<T>`, where `T` is the implemented `PictureInPictureRenderState`. There are numerous methods that can be overridden, allowing the user almost full control of the entire pipeline, but there are three that must be implemented.
+
+First is `getRenderStateClass`, which simply returns the class of the `PictureInPictureRenderState`. In vanilla, this method was used to register what render state the renderer was used for. NeoForge still uses the render state class, but provides registration through an event to map to a dynamic pool of renderers instead of calling `getRenderStateClass`.
+
+Then, there is `getTextureLabel`, which provides a unique debug label for the picture being written to. Finally, there is `renderToTexture`, which actually draws the object to the picture, similar to other render methods.
 
 ```java
 public class ExampleRenderer extends PictureInPictureRenderer<ExampleRenderState> {
@@ -413,6 +411,14 @@ public class ExampleRenderer extends PictureInPictureRenderer<ExampleRenderState
         // Sets the initial offset the `PoseStack` is translated by in the Y direction.
         // Common implementations use `scaledHeight / 2f` to center the Y coordinate similar to X.
         return scaledHeight;
+    }
+
+    @Override
+    public boolean canBeReusedFor(ExampleRenderState state, int textureWidth, int textureHeight) {
+        // A NeoForge-added method used to check if this renderer can be reused on a subsequent frame.
+        // When true, this will reuse the constructed state and renderer from the previous frame.
+        // When false, a new renderer will be created.
+        return super.canBeReusedFor(state, textureWidth, textureHeight);
     }
 }
 ```
@@ -538,6 +544,10 @@ Since screens are subtypes of `GuiEventListener`s, the input handlers can also b
 Screens submit their elements through `#renderWithTooltip` in three different strata: the background stratum, the render stratum, and the optional tooltip stratum.
 
 The background stratum elements are submitted first via `#renderBackground`, generally containing any blurring or background textures.
+
+:::warning
+Blurring, as handled through `GuiGraphics#blurBeforeThisStratum`, can only be called once on any given frame. Attempting to render a second blur will cause an exception to be thrown.
+:::
 
 The render stratum elements are submitted next via the `#render` method, provided by being a `Renderable` subtype. This mainly submits widgets and labels, along with setting the tooltips to render in the next stratum.
 
