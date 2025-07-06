@@ -492,21 +492,21 @@ public class ServerRightClickBlockRecipeInputs implements ResourceManagerReloadL
     @Override
     public void onResourceManagerReload(ResourceManager manager) {
         MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
-        if (server != null) { // Should never be null
-            // Populate inputs
-            Set<BlockState> inputStates = new HashSet<>();
-            Set<Holder<Item>> inputItems = new HashSet<>();
+        if (server == null) return; // Should never be null
 
-            this.recipeManager.recipeMap().byType(RIGHT_CLICK_BLOCK_TYPE.get())
-                .forEach(holder -> {
-                    var recipe = holder.value();
-                    inputStates.add(recipe.getInputState());
-                    inputItems.addAll(recipe.getInputItem().items());
-                });
-            
-            this.inputStates = Set.unmodifiableSet(inputStates);
-            this.inputItems = Set.unmodifiableSet(inputItems);
-        }
+        // Populate inputs
+        Set<BlockState> inputStates = new HashSet<>();
+        Set<Holder<Item>> inputItems = new HashSet<>();
+
+        this.recipeManager.recipeMap().byType(RIGHT_CLICK_BLOCK_TYPE.get())
+            .forEach(holder -> {
+                var recipe = holder.value();
+                inputStates.add(recipe.getInputState());
+                inputItems.addAll(recipe.getInputItem().items());
+            });
+        
+        this.inputStates = Set.unmodifiableSet(inputStates);
+        this.inputItems = Set.unmodifiableSet(inputItems);
     }
 
     public void syncToClient(Stream<ServerPlayer> players) {

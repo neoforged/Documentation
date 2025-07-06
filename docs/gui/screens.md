@@ -88,7 +88,7 @@ Each node list is known as a stratum within the render state. A render state can
 
 ### `GuiElementRenderState`
 
-A `GuiElementRenderState` holds the metadata on how a GUI element is rendered to the screen. The element render state extends `ScreenArea` to  define the `bounds` on the screen. The bounds should always encompass the entire element that is rendered so that it's sorted correctly in the node list. Bounds computation typically takes in some of the parameters below, including the position and pose:
+A `GuiElementRenderState` holds the metadata on how a GUI element is rendered to the screen. The element render state extends `ScreenArea` to  define the `bounds` on the screen. The bounds should always encompass the entire element that is rendered so that it's sorted correctly in the node list. Bounds computation typically takes in some of the parameters below, including the position and pose.
 
 `scissorArea` crops the area where the element can render. If `scissorArea` is `null`, then the entire element is rendered to the screen. Similarly, if the `scissorArea` rectangle does not intersect with the `bounds`, then nothing will be rendered.
 
@@ -141,6 +141,12 @@ graphics.submitGuiElementRenderState(new GuiElementRenderState() {
 
     @Override
     public TextureSetup textureSetup() {
+        // Returns the textures to be used by the samplers in a fragment shader
+        // When used by the fragment shader:
+        // - Sampler0 typically contains the element texture
+        // - Sampler1 typically provides a second element texture, currently only used by the end portal pipeline
+        // - Sampler2 typically contains the game's lightmap texture
+
         // Should generally specify at least one texture in Sampler0
         return TextureSetup.noTexture();
     }
@@ -196,7 +202,7 @@ Finally, there is the `fillGradient` method, which draws a rectangle with a vert
 
 ### Strings
 
-Strings, `Component`s, and `FormattedCharSequence`s are submitted using a `GuiTextRenderState`. Each string is drawn through the provided `Font`, which is used to create a `BakedGlyph.GlyphInstance` and optionally a `BakedGlyph.Effect`, using the specified `GlyphRenderTypes#guiPipeline`. The text render state is then transformed into `GlyphRenderState`s and potentially a `GlyphEffectRenderState` per character in the string during the render phase.
+Strings, [`Component`s][component], and `FormattedCharSequence`s are submitted using a `GuiTextRenderState`. Each string is drawn through the provided `Font`, which is used to create a `BakedGlyph.GlyphInstance` and optionally a `BakedGlyph.Effect`, using the specified `GlyphRenderTypes#guiPipeline`. The text render state is then transformed into `GlyphRenderState`s and potentially a `GlyphEffectRenderState` per character in the string during the render phase.
 
 There are two alignments strings can be rendered with: a left-aligned string (`drawString`) and a center-aligned string (`drawCenteredString`). These both take in the font the string will be rendered in, the string to draw, the X coordinate representing the left or center of the string respectively, the top Y coordinate, and the color. The left-aligned strings may also take in whether to draw a drop shadow for the text.
 

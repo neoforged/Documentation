@@ -94,7 +94,7 @@ protected void loadAdditional(ValueInput input) {
 
 ### Codecs
 
-[`Codec`s][codec] can also be used to store and read values from the value I/O. In Vanilla, all `Codec`s are handled using a `RegistryOps`, allowing the storage of datapack entries. `ValueOutput#store` and `storeNullable` take in the key, the codec to write the object, and the object itself. `storeNullable` will not write anything if the object is `null`. `ValueInput#read` can read the object by taking in the key and the codec, returning an `Optional`-wrapped object.
+[`Codec`s][codec] can also be used to store and read values from the value I/O. In vanilla, all `Codec`s are handled using a `RegistryOps`, allowing the storage of datapack entries. `ValueOutput#store` and `storeNullable` take in the key, the codec to write the object, and the object itself. `storeNullable` will not write anything if the object is `null`. `ValueInput#read` can read the object by taking in the key and the codec, returning an `Optional`-wrapped object.
 
 ```java
 // For some BlockEntity subclass
