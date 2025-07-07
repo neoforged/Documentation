@@ -312,7 +312,7 @@ Immediate tooltips, on the other hand, are submitted immediately when the method
 
 ### Picture-in-Picture
 
-Picture-in-Picture (PiP) allows for arbitrary objects to be drawn to the screen. Instead of drawing directly to the output, PiP draws the object to an intermediary texture, or a 'picture', that is then submitted to the `GuiRenderState` as a `BlitRenderState` during the render phase. `GuiGraphics` provides methods for maps, entities, player skins, book models, banner pattern, signs, and the profiler chart via `submit*RenderState`. NeoForge fixes a bug that allows rendering multiple instances of a PiP render state for any given frame.
+Picture-in-Picture (PiP) allows for arbitrary objects to be drawn to the screen. Instead of drawing directly to the output, PiP draws the object to an intermediary texture, or a 'picture', that is then submitted to the `GuiRenderState` as a `BlitRenderState` during the render phase. `GuiGraphics` provides methods for maps, entities, player skins, book models, banner pattern, signs, and the profiler chart via `submit*RenderState`.
 
 :::note
 Items that exceed the default 16x16 bounds, when `ClientItem.Properties#oversizedInGui` is true, use the `OversizedItemRenderer` PiP as its rendering mechanism.
@@ -448,6 +448,10 @@ graphics.submitPictureInPictureRenderState(new ExampleRenderState(
     graphics.peekScissorStack()
 ));
 ```
+
+:::note
+NeoForge fixes a bug that prevents multiple instances of a PiP render state to be submitted for any given frame.
+:::
 
 ## Renderable
 
