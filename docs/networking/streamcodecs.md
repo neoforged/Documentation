@@ -3,10 +3,10 @@ sidebar_position: 2
 ---
 # Stream Codecs
 
-Stream codecs are a serialization tool used to describe how an object should be stored and read from a stream, such as buffers. Stream codecs are primarly used by Vanilla's [networking system][networking] to sync data.
+Stream codecs are a serialization tool used to describe how an object should be stored and read from a stream, such as buffers. Stream codecs are primarily used by Vanilla's [networking system][networking] to sync data.
 
 :::info
-As stream codecs are roughly analagous to [codecs], this page has been formatted in the same way to show the similarities.
+As stream codecs are roughly analogous to [codecs], this page has been formatted in the same way to show the similarities.
 :::
 
 ## Using Stream Codecs
@@ -75,7 +75,11 @@ Additionally, there are some static instances that encode and decode primivites 
 
 `TRUSTED_TAG` and `TRUSTED_COMPOUND_TAG` are variants of `TAG` and `COMPOUND_TAG`, respectively, that have an unlimited heap to decode the tag to, compared to the 2MiB limit of `TAG` and `COMPOUND_TAG`. Trusted tag stream codecs should ideally only be used in clientbound packets, such as what Vanilla does for [block entity data packet][blockentity] and [entity data serializers][entity].
 
-If a different limit should be used, then a `NbtAccounter` can be supplied with the given size using `ByteBufCodecs#tagCodec` or `#compoundTagCodec`.
+If a different limit should be used, then a `NbtAccounter` can be supplied with the given size using `ByteBufCodecs#tagCodec` or `#compoundTagCodec`. An optional-wrapped `Tag` can also be obtained using `#optionalTagCodec`.
+
+#### Lenient JSON
+
+`ByteBufCodecs#lenientJson` handles an arbitrary `JsonElement`, allowing for multiple floating-point descriptors like `nan` or `infinite`, or multiple top-level objects. It takes in the maximum size the JSON can be.
 
 ### Vanilla and NeoForge
 
@@ -118,7 +122,7 @@ public static StreamCodec<ByteBuf, ExampleObject> =
 
 ### Composites
 
-Stream codecs can read and write objects via `StreamCodec#composite`. Each composite stream codec defines a list of stream codecs and getters which are read/written in the order they are provided. `composite` has overloads up to nine parameters.
+Stream codecs can read and write objects via `StreamCodec#composite`. Each composite stream codec defines a list of stream codecs and getters which are read/written in the order they are provided. `composite` has overloads up to ten parameters.
 
 Every two parameters in a `composite` represents the stream codec used to read/write the field and a getter to get the field to encode from the object. The final parameter is a function to create a new instance of the object when decoding.
 

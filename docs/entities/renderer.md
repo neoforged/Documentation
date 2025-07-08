@@ -120,11 +120,11 @@ graph LR;
     EntityRenderer-->LivingEntityRenderer;
     LivingEntityRenderer-->ArmorStandRenderer;
     LivingEntityRenderer-->MobRenderer;
-    MobRenderer-->AgeableRenderer;
-    AgeableRenderer-->HumanoidMobRenderer;
+    MobRenderer-->AgeableMobRenderer;
+    AgeableMobRenderer-->HumanoidMobRenderer;
     LivingEntityRenderer-->PlayerRenderer;
     
-    class EntityRenderer,AbstractBoatRenderer,AbstractMinecartRenderer,ArrowRenderer,LivingEntityRenderer,MobRenderer,AgeableRenderer,HumanoidMobRenderer red;
+    class EntityRenderer,AbstractBoatRenderer,AbstractMinecartRenderer,ArrowRenderer,LivingEntityRenderer,MobRenderer,AgeableMobRenderer,HumanoidMobRenderer red;
     class ArmorStandRenderer,PlayerRenderer blue;
 ```
 
@@ -134,7 +134,7 @@ graph LR;
 - `ArmorStandRenderer`: Self-explanatory.
 - `PlayerRenderer`: Used to render players. Note that unlike most other renderers, multiple instances of this class used for different contexts may exist at the same time.
 - `MobRenderer`: The abstract base class for renderers for `Mob`s. Many renderers extend this directly.
-- `AgeableRenderer`: The abstract base class for renderers for `Mob`s that have child variants. This includes monsters with child variants, such as hoglins.
+- `AgeableMobRenderer`: The abstract base class for renderers for `Mob`s that have child variants. This includes monsters with child variants, such as hoglins.
 - `HumanoidMobRenderer`: The abstract base class for humanoid entity renderers. Used by e.g. zombies and skeletons.
 
 As with the various entity classes, use what fits your use case most. Be aware that many of these classes have corresponding type bounds in their generics; for example, `LivingEntityRenderer` has type bounds for `LivingEntity` and `LivingEntityRenderState`.
@@ -492,7 +492,7 @@ public static void addPlayerLayers(EntityRenderersEvent.AddLayers event) {
 
 ## Animations
 
-Minecraft includes an animation system for entity models through the `AnimationState` class. NeoForge adds a system that allows these entity animations to be defined in JSON files, similar to third-party libraries such as [GeckoLib][geckolib].
+Minecraft includes an animation system for entity models through the `AnimationDefinition` class. NeoForge adds a system that allows these entity animations to be defined in JSON files, similar to third-party libraries such as [GeckoLib][geckolib].
 
 Animations are defined in JSON files located at `assets/<namespace>/neoforge/animations/entity/<path>.json` (so for the [resource location][rl] `examplemod:example`, the file would be located at `assets/examplemod/neoforge/animations/entity/example.json`). The format of an animation file is as follows:
 
@@ -537,9 +537,19 @@ In your model, you can then use the animation like so:
 
 ```java
 public class MyEntityModel extends EntityModel<MyEntityRenderState> {
-    // Create and store a reference to the model.
+    // Create and store a reference to the animation holder.
     public static final AnimationHolder EXAMPLE_ANIMATION =
             Model.getAnimation(ResourceLocation.fromNamespaceAndPath("examplemod", "example"));
+
+    // A field to hold the baked animation
+    private final KeyframeAnimation example;
+
+    public MyEntityModel(ModelPart root) {
+        // Bake the animation for the model
+        // Pass in whatever 'ModelPart' that the animation is applied to
+        // It should cover all referenced bones
+        this.example = EXAMPLE_ANIMATION.get().bake(root);
+    }
     
     // Other stuff here.
     
@@ -548,18 +558,16 @@ public class MyEntityModel extends EntityModel<MyEntityRenderState> {
         super.setupAnim(state);
         // Other stuff here.
         
-        this.animate(
+        this.example.apply(
             // Get the animation state to use from your EntityRenderState.
             state.myAnimationState,
-            // Your animation holder.
-            EXAMPLE_ANIMATION,
             // Your entity age, in ticks.
             state.ageInTicks
         );
-        // A specialized version of animate(), designed for walking animations.
-        this.animateWalk(EXAMPLE_ANIMATION, state.walkAnimationPos, state.walkAnimationSpeed, 1, 1);
-        // A version of animate() that only applies the first frame of animation.
-        this.applyStatic(EXAMPLE_ANIMATION).
+        // A specialized version of apply(), designed for walking animations.
+        this.example.applyWalk(state.walkAnimationPos, state.walkAnimationSpeed, 1, 1);
+        // A version of apply() that only applies the first frame of animation.
+        this.example.applyStatic();
     }
 }
 ```

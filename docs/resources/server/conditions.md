@@ -227,12 +227,14 @@ While any datapack JSON file can use load conditions, only a few [data providers
 - `JsonCodecProvider` and its subclass `SpriteSourceProvider`
 - [`DataMapProvider`][datamapprovider]
 - [`GlobalLootModifierProvider`][glmprovider]
+- [`DatapackBuiltinEntriesProvider`][datapackentries] (via `Map<ResourceKey<?>, List<ICondition>>` parameter)
 
 For the conditions themselves, the `NeoForgeConditions` class provides static helpers for each of the built-in condition types that return the corresponding `ICondition`s.
 
 [codec]: ../../datastorage/codecs
 [datagen]: ../index.md#data-generation
 [datamapprovider]: datamaps/index.md#data-generation
+[datapackentries]: ../../concepts/registries.md#data-generation-for-datapack-registries
 [flags]: ../../advanced/featureflags.md
 [glmprovider]: loottables/glm.md#datagen
 [loottable]: loottables/index.md

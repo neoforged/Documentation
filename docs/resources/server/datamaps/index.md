@@ -1,6 +1,6 @@
 # Data Maps
 
-A data map contains data-driven, reloadable objects that can be attached to a registered object. This system allows for more easily data-driving game behaviour, as they provide functionality such as syncing or conflict resolution, leading to a better and more configurable user experience. You can think of [tags] as registry object ➜ boolean maps, while data maps are more flexible registry object ➜ object maps. Similar to [tags], data maps will add to their corresponding data map rather than overwriting.
+A data map contains data-driven, reloadable objects that can be attached to a registered object. This system allows for more easily data-driving game behavior, as they provide functionality such as syncing or conflict resolution, leading to a better and more configurable user experience. You can think of [tags] as registry object ➜ boolean maps, while data maps are more flexible registry object ➜ object maps. Similar to [tags], data maps will add to their corresponding data map rather than overwriting.
 
 Data maps can be attached to both static, built-in, registries and dynamic data-driven datapack registries. Data maps support reloading through the use of the `/reload` command or any other means that reload server resources.
 
@@ -177,7 +177,7 @@ You can then query the data map value via `Holder#getData(DataMapType)`. If an o
 
 ```java
 @SubscribeEvent // on the game event bus
-public static void itemPickup(ItemPickupEvent event) {
+public static void itemPickup(ItemEntityPickupEvent.Post event) {
     ItemStack stack = event.getItemStack();
     // Get a Holder<Item> via ItemStack#getItemHolder.
     Holder<Item> holder = stack.getItemHolder();
