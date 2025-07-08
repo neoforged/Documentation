@@ -1359,7 +1359,11 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
 
 If you need to render an item yourself, such as in some `BlockEntityRenderer` or `EntityRenderer`, it can be achieved through three steps. First, the renderer in question creates an `ItemStackRenderState` to hold the rendering information of the stack. Then, the `ItemModelResolver` updates the `ItemStackRenderState` using one of its methods to update the state to the current item to render. Finally, the item is rendered using the render state's `render` method.
 
-The `ItemStackRenderState` keeps track of the data used to render. Each 'model' is given its own `ItemStackRenderState.LayerRenderState`, which contains the `BakedQuad`s to render, along with its render type, foil status, tint information, animated flag, extents, model identity elements, and any special renderers used. Layers are created using the `newLayer` method, and cleared for rendering using the `clear` method. If a predefined number of layers is used, then `ensureCapacity` is used to make sure there are the necessary number of `LayerRenderStates` to render properly.
+The `ItemStackRenderState` keeps track of the data used to render. Each 'model' is given its own `ItemStackRenderState.LayerRenderState`, which contains the `BakedQuad`s to render, along with its render type, foil status, tint information, animated flag, extents, and any special renderers used. Layers are created using the `newLayer` method, and cleared for rendering using the `clear` method. If a predefined number of layers is used, then `ensureCapacity` is used to make sure there are the necessary number of `LayerRenderStates` to render properly.
+
+:::note
+[Screens][screens] use the subclass `TrackingItemStackRenderState` to hold model identity elements for caching the rendered state across frames.
+:::
 
 `ItemModelResolver` is responsible for updating the `ItemStackRenderState`. This is done through either `updateForLiving` for items held by living entities, `updateForNonLiving` for items held by other kinds of entities, and `updateForTopItem` for all other cases. These methods take in the render state, stack to render, and current display context. The other parameters update information about the held hand, level, entity, and seeded value. Each method calls `ItemStackRenderState#clear` before calling `update` on the `ItemModel` obtained from  `DataComponents#ITEM_MODEL`. The `ItemModelResolver` can always be obtained via `Minecraft#getItemModelResolver` if you are not within some renderer context (e.g., `BlockEntityRenderer`, `EntityRenderer`).
 
@@ -1543,3 +1547,4 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
 [modbus]: ../../../concepts/events.md#event-buses
 [models]: modelsystem.md
 [rl]: ../../../misc/resourcelocation.md
+[screens]: ../../../gui/screens.md#items

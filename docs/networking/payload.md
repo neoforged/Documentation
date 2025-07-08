@@ -7,7 +7,7 @@ Payloads are a way to send arbitrary data between the client and the server. The
 
 ```java
 @SubscribeEvent // on the mod event bus
-public static void register(final RegisterPayloadHandlersEvent event) {
+public static void register(RegisterPayloadHandlersEvent event) {
     // Sets the current network version
     final PayloadRegistrar registrar = event.registrar("1");
 }
@@ -42,22 +42,6 @@ public record MyData(String name, int age) implements CustomPacketPayload {
     public CustomPacketPayload.Type<? extends CustomPacketPayload> type() {
         return TYPE;
     }
-
-    // Handle the payloads
-
-    public void handleClient(IPayloadContext context) {
-        // We wrap the method call in a physical side check to prevent
-        // classloading client classes on a dedicated server
-        if (FMLEnvironment.dist.isClient()) {
-            // This should be its own, separate class that you are creating
-            ClientPayloadHandler.handleDataOnMain(this, context);
-        }
-    }
-
-    public void handleServer(IPayloadContext context) {
-        // This should be its own, separate class that you are creating
-        ServerPayloadHandler.handleDataOnMain(this, context);
-    }
 }
 ```
 
@@ -66,16 +50,25 @@ As you can see from the example above the `CustomPacketPayload` interface requir
 Finally, we can register this payload with the registrar:
 
 ```java
+// In some common event class
+
 @SubscribeEvent // on the mod event bus
-public static void register(final RegisterPayloadHandlersEvent event) {
+public static void register(RegisterPayloadHandlersEvent event) {
     final PayloadRegistrar registrar = event.registrar("1");
     registrar.playBidirectional(
         MyData.TYPE,
         MyData.STREAM_CODEC,
-        new DirectionalPayloadHandler<>(
-            MyData::handleClient,
-            MyData::handleServer
-        )
+        ServerPayloadHandler::handleDataOnMain
+    );
+}
+
+// In some client-only event class
+
+@SubscribeEvent // on the mod event bus only on the physical client
+public static void register(RegisterClientPayloadHandlersEvent event) {
+    event.register(
+        MyData.TYPE,
+        ClientPayloadHandler::handleDataOnMain
     );
 }
 ```
@@ -88,7 +81,13 @@ Dissecting the code above we can notice a couple of things:
 - The type of the payload is used as a unique identifier for the payload.
 - The [stream codec][streamcodec] is used to read and write the payload to and from the buffer sent across the network
 - The payload handler is a callback for when the payload arrives on one of the logical sides.
-    - If a `*Bidirectional` method is used, a `DirectionalPayloadHandler` can be used to provide two separate payload handlers for each of the logical sides.
+    - If a `*ToServer` method is used, the payload handler will be the last parameter in the method.
+    - If a `*ToClient` method is used, the payload handler will need to be registered via `RegisterClientPayloadHandlersEvent`, passing in the payload type and the handler.
+    - If a `*Bidirectional` method is used, a payload handler will need to use both.
+
+:::note
+The client payload handler has its own event `RegisterClientPayloadHandlersEvent` to protect against code reaching across both logical and physical [sides].
+:::
 
 Now that we have registered the payload we need to implement a handler. For this example we will specifically take a look at the client side handler, however the server side handler is very similar.
 
@@ -107,41 +106,30 @@ Here a couple of things are of note:
 - The handling method here gets the payload, and a contextual object.
 - The handling method of the payload is, by default, invoked on the main thread.
 
-If you need to do some computation that is resource intensive, then the work should be done on the network thread, instead of blocking the main thread. This is done by setting the `HandlerThread` of the `PayloadRegistrar` to `HandlerThread#NETWORK` via `PayloadRegistrar#executesOn` before registering the payload.
+If you need to do some computation that is resource intensive, then the work should be done on the network thread, instead of blocking the main thread. This is done by setting the `HandlerThread` of the `PayloadRegistrar` to `HandlerThread#NETWORK` via `PayloadRegistrar#executesOn` before registering the payload for serverbound connections, and by passing in the `HandlerThread` to `RegisterClientPayloadHandlersEvent#register` for clientbound connections.
 
 ```java
-public record MyData(String name, int age) implements CustomPacketPayload {
-    
-    // ...
-    
-    // Handle the payloads
-
-    public void handleClient(IPayloadContext context) {
-        // We wrap the method call in a physical side check to prevent
-        // classloading client classes on a dedicated server
-        if (FMLEnvironment.dist.isClient()) {
-            // This should be its own, separate class that you are creating
-            ClientPayloadHandler.handleDataOnNetwork(this, context);
-        }
-    }
-
-    public void handleServer(IPayloadContext context) {
-        // This should be its own, separate class that you are creating
-        ServerPayloadHandler.handleDataOnNetwork(this, context);
-    }
-}
+// In some common event class
 
 @SubscribeEvent // on the mod event bus
-public static void register(final RegisterPayloadHandlersEvent event) {
+public static void register(RegisterPayloadHandlersEvent event) {
     final PayloadRegistrar registrar = event.registrar("1")
         .executesOn(HandlerThread.NETWORK); // All subsequent payloads will register on the network thread
     registrar.playBidirectional(
         MyData.TYPE,
         MyData.STREAM_CODEC,
-        new DirectionalPayloadHandler<>(
-            MyData::handleClient,
-            MyData::handleServer
-        )
+        ServerPayloadHandler::handleDataOnNetwork
+    );
+}
+
+// In some client-only event class
+
+@SubscribeEvent // on the mod event bus only on the physical client
+public static void register(RegisterClientPayloadHandlersEvent event) {
+    event.register(
+        MyData.TYPE,
+        HandlerThread.NETWORK // Payload handler will be invoked on the network thread
+        ClientPayloadHandler::handleDataOnNetwork
     );
 }
 ```
@@ -203,13 +191,13 @@ With your own payloads you can then use those to configure the client and server
 
 `CustomPacketPayload`s are sent across the network using vanilla's packet system by wrapping the payload via `ServerboundCustomPayloadPacket` when sending to the server, or `ClientboundCustomPayloadPacket` when sending to the client. Payloads sent to the client can only contain at most 1 MiB of data while payloads to the server can only contain less than 32 KiB. 
 
-All payloads are sent via `Connection#send` with some level of abstraction; however, it is generally inconvenient to call these methods if you want to send packets to multiple people based on a given condition. Therefore, `PacketDistributor` contains a number of convenience implementations to send payloads. There is only one method to send packets to the server (`sendToServer`); however, there are numerous methods to send packets to the client depending on which players should receive the payload.
+All payloads are sent via `Connection#send` with some level of abstraction; however, it is generally inconvenient to call these methods if you want to send packets to multiple people based on a given condition. Therefore, `PacketDistributor` contains a number of convenience implementations to send payloads to the client, and `ClientPacketDistributor` contains one method to send packets to the server (`sendToServer`).
 
 ```java
 // ON THE CLIENT
 
 // Send payload to server
-PacketDistributor.sendToServer(new MyData(...));
+ClientPacketDistributor.sendToServer(new MyData(...));
 
 // ON THE SERVER
 
@@ -223,7 +211,8 @@ PacketDistributor.sendToPlayersTrackingChunk(serverLevel, chunkPos, new MyData(.
 PacketDistributor.sendToAllPlayers(new MyData(...));
 ```
 
-See the `PacketDistributor` class for more implementations.
+See the `PacketDistributor` and `ClientPacketDistributor` classes for more implementations.
 
 [configuration]: configuration-tasks.md
+[sides]: ../concepts/sides.md
 [streamcodec]: streamcodecs.md
