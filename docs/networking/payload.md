@@ -7,7 +7,7 @@ Payloads are a way to send arbitrary data between the client and the server. The
 
 ```java
 @SubscribeEvent // on the mod event bus
-public static void register(final RegisterPayloadHandlersEvent event) {
+public static void register(RegisterPayloadHandlersEvent event) {
     // Sets the current network version
     final PayloadRegistrar registrar = event.registrar("1");
 }
@@ -53,7 +53,7 @@ Finally, we can register this payload with the registrar:
 // In some common event class
 
 @SubscribeEvent // on the mod event bus
-public static void register(final RegisterPayloadHandlersEvent event) {
+public static void register(RegisterPayloadHandlersEvent event) {
     final PayloadRegistrar registrar = event.registrar("1");
     registrar.playBidirectional(
         MyData.TYPE,
@@ -65,7 +65,7 @@ public static void register(final RegisterPayloadHandlersEvent event) {
 // In some client-only event class
 
 @SubscribeEvent // on the mod event bus only on the physical client
-public static void register(final RegisterClientPayloadHandlersEvent event) {
+public static void register(RegisterClientPayloadHandlersEvent event) {
     event.register(
         MyData.TYPE,
         ClientPayloadHandler::handleDataOnMain
@@ -112,7 +112,7 @@ If you need to do some computation that is resource intensive, then the work sho
 // In some common event class
 
 @SubscribeEvent // on the mod event bus
-public static void register(final RegisterPayloadHandlersEvent event) {
+public static void register(RegisterPayloadHandlersEvent event) {
     final PayloadRegistrar registrar = event.registrar("1")
         .executesOn(HandlerThread.NETWORK); // All subsequent payloads will register on the network thread
     registrar.playBidirectional(
@@ -125,7 +125,7 @@ public static void register(final RegisterPayloadHandlersEvent event) {
 // In some client-only event class
 
 @SubscribeEvent // on the mod event bus only on the physical client
-public static void register(final RegisterClientPayloadHandlersEvent event) {
+public static void register(RegisterClientPayloadHandlersEvent event) {
     event.register(
         MyData.TYPE,
         HandlerThread.NETWORK // Payload handler will be invoked on the network thread
