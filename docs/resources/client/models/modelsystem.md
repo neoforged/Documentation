@@ -66,6 +66,8 @@ Minecraft's render engine recognizes a total of 8 perspective types (9 if you in
 | `FIXED`                   | `"fixed"`                 | Item frames                                                                                                      |
 | `NONE`                    | `"none"`                  | Fallback purposes in code, should not be used in JSON                                                            |
 
+NeoForge allows the `ItemDisplayContext` to be [extended] for use in custom render calls. Modded `ItemDisplayContext`s may specify a fallback transform to use if none is specified in the model. Otherwise, behavior will be the same as vanilla.
+
 ## Modifying a Baking Result
 
 Modifying an existing block state model or item stack model in-code can typically be done by wrapping the model in some sort of delegate. Block state models have `DelegateBlockStateModel`, while item stack models do not have an existing implementation. Your implementation can then override only select methods, like so:
@@ -115,7 +117,7 @@ public static void modifyBakingResult(ModelEvent.ModifyBakingResult event) {
     // For item models
     event.getBakingResult().itemStackModels().computeIfPresent(
         // The resource location the model to modify.
-        // Typically the item registry name; however, can be anything due to the ITEM_MODEL component
+        // Typically the item registry name; however, can be anything due to the ITEM_MODEL data component
         MyItemsClass.EXAMPLE_ITEM.getKey().location(),
         // A BiFunction with the location and the original models as parameters, returning the new model.
         (location, model) -> new MyDelegateItemModel(model);
@@ -133,6 +135,7 @@ It is generally encouraged to use a [custom model loader][modelloader] over wrap
 [bsd]: #block-state-definitions
 [clientitem]: items.md
 [event]: ../../../concepts/events.md
+[extended]: ../../../advanced/extensibleenums.md#creating-an-enum-entry
 [itemmodels]: items.md#manually-rendering-an-item
 [itemmodelsection]: #item-models
 [livingentity]: ../../../entities/livingentity.md

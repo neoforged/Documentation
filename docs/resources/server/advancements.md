@@ -152,7 +152,7 @@ public void performExampleAction(ServerPlayer player, additionalContextParameter
 
 ## Data Generation
 
-Advancements can be [datagenned][datagen] using an `AdvancementProvider`. An `AdvancementProvider` accepts a list of `AdavancementSubProviders`s, which actually generate the advancements using `Advancement.Builder`.
+Advancements can be [datagenned][datagen] using an `AdvancementProvider`. An `AdvancementProvider` accepts a list of `AdvancementSubProviders`s, which actually generate the advancements using `Advancement.Builder`.
 
 To start, create an instance of `AdvancementProvider` within one of the `GatherDataEvent`s:
 

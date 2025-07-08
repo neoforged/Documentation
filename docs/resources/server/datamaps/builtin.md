@@ -107,7 +107,7 @@ Allows configuring oxidation stages, as a replacement for `WeatheringCopper#NEXT
 ```json5
 {
     // The block this block will turn into once oxidized
-    "next_oxidized_stage": "examplemod:oxidized_block"
+    "next_oxidation_stage": "examplemod:oxidized_block"
 }
 ```
 
@@ -122,7 +122,7 @@ Example:
     "values": {
         "mymod:custom_copper": {
             // Make a custom copper block oxidize into custom oxidized copper
-            "next_oxidized_stage": "mymod:custom_oxidized_copper"
+            "next_oxidation_stage": "mymod:custom_oxidized_copper"
         }
     }
 }

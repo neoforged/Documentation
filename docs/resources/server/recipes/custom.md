@@ -367,14 +367,8 @@ public static final DeferredRegister<RecipeType<?>> RECIPE_TYPES =
 public static final Supplier<RecipeType<RightClickBlockRecipe>> RIGHT_CLICK_BLOCK_TYPE =
         RECIPE_TYPES.register(
                 "right_click_block",
-                // We need the qualifying generic here due to generics being generics.
-                registryName -> new RecipeType<RightClickBlockRecipe> {
-
-                    @Override
-                    public String toString() {
-                        return registryName.toString();
-                    }
-                }
+                // Creates the recipe type, setting `toString` to the registry name of the type
+                RecipeType::simple
         );
 ```
 
@@ -498,21 +492,21 @@ public class ServerRightClickBlockRecipeInputs implements ResourceManagerReloadL
     @Override
     public void onResourceManagerReload(ResourceManager manager) {
         MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
-        if (server != null) { // Should never be null
-            // Populate inputs
-            Set<BlockState> inputStates = new HashSet<>();
-            Set<Holder<Item>> inputItems = new HashSet<>();
+        if (server == null) return; // Should never be null
 
-            this.recipeManager.recipeMap().byType(RIGHT_CLICK_BLOCK_TYPE.get())
-                .forEach(holder -> {
-                    var recipe = holder.value();
-                    inputStates.add(recipe.getInputState());
-                    inputItems.addAll(recipe.getInputItem().items());
-                });
-            
-            this.inputStates = Set.unmodifiableSet(inputStates);
-            this.inputItems = Set.unmodifiableSet(inputItems);
-        }
+        // Populate inputs
+        Set<BlockState> inputStates = new HashSet<>();
+        Set<Holder<Item>> inputItems = new HashSet<>();
+
+        this.recipeManager.recipeMap().byType(RIGHT_CLICK_BLOCK_TYPE.get())
+            .forEach(holder -> {
+                var recipe = holder.value();
+                inputStates.add(recipe.getInputState());
+                inputItems.addAll(recipe.getInputItem().items());
+            });
+        
+        this.inputStates = Set.copyOf(inputStates);
+        this.inputItems = Set.copyOf(inputItems);
     }
 
     public void syncToClient(Stream<ServerPlayer> players) {
@@ -538,8 +532,8 @@ public record ClientRightClickBlockRecipeInputs(
 ) implements RightClickBlockRecipeInputs {
 
     public ClientRightClickBlockRecipeInputs(Set<BlockState> inputStates, Set<Holder<Item>> inputItems) {
-        this.inputStates = Set.unmodifiableSet(inputStates);
-        this.inputItems = Set.unmodifiableSet(inputItems);
+        this.inputStates = Set.copyOf(inputStates);
+        this.inputItems = Set.copyOf(inputItems);
     }
 }
 
@@ -567,6 +561,7 @@ public class ServerRightClickBlockRecipes {
         ServerRightClickBlockRecipes.inputs.syncToClient(event.getRelevantPlayers());
     }
 }
+
 public class ClientRightClickBlockRecipes {
 
     private static ClientRightClickBlockRecipeInputs inputs;
@@ -581,6 +576,150 @@ public class ClientRightClickBlockRecipes {
         ClientRightClickBlockRecipes.inputs = new ClientRightClickBlockRecipeInputs(
             data.inputStates(), data.inputItems()
         );
+    }
+
+    @SubscribeEvent // on the game event bus only on the physical client
+    public static void clientLogOut(ClientPlayerNetworkEvent.LoggingOut event) {
+        // Clear the stored inputs on world log out
+        ClientRightClickBlockRecipes.inputs = null;
+    }
+}
+
+public class RightClickBlockRecipes {
+    // Make proxy method to access properly
+    public static RightClickBlockRecipeInputs inputs(Level level) {
+        return level.isClientSide
+            ? ClientRightClickBlockRecipes.inputs()
+            : ServerRightClickBlockRecipes.inputs();
+    }
+}
+```
+
+Alternatively, you can sync the [full recipe to the client instead][clientrecipes]:
+
+```java
+// Present on both server and client to do initial matching.
+public interface RightClickBlockRecipeInputs {
+
+    Set<BlockState> inputStates();
+    Set<Holder<Item>> inputItems();
+
+    default boolean test(BlockState state, ItemStack stack) {
+        return this.inputStates().contains(state) && this.inputItems().contains(stack.getItemHolder());
+    }
+}
+
+// Server resource listener so it can be reloaded when recipes are.
+public class ServerRightClickBlockRecipeInputs implements ResourceManagerReloadListener, RightClickBlockRecipeInputs {
+
+    private final RecipeManager recipeManager;
+
+    private Set<BlockState> inputStates;
+    private Set<Holder<Item>> inputItems;
+
+    public RightClickBlockRecipeInputs(RecipeManager recipeManager) {
+        this.recipeManager = recipeManager;
+    }
+
+    // Set inputs here as #apply is fired synchronously based on listener registration order.
+    // Recipes are always applied first.
+    @Override
+    public void onResourceManagerReload(ResourceManager manager) {
+        MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+        if (server != null) { // Should never be null
+            // Populate inputs
+            Set<BlockState> inputStates = new HashSet<>();
+            Set<Holder<Item>> inputItems = new HashSet<>();
+
+            this.recipeManager.recipeMap().byType(RIGHT_CLICK_BLOCK_TYPE.get())
+                .forEach(holder -> {
+                    var recipe = holder.value();
+                    inputStates.add(recipe.getInputState());
+                    inputItems.addAll(recipe.getInputItem().items());
+                });
+            
+            this.inputStates = Set.copyOf(inputStates);
+            this.inputItems = Set.copyOf(inputItems);
+        }
+    }
+
+    @Override
+    public Set<BlockState> inputStates() {
+        return this.inputStates;
+    }
+
+    @Override
+    public Set<Holder<Item>> inputItems() {
+        return this.inputItems;
+    }
+}
+
+// Client implementation to hold the inputs.
+public record ClientRightClickBlockRecipeInputs(
+    Set<BlockState> inputStates, Set<Holder<Item>> inputItems
+) implements RightClickBlockRecipeInputs {
+
+    public ClientRightClickBlockRecipeInputs(Set<BlockState> inputStates, Set<Holder<Item>> inputItems) {
+        this.inputStates = Set.copyOf(inputStates);
+        this.inputItems = Set.copyOf(inputItems);
+    }
+}
+
+// Handling the recipe instance depending on side.
+public class ServerRightClickBlockRecipes {
+
+    private static ServerRightClickBlockRecipeInputs inputs;
+
+    public static RightClickBlockRecipeInputs inputs() {
+        return ServerRightClickBlockRecipes.inputs;
+    }
+
+    @SubscribeEvent // on the game event bus
+    public static void addListener(AddReloadListenerEvent event) {
+        // Register server reload listener
+        ServerRightClickBlockRecipes.inputs = new ServerRightClickBlockRecipeInputs(
+            event.getServerResources().getRecipeManager()
+        );
+        event.addListener(ServerRightClickBlockRecipes.inputs);
+    }
+
+    @SubscribeEvent // on the game event bus
+    public static void datapackSync(OnDatapackSyncEvent event) {
+        // Specify what recipe types to sync to the client
+        event.sendRecipes(RIGHT_CLICK_BLOCK_TYPE.get());
+    }
+}
+
+public class ClientRightClickBlockRecipes {
+
+    private static ClientRightClickBlockRecipeInputs inputs;
+
+    public static RightClickBlockRecipeInputs inputs() {
+        return ClientRightClickBlockRecipes.inputs;
+    }
+
+    @SubscribeEvent // on the game event bus only on the physical client
+    public static void recipesReceived(RecipesReceivedEvent event) {
+        // Store the recipes
+        Set<BlockState> inputStates = new HashSet<>();
+        Set<Holder<Item>> inputItems = new HashSet<>();
+
+        event.getRecipeMap().byType(RIGHT_CLICK_BLOCK_TYPE.get())
+            .forEach(holder -> {
+                var recipe = holder.value();
+                inputStates.add(recipe.getInputState());
+                inputItems.addAll(recipe.getInputItem().items());
+            });
+        
+        ClientRightClickBlockRecipes.inputs = new ClientRightClickBlockRecipeInputs(
+            inputStates, inputItems
+        );
+    }
+
+    @SubscribeEvent // on the game event bus only on the physical client
+    public static void clientLogOut(ClientPlayerNetworkEvent.LoggingOut event) {
+        // Clear the stored inputs on world log out
+        ClientRightClickBlockRecipes.inputs = null;
     }
 }
 
@@ -742,6 +881,7 @@ protected void buildRecipes(RecipeOutput output) {
 It is also possible to have `SimpleRecipeBuilder` be merged into `RightClickBlockRecipeBuilder` (or your own recipe builder), especially if you only have one or two recipe builders. The abstraction here serves to show which parts of the builder are recipe-dependent and which are not.
 :::
 
+[clientrecipes]: index.md#client-side-recipes
 [codec]: ../../../datastorage/codecs.md
 [datagen]: #data-generation
 [event]: ../../../concepts/events.md
