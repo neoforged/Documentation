@@ -23,7 +23,7 @@ To use the system, you need to register an `AttachmentType`. The attachment type
 If you don't want your attachment to persist, do not provide a serializer.
 :::
 
-There are a few ways to provide an attachment serializer: directly implementing `IAttachmentSerializer`, implementing [`ValueIOSerializable`][valueio] and using the static `AttachmentType#serializable` method to create the builder, or providing a codec to the builder.
+There are a few ways to provide an attachment serializer: directly implementing `IAttachmentSerializer`, implementing [`ValueIOSerializable`][valueio] and using the static `AttachmentType#serializable` method to create the builder, or providing a map codec to the builder.
 
 In any case, the attachment **must be registered** to the `NeoForgeRegistries.ATTACHMENT_TYPES` registry. Here is an example:
 
@@ -35,9 +35,9 @@ private static final DeferredRegister<AttachmentType<?>> ATTACHMENT_TYPES = Defe
 private static final Supplier<AttachmentType<ItemStackHandler>> HANDLER = ATTACHMENT_TYPES.register(
     "handler", () -> AttachmentType.serializable(() -> new ItemStackHandler(1)).build()
 );
-// Serialization via codec
+// Serialization via map codec
 private static final Supplier<AttachmentType<Integer>> MANA = ATTACHMENT_TYPES.register(
-    "mana", () -> AttachmentType.builder(() -> 0).serialize(Codec.INT).build()
+    "mana", () -> AttachmentType.builder(() -> 0).serialize(Codec.INT.fieldOf("mana")).build()
 );
 // No serialization
 private static final Supplier<AttachmentType<SomeCache>> SOME_CACHE = ATTACHMENT_TYPES.register(
