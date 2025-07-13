@@ -1,0 +1,73 @@
+name: 'Start Version Update'
+run-name: Start ${{ inputs.update_type }} update to ${{ inputs.version }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Minecraft Version'
+        required: true
+        type: string
+      update_type:
+        description: 'Update Type'
+        required: true
+        default: 'major'
+        type: choice
+        options:
+          - major
+          - minor
+      branch:
+        description: 'Branch'
+        required: true
+        default: 'main'
+        type: string
+
+jobs:
+  major_update:
+    name: ${{ inputs.version }} ${{ inputs.update_type }} update
+    runs-on: ubuntu-latest
+    if: inputs.update_type == 'major'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.branch }}
+      
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.node-version'
+          cache: npm
+      
+      - name: Install dependencies
+        run: npm install
+
+      - name: Create update branch
+        run: git checkout -b update/${{ inputs.version }}
+
+      - name: Extract previous version
+        run: |
+          # Get the previous version label
+          PREVIOUS_VERSION_LABEL=$(jq '.current.label' ./version_labels.json)
+          # If the label is made up of multiple version, get the last version
+          if [[ $PREVIOUS_VERSION_LABEL =~ '-' ]]; then
+            PREVIOUS_VERSION_ID=$(echo $PREVIOUS_VERSION_LABEL | sed 's/\([[:digit:]\+]\.[[:digit:]]\+\.[[:digit:]]\+\)[[:space:]]*\(-[[:space:]]*\([[:digit:]]\+\.[[:digit:]]\+\.[[:digit:]]\+\)\)\?/\3/')
+          else
+            PREVIOUS_VERSION_ID=$PREVIOUS_VERSION_LABEL
+          fi
+      - name: Run version migration
+        run: |
+          # Run basic migration
+          npm run docusaurus docs:version $PREVIOUS_VERSION_ID
+          # Setup temporary file
+          tmp=$(mktemp)
+          # Modify version labels 
+          jq --argjson prev_id "$PREVIOUS_VERSION_ID" --argjson prev_label "$PREVIOUS_VERSION_LABEL" --arg ver "${{ inputs.version }}" 'del(.current) | {current: {label: $ver}} + {$prev_id: {label: $prev_label}} + .' ./version_labels.json > "$tmp" && mv "$tmp" ./version_labels.json
+      - name: Commit and push branch
+        run: |
+          git commit -a -m 'feat(cicd): Start  ${{ inputs.version }} ${{ inputs.update_type }} update'
+          git push -u origin update/${{ inputs.version }}
+  minor_update:
+    name: ${{ inputs.version }} ${{ inputs.update_type }} update
+    runs-on: ubuntu-latest
+    if: inputs.update_type == 'minor'
+    steps:
+      - TODO
