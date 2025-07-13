@@ -77,8 +77,8 @@ jobs:
           # Setup user settings
           git config --global user.name 'neoforged-automation[bot]'
           git config --global user.email '177631280+neoforge-automation[bot]@users.noreply.github.com'
-          # Add and commit files not in gitignore
-          git add --ignore-errors *
+          # Add and commit files
+          git add .
           git commit -a -m 'feat(cicd): Start  ${{ inputs.version }} ${{ inputs.update_type }} update'
           git push -u origin update/${{ inputs.version }}
   # minor_update:
