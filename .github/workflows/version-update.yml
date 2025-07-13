@@ -22,6 +22,9 @@ on:
         default: 'main'
         type: string
 
+permissions:
+  contents: write
+
 jobs:
   major_update:
     name: ${{ inputs.version }} ${{ inputs.update_type }} update
@@ -71,6 +74,8 @@ jobs:
           jq --argjson prev_id "$PREVIOUS_VERSION_ID" --argjson prev_label "$PREVIOUS_VERSION_LABEL" --arg ver "${{ inputs.version }}" 'del(.current) | {current: {label: $ver}} + {$prev_id: {label: $prev_label}} + .' ./version_labels.json > "$tmp" && mv "$tmp" ./version_labels.json
       - name: Commit and push branch
         run: |
+          git config --global user.name 'neoforged-automation[bot]'
+          git config --global user.email '177631280+neoforge-automation[bot]@users.noreply.github.com'
           git commit -a -m 'feat(cicd): Start  ${{ inputs.version }} ${{ inputs.update_type }} update'
           git push -u origin update/${{ inputs.version }}
   # minor_update:
