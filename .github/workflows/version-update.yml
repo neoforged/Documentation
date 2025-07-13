@@ -65,9 +65,9 @@ jobs:
         run: |
           git commit -a -m 'feat(cicd): Start  ${{ inputs.version }} ${{ inputs.update_type }} update'
           git push -u origin update/${{ inputs.version }}
-  minor_update:
-    name: ${{ inputs.version }} ${{ inputs.update_type }} update
-    runs-on: ubuntu-latest
-    if: inputs.update_type == 'minor'
-    steps:
-      - TODO
+  # minor_update:
+  #   name: ${{ inputs.version }} ${{ inputs.update_type }} update
+  #   runs-on: ubuntu-latest
+  #   if: inputs.update_type == 'minor'
+  #   steps:
+  #     - TODO
