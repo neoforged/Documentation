@@ -44,6 +44,7 @@ jobs:
         run: git checkout -b update/${{ inputs.version }}
 
       - name: Extract previous version
+        id: previous_version
         run: |
           # Get the previous version label
           PREVIOUS_VERSION_LABEL=$(jq '.current.label' ./version_labels.json)
@@ -53,7 +54,14 @@ jobs:
           else
             PREVIOUS_VERSION_ID=$PREVIOUS_VERSION_LABEL
           fi
+
+          # Push to output
+          echo "PREVIOUS_VERSION_LABEL=$PREVIOUS_VERSION_LABEL" >> "$GITHUB_OUTPUT"
+          echo "PREVIOUS_VERSION_ID=$PREVIOUS_VERSION_ID" >> "$GITHUB_OUTPUT"
       - name: Run version migration
+        env:
+          PREVIOUS_VERSION_LABEL: ${{ steps.previous_version.outputs.PREVIOUS_VERSION_LABEL }}
+          PREVIOUS_VERSION_ID: ${{ steps.previous_version.outputs.PREVIOUS_VERSION_ID }}
         run: |
           # Run basic migration
           npm run docusaurus docs:version $PREVIOUS_VERSION_ID
