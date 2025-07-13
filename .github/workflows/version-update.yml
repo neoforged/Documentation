@@ -64,7 +64,7 @@ jobs:
           PREVIOUS_VERSION_ID: ${{ steps.previous_version.outputs.PREVIOUS_VERSION_ID }}
         run: |
           # Run basic migration
-          npm run docusaurus docs:version $PREVIOUS_VERSION_ID
+          npm run docusaurus docs:version $(echo $PREVIOUS_VERSION_ID | sed 's/"//g')
           # Setup temporary file
           tmp=$(mktemp)
           # Modify version labels 
