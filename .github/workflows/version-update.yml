@@ -78,8 +78,8 @@ jobs:
       - name: Commit and push branch
         run: |
           # Setup user settings
-          git config --global user.name 'neoforged-automation[bot]'
-          git config --global user.email '177631280+neoforge-automation[bot]@users.noreply.github.com'
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
           # Add and commit files
           git add .
           git commit -a -m 'feat(cicd): Start  ${{ inputs.version }} ${{ inputs.update_type }} update'
@@ -123,8 +123,8 @@ jobs:
       - name: Commit and push branch
         run: |
           # Setup user settings
-          git config --global user.name 'neoforged-automation[bot]'
-          git config --global user.email '177631280+neoforge-automation[bot]@users.noreply.github.com'
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
           # Commit files
           git commit -a -m 'feat(cicd): Start  ${{ inputs.version }} ${{ inputs.update_type }} update'
           git push -u origin update/${{ inputs.version }}
