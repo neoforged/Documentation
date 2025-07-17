@@ -2,6 +2,30 @@
 
 NeoForge provides various built-in [data maps][datamap] for common use cases, replacing hardcoded vanilla fields. Vanilla values are shipped by data map files in NeoForge, so there is no functional difference to the player.
 
+## `neoforge:acceptable_villager_distances`
+
+Allows configuring the maximum block distance that villagers will notice an entity, as a replacement for `VillagerHostilesSensor.ACCEPTABLE_DISTANCE_FROM_HOSTILES` (which will be ignored in 1.22). This data map is located at `neoforge/data_maps/entity_type/acceptable_villager_distances.json` and its objects have the following structure:
+
+```json5
+{
+    // The maximum block distance that a villager will detect this entity as hostile
+    "acceptable_villager_distance": 4.0
+}
+```
+
+Example:
+
+```json5
+{
+    "values": {
+        // Villagers will detect a blaze as hostile if it is within 4 blocks of its position
+        "minecraft:blaze": {
+            "acceptable_villager_distance": 4.0
+        }
+    }
+}
+```
+
 ## `neoforge:compostables`
 
 Allows configuring composter values, as a replacement for `ComposterBlock.COMPOSTABLES` (which is now ignored). This data map is located at `neoforge/data_maps/item/compostables.json` and its objects have the following structure:
