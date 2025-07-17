@@ -95,7 +95,92 @@ chunk.setUnsaved(true); // must be done manually because we did not use setData
 
 ## Sharing data with the client
 
-To sync block entity, chunk, or entity attachments to a client, you need to [send a packet to the client][network] yourself. For chunks, you can use `ChunkWatchEvent.Sent` to know when to send chunk data to a player.
+To sync block entity, chunk, level, or entity attachments to a client, you can implement `sync` in the builder. Attachments are then sent to the client when the attachment is default-created through `AttachmentHolder#getData`, updated through `AttachmentHolder#setData`, or removed through `AttachmentHolder#removeData`. If the data should be sent at other times, then `AttachmentHolder#syncData` can be called with the `AttachmentType` to sync.
+
+`AttachmentType.Builder#sync` has three overloads; however, they each create an `AttachmentSyncHandler<T>`, where `T` is the type of the data attachment. The handler has three methods: two to `read` and `write` to the network, and one to determine whether a given player can see the data broadcasted by the holder (`sendToPlayer`). The sync handler is ignored if the data attachment is removed.
+
+```java
+public class ExampleSyncHandler implements AttachmentSyncHandler<ExampleData> {
+
+    @Override
+    public void write(RegistryFriendlyByteBuf buf, ExampleData attachment, boolean initialSync) {
+        // Write the attachment data to the buffer
+        // If `initialSync` is true, you should write the entire attachment as the client does not have any prior data
+        // If `initialSync` is false, you can choose to only write the data you would like to update
+        
+        // Example:
+        if (initialSync) {
+            // Write entire attachment
+            ExampleData.STREAM_CODEC.encode(buf, attachment);
+        } else {
+            // Write update data
+        }
+    }
+
+    @Override
+    @Nullable
+    public ExampleData read(IAttachmentHolder holder, RegistryFriendlyByteBuf buf, @Nullable ExampleData previousValue) {
+        // Read the data from the buffer and return the new data attachment
+        // `previousValue` is `null` if there was no prior data on the client
+        // The result should return `null` if the data attachment should be removed
+
+        // Example:
+        if (previousValue == null) {
+            // Read entire attachment
+            return ExampleData.STREAM_CODEC.decode(buf);
+        } else {
+            // Read update data and merge to previous value
+            return previousValue;
+        }
+    }
+
+    @Override
+    public boolean sendToPlayer(IAttachmentHolder holder, ServerPlayer to) {
+        // Return whether the holder data is synced to the given player client
+        // The players checked are different depending on the attachment holder:
+        // - Block entities: All players tracking the chunk the block entity is within
+        // - Chunk: All players tracking the chunk
+        // - Entity: All players tracking the current entity, includes the current player if they are the attachment holder
+        // - Level: All players in the current dimension / level
+
+        // Example:
+        // Only send the attachment if they are the attachment holder
+        return holder == to;
+    }
+}
+```
+
+The two other overloads which delegate to `AttachmentSyncHandler` take in a [`StreamCodec`][streamcodec] for `read` and `write`, and an optional predicate for `sendToPlayer`.
+
+```java
+// Assume ExampleData has some stream codec STREAM_CODEC
+
+// Sync handler
+public static final Supplier<AttachmentType<ExampleData>> WITH_SYNC_HANDLER = ATTACHMENT_TYPES.register(
+    "with_sync_handler", () -> AttachmentType.builder(() -> new ExampleData())
+        .sync(new ExampleSyncHandler())
+        .build()
+);
+
+
+// Stream codec
+public static final Supplier<AttachmentType<ExampleData>> WITH_STREAM_CODEC = ATTACHMENT_TYPES.register(
+    "with_stream_codec", () -> AttachmentType.builder(() -> new ExampleData())
+        .sync(ExampleData.STREAM_CODEC)
+        .build()
+);
+
+// Stream codec with predicate
+public static final Supplier<AttachmentType<ExampleData>> WITH_PREDICATE = ATTACHMENT_TYPES.register(
+    "with_predicate", () -> AttachmentType.builder(() -> new ExampleData())
+        .sync((holder, to) -> holder == to, ExampleData.STREAM_CODEC)
+        .build()
+);
+```
+
+:::note
+Using the `StreamCodec` overloads means that the entire data attachment will be synced each time, ignoring any data that was previously on the client.
+:::
 
 ## Copying data on player death
 
@@ -116,6 +201,6 @@ public static void onClone(PlayerEvent.Clone event) {
 
 [datacomponents]: ../items/datacomponents.md
 [entity]: ../entities/index.md
-[network]: ../networking/index.md
 [saveddata]: saveddata.md
+[streamcodec]: ../networking/streamcodecs.md
 [valueio]: valueio.md#valueioserializable
