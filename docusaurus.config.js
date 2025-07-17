@@ -45,29 +45,7 @@ const config = {
           //  'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
           lastVersion: "current",
           includeCurrentVersion: true,
-          versions: {
-            current: {
-              label: "1.21.6 - 1.21.7",
-            },
-            "1.21.5": {
-              label: "1.21.5"
-            },
-            "1.21.4": {
-              label: "1.21.4"
-            },
-            "1.21.3": {
-              label: "1.21.2 - 1.21.3",
-            },
-            "1.21.1": {
-              label: "1.21 - 1.21.1"
-            },
-            "1.20.6": {
-              label: "1.20.5 - 1.20.6"
-            },
-            "1.20.4": {
-              label: "1.20.3 - 1.20.4"
-            }
-          },
+          versions: require("./version_labels.json"),
         },
         theme: {
           customCss: require.resolve("./src/css/custom.css"),
