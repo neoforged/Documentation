@@ -9,7 +9,7 @@ Allows configuring the maximum block distance that villagers will notice an enti
 ```json5
 {
     // The maximum block distance that a villager will detect this entity as hostile
-    "acceptable_villager_distance": false
+    "acceptable_villager_distance": 4.0
 }
 ```
 
