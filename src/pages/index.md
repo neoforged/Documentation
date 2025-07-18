@@ -26,6 +26,14 @@ If you would like to contribute to the docs, read [Contributing to the Docs][con
                 linkTitle="Read More"
             />
         </div>
+        <div class="col col--6" style={{padding: '10px'}}>
+            <Card
+                title="Primers"
+                body="TODO"
+                link="/primer/docs/"
+                linkTitle="TODO"
+            />
+        </div>
     </div>
 </div>
 

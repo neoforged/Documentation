@@ -79,6 +79,15 @@ const config = {
         },
       },
     ],
+    [
+      "@docusaurus/plugin-content-docs",
+      {
+        id: "primer",
+        path: "primer",
+        routeBasePath: "primer",
+        sidebarPath: require.resolve("./sidebarsPrimer.js"),
+      },
+    ],
   ],
 
   themeConfig:
