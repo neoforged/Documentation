@@ -20,10 +20,10 @@ If you would like to contribute to the docs, read [Contributing to the Docs][con
         </div>
         <div class="col col--6" style={{padding: '10px'}}>
             <Card
-                title="NeoGradle Documentation"
-                body="Learn about the Gradle plugin empowering developers to create mods for NeoForge and develop NeoForge itself."
-                link="/neogradle/docs/"
-                linkTitle="Read More"
+                title="Toolchain Features"
+                body="TODO"
+                link="/toolchain/docs/"
+                linkTitle="TODO"
             />
         </div>
         <div class="col col--6" style={{padding: '10px'}}>

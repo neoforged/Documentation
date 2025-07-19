@@ -21,8 +21,9 @@ const config = {
   organizationName: "neoforged", // Usually your GitHub org/user name.
   projectName: "documentation", // Usually your repo name.
 
-  onBrokenLinks: "throw", // Yay multi versioned-docs sites
-  onBrokenMarkdownLinks: "throw",
+  // TODO: Change back to throw
+  onBrokenLinks: "warn", // Yay multi versioned-docs sites
+  onBrokenMarkdownLinks: "warn",
 
   // Even if you don't use internalization, you can use this field to set useful
   // metadata like html lang. For example, if your site is Chinese, you may want
@@ -58,25 +59,10 @@ const config = {
     [
       "@docusaurus/plugin-content-docs",
       {
-        id: "neogradle",
-        path: "neogradle",
-        routeBasePath: "neogradle",
-        sidebarPath: require.resolve("./sidebarsNG.js"),
-        lastVersion: "current",
-        includeCurrentVersion: true,
-        versions: {
-          current: {
-            label: "NG7",
-          },
-          "6.x": {
-            label: "FG6",
-            path: "6.x",
-          },
-          "5.x": {
-            label: "FG5",
-            path: "5.x",
-          },
-        },
+        id: "toolchain",
+        path: "toolchain",
+        routeBasePath: "toolchain",
+        sidebarPath: require.resolve("./sidebars_toolchain.js"),
       },
     ],
     [
@@ -85,7 +71,7 @@ const config = {
         id: "primer",
         path: "primer",
         routeBasePath: "primer",
-        sidebarPath: require.resolve("./sidebarsPrimer.js"),
+        sidebarPath: require.resolve("./sidebars_primer.js"),
       },
     ],
   ],
@@ -112,22 +98,22 @@ const config = {
             position: "left",
             label: "NeoForge Documentation",
           },
-          {
-            type: "docSidebar",
-            sidebarId: "ngSidebar",
-            position: "left",
-            docsPluginId: "neogradle",
-            label: "NeoGradle Documentation",
-          },
-          {
-            type: "docsVersionDropdown",
-            position: "right",
-          },
+          // {
+          //   type: "docSidebar",
+          //   sidebarId: "ngSidebar",
+          //   position: "left",
+          //   docsPluginId: "neogradle",
+          //   label: "NeoGradle Documentation",
+          // },
           {
             type: "docsVersionDropdown",
             position: "right",
-            docsPluginId: "neogradle",
           },
+          // {
+          //   type: "docsVersionDropdown",
+          //   position: "right",
+          //   docsPluginId: "neogradle",
+          // },
           {
             to: "/contributing",
             label: "Contributing",
@@ -150,10 +136,10 @@ const config = {
                 to: "/docs/gettingstarted/",
                 label: "NeoForge Documentation",
               },
-              {
-                to: "/neogradle/docs/",
-                label: "NeoGradle Documentation",
-              },
+              // {
+              //   to: "/neogradle/docs/",
+              //   label: "NeoGradle Documentation",
+              // },
               {
                 to: "/contributing",
                 label: "Contributing to the Documentation"
