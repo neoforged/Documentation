@@ -148,16 +148,8 @@ Let's start by creating the [registry key][resourcekey] and the registry itself:
 // We use spells as an example for the registry here, without any details about what a spell actually is (as it doesn't matter).
 // Of course, all mentions of spells can and should be replaced with whatever your registry actually is.
 public static final ResourceKey<Registry<Spell>> SPELL_REGISTRY_KEY = ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath("yourmodid", "spells"));
-public static final Registry<YourRegistryContents> SPELL_REGISTRY = new RegistryBuilder<>(SPELL_REGISTRY_KEY)
-        // If you want to enable integer id syncing, for networking.
-        // These should only be used in networking contexts, for example in packets or purely networking-related NBT data.
-        .sync(true)
-        // The default key. Similar to minecraft:air for blocks. This is optional.
-        .defaultKey(ResourceLocation.fromNamespaceAndPath("yourmodid", "empty"))
-        // Effectively limits the max count. Generally discouraged, but may make sense in settings such as networking.
-        .maxId(256)
-        // Build the registry.
-        .create();
+private static Registry<YourRegistryContents> SpellRegistry = null;
+public static final Supplier<Registry<YourRegistryContents>> SPELL_REGISTRY = () -> SpellRegistry;
 ```
 
 Then, tell the game that the registry exists by registering them to the root registry in `NewRegistryEvent`:
@@ -165,7 +157,16 @@ Then, tell the game that the registry exists by registering them to the root reg
 ```java
 @SubscribeEvent // on the mod event bus
 public static void registerRegistries(NewRegistryEvent event) {
-    event.register(SPELL_REGISTRY);
+    // Build registry via NewRegistryEvent.create(RegistryBuilder). See also: {@link RegistryBuilder#create()}
+    SpellRegistry = event.create(new RegistryBuilder<>(SPELL_REGISTRY_KEY)
+        // If you want to enable integer id syncing, for networking.
+        // These should only be used in networking contexts, for example in packets or purely networking-related NBT data.
+        .sync(true)
+        // The default key. Similar to minecraft:air for blocks. This is optional.
+        .defaultKey(ResourceLocation.fromNamespaceAndPath("yourmodid", "empty"))
+        // Effectively limits the max count. Generally discouraged, but may make sense in settings such as networking.
+        .maxId(256));
+    event.register(SpellRegistry);
 }
 ```
 
