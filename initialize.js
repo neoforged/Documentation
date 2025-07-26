@@ -1,38 +1,94 @@
 /**
- * Setup docs sections from other repositories.
+ * Setup dynamic documentation sections.
  */
 const fs = require('node:fs');
 const chp = require('node:child_process');
 const os = require('node:os');
 const path = require('node:path');
 
+/**
+ * Pulls a repositories and copies over the necessary files and directories to the
+ * desired location
+ * 
+ * @param {string} git The git repository to pull from.
+ * @param {string} to The base directory to write the repository data to.
+ * @param {Object.<string, string>} directoryMap A map of directories to copy `key -> value`
+ * relative to the `git` and `to` location.
+ * @param {Object.<string, string>} fileMap A map of files to copy `key -> value` relative
+ * to the `git` and `to` location.
+ */
+function pullRepository(git, to, directoryMap = {}, fileMap = {}) {
+    // Get temporary directory
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'repo-'), { recursive: true} );
+
+    // Pull repository to temp
+    chp.execSync(`git clone ${git} ${tmpDir}`);
+
+    // Copy directories
+    for (const [key, value] of Object.entries(directoryMap)) {
+        const keyLoc = path.join(tmpDir, key);
+        const valueLoc = path.join(to, value);
+        fs.mkdirSync(valueLoc, { recursive: true });
+        fs.cpSync(keyLoc, valueLoc, { recursive: true });
+    }
+
+    // Copy files
+    for (const [key, value] of Object.entries(fileMap)) {
+        const keyLoc = path.join(tmpDir, key);
+        const valueLoc = path.join(to, value);
+        fs.mkdirSync(valueLoc.substring(0, valueLoc.lastIndexOf('/')), { recursive: true });
+        fs.copyFileSync(keyLoc, valueLoc);
+    }
+
+    // Delete temp location
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+}
+
+/**
+ * Appends a header to an individual file.
+ * 
+ * @param {string|(fileData:string)=>string} header The header to append, or a function to construct the
+ * header from the file text.
+ * @param {string} from The location of the file.
+ * @param {string} to When present, writes the file to this location. Otherwise, uses `from`.
+ */
+function appendHeader(header, from, to = undefined) {
+    // Read file
+    const data = fs.readFileSync(from, { encoding: 'utf-8' });
+    
+    // Use from location if to isn't defined
+    if (to === undefined) {
+        to = from;
+    } else {
+        // Delete if to is present
+        fs.rmSync(from);
+    }
+
+    const fd = fs.openSync(to, 'w+');
+    const headerBuf = Buffer.from(typeof header === 'string' ? header : header(data));
+    const dataBuf = Buffer.from(data);
+    fs.writeSync(fd, headerBuf, 0, headerBuf.length, 0);
+    fs.writeSync(fd, dataBuf, 0, dataBuf.length, headerBuf.length);
+    fs.closeSync(fd);
+}
+
+const PRIMER_PATH = path.join(__dirname, 'primer');
+const TOOLCHAIN_PLUGIN_PATH = path.join(__dirname, 'toolchain', 'docs', 'plugins');
+
 const PRIMERS_GIT = 'https://github.com/neoforged/.github'
 const MDG_GIT = 'https://github.com/neoforged/ModDevGradle'
 const NG_GIT = 'https://github.com/neoforged/NeoGradle'
 
 // Setup primers
-if (!fs.existsSync(path.join(__dirname, 'primer'))) {
-    const primerTmp = fs.mkdtempSync(path.join(os.tmpdir(), 'primers-'), { recursive: true} );
+if (!fs.existsSync(PRIMER_PATH)) {
+    pullRepository(PRIMERS_GIT, PRIMER_PATH, directoryMap = {
+        'primers': 'docs'
+    });
 
-    // Pull primer repository
-    chp.execSync(`git clone ${PRIMERS_GIT} ${primerTmp}`);
-
-    // Move primer folder
-    var primerDocs = fs.mkdirSync(path.join(__dirname, 'primer', 'docs'), { recursive: true});
-    primerDocs = path.join(primerDocs, 'docs');
-    fs.cpSync(path.join(primerTmp, 'primers'), primerDocs, { recursive: true });
-
-    // Delete temporary location
-    fs.rmSync(primerTmp, { recursive: true, force: true });
+    const primerDocs = path.join(PRIMER_PATH, 'docs');
 
     // Rename README to index and append starting sidebar position
-    const data = fs.readFileSync(path.join(primerDocs, 'README.md'));
-    const fd = fs.openSync(path.join(primerDocs, 'index.md'), 'w+');
-    const header = Buffer.from('---\nsidebar_position: 1\n---\n');
-    fs.writeSync(fd, header, 0, header.length, 0);
-    fs.writeSync(fd, data, 0, data.length, header.length);
-    fs.closeSync(fd);
-    fs.rmSync(path.join(primerDocs, 'README.md'));
+    appendHeader('---\nsidebar_position: 1\n---\n', path.join(primerDocs, 'README.md'), to = path.join(primerDocs, 'index.md'));
 
     // Order primers starting from most recent
     const primers = fs.readdirSync(primerDocs).filter((possible) => {
@@ -47,7 +103,6 @@ if (!fs.existsSync(path.join(__dirname, 'primer'))) {
             bVer.push('0');
         }
 
-        // Negative if first value is less than second
         for (var i = 0; i < 3; i++) {
             if (aVer[i] == bVer[i]) {
                 continue;
@@ -56,26 +111,19 @@ if (!fs.existsSync(path.join(__dirname, 'primer'))) {
             return -(parseInt(aVer[i]) - parseInt(bVer[i]));
         }
     });
+    
+    // Loop through primers and apply headers
     var currentPosition = 2;
     for (const primer of primers) {
-        const primerStr = fs.readFileSync(path.join(primerDocs, primer, 'index.md'), { encoding: 'utf-8' });
-        const primerTitle = primerStr.substring(0, primerStr.indexOf('\n'))
+        appendHeader(function(fileData) {
+            const title = fileData.substring(0, fileData.indexOf('\n'))
             .match(/[0-9]+\.[0-9]+(?:\.[0-9]+(?:\/[0-9]+)?)? \-\> [0-9]+\.[0-9]+(?:\.[0-9]+)?/)[0];
+            return `---\ntitle: ${title}\nsidebar_position: ${currentPosition}\n---\n`;
+        }, path.join(primerDocs, primer, 'index.md'));
         
-        const primerFd = fs.openSync(path.join(primerDocs, primer, 'index.md'), 'w+');
-        const primerHeader = Buffer.from(`---\ntitle: ${primerTitle}\nsidebar_position: ${currentPosition}\n---\n`);
-        const primerData = Buffer.from(primerStr);
-        fs.writeSync(primerFd, primerHeader, 0, primerHeader.length, 0);
-        fs.writeSync(primerFd, primerData, 0, primerData.length, primerHeader.length);
-        fs.closeSync(primerFd);
 
         if (fs.existsSync(path.join(primerDocs, primer, 'forge.md'))) {
-            const forgeData = fs.readFileSync(path.join(primerDocs, primer, 'forge.md'));
-            const forgeFd = fs.openSync(path.join(primerDocs, primer, 'forge.md'), 'w+');
-            const forgeHeader = Buffer.from('---\ntitle: Forge Changes\n---\n');
-            fs.writeSync(forgeFd, forgeHeader, 0, forgeHeader.length, 0);
-            fs.writeSync(forgeFd, forgeData, 0, forgeData.length, forgeHeader.length);
-            fs.closeSync(forgeFd);
+            appendHeader('---\ntitle: Forge Changes\n---\n', path.join(primerDocs, primer, 'forge.md'));
         }
 
         currentPosition++;
@@ -83,8 +131,9 @@ if (!fs.existsSync(path.join(__dirname, 'primer'))) {
 }
 
 // Setup toolchain
-if (!fs.existsSync(path.join(__dirname, 'toolchain', 'docs', 'plugins'))) {
-    var pluginDocs = fs.mkdirSync(path.join(__dirname, 'toolchain', 'docs', 'plugins'), { recursive: true});
+if (!fs.existsSync(TOOLCHAIN_PLUGIN_PATH)) {
+    const pluginDocs = TOOLCHAIN_PLUGIN_PATH;
+    fs.mkdirSync(TOOLCHAIN_PLUGIN_PATH, { recursive: true});
 
     // Category JSON
     fs.writeFileSync(path.join(pluginDocs, '_category_.json'), '{"label": "Plugins", "position": 1}', { encoding: 'utf-8' });
