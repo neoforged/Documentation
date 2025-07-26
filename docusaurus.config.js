@@ -57,9 +57,8 @@ const config = {
   organizationName: "neoforged", // Usually your GitHub org/user name.
   projectName: "documentation", // Usually your repo name.
 
-  // TODO: Change back to throw
-  onBrokenLinks: "warn", // Yay multi versioned-docs sites
-  onBrokenMarkdownLinks: "warn",
+  onBrokenLinks: "throw", // Yay multi versioned-docs sites
+  onBrokenMarkdownLinks: "throw",
 
   // Even if you don't use internalization, you can use this field to set useful
   // metadata like html lang. For example, if your site is Chinese, you may want

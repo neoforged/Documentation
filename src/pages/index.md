@@ -41,7 +41,7 @@ If you would like to contribute to the docs, read [Contributing to the Docs][con
         <div class="col" style={{padding: '10px'}}>
             <Card
                 title="User Guide"
-                body="Learn how to download and setup NeoForge on your machine."
+                body="Learn how to install and use NeoForge in your client or server environment."
                 link="/user/docs/"
                 linkTitle="Get Started"
             />
@@ -49,7 +49,7 @@ If you would like to contribute to the docs, read [Contributing to the Docs][con
         <div class="col" style={{padding: '10px'}}>
             <Card
                 title="Modpack Development"
-                body="Learn how to create and debug modpacks with mods from NeoForge."
+                body="Learn how to create and debug modpacks with NeoForge mods."
                 link="/modpack/docs/"
                 linkTitle="Get Started"
             />
