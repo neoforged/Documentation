@@ -334,7 +334,7 @@ public class MyDynamicModel extends DelegateBakedModel {
 [composite]: #composite-model
 [datagen]: ../../index.md#data-generation
 [event]: ../../../concepts/events.md#registering-an-event-handler
-[itemcomposite]: #TODO
+[itemcomposite]: items.md#composite-models
 [modeldatagen]: datagen.md
 [obj]: #obj-model
 [sides]: ../../../concepts/sides.md
