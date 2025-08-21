@@ -16,12 +16,7 @@ Access Transformers need to be declared in `build.gradle`. AT files can be speci
 <Tabs defaultValue="mdg">
 <TabItem value="mdg" label="ModDevGradle">
 
-```gradle
-// In build.gradle:
-neoForge {
-    accessTransformers.from 'src/main/resources/META-INF/accesstransformer.cfg'
-}
-```
+No need to do anything here by default!
 
 </TabItem>
 <TabItem value="ng" label="NeoGradle">
@@ -56,7 +51,7 @@ Additionally, multiple AT files can be specified and will be applied in order. T
 ```gradle
 // In build.gradle:
 neoForge {
-    accessTransformers.from 'src/main/resources/META-INF/accesstransformer.cfg'
+    // ModDevGradle already tries to include 'src/main/resources/META-INF/accesstransformer.cfg' by default
     accessTransformers.from 'src/additions/resources/accesstransformer_additions.cfg'
 }
 ```
