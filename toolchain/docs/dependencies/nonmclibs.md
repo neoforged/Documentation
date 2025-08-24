@@ -4,9 +4,9 @@ sidebar_position: 1
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-# Non-Minecraft dependencies
+# Non-Minecraft Dependencies
 
-Non-Minecraft dependencies are not loaded by NeoForge by default in the development environment. To get NeoForge to recognize the non-Minecraft dependency, they must be added to runs as a runtime dependency.
+Non-Minecraft dependencies are artifacts that are neither a mod nor a dependency Minecraft or NeoForge itself relies on. By default, NeoForge does not load non-Minecraft dependencies when loading a mod. For development environments, they must be added as a runtime dependencies, while production environments should make use of the [jar-in-jar system][jij].
 
 For example, you can add the `com.example:example` library to all runs like so:
 
@@ -101,3 +101,5 @@ runs {
 </Tabs>
 
 :::
+
+[jij]: jarinjar.md

@@ -10,7 +10,7 @@ If you would like to contribute to the docs, read [Contributing to the Docs][con
 
 <div class="container">
     <div class="row">
-        <div class="col" style={{padding: '10px'}}>
+        <div class="col category">
             <Card
                 title="NeoForge Documentation"
                 body="Learn how to create your first mod using NeoForge, and discover the vast APIs it provides."
@@ -20,7 +20,7 @@ If you would like to contribute to the docs, read [Contributing to the Docs][con
         </div>
     </div>
     <div class="row">
-        <div class="col" style={{padding: '10px'}}>
+        <div class="col category">
             <Card
                 title="Toolchain Features"
                 body="Learn about the features NeoForged provides through its Gradle plugins."
@@ -28,7 +28,7 @@ If you would like to contribute to the docs, read [Contributing to the Docs][con
                 linkTitle="Learn More"
             />
         </div>
-        <div class="col" style={{padding: '10px'}}>
+        <div class="col category">
             <Card
                 title="Primers"
                 body="Read about the changes between Minecraft releases and how to update your mod accordingly."
@@ -38,7 +38,7 @@ If you would like to contribute to the docs, read [Contributing to the Docs][con
         </div>
     </div>
     <div class="row">
-        <div class="col" style={{padding: '10px'}}>
+        <div class="col category">
             <Card
                 title="User Guide"
                 body="Learn how to install and use NeoForge in your client or server environment."
@@ -46,7 +46,7 @@ If you would like to contribute to the docs, read [Contributing to the Docs][con
                 linkTitle="Get Started"
             />
         </div>
-        <div class="col" style={{padding: '10px'}}>
+        <div class="col category">
             <Card
                 title="Modpack Development"
                 body="Learn how to create and debug modpacks with NeoForge mods."
