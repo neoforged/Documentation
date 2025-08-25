@@ -125,4 +125,5 @@ You need also to add some functions:
 
 :::tip
 If you just wanna have custom suggestions like for an action (add, set, sub...) you can directly use `#suggest` after a `then` with as argument an equivalent of `CarAgumentType::listSuggestion`
+Another options is to create an enum with all the possibilities and use `EnumArgument.enumArgument(Cars.class)`.
 :::
