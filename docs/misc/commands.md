@@ -1,4 +1,7 @@
 # Commands
+A command is a textual instruction for Minecraft to do somethings.
+See also [Commands](https://minecraft.wiki/w/commands) in the Minecraft Wiki.
+
 Commands are very useful because it provides a way for players to test
 your mod faster and cheat when he doesn't want to spend a long time to do
 not instresting things.
@@ -9,33 +12,33 @@ Mojang provides a complete command system in the `com.mojang.brigadier` package,
  - [Command Contexts](#command-contexts)
  - Suggestions
  - [Exception handling](#exceptions)
+ - Some other small things.
+
+ In fact, Brigadier is the command API of Minecraft.
 
 ## Commands architecture
-All the pieces of commands creation.
-:::tip
-See [Creating a command](#creating-a-command) for intuitive examples.
-:::
+Here are the main classes and concepts that command creation has.
 
 ### Command Dispatcher
-The `CommandDispatcher<S>` (`S` is `CommandSourceStack` in this case) is like a [`DeferredRegister`](../concepts/registries.md), but it's a singleton.
-Its function `register` work with a `LiteralArgumentBuilder`.
+The `CommandDispatcher<S>` (`S` is often `CommandSourceStack` in this case) work like a [`DeferredRegister`](../concepts/registries.md), but it's internally created.
+Its function `register` require a `LiteralArgumentBuilder` argument.
 
 ### Argument Builder
 The `ArgumentBuilder` class is abstract, so it can't be used on its own.
 It has two children:
- - `LiteralArgumentBuilder`: the most used of the two, because `CommandDispatcher#register` only accepts it. Returned after literal arguments and executions
- - RequiredArgumentBuilder: used in rare cases. It has more parameters and associated get functions than `LiteralArgumentBuilder`. Returned after required arguments declarations.
+ - `LiteralArgumentBuilder`: `CommandDispatcher#register` only accepts it. Returned after literal arguments (one-possiblity) and executions
+ - RequiredArgumentBuilder: it has more parameters and associated get functions than `LiteralArgumentBuilder`. Returned after required arguments declarations.
 
-In fact, the entire commands are built with it. Almost every function in the `Commands` class returns an `ArgumentBuilder`.
-
+In fact, the entire commands are built with it.
 Last but not least, command trees are chains of builders created with some functions:
- - `#then(ArgumentBuilder<S, ?>)`: create a new branch.
- - `#executes(Function<CommandContext<CommandSourceStack>, Integer>)`: execute the command. You'll need to return an integer: `Command.SINGLE_SUCCESS` (or just `1`) for success and `0` otherwise.
+ - `#then(ArgumentBuilder<S, ?>)`: create a new argument.
+ - `#executes(Command)`: execute the command. `Command` can be written like a `Function<CommandContext<CommandSourceStack>, Integer>` where you need to return an integer: `Command.SINGLE_SUCCESS` (or just `1`) for success and `0` otherwise.
 
 ### Argument types
 Argument types is the second part of creating commands. They come in two packages:
- - `com.mojang.brigadier.arguments` for the argument types based on [Primitive Types](https://docs.oracle.com/javase/tutorial/java/nutsandbolts/datatypes.html#PageTitle) (including `String`). Their names are always `<type>ArgumentType`.
+ - `com.mojang.brigadier.arguments` for the argument types based on [Primitive Types](https://docs.oracle.com/javase/tutorial/java/nutsandbolts/datatypes.html#PageTitle) (including `String`, without `char`). Their names are always `<type>ArgumentType`.
  - `net.minecraft.commands.arguments` for all other argument types. Their names are always `<type>Argument`.
+ - `net.neoforged.neoforge.server.command`: for mod-oriented argument like `EnumArgument`. Their names are the same as for `net.minecraft`.
 
 All these argument types are implementing an interface: `ArgumentType<T>` where `T` is the type on which they are based.
 
@@ -47,9 +50,8 @@ It contains all the additional information plus what was written as arguments.
 
 ### Exceptions
 The package `com.mojang.brigadier.exceptions` provide one [exception](https://docs.oracle.com/javase/tutorial/essential/exceptions/index.html): `CommandSyntaxException`, throwed if the command isn't correctly written; and many internal handling classes.
-:::note
-Minecraft also provides a `FunctionInstanciationsException`, but command functions aren't very useful and clear for external utilisations.
-:::
+
+
 
 ### Command Source Stack
 The `CommandSourceStack' holds all the information about the command execution context **before** the command is written and executed.
@@ -57,16 +59,17 @@ The `CommandSourceStack' holds all the information about the command execution c
 The most important ones are
  - `boolean #hasPermission(int)`: returns whether the command executor has the given [permission level](https://minecraft.wiki/w/Permission_level).
  - `Entity #getEntity()`: returns who is executing the command.
- - `void #sendSuccess(Supplier<Component>, boolean)`: send a green success message to the executor. The supplier provides the message and the boolean if it's visible to everyone.
+ - `void #sendSuccess(Supplier<Component>, boolean)`: send a success message to the executor. The supplier provides the message and the boolean if it's visible to everyone.
  - `void #sendFailure(Component)`: send a red failure message to the executor.
 
 ### The `Commands` class
 It provides many tools like `Commands.argument`.
 
 ## Creating a command
-To create a command, you'll need to register it with `RegisterCommandsEvent`.
+To create a command, you'll need to register it with `RegisterCommandsEvent` [event](../concepts/events.md). Here's an example:
 ```java
-@SubscribeEvent
+// Assuming we already regsiter the event
+@SubscribeEvent // Default event bus
 public static void registerCommands(RegisterCommandsEvent event) {
     event.getDispatcher().register( // event.getDispatcher returns the CommandDispatcher
         Commands.literal("mycommand") // Always start with this, the name of your command
@@ -108,13 +111,13 @@ public class CarArgumentType implements ArgumentType<Car> { // We create argumen
     public <S> CompletableFuture<Suggestion> listSuggestion(CommandContext<S>, SuggestionBuilder builder) { // To suggest all the different cars
         return SharedSuggestionProvider.suggest(CARS.keySet(), builder)
     }
-    public Collection<String> getExamples() {
+    public Collection<String> getExamples() { // To provide examples shown in the chat on wrong command writing.
         return List.of("Volvo", "Citroën");
     }
 }
 ```
 
-You need also to add some functions:
+You will also need to add some functions to allow instantiation and get argument:
  - A `public static CarArgumentType car()` that returns a `new CarArgumentType()` (it's a best pratice to avoid direct instanciations).
  - A function to get our arguments:
  ```java
