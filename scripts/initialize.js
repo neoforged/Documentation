@@ -243,7 +243,7 @@ if (!fs.existsSync(PRIMER_PATH)) {
     for (const primer of primers) {
         appendHeader(function(fileData) {
             const title = fileData.substring(0, fileData.indexOf('\n'))
-            .match(/[0-9]+\.[0-9]+(?:\.[0-9]+(?:\/[0-9]+)?)? \-\> [0-9]+\.[0-9]+(?:\.[0-9]+)?/)[0];
+            .match(/[0-9]+(?:\.[0-9]+)*(?:\/[0-9]+(?:\.[0-9]+)*)* \-\> [0-9]+(?:\.[0-9]+)*(?:\/[0-9]+(?:\.[0-9]+)*)*/)[0];
             return `---\ntitle: ${title}\nsidebar_position: ${currentPosition}\n---`;
         }, path.join(primerDocs, primer, 'index.md'));
         
