@@ -1,5 +1,9 @@
 # Porting to Minecraft 1.21.6
 
+:::note
+This section is currently being migrated to its own category. You can find the new list of primers [here][newprimers].
+:::
+
 Here you can find a list of primers on how to port from old versions to the current version. Some versions are lumped together since that particular version never saw much usage.
 
 |    From -> To      |               Primer                    |
@@ -19,6 +23,8 @@ Here you can find a list of primers on how to port from old versions to the curr
 | 1.21.3 -> 1.21.4   | [Primer by ChampionAsh5357][1213to1214] |
 | 1.21.4 -> 1.21.5   | [Primer by ChampionAsh5357][1214to1215] |
 | 1.21.5 -> 1.21.6   | [Primer by ChampionAsh5357][1215to1216] |
+
+[newprimers]: /primer/docs/
 
 [112to114]: https://gist.github.com/williewillus/353c872bcf1a6ace9921189f6100d09a
 [114to115]: https://gist.github.com/williewillus/30d7e3f775fe93c503bddf054ef3f93e
