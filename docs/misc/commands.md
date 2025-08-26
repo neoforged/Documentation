@@ -49,9 +49,37 @@ Command contexts are used every time you run a command. It's based on a generic 
 It contains all the additional information plus what was written as arguments.
 
 ### Exceptions
-The package `com.mojang.brigadier.exceptions` provide one [exception](https://docs.oracle.com/javase/tutorial/essential/exceptions/index.html): `CommandSyntaxException`, throwed if the command isn't correctly written; and many internal handling classes.
+The package `com.mojang.brigadier.exceptions` provide one [exception](https://docs.oracle.com/javase/tutorial/essential/exceptions/index.html): `CommandSyntaxException`, will be thrown if the syntax is incorrect or if the command fails. It will give an error message in chat if it was a player executing the command, or as output in a [command block](https://minecraft.wiki/w/command_block) if it's a command block.
 
+It also provides many internal handler classes and the `CommandExceptionType`s.
 
+#### `CommandExceptionType`
+This is an empty interface is used to mark a class as a eponymous exception. `CommandSyntaxException` take an argument `CommandExceptionType`.
+
+The classes implementing `CommandExceptionType` aims to create exception based on a certain amount of parameters:*
+ - `DynamicCommandExceptionType`: one
+ - `Dynamic2CommandExceptionType`, `Dynamic3CommandExceptionType`, `Dynamic4CommandExceptionType`: 2, 3 or 4
+ - `DynamicNCommandExceptionType`: an undetermined amount
+ - `SimpleCommandExceptionType`: zero
+
+These classes are most used in `BuiltInExceptions` in lines like:
+```java
+private static final Dynamic2CommandExceptionType FLOAT_TOO_BIG = new Dynamic2CommandExceptionType((found, max) -> new LiteralMessage("Float must not be
+    more than " + max + ", found " + found));
+```
+and then
+```java
+public Dynamic2CommandExceptionType floatTooHigh() {
+    return FLOAT_TOO_BIG;
+}
+```
+
+:::tip
+These functions are accessible everywhere, and it's recommended to use it when throwing `CommandSyntaxException`.
+```java
+throw new CommandSyntaxException(BuiltInException.floatTooHigh(), new LiteralMessage("Please provide a smaller float!"));
+```
+:::
 
 ### Command Source Stack
 The `CommandSourceStack' holds all the information about the command execution context **before** the command is written and executed.
@@ -63,7 +91,8 @@ The most important ones are
  - `void #sendFailure(Component)`: send a red failure message to the executor.
 
 ### The `Commands` class
-It provides many tools like `Commands.argument`.
+It's the "util" class of Minecraft's commands. You can use some of its function for yours, like `Commands.argument`.
+It also work as the register of all Minecraft's and Neoforge's commands, but you can't use it without [Mixin](https://spongepowered.org) (not recommended).
 
 ## Creating a command
 To create a command, you'll need to register it with `RegisterCommandsEvent` [event](../concepts/events.md). Here's an example:
@@ -76,15 +105,17 @@ public static void registerCommands(RegisterCommandsEvent event) {
             .requires(source -> source.hasPermission(2)) // Check permissions level
             .then(Commands.argument("level", StringArgumentType.word())) // Here we create an on-word argument named "level"
             .executes(context -> {
-                context.getPlayer().sendServerMessage(Component.literal("You're now on the level: " + 
-                StringArgumentType.getString(context, "level")))); // And we send a message to the executor
+                if(context.getEntity() instanceof Player player) {
+                    player.sendServerMessage(Component.literal("You're now on the level: " + 
+                        StringArgumentType.getString(context, "level")))); // And we send a message to the executor
+                }
                 return Command.SINGLE_SUCCESS;
             }
-    )
+    );
 }
 ```
 :::warning
-**Do not use special characters or spaces as arguments** in `Commands.literal` and `Commands.argument`. It won't make the game crash, but it will make the command unusable and always give errors.
+**Do not use special characters or spaces** in `Commands.argument` as the name of the argument or in `Commands.literal` as the name of the command. It won't make the game crash, but it will make the command unusable and always give errors.
 :::
 :::tip
 You can create optional argument like this:
@@ -96,7 +127,7 @@ dispatcher.register( // Assuming we already have a variable holding this dispatc
     )
     .then(Commands.argument("message", StringArgumentType.string())
     .executes(ctx -> {/*execution with two arguments*/})
-)
+);
 ```
 :::
 ## Creating argument types
@@ -106,10 +137,10 @@ To create an argument type, you'll need to create a new class that implements `A
 ```java
 public class CarArgumentType implements ArgumentType<Car> { // We create argument type based on the class Car
     public Car parse(StringReader reader) { // To parse the written string to a car instance
-        return CARS.get(reader.read()); // If we have a HashMap<String, Car>
+        return CARS.get(ResourceLocation.read(reader)); // If we have a HashMap<ResourceLocation, Car>
     }
-    public <S> CompletableFuture<Suggestion> listSuggestion(CommandContext<S>, SuggestionBuilder builder) { // To suggest all the different cars
-        return SharedSuggestionProvider.suggest(CARS.keySet(), builder)
+    public <S> CompletableFuture<Suggestion> listSuggestion(CommandContext<S> ctx, SuggestionBuilder builder) { // To suggest all the different cars
+        return SharedSuggestionProvider.suggest(CARS.keySet().map(key::toString), builder)
     }
     public Collection<String> getExamples() { // To provide examples shown in the chat on wrong command writing.
         return List.of("Volvo", "Citroën");
@@ -127,6 +158,42 @@ You will also need to add some functions to allow instantiation and get argument
  ```
 
 :::tip
-If you just wanna have custom suggestions like for an action (add, set, sub...) you can directly use `#suggest` after a `then` with as argument an equivalent of `CarAgumentType::listSuggestion`
+If you just wanna have custom suggestions like for an action (add, set, sub...) you can directly use `#suggests` after a `then` (that use a `RequiredArgumentType`) with as argument an equivalent of `CarAgumentType::listSuggestion`
 Another options is to create an enum with all the possibilities and use `EnumArgument.enumArgument(Cars.class)`.
 :::
+
+### `ArgumentTypeInfo`
+This class allow to serialize argument and provide build context.
+
+You can create it by a nested class implementing `ArgumentTypeInfo<ArgumentType, Template`. `Template<ArgumentType>` is a nested class of `ArgumentTypeInfo` used to give a way for Minecraft itself to use our type info. Here's an example:
+```java
+// In our class CarArgumentType
+public static class Info implements ArgumentTypeInfo<CarArgumentType, Template> {
+
+    public void serializeToNetwork(Template template, FriendlyByteBuf buffer) { // To serialize our argument into binary
+        buffer.writeByte(0); /* In this case, we don't have an ArgumentType argument, but if the constructor of 
+        CarArgumentType did have an argument, such as "boolean heavy", we would write something like
+        buffer.writeByte(template.heavy ? 1 : 0); */
+    }
+    public Template deserializeFromNetwork(FriendlyByteBuf buffer) { // To deserialize from the byte we wrote above
+        return new Template(); /* Taking an argument heavy like above, we have 
+        return new Template(buffer.readByte() == 1); */
+    }
+    public void serializeToJson(Template template, JsonObject json) { // To serialize into a JSON object
+        /* There's nothings to write here if new Template haven't any argument.
+        Otherwise, you'll write somethings like: json.addProperty("heavy", template.heavy); */
+    }
+    public Template unpack(CarArgumentType arg) { // To transform the argument type instance into a Template<ArgumentType>
+        return new Template(); /* Or with an argument: new Template(arg.heavy); */
+    }
+
+    public static final class Template implements ArgumentTypeInfo.Template<CarArgmentType> {
+        public CarArgumentType instanciate() { // Says to Minecraft how to instanciate our argument
+            return new CarArgumentType();
+        }
+        public ArgumentTypeInfo<CarArgumentType, ?> type() { // To transform the Template into an ArgumentTypeInfo
+            return Info.this;
+        }
+    }
+}
+```
