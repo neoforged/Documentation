@@ -81,14 +81,26 @@ throw new CommandSyntaxException(BuiltInException.floatTooHigh(), new LiteralMes
 ```
 :::
 
+### `SharedSuggestionProvider`
+It's the base interface of execution contexts, [client-side or server-side](../concepts/sides.md).
+
+:::warning
+We talk here about **execution** context. It's meaning that the command hasn't be written when it's instanciated, so you can't get arguments from it, use instead [`CommandContext`](#command-contexts).
+:::
+
+#### `ClientSuggestionProvider`
+It implement `SharedSuggestionProvider` but have many more function, about client context.
+
 ### Command Source Stack
 The `CommandSourceStack' holds all the information about the command execution context **before** the command is written and executed.
 
 The most important ones are
  - `boolean #hasPermission(int)`: returns whether the command executor has the given [permission level](https://minecraft.wiki/w/Permission_level).
- - `Entity #getEntity()`: returns who is executing the command.
  - `void #sendSuccess(Supplier<Component>, boolean)`: send a success message to the executor. The supplier provides the message and the boolean if it's visible to everyone.
  - `void #sendFailure(Component)`: send a red failure message to the executor.
+
+#### `ClientCommandSourceStack`
+It's a Neoforge class that implements `SharedSuggestionProvider`. It has no other functions, so it works like the base context.
 
 ### The `Commands` class
 It's the "util" class of Minecraft's commands. You can use some of its function for yours, like `Commands.argument`.
@@ -107,10 +119,10 @@ public static void registerCommands(RegisterCommandsEvent event) {
             .executes(context -> {
                 if(context.getEntity() instanceof Player player) {
                     player.sendServerMessage(Component.literal("You're now on the level: " + 
-                        StringArgumentType.getString(context, "level")))); // And we send a message to the executor
+                        StringArgumentType.getString(context, "level"))); // And we send a message to the executor
                 }
                 return Command.SINGLE_SUCCESS;
-            }
+            })
     );
 }
 ```
@@ -123,15 +135,15 @@ You can create optional argument like this:
 dispatcher.register( // Assuming we already have a variable holding this dispatcher
     Commands.literal("mycommandwithoptionalargs")
     .then(Commands.argument("level", StringArgumentType.word())
-    .executes(ctx -> {/*execution with one argument*/}) // Here #executes is in the "then" block
-    )
-    .then(Commands.argument("message", StringArgumentType.string())
-    .executes(ctx -> {/*execution with two arguments*/})
+    .then(Commands.argument("amount", IntegerArgumentType.integer()))
+    .executes(/*execution with two arguments*/)) // The executes block is inside the then block
+    .executes(/*execution with one argument*/) // The executes block is after the then block
 );
 ```
 :::
 ## Creating argument types
-If you wanna add custom argument type like for quests, spell or anythings new that your mod add read below.
+Sometime creating a `StringArgumentType` or `ResourceOrTagKeyArgument` isn't pratice or useful.
+In this case you can create your own.
 
 To create an argument type, you'll need to create a new class that implements `ArgumentType<T>` and its functions.
 ```java
