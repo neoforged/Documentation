@@ -1,0 +1,78 @@
+{
+  "version.label": {
+    "message": "1.20.5 - 1.20.6",
+    "description": "The label for version 1.20.6"
+  },
+  "sidebar.mainSidebar.category.Getting Started with Neo": {
+    "message": "Getting Started with Neo",
+    "description": "The label for category Getting Started with Neo in sidebar mainSidebar"
+  },
+  "sidebar.mainSidebar.category.Concepts": {
+    "message": "Concepts",
+    "description": "The label for category Concepts in sidebar mainSidebar"
+  },
+  "sidebar.mainSidebar.category.Advanced Topics": {
+    "message": "Advanced Topics",
+    "description": "The label for category Advanced Topics in sidebar mainSidebar"
+  },
+  "sidebar.mainSidebar.category.Block Entities": {
+    "message": "Block Entities",
+    "description": "The label for category Block Entities in sidebar mainSidebar"
+  },
+  "sidebar.mainSidebar.category.Blocks": {
+    "message": "Blocks",
+    "description": "The label for category Blocks in sidebar mainSidebar"
+  },
+  "sidebar.mainSidebar.category.Datagen": {
+    "message": "Datagen",
+    "description": "The label for category Datagen in sidebar mainSidebar"
+  },
+  "sidebar.mainSidebar.category.Data Maps": {
+    "message": "Data Maps",
+    "description": "The label for category Data Maps in sidebar mainSidebar"
+  },
+  "sidebar.mainSidebar.category.Data Storage": {
+    "message": "Data Storage",
+    "description": "The label for category Data Storage in sidebar mainSidebar"
+  },
+  "sidebar.mainSidebar.category.GUIs": {
+    "message": "GUIs",
+    "description": "The label for category GUIs in sidebar mainSidebar"
+  },
+  "sidebar.mainSidebar.category.Items": {
+    "message": "Items",
+    "description": "The label for category Items in sidebar mainSidebar"
+  },
+  "sidebar.mainSidebar.category.Legacy": {
+    "message": "Legacy",
+    "description": "The label for category Legacy in sidebar mainSidebar"
+  },
+  "sidebar.mainSidebar.category.Miscellaneous": {
+    "message": "Miscellaneous",
+    "description": "The label for category Miscellaneous in sidebar mainSidebar"
+  },
+  "sidebar.mainSidebar.category.Networking": {
+    "message": "Networking",
+    "description": "The label for category Networking in sidebar mainSidebar"
+  },
+  "sidebar.mainSidebar.category.Resources": {
+    "message": "Resources",
+    "description": "The label for category Resources in sidebar mainSidebar"
+  },
+  "sidebar.mainSidebar.category.Client": {
+    "message": "Client",
+    "description": "The label for category Client in sidebar mainSidebar"
+  },
+  "sidebar.mainSidebar.category.Models": {
+    "message": "Models",
+    "description": "The label for category Models in sidebar mainSidebar"
+  },
+  "sidebar.mainSidebar.category.Datapacks": {
+    "message": "Datapacks",
+    "description": "The label for category Datapacks in sidebar mainSidebar"
+  },
+  "sidebar.mainSidebar.category.Recipes": {
+    "message": "Recipes",
+    "description": "The label for category Recipes in sidebar mainSidebar"
+  }
+}

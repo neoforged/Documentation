@@ -1,0 +1,14 @@
+{
+  "version.label": {
+    "message": "NG7",
+    "description": "The label for version current"
+  },
+  "sidebar.ngSidebar.category.NeoGradle Configurations": {
+    "message": "NeoGradle Configurations",
+    "description": "The label for category NeoGradle Configurations in sidebar ngSidebar"
+  },
+  "sidebar.ngSidebar.category.Dependencies": {
+    "message": "Dependencies",
+    "description": "The label for category Dependencies in sidebar ngSidebar"
+  }
+}

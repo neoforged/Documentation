@@ -29,7 +29,21 @@ const config = {
   // to replace "en" with "zh-Hans".
   i18n: {
     defaultLocale: "en",
-    locales: ["en"],
+    locales: ["en", "fr", "es"],
+    localeConfigs: {
+      en: {
+        label: "English",
+        htmlLang: "en-US",
+      },
+      fr: {
+        label: "Français",
+        htmlLang: "fr-FR",
+      },
+      es: {
+        label: "Español",
+        htmlLang: "es-ES",
+      },
+    },
   },
 
   presets: [
@@ -109,6 +123,10 @@ const config = {
             position: "left",
             docsPluginId: "neogradle",
             label: "NeoGradle Documentation",
+          },
+          {
+            type: "localeDropdown",
+            position: "right",
           },
           {
             type: "docsVersionDropdown",
