@@ -188,8 +188,9 @@ function linkRemapperPatch(linkMap, line) {
     const linkMatcher = line.matchAll(/\[[^\]]*\]\(([^\)]+)\)/g);
     for (const match of linkMatcher) {
         const link = match[1];
+        const replacementIndex = match.index + match[0].length - link.length - 1;
         if (link in linkMap) {
-            line = line.replace(link, linkMap[link]);
+            line = line.substring(0, replacementIndex) + linkMap[link] + line.substring(replacementIndex + link.length);
         }
     }
 
@@ -205,7 +206,7 @@ const NG_GIT = 'https://github.com/neoforged/NeoGradle';
 
 // Setup primers
 if (!fs.existsSync(PRIMER_PATH)) {
-    pullRepository(PRIMERS_GIT, PRIMER_PATH, {
+    const primerCommit = pullRepository(PRIMERS_GIT, PRIMER_PATH, {
         directories: {
             'primers': 'docs'
         }
@@ -214,7 +215,26 @@ if (!fs.existsSync(PRIMER_PATH)) {
     const primerDocs = path.join(PRIMER_PATH, 'docs');
 
     // Rename README to index and append starting sidebar position
-    appendHeader('---\nsidebar_position: 1\n---', path.join(primerDocs, 'README.md'), to = path.join(primerDocs, 'index.md'));
+    modifyFile([
+        function (line, context, extraLineConsumer) {
+            const headerPatch = 'headerPatch' in context ? context['headerPatch'] : 0;
+
+            // Add header
+            if (headerPatch == 0) {
+                // Push to output
+                extraLineConsumer('---\nsidebar_position: 1\n---');
+
+                context['headerPatch'] = 1;
+            }
+
+            return line;
+        },
+        function (line, _, _) { return linkRemapperPatch({
+            'LICENSE-50AP5UD5': `https://github.com/neoforged/.github/blob/${primerCommit}/primers/LICENSE-50AP5UD5`,
+            'LICENSE-CHAMPIONASH5357': `https://github.com/neoforged/.github/blob/${primerCommit}/primers/LICENSE-CHAMPIONASH5357`,
+            'LICENSE-WILLIEWILLUS': `https://github.com/neoforged/.github/blob/${primerCommit}/primers/LICENSE-WILLIEWILLUS`
+        }, line); }
+    ], path.join(primerDocs, 'README.md'), to = path.join(primerDocs, 'index.md'))
 
     // Order primers starting from most recent
     const primers = fs.readdirSync(primerDocs).filter((possible) => {
