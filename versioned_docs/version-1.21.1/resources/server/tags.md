@@ -99,13 +99,13 @@ boolean isInBlockTag = blockState.is(MY_TAG);
 boolean isInItemTag = itemStack.is(MY_ITEM_TAG);
 ```
 
-If needed, we can also get ourselves a set of tag entries, like so:
+If needed, we can also get ourselves a stream of tag entries, like so:
 
 ```java
-Set<Block> blocksInTag = BuiltInRegistries.BLOCK.getOrCreateTag(MY_TAG).stream().toSet();
+Stream<Block> blocksInTag = BuiltInRegistries.BLOCK.getOrCreateTag(MY_TAG).stream();
 ```
 
-For performance reasons, it is recommended to cache these sets in a field, invalidating them when tags are reloaded (which can be listened for using `TagsUpdatedEvent`). This can be done like so:
+For performance reasons, it is recommended to cache these tag entries in a field, invalidating them when tags are reloaded (which can be listened for using `TagsUpdatedEvent`). This can be done like so:
 
 ```java
 public class MyTagsCacheClass {
@@ -114,7 +114,7 @@ public class MyTagsCacheClass {
     public static Set<Block> getBlockTagContents() {
         if (blocksInTag == null) {
             // Wrap as an unmodifiable set, as we're not supposed to modify this anyway
-            blocksInTag = Collections.unmodifiableSet(BuiltInRegistries.BLOCK.getOrCreateTag(MY_TAG).stream().toSet());
+            blocksInTag = Collections.unmodifiableSet(BuiltInRegistries.BLOCK.getOrCreateTag(MY_TAG).stream().collect(Collectors.toSet()));
         }
         return blocksInTag;
     }
