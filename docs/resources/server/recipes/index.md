@@ -1,3 +1,6 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 # Recipes
 
 Recipes are a way to transform a set of objects into other objects within a Minecraft world. Although Minecraft uses this system purely for item transformations, the system is built in a way that allows any kind of objects - blocks, entities, etc. - to be transformed. Almost all recipes use recipe data files; a "recipe" is assumed to be a data-driven recipe in this article unless explicitly stated otherwise.
@@ -109,6 +112,80 @@ RecipeManager recipes = serverLevel.recipeAccess();
 // Like before, pass the desired recipe type.
 Collection<RecipeHolder<?>> list = recipes.recipeMap().byType(RecipeType.CRAFTING);
 ```
+
+## Recipe Priorities
+
+Sometimes, recipes can overlap with others, usually because one pattern uses a specific item while another same pattern uses a tag that has the item within. In these instances, vanilla uses the first recipe it finds, which is determined by whatever recipe is read and loaded first. This can be an issue, as if the specific item recipe is loaded after the tag-based recipe, then the specific item recipe can never be obtained.
+
+To combat this issue, NeoForge introduces recipe priorities to order which recipes should be displayed first. The entries are represented as a map of recipe registry keys to integer priority values. The priority values are sorted based on the highest value, recipes not specified defaulting to `0`. This means that recipes with a priority greater than `0` are ordered first, while recipes less than `0` are ordered last. The priority map is located in `data/<namespace>/recipe_priorities.json`, where all the recipe priorities are merged together, unless `replace` is true, which will clear out all previously loaded entries.
+
+<Tabs>
+<TabItem value="json" label="JSON" default>
+
+```json5
+{
+    // When true, clears out all previously loaded entires.
+    "replace": false,
+    // The map of recipe entries to their priority values.
+    // If a recipe does not have a priority, it defaults to
+    // 0.
+    "entries": {
+        // Points to 'data/examplemod/recipe/higher_priority.json'
+        // This recipe will be checked before any defaults.
+        "examplemod:higher_priority": 1,
+        // Points to 'data/examplemod/recipe/lower_priority.json'
+        // This recipe will be checked after any defaults.
+        "examplemod:lower_priority": -1,
+        // Points to 'data/examplemod/recipe/even_lower_priority.json'
+        // This recipe will be checked after any defaults and the
+        // 'lower_priority' recipe.
+        "examplemod:even_lower_priority": -2
+    }
+}
+```
+
+</TabItem>
+<TabItem value="datagen" label="Datagen">
+
+```java
+// Generates the recipe priorities
+public class ExamplePrioritiesProvider extends RecipePrioritiesProvider {
+
+    public ExamplePrioritiesProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
+        super(output, registries, "examplemod");
+    }
+
+    @Override
+    protected void start() {
+        // Registers a recipe entry to a priority value.
+
+        this.add(
+            // Points to 'data/examplemod/recipe/higher_priority.json'
+            ResourceKey.create(Registries.RECIPE, ResourceLocation.fromNamespaceAndPath("examplemod", "higher_priority")),
+            // This recipe will be checked before any defaults.
+            1
+        );
+
+        this.add(
+            // Points to 'data/examplemod/recipe/lower_priority.json'
+            ResourceLocation.fromNamespaceAndPath("examplemod", "lower_priority"),
+            // This recipe will be checked after any defaults.
+            -1
+        );
+
+        this.add(
+            // Points to 'data/examplemod/recipe/even_lower_priority.json'
+            // The namespace is inferred from the mod id passed to the provider.
+            "even_lower_priority",
+            // This recipe will be checked after any defaults and the 'lower_priority' recipe.
+            -2
+        );
+    }
+}
+```
+
+</TabItem>
+</Tabs>
 
 ## Other Recipe Mechanisms
 
