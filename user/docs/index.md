@@ -90,13 +90,13 @@ Once you have successfully installed Java, you can now install NeoForge itself.
 
 This guide covers most of the issues you may face as a user of NeoForge, however it is not intended to be exhaustive, and you may run into a problem which is not covered here.
 
-Common problems can be found in the [Troubleshooting & FAQ][faq] article. The NeoForged project also has a [Discord server][discord], including a `#user-support` channel where you can ask for support.
+Common problems can be found in the [Troubleshooting & FAQ][faq] article. For further support, see the FAQ's [Getting Support][support] section.
 
 [client]: client.md
-[discord]: https://discord.neoforged.net/
 [faq]: faq.md
 [installingjava]: #installing-java
 [installingneoforge]: #installing-neoforge
 [launchers]: launchers.md
 [server]: server.md
+[support]: faq.md#getting-support
 [testingforjava]: #testing-for-java

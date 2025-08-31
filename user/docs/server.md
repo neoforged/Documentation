@@ -40,7 +40,7 @@ curl -O https://maven.neoforged.net/releases/net/neoforged/neoforge/21.4.111-bet
 - (Optional) Modify the amount of RAM provided to the server, and potentially other JVM arguments, in the newly-created `user_jvm_args.txt` file. See the comments in the file for more information.
 - Start the server using `.\run.bat`. It will shut down on the first run.
 - Open the `eula.txt` file and change `eula=false` to `eula=true`. By doing so, you agree to abide by the [Minecraft EULA][eula] while operating the server.
-- Start the server again using `.\run.sh`.
+- Start the server again using `.\run.bat`.
 
 Your server should now be operational. You may have to do some environment setup, such as opening the Minecraft port (defaults to 25565) in your system's and/or your network's firewall. If you plan to have the server run 24/7, you should also schedule a task in the Windows Task Scheduler for periodic restarts.
   </TabItem>
@@ -70,7 +70,7 @@ Installing pre-made modpacks often requires some additional setup on servers. Si
 - (Optional) Remove client-side mods from the server.
   - What constitutes as a client-side mod is not always clear, and often requires trial and error. Common things client-side mods do are visual things, e.g. enable shaders or additional resource pack features.
   - If you have installed a server pack, this should have been done for you.
-- Start the server using `./run.sh`.
+- Start the server using `./run.sh` (Linux) or `.\run.bat` (Windows).
 
 [curseforge]: https://www.curseforge.com/minecraft/search?class=mc-mods
 [eula]: https://www.minecraft.net/en-us/eula
