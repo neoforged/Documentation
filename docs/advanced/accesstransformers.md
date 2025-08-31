@@ -1,3 +1,6 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 # Access Transformers
 
 Access Transformers (ATs for short) allow for widening the visibility and modifying the `final` flags of classes, methods, and fields. They allow modders to access and modify otherwise inaccessible members in classes outside their control.
@@ -10,15 +13,25 @@ Adding an Access Transformer to your mod project is as simple as adding a single
 
 Access Transformers need to be declared in `build.gradle`. AT files can be specified anywhere as long as they are copied to the `resources` output directory on compilation.
 
-```groovy
+<Tabs defaultValue="mdg">
+<TabItem value="mdg" label="ModDevGradle">
+
+No need to do anything here by default!
+
+</TabItem>
+<TabItem value="ng" label="NeoGradle">
+
+```gradle
 // In build.gradle:
-// This block is where your mappings version is also specified
 minecraft {
     accessTransformers {
-        file('src/main/resources/META-INF/accesstransformer.cfg')
+        file 'src/main/resources/META-INF/accesstransformer.cfg'
     }
 }
 ```
+
+</TabItem>
+</Tabs>
 
 By default, NeoForge will search for `META-INF/accesstransformer.cfg`. If the `build.gradle` specifies access transformers in any other location, then their location needs to be defined within `neoforge.mods.toml`:
 
@@ -32,15 +45,32 @@ file="META-INF/accesstransformer.cfg"
 
 Additionally, multiple AT files can be specified and will be applied in order. This can be useful for larger mods with multiple packages.
 
-```groovy
+<Tabs defaultValue="mdg">
+<TabItem value="mdg" label="ModDevGradle">
+
+```gradle
+// In build.gradle:
+neoForge {
+    // ModDevGradle already tries to include 'src/main/resources/META-INF/accesstransformer.cfg' by default
+    accessTransformers.from 'src/additions/resources/accesstransformer_additions.cfg'
+}
+```
+
+</TabItem>
+<TabItem value="ng" label="NeoGradle">
+
+```gradle
 // In build.gradle:
 minecraft {
     accessTransformers {
-        file('src/main/resources/accesstransformer_main.cfg')
-        file('src/additions/resources/accesstransformer_additions.cfg')
+        file 'src/main/resources/META-INF/accesstransformer.cfg'
+        file 'src/additions/resources/accesstransformer_additions.cfg'
     }
 }
 ```
+
+</TabItem>
+</Tabs>
 
 ```toml
 # In neoforge.mods.toml

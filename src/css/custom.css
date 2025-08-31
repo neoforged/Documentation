@@ -78,3 +78,7 @@ h2 {
   padding-top: 24px;
   border-top: 1px solid var(--context-divier);
 }
+
+.category {
+  padding: 10px;
+}

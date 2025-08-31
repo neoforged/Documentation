@@ -52,10 +52,10 @@ dependencies {
 The group name can be anything but must not be empty for flat directory entries as they are not checked when resolving the artifact file.
 :::
 
-[guide]: https://docs.gradle.org/8.1.1/userguide/dependency_management.html
+[guide]: https://docs.gradle.org/8.14.3/userguide/dependency_management.html
 
 [central]: https://central.sonatype.com/
 [CurseMaven]: https://cursemaven.com/
 [Modrinth]: https://docs.modrinth.com/docs/tutorials/maven/
 
-[flat]: https://docs.gradle.org/8.1.1/userguide/declaring_repositories.html#sub:flat_dir_resolver
+[flat]: https://docs.gradle.org/8.14.3/userguide/supported_repository_types.html#sec:flat-dir-resolver

@@ -4,6 +4,42 @@ const {themes} = require('prism-react-renderer');
 const lightTheme = themes.oneLight;
 const darkTheme = themes.vsDark;
 
+// Section metadata
+
+const contentPlugins = [];
+const navbarItems = [];
+const footerItems = [];
+
+function createContentDocs(id, label) {
+  contentPlugins.push([
+    "@docusaurus/plugin-content-docs",
+    {
+      id: id,
+      path: id,
+      routeBasePath: id,
+      sidebarPath: require.resolve(`./sidebar/${id}.js`),
+    },
+  ]);
+
+  navbarItems.push({
+    type: "docSidebar",
+    sidebarId: `${id}Sidebar`,
+    position: "left",
+    docsPluginId: id,
+    label: label,
+  });
+
+  footerItems.push({
+    to: `/${id}/docs/`,
+    label: label
+  });
+}
+
+createContentDocs("toolchain", "Toolchain Features");
+createContentDocs("primer", "Primers");
+createContentDocs("user", "User Guide");
+createContentDocs("modpack", "Modpack Development");
+
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title: "NeoForged docs",
@@ -54,32 +90,7 @@ const config = {
     ],
   ],
 
-  plugins: [
-    [
-      "@docusaurus/plugin-content-docs",
-      {
-        id: "neogradle",
-        path: "neogradle",
-        routeBasePath: "neogradle",
-        sidebarPath: require.resolve("./sidebarsNG.js"),
-        lastVersion: "current",
-        includeCurrentVersion: true,
-        versions: {
-          current: {
-            label: "NG7",
-          },
-          "6.x": {
-            label: "FG6",
-            path: "6.x",
-          },
-          "5.x": {
-            label: "FG5",
-            path: "5.x",
-          },
-        },
-      },
-    ],
-  ],
+  plugins: contentPlugins,
 
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
@@ -102,22 +113,13 @@ const config = {
             sidebarId: "mainSidebar",
             position: "left",
             label: "NeoForge Documentation",
-          },
-          {
-            type: "docSidebar",
-            sidebarId: "ngSidebar",
-            position: "left",
-            docsPluginId: "neogradle",
-            label: "NeoGradle Documentation",
-          },
+          }
+        ]
+        .concat(navbarItems)
+        .concat([
           {
             type: "docsVersionDropdown",
             position: "right",
-          },
-          {
-            type: "docsVersionDropdown",
-            position: "right",
-            docsPluginId: "neogradle",
           },
           {
             to: "/contributing",
@@ -129,7 +131,7 @@ const config = {
             label: "GitHub",
             position: "right",
           },
-        ],
+        ]),
       },
       footer: {
         style: "dark",
@@ -141,15 +143,14 @@ const config = {
                 to: "/docs/gettingstarted/",
                 label: "NeoForge Documentation",
               },
-              {
-                to: "/neogradle/docs/",
-                label: "NeoGradle Documentation",
-              },
+            ]
+            .concat(footerItems)
+            .concat([
               {
                 to: "/contributing",
                 label: "Contributing to the Documentation"
               }
-            ],
+            ]),
           },
           {
             title: "Links",
