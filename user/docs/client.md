@@ -42,9 +42,14 @@ Always backup your world before updating NeoForge or mods!
 
 The Minecraft Launcher does not offer functionality to automatically install collections of mods, so-called modpacks. This generally falls into the territory of [third-party launchers][launchers].
 
+:::tip
+If you are building a modpack yourself, we recommend you have a look at the [modpack documentation][modpack] for some tips and tricks.
+:::
+
 [curseforge]: https://www.curseforge.com/minecraft/search?class=mc-mods
 [dotminecraft]: https://minecraft.wiki/w/.minecraft
 [java]: index.md#java
 [launchers]: launchers.md
+[modpack]: /modpack/docs
 [modrinth]: https://modrinth.com/mods
 [neoforged]: https://neoforged.net
