@@ -61,7 +61,7 @@ OpenJDK 64-Bit Server VM Temurin-21.0.4+7 (build 21.0.4+7-LTS, mixed mode, shari
 
 ### Installing Java
 
-The way to install Java depends on your operating system. Always make sure you're grabbing the correct version!
+The way to install Java depends on your operating system. Always make sure you're grabbing the correct version of Java, and make sure you grab the 64-bit version, as modern versions of Minecraft do no longer support 32-bit versions of Java.
 
 <Tabs defaultValue="windows">
   <TabItem value="windows" label="Windows">

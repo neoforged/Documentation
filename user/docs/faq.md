@@ -17,7 +17,7 @@ Please see the [Installing Java][installjava] section. Yes, even if you already 
 
 ### I installed Java, but I'm still getting the wrong version!
 
-This likely means that your PATH variable is not set, or set incorrectly. To do this, do the following depending on your operating system:
+This likely means that your PATH variable is not set, or set incorrectly. The PATH variable is a system variable that tells your computer where to find Java. To fix it, do the following depending on your operating system:
 
 <Tabs defaultValue="windows">
   <TabItem value="windows" label="Windows">
@@ -26,7 +26,10 @@ Download and run the [Jarfix program][jarfix].
   <TabItem value="macos" label="MacOS">
 Open Finder. In Finder, open the Applications/Utilities folder and double-click Terminal.
 
-Run the following command: `echo export "JAVA_HOME=\$(/usr/libexec/java_home)" >> ~/.bash_profile`
+Run the following commands:
+
+- `echo export "JAVA_HOME=\$(/usr/libexec/java_home)" >> ~/.zshenv`
+- `echo export "PATH=$PATH:$JAVA_HOME/bin" >> ~/.zshenv`
 
 Then, close Terminal and try again.
   </TabItem>
@@ -38,7 +41,7 @@ Find the location where Java is stored. Often, this will be something like `/usr
 Run the following commands:
 
 - `echo export "JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64/" >> ~/.bashrc` (swapping out the path for the actual path if needed)
-- `echo export PATH=$PATH:$JAVA_HOME/bin`
+- `echo export "PATH=$PATH:$JAVA_HOME/bin" >> ~/.bashrc`
 
 Then, close the terminal and try again.
   </TabItem>

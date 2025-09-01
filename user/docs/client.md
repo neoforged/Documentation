@@ -12,7 +12,7 @@ To install NeoForge:
 
 - Close your Minecraft Launcher.
 - Download the installer `.jar` from [the NeoForged website][neoforged].
-- Run the installer.
+- Make sure that `Install client` is selected and click `Proceed`.
 - Open the Minecraft Launcher. A NeoForged run option should have appeared.
 
 Now, while you can use that run option, it is recommended to instead use custom launch profiles when dealing with modded instances, as to keep the mods isolated from the vanilla game. To that end, the Minecraft Launcher offers you the ability to create custom profiles in the Installations tab:
