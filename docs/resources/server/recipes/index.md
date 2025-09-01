@@ -124,7 +124,7 @@ To combat this issue, NeoForge introduces recipe priorities to order which recip
 
 ```json5
 {
-    // When true, clears out all previously loaded entires.
+    // When true, clears out all previously loaded entries.
     "replace": false,
     // The map of recipe entries to their priority values.
     // If a recipe does not have a priority, it defaults to
