@@ -101,17 +101,11 @@ public boolean stillValid(Player player) {
 
 Some data needs to be present on both the server and the client to display to the player. To do this, the menu implements a basic layer of data synchronization such that whenever the current data does not match the data last synced to the client. For players, this is checked every tick.
 
-Minecraft supports two forms of data synchronization by default: `ItemStack`s via `Slot`s and integers via `DataSlot`s. `Slot`s and `DataSlot`s are views which hold references to data storages that can be be modified by the player in a screen, assuming the action is valid. These can be added to a menu within the constructor through `#addSlot` and `#addDataSlot`.
+Minecraft supports two forms of data synchronization by default: [`ItemStack`s][itemstack] via `Slot`s and integers via `DataSlot`s. `Slot`s and `DataSlot`s are views which hold references to data storages that can be be modified by the player in a screen, assuming the action is valid. Each method of data synchronization will add an argument to the server menu constructor, while the client will create a dummy instance used to write the data sent from the server.
 
-:::note
-Since `Container`s used by `Slot`s are deprecated by NeoForge in favor of using the [`IItemHandler` capability][cap], the rest of the explanation will revolve around using the capability variant: `SlotItemHandler`.
-:::
+#### `DataSlot`
 
-A `SlotItemHandler` contains four parameters: the `IItemHandler` representing the inventory the stacks are within, the index of the stack this slot is specifically representing, and the x and y position of where the top-left position of the slot will render on the screen relative to `AbstractContainerScreen#leftPos` and `#topPos`. The client menu constructor should always supply an empty instance of an inventory of the same size.
-
-In most cases, any slots the menu contains is first added, followed by the player's inventory, and finally concluded with the player's hotbar. To access any individual `Slot` from the menu, the index must be calculated based upon the order of which slots were added.
-
-A `DataSlot` is an abstract class which should implement a getter and setter to reference the data stored in the data storage object. The client menu constructor should always supply a new instance via `DataSlot#standalone`.
+A `DataSlot` is an abstract class which should implement a getter and setter to reference the data stored in the data storage object. The client menu constructor should always supply a new instance via `DataSlot#standalone`. The data slot can then be added to the menu using `#addDataSlot`.
 
 These, along with slots, should be recreated every time a new menu is initialized.
 
@@ -122,23 +116,19 @@ NeoForge patches the packet to provide the full integer to the client.
 :::
 
 ```java
-// Assume we have an inventory from a data object of size 5
 // Assume we have a DataSlot constructed on each initialization of the server menu
 
 // Client menu constructor
 public MyMenuAccess(int containerId, Inventory playerInventory) {
-    this(containerId, playerInventory, new ItemStackHandler(5), DataSlot.standalone());
+    this(
+        containerId, playerInventory,
+        // Pass in a dummy slot to hold the server-synced values
+        DataSlot.standalone()
+    );
 }
 
 // Server menu constructor
-public MyMenuAccess(int containerId, Inventory playerInventory, IItemHandler dataInventory, DataSlot dataSingle) {
-    // Check if the data inventory size is some fixed value
-    // Then, add slots for data inventory
-    this.addSlot(new SlotItemHandler(dataInventory, /*...*/));
-
-    // Add slots for player inventory
-    this.addSlot(new Slot(playerInventory, /*...*/));
-
+public MyMenuAccess(int containerId, Inventory playerInventory, DataSlot dataSingle) {
     // Add data slots for handled integers
     this.addDataSlot(dataSingle);
 
@@ -165,6 +155,77 @@ public MyMenuAccess(int containerId, Inventory playerInventory, ContainerData da
 
     // Add data slots for handled integers
     this.addDataSlots(dataMultiple);
+
+    // ...
+}
+```
+
+#### `Slot`
+
+A `Slot` represents a reference to some [`ItemStack`][itemstack] in an inventory. Each `Slot` has at least four parameters: the inventory the stacks are within, the index of the stack this slot is specifically representing, and the x and y position of where the top-left position of the slot will render on the screen relative to `AbstractContainerScreen#leftPos` and `#topPos`. Any additional parameters usually provide context for the slot to handle unique behavior, such as taking in only items that are considered fuel or preventing items from being taken out. 
+
+The server menu constructor should take in the inventory instance or view. The client menu constructor, meanwhile, should always supply an empty instance of an inventory of the same size to write the server data to. The desired slot or one of its subtypes can then be added to the menu using `#addSlot`.
+
+For a [`Container`][container], the client menu will typically pass in a `SimpleContainer` and be added using regular `Slot`s. For the [`IItemHandler` capability][cap], the client menu will typically pass in a `ItemStackHandler` and be added using `SlotItemHandler`s.
+
+In most cases, any slots the menu contains is first added, followed by the player's inventory, and finally concluded with the player's hotbar. To access any individual `Slot` from the menu, the index must be calculated based upon the order of which slots were added.
+
+```java
+// Assume we have an inventory from a data object of size 10
+
+// Client menu constructor
+public MyMenuAccess(int containerId, Inventory playerInventory) {
+    this(containerId, playerInventory, new ItemStackHandler(10));
+}
+
+// Server menu constructor
+public MyMenuAccess(int containerId, Inventory playerInventory, IItemHandler dataInventory) {
+    // Check if the data inventory size is some fixed value
+    int dataSize = dataInventory.getSlots();
+    if (dataSize < 10) {
+        throw new IllegalArgumentException("Container size " + dataSize + " is smaller than expected " + 5);
+    }
+
+    // Then, add slots for data inventory
+    // If you are using a subtype of slot, make sure any data
+    // used on the server is also available on the client.
+
+    // Create the inventory by looping through the positions and
+    // adding the slots.
+
+    // Two rows
+    for (int j = 0; j < 2; j++) {
+        // Five columns
+        for (int i = 0; i < 5; i++) {
+            // Add for each slot in the data inventory
+            this.addSlot(new SlotItemHandler(
+                // The inventory
+                dataInventory,
+                // The index of the data inventory this slot represents:
+                // rowIndex * columnCount + columnIndex
+                j * 5 + i,
+                // The x position relative to leftPos
+                // Vanilla slots are 18 units by default
+                // startX + columnIndex * slotRenderWidth
+                44 + i * 18,
+                // The y position relative to topPos
+                // Vanilla slots are 18 units by default
+                // startY + rowIndex * slotRenderHeight
+                20 + j * 18
+            ))
+        }
+    }
+
+    // Add slots for player inventory (all 27 + 9 hotbar slots)
+    // If you want to customize the 9x3 + 9 grid to something else,
+    // loop through like above
+    this.addStandardInventorySlots(
+        playerInventory,
+        // The starting x position relative to leftPos
+        8,
+        // The starting y position relative to topPos
+        84
+    );
 
     // ...
 }
@@ -352,3 +413,4 @@ Once again, this is the simplest way to implement the logic, not the only way.
 [icf]: #icontainerfactory
 [side]: ../concepts/sides.md#the-logical-side
 [interaction]: ../items/interactions.md#right-clicking-an-item
+[itemstack]: ../items/index.md#itemstacks
