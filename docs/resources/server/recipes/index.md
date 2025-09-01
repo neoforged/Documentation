@@ -127,8 +127,7 @@ To combat this issue, NeoForge introduces recipe priorities to order which recip
     // When true, clears out all previously loaded entries.
     "replace": false,
     // The map of recipe entries to their priority values.
-    // If a recipe does not have a priority, it defaults to
-    // 0.
+    // If a recipe does not have a priority, it defaults to 0.
     "entries": {
         // Points to 'data/examplemod/recipe/higher_priority.json'
         // This recipe will be checked before any defaults.
@@ -152,6 +151,7 @@ To combat this issue, NeoForge introduces recipe priorities to order which recip
 public class ExamplePrioritiesProvider extends RecipePrioritiesProvider {
 
     public ExamplePrioritiesProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
+        // Replace 'examplemod' with your mod id.
         super(output, registries, "examplemod");
     }
 
