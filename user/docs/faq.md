@@ -28,8 +28,8 @@ Open Finder. In Finder, open the Applications/Utilities folder and double-click 
 
 Run the following commands:
 
-- `echo export "JAVA_HOME=\$(/usr/libexec/java_home)" >> ~/.zshenv`
-- `echo export "PATH=$PATH:$JAVA_HOME/bin" >> ~/.zshenv`
+- `echo export "JAVA_HOME=\$(/usr/libexec/java_home)" >> ~/.zprofile`
+- `echo export "PATH=$PATH:$JAVA_HOME/bin" >> ~/.zprofile`
 
 Then, close Terminal and try again.
   </TabItem>
@@ -94,6 +94,7 @@ If you want an exact breakdown of what is lagging, try using the [Spark][spark] 
 If you need to find a faulty mod without any lead on where to start, your best bet may be to use a binary search. The binary search is a common way to find a faulty things among many, without going through things one by one. Reworded for mods, it goes as follows:
 
 1. Remove half of the existing mods and put them into a different folder.
+    - Make sure that dependencies (mods requiring other mods) remain intact.
 2. Run the game.
 3. Find out if the issue still exists.
     - If yes: Repeat from step 1 with the current mods in place.
