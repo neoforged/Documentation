@@ -12,8 +12,8 @@ _This article assumes that you [have the correct version of Java installed][java
 ## Installing
 
 <Tabs defaultValue="linux">
-  <TabItem value="linux" label="Linux">
-Running a NeoForge server on Linux assumes your ability to use basic terminal commands.
+  <TabItem value="linux" label="Linux/MacOS">
+Running a NeoForge server on Linux or MacOS assumes your ability to use basic terminal commands.
 
 - Navigate to the folder you'd like to install the server into.
 - Download the installer `.jar` from the Maven using `wget` (swap out version numbers and `-beta` labels as needed):
