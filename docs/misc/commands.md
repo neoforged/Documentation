@@ -26,19 +26,31 @@ Its function `register` require a `LiteralArgumentBuilder` argument.
 ### Argument Builder
 The `ArgumentBuilder` class is abstract, so it can't be used on its own.
 It has two children:
- - `LiteralArgumentBuilder`: `CommandDispatcher#register` only accepts it. Returned after literal arguments (one-possiblity) and executions
+ - `LiteralArgumentBuilder`: `CommandDispatcher#register` only accepts it. Returned after literal arguments (one-possiblity) and executions. It's often the root of commands, and sometimes an simple un-suggestable argument, because it has only one possibility.
  - RequiredArgumentBuilder: it has more parameters and associated get functions than `LiteralArgumentBuilder`. Returned after required arguments declarations.
 
 In fact, the entire commands are built with it.
 Last but not least, command trees are chains of builders created with some functions:
  - `#then(ArgumentBuilder<S, ?>)`: create a new argument.
- - `#executes(Command)`: execute the command. `Command` can be written like a `Function<CommandContext<CommandSourceStack>, Integer>` where you need to return an integer: `Command.SINGLE_SUCCESS` (or just `1`) for success and `0` otherwise.
+ - `#executes(Command)`: execute the command. `Command` can be written like a `Function<CommandContext<CommandSourceStack>, Integer>` where you need to return an integer: `Command.SINGLE_SUCCESS` (or just `1`) for one success, the amount of success or `0` on failure.
+ - `#forward(CommandNode<S>, RedirectModifier<S>, boolean)`: go to a new path (the node) with specified redirect modifier, and as a fork if `boolean` is true.
+
+`LiteralArgumentBuilder` have also `String #getLiteral`. It returns the literal as a string argument (always the same because literals have only **one** possibility).
+
+`RequiredArgumentBuilder` have many other functions:
+ - `#suggest(SuggestionProvider)`: [suggest](#suggestionprovider) somethings.
+ - `#getSuggestionProvider`: returns the `SuggestionProvider` used.
+ - `#getType`: returns his argument type.
+ - `#getName`: returns his name.
+
+#### `CommandNode`
+As its name says, a command node is an node (intersection of path) of that command.
 
 ### Argument types
 Argument types is the second part of creating commands. They come in two packages:
  - `com.mojang.brigadier.arguments` for the argument types based on [Primitive Types](https://docs.oracle.com/javase/tutorial/java/nutsandbolts/datatypes.html#PageTitle) (including `String`, without `char`). Their names are always `<type>ArgumentType`.
  - `net.minecraft.commands.arguments` for all other argument types. Their names are always `<type>Argument`.
- - `net.neoforged.neoforge.server.command`: for mod-oriented argument like `EnumArgument`. Their names are the same as for `net.minecraft`.
+ - `net.neoforged.neoforge.server.command`: argument like `EnumArgument` provided by Neoforge for more extensibility. Their names are the same as for `net.minecraft`.
 
 All these argument types are implementing an interface: `ArgumentType<T>` where `T` is the type on which they are based.
 
@@ -81,7 +93,7 @@ throw new CommandSyntaxException(BuiltInException.floatTooHigh(), new LiteralMes
 ```
 :::
 
-### `SharedSuggestionProvider`
+### `SuggestionProvider`
 It's the base interface of execution contexts, [client-side or server-side](../concepts/sides.md).
 
 :::warning
