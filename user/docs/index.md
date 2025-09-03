@@ -73,7 +73,7 @@ Download the JDK `.pkg` from [the Adoptium project](https://adoptium.net/temurin
   <TabItem value="linux" label="Linux">
 Open the terminal for your Linux distribution. Common names would be `GNOME Terminal` or `Konsole`, however it may vary depending on your exact setup.
 
-Then, use your system's package manager (e.g. `apt` on Ubuntu and Debian, `yum` on CentOS and Fedora, or `pacman` on Arch) to install Java. The package's exact name may vary, but something like `openjdk-21` (swap out version number if needed) is usually a good shot.
+Then, use your system's package manager (e.g. `apt` on Ubuntu and Debian, `yum` on CentOS, `dnf` on Fedora, or `pacman` on Arch) to install Java. The package's exact name may vary, but something like `openjdk-21` (swap out version number if needed) is usually a good shot.
   </TabItem>
 </Tabs>
 
