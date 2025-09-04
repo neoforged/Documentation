@@ -4,7 +4,7 @@ sidebar_position: 1
 
 # Installing a NeoForge Client
 
-_This article assumes that you [have the correct version of Java installed][java]._
+_This article assumes that you [have the correct version of Java installed][java], and that you use the (vanilla) Minecraft launcher. If you are using a [third-party launcher][launchers], please consult their documentation instead._
 
 ## Installing
 
@@ -36,6 +36,10 @@ To update your NeoForge version, simply download and run the installer for the n
 
 :::danger
 Always backup your world before updating NeoForge or mods!
+
+To backup your world, open the game directory and select the `saves` subfolder. Then, copy the folder with your world's name (e.g. `New World`) to a safe location.
+
+If anything goes wrong during updating, delete the updated world folder, downgrade NeoForge and/or mods to what versions were used before, then copy your world backup back into the `saves` folder.
 :::
 
 ## Installing Modpacks
