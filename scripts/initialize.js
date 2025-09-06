@@ -203,6 +203,7 @@ const TOOLCHAIN_PLUGIN_PATH = common.toolchainPluginPath;
 const PRIMERS_GIT = 'https://github.com/neoforged/.github';
 const MDG_GIT = 'https://github.com/neoforged/ModDevGradle';
 const NG_GIT = 'https://github.com/neoforged/NeoGradle';
+const WEBSITES_GIT = 'https://github.com/neoforged/websites';
 
 // Setup primers
 if (!fs.existsSync(PRIMER_PATH)) {
@@ -211,6 +212,14 @@ if (!fs.existsSync(PRIMER_PATH)) {
             'primers': 'docs'
         }
     });
+
+    // Pull news to get neo changes
+    const tmpPath = path.join(process.cwd(), 'tmp');
+    pullRepository(WEBSITES_GIT, tmpPath, {
+        directories: {
+            'content/news': 'websites'
+        }
+    })
 
     const primerDocs = path.join(PRIMER_PATH, 'docs');
 
@@ -267,6 +276,19 @@ if (!fs.existsSync(PRIMER_PATH)) {
             return `---\ntitle: ${title}\nsidebar_position: ${currentPosition}\n---`;
         }, path.join(primerDocs, primer, 'index.md'));
         
+        const versionSegments = primer.split('.');
+        const neoNews =`${versionSegments.length == 2 ? `${versionSegments[1]}.0` : `${versionSegments[1]}.${versionSegments[2]}`}release`
+
+        if (fs.existsSync(path.join(tmpPath, 'websites', `${neoNews}.md`))) {
+            fs.writeFileSync(path.join(primerDocs, primer, 'neo.md'), `---
+                title: Neo Changes
+                ---
+
+                <iframe src="https://neoforged.net/news/${neoNews}/" width="100%" height="500px">
+                    <p>Your browser does not support iframes.</p>
+                </iframe>
+            `.replace(/^ +/gm, ''));
+        }
 
         if (fs.existsSync(path.join(primerDocs, primer, 'forge.md'))) {
             appendHeader('---\ntitle: Forge Changes\n---', path.join(primerDocs, primer, 'forge.md'));
@@ -274,6 +296,9 @@ if (!fs.existsSync(PRIMER_PATH)) {
 
         currentPosition++;
     }
+
+    // Delete temp location
+    fs.rmSync(tmpPath, { recursive: true, force: true });
 }
 
 // Setup toolchain
