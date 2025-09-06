@@ -307,7 +307,7 @@ public MenuProvider getMenuProvider(BlockState state, Level level, BlockPos pos)
 }
 
 @Override
-public InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult result) {
+public InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult result) {
     if (!level.isClientSide && player instanceof ServerPlayer serverPlayer) {
         serverPlayer.openMenu(state.getMenuProvider(level, pos));
     }
