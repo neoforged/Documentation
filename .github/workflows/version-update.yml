@@ -41,7 +41,7 @@ jobs:
           cache: npm
       
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Create update branch
         run: git checkout -b update/${{ inputs.version }}
