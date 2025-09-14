@@ -72,8 +72,15 @@ Installing pre-made modpacks often requires some additional setup on servers. Si
   - If you have installed a server pack, this should have been done for you.
 - Start the server using `./run.sh` (Linux) or `.\run.bat` (Windows).
 
+## See Also
+
+- [Setting up a Java Edition server][wiki1] and [Server maintenance][wiki2] on the [Minecraft Wiki] - note that those articles talk about setting up a vanilla Minecraft server, not a modded one
+
 [curseforge]: https://www.curseforge.com/minecraft/search?class=mc-mods
 [eula]: https://www.minecraft.net/en-us/eula
 [java]: index.md#java
 [launchers]: launchers.md
 [modrinth]: https://modrinth.com/mods
+[wiki]: https://minecraft.wiki/
+[wiki1]: https://minecraft.wiki/w/Tutorial:Setting_up_a_Java_Edition_server
+[wiki2]: https://minecraft.wiki/w/Tutorial:Server_maintenance

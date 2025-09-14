@@ -67,6 +67,13 @@ The way to install Java depends on your operating system. Always make sure you'r
   <TabItem value="windows" label="Windows">
 Download the JDK `.msi` from [the Adoptium project](https://adoptium.net/temurin/releases/?version=21&os=windows). Open the `.msi` file you just downloaded in your file system, double-click it, and run through the installer.
   </TabItem>
+  <TabItem value="windows_server" label="Windows (Server)">
+Download the JDK using the following `winget` command (change the version number if necessary):
+
+```
+winget install -e --id=Oracle.JDK.21
+```
+  </TabItem>
   <TabItem value="macos" label="MacOS">
 Download the JDK `.pkg` from [the Adoptium project](https://adoptium.net/temurin/releases/?version=21&os=mac). Open the `.pkg` file you just downloaded in your file system, double-click it, and run through the installer.
   </TabItem>
@@ -74,6 +81,16 @@ Download the JDK `.pkg` from [the Adoptium project](https://adoptium.net/temurin
 Open the terminal for your Linux distribution. Common names would be `GNOME Terminal` or `Konsole`, however it may vary depending on your exact setup.
 
 Then, use your system's package manager (e.g. `apt` on Ubuntu and Debian, `yum` on CentOS, `dnf` on Fedora, or `pacman` on Arch) to install Java. The package's exact name may vary, but something like `openjdk-21` (swap out version number if needed) is usually a good shot.
+
+Some distributions also provide documentation and/or additional tools for installing Java:
+
+<ul>
+  <li>[Installing Java on Arch][arch]</li>
+  <li>[Installing Java on Debian][debian]</li>
+  <li>[Installing Java on Fedora][fedora]</li>
+  <li>[Installing Java on Ubuntu][ubuntu]</li>
+</ul>
+
   </TabItem>
 </Tabs>
 
@@ -92,11 +109,15 @@ This guide covers most of the issues you may face as a user of NeoForge, however
 
 Common problems can be found in the [Troubleshooting & FAQ][faq] article. For further support, see the FAQ's [Getting Support][support] section.
 
+[arch]: https://wiki.archlinux.org/title/Java
 [client]: client.md
+[debian]: https://wiki.debian.org/Java
 [faq]: faq.md
+[fedora]: https://docs.fedoraproject.org/en-US/quick-docs/installing-java
 [installingjava]: #installing-java
 [installingneoforge]: #installing-neoforge
 [launchers]: launchers.md
 [server]: server.md
 [support]: faq.md#getting-support
 [testingforjava]: #testing-for-java
+[ubuntu]: https://ubuntu.com/tutorials/install-jre

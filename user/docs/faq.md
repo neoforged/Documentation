@@ -28,8 +28,8 @@ Open Finder. In Finder, open the Applications/Utilities folder and double-click 
 
 Run the following commands:
 
-- `echo export "JAVA_HOME=\$(/usr/libexec/java_home)" >> ~/.zprofile`
-- `echo export "PATH=$PATH:$JAVA_HOME/bin" >> ~/.zprofile`
+- `echo export "JAVA_HOME=\$(/usr/libexec/java_home)" >> ~/.zshenv`
+- `echo export "PATH=$PATH:$JAVA_HOME/bin" >> ~/.zshenv`
 
 Then, close Terminal and try again.
   </TabItem>
