@@ -203,6 +203,7 @@ const TOOLCHAIN_PLUGIN_PATH = common.toolchainPluginPath;
 const PRIMERS_GIT = 'https://github.com/neoforged/.github';
 const MDG_GIT = 'https://github.com/neoforged/ModDevGradle';
 const NG_GIT = 'https://github.com/neoforged/NeoGradle';
+const WEBSITES_GIT = 'https://github.com/neoforged/websites';
 
 // Setup primers
 if (!fs.existsSync(PRIMER_PATH)) {
@@ -212,29 +213,15 @@ if (!fs.existsSync(PRIMER_PATH)) {
         }
     });
 
+    // Pull news to get neo changes
+    const tmpPath = path.join(process.cwd(), 'tmp');
+    pullRepository(WEBSITES_GIT, tmpPath, {
+        directories: {
+            'content/news': 'websites'
+        }
+    })
+
     const primerDocs = path.join(PRIMER_PATH, 'docs');
-
-    // Rename README to index and append starting sidebar position
-    modifyFile([
-        function (line, context, extraLineConsumer) {
-            const headerPatch = 'headerPatch' in context ? context['headerPatch'] : 0;
-
-            // Add header
-            if (headerPatch == 0) {
-                // Push to output
-                extraLineConsumer('---\nsidebar_position: 1\n---');
-
-                context['headerPatch'] = 1;
-            }
-
-            return line;
-        },
-        function (line, _, _) { return linkRemapperPatch({
-            'LICENSE-50AP5UD5': `https://github.com/neoforged/.github/blob/${primerCommit}/primers/LICENSE-50AP5UD5`,
-            'LICENSE-CHAMPIONASH5357': `https://github.com/neoforged/.github/blob/${primerCommit}/primers/LICENSE-CHAMPIONASH5357`,
-            'LICENSE-WILLIEWILLUS': `https://github.com/neoforged/.github/blob/${primerCommit}/primers/LICENSE-WILLIEWILLUS`
-        }, line); }
-    ], path.join(primerDocs, 'README.md'), to = path.join(primerDocs, 'index.md'))
 
     // Order primers starting from most recent
     const primers = fs.readdirSync(primerDocs).filter((possible) => {
@@ -259,6 +246,7 @@ if (!fs.existsSync(PRIMER_PATH)) {
     });
     
     // Loop through primers and apply headers
+    const neoNewsVersions = new Set();
     var currentPosition = 2;
     for (const primer of primers) {
         appendHeader(function(fileData) {
@@ -267,6 +255,21 @@ if (!fs.existsSync(PRIMER_PATH)) {
             return `---\ntitle: ${title}\nsidebar_position: ${currentPosition}\n---`;
         }, path.join(primerDocs, primer, 'index.md'));
         
+        // If a neo news article exists for that version, add it
+        const versionSegments = primer.split('.');
+        const neoNews =`${versionSegments.length == 2 ? `${versionSegments[1]}.0` : `${versionSegments[1]}.${versionSegments[2]}`}release`
+        if (fs.existsSync(path.join(tmpPath, 'websites', `${neoNews}.md`))) {
+            fs.writeFileSync(path.join(primerDocs, primer, 'neo.md'), `---
+                title: Neo Changes
+                ---
+
+                <iframe src="https://neoforged.net/news/${neoNews}/" width="100%" height="500px">
+                    <p>Your browser does not support iframes.</p>
+                </iframe>
+            `.replace(/^ +/gm, ''));
+
+            neoNewsVersions.add(primer);
+        }
 
         if (fs.existsSync(path.join(primerDocs, primer, 'forge.md'))) {
             appendHeader('---\ntitle: Forge Changes\n---', path.join(primerDocs, primer, 'forge.md'));
@@ -274,6 +277,42 @@ if (!fs.existsSync(PRIMER_PATH)) {
 
         currentPosition++;
     }
+
+    // Rename README to index and append starting sidebar position
+    modifyFile([
+        function (line, context, extraLineConsumer) {
+            const headerPatch = 'headerPatch' in context ? context['headerPatch'] : 0;
+
+            // Add header
+            if (headerPatch == 0) {
+                // Push to output
+                extraLineConsumer('---\nsidebar_position: 1\n---');
+
+                context['headerPatch'] = 1;
+            }
+
+            return line;
+        },
+        function (line, _, _) {
+            var output = line;
+
+            // Handle neo versions
+            const match = line.match(/[0-9]+(?:\.[0-9]+)*(?:\/[0-9]+(?:\.[0-9]+)*)* \-\> ([0-9]+(?:\.[0-9]+)*(?:\/[0-9]+(?:\.[0-9]+)*)*)/);
+            if (match && neoNewsVersions.has(match[1].split('/')[0])) {
+                output = `${line}\n    * [Neo Changes](./${match[1].split('/')[0]}/neo.md)`;
+            }
+
+            return output;
+        },
+        function (line, _, _) { return linkRemapperPatch({
+            'LICENSE-50AP5UD5': `https://github.com/neoforged/.github/blob/${primerCommit}/primers/LICENSE-50AP5UD5`,
+            'LICENSE-CHAMPIONASH5357': `https://github.com/neoforged/.github/blob/${primerCommit}/primers/LICENSE-CHAMPIONASH5357`,
+            'LICENSE-WILLIEWILLUS': `https://github.com/neoforged/.github/blob/${primerCommit}/primers/LICENSE-WILLIEWILLUS`
+        }, line); }
+    ], path.join(primerDocs, 'README.md'), to = path.join(primerDocs, 'index.md'));
+
+    // Delete temp location
+    fs.rmSync(tmpPath, { recursive: true, force: true });
 }
 
 // Setup toolchain
