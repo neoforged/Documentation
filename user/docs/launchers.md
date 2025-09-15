@@ -24,7 +24,7 @@ One of the oldest launchers. Has some exclusive modpacks, and allows installing 
 - **Operating Systems:** Windows, Linux, Mac
 - **Download:** [https://www.curseforge.com/download/app](https://www.curseforge.com/download/app)
 
-A launcher made by the same people that maintain the [CurseForge][curseforge] website, featuring a similar design to the website. A previous iteration of this launcher was integrated in the now-defunct Twitch app.
+A launcher made by the same people that maintain the [CurseForge][curseforge] website, featuring a similar design to the website. A previous iteration of this launcher was integrated in the now-defunct Twitch app. Also allows to download some CurseForge mods that have been set to disallow third-party programs, i.e., that require more hassle to install in other launchers.
 
 ## FTB App
 
