@@ -34,7 +34,18 @@ Run the following commands:
 Then, close Terminal and try again.
   </TabItem>
   <TabItem value="linux" label="Linux">
-Open the terminal for your Linux distribution. Common names would be `GNOME Terminal` or `Konsole`, however it may vary depending on your exact setup.
+Many common Linux distributions have dedicated programs for managing the PATH variable. See their respective Java installation instructions:
+
+<ul>
+  <li>[Installing Java on Arch][arch]</li>
+  <li>[Installing Java on Debian][debian]</li>
+  <li>[Installing Java on Fedora][fedora]</li>
+  <li>[Installing Java on Ubuntu][ubuntu]</li>
+</ul>
+
+If you use a different distribution, you need to either look up the method for your specific distribution, or set the PATH variable manually through the console.
+
+To do so, open the terminal for your Linux distribution. Common names would be `GNOME Terminal` or `Konsole`, however it may vary depending on your exact setup.
 
 Find the location where Java is stored. Often, this will be something like `/usr/lib/jvm/java-21-openjdk-amd64`.
 
@@ -143,9 +154,12 @@ To get a launcher log, open your `.minecraft` folder and find the `launcher_log`
 </Tabs>
 
 [amd]: https://www.amd.com/en/support
+[arch]: https://wiki.archlinux.org/title/Java
 [clientlag]: #my-client-is-lagging-what-can-i-do
 [curseforge]: launchers.md#curseforge-app
+[debian]: https://wiki.debian.org/Java
 [discord]: https://discord.neoforged.net/
+[fedora]: https://docs.fedoraproject.org/en-US/quick-docs/installing-java
 [intel]: https://www.intel.com/content/www/us/en/support/detect.html
 [installjava]: index.md#installing-java
 [jarfix]: https://johann.loefflmann.net/en/software/jarfix/index.html
@@ -155,4 +169,5 @@ To get a launcher log, open your `.minecraft` folder and find the `launcher_log`
 [spark]: https://www.curseforge.com/minecraft/mc-mods/spark
 [sparkreport]: #my-game-is-lagging-what-can-i-do
 [support]: #getting-support
+[ubuntu]: https://ubuntu.com/tutorials/install-jre
 [wrongjava]: #i-installed-java-but-im-still-getting-the-wrong-version

@@ -74,7 +74,7 @@ Installing pre-made modpacks often requires some additional setup on servers. Si
 
 ## See Also
 
-- [Setting up a Java Edition server][wiki1] and [Server maintenance][wiki2] on the [Minecraft Wiki] - note that those articles talk about setting up a vanilla Minecraft server, not a modded one
+- [Setting up a Java Edition server][wiki1] and [Server maintenance][wiki2] on the [Minecraft Wiki][wiki] - note that those articles talk about setting up a vanilla Minecraft server, not a modded one
 
 [curseforge]: https://www.curseforge.com/minecraft/search?class=mc-mods
 [eula]: https://www.minecraft.net/en-us/eula

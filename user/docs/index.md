@@ -71,7 +71,7 @@ Download the JDK `.msi` from [the Adoptium project](https://adoptium.net/temurin
 Download the JDK using the following `winget` command (change the version number if necessary):
 
 ```
-winget install -e --id=Oracle.JDK.21
+winget install -e --id=Microsoft.OpenJDK.21
 ```
   </TabItem>
   <TabItem value="macos" label="MacOS">
