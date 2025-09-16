@@ -67,7 +67,19 @@ There are two common reasons for this:
 
 ## Playing NeoForge
 
-Sometimes, issues show up not during installation, but during gameplay.
+### Early Display Errors
+
+If you are reading this, you were most likely redirected here by an error message that appeared early during startup. The reason for that is that something went wrong when trying to build the "early loading progress" window, which commonly means that something is wrong with your system's graphics settings.
+
+- Refer to [Minecraft's own video and graphics issues FAQ][mcdriver] and go through the steps outlined there.
+- If that doesn't help, try updating your graphics drivers. See [I am having visual issues!][visual] below.
+- If that too doesn't help, [come talk to us on the Discord server][support] because something is very clearly wrong. As a workaround, however:
+    - Open your instance folder. If you use a [third-party launcher][launcher], they will usually provide a button labelled something like "Open Instance Folder". If you are using the vanilla launcher, use the folder you set in the [modded profile][clientinstall].
+    - Navigate into the `config` folder.
+    - Open the `fml.toml` file with your favorite text editor (e.g. Windows Notepad).
+    - Change the line `earlyWindowControl=true` to `earlyWindowControl=false`.
+    - Save the changed file.
+    - Try starting the game again.
 
 ### My game is lagging! What can I do?
 
@@ -90,7 +102,9 @@ If you want an exact breakdown of what is lagging, try using the [Spark][spark] 
 
 ### My client is lagging! What can I do?
 
-This is commonly because Minecraft is not a very optimized game, and mods can make this worse. If you are running shaders, chances are also that your graphics card is not strong enough to support them.
+This is commonly because Minecraft is not a very optimized game, and mods can make this worse.
+
+If you are running shaders, chances are that your graphics card is not strong enough to support them. Try disabling shaders and see if this resolves the issue.
 
 If you want an exact breakdown of what is lagging, try using the [Spark][spark] mod. Spark is a profiler that can tell you what code paths are taking how long. To use it:
 
@@ -139,7 +153,11 @@ Then, re-launch the game to provide a fresh `debug.log`.
 
 If you are not using CurseForge, or if you are using CurseForge and have enabled the logging option but there's still no `debug.log`, it is possible that the game crashes before a `debug.log` can even be created. In this case, a launcher log can help us instead.
 
-To get a launcher log, open your `.minecraft` folder and find the `launcher_log` file (or `launcher_log.txt` if you have file extensions enabled). The `.minecraft` folder can be found at the following location:
+To get a launcher log, open your [`.minecraft`][dotminecraft] folder and find the `launcher_log` file (or `launcher_log.txt` if you have file extensions enabled).
+
+### Where is my .minecraft folder?
+
+Depending on your operating system, the `.minecraft` folder can be found at the following location:
 
 <Tabs defaultValue="windows">
   <TabItem value="windows" label="Windows">
@@ -155,19 +173,23 @@ To get a launcher log, open your `.minecraft` folder and find the `launcher_log`
 
 [amd]: https://www.amd.com/en/support
 [arch]: https://wiki.archlinux.org/title/Java
+[clientinstall]: client.md#installing
 [clientlag]: #my-client-is-lagging-what-can-i-do
 [curseforge]: launchers.md#curseforge-app
 [debian]: https://wiki.debian.org/Java
 [discord]: https://discord.neoforged.net/
+[dotminecraft]: #where-is-my-minecraft-folder
 [fedora]: https://docs.fedoraproject.org/en-US/quick-docs/installing-java
 [intel]: https://www.intel.com/content/www/us/en/support/detect.html
 [installjava]: index.md#installing-java
 [jarfix]: https://johann.loefflmann.net/en/software/jarfix/index.html
 [launcher]: launchers.md
+[mcdriver]: https://aka.ms/mcdriver
 [nvidia]: https://www.nvidia.com/download/index.aspx
 [serverlag]: #my-server-is-lagging-what-can-i-do
 [spark]: https://www.curseforge.com/minecraft/mc-mods/spark
 [sparkreport]: #my-game-is-lagging-what-can-i-do
 [support]: #getting-support
 [ubuntu]: https://ubuntu.com/tutorials/install-jre
+[visual]: #i-am-having-visual-issues
 [wrongjava]: #i-installed-java-but-im-still-getting-the-wrong-version
