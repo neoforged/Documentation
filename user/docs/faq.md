@@ -67,6 +67,9 @@ There are two common reasons for this:
 
 ## Playing NeoForge
 
+<!--
+This subsection is used as the target for links.neoforged.net/early-display-errors. Avoid changing the title, or update the short link target as well if necessary.
+-->
 ### Early Display Errors
 
 If you are reading this, you were most likely redirected here by an error message that appeared early during startup. The reason for that is that something went wrong when trying to build the "early loading progress" window, which commonly means that something is wrong with your system's graphics settings.

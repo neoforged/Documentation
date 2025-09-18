@@ -44,7 +44,7 @@ If anything goes wrong during updating, delete the updated world folder, downgra
 
 ## Installing Modpacks
 
-The Minecraft Launcher does not offer functionality to automatically install collections of mods, so-called modpacks. This generally falls into the territory of [third-party launchers][launchers].
+The Minecraft Launcher does not offer functionality to automatically install collections of mods and associated configuration files, so-called modpacks. This generally falls into the territory of [third-party launchers][launchers].
 
 :::tip
 If you are building a modpack yourself, we recommend you have a look at the [modpack documentation][modpack] for some tips and tricks.
