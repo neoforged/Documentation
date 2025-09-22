@@ -206,7 +206,8 @@ const NG_GIT = 'https://github.com/neoforged/NeoGradle';
 const WEBSITES_GIT = 'https://github.com/neoforged/websites';
 
 // Setup primers
-if (!fs.existsSync(PRIMER_PATH)) {
+const primerDocs = common.primerDocsPath;
+if (!fs.existsSync(primerDocs)) {
     const primerCommit = pullRepository(PRIMERS_GIT, PRIMER_PATH, {
         directories: {
             'primers': 'docs'
@@ -220,8 +221,6 @@ if (!fs.existsSync(PRIMER_PATH)) {
             'content/news': 'websites'
         }
     })
-
-    const primerDocs = path.join(PRIMER_PATH, 'docs');
 
     // Order primers starting from most recent
     const primers = fs.readdirSync(primerDocs).filter((possible) => {
