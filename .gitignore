@@ -9,7 +9,6 @@
 .cache-loader
 
 # Generated sections
-/primer
 /toolchain/docs/plugins
 
 # IDE
