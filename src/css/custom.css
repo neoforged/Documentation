@@ -66,11 +66,12 @@ a.no-underline {
 
 .link-card:hover {
   transform: scale(1.05);
-  border: 1px solid var(--ifm-color-primary-light);
+  border-color: var(--ifm-color-primary-light);
 }
 
 .link-card {
   transition: transform 450ms ease-in-out;
+  border: 1px solid transparent;
 }
 
 h2 {
