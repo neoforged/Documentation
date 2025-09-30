@@ -88,7 +88,7 @@ Maven, the system used for dependency hosting, uses a versioning system that dif
 [minecraft]: #minecraft
 [neoforgemodstoml]: modfiles.md#neoforgemodstoml
 [mvr]: https://maven.apache.org/enforcer/enforcer-rules/versionRanges.html
-[mvr]: https://maven.apache.org/ref/3.5.2/maven-artifact/apidocs/org/apache/maven/artifact/versioning/ComparableVersion.html
+[mvr]: https://maven.apache.org/ref/3.9.9/maven-artifact/apidocs/org/apache/maven/artifact/versioning/ComparableVersion.html
 [neoforge]: #neoforge
 [pre]: #pre-releases
 [rc]: #release-candidates
