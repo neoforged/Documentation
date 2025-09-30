@@ -164,7 +164,7 @@ Priorities can be defined by setting the `priority` parameter in `IEventBus#addL
 
 Some events are only fired on one [side][side]. Common examples include the various render events, which are only fired on the client. Since client-only events generally need to access other client-only parts of the Minecraft codebase, they need to be registered accordingly.
 
-Event handlers that use `IEventBus#addListener()` should check the current physical side via `FMLEnvironment.dist` or the `Dist` parameter in your made mod constructor and add the listener in a separate client-only class, as outlined in the article on [sides][side].
+Event handlers that use `IEventBus#addListener` should check the current physical side via `FMLEnvironment#getDist` or the `Dist` parameter in your main mod constructor and add the listener in a separate client-only class, as outlined in the article on [sides][side].
 
 Event handlers that use `@EventBusSubscriber` can specify the side as the `value` parameter of the annotation, for example `@EventBusSubscriber(value = Dist.CLIENT, modid = "yourmodid")`.
 
