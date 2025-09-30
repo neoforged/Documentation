@@ -702,13 +702,13 @@ Using that biome tag for a biome modifier will now not crash if the biome is not
 To datagen optional entries for biome tags, the datagen code would look something along these lines:
 
 ```java
-// In a TagsProvider<Biome> subclass
+// In a KeyTagProvider<Biome> subclass
 // Assume we have some example TagKey<Biome> OPTIONAL_BIOMES_TAG
 @Override
 protected void addTags(HolderLookup.Provider registries) {
     this.tag(OPTIONAL_BIOMES_TAG)
-        // Must be a ResourceLocation representing the registry object
-        .addOptional(Biomes.PALE_GARDEN.location());
+        // Must be a ResourceKey<Biome>
+        .addOptional(Biomes.PALE_GARDEN);
 }
 ```
 
