@@ -23,6 +23,8 @@ An armor set for a humanoid entity typically consists of four items: a helmet fo
 Commonly, each armor is setup using `Item.Properties#humanoidArmor` for humanoid entities, `wolfArmor` for wolves, and `horseArmor` for horses. They all use `ArmorMaterial` combined with `ArmorType` for humanoids to set up the components. Reference values can be found within `ArmorMaterials`. This example uses a copper armor material, which you can adjust the values of as needed.
 
 ```java
+public static final ResourceKey<EquipmentAsset> COPPER_ASSET = ResourceKey.create(EquipmentAssets.ROOT_ID, ResourceLocation.fromNamespaceAndPath("examplemod", "copper"));
+
 public static final ArmorMaterial COPPER_ARMOR_MATERIAL = new ArmorMaterial(
     // The durability multiplier of the armor material.
     // ArmorType have different unit durabilities that the multiplier is applied to:
@@ -61,7 +63,7 @@ public static final ArmorMaterial COPPER_ARMOR_MATERIAL = new ArmorMaterial(
     Tags.Items.INGOTS_COPPER,
     // The resource key of the EquipmentClientInfo JSON discussed below
     // Points to assets/examplemod/equipment/copper.json
-    ResourceKey.create(EquipmentAssets.ROOT_ID, ResourceLocation.fromNamespaceAndPath("examplemod", "copper"))
+    COPPER_ASSET
 );
 ```
 
@@ -116,6 +118,8 @@ If you want to create armor or an armor-like item from scratch, it can be implem
 An `Equippable` can be created either by directly calling the record constructor or via `Equippable#builder`, which sets the defaults for each field, folowed by `build` once finished:
 
 ```java
+public static final ResourceKey<EquipmentAsset> EXAMPLE_EQUIPABBLE = ResourceKey.create(EquipmentAssets.ROOT_ID, ResourceLocation.fromNamespaceAndPath("examplemod", "equippable"));
+
 // Assume there is some DeferredRegister.Items ITEMS
 public static final DeferredItem<Item> EQUIPPABLE = ITEMS.registerSimpleItem(
     "equippable",
@@ -130,7 +134,7 @@ public static final DeferredItem<Item> EQUIPPABLE = ITEMS.registerSimpleItem(
             // The resource key of the EquipmentClientInfo JSON discussed below.
             // Points to assets/examplemod/equipment/equippable.json
             // When not set, does not render the equipment.
-            .setAsset(ResourceKey.create(EquipmentAssets.ROOT_ID, ResourceLocation.fromNamespaceAndPath("examplemod", "equippable")))
+            .setAsset(ResourceKey.create(EXAMPLE_EQUIPABBLE))
             // The relative location of the texture to overlay on the player screen when wearing (e.g., pumpkin blur).
             // Points to assets/examplemod/textures/equippable.png
             // When not set, does not render an overlay.
@@ -254,18 +258,17 @@ Let's create an equipment info for the copper armor material. We'll also assume 
 <TabItem value="datagen" label="Datagen">
 
 ```java
-public class MyEquipmentInfoProvider implements DataProvider {
-
-    private final PackOutput.PathProvider path;
+public class MyEquipmentInfoProvider extends EquipmentAssetProvider {
 
     public MyEquipmentInfoProvider(PackOutput output) {
-        this.path = output.createPathProvider(PackOutput.Target.RESOURCE_PACK, "equipment");
+        super(output);
     }
 
-    private void add(BiConsumer<ResourceLocation, EquipmentClientInfo> registrar) {
-        registrar.accept(
+    @Override
+    protected void registerModels(BiConsumer<ResourceKey<EquipmentAsset>, EquipmentClientInfo> output) {
+        output.accept(
             // Must match Equippable#assetId
-            ResourceLocation.fromNamespaceAndPath("examplemod", "copper"),
+            COPPER_ASSET,
             EquipmentClientInfo.builder()
                 // For humanoid head, chest, and feet
                 .addLayers(
@@ -331,22 +334,6 @@ public class MyEquipmentInfoProvider implements DataProvider {
                 .build()
         );
     }
-
-    @Override
-    public CompletableFuture<?> run(CachedOutput cache) {
-        Map<ResourceLocation, EquipmentClientInfo> map = new HashMap<>();
-        this.add((name, info) -> {
-            if (map.putIfAbsent(name, info) != null) {
-                throw new IllegalStateException("Tried to register equipment client info twice for id: " + name);
-            }
-        });
-        return DataProvider.saveAll(cache, EquipmentClientInfo.CODEC, this.pathProvider, map);
-    }
-
-    @Override
-    public String getName() {
-        return "Equipment Client Infos: " + MOD_ID;
-    }
 }
 
 @SubscribeEvent // on the mod event bus
@@ -382,10 +369,10 @@ By default, the following layers render the associated `EquipmentClientInfo.Laye
 | `SKELETON_HORSE_SADDLE` | `SimpleEquipmentLayer` | Skeleton Horse                                                 |
 | `HAPPY_GHAST_BODY`      | `SimpleEquipmentLayer` | Happy Ghast                                                    |
 
-`EquipmentLayerRenderer` has only one method to render the equipment layers, aptly named `renderLayers`:
+`EquipmentLayerRenderer` has only one method to submit the equipment layers for rendering: `renderLayers`.
 
 ```java
-// In some render method where EquipmentLayerRenderer equipmentLayerRenderer is a field
+// In some render method where EquipmentLayerRenderer equipmentLayerRenderer is available
 this.equipmentLayerRenderer.renderLayers(
     // The layer type to render
     EquipmentClientInfo.LayerType.HUMANOID,
@@ -401,13 +388,19 @@ this.equipmentLayerRenderer.renderLayers(
     stack,
     // The pose stack used to render the model in the correct location
     poseStack,
-    // The source of the buffers to get the vertex consumer of the render type
-    bufferSource,
-    // The packed light texture
-    lighting,
+    // The collector to submit the model data to
+    collector,
+    // The packed light coordinates
+    lightCoords,
     // An absolute path of the texture to render when use_player_texture is true for one of the layer if not null
     // Represents an absolute location within the assets folder
-    ResourceLocation.fromNamespaceAndPath("examplemod", "textures/other_texture.png")
+    ResourceLocation.fromNamespaceAndPath("examplemod", "textures/other_texture.png"),
+    // The color of the model outline
+    // Only used if the outline color is not 0 and the `RenderType` has or is an outline type
+    outlineColor,
+    // The starting order priority to submit the layers and trims, ticking up with each model submitted
+    // By default, this is 1
+    order
 );
 ```
 
