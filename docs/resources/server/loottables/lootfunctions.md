@@ -140,12 +140,12 @@ During datagen, call `SetComponentsFunction#setComponent` with the desired data 
 
 ## `minecraft:copy_components`
 
-Copies [data component][datacomponent] values from a block entity to the item stack. Requires the `minecraft:block_entity` loot parameter, no modification is performed if that parameter is absent.
+Copies [data component][datacomponent] values from a block entity to the item stack. Requires one of the loot parameters from `LootContext.BlockEntityTarget`, `LootContext.EntityTarget`, or `LootContext.ItemStackTarget`.
 
 ```json5
 {
     "function": "minecraft:copy_components",
-    // The system is designed to allow multiple sources, however for now, there are only block entities available.
+    // One of the targets specified in the loot context
     "source": "block_entity",
     // By default, all components are copied. The "exclude" list allows excluding certain components, and the
     // "include" list allows explicitly re-including components. Both fields are optional.
@@ -154,7 +154,7 @@ Copies [data component][datacomponent] values from a block entity to the item st
 }
 ```
 
-During datagen, call `CopyComponentsFunction#copyComponents` with the desired data source (usually `CopyComponentsFunction.Source.BLOCK_ENTITY`) to construct a builder for this function.
+During datagen, call `CopyComponentsFunction#copyComponentsFromBlockEntity` for a block entity source or `copyComponentsFromEntity` for an entity source to construct a builder for this function. You can alternatively use `CopyComponentsFunction.ItemStackSource`, provided you [widen the accecss][at] of the builder constructor.
 
 ## `minecraft:copy_state`
 
@@ -263,7 +263,7 @@ Copies an [entity target][entitytarget]'s or block entity's name into the result
 }
 ```
 
-During datagen, call `CopyNameFunction#copyName` with the desired entity source to construct a builder for this function.
+During datagen, call `CopyNameFunction#copyName` with the desired context param for a `LootContext.BlockEntityTarget` or `LootContext.EntityTarget` to construct a builder for this function.
 
 ## `minecraft:set_lore`
 
@@ -876,6 +876,7 @@ During datagen, call `SequenceFunction#of` with the other functions to construct
 
 - [Item Modifiers][itemmodifiers] on the [Minecraft Wiki][mcwiki]
 
+[at]: ../../../advanced/accesstransformers.md
 [attributemodifier]: ../../../entities/attributes.md#attribute-modifiers
 [component]: ../../client/i18n.md#components
 [conditions]: lootconditions
