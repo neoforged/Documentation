@@ -25,7 +25,9 @@ A new enchantment can be added by creating a JSON file in your namespace's `ench
     // Note that this doesn't cause the enchantment to appear for these items in the enchanting table.
     "supported_items": "#examplemod:enchantable/enchant_name",
 
-    // (Optional) Which items this enchantment appears for in the enchanting table.
+    // (Optional) Which items this enchantment appears for in the enchanting table or as part of an enchantment provider.
+    // For the enchantment to be shown in an enchantment table for the item, it must be added to the `minecraft:in_enchanting_table` tag.
+    // `minecraft:non_treasure` entries are already in the enchantment table tag by default.
     // Can be an item, list of items, or item tag.
     // If left unspecified, this is the same as `supported_items`.
     "primary_items": [
