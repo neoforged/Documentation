@@ -105,12 +105,14 @@ All data providers extend the `DataProvider` interface and usually require one m
 |------------------------------------------------------|----------------------------------|-------------------------------------------------------------------------|--------|-----------------------------------------------------------------------------------------------------------------|
 | [`ModelProvider`][modelprovider]                     | `registerModels()`               | Models, Blockstate Files, Client Items                                                             | Client |                                                                                                                 |
 | [`LanguageProvider`][langprovider]                   | `addTranslations()`              | Translations                                                            | Client | Also requires passing the language in the constructor.                                                          |
+| [`EquipmentAssetProvider`][equipmentasset]           | `registerModels()`               | Assets for armor models                                                 | Client |                                                                                                                 |
 | [`ParticleDescriptionProvider`][particleprovider]    | `addDescriptions()`              | Particle definitions                                                    | Client |                                                                                                                 |
 | [`SoundDefinitionsProvider`][soundprovider]          | `registerSounds()`               | Sound definitions                                                       | Client |                                                                                                                 |
 | `SpriteSourceProvider`                               | `gather()`                       | Sprite sources / atlases                                                | Client |                                                                                                                 |
 | [`AdvancementProvider`][advancementprovider]         | `generate()`                     | Advancements                                                            | Server | Requires extra classes to work properly, see linked article for details.                                                   |
 | [`LootTableProvider`][loottableprovider]             | `generate()`                     | Loot tables                                                             | Server | Requires extra methods and classes to work properly, see linked article for details.                            |
-| [`RecipeProvider`][recipeprovider]                   | `buildRecipes(RecipeOutput)`     | Recipes                                                                 | Server |                                                                                                                 |
+| [`RecipeProvider`][recipeprovider]                   | `buildRecipes(RecipeOutput)`     | Recipes                                                                 | Server | Requires extra classes to work properly, see linked article for details.                                                   |
+| [`RecipePrioritiesProvider`][recipepriorities]       | `start()`                        | Priority order for recipes                                              | Server |                                                                                                                 |
 | [Various subclasses of `TagsProvider`][tagsprovider] | `addTags(HolderLookup.Provider)` | Tags                                                                    | Server | Several specialized subclasses exist, see linked article for details.                                           |
 | [`DataMapProvider`][datamapprovider]                 | `gather()`                       | Data map entries                                                        | Server |                                                                                                                 |
 | [`GlobalLootModifierProvider`][glmprovider]          | `start()`                        | Global loot modifiers                                                   | Server |                                                                                                                 |
@@ -235,6 +237,7 @@ runs {
 [datapackprovider]: ../concepts/registries.md#data-generation-for-datapack-registries
 [enchantment]: server/enchantments/index.md
 [equipment]: ../items/armor.md#equipment-models
+[equipmentasset]: ../items/armor.md#equipment-assets
 [event]: ../concepts/events.md
 [eventhandler]: ../concepts/events.md#registering-an-event-handler
 [function]: https://minecraft.wiki/w/Function_(Java_Edition)
@@ -261,6 +264,7 @@ runs {
 [predicate]: https://minecraft.wiki/w/Predicate
 [recipeprovider]: server/recipes/index.md#data-generation
 [recipes]: server/recipes/index.md
+[recipepriorities]: server/recipes/index.md#recipe-priorities
 [sides]: ../concepts/sides.md
 [soundprovider]: client/sounds.md#datagen
 [sounds]: client/sounds.md
