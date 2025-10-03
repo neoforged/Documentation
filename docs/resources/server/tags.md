@@ -392,8 +392,21 @@ public class ExampleBlockTagCopyingItemTagProvider extends BlockTagCopyingItemTa
     protected void addTags(HolderLookup.Provider lookupProvider) {
         // Assuming types TagKey<Block> and TagKey<Item> for the two parameters
         this.copy(EXAMPLE_BLOCK_TAG, EXAMPLE_ITEM_TAG);
+
+        // You can also add normal item tags here
     }
 
+}
+```
+
+Like all data providers, the copying tag provider must be added to `GatherDataEvent`s:
+
+```java
+@SubscribeEvent // on the mod event bus
+public static void gatherData(GatherDataEvent.Client event) {
+    // Call event.createDatapackRegistryObjects(...) first if adding datapack objects
+
+    event.createBlockAndItemTags(MyBlockTagsProvider::new, ExampleBlockTagCopyingItemTagProvider::new);
 }
 ```
 
