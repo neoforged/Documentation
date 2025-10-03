@@ -78,7 +78,7 @@ graphics.disableScissor();
 
 When submitting an element to the `GuiRenderState`, it isn't just added to some list. If that were the case, some elements may be completely covered by other elements depending on the order of submission. To get around this hurdle, elements are initially sorted into node trees in some stratum. How an element is sorted is based upon its defined `ScreenArea#bounds`; otherwise, the element will not be submitted for rendering.
 
-The `GuiRenderState` is made up of `GuiRenderState.Node`s as a doubly-linked list, using 'up' and 'down' instead of 'first' and 'last'. Nodes are rendered from 'down' to 'up'. Each node holds its own layer data containing the render states. When an element is initially submitted to `GuiRenderState`, it determines what node to use or create based upon its defined `ScreenArea#bounds`. The node chosen, or created, is one node above the highest node with intersecting elements.
+The `GuiRenderState` is made up of `GuiRenderState.Node`s as a single-linked list, using 'up' to hold a reference to the next element. Nodes are rendered from first element 'up'wards. Each node holds its own layer data containing the render states. When an element is initially submitted to `GuiRenderState`, it determines what node to use or create based upon its defined `ScreenArea#bounds`. The node chosen, or created, is one node above the highest node with intersecting elements.
 
 :::warning
 Although `ScreenArea#bounds` is marked as nullable, a element being submitted to the render state will not be added if the bounds is not defined. The method is only nullable as elements submitted during the render phase are added to the current node rather than computing its node based on the bounds.
@@ -88,11 +88,11 @@ Each node list is known as a stratum within the render state. A render state can
 
 ### `GuiElementRenderState`
 
-A `GuiElementRenderState` holds the metadata on how a GUI element is rendered to the screen. The element render state extends `ScreenArea` to  define the `bounds` on the screen. The bounds should always encompass the entire element that is rendered so that it's sorted correctly in the node list. Bounds computation typically takes in some of the parameters below, including the position and pose.
+A `GuiElementRenderState` holds the metadata on how a GUI element is rendered to the screen. The element render state extends `ScreenArea` to define the `bounds` on the screen. The bounds should always encompass the entire element that is rendered so that it's sorted correctly in the node list. Bounds computation typically takes in some of the parameters below, including the position and pose.
 
 `scissorArea` crops the area where the element can render. If `scissorArea` is `null`, then the entire element is rendered to the screen. Similarly, if the `scissorArea` rectangle does not intersect with the `bounds`, then nothing will be rendered.
 
-The remaining three methods handle the actual rendering of the element. `pipeline` defines the shaders and metadata used by the element. `textureSetup` can specify either `Sampler0`, `Sampler1`, `Sampler2`, or some combination in the fragment shader. Finally, `buildVertices` passes the vertices to upload to the buffer. It takes in the `VertexConsumer` to pass the vertices to, as well as the Z coordinate to use.
+The remaining three methods handle the actual rendering of the element. `pipeline` defines the shaders and metadata used by the element. `textureSetup` can specify either `Sampler0`, `Sampler1`, `Sampler2`, or some combination in the fragment shader. Finally, `buildVertices` passes the vertices to upload to the buffer. It takes in the `VertexConsumer` to pass the vertices to.
 
 NeoForge adds the method `GuiGraphics#submitGuiElementRenderState` to submit a custom element render state if the available methods provided by `GuiGraphics` is not enough.
 
@@ -152,23 +152,23 @@ graphics.submitGuiElementRenderState(new GuiElementRenderState() {
     }
 
     @Override
-    public void buildVertices(VertexConsumer consumer, float z) {
+    public void buildVertices(VertexConsumer consumer) {
         // Build the vertices using the vertex format specified by the pipeline
         // For GUI, uses quads with position and color
         // Color must be in ARGB format
-        consumer.addVertexWith2DPose(this.pose, 0,  0,  z).setUv(0, 0).setColor(0xFFFFFFFF);
-        consumer.addVertexWith2DPose(this.pose, 0,  10, z).setUv(0, 1).setColor(0xFFFFFFFF);
-        consumer.addVertexWith2DPose(this.pose, 10, 10, z).setUv(1, 1).setColor(0xFFFFFFFF);
-        consumer.addVertexWith2DPose(this.pose, 10, 0,  z).setUv(1, 0).setColor(0xFFFFFFFF);
+        consumer.addVertexWith2DPose(this.pose, 0,   0).setUv(0, 0).setColor(0xFFFFFFFF);
+        consumer.addVertexWith2DPose(this.pose, 0,  10).setUv(0, 1).setColor(0xFFFFFFFF);
+        consumer.addVertexWith2DPose(this.pose, 10, 10).setUv(1, 1).setColor(0xFFFFFFFF);
+        consumer.addVertexWith2DPose(this.pose, 10,  0).setUv(1, 0).setColor(0xFFFFFFFF);
     }
 });
 ```
 
 ### Element Ordering
 
-So far, the elements shown above have only been operating on XY coordinates. The Z coordinate, on the other hand, is automatically computed based upon the elements render order. Starting at a Z of `0`, each element is rendered `0.01` in front of the previous element. 3D elements are drawn to a 2D texture before being rendered to the screen, so Z-fighting rarely, if ever, occurs.
+So far, the elements shown above have only been operating on XY coordinates. The Z coordinate, in this particular instance, is ignored, as all of the elements drawn to the screen use a `RenderPipeline` that disables the depth test. Even the 3D elements with their more advanced pipelines are drawn to a 2D texture using `RenderPipeline#GUI_TEXTURED_PREMULTIPLIED_ALPHA` by default, which does the same, preventing any Z-fighting in common use cases.
 
-During the render phase, each stratum is rendered in order, with the nodes in the node list rendered from 'down' to 'up'. But what about within a given node? This is handled via the `GuiRenderer#ELEMENT_SORT_COMPARATOR`, which sorts elements based on their `GuiElementRenderState#scissorArea`, `pipeline`, then `textureSetup`.
+As such, during the render phase, each stratum is rendered in order, with the nodes in the node list rendered from the first element 'up'wards. But what about within a given node? This is handled via the `GuiRenderer#ELEMENT_SORT_COMPARATOR`, which sorts elements based on their `GuiElementRenderState#scissorArea`, `pipeline`, then `textureSetup`.
 
 :::warning
 Glyphs rendered for text are not sorted and will always render after all elements in the current node.
@@ -192,7 +192,7 @@ First, there is a colored horizontal and vertical one-pixel wide line, `hLine` a
 
 Second, there is the `fill` method, which submits a rectangle to be drawn to the screen. The line methods internally call this method. This takes in the left X coordinate, the top Y coordinate, the right X coordinate, the bottom Y coordinate, and the color.
 
-Third, there is the `renderOutline` method, which submits four rectangles that are one-pixel wide to act as an outline. This takes in the left X coordinate, the top Y coordinate, the width of the outline, the height of the outline, and the color.
+Third, there is the `submitOutline` method, which submits four rectangles that are one-pixel wide to act as an outline. This takes in the left X coordinate, the top Y coordinate, the width of the outline, the height of the outline, and the color.
 
 Finally, there is the `fillGradient` method, which draws a rectangle with a vertical gradient. This takes in the left X coordinate, the top Y coordinate, the right X coordinate, the bottom Y coordinate, and the bottom and top colors.
 
@@ -294,13 +294,17 @@ This is set by adding the `gui.scaling` JSON object in an mcmeta file with the s
 }
 ```
 
+:::note
+`blitSprite` when using a texture with tiling or nice slice set will submit their elements using `TiledBlitRenderState`, which specifies the tile width and height in addition to the other parameters in `BlitRenderState`.
+:::
+
 ### Items
 
 Items are submitted using a `GuiItemRenderState`. The item render state is then transformed into a `BlitRenderState` or `OversizedItemRenderState`, depending on the item bounds and client item properties, during the render phase.
 
 `renderItem` takes in an `ItemStack`, in addition to the left X and top Y coordinate on screen. It can optionally take in the holding `LivingEntity`, the current `Level` the stack is in, and a seeded value. There is also an alternative `renderFakeItem` which sets the `LivingEntity` to `null`.
 
-The item decorations - such as the durability bar, cooldown, and count - is handled through `renderItemDecorations`. It takes in the same parameters as the base `renderItem`, in addition to the `Font` and a count text override.
+The item decorations - such as the durability bar, cooldown, and count - are handled through `renderItemDecorations`. It takes in the same parameters as the base `renderItem`, in addition to the `Font` and a count text override.
 
 ### Tooltips
 
@@ -312,7 +316,7 @@ Immediate tooltips, on the other hand, are submitted immediately when the method
 
 ### Picture-in-Picture
 
-Picture-in-Picture (PiP) allows for arbitrary objects to be drawn to the screen. Instead of drawing directly to the output, PiP draws the object to an intermediary texture, or a 'picture', that is then submitted to the `GuiRenderState` as a `BlitRenderState` during the render phase. `GuiGraphics` provides methods for maps, entities, player skins, book models, banner pattern, signs, and the profiler chart via `submit*RenderState`.
+Picture-in-Picture (PiP) allows for arbitrary objects to be drawn to the screen. Instead of drawing directly to the output, PiP draws the object to an intermediary texture, or a 'picture', that is then submitted to the `GuiRenderState` as a `BlitRenderState`, by default, during the render phase. `GuiGraphics` provides methods for maps, entities, player skins, book models, banner pattern, signs, and the profiler chart via `submit*RenderState`.
 
 :::note
 Items that exceed the default 16x16 bounds, when `ClientItem.Properties#oversizedInGui` is true, use the `OversizedItemRenderer` PiP as its rendering mechanism.
@@ -545,7 +549,7 @@ Since screens are subtypes of `GuiEventListener`s, the input handlers can also b
 
 ### Rendering the Screen
 
-Screens submit their elements through `#renderWithTooltip` in three different strata: the background stratum, the render stratum, and the optional tooltip stratum.
+Screens submit their elements through `#renderWithTooltipAndSubtitles` in three different strata: the background stratum, the render stratum, and the optional tooltip stratum.
 
 The background stratum elements are submitted first via `#renderBackground`, generally containing any blurring or background textures.
 

@@ -369,7 +369,7 @@ public MenuProvider getMenuProvider(BlockState state, Level level, BlockPos pos)
 
 @Override
 public InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult result) {
-    if (!level.isClientSide && player instanceof ServerPlayer serverPlayer) {
+    if (!level.isClientSide() && player instanceof ServerPlayer serverPlayer) {
         serverPlayer.openMenu(state.getMenuProvider(level, pos));
     }
 
@@ -391,7 +391,7 @@ public class MyMob extends Mob implements MenuProvider {
 
     @Override
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
-        if (!this.level.isClientSide && player instanceof ServerPlayer serverPlayer) {
+        if (!this.level.isClientSide() && player instanceof ServerPlayer serverPlayer) {
             serverPlayer.openMenu(this);
         }
 
