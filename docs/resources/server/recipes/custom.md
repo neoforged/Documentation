@@ -478,6 +478,8 @@ public interface RightClickBlockRecipeInputs {
 // Server resource listener so it can be reloaded when recipes are.
 public class ServerRightClickBlockRecipeInputs implements ResourceManagerReloadListener, RightClickBlockRecipeInputs {
 
+    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath("examplemod", "block_recipe_inputs");
+
     private final RecipeManager recipeManager;
 
     private Set<BlockState> inputStates;
@@ -547,12 +549,14 @@ public class ServerRightClickBlockRecipes {
     }
 
     @SubscribeEvent // on the game event bus
-    public static void addListener(AddReloadListenerEvent event) {
+    public static void addListener(AddServerReloadListenersEvent event) {
         // Register server reload listener
         ServerRightClickBlockRecipes.inputs = new ServerRightClickBlockRecipeInputs(
             event.getServerResources().getRecipeManager()
         );
-        event.addListener(ServerRightClickBlockRecipes.inputs);
+        event.addListener(ServerRightClickBlockRecipeInputs.ID, ServerRightClickBlockRecipes.inputs);
+        // Make sure it runs after recipes
+        event.addDependency(VanillaServerListeners.RECIPES, ServerRightClickBlockRecipeInputs.ID);
     }
 
     @SubscribeEvent // on the game event bus
@@ -588,7 +592,7 @@ public class ClientRightClickBlockRecipes {
 public class RightClickBlockRecipes {
     // Make proxy method to access properly
     public static RightClickBlockRecipeInputs inputs(Level level) {
-        return level.isClientSide
+        return level.isClientSide()
             ? ClientRightClickBlockRecipes.inputs()
             : ServerRightClickBlockRecipes.inputs();
     }
@@ -611,6 +615,8 @@ public interface RightClickBlockRecipeInputs {
 
 // Server resource listener so it can be reloaded when recipes are.
 public class ServerRightClickBlockRecipeInputs implements ResourceManagerReloadListener, RightClickBlockRecipeInputs {
+
+    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath("examplemod", "block_recipe_inputs");
 
     private final RecipeManager recipeManager;
 
@@ -675,12 +681,14 @@ public class ServerRightClickBlockRecipes {
     }
 
     @SubscribeEvent // on the game event bus
-    public static void addListener(AddReloadListenerEvent event) {
+    public static void addListener(AddServerReloadListenersEvent event) {
         // Register server reload listener
         ServerRightClickBlockRecipes.inputs = new ServerRightClickBlockRecipeInputs(
             event.getServerResources().getRecipeManager()
         );
-        event.addListener(ServerRightClickBlockRecipes.inputs);
+        event.addListener(ServerRightClickBlockRecipeInputs.ID, ServerRightClickBlockRecipes.inputs);
+        // Make sure it runs after recipes
+        event.addDependency(VanillaServerListeners.RECIPES, ServerRightClickBlockRecipeInputs.ID);
     }
 
     @SubscribeEvent // on the game event bus
@@ -726,7 +734,7 @@ public class ClientRightClickBlockRecipes {
 public class RightClickBlockRecipes {
     // Make proxy method to access properly
     public static RightClickBlockRecipeInputs inputs(Level level) {
-        return level.isClientSide
+        return level.isClientSide()
             ? ClientRightClickBlockRecipes.inputs()
             : ServerRightClickBlockRecipes.inputs();
     }
