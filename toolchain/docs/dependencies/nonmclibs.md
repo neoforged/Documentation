@@ -8,14 +8,27 @@ import TabItem from '@theme/TabItem';
 
 Non-Minecraft dependencies are artifacts that are neither a mod nor a dependency Minecraft or NeoForge itself relies on. By default, NeoForge does not load non-Minecraft dependencies when loading a mod. For development environments, they must be added as a runtime dependencies, while production environments should make use of the [jar-in-jar system][jij].
 
-For example, you can add the `com.example:example` library to all runs like so:
+## 1.21.9 and Above
+
+Running NeoForge on 1.21.9 and above will load anything available on the classpath in development, including non-minecraft dependencies. This means adding the library is as simple as adding any other gradle dependency:
+
+```gradle
+// This adds the library at compile and runtime
+// In practice, this should be wrapped with 'jarJar'
+// to include the library in your jar
+implementation 'com.example:example:1.0'
+```
+
+## 1.21.8 and Below
+
+Running NeoForge on 1.21.8 and below still require the library to be added to the runtime classpath:
 
 <Tabs defaultValue="mdg">
 <TabItem value="mdg" label="ModDevGradle">
 
 ```gradle
 dependencies {
-    // This is still required to add the library at compile time
+    // This is required to add the library at compile time
     implementation 'com.example:example:1.0'
     // This adds the library to all the runs
     additionalRuntimeClasspath 'com.example:example:1.0'
@@ -66,40 +79,5 @@ runs {
 
 </TabItem>
 </Tabs>
-
-:::tip
-If you instead only want to add a runtime dependency to one specific run:
-
-<Tabs defaultValue="mdg">
-<TabItem value="mdg" label="ModDevGradle">
-
-```gradle
-dependencies {
-    implementation 'com.example:example:1.0'
-    // Only add dependency for the client run
-    // highlight-next-line
-    clientAdditionalRuntimeClasspath 'com.example:example:1.0'
-}
-```
-
-</TabItem>
-<TabItem value="ng" label="NeoGradle">
-
-```gradle
-runs {
-    // Only configure dependencies for the client run
-    // highlight-next-line
-    named('client').configure {
-        dependencies {
-
-        }
-    }
-}
-```
-
-</TabItem>
-</Tabs>
-
-:::
 
 [jij]: jarinjar.md
