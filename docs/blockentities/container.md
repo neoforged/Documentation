@@ -226,6 +226,12 @@ container.removeItem(2, 16);
 A container may throw an exception if trying to access a slot that is beyond its container size. Alternatively, they may return `ItemStack.EMPTY`, as is the case with (for example) `SimpleContainer`.
 :::
 
+### `ContainerUser`s
+
+Living entities that are able to access containers implement `ContainerUser`. Each user defines whether it has a container open and the maximum block distance the entity can interact with the container. A `Container` calls `startOpen` with the `ContainerUser` when the container object is interacted with (e.g., right-clicking a chest), and `stopOpen` once the container object is closed (e.g., leaving the chest menu).
+
+These methods are typically used to keep track of the number of living entities that have the container open through the `ContainerOpenersCounter`, which is used for some entity AI and rendering.
+
 ## `Container`s on `ItemStack`s
 
 Until now, we mainly discussed `Container`s on `BlockEntity`s. However, they can also be applied to [`ItemStack`s][itemstack] using the `minecraft:container` [data component][datacomponent]:
