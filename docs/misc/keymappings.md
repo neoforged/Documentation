@@ -20,10 +20,25 @@ public static void registerBindings(RegisterKeyMappingsEvent event) {
 
 ## Creating a `KeyMapping`
 
-A `KeyMapping` can be created using it's constructor. The `KeyMapping` takes in a [translation key][tk] defining the name of the mapping, the default input of the mapping, and the [translation key][tk] defining the category the mapping will be put within in the [Controls option menu][controls].
+A `KeyMapping` can be created using it's constructor. The `KeyMapping` takes in a [translation key][tk] defining the name of the mapping, the default input of the mapping, and a `KeyMapping.Category` defining the category the mapping will be put within in the [Controls option menu][controls].
 
 :::tip
-A `KeyMapping` can be added to a custom category by providing a category [translation key][tk] not provided by vanilla. Custom category translation keys should contain the mod id (e.g. `key.categories.examplemod.examplecategory`).
+
+A `KeyMapping` can be added to a custom category by creating a new `KeyMapping.Category` with the `ResourceLocation` and registering it via `RegisterKeyMappingsEvent#registerCategory` on the [mod event bus][eventbus] only on the physical client. The associated [translation key][tk] for the category is `key.category.<namespace>.<path>`.
+
+```java
+public static final KeyMapping.Category EXAMPLE_CATEGORY = new KeyMapping.Category(ResourceLocation.fromNamespaceAndPath("examplemod", "category"));
+
+@SubscribeEvent // on the mod event bus only on the physical client
+public static void registerBindings(RegisterKeyMappingsEvent event) {
+    // Register category
+    event.registerCategory(EXAMPLE_CATEGORY);
+
+    // Register binding with category used
+    event.register(EXAMPLE_MAPPING.get());
+}
+```
+
 :::
 
 ### Default Inputs
@@ -43,7 +58,7 @@ new KeyMapping(
     "key.examplemod.example1", // Will be localized using this translation key
     InputConstants.Type.KEYSYM, // Default mapping is on the keyboard
     GLFW.GLFW_KEY_P, // Default key is P
-    "key.categories.misc" // Mapping will be in the misc category
+    KeyMapping.Category.MISC // Mapping will be in the misc category
 )
 ```
 
@@ -65,7 +80,7 @@ new KeyMapping(
     KeyConflictContext.GUI, // Mapping can only be used when a screen is open
     InputConstants.Type.MOUSE, // Default mapping is on the mouse
     GLFW.GLFW_MOUSE_BUTTON_LEFT, // Default mouse input is the left mouse button
-    "key.categories.examplemod.examplecategory" // Mapping will be in the new example category
+    EXAMPLE_CATEGORY // Mapping will be in the new example category
 )
 ```
 
@@ -82,7 +97,7 @@ new KeyMapping(
     KeyModifier.SHIFT, // Default mapping requires shift to be held down
     InputConstants.Type.KEYSYM, // Default mapping is on the keyboard
     GLFW.GLFW_KEY_G, // Default key is G
-    "key.categories.misc"
+    KeyMapping.Category.MISC
 )
 ```
 

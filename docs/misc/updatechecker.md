@@ -56,4 +56,4 @@ The returned object will also have the target version and any changelog lines as
 [mvnver]: ../gettingstarted/versioning.md
 [nocubes]: https://cadiboo.github.io/projects/nocubes/update.json
 [corail]: https://github.com/Corail31/tombstone_lite/blob/master/update.json
-[chisel]: https://github.com/Aeltumn/Chisels-and-Bits-2/blob/master/update.json
+[chisel]: https://curseupdate.com/231095/chiselsandbits?ml=neoforge
