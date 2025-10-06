@@ -235,8 +235,8 @@ As a reminder from before, the server only knows `ParticleType`s and `ParticleOp
 - **Server code**: Call `ServerLevel#sendParticles`. Used in vanilla by the `/particle` command.
 
 [description]: ../resources/client/particles.md
-[event]: ../../concepts/events.md
+[event]: ../concepts/events.md
 [features]: feature.md
-[modbus]: ../../concepts/events.md#event-buses
-[registry]: ../../concepts/registries.md#methods-for-registering
-[side]: ../../concepts/sides.md
+[modbus]: ../concepts/events.md#event-buses
+[registry]: ../concepts/registries.md#methods-for-registering
+[side]: ../concepts/sides.md
