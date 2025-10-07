@@ -7,9 +7,9 @@ The `Container` interface defines methods such as `#getItem`, `#setItem` and `#r
 Due to this, `Container`s can not only be implemented on block entities, but any other class as well. Notable examples include entity inventories, as well as common modded [items][item] such as backpacks.
 
 :::warning
-NeoForge provides the `ItemStackHandler` class as a replacement for `Container`s in many places. It should be used wherever possible in favor of `Container`, as it allows for cleaner interaction with other `Container`s/`ItemStackHandler`s.
+NeoForge provides the `ItemStacksResourceHandler` class as a replacement for `Container`s in many places. It should be used wherever possible in favor of `Container`, as it allows for cleaner interaction with other `Container`s/`ItemStacksResourceHandler`s.
 
-The main reason this article exists is for reference in vanilla code, or if you are developing mods on multiple loaders. Always use `ItemStackHandler` in your own code if possible! Docs on that are a work in progress.
+The main reason this article exists is for reference in vanilla code, or if you are developing mods on multiple loaders. Always use `ItemStacksResourceHandler` in your own code if possible! Docs on that are a work in progress.
 :::
 
 ## Basic Container Implementation

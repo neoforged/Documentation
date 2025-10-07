@@ -166,7 +166,7 @@ A `Slot` represents a reference to some [`ItemStack`][itemstack] in an inventory
 
 The server menu constructor should take in the inventory instance or view. The client menu constructor, meanwhile, should always supply an empty instance of an inventory of the same size to write the server data to. The desired slot or one of its subtypes can then be added to the menu using `#addSlot`.
 
-For a [`Container`][container], the client menu will typically pass in a `SimpleContainer` and be added using regular `Slot`s. For the [`IItemHandler` capability][cap], the client menu will typically pass in a `ItemStackHandler` and be added using `SlotItemHandler`s.
+For a [`Container`][container], the client menu will typically pass in a `SimpleContainer` and be added using regular `Slot`s. For the [`ResourceHandler<ItemResource>` capability][cap], the client menu will typically pass in a `ItemStacksResourceHandler` and be added using `ResourceHandlerSlot`s.
 
 In most cases, any slots the menu contains is first added, followed by the player's inventory, and finally concluded with the player's hotbar. To access any individual `Slot` from the menu, the index must be calculated based upon the order of which slots were added.
 
@@ -175,11 +175,11 @@ In most cases, any slots the menu contains is first added, followed by the playe
 
 // Client menu constructor
 public MyMenuAccess(int containerId, Inventory playerInventory) {
-    this(containerId, playerInventory, new ItemStackHandler(10));
+    this(containerId, playerInventory, new ItemStacksResourceHandler(10));
 }
 
 // Server menu constructor
-public MyMenuAccess(int containerId, Inventory playerInventory, IItemHandler dataInventory) {
+public MyMenuAccess(int containerId, Inventory playerInventory, StacksResourceHandler<ItemStack, ItemResource> dataInventory) {
     // Check if the data inventory size is some fixed value
     int dataSize = dataInventory.getSlots();
     if (dataSize < 10) {
@@ -198,9 +198,11 @@ public MyMenuAccess(int containerId, Inventory playerInventory, IItemHandler dat
         // Five columns
         for (int i = 0; i < 5; i++) {
             // Add for each slot in the data inventory
-            this.addSlot(new SlotItemHandler(
+            this.addSlot(new ResourceHandlerSlot(
                 // The inventory
                 dataInventory,
+                // The index modifier to mutate the stored resources
+                dataInventory::set,
                 // The index of the data inventory this slot represents:
                 // rowIndex * columnCount + columnIndex
                 j * 5 + i,

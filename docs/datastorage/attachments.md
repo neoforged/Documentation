@@ -32,8 +32,8 @@ In any case, the attachment **must be registered** to the `NeoForgeRegistries.AT
 private static final DeferredRegister<AttachmentType<?>> ATTACHMENT_TYPES = DeferredRegister.create(NeoForgeRegistries.ATTACHMENT_TYPES, MOD_ID);
 
 // Serialization via ValueIOSerializable
-private static final Supplier<AttachmentType<ItemStackHandler>> HANDLER = ATTACHMENT_TYPES.register(
-    "handler", () -> AttachmentType.serializable(() -> new ItemStackHandler(1)).build()
+private static final Supplier<AttachmentType<ItemStacksResourceHandler>> HANDLER = ATTACHMENT_TYPES.register(
+    "handler", () -> AttachmentType.serializable(() -> new ItemStacksResourceHandler(1)).build()
 );
 // Serialization via map codec
 private static final Supplier<AttachmentType<Integer>> MANA = ATTACHMENT_TYPES.register(
@@ -53,8 +53,8 @@ ATTACHMENT_TYPES.register(modBus);
 Once the attachment type is registered, it can be used on any holder object. Calling `getData` if no data is present will attach a new default instance.
 
 ```java
-// Get the ItemStackHandler if it already exists, else attach a new one:
-ItemStackHandler stackHandler = chunk.getData(HANDLER);
+// Get the ItemStacksResourceHandler if it already exists, else attach a new one:
+ItemStacksResourceHandler handler = chunk.getData(HANDLER);
 // Get the current player mana if it is available, else attach 0:
 int playerMana = player.getData(MANA);
 // And so on...
@@ -65,7 +65,7 @@ If attaching a default instance is not desired, a `hasData` check can be added:
 ```java
 // Check if the chunk has the HANDLER attachment before doing anything.
 if (chunk.hasData(HANDLER)) {
-    ItemStackHandler stackHandler = chunk.getData(HANDLER);
+    ItemStacksResourceHandler handler = chunk.getData(HANDLER);
     // Do something with chunk.getData(HANDLER).
 }
 ```
