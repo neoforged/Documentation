@@ -11,7 +11,6 @@ The basic model JSON (in `assets/<namespace>/models`) are deserialized into an `
 
 The `UnbakedModel` contains information that is either used by the [block state definition][bsd], [item models][itemmodelsection], or both. For example, `useAmbientOcclusion` is used exclusively by the block state definition, `guiLight` and `transforms` are used exclusively by the item model, and `textureSlots` and `parent` are used by both.
 
-
 During the baking process, every `UnbakedModel` is wrapped in a `ResolvedModel` that are obtained by the `ModelBaker` for an item or block state. As the name implies, a `ResolvedModel` is an `UnbakedModel` with all lingering references resolved. The associated data can then be obtained from the `getTop*` methods, which compute the properties and geometry from the current model and its parents. Baking the `ResolvedModel` to its `QuadCollection` is typically done here by calling `ResolvedModel#bakeTopGeometry`.
 
 ## Block State Definitions
@@ -64,6 +63,7 @@ Minecraft's render engine recognizes a total of 8 perspective types (9 if you in
 | `GUI`                     | `"gui"`                   | Inventories, player hotbar                                                                                       |
 | `GROUND`                  | `"ground"`                | Dropped items; note that the rotation of the dropped item is handled by the dropped item renderer, not the model |
 | `FIXED`                   | `"fixed"`                 | Item frames                                                                                                      |
+| `ON_SHELF`                | `"on_shelf"`              | On shelf blocks                                                                                                      |
 | `NONE`                    | `"none"`                  | Fallback purposes in code, should not be used in JSON                                                            |
 
 NeoForge allows the `ItemDisplayContext` to be [extended] for use in custom render calls. Modded `ItemDisplayContext`s may specify a fallback transform to use if none is specified in the model. Otherwise, behavior will be the same as vanilla.
@@ -94,9 +94,9 @@ public class MyDelegateItemModel implements ItemModel {
 
     // Override whatever methods you want here. You may also access originalModel if needed.
     @Override
-    public void update(ItemStackRenderState renderState, ItemStack stack, ItemModelResolver resolver, ItemDisplayContext displayContext, @Nullable ClientLevel level, @Nullable LivingEntity entity, int seed
+    public void update(ItemStackRenderState renderState, ItemStack stack, ItemModelResolver resolver, ItemDisplayContext displayContext, @Nullable ClientLevel level, @Nullable ItemOwner owner, int seed
     ) {
-        this.originalModel.update(renderState, stack, resolver, displayContext, level, entity, seed);
+        this.originalModel.update(renderState, stack, resolver, displayContext, level, owner, seed);
     }
 }
 ```
