@@ -24,12 +24,12 @@ Every frame on the [physical client][physicalside], the `Minecraft` class update
         - `Entity#isAttackable` is called on the target. If it returns false, the pipeline ends.
         - `Entity#skipAttackInteraction` is called on the target. If it returns true, the pipeline ends.
         - If the target is in the `minecraft:redirectable_projectile` tag (by default this is fireballs and wind charges) and an instance of `Projectile`, the target is deflected and the pipeline ends.
-        - Entity base damage (the value of the `minecraft:generic.attack_damage` [attribute]) and enchantment bonus damage are calculated as two separate floats. If both are 0, the pipeline ends.
+        - Entity base damage (the value of the `minecraft:attack_damage` [attribute]) and enchantment bonus damage are calculated as two separate floats. If both are 0, the pipeline ends.
             - Note that this excludes [attribute modifiers][attributemodifier] from the main hand item, these are added after the check.
-        - `minecraft:generic.attack_damage` attribute modifiers from the main hand item are added to the base damage.
+        - `minecraft:attack_damage` attribute modifiers from the main hand item are added to the base damage.
         - `CriticalHitEvent` is fired. If the event's `#isCriticalHit` method returns true, the base damage is multiplied with the value returned from the event's `#getDamageMultiplier` method, which defaults to 1.5 if [a number of conditions][critical] pass and 1.0 otherwise, but may be modified by the event.
         - Enchantment bonus damage is added to the base damage, resulting in the final damage value.
-        - `SweepAttackEvent` is fired. If the event's `isSweeping` method returns true, then the player will perform a sweep attack. By default, this checks if the attack cooldown is > 90%, the attack is not a critical hit, the player is on the ground and not moving faster than their `minecraft:generic.movement_speed` attribute value.
+        - `SweepAttackEvent` is fired. If the event's `isSweeping` method returns true, then the player will perform a sweep attack. By default, this checks if the attack cooldown is > 90%, the attack is not a critical hit, the player is on the ground and not moving faster than their `minecraft:movement_speed` attribute value.
         - [`Entity#hurtOrSimulate`][hurt] is called. If it returns false, the pipeline ends.
         - If the target is an instance of `LivingEntity` and the attack strength is greater than 90%, the player is sprinting, and the `minecraft:attack_knockback` attribute value after being modified by enchantments is greater than 0, `LivingEntity#knockback` is called.
             - Within that method, `LivingKnockBackEvent` is fired. If the event is canceled, then no knockback is applied.

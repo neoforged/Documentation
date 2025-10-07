@@ -477,7 +477,7 @@ Adds a list of [attribute modifiers][attributemodifier] to the result item stack
             // The resource location id of the modifier. Should be prefixed by your mod id.
             "id": "examplemod:example_modifier",
             // The id of the attribute the modifier is for.
-            "attribute": "minecraft:generic.attack_damage",
+            "attribute": "minecraft:attack_damage",
             // The attribute modifier operation.
             // Valid values are "add_value", "add_multiplied_base" and "add_multiplied_total". 
             "operation": "add_value",

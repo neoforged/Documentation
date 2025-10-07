@@ -13,7 +13,7 @@ _See also: [Attributes][attributes]._
 
 One of the most notable features that sets living entities apart from others is the fully-fleshed health system. Living entities generally have a max health, a current health and sometimes things such as armor or natural regeneration.
 
-By default, max health is determined by the `minecraft:generic.max_health` [attribute][attributes], and the current health is set to the same value when [spawning]. When the entity is damaged by calling [`Entity#hurtServer`][hurt] on it, the current health is decreased according to the damage calculations. Many entities, such as zombies, will by default then remain at that reduced health value, while some, such as players, can heal these lost hit points again.
+By default, max health is determined by the `minecraft:max_health` [attribute][attributes], and the current health is set to the same value when [spawning]. When the entity is damaged by calling [`Entity#hurtServer`][hurt] on it, the current health is decreased according to the damage calculations. Many entities, such as zombies, will by default then remain at that reduced health value, while some, such as players, can heal these lost hit points again.
 
 To get or set the max health value, the attribute is read or written directly, like so:
 
@@ -31,7 +31,7 @@ maxHealth = entity.getMaxHealth();
 attributes.getInstance(Attributes.MAX_HEALTH).setBaseValue(50);
 ```
 
-When [taking damage][damage], living entities will apply some additional calculations, such as considering the `minecraft:generic.armor` attribute (except for [damage types][damagetypes] that are in the `minecraft:bypasses_armor` [tag][tags]) as well as the `minecraft:generic.absorption` attribute. Living entities can also override `#onDamageTaken` to perform post-attack behavior; it is only called if the final damage value is greater than zero.
+When [taking damage][damage], living entities will apply some additional calculations, such as considering the `minecraft:armor` attribute (except for [damage types][damagetypes] that are in the `minecraft:bypasses_armor` [tag][tags]) as well as the `minecraft:absorption` attribute. Living entities can also override `#onDamageTaken` to perform post-attack behavior; it is only called if the final damage value is greater than zero.
 
 ### Damage Events
 
@@ -110,13 +110,13 @@ Living entities have a complex class hierarchy. As mentioned before, there are t
 graph LR;
     LivingEntity-->ArmorStand;
     LivingEntity-->Mob;
-    LivingEntity-->Player;
+    LivingEntity-->Avatar;
     
-    class LivingEntity,Mob,Player red;
+    class LivingEntity,Mob,Avatar red;
     class ArmorStand blue;
 ```
 
-Of these, `ArmorStand` has no subclasses (and is also the only non-abstract class), so we will focus on the class hierarchy of `Mob` and `Player`.
+Of these, `ArmorStand` has no subclasses (and is also the only non-abstract class), so we will focus on the class hierarchy of `Mob` and `Avatar`.
 
 ### Hierarchy of `Mob`
 
@@ -131,6 +131,7 @@ graph LR;
     Mob-->Phantom;
     Mob-->PathfinderMob;
     PathfinderMob-->AbstractGolem;
+    AbstractGolem-->CopperGolem;
     AbstractGolem-->IronGolem;
     AbstractGolem-->Shulker;
     AbstractGolem-->SnowGolem;
@@ -157,7 +158,7 @@ graph LR;
     Slime-->MagmaCube;
     
     class Mob,AmbientCreature,PathfinderMob,AbstractGolem,AgeableMob,AbstractVillager,AgeableWaterCreature,Animal,Monster,WaterAnimal,AbstractFish,AbstractSchoolingFish red;
-    class Bat,EnderDragon,Ghast,Phantom,IronGolem,Shulker,SnowGolem,Villager,WanderingTrader,Dolphin,Squid,GlowSquid,Allay,Cod,Salmon,TropicalFish,Pufferfish,Tadpole,Slime,MagmaCube blue;
+    class Bat,CopperGolem,EnderDragon,Ghast,Phantom,IronGolem,Shulker,SnowGolem,Villager,WanderingTrader,Dolphin,Squid,GlowSquid,Allay,Cod,Salmon,TropicalFish,Pufferfish,Tadpole,Slime,MagmaCube blue;
 ```
 
 All other living entities missing from the diagram are subclasses of either `Animal` or `Monster`.
@@ -172,20 +173,23 @@ Let's go over the most important classes:
 - `Monster`: The abstract class for most entities the game considers monsters. Like `Animal`, this has further abstract subclasses, such as `AbstractPiglin`, `AbstractSkeleton`, `Raider`, and `Zombie`.
 - `WaterAnimal`: The abstract class for water-based animals, such as fish, squids and dolphins. These are kept separate from the other animals due to significantly different pathfinding.
 
-### Hierarchy of `Player`
+### Hierarchy of `Avatar`
 
-Depending on which side the player is on, a different player class is used. You should never need to construct a player yourself, except for `FakePlayer`s.
+Avatars define not only the player, but also a player-like mannequin. Depending on which side the avatar is on, a different class is used. You should never need to construct avatars, except for `FakePlayer`s and `Mannequin`s.
 
 ```mermaid
 graph LR;
+    Avatar-->Mannequin;
+    Mannequin-->ClientMannequin;
+    Avatar--Player;
     Player-->AbstractClientPlayer;
     AbstractClientPlayer-->LocalPlayer;
     AbstractClientPlayer-->RemotePlayer;
     Player-->ServerPlayer;
     ServerPlayer-->FakePlayer;
     
-    class Player,AbstractClientPlayer red;
-    class LocalPlayer,RemotePlayer,ServerPlayer,FakePlayer blue;
+    class Avatar,Player,AbstractClientPlayer red;
+    class ClientMannequin,LocalPlayer,RemotePlayer,ServerPlayer,FakePlayer blue;
 ```
 
 - `AbstractClientPlayer`: This class is used as a base for the two client players, both used to represent players on the [logical client][logicalsides].
@@ -193,6 +197,8 @@ graph LR;
 - `RemotePlayer`: This class is used to represent other players that the `LocalPlayer` may encounter during multiplayer. As such, `RemotePlayer`s do not exist in singleplayer contexts.
 - `ServerPlayer`: This class is used to represent players on the [logical server][logicalsides].
 - `FakePlayer`: This is a special subclass of `ServerPlayer` designed to be used as a mock for a player, for non-player mechanisms that need a player context.
+- `Mannequin`: This class designed to be used as a posable player, usually without any AI.
+- `ClientMannequin`: The class is used to represent the mannequin on the [logical client][logicalsides].
 
 ## Spawning
 
@@ -200,16 +206,16 @@ In addition to the [regular ways of spawning][spawning] - that is, the `/summon`
 
 ### Spawn Eggs
 
-It is common (though not required) to [register] a spawn egg for mobs. This is done through the `SpawnEggItem` class, which has been patched by NeoForge to do some extra setup, such as registering the color handler and adding the spawn egg to the internal `SpawnEggItem` -> `EntityType` map.
+It is common (though not required) to [register] a spawn egg for mobs. This is done through the `SpawnEggItem` class and the `DataComponents#ENTITY_DATA` [data component][datacomponent]:
 
 ```java
 // Assume we have a DeferredRegister.Items called ITEMS
 DeferredItem<SpawnEggItem> MY_ENTITY_SPAWN_EGG = ITEMS.registerItem("my_entity_spawn_egg",
     properties -> new SpawnEggItem(
-        // The entity type to spawn.
-        MY_ENTITY_TYPE.get(),
-        // The properties passed into the lambda, with any additional setup.
-        properties
+        // The properties passed into the lambda.
+        // Using `spawnEgg` to set the DataComponent.
+        // This is done in the lambda to prevent the entity type from resolving before registration.
+        properties.spawnEgg(MY_ENTITY_TYPE.get())
     ));
 ```
 
@@ -257,6 +263,7 @@ If all those checks pass, a spawn entry is chosen from the above list based on t
 [damage]: index.md#damaging-entities
 [damagesources]: ../resources/server/damagetypes.md#creating-and-using-damage-sources
 [damagetypes]: ../resources/server/damagetypes.md
+[datacomponent]: ../items/datacomponents.md
 [enchantments]: ../resources/server/enchantments/index.md
 [entities]: index.md
 [hurt]: index.md#damaging-entities

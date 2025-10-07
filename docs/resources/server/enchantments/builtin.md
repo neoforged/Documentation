@@ -143,7 +143,7 @@ Here is an example which uses the `minecraft:attributes` location based effect c
         },
 
         // Which attribute to modify. In this case, modifies "minecraft:scale"
-        "attribute": "minecraft:generic.scale",
+        "attribute": "minecraft:scale",
         // The unique identifier for this attribute modifier. Should not overlap with others, but doesn't need to be registered.
         "id": "examplemod:enchantment.size_change",
         // What operation to use on the attribute. Can be "add_value", "add_multiplied_base", or "add_multiplied_total".

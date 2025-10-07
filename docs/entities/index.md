@@ -238,8 +238,8 @@ Additionally, the entity has a field called `tickCount`, which is the time, in t
 public void tick() {
     // Always call super unless you have a good reason not to.
     super.tick();
-    // Run this code once every 5 ticks, and make sure we spawn the particle on the server.
-    if (this.tickCount % 5 == 0 && !this.level().isClientSide()) {
+    // Run this code once every 5 ticks.
+    if (this.tickCount % 5 == 0) {
         this.level().addParticle(...);
     }
 }
