@@ -23,6 +23,9 @@ An armor set for a humanoid entity typically consists of four items: a helmet fo
 Commonly, each armor is setup using `Item.Properties#humanoidArmor` for humanoid entities, `wolfArmor` for wolves, and `horseArmor` for horses. They all use `ArmorMaterial` combined with `ArmorType` for humanoids to set up the components. Reference values can be found within `ArmorMaterials`. This example uses a copper armor material, which you can adjust the values of as needed.
 
 ```java
+// The resource key of the equipment asset used to link
+// the `EquipmentClientInfo` JSON discussed below.
+// Points to assets/examplemod/equipment/copper.json
 public static final ResourceKey<EquipmentAsset> COPPER_ASSET = ResourceKey.create(EquipmentAssets.ROOT_ID, ResourceLocation.fromNamespaceAndPath("examplemod", "copper"));
 
 public static final ArmorMaterial COPPER_ARMOR_MATERIAL = new ArmorMaterial(
@@ -61,8 +64,7 @@ public static final ArmorMaterial COPPER_ARMOR_MATERIAL = new ArmorMaterial(
     0,
     // The tag that determines what items can repair this armor.
     Tags.Items.INGOTS_COPPER,
-    // The resource key of the EquipmentClientInfo JSON discussed below
-    // Points to assets/examplemod/equipment/copper.json
+    // The resource key of the EquipmentClientInfo JSON discussed below.
     COPPER_ASSET
 );
 ```
@@ -118,6 +120,9 @@ If you want to create armor or an armor-like item from scratch, it can be implem
 An `Equippable` can be created either by directly calling the record constructor or via `Equippable#builder`, which sets the defaults for each field, folowed by `build` once finished:
 
 ```java
+// The resource key of the equipment asset used to link
+// the `EquipmentClientInfo` JSON discussed below.
+// Points to assets/examplemod/equipment/equippable.json
 public static final ResourceKey<EquipmentAsset> EXAMPLE_EQUIPABBLE = ResourceKey.create(EquipmentAssets.ROOT_ID, ResourceLocation.fromNamespaceAndPath("examplemod", "equippable"));
 
 // Assume there is some DeferredRegister.Items ITEMS
@@ -132,7 +137,6 @@ public static final DeferredItem<Item> EQUIPPABLE = ITEMS.registerSimpleItem(
             // Defaults to SoundEvents#ARMOR_EQUIP_GENERIC.
             .setEquipSound(SoundEvents.ARMOR_EQUIP_GENERIC)
             // The resource key of the EquipmentClientInfo JSON discussed below.
-            // Points to assets/examplemod/equipment/equippable.json
             // When not set, does not render the equipment.
             .setAsset(ResourceKey.create(EXAMPLE_EQUIPABBLE))
             // The relative location of the texture to overlay on the player screen when wearing (e.g., pumpkin blur).
