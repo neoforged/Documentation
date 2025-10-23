@@ -154,7 +154,7 @@ Copies [data component][datacomponent] values from a block entity to the item st
 }
 ```
 
-During datagen, call `CopyComponentsFunction#copyComponentsFromBlockEntity` for a block entity source or `copyComponentsFromEntity` for an entity source to construct a builder for this function. You can alternatively use `CopyComponentsFunction.ItemStackSource`, provided you [widen the accecss][at] of the builder constructor.
+During datagen, call `CopyComponentsFunction#copyComponentsFromBlockEntity` for a block entity source or `copyComponentsFromEntity` for an entity source to construct a builder for this function. You can alternatively use `CopyComponentsFunction.ItemStackSource`, provided you [widen the access][at] of the builder constructor.
 
 ## `minecraft:copy_state`
 

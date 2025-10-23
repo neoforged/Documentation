@@ -21,7 +21,7 @@ implementation 'com.example:example:1.0'
 
 ## 1.21.8 and Below
 
-Running NeoForge on 1.21.8 and below still require the library to be added to the runtime classpath:
+Running NeoForge on 1.21.8 and below additionally require the library to be added to the runtime classpath:
 
 <Tabs defaultValue="mdg">
 <TabItem value="mdg" label="ModDevGradle">
