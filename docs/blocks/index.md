@@ -267,7 +267,7 @@ The following subsections further break down these stages into actual method cal
 - Server-only: `BlockEvent.BreakEvent` is fired. If canceled, the pipeline moves to the "finishing" stage. The initial canceled state is determined by the above three methods.
 - `Block#playerWillDestroy` is called.
 - Server-only: `IBlockExtension#canHarvestBlock` is called. This determines whether the block can be harvested, i.e. broken with drops. This will be ignored if `Player#preventsBlockDrops` returns true.
-    - Server-only: `PlayerEvent.HarvestCheck` is fired if `IBlockExtension#canHarvestBlock` is not overridden without its super call. If `canHarvest` returns `false`, then `Block#playerDestroy` will not be called, preventing any resources or experience from dropping.
+    - Server-only: `PlayerEvent.HarvestCheck` is fired if `IBlockExtension#canHarvestBlock` is not overridden without its super call. If `HarvestCheck#canHarvest` returns `false`, then `Block#playerDestroy` will not be called, preventing any resources or experience from dropping.
 - Server-only: `Item#mineBlock` is called.
 - `IBlockExtension#onDestroyedByPlayer` is called. If it returns `false`, the pipeline moves to the "finishing" stage.
     - The blockstate is removed from the level via a `Level#setBlock` call with `Blocks.AIR.defaultBlockState()` or the current logged fluid as the blockstate parameter.
