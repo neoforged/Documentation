@@ -110,7 +110,6 @@ Entity targets are a type used in loot conditions and functions, represented by 
 - `"target_entity"` or `LootContext.EntityTarget.TARGET_ENTITY`: Represents the `"minecraft:target_entity"` parameter.
 - `"interacting_entity"` or `LootContext.EntityTarget.INTERACTING_ENTITY`: Represents the `"minecraft:interacting_entity"` parameter.
 
-
 For example, the `minecraft:entity_properties` loot condition accepts an entity target to allow all four loot parameters to be checked, if that is what you (as the loot table author) need.
 
 ### Loot Parameter Sets
