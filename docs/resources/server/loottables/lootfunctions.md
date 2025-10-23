@@ -145,7 +145,10 @@ Copies [data component][datacomponent] values from a block entity to the item st
 ```json5
 {
     "function": "minecraft:copy_components",
-    // One of the targets specified in the loot context
+    // One of the loot params specified in the context
+    // For entities: 'this', 'attacker', 'direct_attacker', 'attacking_player', 'target_entity', 'interacting_entity'
+    // For block entities: 'block_entity'
+    // For item stacks: 'tool'
     "source": "block_entity",
     // By default, all components are copied. The "exclude" list allows excluding certain components, and the
     // "include" list allows explicitly re-including components. Both fields are optional.
