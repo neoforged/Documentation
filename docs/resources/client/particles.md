@@ -1,4 +1,105 @@
-# Particle Descriptions
+# Particles
+
+Particles are 2D effects that polish the game and add immersion. They can be spawned both client and server [side], but being mostly visual in nature, critical parts exist only on the physical (and logical) client side.
+
+## Registering Particles
+
+Particles are registered using `ParticleType`s. These work similar to `EntityType`s or `BlockEntityType`s, in that there's a `Particle` class - every spawned particle is an instance of that class -, and then there's the `ParticleType` class, holding some common information, that is used for registration. `ParticleType`s are a [registry], which means that we want to register them using a `DeferredRegister` like all other registered objects:
+
+```java
+public class MyParticleTypes {
+    // Assuming that your mod id is examplemod
+    public static final DeferredRegister<ParticleType<?>> PARTICLE_TYPES =
+        DeferredRegister.create(BuiltInRegistries.PARTICLE_TYPE, "examplemod");
+    
+    // The easiest way to add new particle types is reusing vanilla's SimpleParticleType.
+    // Implementing a custom ParticleType is also possible, see below.
+    public static final Supplier<SimpleParticleType> MY_QUAD_PARTICLE = PARTICLE_TYPES.register(
+        // The name of the particle type.
+        "my_quad_particle",
+        // The supplier. The boolean parameter denotes whether setting the Particles option in the
+        // video settings to Minimal will affect this particle type or not; this is false for
+        // most vanilla particles, but true for e.g. explosions, campfire smoke, or squid ink.
+        () -> new SimpleParticleType(false)
+    );
+}
+```
+
+:::info
+A `ParticleType` is only necessary if you need to work with particles on the server side. The client can also use `Particle`s directly.
+:::
+
+## Custom `ParticleType`s
+
+While for most cases `SimpleParticleType` suffices, it is sometimes necessary to attach additional data to the particle on the server side. This is where a custom `ParticleType` and an associated custom `ParticleOptions` are required. Let's start with the `ParticleOptions`, as that is where the information is actually stored:
+
+```java
+public class MyParticleOptions implements ParticleOptions {
+    
+    // Read and write information, typically for use in commands
+    // Since there is no information in this type, this will be an empty string
+    public static final MapCodec<MyParticleOptions> CODEC = MapCodec.unit(new MyParticleOptions());
+
+    // Read and write information to the network buffer.
+    public static final StreamCodec<ByteBuf, MyParticleOptions> STREAM_CODEC = StreamCodec.unit(new MyParticleOptions());
+
+    // Does not need any parameters, but may define any fields necessary for the particle to work.
+    public MyParticleOptions() {}
+
+    @Override
+    public ParticleType<?> getType() {
+        // Return the registered particle type
+    }
+}
+```
+
+We then use this `ParticleOptions` implementation in our custom `ParticleType`...
+
+```java
+public class MyParticleType extends ParticleType<MyParticleOptions> {
+    // The boolean parameter again determines whether to limit particles at lower particle settings.
+    // See implementation of the MyParticleTypes class near the top of the article for more information.
+    public MyParticleType(boolean overrideLimiter) {
+        // Pass the deserializer to super.
+        super(overrideLimiter);
+    }
+
+    @Override
+    public MapCodec<MyParticleOptions> codec() {
+        return MyParticleOptions.CODEC;
+    }
+
+    @Override
+    public StreamCodec<? super RegistryFriendlyByteBuf, MyParticleOptions> streamCodec() {
+        return MyParticleOptions.STREAM_CODEC;
+    }
+}
+```
+
+... and reference it during [registration][registry]:
+
+```java
+public static final Supplier<MyParticleType> MY_CUSTOM_PARTICLE = PARTICLE_TYPES.register(
+    "my_custom_particle",
+    () -> new MyParticleType(false)
+);
+```
+
+The registered particle is then passed into `ParticleOptions#getType`:
+
+```java
+public class MyParticleOptions implements ParticleOptions {
+    
+    // ...
+
+    @Override
+    public ParticleType<?> getType() {
+        return MY_CUSTOM_PARTICLE.get();
+    }
+}
+```
+
+## Particle Descriptions
 
 Particle descriptions are JSON files in the `assets/<namespace>/particles` directory and has the same name as the [particle type][particletype]. The description takes in a list of textures relative to `assets/<namespace>/textures/particles`.
 
@@ -20,9 +121,9 @@ A particle description looks something like this:
 
 During resource reload, the `ParticleResources` loads all particle descriptions and stitches the textures into a `TextureAtlas#LOCATION_PARTICLES` atlas. Then, a `SpriteSet` is created for each description containing the list of `TextureAtlasSprite`s specified.
 
-## Using the Description
+### Using the Description
 
-To allow a [particle] to make use of its description, the `ParticleType` must be associated with a `ParticleProvider` that takes in the `SpriteSet` using the [client-side][side] [mod bus][modbus] [event] `RegisterParticleProvidersEvent`:
+To allow a [particle] to make use of its description, the `ParticleType` must be associated with a [`ParticleProvider`][provider] that takes in the `SpriteSet` using the [client-side][side] [mod bus][modbus] [event] `RegisterParticleProvidersEvent`:
 
 ```java
 public class MyParticleProvider implements ParticleProvider<SimpleParticleType> {
@@ -99,5 +200,6 @@ public static void gatherData(GatherDataEvent.Client event) {
 [event]: ../../concepts/events.md
 [modbus]: ../../concepts/events.md#event-buses
 [particle]: ../../rendering/particles.md
-[particletype]: ../../rendering/particles.md#registering-particles
+[particletype]: #registering-particles
+[provider]: ../../rendering/particles.md#particleprovider
 [side]: ../../concepts/sides.md

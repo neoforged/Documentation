@@ -1,35 +1,4 @@
-# Particles
-
-Particles are 2D effects that polish the game and add immersion. They can be spawned both client and server [side], but being mostly visual in nature, critical parts exist only on the physical (and logical) client side.
-
-## Registering Particles
-
-Particles are registered using `ParticleType`s. These work similar to `EntityType`s or `BlockEntityType`s, in that there's a `Particle` class - every spawned particle is an instance of that class -, and then there's the `ParticleType` class, holding some common information, that is used for registration. `ParticleType`s are a [registry], which means that we want to register them using a `DeferredRegister` like all other registered objects:
-
-```java
-public class MyParticleTypes {
-    // Assuming that your mod id is examplemod
-    public static final DeferredRegister<ParticleType<?>> PARTICLE_TYPES =
-        DeferredRegister.create(BuiltInRegistries.PARTICLE_TYPE, "examplemod");
-    
-    // The easiest way to add new particle types is reusing vanilla's SimpleParticleType.
-    // Implementing a custom ParticleType is also possible, see below.
-    public static final Supplier<SimpleParticleType> MY_QUAD_PARTICLE = PARTICLE_TYPES.register(
-        // The name of the particle type.
-        "my_quad_particle",
-        // The supplier. The boolean parameter denotes whether setting the Particles option in the
-        // video settings to Minimal will affect this particle type or not; this is false for
-        // most vanilla particles, but true for e.g. explosions, campfire smoke, or squid ink.
-        () -> new SimpleParticleType(false)
-    );
-}
-```
-
-:::info
-A `ParticleType` is only necessary if you need to work with particles on the server side. The client can also use `Particle`s directly.
-:::
-
-## `Particle`
+# Client Particles
 
 A `Particle` defines the client representation of what is spawned in the world and displayed to the player. Most properties and basic physics are controlled by fields such as `gravity`, `lifetime`, `hasPhysics`, `friction`, etc. The only two methods that are commonly overridden are `tick` and `move`, both of which do exactly as their name implies. As such, most custom particles are often short, consisting only a of a constructor that sets the desired fields with the occasional override in the two methods.
 
@@ -39,7 +8,7 @@ There are two methods for constructing a particle: subclassing `SingleQuadPartic
 NeoForge currently does not have support for custom `Particle` subclasses.
 :::
 
-### A Single Quad
+## A Single Quad
 
 Particles that extend `SingleQuadParticle` draw a single quad with some atlas sprite to the screen. There are many helpers provided in the class, from setting the size of the particle (via the `quadSize` field or `scale` method), to tinting the texture (via `setColor` and `setAlpha`). However, the two most important things about a quad particle is the `TextureAtlasSprite` used as the texture, and where that sprite is obtained and rendered through `SingleQuadParticle.Layer`.
 
@@ -156,79 +125,9 @@ public static void registerParticleProviders(RegisterParticleProvidersEvent even
 If `registerSpriteSet` is used, then the particle type must also have an associated [particle description][description]. Otherwise, an exception will be thrown stating it 'Failed to load description'.
 :::
 
-## Custom `ParticleType`s
-
-While for most cases `SimpleParticleType` suffices, it is sometimes necessary to attach additional data to the particle on the server side. This is where a custom `ParticleType` and an associated custom `ParticleOptions` are required. Let's start with the `ParticleOptions`, as that is where the information is actually stored:
-
-```java
-public class MyParticleOptions implements ParticleOptions {
-    
-    // Read and write information, typically for use in commands
-    // Since there is no information in this type, this will be an empty string
-    public static final MapCodec<MyParticleOptions> CODEC = MapCodec.unit(new MyParticleOptions());
-
-    // Read and write information to the network buffer.
-    public static final StreamCodec<ByteBuf, MyParticleOptions> STREAM_CODEC = StreamCodec.unit(new MyParticleOptions());
-
-    // Does not need any parameters, but may define any fields necessary for the particle to work.
-    public MyParticleOptions() {}
-
-    @Override
-    public ParticleType<?> getType() {
-        // Return the registered particle type
-    }
-}
-```
-
-We then use this `ParticleOptions` implementation in our custom `ParticleType`...
-
-```java
-public class MyParticleType extends ParticleType<MyParticleOptions> {
-    // The boolean parameter again determines whether to limit particles at lower particle settings.
-    // See implementation of the MyParticleTypes class near the top of the article for more information.
-    public MyParticleType(boolean overrideLimiter) {
-        // Pass the deserializer to super.
-        super(overrideLimiter);
-    }
-
-    @Override
-    public MapCodec<MyParticleOptions> codec() {
-        return MyParticleOptions.CODEC;
-    }
-
-    @Override
-    public StreamCodec<? super RegistryFriendlyByteBuf, MyParticleOptions> streamCodec() {
-        return MyParticleOptions.STREAM_CODEC;
-    }
-}
-```
-
-... and reference it during [registration][registry]:
-
-```java
-public static final Supplier<MyParticleType> MY_CUSTOM_PARTICLE = PARTICLE_TYPES.register(
-    "my_custom_particle",
-    () -> new MyParticleType(false)
-);
-```
-
-The registered particle is then passed into `ParticleOptions#getType`:
-
-```java
-public class MyParticleOptions implements ParticleOptions {
-    
-    // ...
-
-    @Override
-    public ParticleType<?> getType() {
-        return MY_CUSTOM_PARTICLE.get();
-    }
-}
-```
-
 ## Spawning Particles
 
-As a reminder from before, the server only knows `ParticleType`s and `ParticleOption`s, while the client works directly with `Particle`s provided by `ParticleProvider`s that are associated with a `ParticleType`. Consequently, the ways in which particles are spawned are vastly different depending on the side you are on.
+As a reminder from before, the server only knows [`ParticleType`s][particletype] and [`ParticleOption`s][options], while the client works directly with `Particle`s provided by `ParticleProvider`s that are associated with a `ParticleType`. Consequently, the ways in which particles are spawned are vastly different depending on the side you are on.
 
 - **Common code**: Call `Level#addParticle` or `Level#addAlwaysVisibleParticle`. This is the preferred way of creating particles that are visible to everyone.
 - **Client code**: Use the common code way. Alternatively, create a `new Particle()` with the particle class of your choice and call `Minecraft.getInstance().particleEngine#add(Particle)` with that particle. Note that particles added this way will only display for the client and thus not be visible to other players.
@@ -238,5 +137,7 @@ As a reminder from before, the server only knows `ParticleType`s and `ParticleOp
 [event]: ../concepts/events.md
 [features]: feature.md
 [modbus]: ../concepts/events.md#event-buses
+[options]: ../resources/client/particles.md#custom-particletypes
+[particletype]: ../resources/client/particles.md#registering-particles
 [registry]: ../concepts/registries.md#methods-for-registering
 [side]: ../concepts/sides.md
