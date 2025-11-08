@@ -160,7 +160,7 @@ Let's start by creating an entity model class:
 public class MyEntityModel extends EntityModel<MyEntityRenderState> {}
 ```
 
-Note that in the above example, we directly extend `EntityModel`; depending on your use case, it might be more appropriate to use one of the subclasses or even `Model` instead. When creating a new model, it is recommended you have a look at whatever existing model is closest to your use case, and then work from there.
+Note that in the above example, we directly extend `EntityModel`; depending on your use case, it might be more appropriate to use one of the subclasses, or even just `Model` or a non-entity-related subclass of `Model`, instead. When creating a new model, it is recommended you have a look at whatever existing model is closest to your use case, and then work from there.
 
 Next, we create a `LayerDefinition`. A `LayerDefinition` is basically a list of cubes that we can then bake to an `EntityModel`. Defining a `LayerDefinition` looks something like this:
 
@@ -485,7 +485,7 @@ For players, a bit of special-casing is required because there can actually be m
 public static void addPlayerLayers(EntityRenderersEvent.AddLayers event) {
     // Iterate over all possible player models.
     for (PlayerModelType type : event.getSkins()) {
-        // Get the associated PlayerRenderer.
+        // Get the associated AvatarRenderer.
         AvatarRenderer<AbstractClientPlayer> playerRenderer = event.getPlayerRenderer(type);
         if (playerRenderer != null) {
             // Add the layer to the renderer. This assumes that the render layer

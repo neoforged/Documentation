@@ -3,13 +3,13 @@ sidebar_position: 1
 ---
 # Features
 
-A 'feature' in rendering defines a set of objects not baked into the level geometry such as entities, text, and particles. These objects typically have a dynamic position, so things like falling or held block and items also fall into this category. The purpose of the feature renderer is to better batch and order the objects being rendered to the screen. The feature renderer is broken into two phases: the submission phase, where all features are collected; and the rendering phases, where the collected features are rendered.
+A rendering feature defines a set of objects not baked into the level geometry, such as entities, text, and particles. These objects typically have a dynamic position, so things like falling or held blocks and items also fall into this category. The purpose of the feature renderer is then to better batch and order the objects being rendered to the screen. The feature renderer is broken into two phases: the submission phase, where all features are collected; and the rendering phases, where the collected features are rendered.
 
 ## Submitting Features
 
 Feature submission is typically handled by the underlying subsystem responsible for those objects: [`EntityRenderer` for entities][entities], [`BlockEntityRenderer` for block entities][blockentities], [`ParticleGroupRenderState` for particles`][particles], etc. Each provides their own `submit` method, usually taking in some general render state of the object. The necessary elements are then submitted through the `SubmitNodeCollector` and stored in a `SubmitNodeCollection` tree map for rendering.
 
-The following methods are made available through the collector:
+The following methods are made available through the collector, in the order they are ultimately rendered:
 
 | Method                 | Description                                                                                                |
 |:----------------------:|:-----------------------------------------------------------------------------------------------------------|

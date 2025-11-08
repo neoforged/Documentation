@@ -166,7 +166,7 @@ graphics.submitGuiElementRenderState(new GuiElementRenderState() {
 
 ### Element Ordering
 
-So far, the elements shown above have only been operating on XY coordinates. The Z coordinate, in this particular instance, is ignored, as all of the elements drawn to the screen use a `RenderPipeline` that disables the depth test. Even the 3D elements with their more advanced pipelines are drawn to a 2D texture using `RenderPipeline#GUI_TEXTURED_PREMULTIPLIED_ALPHA` by default, which does the same, preventing any Z-fighting in common use cases.
+So far, the elements shown above have only been operating on XY coordinates. The Z coordinate is ignored in GUI rendering, as all of the elements drawn to the screen use a `RenderPipeline` that disables the depth test. Even the 3D elements with their more advanced pipelines are drawn to a 2D texture using `RenderPipeline#GUI_TEXTURED_PREMULTIPLIED_ALPHA` by default, which does the same, preventing any Z-fighting in common use cases.
 
 As such, during the render phase, each stratum is rendered in order, with the nodes in the node list rendered from the first element 'up'wards. But what about within a given node? This is handled via the `GuiRenderer#ELEMENT_SORT_COMPARATOR`, which sorts elements based on their `GuiElementRenderState#scissorArea`, `pipeline`, then `textureSetup`.
 
@@ -316,7 +316,7 @@ Immediate tooltips, on the other hand, are submitted immediately when the method
 
 ### Picture-in-Picture
 
-Picture-in-Picture (PiP) allows for arbitrary objects to be drawn to the screen. Instead of drawing directly to the output, PiP draws the object to an intermediary texture, or a 'picture', that is then submitted to the `GuiRenderState` as a `BlitRenderState`, by default, during the render phase. `GuiGraphics` provides methods for maps, entities, player skins, book models, banner pattern, signs, and the profiler chart via `submit*RenderState`.
+Picture-in-Picture (PiP) allows for arbitrary objects to be drawn to the screen. Instead of drawing directly to the output, PiP draws the object to an intermediary texture, or a 'picture', that is then submitted to the `GuiRenderState` as a `BlitRenderState` during the render phase (by default). `GuiGraphics` provides methods for maps, entities, player skins, book models, banner pattern, signs, and the profiler chart via `submit*RenderState`.
 
 :::note
 Items that exceed the default 16x16 bounds, when `ClientItem.Properties#oversizedInGui` is true, use the `OversizedItemRenderer` PiP as its rendering mechanism.
