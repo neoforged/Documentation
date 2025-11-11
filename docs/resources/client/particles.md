@@ -1,8 +1,10 @@
 # Particles
 
-Particles are 2D effects that polish the game and add immersion. They can be spawned both client and server [side], but being mostly visual in nature, critical parts exist only on the physical (and logical) client side.
+Particles are visual effects that polish the game and add immersion. They can be spawned both client and server [side], but being mostly visual in nature, critical parts exist only on the physical (and logical) client side.
 
-## Registering Particles
+This article covers the construction and use of particle types and particle descriptions. For more rendering-specific information, see the companion [client particles][clientparticle] article.
+
+## Registering `ParticleType`s
 
 Particles are registered using `ParticleType`s. These work similar to `EntityType`s or `BlockEntityType`s, in that there's a `Particle` class - every spawned particle is an instance of that class -, and then there's the `ParticleType` class, holding some common information, that is used for registration. `ParticleType`s are a [registry], which means that we want to register them using a `DeferredRegister` like all other registered objects:
 
@@ -196,10 +198,20 @@ public static void gatherData(GatherDataEvent.Client event) {
 }
 ```
 
+## Spawning Particles
+
+As a reminder from before, the server only knows [`ParticleType`s][particletype] and [`ParticleOption`s][options], while the client works directly with `Particle`s provided by `ParticleProvider`s that are associated with a `ParticleType`. Consequently, the ways in which particles are spawned are vastly different depending on the side you are on.
+
+- **Common code**: Call `Level#addParticle` or `Level#addAlwaysVisibleParticle`. This is the preferred way of creating particles that are visible to everyone.
+- **Client code**: Use the common code way. Alternatively, create a `new Particle()` with the particle class of your choice and call `Minecraft.getInstance().particleEngine#add(Particle)` with that particle. Note that particles added this way will only display for the client and thus not be visible to other players.
+- **Server code**: Call `ServerLevel#sendParticles`. Used in vanilla by the `/particle` command.
+
+[clientparticle]: ../../rendering/particles.md
 [datagen]: ../index.md#data-generation
 [event]: ../../concepts/events.md
 [modbus]: ../../concepts/events.md#event-buses
+[options]: #custom-particletypes
 [particle]: ../../rendering/particles.md
-[particletype]: #registering-particles
+[particletype]: #registering-particletypes
 [provider]: ../../rendering/particles.md#particleprovider
 [side]: ../../concepts/sides.md

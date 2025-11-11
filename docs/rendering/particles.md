@@ -1,12 +1,14 @@
 # Client Particles
 
+Particles are visual effects that polish the game and add immersion. Being mostly visual in nature, critical parts exist only on the physical (and logical) client [side].
+
+This article covers the rendering-specific aspects of the particle. For more information on particles types, which are typically used to spawn particles; and particle descriptions, which can specify a particle's sprites, see the companion [particle types][particletype] article. 
+
+## The `Particle` class
+
 A `Particle` defines the client representation of what is spawned in the world and displayed to the player. Most properties and basic physics are controlled by fields such as `gravity`, `lifetime`, `hasPhysics`, `friction`, etc. The only two methods that are commonly overridden are `tick` and `move`, both of which do exactly as their name implies. As such, most custom particles are often short, consisting only a of a constructor that sets the desired fields with the occasional override in the two methods.
 
-There are two methods for constructing a particle: subclassing `SingleQuadParticle`, which blits a look-facing texture to the screen; and subclassing `Particle`, which gives full control of the [features] being submitted for rendering.
-
-:::note
-NeoForge currently does not have support for custom `Particle` subclasses.
-:::
+The two most common methods for constructing a particle are through subclassing `SingleQuadParticle` for one of its implementations (e.g. `SimpleAnimatedParticle`), which which blits a look-facing texture to the screen; or directly subclassing `Particle`, which gives full control of the [features] being submitted for rendering.
 
 ## A Single Quad
 
@@ -125,19 +127,10 @@ public static void registerParticleProviders(RegisterParticleProvidersEvent even
 If `registerSpriteSet` is used, then the particle type must also have an associated [particle description][description]. Otherwise, an exception will be thrown stating it 'Failed to load description'.
 :::
 
-## Spawning Particles
-
-As a reminder from before, the server only knows [`ParticleType`s][particletype] and [`ParticleOption`s][options], while the client works directly with `Particle`s provided by `ParticleProvider`s that are associated with a `ParticleType`. Consequently, the ways in which particles are spawned are vastly different depending on the side you are on.
-
-- **Common code**: Call `Level#addParticle` or `Level#addAlwaysVisibleParticle`. This is the preferred way of creating particles that are visible to everyone.
-- **Client code**: Use the common code way. Alternatively, create a `new Particle()` with the particle class of your choice and call `Minecraft.getInstance().particleEngine#add(Particle)` with that particle. Note that particles added this way will only display for the client and thus not be visible to other players.
-- **Server code**: Call `ServerLevel#sendParticles`. Used in vanilla by the `/particle` command.
-
 [description]: ../resources/client/particles.md
 [event]: ../concepts/events.md
 [features]: feature.md
 [modbus]: ../concepts/events.md#event-buses
-[options]: ../resources/client/particles.md#custom-particletypes
-[particletype]: ../resources/client/particles.md#registering-particles
+[particletype]: ../resources/client/particles.md
 [registry]: ../concepts/registries.md#methods-for-registering
 [side]: ../concepts/sides.md
