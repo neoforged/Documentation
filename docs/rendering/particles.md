@@ -14,7 +14,7 @@ Particles that extend `SingleQuadParticle` draw a single quad with some atlas sp
 
 First, the `TextureAtlasSprite` is passed into the constructor, either as itself or more likely a `SpriteSet`, representing the texture over its lifetime. Initially, the sprite is set to the protected `sprite` field, but it can be updated during `tick` by calling `setSprite` or `setSpriteFromAge`, respectively.
 
-:::note
+:::tip
 If the `age` or `lifetime` field is updated in the particle constructor, `setSpriteFromAge` should be called to display the appropriate texture.
 :::
 
@@ -47,7 +47,7 @@ public class MyQuadParticle extends SingleQuadParticle {
 
     // First four parameters are self-explanatory.
     // The sprite set or atlas sprite are typically given through the provider, see below.
-    // Additional parameters can be added as needed e.g., xd/yd/zd.
+    // Additional parameters can be added as needed, e.g., xSpeed/ySpeed/zSpeed.
     public MyQuadParticle(ClientLevel level, double x, double y, double z, SpriteSet spriteSet) {
         // Initial sprite set in constructor
         super(level, x, y, z, spriteSet.first());
@@ -75,7 +75,7 @@ public class MyQuadParticle extends SingleQuadParticle {
 ```
 
 :::warning
-Particles whose `SingleQuadParticle.Layer` uses the `TextureAtlas#LOCATION_PARTICLES` must have an associated [particle description][description]. Otherwise, the textures required by the particle will not be added to the atlas.
+Particles whose `SingleQuadParticle.Layer` uses `TextureAtlas#LOCATION_PARTICLES` must have an associated [particle description][description]. Otherwise, the textures required by the particle will not be added to the atlas.
 :::
 
 ## `ParticleProvider`

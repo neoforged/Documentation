@@ -101,7 +101,7 @@ public class MyParticleOptions implements ParticleOptions {
 
 ## Particle Descriptions
 
-Particle descriptions are JSON files in the `assets/<namespace>/particles` directory and has the same name as the [particle type][particletype]. The description takes in a list of textures relative to `assets/<namespace>/textures/particles`.
+Particle descriptions are JSON files in the `assets/<namespace>/particles` directory. A particle description has the same name as its associated [particle type][particletype], and consists of a list of textures relative to `assets/<namespace>/textures/particles`.
 
 A particle description looks something like this:
 
@@ -119,7 +119,7 @@ A particle description looks something like this:
 }
 ```
 
-During resource reload, the `ParticleResources` loads all particle descriptions and stitches the textures into a `TextureAtlas#LOCATION_PARTICLES` atlas. Then, a `SpriteSet` is created for each description containing the list of `TextureAtlasSprite`s specified.
+During resource reload, the `ParticleResources` loads all particle descriptions and stitches the textures into the `TextureAtlas#LOCATION_PARTICLES` atlas. Then, a `SpriteSet` is created for each description, containing a list of the specified `TextureAtlasSprite`s.
 
 ### Using the Description
 

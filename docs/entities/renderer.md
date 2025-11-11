@@ -341,7 +341,7 @@ public class MyEntityRenderer extends LivingEntityRenderer<MyEntity, MyEntityRen
     }
 
     // getTextureLocation is an abstract method in LivingEntityRenderer that we need to override.
-    // The texture path is absolute, so it must specify the exact path from the namespace in the assets directory.
+    // The texture path is relative to the namespace, so it must specify the exact path within the namespace in the assets directory.
     // In this example, the texture should be located at `assets/examplemod/textures/entity/example_entity.png`.
     // The texture will then be supplied to and used by the model.
     @Override
