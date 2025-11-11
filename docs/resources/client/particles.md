@@ -1,6 +1,6 @@
 # Particles
 
-Particles are visual effects that polish the game and add immersion. They can be spawned both client and server [side], but being mostly visual in nature, critical parts exist only on the physical (and logical) client side.
+Particles are visual effects commonly spawned using their associated particle type. They can be spawned both client and server [side], but being mostly visual in nature, critical parts exist only on the physical (and logical) client side.
 
 This article covers the construction and use of particle types and particle descriptions. For more rendering-specific information, see the companion [client particles][clientparticle] article.
 
