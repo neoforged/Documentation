@@ -44,7 +44,6 @@ NeoForge provides capabilities for the following three interfaces: `ResourceHand
 - `Capabilities.Fluid.BLOCK`: automation-accessible fluid inventory of a block.
 - `Capabilities.Fluid.ENTITY`: fluid inventory of an entity.
 - `Capabilities.Fluid.ITEM`: fluid inventory of an item stack.
-    - This capability specifies an `ItemAccess` context due to the way buckets hold fluids.
 
 `EnergyHandler` exposes an interface for handling energy containers. It is based on the RedstoneFlux API by TeamCoFH. The capabilities of type `EnergyHandler` are:
 
@@ -59,8 +58,11 @@ NeoForge supports capabilities for blocks, entities, and item stacks.
 Capabilities allow looking up implementations of some APIs with some dispatching logic. The following kinds of capabilities are implemented in NeoForge:
 
 - `BlockCapability`: capabilities for blocks and block entities; behavior depends on the specific `Block`.
-- `EntityCapability`: capabilities for entities: behavior dependends on the specific `EntityType`.
+    - The capability commonly specifies a `Direction` context for different resources depending on the side.
+- `EntityCapability`: capabilities for entities: behavior depends on the specific `EntityType`.
+    - The capability commonly specifies a `Direction` context for different resources depending on the side.
 - `ItemCapability`: capabilities for item stacks: behavior depends on the specific `Item`.
+    - The capability commonly specifies an `ItemAccess` context for the holding item resource.
 
 :::tip
 For compatibility with other mods, we recommend using the capabilities provided by NeoForge in the `Capabilities` class if possible. Otherwise, you can create your own as described in this section.
@@ -290,7 +292,7 @@ Entity registration is similar, using `registerEntity`:
 event.registerEntity(
     Capabilities.Item.ENTITY, // capability to register for
     MY_ENTITY_TYPE, // entity type to register for
-    (myEntity, context) -> myEntity.myResourceHandlerForTheGivenContext
+    (myEntity, v) -> myEntity.myResourceHandlerForTheGivenContext
 );
 ```
 
@@ -299,7 +301,7 @@ Item registration is similar too. Note that the provider receives the stack:
 ```java
 event.registerItem(
     Capabilities.Item.ITEM, // capability to register for
-    (itemStack, context) -> <return the ResourceHandler<ItemResource> for the itemStack>,
+    (stack, itemAccess) -> <return the ResourceHandler<ItemResource> for the itemStack>,
     // items to register for
     MY_ITEM,
     MY_OTHER_ITEM
@@ -316,7 +318,7 @@ For example, NeoForge uses this system to register a fluid resource handler capa
 // For reference, you can find this code in the `CapabilityHooks` class.
 for (Item item : BuiltInRegistries.ITEM) {
     if (item.getClass() == BucketItem.class) {
-        event.registerItem(Capabilities.Fluid.ITEM, (stack, ctx) -> new BucketResourceHandler(ItemAccess.forStack(stack)), item);
+        event.registerItem(Capabilities.Fluid.ITEM, (stack, itemAccess) -> new BucketResourceHandler(itemAccess), item);
     }
 }
 ```
@@ -330,10 +332,11 @@ For example:
 @SubscribeEvent(priority = EventPriority.HIGH) // on the mod event bus
 public static void registerCapabilities(RegisterCapabilitiesEvent event) {
     event.registerItem(
-        Capabilities.FluidHandler.ITEM,
-        (stack, ctx) -> new MyCustomFluidBucketWrapper(stack),
-        // blocks to register for
-        MY_CUSTOM_BUCKET);
+        Capabilities.Fluid.ITEM,
+        (stack, itemAccess) -> new BucketResourceHandler(itemAccess),
+        // Items to register for
+        MY_CUSTOM_BUCKET
+    );
 }
 ```
 
