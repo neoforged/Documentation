@@ -38,8 +38,9 @@ While for most cases `SimpleParticleType` suffices, it is sometimes necessary to
 ```java
 public class MyParticleOptions implements ParticleOptions {
     
-    // Read and write information, typically for use in commands
-    // Since there is no information in this type, this will be an empty string
+    // A map codec defining additional information for the particle, used e.g. in commands.
+    // Since there is no information in our type, use a unit map codec;
+    // this corresponds to using an empty string in a command.
     public static final MapCodec<MyParticleOptions> CODEC = MapCodec.unit(new MyParticleOptions());
 
     // Read and write information to the network buffer.
