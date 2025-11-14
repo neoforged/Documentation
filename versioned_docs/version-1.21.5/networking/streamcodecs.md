@@ -112,7 +112,7 @@ public class ExampleObject {
 }
 
 // What the stream codec would look like
-public static StreamCodec<ByteBuf, ExampleObject> =
+public static StreamCodec<ByteBuf, ExampleObject> STREAM_CODEC =
     StreamCodec.ofMember(ExampleObject::encode, ExampleObject::new);
 ```
 
