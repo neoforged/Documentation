@@ -152,8 +152,8 @@ For shields, you can apply the [`DataComponents#EQUIPPABLE`][equippable] data co
 
 - Axe right-click abilities for stripping (logs), scraping (oxidized copper), and unwaxing (waxed copper).
 - Shovel right-click abilities for flattening (dirt paths) and dousing (campfires).
-- Shear abilities for harvesting (honeycombs), removing armor (armored wolves), carving (pumpkins), disarming (tripwires), and trimming (stop plants from growing).
-- Abilities for sword sweeping, hoe tilling, shield blocking, fishing rod casting, trident throwing, brush brushing, and firestarter lighting.
+- Shear abilities for digging (breaking blocks), harvesting (honeycombs), removing armor (armored wolves), carving (pumpkins), disarming (tripwires), and trimming (stop plants from growing).
+- Abilities for sword sweeping, hoe tilling, fishing rod casting, trident throwing, brush brushing, firestarter lighting, and spyglass scoping.
 
 To create your own `ItemAbility`s, use `ItemAbility#get` - it will create a new `ItemAbility` if needed. Then, in a custom tool type, override `IItemExtension#canPerformAction` as needed.
 

@@ -5,7 +5,7 @@ sidebar_position: 5
 
 Entity renderers are used to define rendering behavior for an entity. They only exist on the [logical and physical client][sides].
 
-Entity rendering uses what is known as entity render states. Simply put, this is an object that holds all values that the renderer needs. Every time the entity is rendered, the render state is updated, and then the `#render` method uses that render state to render the entity. This is probably intended to be adapted into a deferred rendering system at some point, where the render information is collected beforehand (which could potentially be multithreaded) and rendering then happens at a later point in time.
+Entity rendering uses what is known as entity render states. Simply put, this is an object that holds all values that the renderer needs. Every time the entity is rendered, the render state is updated, and then the `#submit` method uses that to submit the desired [features] needed to render the entity at a later point in time.
 
 ## Creating an Entity Renderer
 
@@ -36,12 +36,13 @@ public class MyEntityRenderer extends EntityRenderer<Entity, EntityRenderState> 
         // Extract and store any additional values in the state here.
     }
     
-    // Actually render the entity. The first parameter matches the render state's generic type.
-    // Calling super will handle leash and name tag rendering for you, if applicable.
+    // Actually submit the features of the entity to render.
+    // The first parameter matches the render state's generic type.
+    // Calling super will handle leash and name tag submission for you, if applicable.
     @Override
-    public void render(EntityRenderState state, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
-        super.render(state, poseStack, bufferSource, packedLight);
-        // do your own rendering here
+    public void submit(EntityRenderState renderState, PoseStack poseStack, SubmitNodeCollector collector, CameraRenderState cameraState) {
+        super.submit(renderState, poseStack, collector, cameraState);
+        // Do your own submission here
     }
 }
 ```
@@ -122,17 +123,17 @@ graph LR;
     LivingEntityRenderer-->MobRenderer;
     MobRenderer-->AgeableMobRenderer;
     AgeableMobRenderer-->HumanoidMobRenderer;
-    LivingEntityRenderer-->PlayerRenderer;
+    LivingEntityRenderer-->AvatarRenderer;
     
     class EntityRenderer,AbstractBoatRenderer,AbstractMinecartRenderer,ArrowRenderer,LivingEntityRenderer,MobRenderer,AgeableMobRenderer,HumanoidMobRenderer red;
-    class ArmorStandRenderer,PlayerRenderer blue;
+    class ArmorStandRenderer,AvatarRenderer blue;
 ```
 
 - `EntityRenderer`: The abstract base class. Many renderers, notably almost all renderers for non-living entities, extend this class directly.
 - `ArrowRenderer`, `AbstractBoatRenderer`, `AbstractMinecartRenderer`: These exist mainly for convenience, and are used as parents for more specific renderers.
 - `LivingEntityRenderer`: The abstract base class for renderers for [living entities][livingentity]. Direct subclasses include `ArmorStandRenderer` and `PlayerRenderer`.
 - `ArmorStandRenderer`: Self-explanatory.
-- `PlayerRenderer`: Used to render players. Note that unlike most other renderers, multiple instances of this class used for different contexts may exist at the same time.
+- `AvatarRenderer`: Used to render avatars, such as players. Note that unlike most other renderers, multiple instances of this class used for different contexts may exist at the same time.
 - `MobRenderer`: The abstract base class for renderers for `Mob`s. Many renderers extend this directly.
 - `AgeableMobRenderer`: The abstract base class for renderers for `Mob`s that have child variants. This includes monsters with child variants, such as hoglins.
 - `HumanoidMobRenderer`: The abstract base class for humanoid entity renderers. Used by e.g. zombies and skeletons.
@@ -141,11 +142,11 @@ As with the various entity classes, use what fits your use case most. Be aware t
 
 ## Entity Models, Layer Definitions and Render Layers
 
-More complex entity renderers, notably `LivingEntityRenderer`, use a layer system, where each layer is represented as a `RenderLayer`. A renderer can use multiple `RenderLayer`s, and the renderer can decide what layer(s) to render at what time. For example, the elytra uses a separate layer that is rendered independently of the `LivingEntity` wearing it. Similarly, player capes are also a separate layer.
+More complex entity renderers, notably `LivingEntityRenderer`, use a layer system, where each layer is represented as a `RenderLayer`. A renderer can use multiple `RenderLayer`s, and the renderer can decide what layer(s) to submit at what time. For example, the elytra uses a separate layer that is handled independently of the `LivingEntity` wearing it. Similarly, player capes are also a separate layer.
 
-`RenderLayer`s define a `#render` method, which - surprise! - renders the layer. As with most other render methods, you can basically render whatever you want in here. However, a very common use case is to render a separate model in here, for example for armor or similar pieces of equipment.
+`RenderLayer`s define a `#submit` method, which - surprise! - submits the [features] required to render the layer. As with most other submit methods, you can basically submit whatever you want in here. However, a very common use case is to submit a separate model in here, for example for armor or similar pieces of equipment.
 
-For this, we first need a model we can render. We use the `EntityModel` class to do this. `EntityModel`s are basically a list of cubes and associated textures for the renderer to use. They are commonly created statically when the entity renderer's constructor is first created.
+For this, we first need a model we can submit. We use the `Model` class to do this. `Model`s are basically a list of cubes and associated textures for the renderer to use. They are commonly created statically when the entity renderer's constructor is first created.
 
 :::note
 Since we now operate on `LivingEntityRenderer`s, the following code will assume that `MyEntity extends LivingEntity` and `MyEntityRenderState extends LivingEntityRenderState`, to match generic type bounds.
@@ -159,7 +160,7 @@ Let's start by creating an entity model class:
 public class MyEntityModel extends EntityModel<MyEntityRenderState> {}
 ```
 
-Note that in the above example, we directly extend `EntityModel`; depending on your use case, it might be more appropriate to use one of the subclasses instead. When creating a new model, it is recommended you have a look at whatever existing model is closest to your use case, and then work from there.
+Note that in the above example, we directly extend `EntityModel`; depending on your use case, it might be more appropriate to use one of the subclasses, or even just `Model` or a non-entity-related subclass of `Model`, instead. When creating a new model, it is recommended you have a look at whatever existing model is closest to your use case, and then work from there.
 
 Next, we create a `LayerDefinition`. A `LayerDefinition` is basically a list of cubes that we can then bake to an `EntityModel`. Defining a `LayerDefinition` looks something like this:
 
@@ -296,8 +297,11 @@ public class MyRenderLayer extends RenderLayer<MyEntityRenderState, MyEntityMode
     }
 
     @Override
-    public void render(PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, MyEntityRenderState renderState, float yRot, float xRot) {
-        // Render the layer here. We have stored the entity model in a field, you probably want to use it in some way.
+    public void submit(PoseStack poseStack, SubmitNodeCollector collector, int lightCoords, MyEntityRenderState renderState, float yRot, float xRot) {
+        // Submit the features for the layer here. We have stored the entity model in a field, you probably want to use it in some way.
+        collector
+            .order(1) // We submit the feature on a later iteration so it renders on top of the entity
+            .submitModel(this.model, renderState, poseStack, ...);
     }
 }
 ```
@@ -314,7 +318,7 @@ public class MyEntityRenderer extends LivingEntityRenderer<MyEntity, MyEntityRen
         // For LivingEntityRenderer, the super constructor requires a "base" model and a shadow radius to be supplied.
         super(context, new MyEntityModel(context.bakeLayer(MY_LAYER)), 0.5f);
         // Add the layer. Get the EntityModelSet from the context. For the purpose of the example,
-        // we ignore that the render layer renders the "base" model, this would be a different model in practice.
+        // we ignore that the render layer submits the "base" model, this would be a different model in practice.
         this.addLayer(new MyRenderLayer(this, context.getModelSet()));
     }
 
@@ -330,18 +334,19 @@ public class MyEntityRenderer extends LivingEntityRenderer<MyEntity, MyEntityRen
     }
 
     @Override
-    public void render(MyEntityRenderState state, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
-        // Calling super will automatically render the layer for you.
-        super.render(state, poseStack, bufferSource, packedLight);
-        // Then, do custom rendering here, if applicable.
+    public void submit(MyEntityRenderState renderState, PoseStack poseStack, SubmitNodeCollector collector, CameraRenderState cameraState) {
+        // Calling super will automatically submit the features of the layer for you.
+        super.submit(renderState, poseStack, collector, cameraState);
+        // Then, do custom submission here, if applicable.
     }
 
     // getTextureLocation is an abstract method in LivingEntityRenderer that we need to override.
-    // The texture path is relative to textures/entity, so in this example, the texture should be located at
-    // assets/examplemod/textures/entity/example_entity.png. The texture will then be supplied to and used by the model.
+    // The texture path is relative to the namespace, so it must specify the exact path within the namespace in the assets directory.
+    // In this example, the texture should be located at `assets/examplemod/textures/entity/example_entity.png`.
+    // The texture will then be supplied to and used by the model.
     @Override
     public ResourceLocation getTextureLocation(MyEntityRenderState state) {
-        return ResourceLocation.fromNamespaceAndPath("examplemod", "example_entity");
+        return ResourceLocation.fromNamespaceAndPath("examplemod", "textures/entity/example_entity.png");
     }
 }
 ```
@@ -398,11 +403,11 @@ public class MyRenderLayer extends RenderLayer<MyEntityRenderState, MyEntityMode
     
     public MyRenderLayer(MyEntityRenderer renderer, EntityModelSet entityModelSet) {
         super(renderer);
-        this.model = new MyEntityModel(entityModelSet.bakeLayer(MyEntityModel.MY_LAYER));
+        this.model = new MyEntityModel(entityModelSet.bakeLayer(MY_LAYER));
     }
 
     @Override
-    public void render(PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, MyEntityRenderState renderState, float yRot, float xRot) {
+    public void submit(PoseStack poseStack, SubmitNodeCollector collector, int lightCoords, MyEntityRenderState renderState, float yRot, float xRot) {
         // ...
     }
 }
@@ -427,14 +432,14 @@ public class MyEntityRenderer extends LivingEntityRenderer<MyEntity, MyEntityRen
     }
 
     @Override
-    public void render(MyEntityRenderState state, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
-        super.render(state, poseStack, bufferSource, packedLight);
+    public void submit(MyEntityRenderState renderState, PoseStack poseStack, SubmitNodeCollector collector, CameraRenderState cameraState) {
+        super.submit(renderState, poseStack, collector, cameraState);
         // ...
     }
 
     @Override
     public ResourceLocation getTextureLocation(MyEntityRenderState state) {
-        return ResourceLocation.fromNamespaceAndPath("examplemod", "example_entity");
+        return ResourceLocation.fromNamespaceAndPath("examplemod", "textures/entity/example_entity.png");
     }
 }
 ```
@@ -479,9 +484,10 @@ For players, a bit of special-casing is required because there can actually be m
 @SubscribeEvent // on the mod event bus only on the physical client
 public static void addPlayerLayers(EntityRenderersEvent.AddLayers event) {
     // Iterate over all possible player models.
-    for (PlayerSkin.Model skin : event.getSkins()) {
-        // Get the associated PlayerRenderer.
-        if (event.getSkin(skin) instanceof PlayerRenderer playerRenderer) {
+    for (PlayerModelType type : event.getSkins()) {
+        // Get the associated AvatarRenderer.
+        AvatarRenderer<AbstractClientPlayer> playerRenderer = event.getPlayerRenderer(type);
+        if (playerRenderer != null) {
             // Add the layer to the renderer. This assumes that the render layer
             // has proper generics to support players and player renderers.
             playerRenderer.addLayer(new MyRenderLayer(playerRenderer, event.getEntityModels()));
@@ -619,6 +625,7 @@ public static void registerJsonAnimationTypes(RegisterJsonAnimationTypesEvent ev
 [blockbench]: https://www.blockbench.net/
 [catmullrom]: https://en.wikipedia.org/wiki/Cubic_Hermite_spline#Catmull–Rom_spline
 [events]: ../concepts/events.md
+[features]: ../rendering/feature.md
 [geckolib]: https://github.com/bernie-g/geckolib
 [livingentity]: livingentity.md
 [renderlayer]: #creating-a-render-layer-and-baking-a-layer-definition

@@ -30,8 +30,6 @@ public record RightClickBlockInput(BlockState state, ItemStack stack) implements
 
 Recipe inputs don't need to be registered or serialized in any way because they are created on demand. It is not always necessary to create your own, the vanilla ones (`CraftingInput`, `SingleRecipeInput` and `SmithingRecipeInput`) are fine for many use cases.
 
-Additionally, NeoForge provides the `RecipeWrapper` input, which wraps the `#getItem` and `#size` calls with respect to an `IItemHandler` passed in the constructor. Basically, this means that any grid-based inventory, such as a chest, can be used as a recipe input by wrapping it in a `RecipeWrapper`.
-
 ## The Recipe Class
 
 Now that we have our inputs, let's get to the recipe itself. This is what holds our recipe data, and also handles matching and returning the recipe result. As such, it is usually the longest class for your custom recipe.
@@ -478,6 +476,8 @@ public interface RightClickBlockRecipeInputs {
 // Server resource listener so it can be reloaded when recipes are.
 public class ServerRightClickBlockRecipeInputs implements ResourceManagerReloadListener, RightClickBlockRecipeInputs {
 
+    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath("examplemod", "block_recipe_inputs");
+
     private final RecipeManager recipeManager;
 
     private Set<BlockState> inputStates;
@@ -547,12 +547,14 @@ public class ServerRightClickBlockRecipes {
     }
 
     @SubscribeEvent // on the game event bus
-    public static void addListener(AddReloadListenerEvent event) {
+    public static void addListener(AddServerReloadListenersEvent event) {
         // Register server reload listener
         ServerRightClickBlockRecipes.inputs = new ServerRightClickBlockRecipeInputs(
             event.getServerResources().getRecipeManager()
         );
-        event.addListener(ServerRightClickBlockRecipes.inputs);
+        event.addListener(ServerRightClickBlockRecipeInputs.ID, ServerRightClickBlockRecipes.inputs);
+        // Make sure it runs after recipes
+        event.addDependency(VanillaServerListeners.RECIPES, ServerRightClickBlockRecipeInputs.ID);
     }
 
     @SubscribeEvent // on the game event bus
@@ -588,7 +590,7 @@ public class ClientRightClickBlockRecipes {
 public class RightClickBlockRecipes {
     // Make proxy method to access properly
     public static RightClickBlockRecipeInputs inputs(Level level) {
-        return level.isClientSide
+        return level.isClientSide()
             ? ClientRightClickBlockRecipes.inputs()
             : ServerRightClickBlockRecipes.inputs();
     }
@@ -611,6 +613,8 @@ public interface RightClickBlockRecipeInputs {
 
 // Server resource listener so it can be reloaded when recipes are.
 public class ServerRightClickBlockRecipeInputs implements ResourceManagerReloadListener, RightClickBlockRecipeInputs {
+
+    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath("examplemod", "block_recipe_inputs");
 
     private final RecipeManager recipeManager;
 
@@ -675,12 +679,14 @@ public class ServerRightClickBlockRecipes {
     }
 
     @SubscribeEvent // on the game event bus
-    public static void addListener(AddReloadListenerEvent event) {
+    public static void addListener(AddServerReloadListenersEvent event) {
         // Register server reload listener
         ServerRightClickBlockRecipes.inputs = new ServerRightClickBlockRecipeInputs(
             event.getServerResources().getRecipeManager()
         );
-        event.addListener(ServerRightClickBlockRecipes.inputs);
+        event.addListener(ServerRightClickBlockRecipeInputs.ID, ServerRightClickBlockRecipes.inputs);
+        // Make sure it runs after recipes
+        event.addDependency(VanillaServerListeners.RECIPES, ServerRightClickBlockRecipeInputs.ID);
     }
 
     @SubscribeEvent // on the game event bus
@@ -726,7 +732,7 @@ public class ClientRightClickBlockRecipes {
 public class RightClickBlockRecipes {
     // Make proxy method to access properly
     public static RightClickBlockRecipeInputs inputs(Level level) {
-        return level.isClientSide
+        return level.isClientSide()
             ? ClientRightClickBlockRecipes.inputs()
             : ServerRightClickBlockRecipes.inputs();
     }

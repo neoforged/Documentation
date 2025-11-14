@@ -57,7 +57,7 @@ Unless you are manually handling the buffer object, you will generally never cal
 
 \*\* `String` can be limited to a certain number of characters via `ByteBufCodecs#stringUtf8`.
 
-Additionally, there are some static instances that encode and decode primivites and objects using a different method.
+Additionally, there are some static instances that encode and decode primitives and objects using a different method.
 
 #### Unsigned Shorts
 
@@ -155,7 +155,7 @@ public static final StreamCodec<RegistryFriendlyByteBuf, RegistryExample> REGIST
 
 Stream codecs can be transformed into equivalent, or partially equivalent, representations using mapping methods. Two mapping methods apply to the value while one mapping method applies to the buffer.
 
-The `map` method transforms the value using two functions: one to transform the current type into the new type, and one to transform the new type back into the current type. This is analagous to [codec transformers][transformers].
+The `map` method transforms the value using two functions: one to transform the current type into the new type, and one to transform the new type back into the current type. This is analogous to [codec transformers][transformers].
 
 ```java
 public static final StreamCodec<ByteBuf, ResourceLocation> STREAM_CODEC = 
@@ -252,7 +252,7 @@ public static final StreamCodec<ByteBuf, Map<String, BlockPos>> MAP_STREAM_CODEC
 
 ### Either
 
-A stream codec for two different methods of reading/writing some object data can be generated from two steram codecs via `ByteBufCodecs#either`. This method first reads/writes a boolean indicating whether to read/write the first or second stream codec, respectively.
+A stream codec for two different methods of reading/writing some object data can be generated from two stream codecs via `ByteBufCodecs#either`. This method first reads/writes a boolean indicating whether to read/write the first or second stream codec, respectively.
 
 ```java
 public static final StreamCodec<ByteBuf, Either<Integer, String>> EITHER_STREAM_CODEC = 

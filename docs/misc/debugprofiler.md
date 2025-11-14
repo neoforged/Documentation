@@ -1,6 +1,6 @@
 # Debug Profiler
 
-Minecraft provides a Debug Profiler that provides system data, current game settings, JVM data, level data, and sided tick information to find time consuming code. Considering things like `TickEvent`s and ticking `BlockEntities`, this can be very useful for modders and server owners that want to find a lag source.
+Minecraft provides a Debug Profiler that provides system data, current game settings, JVM data, level data, and sided tick information to find time consuming code. Considering things like `TickEvent`s and ticking `BlockEntity`s, this can be very useful for modders and server owners that want to find a lag source.
 
 ## Using the Debug Profiler
 
@@ -20,22 +20,47 @@ Within each sided folder (`client` and `server`), you will find a `profiling.txt
 Below that, you will find information similar to the snippet below:
 
 ```
-[00] levels - 96.70%/96.70%
-[01] |   Level Name - 99.76%/96.47%
-[02] |   |   tick - 99.31%/95.81%
-[03] |   |   |   entities - 47.72%/45.72%
-[04] |   |   |   |   regular - 98.32%/44.95%
-[04] |   |   |   |   blockEntities - 0.90%/0.41%
-[05] |   |   |   |   |   unspecified - 64.26%/0.26%
-[05] |   |   |   |   |   minecraft:furnace - 33.35%/0.14%
-[05] |   |   |   |   |   minecraft:chest - 2.39%/0.01%
+[00] tick(201/1) - 41.46%/41.46%
+[01] |   levels(201/1) - 96.62%/40.05%
+[02] |   |   ServerLevel[New World] minecraft:overworld(201/1) - 98.80%/39.58%
+[03] |   |   |   tick(201/1) - 99.98%/39.57%
+[04] |   |   |   |   entities(201/1) - 56.83%/22.49%
+[05] |   |   |   |   |   tick(44717/222) - 95.81%/21.54%
+[06] |   |   |   |   |   |   minecraft:skeleton(4585/23) - 13.91%/3.00%
+[07] |   |   |   |   |   |   |   #tickNonPassenger 4585/22
+[07] |   |   |   |   |   |   |   travel(4573/23) - 33.12%/0.99%
+[08] |   |   |   |   |   |   |   |   #getChunkCacheMiss 7/0
+[08] |   |   |   |   |   |   |   |   #getChunk 47227/234
+[08] |   |   |   |   |   |   |   |   move(4573/23) - 40.10%/0.40%
+[09] |   |   |   |   |   |   |   |   |   #getEntities 4573/22
+[09] |   |   |   |   |   |   |   |   |   #getChunkCacheMiss 1353/6
+[09] |   |   |   |   |   |   |   |   |   #getChunk 28482/141
+[08] |   |   |   |   |   |   |   |   unspecified(4573/23) - 36.24%/0.36%
+[08] |   |   |   |   |   |   |   |   rest(4573/23) - 23.66%/0.23%
+[09] |   |   |   |   |   |   |   |   |   #getChunkCacheMiss 59/0
+[09] |   |   |   |   |   |   |   |   |   #getChunk 65867/327
+[09] |   |   |   |   |   |   |   |   |   #getChunkNow 531/2
 ```
 
-Here is a small explanation of what each part means:
+Some entries look like `[03] tick(201/1) - 99.98%/39.57%` as a result of `ProfilerFiller#push` and `pop`. This means:
 
-| [02]                     | tick                    | 99.31%       | 95.81%       |
-| :----------------------- | :---------------------- | :----------- | :----------- |
-| The Depth of the section | The Name of the Section | The percentage of time it took in relation to it's parent. For Layer 0, it is the percentage of the time a tick takes. For Layer 1, it is the percentage of the time its parent takes. | The second percentage tells you how much time it took from the entire tick.
+- `[03]` - The depth of the section.
+- `tick` - The name of the section.
+    - `unspecified` if the duration of time did not have an associated subsection.
+- `201` - The number of times this section was called during the profiler's runtime.
+- `1` - The average number of times, rounded down, this section was called during a single tick.
+- `99.98%` - The percentage of time taken in relation to its parent.
+    - For Layer 0, it is the percentage of the time a tick takes.
+    - For Layer 1, it is the percentage of the time its parent takes.
+- `39.57%` - The percentage of time taken from the entire tick.
+
+There are also some entries that look like `[07] #tickNonPassenger 4585/22` as a result of `ProfileFiller#incrementCounter`. This means:
+
+- `[07]` - The depth of the section.
+- `#tickNonPassenger` - The name of the counter being incremented.
+    - The `#` is prepended automatically.
+- `4585` - The number of times this counter was incremented during the profiler's runtime.
+- `22` - The average number of times, rounded down, this counter was incremented during a single tick.
 
 ## Profiling your own code
 

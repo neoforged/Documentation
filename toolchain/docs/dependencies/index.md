@@ -2,7 +2,11 @@
 
 Dependencies are not only used to develop interoperability between mods or add additional libraries to the game, but it also determines what version of Minecraft to develop for. This will provide a quick overview on how to modify the `repositories` and `dependencies` block to add dependencies to your development environment.
 
-> This will not explain Gradle concepts in depth. It is highly recommended to read the [Gradle Dependency Management guide][guide] before continuing.
+:::note
+
+This will not explain Gradle concepts in depth. It is highly recommended to read the [Gradle Dependency Management guide][guide] before continuing.
+
+:::
 
 ## Mod Dependencies
 

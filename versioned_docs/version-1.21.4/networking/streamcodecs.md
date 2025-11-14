@@ -56,7 +56,7 @@ Unless you are manually handling the buffer object, you will generally never cal
 
 \*\* `String` can be limited to a certain number of characters via `ByteBufCodecs#stringUtf8`.
 
-Additionally, there are some static instances that encode and decode primivites and objects using a different method.
+Additionally, there are some static instances that encode and decode primitives and objects using a different method.
 
 #### Unsigned Shorts
 

@@ -208,7 +208,6 @@ Vanilla provides the following special crafting serializers (mods may add more):
 - `minecraft:crafting_special_mapextending`: For extending filled maps.
 - `minecraft:crafting_special_repairitem`: For repairing two broken items into one.
 - `minecraft:crafting_special_shielddecoration`: For applying a banner to a shield.
-- `minecraft:crafting_special_shulkerboxcoloring`: For coloring a shulker box while preserving its contents.
 - `minecraft:crafting_special_tippedarrow`: For crafting tipped arrows depending on the input potion.
 - `minecraft:crafting_decorated_pot`: For crafting decorated pots from sherds.
 
