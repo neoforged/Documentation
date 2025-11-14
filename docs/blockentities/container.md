@@ -7,9 +7,9 @@ The `Container` interface defines methods such as `#getItem`, `#setItem` and `#r
 Due to this, `Container`s can not only be implemented on block entities, but any other class as well. Notable examples include entity inventories, as well as common modded [items][item] such as backpacks.
 
 :::warning
-NeoForge provides the `ItemStackHandler` class as a replacement for `Container`s in many places. It should be used wherever possible in favor of `Container`, as it allows for cleaner interaction with other `Container`s/`ItemStackHandler`s.
+NeoForge provides the `ItemStacksResourceHandler` class as a replacement for `Container`s in many places. It should be used wherever possible in favor of `Container`, as it allows for cleaner interaction with other `Container`s/`ItemStacksResourceHandler`s.
 
-The main reason this article exists is for reference in vanilla code, or if you are developing mods on multiple loaders. Always use `ItemStackHandler` in your own code if possible! Docs on that are a work in progress.
+The main reason this article exists is for reference in vanilla code, or if you are developing mods on multiple loaders. Always use `ItemStacksResourceHandler` in your own code if possible! Docs on that are a work in progress.
 :::
 
 ## Basic Container Implementation
@@ -225,6 +225,12 @@ container.removeItem(2, 16);
 :::warning
 A container may throw an exception if trying to access a slot that is beyond its container size. Alternatively, they may return `ItemStack.EMPTY`, as is the case with (for example) `SimpleContainer`.
 :::
+
+### `ContainerUser`s
+
+Living entities that are able to access containers implement `ContainerUser`. Each user defines whether it has a container open and the maximum block distance the entity can interact with the container. A `Container` calls `startOpen` with the `ContainerUser` when the container object is interacted with (e.g., right-clicking a chest), and `stopOpen` once the container object is closed (e.g., leaving the chest menu).
+
+These methods are typically used to keep track of the number of living entities that have the container open through the `ContainerOpenersCounter`, which is used for some entity AI and rendering.
 
 ## `Container`s on `ItemStack`s
 

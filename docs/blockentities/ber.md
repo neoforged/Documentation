@@ -1,35 +1,47 @@
 # BlockEntityRenderer
 
-A `BlockEntityRenderer`, often abbreviated as BER, is used to render [blocks][block] in a way that cannot be represented with a [static baked model][model] (JSON, OBJ, others). For example, this could be used to dynamically render container contents of a chest-like block. A block entity renderer requires the block to have a [`BlockEntity`][blockentity], even if the block does not store any data otherwise.
+A `BlockEntityRenderer`, often abbreviated as BER, is used to 'render' [blocks][block] in a way that cannot be represented with a [static baked model][model] (JSON, OBJ, others). For example, this could be used to dynamically render container contents of a chest-like block. A block entity renderer requires the block to have a [`BlockEntity`][blockentity], even if the block does not store any data otherwise.
 
-To create a BER, create a class that inherits from `BlockEntityRenderer`. It takes a generic argument specifying the block's `BlockEntity` class, which is used as a parameter type in the BER's `render` method.
+
+BERs directly implements the `BlockEntityRenderer`, which submits its [features] for rendering:
 
 ```java
-// Assumes the existence of MyBlockEntity as a subclass of BlockEntity.
-public class MyBlockEntityRenderer implements BlockEntityRenderer<MyBlockEntity> {
-    // Add the constructor parameter for the lambda below. You may also use it to get some context
-    // to be stored in local fields, such as the entity renderer dispatcher, if needed.
+// The generic type in the superinterface should be set to what block entity
+// you are trying to render, along with its extracted render state. More on this below.
+public class MyBlockEntityRenderer implements BlockEntityRenderer<MyBlockEntity, MyBlockEntityRenderState> {
+
     public MyBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
+        // Get whatever is necessary from the context
     }
-    
-    // This method is called every frame in order to render the block entity. Parameters are:
-    // - blockEntity:   The block entity instance being rendered. Uses the generic type passed to the super interface.
-    // - partialTick:   The amount of time, in fractions of a tick (0.0 to 1.0), that has passed since the last tick.
-    // - poseStack:     The pose stack to render to.
-    // - bufferSource:  The buffer source to get vertex buffers from.
-    // - packedLight:   The light value of the block entity.
-    // - packedOverlay: The current overlay value of the block entity, usually OverlayTexture.NO_OVERLAY.
-    // - cameraPos:     The position of the renderer's camera.
+
+    // Tell the renderer how to create a new render state.
     @Override
-    public void render(MyBlockEntity blockEntity, float partialTick, PoseStack stack, MultiBufferSource bufferSource, int packedLight, int packedOverlay, Vec3 cameraPos) {
-        // Do the rendering here.
+    public MyBlockEntityRenderState createRenderState() {
+        return new MyBlockEntityRenderState();
+    }
+
+    // Update the render state by copying the needed values from the passed block entity
+    // to the passed render state.
+    // The block entity and render state are the generic types passed to the renderer
+    @Override
+    public void extractRenderState(MyBlockEntity blockEntity, MyBlockEntityRenderState renderState, float partialTick, Vec3 cameraPos, @Nullable ModelFeatureRenderer.CrumblingOverlay crumblingOverlay) {
+        // Always call super or `BlockEntityRenderState#extractBase`
+        super.extractRenderState(blockEntity, renderState, partialTick, cameraPos, crumblingOverlay);
+
+        // Extract and store any additional values in the state here.
+        renderState.value = blockEntity.getValue();
+    }
+
+    // Actually submit the features of the block entity to render.
+    // The first parameter matches the render state's generic type.
+    @Override
+    public void submit(MyBlockEntityRenderState renderState, PoseStack poseStack, SubmitNodeCollector collector, CameraRenderState cameraState) {
+        // Submit using the collector here.
     }
 }
 ```
 
-Only one BER may exist for a given `BlockEntityType<?>`. Therefore, values that are specific to a single block entity instance should be stored in that block entity instance, rather than the BER itself.
-
-When you have created your BER, you must also register it to `EntityRenderersEvent.RegisterRenderers`, an [event] fired on the [mod event bus][eventbus]:
+Now that we have our BER, we also need to register and connect it to its owning block entity. This is done in [`EntityRenderersEvent.RegisterRenderers`][event] like so:
 
 ```java
 @SubscribeEvent // on the mod event bus only on the physical client
@@ -43,12 +55,14 @@ public static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderer
 }
 ```
 
-In the event that you do not need the BER provider context in your BER, you can also remove the constructor:
+:::note
+
+In the event that you do not need the provider context in your BER, you can also remove the constructor:
 
 ```java
-public class MyBlockEntityRenderer implements BlockEntityRenderer<MyBlockEntity> {
-    @Override
-    public void render( /* ... */ ) { /* ... */ }
+public class MyBlockEntityRenderer implements BlockEntityRenderer<MyBlockEntity, MyBlockEntityRenderState> {
+    
+    // ...
 }
 
 // In some event handler class
@@ -61,16 +75,30 @@ public static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderer
 }
 ```
 
+:::
+
+## Block Entity Render States
+
+As mentioned in the above example, block entity render states are used to extract the values used for rendering from the actual block entity's values. They are functionally mutable data storage objects extended from `BlockEntityRenderState`:
+
+```java
+public class MyBlockEntityRenderState extends BlockEntityRenderState {
+    public boolean value;
+}
+```
+
+The values should then be populated from the `BlockEntity` subclass within `BlockEntityRenderer#extractRenderState`.
+
 ## Item Block Rendering
 
-As not all block entities with renderers can be rendered using static models, you can create a special renderer to customize the item rendering process. This is done using [`SpecialModelRenderer`s][special]. In these cases, both a special model renderer must be created to render the item correctly, and a corresponding registered special block model renderer for scenarios when a block is being rendered as an item (e.g., enderman carrying a block).
+As not all block entities with renderers can be represented by static item models, a special renderer can be created to more dynamically control the process. This is done using [`SpecialModelRenderer`s][special]. In these cases, both a special model renderer must be created to submit the desired [features], and a corresponding registered special block model renderer for scenarios when the block itself is being submitted for rendering rather than an item variant (e.g., enderman carrying a block).
 
 Please refer to the [client item documentation][special] for more information.
 
 [block]: ../blocks/index.md
 [blockentity]: index.md
 [event]: ../concepts/events.md#registering-an-event-handler
-[eventbus]: ../concepts/events.md#event-buses
+[features]: ../rendering/feature.md
 [item]: ../items/index.md
 [model]: ../resources/client/models/index.md
 [special]: ../resources/client/models/items.md#special-models

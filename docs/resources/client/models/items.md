@@ -3,7 +3,7 @@ import TabItem from '@theme/TabItem';
 
 # Client Items
 
-Client Items are the in-code representation of how an `ItemStack` should be rendered within the game, specifying what models to use given what state. The client items are located within the `items` subdirectory within the [`assets` folder][assets], specified by the relative location within `DataComponents#ITEM_MODEL`. By default, this is the registry name of the object (e.g. `minecraft:apple` would be located at `assets/minecraft/items/apple.json` by default).
+Client Items are the in-code representation of how an `ItemStack` should be submitted for rendering within the game, specifying what models to use given what state. The client items are located within the `items` subdirectory within the [`assets` folder][assets], specified by the relative location within `DataComponents#ITEM_MODEL`. By default, this is the registry name of the object (e.g. `minecraft:apple` would be located at `assets/minecraft/items/apple.json` by default).
 
 The client items are stored within the `ModelManager`, which can be accessed through `Minecraft.getInstance().modelManager`. Then, you can call `ModelManager#getItemModel` or `getItemProperties` to get the client item information by its [`ResourceLocation`][rl].
 
@@ -13,7 +13,7 @@ These are not to be confused with the actual [models that are baked and actually
 
 ## Overview
 
-The JSON of a client item can be broken into two parts: the model, defined by `model`; and the properties, defined by `properties`. The `model` is responsible for defining what model JSONs to use when rendering the `ItemStack` in a given context. The `properties`, on the other hand, is responsible for settings used by the renderer.
+The JSON of a client item can be broken into two parts: the model, defined by `model`; and the properties, defined by `properties`. The `model` is responsible for defining what model JSONs to use when submitting the `ItemStack` for rendering in a given context. The `properties`, on the other hand, is responsible for settings used by the renderer.
 
 <Tabs>
 <TabItem value="json" label="JSON" default>
@@ -22,7 +22,7 @@ The JSON of a client item can be broken into two parts: the model, defined by `m
 // For some item 'examplemod:example_item'
 // JSON at 'assets/examplemod/items/example_item.json'
 {
-    // Defines the model to render
+    // Defines the model to submit for rendering
     "model": {
         "type": "minecraft:model",
         // Points to a model JSON relative to the 'models' directory
@@ -54,7 +54,7 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
     itemModels.itemModelOutput.register(
         EXAMPLE_ITEM.get(),
         new ClientItem(
-            // Defines the model to render
+            // Defines the model to submit for rendering
             new BlockModelWrapper.Unbaked(
                 // Points to a model JSON relative to the 'models' directory
                 // Located at 'assets/examplemod/models/item/example_item.json'
@@ -75,11 +75,11 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
 </TabItem>
 </Tabs>
 
-More information about how item models are rendered can be found [below][itemmodel].
+More information about how item models are submitted for rendering can be found [below][itemmodel].
 
 ## A Basic Model
 
-The `type` field within `model` determines how to choose the model to render for the item. The simplest type is handled by `minecraft:model` (or `BlockModelWrapper`), which functionally defines the model JSON to render, relative to the `models` directory (e.g. `assets/<namespace>/models/<path>.json`).
+The `type` field within `model` determines how to choose the model being submitted to render for the item. The simplest type is handled by `minecraft:model` (or `BlockModelWrapper`), which functionally defines the model JSON being submitted to render, relative to the `models` directory (e.g. `assets/<namespace>/models/<path>.json`).
 
 <Tabs>
 <TabItem value="json" label="JSON" default>
@@ -285,7 +285,7 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
 
 ## Composite Models
 
-Sometimes, you may want to register multiple models for a single item. While this can be done directly with the [composite model loader][composite], for item models, there is a custom `minecraft:composite` type which takes a list of models to render.
+Sometimes, you may want to register multiple models for a single item. While this can be done directly with the [composite model loader][composite], for item models, there is a custom `minecraft:composite` type which takes a list of models to submit for rendering.
 
 <Tabs>
 <TabItem value="json" label="JSON" default>
@@ -297,8 +297,8 @@ Sometimes, you may want to register multiple models for a single item. While thi
     "model": {
         "type": "minecraft:composite",
 
-        // The models to render
-        // Will render in the order they appear in the list
+        // The models to submit for rendering
+        // Will be drawn in the order they appear in the list
         "models": [
             {
                 "type": "minecraft:model",
@@ -327,8 +327,8 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
     itemModels.itemModelOutput.accept(
         EXAMPLE_ITEM.get(),
         new CompositeModel.Unbaked(
-            // The models to render
-            // Will render in the order they appear in the list
+            // The models to submit for rendering
+            // Will be drawn in the order they appear in the list
             List.of(
                 new BlockModelWrapper.Unbaked(
                     // Points to 'assets/examplemod/models/item/example_item_1.json'
@@ -357,7 +357,7 @@ Some items change their state depending on the data stored in their stack (e.g.,
 
 ### Range Dispatch Models
 
-Range dispatch models have the type define some `RangeSelectItemModelProperty` to get some float to switch the model on. Each entry then has some threshold value which the float must be greater than to render. The model chosen is the one with the closest threshold value that is not over the property value (e.g., if the property values is `4` with thresholds `3` and `5`, then the model associated with `3` will be rendered, and if the value was `6`, then the model associated with `5` would be rendered). The available `RangeSelectItemModelProperty`s to use can be found in `RangeSelectItemModelProperties`.
+Range dispatch models have the type define some `RangeSelectItemModelProperty` to get some float to switch the model on. Each entry then has some threshold value which the float must be greater than to submit for rendering. The model chosen is the one with the closest threshold value that is not over the property value (e.g., if the property values is `4` with thresholds `3` and `5`, then the model associated with `3` will be drawn, and if the value was `6`, then the model associated with `5` would be drawn). The available `RangeSelectItemModelProperty`s to use can be found in `RangeSelectItemModelProperties`.
 
 <Tabs>
 <TabItem value="json" label="JSON" default>
@@ -482,7 +482,7 @@ public record AppliedEnchantments() implements RangeSelectItemModelProperty {
     public static final MapCodec<AppliedEnchantments> MAP_CODEC = MapCodec.unit(new AppliedEnchantments());
 
     @Override
-    public float get(ItemStack stack, @Nullable ClientLevel level, @Nullable LivingEntity entity, int seed) {
+    public float get(ItemStack stack, @Nullable ClientLevel level, @Nullable ItemOwner owner, int seed) {
         return (float) stack.getTagEnchantments().size();
     }
 
@@ -1036,7 +1036,7 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
 
 ## Special Models
 
-Not all models can be rendered using the basic model JSON. Some models can be dynamically rendered, or use existing models created for a [`BlockEntityRenderer`][ber]. In these instances, there is a special model type which allows the user to define their own rendering logic to use. These are known as `SpecialModelRenderer`s, which are defined within `SpecialModelRenderers`.
+Not all models can be represented using the basic model JSON. Some models can have dynamic components, or use existing `Model`s created for a [`BlockEntityRenderer`][ber]. In these instances, there is a special model type which allows the user to specify what [features] to submit for rendering. These are known as `SpecialModelRenderer`s, which are defined within `SpecialModelRenderers`.
 
 <Tabs>
 <TabItem value="json" label="JSON" default>
@@ -1103,18 +1103,18 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
 </TabItem>
 </Tabs>
 
-Creating your own `SpecialModelRenderer` is broken into three parts: the `SpecialModelRenderer` instance used to render the item, the `SpecialModelRenderer.Unbaked` instance used to read and write to JSON, and the registration to use the renderer when as an item or, if necessary, when as a block.
+Creating your own `SpecialModelRenderer` is broken into three parts: the `SpecialModelRenderer` instance used to submit the [features] used to render the item, the `SpecialModelRenderer.Unbaked` instance used to read and write to JSON, and the registration to use the renderer when as an item or, if necessary, when as a block.
 
-First, there is the `SpecialModelRenderer`. This works similarly to any other renderer class (e.g. block entity renderers, entity renderers). It should take in the static data used during the rendering process (e.g., the `Model` instance, the `Material` of the texture, etc.). There are two methods to be aware of. First, there is `extractArgument`. This is used to limit the amount of data available to the `render` method by only supplying what is necessary from the `ItemStack`.
+First, there is the `SpecialModelRenderer`. This works similarly to any other renderer class (e.g. block entity renderers, entity renderers). It should take in the static data used during the submission process (e.g., the `Model` subclass, the `Material` of the texture, etc.). There are two methods to be aware of. First, there is `extractArgument`. This is used to limit the amount of data available to the `submit` method by only supplying what is necessary from the `ItemStack`.
 
 :::note
 If you don't know what data you may need, you can just have this return the `ItemStack` in question. If you need no data from the stack, you can instead use `NoDataSpecialModelRenderer`, which implements this method for you.
 :::
 
-Next is the `render` method. This takes in value returned from `extractArgument`, the display context of the item, the pose stack to render in, the buffer sources available to use, the packed light, the overlay texture, and a boolean if the stack is foiled (e.g. enchanted). All rendering should happen in this method.
+Next is the `submit` method. This takes in value returned from `extractArgument`, the display context of the item, the pose stack, the collector used to submit the desired features, the packed light, the overlay texture, if the stack is foiled (e.g. enchanted), and the outline color. All feature submissions should happen in this method.
 
 ```java
-public record ExampleSpecialRenderer(Model model, Material material) implements SpecialModelRenderer<Boolean> {
+public record ExampleSpecialRenderer(MaterialSet materialSet, Model.Simple model, Material material) implements SpecialModelRenderer<Boolean> {
 
     @Nullable
     public Boolean extractArgument(ItemStack stack) {
@@ -1122,10 +1122,14 @@ public record ExampleSpecialRenderer(Model model, Material material) implements 
         return stack.isBarVisible();
     }
 
-    // Render the model
+    // Submit the features of the model
     @Override
-    public void render(@Nullable Boolean barVisible, ItemDisplayContext displayContext, PoseStack pose, MultiBufferSource bufferSource, int light, int overlay, boolean hasFoil) {
-        this.model.renderToBuffer(pose, this.material.buffer(bufferSource, barVisible ? RenderType::entityCutout : RenderType::entitySolid), light, overlay);
+    public void submit(ItemDisplayContext displayContext, PoseStack poseStack, SubmitNodeCollector collector, int lightCoords, int overlayCoords, boolean hasFoil, int outlineColor) {
+        collector.submitModel(
+            this.model, Unit.INSTANCE,
+            poseStack, this.material.renderType(barVisible ? RenderType::entityCutout : RenderType::entitySolid),
+            lightCoords, overlayCoords, -1, this.materialSet.get(this.material), outlineColor, null
+        );
     }
 }
 ```
@@ -1133,7 +1137,7 @@ public record ExampleSpecialRenderer(Model model, Material material) implements 
 Next is the `SpecialModelRenderer.Unbaked` instance. This should contain data that can be read from a file to determine what to pass into the special renderer. This also contains two methods: `bake`, which is used to construct the special renderer instance; and `type`, which defines the `MapCodec` to use for encoding/decoding to file.
 
 ```java
-public record ExampleSpecialRenderer(Model model, Material material) implements SpecialModelRenderer<Boolean> {
+public record ExampleSpecialRenderer(MaterialSet materialSet, Model.Simple model, Material material) implements SpecialModelRenderer<Boolean> {
 
     // ...
 
@@ -1148,12 +1152,12 @@ public record ExampleSpecialRenderer(Model model, Material material) implements 
         }
 
         @Override
-        public SpecialModelRenderer<?> bake(EntityModelSet modelSet) {
+        public SpecialModelRenderer<?> bake(SpecialModelRenderer.BakingContext ctx) {
             // Resolve resource location to absolute path
             ResourceLocation textureLoc = this.texture.withPath(path -> "textures/entity/" + path + ".png");
 
             // Get the model and the material to render
-            return new ExampleSpecialRenderer(...);
+            return new ExampleSpecialRenderer(ctx.materials(), ...);
         }
     }
 }
@@ -1204,7 +1208,7 @@ public static void registerSpecialBlockRenderers(RegisterSpecialBlockModelRender
             "type": "examplemod:example_special",
 
             // Properties defined by `ExampleSpecialRenderer.Unbaked`
-            // The texture to use when rendering
+            // The texture to use
             // Points to 'assets/examplemod/textures/entity/example/example_texture.png'
             "texture": "examplemod:example/example_texture"
         }
@@ -1229,7 +1233,7 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
             ResourceLocation.fromNamespaceAndPath("minecraft", "item/template_skull"),
             // The special model renderer to use
             new ExampleSpecialRenderer.Unbaked(
-                // The texture to use when rendering
+                // The texture to use
                 // Points to 'assets/examplemod/textures/entity/example/example_texture.png'
                 ResourceLocation.fromNamespaceAndPath("examplemod", "example/example_texture")
             )
@@ -1275,13 +1279,13 @@ For the fluid tint to apply to the fluid texture, the item in question must have
             "base": "minecraft:item/bucket",
             // Sets the texture to use as the mask for the still fluid texture
             // Areas where the fluid is seen should be pure white
-            // If not set or the fluid is empty, then the layer is not rendered
+            // If not set or the fluid is empty, then the layer is not drawn
             // Points to 'assets/neoforge/textures/item/mask/bucket_fluid.png'
             "fluid": "neoforge:item/mask/bucket_fluid",
             // Sets the texture to use as either
             // - The overlay texture when 'cover_is_mask' is false
             // - The mask to apply to the base texture (should be pure white to see) when 'cover_is_mask' is true
-            // If not set or no base texture is set when 'cover_is_mask' is true, then the layer is not rendered
+            // If not set or no base texture is set when 'cover_is_mask' is true, then the layer is not drawn
             // Points to 'assets/neoforge/textures/item/mask/bucket_fluid_cover.png'
             "cover": "neoforge:item/mask/bucket_fluid_cover",
         },
@@ -1355,38 +1359,38 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
 </TabItem>
 </Tabs>
 
-## Manually Rendering an Item
+## Manually Submitting an Item for Rendering
 
-If you need to render an item yourself, such as in some `BlockEntityRenderer` or `EntityRenderer`, it can be achieved through three steps. First, the renderer in question creates an `ItemStackRenderState` to hold the rendering information of the stack. Then, the `ItemModelResolver` updates the `ItemStackRenderState` using one of its methods to update the state to the current item to render. Finally, the item is rendered using the render state's `render` method.
+If you need to submit an item [feature][features], such as in some `BlockEntityRenderer` or `EntityRenderer`, it can be achieved through three steps. First, the renderer in question creates an `ItemStackRenderState` to hold the state of the stack. Then, the `ItemModelResolver` updates the `ItemStackRenderState` using one of its methods to update the state to the current item being submitted. Finally, the item is submitted via `ItemStackRenderState#submit`.
 
-The `ItemStackRenderState` keeps track of the data used to render. Each 'model' is given its own `ItemStackRenderState.LayerRenderState`, which contains the `BakedQuad`s to render, along with its render type, foil status, tint information, animated flag, extents, and any special renderers used. Layers are created using the `newLayer` method, and cleared for rendering using the `clear` method. If a predefined number of layers is used, then `ensureCapacity` is used to make sure there are the necessary number of `LayerRenderStates` to render properly.
+The `ItemStackRenderState` keeps track of the data used for drawing. Each 'model' is given its own `ItemStackRenderState.LayerRenderState`, which contains the `BakedQuad`s to render, along with its render type, foil status, tint information, animated flag, extents, and any special renderers used. Layers are created using the `newLayer` method, and cleared for rendering using the `clear` method. If a predefined number of layers is used, then `ensureCapacity` is used to make sure there are the necessary number of `LayerRenderStates` to render properly.
 
 :::note
 [Screens][screens] use the subclass `TrackingItemStackRenderState` to hold model identity elements for caching the rendered state across frames.
 :::
 
-`ItemModelResolver` is responsible for updating the `ItemStackRenderState`. This is done through either `updateForLiving` for items held by living entities, `updateForNonLiving` for items held by other kinds of entities, and `updateForTopItem` for all other cases. These methods take in the render state, stack to render, and current display context. The other parameters update information about the held hand, level, entity, and seeded value. Each method calls `ItemStackRenderState#clear` before calling `update` on the `ItemModel` obtained from  `DataComponents#ITEM_MODEL`. The `ItemModelResolver` can always be obtained via `Minecraft#getItemModelResolver` if you are not within some renderer context (e.g., `BlockEntityRenderer`, `EntityRenderer`).
+`ItemModelResolver` is responsible for updating the `ItemStackRenderState`. This is done through either `updateForLiving` for items held by living entities, `updateForNonLiving` for items held by other kinds of entities, and `updateForTopItem` for all other cases. These methods take in the render state, stack to render, and current display context. The other parameters update information about the held hand, level, item owner, and seeded value. Each method calls `ItemStackRenderState#clear` before calling `update` on the `ItemModel` obtained from  `DataComponents#ITEM_MODEL`. The `ItemModelResolver` can always be obtained via `Minecraft#getItemModelResolver` if you are not within some renderer context (e.g., `BlockEntityRenderer`, `EntityRenderer`).
 
 ## Custom Item Model Definitions
 
-Creating your own `ItemModel` is broken into three parts: the `ItemModel` instance used update the render state, the `ItemModel.Unbaked` instance used to read and write to JSON, and the registration to use the `ItemModel`.
+Creating your own `ItemModel` is broken into three parts: the `ItemModel` instance used to update the render state, the `ItemModel.Unbaked` instance used to read and write to JSON, and the registration to use the `ItemModel`.
 
 :::warning
 Please make sure to check that your required item model can not be created with the existing systems above. In most cases, it is not necessary to create a custom `ItemModel`.
 :::
 
-First, there is the `ItemModel`. This is responsible for updating the `ItemStackRenderState` such that the item is rendered correctly. It should take in the static data used during the rendering process (e.g., the list of `BakedQuad`s, property information, etc.). The only method is `update`, which takes in the render state, stack, model resolver, display context, level, holding entity, and some seeded value to update the `ItemStackRenderState`. `ItemStackRenderState` should be the only parameter modified, with the rest treated as read-only data.
+First, there is the `ItemModel`. This is responsible for updating the `ItemStackRenderState` such that the item is drawn correctly. It should take in the static data used during the submission process (e.g., the list of `BakedQuad`s, property information, etc.). The only method is `update`, which takes in the render state, stack, model resolver, display context, level, item owner, and some seeded value to update the `ItemStackRenderState`. `ItemStackRenderState` should be the only parameter modified, with the rest treated as read-only data.
 
 ```java
 public record RenderTypeModelWrapper(List<BakedQuad> quads, List<ItemTintSource> tints, ModelRenderProperties properties, RenderType type) implements ItemModel {
 
     // Update the render state
     @Override
-    public void update(ItemStackRenderState state, ItemStack stack, ItemModelResolver resolver, ItemDisplayContext displayContext, @Nullable ClientLevel level, @Nullable LivingEntity entity, int seed) {
+    public void update(ItemStackRenderState state, ItemStack stack, ItemModelResolver resolver, ItemDisplayContext displayContext, @Nullable ClientLevel level, @Nullable ItemOwner owner, int seed) {
         // Set the identity used by the model
         state.appendModelIdentityElement(this);
 
-        // Create a new layer to render the model in
+        // Create a new layer
         ItemStackRenderState.LayerRenderState layerState = state.newLayer();
 
         // Sets the foil to use
@@ -1402,13 +1406,13 @@ public record RenderTypeModelWrapper(List<BakedQuad> quads, List<ItemTintSource>
         int[] tintLayers = layerState.prepareTintLayers(tintSize);
 
         for (int idx = 0; idx < tintSize; idx++) {
-            int tintColor = this.tints.get(idx).calculate(stack, level, entity);
+            int tintColor = this.tints.get(idx).calculate(stack, level, owner.asLivingEntity());
             tintLayers[idx] = tintColor;
             state.appendModelIdentityElement(tintColor);
         }
 
-        // Computes the bounds of the model to render on screen
-        // Used for GUI rendering bounds (when oversized) and item entity bobbing
+        // Computes the bounds of the model
+        // Used for GUI render bounds (when oversized) and item entity bobbing
         layerState.setExtents(BlockModelWrapper.computeExtents(this.quads));
 
         // Sets the current render type
@@ -1417,7 +1421,7 @@ public record RenderTypeModelWrapper(List<BakedQuad> quads, List<ItemTintSource>
         // Set other common model properties
         this.properties.applyToLayer(layerState, displayContext);
 
-        // Adds the quads to render
+        // Adds the quads to submit
         layerState.prepareQuadList().addAll(this.quads);
     }
 }
@@ -1543,6 +1547,7 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
 [ber]: ../../../blockentities/ber.md
 [capability]: ../../../datastorage/capabilities.md#registering-capabilities
 [composite]: modelloaders.md#composite-model
+[features]: ../../../rendering/feature.md
 [itemmodel]: #manually-rendering-an-item
 [modbus]: ../../../concepts/events.md#event-buses
 [models]: modelsystem.md

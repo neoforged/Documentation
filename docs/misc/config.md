@@ -205,12 +205,12 @@ ConfigValue<T> value = builder.comment("This value is called 'config_value_name'
     .define("config_value_name", defaultValue);
 ```
 
-To make translating easier, open the configuration screen and visit all of the configs and their subsections. Then back out to the mod list screen. All untranslated config entries that were encountered will be printed to the console at this point. This makes it easier to know what to translate and what the translation keys are. 
+To make translating easier, open the configuration screen and visit all of the configs and their subsections. Then back out to the mod list screen. All untranslated config entries that were encountered will be printed to the console at this point. This makes it easier to know what to translate and what the translation keys are.
 :::
 
 [toml]: https://toml.io/
 [nightconfig]: https://github.com/TheElectronWill/night-config
 [configtype]: #configuration-types
-[type]: https://github.com/neoforged/FancyModLoader/blob/b4a1040118547a37c0f5f58146ac4cecc7817f82/loader/src/main/java/net/neoforged/fml/config/ModConfig.java#L86-L119
+[type]: https://github.com/neoforged/FancyModLoader/blob/aafe4660ae6eff2702ec786dba8e83c69c0d9e91/loader/src/main/java/net/neoforged/fml/config/ModConfig.java#L88-L121
 [events]: ../concepts/events.md#registering-an-event-handler
 [client]: ../concepts/sides.md#mod

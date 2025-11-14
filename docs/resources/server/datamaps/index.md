@@ -178,7 +178,7 @@ You can then query the data map value via `Holder#getData(DataMapType)`. If an o
 ```java
 @SubscribeEvent // on the game event bus
 public static void itemPickup(ItemEntityPickupEvent.Post event) {
-    ItemStack stack = event.getItemStack();
+    ItemStack stack = event.getOriginalStack();
     // Get a Holder<Item> via ItemStack#getItemHolder.
     Holder<Item> holder = stack.getItemHolder();
     // Get the data from the holder.

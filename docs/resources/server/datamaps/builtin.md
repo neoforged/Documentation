@@ -200,6 +200,30 @@ Example:
 }
 ```
 
+## `neoforge:strippables`
+
+Allows configuring the block a block will turn into when stripped (right clicked with an axe, or an item with the item ability `ItemAbilities#AXE_STRIP`), as a replacement for `AxeItem#STRIPPABLES` (which will be ignored in 1.22). This data map is located at `neoforge/data_maps/block/strippables.json` and its objects have the following structure:
+
+```json5
+{
+    // The block this block will turn into when stripped by tool with the item ability `ItemAbilities#AXE_STRIP`
+    "stripped_block": "examplemod:stripped_wood"
+}
+```
+
+Example:
+
+```json5
+{
+    "values": {
+        "examplemod:wood": {
+            // Make a custom wood block strip into a custom stripped wood block
+            "stripped_block": "examplemod:stripped_wood"
+        }
+    }
+}
+```
+
 ## `neoforge:vibration_frequencies`
 
 Allows configuring the sculk vibration frequencies emitted by game events, as a replacement for `VibrationSystem#VIBRATION_FREQUENCY_FOR_EVENT` (which is now ignored). This data map is located at `neoforge/data_maps/game_event/vibration_frequencies.json` and its objects have the following structure:

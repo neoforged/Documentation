@@ -75,7 +75,7 @@ minecraft {
 ```toml
 # In neoforge.mods.toml
 [[accessTransformers]]
-file="accesstransformer_main.cfg"
+file="accesstransformer.cfg"
 
 [[accessTransformers]]
 file="accesstransformer_additions.cfg"

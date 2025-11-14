@@ -205,7 +205,7 @@ Anvils have two input slots and one output slot. The only vanilla use cases are 
 public static void onAnvilUpdate(AnvilUpdateEvent event) {
     ItemStack left = event.getLeft();
     ItemStack right = event.getRight();
-    if (left.is(Items.STONE_PICKAXE) && right.is(Items.DIRT) && right.getCount() >= 64) {
+    if (left.is(Items.STONE_PICKAXE) && right.is(Items.DIRT) && right.getCount() >= 32) {
         event.setOutput(new ItemStack(Items.STONE_PICKAXE));
         event.setMaterialCost(32);
         event.setXpCost(3);

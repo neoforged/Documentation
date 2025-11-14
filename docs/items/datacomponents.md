@@ -134,8 +134,7 @@ DyeColor color = map.get(DataComponents.BASE_COLOR);
 
 As the default `DataComponentMap` only provides methods for read-based operations, write-based operations are supported using the subclass `PatchedDataComponentMap`. This includes `#set`ting the value of a component or `#remove`ing it altogether.
 
-`PatchedDataComponentMap` stores changes using a prototype and patch map. The prototype is a `DataComponentMap` that contains the default components and their
-values this map should have. The patch map is a map of `DataComponentType`s to `Optional` values that contain the changes made to the default components.
+`PatchedDataComponentMap` stores changes using a prototype and patch map. The prototype is a `DataComponentMap` that contains the default components and their values this map should have. The patch map is a map of `DataComponentType`s to `Optional` values that contain the changes made to the default components.
 
 ```java
 // For some PatchedDataComponentMap map

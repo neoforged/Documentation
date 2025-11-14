@@ -41,7 +41,7 @@ If you're having trouble finding out how exactly to specify something, have a lo
 
 ### Render Type Groups
 
-Using the optional NeoForge-added `render_type` field, you can set a render type group for your model. A render type group is made up of two parts: a `ChunkSectionLayer` for how the model should render when used as a block, and a `RenderType` for how the model should render as an item. If this is not set (as is the case in all vanilla models), the game will fall back to the layers and render types hardcoded in `ItemBlockRenderTypes`. If `ItemBlockRenderTypes` doesn't contain the layer or render types, it will fall back to `ChunkSectionLayer#SOLID` for the block and `Sheets#TRANSLUCENT_ITEM_CULL_BLOCK_SHEET` for the item. Vanilla and NeoForge expose the following render type groups:
+Using the optional NeoForge-added `render_type` field, you can set a `RenderTypeGroup` for your model. A render type group is made up of two parts: a `ChunkSectionLayer` for how the model should render when used as a block, and a `RenderType` for how the model should render as an item. If this is not set (as is the case in all vanilla models), the game will fall back to the layers and render types hardcoded in `ItemBlockRenderTypes`. If `ItemBlockRenderTypes` doesn't contain the layer or render types, it will fall back to `ChunkSectionLayer#SOLID` for the block and `Sheets#TRANSLUCENT_ITEM_CULL_BLOCK_SHEET` for the item. Vanilla and NeoForge expose the following render type groups:
 
 - `minecraft:solid`: Used for fully solid models, such as stone.
 - `minecraft:cutout`: Used for models where any pixel is either fully solid or fully transparent, i.e. with either full or no transparency, for example glass.
