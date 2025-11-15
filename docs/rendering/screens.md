@@ -744,7 +744,7 @@ public static void registerScreens(RegisterMenuScreensEvent event) {
 }
 ```
 
-[menus]: menus.md
+[menus]: ../inventories/menus.md
 [network]: ../networking/index.md
 [screen]: #the-screen-subtype
 [argb]: https://en.wikipedia.org/wiki/RGBA_color_model#ARGB32

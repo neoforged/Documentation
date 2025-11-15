@@ -1545,11 +1545,11 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
 
 [assets]: ../../index.md#assets
 [ber]: ../../../blockentities/ber.md
-[capability]: ../../../datastorage/capabilities.md#registering-capabilities
+[capability]: ../../../inventories/capabilities.md#registering-capabilities
 [composite]: modelloaders.md#composite-model
 [features]: ../../../rendering/feature.md
 [itemmodel]: #manually-rendering-an-item
 [modbus]: ../../../concepts/events.md#event-buses
 [models]: modelsystem.md
 [rl]: ../../../misc/resourcelocation.md
-[screens]: ../../../gui/screens.md#items
+[screens]: ../../../rendering/screens.md#items

@@ -1,3 +1,6 @@
+---
+sidebar_position: 0
+---
 # Containers
 
 A popular use case of [block entities][blockentity] is to store items of some kind. Some of the most essential [blocks][block] in Minecraft, such as the furnace or the chest, use block entities for this purpose. To store items on something, Minecraft uses `Container`s.
@@ -312,12 +315,12 @@ The inventory contents are stored in two places:
 
 When iterating over the inventory contents, it is recommended to iterate over `items`, then over `equipment` using `Inventory#EQUIPMENT_SLOT_MAPPING` for the indices.
 
-[beremove]: index.md#removing-block-entities
+[beremove]: ../blockentities/index.md#removing-block-entities
 [block]: ../blocks/index.md
-[blockentity]: index.md
+[blockentity]: ../blockentities/index.md
 [component]: ../resources/client/i18n.md#components
 [datacomponent]: ../items/datacomponents.md
 [entity]: ../entities/index.md
 [item]: ../items/index.md
 [itemstack]: ../items/index.md#itemstacks
-[menu]: ../gui/menus.md
+[menu]: menus.md
