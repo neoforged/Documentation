@@ -1,6 +1,9 @@
+---
+sidebar_position: 1
+---
 # Containers
 
-A popular use case of [block entities][blockentity] is to store items of some kind. Some of the most essential [blocks][block] in Minecraft, such as the furnace or the chest, use block entities for this purpose. To store items on something, Minecraft uses `Container`s.
+Many systems in Minecraft, such as [block entities][blockentity] or entities, store items of some kind. To store items on something, Minecraft uses `Container` implementations.
 
 The `Container` interface defines methods such as `#getItem`, `#setItem` and `#removeItem` that can be used to query and update the container. Since it is an interface, it does not actually contain a backing list or other data structure, that is up to the implementing system.
 
@@ -303,8 +306,7 @@ The inventory contents are stored in three `public final NonNullList<ItemStack>`
 
 When iterating over the inventory contents, it is recommended to iterate over `items`, then over `armor` and then over `offhand`, to be consistent with vanilla behavior.
 
-[block]: ../blocks/index.md
-[blockentity]: index.md
+[blockentity]: ../blockentities/index.md
 [component]: ../resources/client/i18n.md#components
 [datacomponent]: ../items/datacomponents.md
 [item]: ../items/index.md

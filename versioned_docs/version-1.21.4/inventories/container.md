@@ -1,6 +1,9 @@
+---
+sidebar_position: 1
+---
 # Containers
 
-A popular use case of [block entities][blockentity] is to store items of some kind. Some of the most essential [blocks][block] in Minecraft, such as the furnace or the chest, use block entities for this purpose. To store items on something, Minecraft uses `Container`s.
+Many systems in Minecraft, such as [block entities][blockentity] or [entities][entity], store items of some kind. To store items on something, Minecraft uses `Container` implementations.
 
 The `Container` interface defines methods such as `#getItem`, `#setItem` and `#removeItem` that can be used to query and update the container. Since it is an interface, it does not actually contain a backing list or other data structure, that is up to the implementing system.
 
@@ -156,10 +159,6 @@ public class MyBlockEntity extends BaseContainerBlockEntity {
 
 Keep in mind that this class is a `BlockEntity` and a `Container` at the same time. This means that you can use the class as a supertype for your block entity to get a functioning block entity with a pre-implemented container.
 
-:::note
-`BlockEntity`s that implement `Container` handle dropping their contents by default. If you choose not to implement `Container`, then you will need to handle the [removal logic][beremove].
-:::
-
 ### `WorldlyContainer`
 
 `WorldlyContainer` is a sub-interface of `Container` that allows accessing slots of the given `Container` by `Direction`. It is mainly intended for block entities that only expose parts of their container to a particular side. For example, this could be used by a machine that outputs to one side and takes inputs from all other sides, or vice-versa. A simple implementation of the interface could look like this:
@@ -299,16 +298,15 @@ mob.setDropChance(EquipmentSlot.FEET, 1f);
 
 The player's inventory is implemented through the `Inventory` class, a class implementing `Container` as well as the `Nameable` interface mentioned earlier. An instance of that `Inventory` is then stored as a field named `inventory` on the `Player`, accessible via `Player#getInventory`. The inventory can be interacted with like any other container.
 
-The inventory contents are stored in two places:
+The inventory contents are stored in three `public final NonNullList<ItemStack>`s:
 
-- The `NonNullList<ItemStack> items` list covers the 36 main inventory slots, including the nine hotbar slots (indices 0-8).
-- The `EntityEquipment equipment` map stores the `EquipmentSlot` stacks: the armor slots (`FEET`, `LEGS`, `CHEST`, `HEAD`), `OFFHAND`, `BODY`, and `SADDLE`, in that order.  
+- The `items` list covers the 36 main inventory slots, including the nine hotbar slots (indices 0-8).
+- The `armor` list is a list of length 4, containing armor for the `FEET`, `LEGS`, `CHEST`, and `HEAD`, in that order. This list uses `EquipmentSlot` accessors, similar to `Mob`s (see above).
+- The `offhand` list contains only the offhand slot, i.e. has a length of 1.
 
-When iterating over the inventory contents, it is recommended to iterate over `items`, then over `equipment` using `Inventory#EQUIPMENT_SLOT_MAPPING` for the indices.
+When iterating over the inventory contents, it is recommended to iterate over `items`, then over `armor` and then over `offhand`, to be consistent with vanilla behavior.
 
-[beremove]: index.md#removing-block-entities
-[block]: ../blocks/index.md
-[blockentity]: index.md
+[blockentity]: ../blockentities/index.md
 [component]: ../resources/client/i18n.md#components
 [datacomponent]: ../items/datacomponents.md
 [entity]: ../entities/index.md
