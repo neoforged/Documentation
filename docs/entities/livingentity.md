@@ -258,7 +258,7 @@ If all those checks pass, a spawn entry is chosen from the above list based on t
 [addspawns]: ../worldgen/biomemodifier.md#add-spawns
 [attributes]: attributes.md
 [clientitem]: ../resources/client/models/items.md
-[containers]: ../blockentities/container.md
+[containers]: ../inventories/container.md
 [creative]: ../items/index.md#creative-tabs
 [damage]: index.md#damaging-entities
 [damagesources]: ../resources/server/damagetypes.md#creating-and-using-damage-sources

@@ -1,5 +1,5 @@
 ---
-sidebar_position: 6
+sidebar_position: 2
 ---
 # Capabilities
 
@@ -19,9 +19,9 @@ Capabilities are designed to separate **what** a block, entity or item stack can
 
 Here are a few examples of good capability usage:
 
-- *"I want my fluid container to be compatible with fluid containers from other mods, but I don't know the specifics of each fluid container."* - Yes, use the `ResourceHandler<FluidResource>` capability.
-- *"I want to count how many items are in some entity, but I do not know how the entity might store them."* - Yes, use the `ResourceHandler<ItemResource>` capability.
-- *"I want to fill some item stack with power, but I do not know how the item stack might store it."* - Yes, use the `EnergyHandler` capability.
+- *"I want my fluid container to be compatible with fluid containers from other mods, but I don't know the specifics of each fluid container."* - Yes, use the `IFluidHandler` capability.
+- *"I want to count how many items are in some entity, but I do not know how the entity might store them."* - Yes, use the `IItemHandler` capability.
+- *"I want to fill some item stack with power, but I do not know how the item stack might store it."* - Yes, use the `IEnergyStorage` capability.
 - *"I want to apply some color to whatever block a player is currently targeting, but I do not know how the block will be transformed."* - Yes. NeoForge does not provide a capability to color blocks, but you can implement one yourself.
 
 Here is an example of discouraged capability usage:
@@ -30,26 +30,27 @@ Here is an example of discouraged capability usage:
 
 ## NeoForge-provided capabilities
 
-NeoForge provides capabilities for the following three interfaces: `ResourceHandler<ItemResource>`, `ResourceHandler<FluidResource>` and `EnergyHandler`.
+NeoForge provides capabilities for the following three interfaces: `IItemHandler`, `IFluidHandler` and `IEnergyStorage`.
 
-`ResourceHandler<ItemResource>` exposes an interface for handling inventory slots. The capabilities of type `ResourceHandler<ItemResource>` are:
+`IItemHandler` exposes an interface for handling inventory slots. The capabilities of type `IItemHandler` are:
 
-- `Capabilities.Item.BLOCK`: automation-accessible inventory of a block (for chests, machines, etc).
-- `Capabilities.Item.ENTITY`: inventory contents of an entity (extra player slots, mob/creature inventories/bags).
-- `Capabilities.Item.ENTITY_AUTOMATION`: automation-accessible inventory of an entity (boats, minecarts, etc).
-- `Capabilities.Item.ITEM`: contents of an item stack (portable backpacks and such).
+- `Capabilities.ItemHandler.BLOCK`: automation-accessible inventory of a block (for chests, machines, etc).
+- `Capabilities.ItemHandler.ENTITY`: inventory contents of an entity (extra player slots, mob/creature inventories/bags).
+- `Capabilities.ItemHandler.ENTITY_AUTOMATION`: automation-accessible inventory of an entity (boats, minecarts, etc).
+- `Capabilities.ItemHandler.ITEM`: contents of an item stack (portable backpacks and such).
 
-`ResourceHandler<FluidResource>` exposes an interface for handling fluid inventories. The capabilities of type `ResourceHandler<FluidResource>` are:
+`IFluidHandler` exposes an interface for handling fluid inventories. The capabilities of type `IFluidHandler` are:
 
-- `Capabilities.Fluid.BLOCK`: automation-accessible fluid inventory of a block.
-- `Capabilities.Fluid.ENTITY`: fluid inventory of an entity.
-- `Capabilities.Fluid.ITEM`: fluid inventory of an item stack.
+- `Capabilities.FluidHandler.BLOCK`: automation-accessible fluid inventory of a block.
+- `Capabilities.FluidHandler.ENTITY`: fluid inventory of an entity.
+- `Capabilities.FluidHandler.ITEM`: fluid inventory of an item stack.
+This capability is of the special `IFluidHandlerItem` type due to the way buckets hold fluids.
 
-`EnergyHandler` exposes an interface for handling energy containers. It is based on the RedstoneFlux API by TeamCoFH. The capabilities of type `EnergyHandler` are:
+`IEnergyStorage` exposes an interface for handling energy containers. It is based on the RedstoneFlux API by TeamCoFH. The capabilities of type `IEnergyStorage` are:
 
-- `Capabilities.Energy.BLOCK`: energy contained inside a block.
-- `Capabilities.Energy.ENTITY`: energy containing inside an entity.
-- `Capabilities.Energy.ITEM`: energy contained inside an item stack.
+- `Capabilities.EnergyStorage.BLOCK`: energy contained inside a block.
+- `Capabilities.EnergyStorage.ENTITY`: energy containing inside an entity.
+- `Capabilities.EnergyStorage.ITEM`: energy contained inside an item stack.
 
 ## Creating a capability
 
@@ -58,11 +59,8 @@ NeoForge supports capabilities for blocks, entities, and item stacks.
 Capabilities allow looking up implementations of some APIs with some dispatching logic. The following kinds of capabilities are implemented in NeoForge:
 
 - `BlockCapability`: capabilities for blocks and block entities; behavior depends on the specific `Block`.
-    - The capability commonly specifies a `Direction` context for different resources depending on the side.
-- `EntityCapability`: capabilities for entities: behavior depends on the specific `EntityType`.
-    - The capability commonly specifies a `Direction` context for different resources depending on the side.
+- `EntityCapability`: capabilities for entities: behavior dependends on the specific `EntityType`.
 - `ItemCapability`: capabilities for item stacks: behavior depends on the specific `Item`.
-    - The capability commonly specifies an `ItemAccess` context for the holding item resource.
 
 :::tip
 For compatibility with other mods, we recommend using the capabilities provided by NeoForge in the `Capabilities` class if possible. Otherwise, you can create your own as described in this section.
@@ -76,15 +74,15 @@ Creating a capability is a single function call, and the resulting object should
 - The behavior type that is being queried. This is the `T` type parameter.
 - The type for additional context in the query. This is the `C` type parameter.
 
-For example, here is how a capability for side-aware block `ResourceHandler<ItemResource>`s might be declared:
+For example, here is how a capability for side-aware block `IItemHandler`s might be declared:
 
 ```java
-public static final BlockCapability<ResourceHandler<ItemResource>, @Nullable Direction> ITEM_HANDLER_BLOCK =
+public static final BlockCapability<IItemHandler, @Nullable Direction> ITEM_HANDLER_BLOCK =
     BlockCapability.create(
         // Provide a name to uniquely identify the capability.
         ResourceLocation.fromNamespaceAndPath("mymod", "item_handler"),
-        // Provide the queried type. Here, we want to look up `ResourceHandler<ItemResource>` instances.
-        ResourceHandler.asClass(),
+        // Provide the queried type. Here, we want to look up `IItemHandler` instances.
+        IItemHandler.class,
         // Provide the context type. We will allow the query to receive an extra `Direction side` parameter.
         Direction.class);
 ```
@@ -92,23 +90,23 @@ public static final BlockCapability<ResourceHandler<ItemResource>, @Nullable Dir
 A `@Nullable Direction` is so common for blocks that there is a dedicated helper:
 
 ```java
-public static final BlockCapability<ResourceHandler<ItemResource>, @Nullable Direction> ITEM_HANDLER_BLOCK =
+public static final BlockCapability<IItemHandler, @Nullable Direction> ITEM_HANDLER_BLOCK =
     BlockCapability.createSided(
         // Provide a name to uniquely identify the capability.
         ResourceLocation.fromNamespaceAndPath("mymod", "item_handler"),
-        // Provide the queried type. Here, we want to look up `ResourceHandler<ItemResource>` instances.
-        ResourceHandler.asClass());
+        // Provide the queried type. Here, we want to look up `IItemHandler` instances.
+        IItemHandler.class);
 ```
 
 If no context is required, `Void` should be used. There is also a dedicated helper for context-less capabilities:
 
 ```java
-public static final BlockCapability<ResourceHandler<ItemResource>, Void> ITEM_HANDLER_NO_CONTEXT =
+public static final BlockCapability<IItemHandler, Void> ITEM_HANDLER_NO_CONTEXT =
     BlockCapability.createVoid(
         // Provide a name to uniquely identify the capability.
         ResourceLocation.fromNamespaceAndPath("mymod", "item_handler_no_context"),
-        // Provide the queried type. Here, we want to look up `ResourceHandler<ItemResource>` instances.
-        ResourceHandler.asClass());
+        // Provide the queried type. Here, we want to look up `IItemHandler` instances.
+        IItemHandler.class);
 ```
 
 For entities and item stacks, similar methods exist in `EntityCapability` and `ItemCapability` respectively.
@@ -153,10 +151,10 @@ if (object != null) {
 }
 ```
 
-To give a more concrete example, here is how one might query an `ResourceHandler<ItemResource>` capability for a block, from the `Direction.NORTH` side:
+To give a more concrete example, here is how one might query an `IItemHandler` capability for a block, from the `Direction.NORTH` side:
 
 ```java
-ResourceHandler<ItemResource> handler = level.getCapability(Capabilities.Item.BLOCK, pos, Direction.NORTH);
+IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, pos, Direction.NORTH);
 if (handler != null) {
     // Use the handler for some item-related operation.
 }
@@ -181,11 +179,11 @@ To create a cache, call `BlockCapabilityCache.create` with the capability to que
 
 ```java
 // Declare the field:
-private BlockCapabilityCache<ResourceHandler<ItemResource>, @Nullable Direction> capCache;
+private BlockCapabilityCache<IItemHandler, @Nullable Direction> capCache;
 
 // Later, for example in `onLoad` for a block entity:
 this.capCache = BlockCapabilityCache.create(
-    Capabilities.Item.BLOCK, // capability to cache
+    Capabilities.ItemHandler.BLOCK, // capability to cache
     level, // level
     pos, // target position
     Direction.NORTH // context
@@ -195,7 +193,7 @@ this.capCache = BlockCapabilityCache.create(
 Querying the cache is then done with `getCapability()`:
 
 ```java
-ResourceHandler<ItemResource> handler = this.capCache.getCapability();
+IItemHandler handler = this.capCache.getCapability();
 if (handler != null) {
     // Use the handler for some item-related operation.
 }
@@ -213,10 +211,9 @@ The cache then needs to be created with two additional parameters:
     - This is where you can react to capability changes, removals, or appearances.
 
 ```java
-// In `onLoad` for a block entity:
 // With optional invalidation listener:
 this.capCache = BlockCapabilityCache.create(
-    Capabilities.Item.BLOCK, // capability to cache
+    Capabilities.ItemHandler.BLOCK, // capability to cache
     level, // level
     pos, // target position
     Direction.NORTH, // context
@@ -263,8 +260,8 @@ Block providers are registered with `registerBlock`. For example:
 @SubscribeEvent // on the mod event bus
 public static void registerCapabilities(RegisterCapabilitiesEvent event) {
     event.registerBlock(
-        Capabilities.Item.BLOCK, // capability to register for
-        (level, pos, state, be, side) -> <return the ResourceHandler<ItemResource>>,
+        Capabilities.ItemHandler.BLOCK, // capability to register for
+        (level, pos, state, be, side) -> <return the IItemHandler>,
         // blocks to register for
         MY_ITEM_HANDLER_BLOCK,
         MY_OTHER_ITEM_HANDLER_BLOCK
@@ -276,9 +273,9 @@ In general, registration will be specific to some block entity types, so the `re
 
 ```java
 event.registerBlockEntity(
-    Capabilities.Item.BLOCK, // capability to register for
+    Capabilities.ItemHandler.BLOCK, // capability to register for
     MY_BLOCK_ENTITY_TYPE, // block entity type to register for
-    (myBlockEntity, side) -> myBlockEntity.myResourceHandlerForTheGivenSide
+    (myBlockEntity, side) -> myBlockEntity.myIItemHandlerForTheGivenSide
 );
 ```
 
@@ -290,9 +287,9 @@ Entity registration is similar, using `registerEntity`:
 
 ```java
 event.registerEntity(
-    Capabilities.Item.ENTITY, // capability to register for
+    Capabilities.ItemHandler.ENTITY, // capability to register for
     MY_ENTITY_TYPE, // entity type to register for
-    (myEntity, v) -> myEntity.myResourceHandlerForTheGivenContext
+    (myEntity, context) -> myEntity.myIItemHandlerForTheGivenContext
 );
 ```
 
@@ -300,8 +297,8 @@ Item registration is similar too. Note that the provider receives the stack:
 
 ```java
 event.registerItem(
-    Capabilities.Item.ITEM, // capability to register for
-    (stack, itemAccess) -> <return the ResourceHandler<ItemResource> for the itemStack>,
+    Capabilities.ItemHandler.ITEM, // capability to register for
+    (itemStack, context) -> <return the IItemHandler for the itemStack>,
     // items to register for
     MY_ITEM,
     MY_OTHER_ITEM
@@ -312,13 +309,13 @@ event.registerItem(
 
 If for some reason you need to register a provider for all blocks, entities, or items, you will need to iterate the corresponding registry and register the provider for each object.
 
-For example, NeoForge uses this system to register a fluid resource handler capability for all `BucketItem`s (excluding subclasses):
+For example, NeoForge uses this system to register a fluid handler capability for all `BucketItem`s (excluding subclasses):
 
 ```java
 // For reference, you can find this code in the `CapabilityHooks` class.
 for (Item item : BuiltInRegistries.ITEM) {
     if (item.getClass() == BucketItem.class) {
-        event.registerItem(Capabilities.Fluid.ITEM, (stack, itemAccess) -> new BucketResourceHandler(itemAccess), item);
+        event.registerItem(Capabilities.FluidHandler.ITEM, (stack, ctx) -> new FluidBucketWrapper(stack), item);
     }
 }
 ```
@@ -328,16 +325,13 @@ Providers are asked for a capability in the order that they are registered. Shou
 For example:
 
 ```java
-// use HIGH priority to register before NeoForge!
-@SubscribeEvent(priority = EventPriority.HIGH) // on the mod event bus
-public static void registerCapabilities(RegisterCapabilitiesEvent event) {
+modBus.addListener(RegisterCapabilitiesEvent.class, event -> {
     event.registerItem(
-        Capabilities.Fluid.ITEM,
-        (stack, itemAccess) -> new BucketResourceHandler(itemAccess),
-        // Items to register for
-        MY_CUSTOM_BUCKET
-    );
-}
+        Capabilities.FluidHandler.ITEM,
+        (stack, ctx) -> new MyCustomFluidBucketWrapper(stack),
+        // blocks to register for
+        MY_CUSTOM_BUCKET);
+}, EventPriority.HIGH); // use HIGH priority to register before NeoForge!
 ```
 
 See [`CapabilityHooks`][capability-hooks] for a list of the providers registered by NeoForge itself.

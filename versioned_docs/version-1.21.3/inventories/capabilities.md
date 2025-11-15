@@ -1,5 +1,5 @@
 ---
-sidebar_position: 6
+sidebar_position: 2
 ---
 # Capabilities
 
@@ -325,15 +325,13 @@ Providers are asked for a capability in the order that they are registered. Shou
 For example:
 
 ```java
-// use HIGH priority to register before NeoForge!
-@SubscribeEvent(priority = EventPriority.HIGH) // on the mod event bus
-public static void registerCapabilities(RegisterCapabilitiesEvent event) {
+modBus.addListener(RegisterCapabilitiesEvent.class, event -> {
     event.registerItem(
         Capabilities.FluidHandler.ITEM,
         (stack, ctx) -> new MyCustomFluidBucketWrapper(stack),
         // blocks to register for
         MY_CUSTOM_BUCKET);
-}
+}, EventPriority.HIGH); // use HIGH priority to register before NeoForge!
 ```
 
 See [`CapabilityHooks`][capability-hooks] for a list of the providers registered by NeoForge itself.

@@ -1,6 +1,9 @@
+---
+sidebar_position: 1
+---
 # Containers
 
-A popular use case of [block entities][blockentity] is to store items of some kind. Some of the most essential [blocks][block] in Minecraft, such as the furnace or the chest, use block entities for this purpose. To store items on something, Minecraft uses `Container`s.
+Many systems in Minecraft, such as [block entities][blockentity] or [entities][entity], store items of some kind. To store items on something, Minecraft uses `Container` implementations.
 
 The `Container` interface defines methods such as `#getItem`, `#setItem` and `#removeItem` that can be used to query and update the container. Since it is an interface, it does not actually contain a backing list or other data structure, that is up to the implementing system.
 
@@ -156,6 +159,10 @@ public class MyBlockEntity extends BaseContainerBlockEntity {
 
 Keep in mind that this class is a `BlockEntity` and a `Container` at the same time. This means that you can use the class as a supertype for your block entity to get a functioning block entity with a pre-implemented container.
 
+:::note
+`BlockEntity`s that implement `Container` handle dropping their contents by default. If you choose not to implement `Container`, then you will need to handle the [removal logic][beremove].
+:::
+
 ### `WorldlyContainer`
 
 `WorldlyContainer` is a sub-interface of `Container` that allows accessing slots of the given `Container` by `Direction`. It is mainly intended for block entities that only expose parts of their container to a particular side. For example, this could be used by a machine that outputs to one side and takes inputs from all other sides, or vice-versa. A simple implementation of the interface could look like this:
@@ -264,7 +271,7 @@ Be aware that menus that directly interface with `Container`s must `#copy()` the
 
 ## `Container`s on `Entity`s
 
-`Container`s on `Entity`s are finicky: whether an entity has a container or not cannot be universally determined. It all depends on what entity you are handling, and as such can require a lot of special-casing.
+`Container`s on [`Entity`s][entity] are finicky: whether an entity has a container or not cannot be universally determined. It all depends on what entity you are handling, and as such can require a lot of special-casing.
 
 If you are creating an entity yourself, there is nothing stopping you from implementing `Container` on it directly, though be aware that you will not be able to use superclasses such as `SimpleContainer` (since `Entity` is the superclass).
 
@@ -303,10 +310,11 @@ The inventory contents are stored in three `public final NonNullList<ItemStack>`
 
 When iterating over the inventory contents, it is recommended to iterate over `items`, then over `armor` and then over `offhand`, to be consistent with vanilla behavior.
 
-[block]: ../blocks/index.md
-[blockentity]: index.md
+[beremove]: ../blockentities/index.md#removing-block-entities
+[blockentity]: ../blockentities/index.md
 [component]: ../resources/client/i18n.md#components
 [datacomponent]: ../items/datacomponents.md
+[entity]: ../entities/index.md
 [item]: ../items/index.md
 [itemstack]: ../items/index.md#itemstacks
 [menu]: ../gui/menus.md

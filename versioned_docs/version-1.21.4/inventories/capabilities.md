@@ -1,5 +1,5 @@
 ---
-sidebar_position: 5
+sidebar_position: 2
 ---
 # Capabilities
 
@@ -257,7 +257,7 @@ They need to be registered in the `RegisterCapabilitiesEvent`.
 Block providers are registered with `registerBlock`. For example:
 
 ```java
-@SubscribeEvent  // on the mod event bus
+@SubscribeEvent // on the mod event bus
 public static void registerCapabilities(RegisterCapabilitiesEvent event) {
     event.registerBlock(
         Capabilities.ItemHandler.BLOCK, // capability to register for

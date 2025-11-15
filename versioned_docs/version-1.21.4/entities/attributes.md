@@ -246,7 +246,7 @@ The same rules also apply for any other `Attribute` subclass, i.e., we generally
 :::
 
 [custom]: #custom-attributes
-[equipment]: ../blockentities/container.md#containers-on-entitys
+[equipment]: ../inventories/container.md#containers-on-entitys
 [event]: ../concepts/events.md
 [livingentity]: livingentity.md
 [loottables]: ../resources/server/loottables/index.md

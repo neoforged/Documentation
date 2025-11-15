@@ -68,5 +68,5 @@ Once the features have finished rendering, the `SubmitNodeStorage` is cleared fo
 
 [blockentities]: ../blockentities/ber.md#blockentityrenderer
 [entities]: ../entities/renderer.md#entity-renderers
-[gui]: ../gui/screens.md#picture-in-picture
+[gui]: screens.md#picture-in-picture
 [particles]: #TODO
