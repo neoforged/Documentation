@@ -120,7 +120,14 @@ If you keep your registered blocks in a separate class, you should classload you
 
 If you register your item and get your item (via `/give` or through a [creative tab][creativetabs]), you will find it to be missing a proper model and texture. This is because textures and models  are handled by Minecraft's resource system.
 
-To apply a simple texture to an item, you must add an item model JSON and a texture PNG. See the section on [resources][resources] for more information.
+For every item, you will want to add - or [generate][datagen] - JSON files for the following:
+
+- An [item model][model] with an associated [texture]
+- A [translation][i18n]
+- A [recipe][recipes] (optional)
+- Some item [tags] (optional)
+
+For all of the above, also reference the files and data generators of similar vanilla blocks.
 
 ## `ItemStack`s
 
@@ -229,12 +236,16 @@ It is also possible to implement `ItemLike` on your custom objects. Simply overr
 [datagen]: ../resources/index.md#data-generation
 [food]: #food
 [hunger]: https://minecraft.wiki/w/Hunger#Mechanics
+[i18n]: ../resources/client/i18n.md
 [interactionpipeline]: interactionpipeline.md
 [loottables]: ../resources/server/loottables/index.md
 [mobeffectinstance]: mobeffects.md#mobeffectinstances
 [modbus]: ../concepts/events.md#event-buses
+[model]: ../resources/client/models/index.md
 [recipes]: ../resources/server/recipes/index.md
 [registering]: ../concepts/registries.md#methods-for-registering
 [resources]: ../resources/index.md#assets
 [sides]: ../concepts/sides.md
+[tags]: ../resources/server/tags.md
+[texture]: ../resources/client/textures.md
 [wikicomponents]: https://minecraft.wiki/w/Data_component_format
