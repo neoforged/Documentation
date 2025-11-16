@@ -197,7 +197,15 @@ This does the exact same as the previous example, but is slightly shorter. Of co
 
 ### Resources
 
-If you register your block and place it in the world, you will find it to be missing things like a texture. This is because [textures], among others, are handled by Minecraft's resource system. To apply the texture to the block, you must provide a [model] and a [blockstate file][bsfile] that associates the block with the texture and a shape. Give the linked articles a read for more information.
+If you register your block and place it in the world, you will find it to be missing things like a texture. This is because [textures], among others, are handled by Minecraft's resource system. When adding a new block in Minecraft, you should either write or [generate][datagen] the following files:
+
+- A [blockstate file][bsfile]
+- A [block model][model]
+- A [translation][i18n]
+- A [loot table][loottable]
+- Some block [tags], e.g. for mining
+
+For all of the above, also reference the files and data generators of similar vanilla blocks.
 
 ## Using Blocks
 
@@ -357,14 +365,18 @@ Random ticking is used by a wide range of mechanics in Minecraft, such as plant 
 [blockstates]: states.md
 [bsfile]: ../resources/client/models/index.md#blockstate-files
 [codec]: ../datastorage/codecs.md#records
+[datagen]: ../resources/index.md#data-generation
+[i18n]: ../resources/client/i18n.md
 [item]: ../items/index.md
 [leftclick]: ../items/interactions.md#left-clicking-an-item
+[loottable]: ../resources/server/loottables/index.md
 [model]: ../resources/client/models/index.md
 [randomtick]: #random-ticking
 [registration]: ../concepts/registries.md#methods-for-registering
 [resources]: ../resources/index.md#assets
 [rightclick]: ../items/interactions.md#right-clicking-an-item
 [sounds]: ../resources/client/sounds.md
+[tags]: ../resources/server/tags.md
 [textures]: ../resources/client/textures.md
 [tool]: ../items/tools.md
 [usingblocks]: #using-blocks
