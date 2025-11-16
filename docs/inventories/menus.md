@@ -1,3 +1,6 @@
+---
+sidebar_position: 2
+---
 # Menus
 
 Menus are one type of backend for Graphical User Interfaces, or GUIs; they handle the logic involved in interacting with some represented data holder. Menus themselves are not data holders. They are views which allow to user to indirectly modify the internal data holder state. As such, a data holder should not be directly coupled to any menu, instead passing in the data references to invoke and modify.
@@ -410,8 +413,8 @@ Once again, this is the simplest way to implement the logic, not the only way.
 [acm]: #abstractcontainermenu
 [mt]: #menutype
 [qms]: #quickmovestack
-[cap]: ../datastorage/capabilities.md#neoforge-provided-capabilities
-[screen]: screens.md
+[cap]: capabilities.md#neoforge-provided-capabilities
+[screen]: ../rendering/screens.md
 [icf]: #icontainerfactory
 [side]: ../concepts/sides.md#the-logical-side
 [interaction]: ../items/interactions.md#right-clicking-an-item

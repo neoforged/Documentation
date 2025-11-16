@@ -271,7 +271,7 @@ It is important that you do safety checks, as the `BlockEntity` might already be
 [block]: ../blocks/index.md
 [blockreg]: ../blocks/index.md#basic-blocks
 [blockstate]: ../blocks/states.md
-[container]: container.md
+[container]: ../inventories/container.md
 [dataattachments]: ../datastorage/attachments.md
 [entities]: ../entities/index.md
 [modbus]: ../concepts/events.md#event-buses
