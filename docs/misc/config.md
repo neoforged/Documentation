@@ -1,3 +1,7 @@
+---
+description: This article explains NeoForge's built-in configuration system, using the Nightconfig library and the TOML language.
+sidebar_position: 1
+---
 # Configuration
 
 Configurations define settings and consumer preferences that can be applied to a mod instance. NeoForge uses a configuration system using [TOML][toml] files and read with [NightConfig][nightconfig].

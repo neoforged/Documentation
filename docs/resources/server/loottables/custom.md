@@ -1,3 +1,7 @@
+---
+description: This article explains how to add custom entries to the various registries that are used in the loot table system.
+sidebar_position: 4
+---
 # Custom Loot Objects
 
 Due to the complexity of the loot table system, there are several [registries] at work, all of which can be used by a modder to add more behavior.

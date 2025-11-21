@@ -1,3 +1,7 @@
+---
+description: This article explains how to use NeoForge's biome modifier system in order to get modded entities, worldgen features etc. to spawn in non-modded biomes.
+sidebar_position: 1
+---
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 

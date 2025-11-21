@@ -1,3 +1,7 @@
+---
+description: This article explains the game test system, a way of running unit tests in a mod environment.
+sidebar_position: 3
+---
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 

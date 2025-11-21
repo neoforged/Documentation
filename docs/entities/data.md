@@ -1,4 +1,5 @@
 ---
+description: This article explains the various ways to store data on an entity, as well as how to synchronize that data between sides.
 sidebar_position: 2
 ---
 # Data and Networking

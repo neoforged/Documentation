@@ -1,4 +1,5 @@
 ---
+description: This article explains Minecraft's NBT file format and how to use its in-code representations.
 sidebar_position: 1
 ---
 # Named Binary Tag (NBT)

@@ -1,5 +1,6 @@
 ---
-sidebar_position: 3
+description: This article explains the motivation, use and implementation of networking configuration tasks.
+sidebar_position: 4
 ---
 # Using Configuration Tasks
 

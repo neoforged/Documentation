@@ -1,4 +1,5 @@
 ---
+description: This article explains the differences between the client and server sides, and between logical and physical sides, and how to adapt your mod for them.
 sidebar_position: 2
 ---
 # Sides

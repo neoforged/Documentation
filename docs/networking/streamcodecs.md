@@ -1,5 +1,6 @@
 ---
-sidebar_position: 2
+description: This article explains how to use stream codecs for networking formats and serialization.
+sidebar_position: 3
 ---
 # Stream Codecs
 

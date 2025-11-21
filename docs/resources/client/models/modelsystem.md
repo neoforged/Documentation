@@ -1,4 +1,7 @@
-
+---
+description: This article contains a rundown of how a model is transformed from on-disk files into an in-code object, and how this process can be modified by mods.
+sidebar_position: 1
+---
 # Understanding the Model System
 
 Models within Minecraft are simply a list of quads with attached textures. Each part of the modeling process has their own separate implementation, with the underlying model JSON deserialized into an `UnbakedModel`. In the end, each part of the pipelines takes in some `List<BakedQuad>` and properties necessary for their own pipelines. Some [block entity renderers][ber] also make use of these models. There is no limit to how complex a model may be.

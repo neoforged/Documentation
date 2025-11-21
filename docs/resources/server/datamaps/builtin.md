@@ -1,3 +1,7 @@
+---
+description: This article explains the various data map types built into NeoForge.
+sidebar_position: 2
+---
 # Built-In Data Maps
 
 NeoForge provides various built-in [data maps][datamap] for common use cases, replacing hardcoded vanilla fields. Vanilla values are shipped by data map files in NeoForge, so there is no functional difference to the player.

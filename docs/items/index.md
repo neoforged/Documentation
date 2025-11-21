@@ -1,3 +1,7 @@
+---
+description: This article explains how to add custom items, how to work with items, and the difference between items and item stacks.
+sidebar_position: 1
+---
 # Items
 
 Along with blocks, items are a key component of Minecraft. While blocks make up the world around you, items exist within inventories.

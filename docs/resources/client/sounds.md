@@ -1,3 +1,7 @@
+---
+description: This article explains how sounds are registered, how they are bundled into sound events, and how they can be played to the player.
+sidebar_position: 3
+---
 # Sounds
 
 Sounds, while not required for anything, can make a mod feel much more nuanced and alive. Minecraft offers you various ways to register and play sounds, which will be laid out in this article.

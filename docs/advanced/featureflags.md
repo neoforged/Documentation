@@ -1,3 +1,7 @@
+---
+description: This article explains feature flags, a system to gate content behind toggles that must be switched on world creation.
+sidebar_position: 3
+---
 # Feature Flags
 
 Feature flags are a system that allows developers to gate a set of features behind some set of required flags, that being registered elements, gameplay mechanics, data pack entries or some other unique system to your mod.

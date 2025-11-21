@@ -1,5 +1,6 @@
 ---
-sidebar_position: 2
+description: This article explains how menus can be used to provide an interactable front end for a container, covering topics such as menu types, slots, and menu providers.
+sidebar_position: 3
 ---
 # Menus
 

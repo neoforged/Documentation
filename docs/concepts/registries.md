@@ -1,4 +1,5 @@
 ---
+description: Registries are the main storage for many groups of objects in the game - blocks, items, entities etc. This article explains how registries work. This includes topics such as registering your own registry objects, querying registries, creating your own registries, and the special datapack registries.
 sidebar_position: 1
 ---
 # Registries

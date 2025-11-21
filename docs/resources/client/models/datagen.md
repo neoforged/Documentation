@@ -1,3 +1,7 @@
+---
+description: This article explains how to generate model files through data generation, including model templates, block model generation, blockstate file generation and item model generation.
+sidebar_position: 3
+---
 # Model Datagen
 
 Like most JSON data, block and item models, along with their necessary blockstate files and [client items][citems], can be [datagenned][datagen]. This is all handled through the vanilla `ModelProvider`, with extensions provided by NeoForge via the `ExtendedModelTemplateBuilder`. Since the model JSON itself is similar between block and item models, the datagen code is relatively similar.

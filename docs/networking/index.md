@@ -1,3 +1,7 @@
+---
+description: This article gives a quick overview of the motivations of networking.
+sidebar_position: 1
+---
 # Networking
 
 Communication between servers and clients is the backbone of a successful mod implementation.

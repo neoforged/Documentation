@@ -1,3 +1,7 @@
+---
+description: This article explains how to add custom recipes, including recipe inputs, recipe types, recipe serializers, slot displays and other systems that are at play with custom recipes.
+sidebar_position: 4
+---
 # Custom Recipes
 
 To add custom recipes, we need at least three things: a `Recipe`, a `RecipeType`, and a `RecipeSerializer`. Depending on what you are implementing, you may also need a custom `RecipeInput`, `RecipeDisplay`, `SlotDisplay`, `RecipeBookCategory`, and `RecipePropertySet` if reusing an existing subclass is not feasible.

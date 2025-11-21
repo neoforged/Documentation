@@ -1,3 +1,7 @@
+---
+description: This article explains NeoForge's data map system, with a focus on the general idea and adding data maps through mods.
+sidebar_position: 1
+---
 # Data Maps
 
 A data map contains data-driven, reloadable objects that can be attached to a registered object. This system allows for more easily data-driving game behavior, as they provide functionality such as syncing or conflict resolution, leading to a better and more configurable user experience. You can think of [tags] as registry object ➜ boolean maps, while data maps are more flexible registry object ➜ object maps. Similar to [tags], data maps will add to their corresponding data map rather than overwriting.

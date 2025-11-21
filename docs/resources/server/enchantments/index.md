@@ -1,3 +1,7 @@
+---
+description: This article explains the enchantment system in Minecraft, focusing on the various systems at play and on the JSON file formats.
+sidebar_position: 1
+---
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 

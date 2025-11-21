@@ -1,3 +1,7 @@
+---
+description: This article explains how to write and generate advancement files, as well as how to add to related systems, e.g. advancement triggers.
+sidebar_position: 1
+---
 # Advancements
 
 Advancements are quest-like tasks that can be achieved by the player. Advancements are awarded based on advancement criteria, and can run behavior when completed.

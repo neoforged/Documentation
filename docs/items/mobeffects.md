@@ -1,5 +1,6 @@
 ---
-sidebar_position: 6
+description: This article explains the differences between mob effects, mob effect instances, potions, potion items, and how to add and work with all of them.
+sidebar_position: 7
 ---
 # Mob Effects & Potions
 
