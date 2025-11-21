@@ -1,3 +1,7 @@
+---
+description: This article explains how to add custom blocks, how to work with blocks in general, and how mechanics such as block placing or block breaking work.
+sidebar_position: 1
+---
 # Blocks
 
 Blocks are essential to the Minecraft world. They make up all the terrain, structures, and machines. Chances are if you are interested in making a mod, then you will want to add some blocks. This page will guide you through the creation of blocks, and some of the things you can do with them.

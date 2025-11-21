@@ -1,4 +1,5 @@
 ---
+dsecription: Events are fired for various things that happen in the game. This article explains NeoForge's event system, including how to register event handlers, how to fire and implement your own events, what event buses are, and various other event options.
 sidebar_position: 3
 ---
 import Tabs from '@theme/Tabs';

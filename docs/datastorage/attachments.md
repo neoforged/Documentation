@@ -1,4 +1,5 @@
 ---
+description: This article explains data attachments, a system to attach your own data to vanilla systems such as block entities, entities or chunks.
 sidebar_position: 4
 ---
 # Data Attachments

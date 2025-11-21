@@ -1,3 +1,7 @@
+---
+description: This article explains how particles are registered to the game, how they are spawned, how the particles are associated with textures, and what particle types, particle options and particle descriptions are in this context.
+sidebar_position: 2
+---
 # Particles
 
 Particles are visual effects commonly spawned using their associated particle type. They can be spawned both client and server [side], but being mostly visual in nature, critical parts exist only on the physical (and logical) client side.

@@ -1,5 +1,6 @@
 ---
-sidebar_position: 1
+description: This article explains what capabilities are, when and how to use them, and how to add your own.
+sidebar_position: 2
 ---
 # Capabilities
 

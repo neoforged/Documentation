@@ -1,3 +1,7 @@
+---
+description: This article explains the client-side part to the particle system, i.e., particle rendering.
+sidebar_position: 2
+---
 # Client Particles
 
 Particles are visual effects that polish the game and add immersion. Being mostly visual in nature, critical parts exist only on the physical (and logical) client [side].

@@ -1,5 +1,6 @@
 ---
-sidebar_position: 1
+description: This article explains how to register and send custom payloads, i.e., custom network messages, between clients and servers.
+sidebar_position: 2
 ---
 # Registering Payloads
 

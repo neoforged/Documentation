@@ -1,3 +1,7 @@
+---
+description: This article explains resource locations, objects used as keys and identifiers in lots of places in Minecraft. It also covers ResourceKeys, a special kind of key that combines a registry name and a resource location.
+sidebar_position: 5
+---
 # Resource Locations
 
 `ResourceLocation`s are one of the most important things in Minecraft. They are used as keys in [registries][registries], as identifiers for data or resource files, as references to models in code, and in a lot of other places. A `ResourceLocation` consists of two parts: a namespace and a path, separated by a `:`.

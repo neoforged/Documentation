@@ -1,3 +1,7 @@
+---
+description: This article explains how to add and use block entity renderers and the associated block entity render states.
+sidebar_position: 2
+---
 # BlockEntityRenderer
 
 A `BlockEntityRenderer`, often abbreviated as BER, is used to 'render' [blocks][block] in a way that cannot be represented with a [static baked model][model] (JSON, OBJ, others). For example, this could be used to dynamically render container contents of a chest-like block. A block entity renderer requires the block to have a [`BlockEntity`][blockentity], even if the block does not store any data otherwise.

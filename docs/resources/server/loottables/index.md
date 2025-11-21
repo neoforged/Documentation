@@ -1,3 +1,7 @@
+---
+description: This article explains the different components of loot tables, including loot entries, loot pools, loot conditions, loot functions; as well as using and generating loot tables.
+sidebar_position: 1
+---
 # Loot Tables
 
 Loot tables are data files that are used to define randomized loot drops. A loot table can be rolled, returning a (potentially empty) list of item stacks. The output of this process depends on (pseudo-)randomness. Loot tables are located at `data/<mod_id>/loot_table/<name>.json`. For example, the loot table `minecraft:blocks/dirt`, used by the dirt block, is located at `data/minecraft/loot_table/blocks/dirt.json`.

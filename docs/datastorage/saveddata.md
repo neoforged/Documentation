@@ -1,4 +1,5 @@
 ---
+description: This article explains how to use Saved Data, Minecraft's system to store data on a level or world.
 sidebar_position: 5
 ---
 # Saved Data

@@ -1,3 +1,7 @@
+---
+description: This article explains the various recipe types built into Minecraft, both in JSON format and in data generation.
+sidebar_position: 2
+---
 # Built-In Recipe Types
 
 Minecraft provides a variety of recipe types and serializers out of the box for you to use. This article will explain each recipe type, as well as how to generate them.

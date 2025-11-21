@@ -1,3 +1,7 @@
+---
+description: This article explains how Minecraft loads its textures and what metadata can be specified.
+sidebar_position: 1
+---
 # Textures
 
 All textures in Minecraft are PNG files located within a namespace's `textures` folder. JPG, GIF and other image formats are not supported. The path of [resource locations][rl] referring to textures is generally relative to the `textures` folder, so for example, the resource location `examplemod:block/example_block` refers to the texture file at `assets/examplemod/textures/block/example_block.png`.

@@ -1,4 +1,5 @@
 ---
+description: This article explains what codecs are and how they can be used to represent data formats.
 sidebar_position: 2
 ---
 # Codecs

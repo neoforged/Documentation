@@ -1,7 +1,7 @@
 ---
-sidebar_position: 2
+description: This article explains how data components are, how to use them with items and how to register your own data component types.
+sidebar_position: 3
 ---
-
 # Data Components
 
 Data components are key-value pairs within a map used to store data on an `ItemStack`. Each piece of data, such as firework explosions or tools, are stored as actual objects on the stack, making the values visible and operable without having to dynamically transform a general encoded instance (e.g., `CompoundTag`, `JsonElement`).

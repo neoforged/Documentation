@@ -1,3 +1,7 @@
+---
+description: This article explains the various properties of client items and their connections to item models.
+sidebar_position: 2
+---
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 

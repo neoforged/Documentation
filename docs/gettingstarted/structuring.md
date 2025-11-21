@@ -1,3 +1,7 @@
+---
+description: This article explains the different methods to structure your mod files.
+sidebar_position: 3
+---
 # Structuring Your Mod
 
 Structured mods are beneficial for maintenance, making contributions, and providing a clearer understanding of the underlying codebase. Some of the recommendations from Java, Minecraft, and NeoForge are listed below.

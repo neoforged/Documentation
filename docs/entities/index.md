@@ -1,4 +1,5 @@
 ---
+description: This article explains what entities are, what different parts and types of entities there are, common use cases of entities, and how to add your own entities.
 sidebar_position: 1
 ---
 # Entities

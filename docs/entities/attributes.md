@@ -1,4 +1,5 @@
 ---
+description: This article explains entity attributes, both built-in and custom.
 sidebar_position: 4
 ---
 # Attributes

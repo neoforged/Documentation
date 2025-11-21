@@ -1,3 +1,7 @@
+---
+description: This article gives an overview of Minecraft's model system, including the model file format, blockstate files, model tinting, and how to register custom models.
+sidebar_position: 1
+---
 # Models
 
 Models are JSON files that determine the visual shape and texture(s) of a block or item. A model consists of cuboid elements, each with their own size, that then get assigned a texture to each face.

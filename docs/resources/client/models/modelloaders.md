@@ -1,3 +1,7 @@
+---
+description: This article gives an overview of the custom model loader system, the built-in model loaders, and how to add your own model loaders.
+sidebar_position: 4
+---
 # Custom Model Loaders
 
 A model is simply a shape. It can be a cube, a collection of cubes, a collection of triangles, or any other geometrical shape (or collection of geometrical shape). For most contexts, it is not relevant how a model is defined, as everything will end up baked into a `QuadCollection` anyway. As such, NeoForge adds the ability to register custom model loaders that can transform any model you want into the baked format for the game to use.

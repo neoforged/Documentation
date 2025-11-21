@@ -1,3 +1,7 @@
+---
+description: This article explains what blockstates are, what they are commonly used for and how to implement your own.
+sidebar_position: 2
+---
 # Blockstates
 
 Often, you will find yourself in a situation where you want different states of a block. For example, a wheat crop has eight growth stages, and making a separate block for each stage feels wrong. Or you have a slab or slab-like block - one bottom state, one top state, and one state that has both.

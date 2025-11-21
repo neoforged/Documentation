@@ -1,3 +1,7 @@
+---
+description: This article explains the format, uses and different kinds of tag files.
+sidebar_position: 4
+---
 # Tags
 
 A tag is, simply put, a list of registered objects of the same type. They are loaded from data files and can be used for membership checks. For example, crafting sticks will accept any combination of wooden planks (items tagged with `minecraft:planks`). Tags are often distinguished from "regular" objects by prefixing them with a `#` (for example `#minecraft:planks`, but `minecraft:oak_planks`).

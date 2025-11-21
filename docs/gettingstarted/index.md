@@ -1,3 +1,7 @@
+---
+description: This article explains how to set up a NeoForge workspace, and how to run and test your mod.
+sidebar_position: 1
+---
 # Getting Started with NeoForge
 
 This section includes information about how to set up a NeoForge workspace, and how to run and test your mod.
