@@ -123,7 +123,7 @@ Once a `ModConfigSpec` has been built, it must be registered to allow NeoForge t
 public ExampleMod(ModContainer container) {
     ...
     //Register the config
-    container.registerConfig(ModConfig.Type.COMMON, ExampleConfig.CONFIG);
+    container.registerConfig(ModConfig.Type.COMMON, ExampleConfig.CONFIG_SPEC);
     ...
 }
 ```
