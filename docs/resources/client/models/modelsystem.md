@@ -141,7 +141,7 @@ It is generally encouraged to use a [custom model loader][modelloader] over wrap
 [livingentity]: ../../../entities/livingentity.md
 [modbus]: ../../../concepts/events.md#event-buses
 [modelloader]: modelloaders.md
-[rl]: ../../../misc/resourcelocation.md
+[rl]: ../../../misc/identifier.md
 [perspective]: #perspectives
 [rendertype]: index.md#render-types
 [sides]: ../../../concepts/sides.md

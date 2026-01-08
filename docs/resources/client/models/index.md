@@ -244,6 +244,6 @@ public static void registerAdditional(ModelEvent.RegisterStandalone event) {
 [perspectives]: modelsystem.md#perspectives
 [rendertype]: #render-types
 [roottransforms]: #root-transforms
-[rl]: ../../../misc/resourcelocation.md
+[rl]: ../../../misc/identifier.md
 [textures]: ../textures.md
 [tinting]: #tinting

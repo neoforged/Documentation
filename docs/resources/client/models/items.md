@@ -1551,5 +1551,5 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
 [itemmodel]: #manually-rendering-an-item
 [modbus]: ../../../concepts/events.md#event-buses
 [models]: modelsystem.md
-[rl]: ../../../misc/resourcelocation.md
+[rl]: ../../../misc/identifier.md
 [screens]: ../../../rendering/screens.md#items

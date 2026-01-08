@@ -346,6 +346,6 @@ public static void onGatherData(GatherDataEvent.Client event) {
 [defregitems]: ../items/index.md#deferredregisteritems
 [event]: events.md
 [item]: ../items/index.md
-[resloc]: ../misc/resourcelocation.md
-[resourcekey]: ../misc/resourcelocation.md#resourcekeys
+[resloc]: ../misc/identifier.md
+[resourcekey]: ../misc/identifier.md#resourcekeys
 [singleton]: https://en.wikipedia.org/wiki/Singleton_pattern

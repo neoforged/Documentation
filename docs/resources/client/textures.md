@@ -77,4 +77,4 @@ To actually be animated and not just be displayed as a distorted texture, there 
 }
 ```
 
-[rl]: ../../misc/resourcelocation.md
+[rl]: ../../misc/identifier.md

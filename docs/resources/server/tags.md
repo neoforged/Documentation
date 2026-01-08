@@ -413,5 +413,5 @@ public static void gatherData(GatherDataEvent.Client event) {
 [damagetype]: damagetypes.md
 [datagen]: ../index.md#data-generation
 [registry]: ../../concepts/registries.md
-[regkey]: ../../misc/resourcelocation.md#resourcekeys
-[resloc]: ../../misc/resourcelocation.md
+[regkey]: ../../misc/identifier.md#resourcekeys
+[resloc]: ../../misc/identifier.md

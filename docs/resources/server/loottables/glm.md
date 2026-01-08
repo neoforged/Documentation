@@ -189,5 +189,5 @@ public static void onGatherData(GatherDataEvent.Client event) {
 [loottable]: index.md
 [loottableid]: lootconditions#neoforgeloot_table_id
 [register]: ../../../concepts/registries.md#methods-for-registering
-[resloc]: ../../../misc/resourcelocation.md
+[resloc]: ../../../misc/identifier.md
 [tags]: ../tags.md

@@ -129,5 +129,5 @@ public static void onGatherData(GatherDataEvent.Client event) {
 [entity]: ../../entities/index.md
 [entityhurt]: ../../entities/index.md#damaging-entities
 [extenum]: ../../advanced/extensibleenums.md
-[rk]: ../../misc/resourcelocation.md#resourcekeys
+[rk]: ../../misc/identifier.md#resourcekeys
 [tags]: tags.md

@@ -629,5 +629,5 @@ public static void registerJsonAnimationTypes(RegisterJsonAnimationTypesEvent ev
 [geckolib]: https://github.com/bernie-g/geckolib
 [livingentity]: livingentity.md
 [renderlayer]: #creating-a-render-layer-and-baking-a-layer-definition
-[rl]: ../misc/resourcelocation.md
+[rl]: ../misc/identifier.md
 [sides]: ../concepts/sides.md
