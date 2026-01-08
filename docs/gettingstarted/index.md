@@ -12,15 +12,15 @@ Make sure you are using a 64-bit JVM. One way of checking is to run `java -versi
 :::
 
 - Familiarity with an Integrated Development Environment (IDE) of your choice.
-      - NeoForge officially supports [IntelliJ IDEA][intellij] and [Eclipse][eclipse], both of which have integrated Gradle support. However, any IDE can be used, ranging from Netbeans or Visual Studio Code to Vim or Emacs.
+    - NeoForge officially supports [IntelliJ IDEA][intellij] and [Eclipse][eclipse], both of which have integrated Gradle support. However, any IDE can be used, ranging from Netbeans or Visual Studio Code to Vim or Emacs.
 - Familiarity with [Git][git] and [GitHub][github]. This is technically not required, but it will make your life a lot easier.
 
 ## Setting Up the Workspace
 
-- Go to the [Mod Generator](https://neoforged.net/mod-generator/) webpage, type in a mod name (and optionally a mod id), package name, Minecraft version, and Gradle plugin (either [ModDevGradle][mdg] or [NeoGradle][ng]), click "Download Mod Project", and extract the downloaded ZIP file.
+- Go to the [Mod Generator][modgen] webpage, type in a mod name (and optionally a mod id), package name, Minecraft version, and Gradle plugin (either [ModDevGradle][mdg] or [NeoGradle][ng]), click "Download Mod Project", and extract the downloaded ZIP file.
 - Open your IDE and import the Gradle project. Eclipse and IntelliJ IDEA will do this automatically for you. If you have an IDE that does not do this, you can also do it via the `gradlew` terminal command.
-      - When doing this for the first time, Gradle will download all dependencies of NeoForge, including Minecraft itself, and decompile them. This can take a fair amount of time (up to an hour, depending on your hardware and network strength).
-      - Whenever you make a change to the Gradle files, the Gradle changes will need to be reloaded, either through the "Reload Gradle" button in your IDE, or again through the `gradlew` terminal command.
+    - When doing this for the first time, Gradle will download all dependencies of NeoForge, including Minecraft itself, and decompile them. This can take a fair amount of time (up to an hour, depending on your hardware and network strength).
+    - Whenever you make a change to the Gradle files, the Gradle changes will need to be reloaded, either through the "Reload Gradle" button in your IDE, or again through the `gradlew` terminal command.
 
 ## Customizing Your Mod Information
 
