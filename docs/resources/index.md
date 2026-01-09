@@ -49,26 +49,26 @@ There is currently no built-in way to apply a set of custom data packs to every 
 
 Data packs may contain folders with files affecting the following things:
 
-| Folder Name                                                                                    | Contents                     |
-|------------------------------------------------------------------------------------------------|------------------------------|
-| `advancement`                                                                                  | [Advancements][advancements] |
-| `banner_pattern`                                                                               | Banner patterns              |
-| `cat_variant`, `chicken_variant`, `cow_variant`, `frog_variant`, `pig_variant`, `wolf_variant` | Entity variants              |
-| `damage_type`                                                                                  | [Damage types][damagetypes]  |
-| `datapacks`                                                                                    | Built-in datapacks           |
-| `dialog`                                                                                       | Dialog menus                 |
-| `enchantment`, `enchantment_provider`                                                          | [Enchantments][enchantment]  |
-| `instrument`, `jukebox_song`, `wolf_sound_variant`                                             | Sound reference metadata     |
-| `painting_variant`                                                                             | Paintings                    |
-| `loot_table`                                                                                   | [Loot tables][loottables]    |
-| `recipe`                                                                                       | [Recipes][recipes]           |
-| `tags`                                                                                         | [Tags][tags]                 |
-| `test_environment`, `test_instance`                                                            | [Game tests][gmt]            |
-| `trial_spawner`                                                                                | Combat challenges            |
-| `trim_material`, `trim_pattern`                                                                | Armor trims                  |
-| `neoforge/data_maps`                                                                           | [Data maps][datamap]         |
-| `neoforge/loot_modifiers`                                                                      | [Global loot modifiers][glm] |
-| `dimension`, `dimension_type`, `structure`, `worldgen`, `neoforge/biome_modifier`              | Worldgen files               |
+| Folder Name                                                                                                               | Contents                     |
+|---------------------------------------------------------------------------------------------------------------------------|------------------------------|
+| `advancement`                                                                                                             | [Advancements][advancements] |
+| `banner_pattern`                                                                                                          | Banner patterns              |
+| `cat_variant`, `chicken_variant`, `cow_variant`, `frog_variant`, `pig_variant`, `wolf_variant`, `zombie_nautilus_variant` | Entity variants              |
+| `damage_type`                                                                                                             | [Damage types][damagetypes]  |
+| `datapacks`                                                                                                               | Built-in datapacks           |
+| `dialog`                                                                                                                  | Dialog menus                 |
+| `enchantment`, `enchantment_provider`                                                                                     | [Enchantments][enchantment]  |
+| `instrument`, `jukebox_song`, `wolf_sound_variant`                                                                        | Sound reference metadata     |
+| `painting_variant`                                                                                                        | Paintings                    |
+| `loot_table`                                                                                                              | [Loot tables][loottables]    |
+| `recipe`                                                                                                                  | [Recipes][recipes]           |
+| `tags`                                                                                                                    | [Tags][tags]                 |
+| `test_environment`, `test_instance`                                                                                       | [Game tests][gmt]            |
+| `trial_spawner`                                                                                                           | Combat challenges            |
+| `trim_material`, `trim_pattern`                                                                                           | Armor trims                  |
+| `neoforge/data_maps`                                                                                                      | [Data maps][datamap]         |
+| `neoforge/loot_modifiers`                                                                                                 | [Global loot modifiers][glm] |
+| `dimension`, `dimension_type`, `structure`, `timeline` `worldgen`, `neoforge/biome_modifier`                              | Worldgen files               |
 
 Additionally, they may also contain subfolders for some systems that integrate with commands. These systems are rarely used in conjunction with mods, but worth mentioning regardless:
 
