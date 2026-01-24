@@ -817,7 +817,7 @@ During datagen, call `new SetCustomModelDataFunction()` with the list of conditi
 
 ## `minecraft:filtered`
 
-This function accepts an `ItemPredicate` that is checked against the generated stack; if the check succeeds, the other function is run. An `ItemPredicate` can specify a list of valid item ids (`items`), a min/max range for the item count (`count`), a `DataComponentPredicate` (`components`) and a map of `ItemSubPredicate`s (`predicates`); all fields are optional.
+This function accepts an `ItemPredicate` that is checked against the generated stack. Depending on if the check succeeds (`on_pass`) or fails (`on_fail`), the defined function is run. An `ItemPredicate` can specify a list of valid item ids (`items`), a min/max range for the item count (`count`), a `DataComponentPredicate` (`components`) and a map of `ItemSubPredicate`s (`predicates`); all fields are optional.
 
 ```json5
 {
@@ -828,8 +828,12 @@ This function accepts an `ItemPredicate` that is checked against the generated s
             "minecraft:diamond_shovel"
         ]
     },
-    // The other loot function to run, as either a loot modifier file or an in-line list of functions.
-    "modifier": "examplemod:example_modifier"
+    // The loot function to run if the predicate succeeds.
+    // A loot modifier file or an in-line list of functions.
+    "on_pass": "examplemod:example_pass",
+    // The loot function to run if the predicate fails.
+    // A loot modifier file or an in-line list of functions.
+    "on_fail": "examplemod:example_fail"
 }
 ```
 
@@ -873,7 +877,20 @@ This function runs other loot functions one after another.
 }
 ```
 
-During datagen, call `SequenceFunction#of` with the other functions to construct a builder for this condition.
+During datagen, call `SequenceFunction#of` with the other functions to construct a builder for this function.
+
+## `minecraft:discard`
+
+This function discards the original stack, returning an empty item.
+
+```json5
+{
+    "function": "minecraft:discard"
+}
+```
+
+During datagen, call `DiscardItem#discardItem` with the other functions to construct a builder for this function.
+
 
 ## See Also
 

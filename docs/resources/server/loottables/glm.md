@@ -15,7 +15,7 @@ To register a GLM, you will need four things:
 
 The `global_loot_modifiers.json` file tells NeoForge what modifiers to apply to loot tables. The file may contain two keys:
 
-- `entries` is a list of modifiers that should be loaded. The [`ResourceLocation`][resloc]s specified points to their associated entry within `data/<namespace>/loot_modifiers/<path>.json`. This list is ordered, meaning that modifiers will apply in the specified order, which is sometimes relevant when mod compatibility issues occur.
+- `entries` is a list of modifiers that should be loaded. The [`Identifier`][identifier]s specified points to their associated entry within `data/<namespace>/loot_modifiers/<path>.json`. This list is ordered, meaning that modifiers will apply in the specified order, which is sometimes relevant when mod compatibility issues occur.
 - `replace` denotes whether the modifiers should replace old ones (`true`) or simply add to the existing list (`false`). This works similar to the `replace` key in [tags], however unlike tags, the key is required here. Generally, modders should always use `false` here; the ability to use `true` is directed at modpack or data pack developers.
 
 Example usage:
@@ -189,5 +189,5 @@ public static void onGatherData(GatherDataEvent.Client event) {
 [loottable]: index.md
 [loottableid]: lootconditions#neoforgeloot_table_id
 [register]: ../../../concepts/registries.md#methods-for-registering
-[resloc]: ../../../misc/identifier.md
+[identifier]: ../../../misc/identifier.md
 [tags]: ../tags.md

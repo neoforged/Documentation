@@ -34,8 +34,9 @@ Loot entries are generally split into two groups: singletons (with the common su
     - Setting stack size, data components, etc. can be done using loot functions.
 - `minecraft:tag`: A tag entry, dropping all items in the specified tag when rolling. Has two variants, depending on the value of the boolean `expand` property. If `expand` is true, a separate entry for each item in the tag is generated, otherwise one entry is used to drop all items. Created by calling `TagEntry#tagContents` (for `expand=false`) or `TagEntry#expandTag` (for `expand=true`), each with an item [tag key][tags] parameter.
     - For example, if `expand` is true and the tag is `#minecraft:planks`, one entry is generated for each planks type (so 11 entries for the 11 vanilla planks + one entry per modded planks), each with the specified weight, quality and functions; whereas if `expand` is false, one single entry dropping all planks is used.
+- `minecraft:slots`: A loot entry referencing any inventory slot (e.g., entities, items, etc.). The `minecraft:slot_range` source can be used to target entities and block entities, while `minecraft:contents` can be used to target items with content-based data components which have a defined and registered `ContainerComponentManipulator`.
 - `minecraft:dynamic`: A loot entry referencing a dynamic drop. Dynamic drops are a system to add entries to a loot table that cannot be specified beforehand, instead adding them in code. A dynamic drops entry consists of an id and a `Consumer<ItemStack>` that actually adds the items. To add a dynamic drops entry, specify a `minecraft:dynamic` entry with the desired id and then add a corresponding consumer in the [loot context][context]. Created using `DynamicLoot#dynamicEntry`.
-- `minecraft:loot_table`: A loot entry that rolls another loot table, adding the result of that loot table as a single entry. The other loot table can either be specified by id or be inlined as a whole. Created in code by calling `NestedLootTable#lootTableReference` with a `ResourceLocation` parameter, or `NestedLootTable#inlineLootTable` with a `LootTable` object parameter for an inline loot table.
+- `minecraft:loot_table`: A loot entry that rolls another loot table, adding the result of that loot table as a single entry. The other loot table can either be specified by id or be inlined as a whole. Created in code by calling `NestedLootTable#lootTableReference` with a `Identifier` parameter, or `NestedLootTable#inlineLootTable` with a `LootTable` object parameter for an inline loot table.
 
 The following composite types are provided by Minecraft:
 
@@ -232,7 +233,7 @@ builder.withParameter(LootContextParams.ORIGIN, position);
 // This variant can accept null as the value, in which case an existing value for that parameter will be removed.
 builder.withOptionalParameter(LootContextParams.ORIGIN, null);
 // Add a dynamic drop.
-builder.withDynamicDrop(ResourceLocation.fromNamespaceAndPath("examplemod", "example_dynamic_drop"), stackAcceptor -> {
+builder.withDynamicDrop(Identifier.fromNamespaceAndPath("examplemod", "example_dynamic_drop"), stackAcceptor -> {
     // some logic here
 });
 // Set our luck value. Assumes that a player is available. Contexts without a player should use 0 here.
@@ -292,9 +293,9 @@ public class MyLootTableSubProvider implements LootTableSubProvider {
     }
 
     @Override
-    public void generate(BiConsumer<ResourceLocation, LootTable.Builder> consumer) {
+    public void generate(BiConsumer<Identifier, LootTable.Builder> consumer) {
         // LootTable.lootTable() returns a loot table builder we can add loot tables to.
-        consumer.accept(ResourceLocation.fromNamespaceAndPath(ExampleMod.MOD_ID, "example_loot_table"), LootTable.lootTable()
+        consumer.accept(Identifier.fromNamespaceAndPath(ExampleMod.MOD_ID, "example_loot_table"), LootTable.lootTable()
                 // Add a loot table-level loot function. This example uses a number provider (see below).
                 .apply(SetItemCountFunction.setCount(ConstantValue.exactly(5)))
                 // Add a loot pool.
