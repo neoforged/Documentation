@@ -192,7 +192,7 @@ First, there is a colored horizontal and vertical one-pixel wide line, `hLine` a
 
 Second, there is the `fill` method, which submits a rectangle to be drawn to the screen. The line methods internally call this method. This takes in the left X coordinate, the top Y coordinate, the right X coordinate, the bottom Y coordinate, and the color.
 
-Third, there is the `submitOutline` method, which submits four rectangles that are one-pixel wide to act as an outline. This takes in the left X coordinate, the top Y coordinate, the width of the outline, the height of the outline, and the color.
+Third, there is the `renderOutline` method, which submits four rectangles that are one-pixel wide to act as an outline. This takes in the left X coordinate, the top Y coordinate, the width of the outline, the height of the outline, and the color.
 
 Finally, there is the `fillGradient` method, which draws a rectangle with a vertical gradient. This takes in the left X coordinate, the top Y coordinate, the right X coordinate, the bottom Y coordinate, and the bottom and top colors.
 
@@ -204,17 +204,19 @@ There are two alignments strings can be rendered with: a left-aligned string (`d
 
 If the text should be wrapped within a given bounds, then `drawWordWrap` can be used instead. If the text should have some sort of rectangle backdrop, then `drawStringWithBackdrop` can be used. They both submit a left-aligned string by default.
 
+Strings can also be submitted using an `ActiveTextCollector`, which provides methods for rendering strings with specific metadata, such as alignment, opacity, and scrolling. Text collectors are created via `GuiGraphics#textRenderer` or `textRendererForWidget`, or `ActiveTextCollector` itself can be subclassed, typically taking in a `$HoveredTextEffects` for some basic options on whether to render tooltips or cursor changes. From there, either `accept` or `acceptScrolling` can be used to render the text, taking in and X position relative to the alignment, Y position, a set of parameters from the `GuiGraphics`, the text itself, and optionally the text alignment. `acceptScrolling` also takes in the leftmost, rightmost, topmost, and bottommost position to represent the scrolling bounds.
+
 :::note
 Strings should typically be passed in as [`Component`s][component] as they handle a variety of use cases, including the two other overloads of the method.
 :::
 
 ### Textures
 
-Textures are submitted through a `BlitRenderState`, hence the method name `blit`. The `BlitRenderState` copies the bits of an image and renders them to the screen through the `RenderPipeline` parameter. Each `blit` also takes in a `ResourceLocation`, which represents the absolute location of the texture:
+Textures are submitted through a `BlitRenderState`, hence the method name `blit`. The `BlitRenderState` copies the bits of an image and renders them to the screen through the `RenderPipeline` parameter. Each `blit` also takes in a `Identifier`, which represents the absolute location of the texture:
 
 ```java
 // Points to 'assets/examplemod/textures/gui/container/example_container.png'
-private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath("examplemod", "textures/gui/container/example_container.png");
+private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath("examplemod", "textures/gui/container/example_container.png");
 ```
 
 While there are many different `blit` overloads, we will only discuss two of them.
@@ -233,7 +235,7 @@ The second `blit` adds an additional integer at the end which represents the tin
 
 ```java
 // Points to 'assets/examplemod/textures/gui/sprites/container/example_container/example_sprite.png'
-private static final ResourceLocation SPRITE = ResourceLocation.fromNamespaceAndPath("examplemod", "container/example_container/example_sprite");
+private static final Identifier SPRITE = Identifier.fromNamespaceAndPath("examplemod", "container/example_container/example_sprite");
 ```
 
 One set of `blitSprite` methods have the same parameters as `blit`, except for the the four integers dealing with the coordinates, width, and height of the PNG.
@@ -495,12 +497,12 @@ All widgets from Minecraft are `NarratableEntry`s, so it typically does not need
 
 With all of the above knowledge, a basic screen can be constructed. To make it easier to understand, the components of a screen will be mentioned in the order they are typically encountered.
 
-First, all screens take in a `Component` which represents the title of the screen. This component is typically drawn to the screen by one of its subtypes. It is only used in the base screen for the narration message.
+First, all screens take in a `Component` which represents the title of the screen. This component is typically drawn to the screen by one of its subtypes. It is only used in the base screen for the narration message. The screen can also take in the `Minecraft` instance and the `Font` to use when rendering text. If not specified in the super, then the default instance and font are used.
 
 ```java
 // In some Screen subclass
 public MyScreen(Component title) {
-    super(title);
+    super(Minecraft.getInstance(), Minecraft.getInstance().font, title);
 }
 ```
 
@@ -692,7 +694,7 @@ public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTi
 // In some AbstractContainerScreen subclass
 
 // The location of the background texture (assets/<namespace>/<path>)
-private static final ResourceLocation BACKGROUND_LOCATION = ResourceLocation.fromNamespaceAndPath(MOD_ID, "textures/gui/container/my_container_screen.png");
+private static final Identifier BACKGROUND_LOCATION = Identifier.fromNamespaceAndPath(MOD_ID, "textures/gui/container/my_container_screen.png");
 
 @Override
 protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {

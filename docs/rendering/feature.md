@@ -13,7 +13,6 @@ The following methods are made available through the collector, in the order the
 
 | Method                 | Description                                                                                                |
 |:----------------------:|:-----------------------------------------------------------------------------------------------------------|
-| `submitHitbox`         | A wireframe representing the bounding box and a line representing the view vector, typically for entities. |
 | `submitShadow`         | A number of black ovals for the desired radius, location, and opacity.                                     |
 | `submitNameTag`        | Text, transparency sorted.                                                                                 |
 | `submitText`           | Text.                                                                                                      |
@@ -57,7 +56,6 @@ Feature rendering is handled through the `FeatureRenderDispatcher` via `renderAl
 * Entity flame overlays
 * Sorted transparent name tags followed by opaque name tags
 * Text
-* Hitboxes
 * Leashes
 * Items
 * Moving blocks, blocks, and then block models

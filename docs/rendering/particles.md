@@ -25,6 +25,7 @@ Then, during the [feature submission process][features], the `SingleQuadParticle
 | Layer         | Texture Atlas | For                               |
 |:-------------:|:-------------:|:----------------------------------|
 | `TERRAIN`     | Blocks        | Particles that use block textures |
+| `ITEMS`       | Items         | Particles that use item textures  |
 | `OPAQUE`      | Particles     | Particles with no transparency    |
 | `TRANSLUCENT` | Particles     | Particles with transparency       |
 
