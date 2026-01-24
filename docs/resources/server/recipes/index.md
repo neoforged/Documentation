@@ -50,7 +50,7 @@ The easiest way to get a recipe is by its resource key:
 RecipeManager recipes = serverLevel.recipeAccess();
 // RecipeHolder<?> is a record of the resource key and the recipe itself.
 Optional<RecipeHolder<?>> optional = recipes.byKey(
-    ResourceKey.create(Registries.RECIPE, ResourceLocation.withDefaultNamespace("diamond_block"))
+    ResourceKey.create(Registries.RECIPE, Identifier.withDefaultNamespace("diamond_block"))
 );
 optional.map(RecipeHolder::value).ifPresent(recipe -> {
     // Do whatever you want to do with the recipe here. Be aware that the recipe may be of any type.
@@ -161,14 +161,14 @@ public class ExamplePrioritiesProvider extends RecipePrioritiesProvider {
 
         this.add(
             // Points to 'data/examplemod/recipe/higher_priority.json'
-            ResourceKey.create(Registries.RECIPE, ResourceLocation.fromNamespaceAndPath("examplemod", "higher_priority")),
+            ResourceKey.create(Registries.RECIPE, Identifier.fromNamespaceAndPath("examplemod", "higher_priority")),
             // This recipe will be checked before any defaults.
             1
         );
 
         this.add(
             // Points to 'data/examplemod/recipe/lower_priority.json'
-            ResourceLocation.fromNamespaceAndPath("examplemod", "lower_priority"),
+            Identifier.fromNamespaceAndPath("examplemod", "lower_priority"),
             // This recipe will be checked after any defaults.
             -1
         );
