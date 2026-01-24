@@ -14,9 +14,10 @@ Value effect components are used for enchantments that alter a numerical value s
 Value effect components can be set to use any of these operations on their given values:
 - `minecraft:set`: Overwrites the given level-based value.
 - `minecraft:add`: Adds the specified level-based value to the old one.
+- `minecraft:all_of`: Accepts a list of other value effects and applies them in the stated sequence.
 - `minecraft:multiply`: Multiplies the specified level-based factor by the old one.
 - `minecraft:remove_binomial`: Polls a given (level-based) chance using a binomial distibution. If it works, subtracts 1 from the value. Note that many values are effectively flags, being fully on at 1 and fully off at 0.
-- `minecraft:all_of`: Accepts a list of other value effects and applies them in the stated sequence.
+- `minecraft:exponential`: Polls a given (level-based) base and (level-based) exponent and then raises the base to that exponent. Multiplies the result with the old value.
 
 The Sharpness enchantment uses `minecraft:damage`, a value effect component, as follows to achieve its effect:
 
@@ -163,7 +164,7 @@ DataComponentMap.builder().set(
 
     // This component takes a list of these EnchantmentAttributeEffect objects.
     List.of(new EnchantmentAttributeEffect(
-        ResourceLocation.fromNamespaceAndPath("examplemod", "enchantment.size_change"),
+        Identifier.fromNamespaceAndPath("examplemod", "enchantment.size_change"),
         Attributes.SCALE,
         LevelBasedValue.perLevel(1F, 1F),
         AttributeModifier.Operation.ADD_VALUE
@@ -184,6 +185,8 @@ Vanilla adds the following location based events:
 - `minecraft:damage_entity`: Does damage to the affected entity. This stacks with attack damage if in an attacking context.
 - `minecraft:explode`: Summons an explosion. 
 - `minecraft:ignite`: Sets the entity on fire.
+- `minecraft:apply_impulse`: Applies the specified velocity (broken into direction, coordinate, and magnitude) to the entity.
+- `minecraft:apply_exhaustion`: Adds the specified amount of food exhaustion to the player.
 - `minecraft:play_sound`: Plays a specified sound.
 - `minecraft:replace_block`: Replaces a block at a given offset.
 - `minecraft:replace_disk`: Replaces a disk of blocks.
@@ -298,6 +301,7 @@ Here, the entity effect component is `minecraft:post_attack`. Its effect is `min
 
 #### Defined as `DataComponentType<List<ConditionalEffect<EnchantmentEntityEffect>>>`
 
+- `minecraft:post_piercing_attack`: Runs an entity effect when a living entity lunges forward. Used by Lunge.
 - `minecraft:hit_block`: Runs an entity effect when an entity (for example, a projectile) hits a block. Used by Channeling.
 - `minecraft:tick`: Runs an entity effect each tick. Used by Soul Speed.
 - `minecraft:projectile_spawned`: Runs an entity effect after a projectile entity has been spawned from a bow or crossbow. Used by Flame.
