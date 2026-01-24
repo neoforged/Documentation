@@ -136,7 +136,7 @@ Next, we create the data map itself:
 public static final DataMapType<Item, ExampleData> EXAMPLE_DATA = DataMapType.builder(
         // The ID of the data map. Data map files for this data map will be located at
         // <yourmodid>:examplemod/data_maps/item/example_data.json.
-        ResourceLocation.fromNamespaceAndPath("examplemod", "example_data"),
+        Identifier.fromNamespaceAndPath("examplemod", "example_data"),
         // The registry to register the data map for.
         Registries.ITEM,
         // The codec of the data map entries.
