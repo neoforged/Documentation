@@ -7,7 +7,7 @@ Registration is the process of taking the objects of a mod (such as [items][item
 
 A registry is, simply put, a wrapper around a map that maps registry names (read on) to registered objects, often called registry entries. Registry names must be unique within the same registry, but the same registry name may be present in multiple registries. The most common example for this are blocks (in the `BLOCKS` registry) that have an item form with the same registry name (in the `ITEMS` registry).
 
-Every registered object has a unique name, called its registry name. The name is represented as an [`Identifier`][resloc]. For example, the registry name of the dirt block is `minecraft:dirt`, and the registry name of the zombie is `minecraft:zombie`. Modded objects will of course not use the `minecraft` namespace; their mod id will be used instead.
+Every registered object has a unique name, called its registry name. The name is represented as an [`Identifier`][identifier]. For example, the registry name of the dirt block is `minecraft:dirt`, and the registry name of the zombie is `minecraft:zombie`. Modded objects will of course not use the `minecraft` namespace; their mod id will be used instead.
 
 ## Vanilla vs. Modded
 
@@ -346,6 +346,6 @@ public static void onGatherData(GatherDataEvent.Client event) {
 [defregitems]: ../items/index.md#deferredregisteritems
 [event]: events.md
 [item]: ../items/index.md
-[resloc]: ../misc/identifier.md
+[identifier]: ../misc/identifier.md
 [resourcekey]: ../misc/identifier.md#resourcekeys
 [singleton]: https://en.wikipedia.org/wiki/Singleton_pattern
