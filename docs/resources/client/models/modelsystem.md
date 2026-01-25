@@ -3,7 +3,7 @@
 
 Models within Minecraft are simply a list of quads with attached textures. Each part of the modeling process has their own separate implementation, with the underlying model JSON deserialized into an `UnbakedModel`. In the end, each part of the pipelines takes in some `List<BakedQuad>` and properties necessary for their own pipelines. Some [block entity renderers][ber] also make use of these models. There is no limit to how complex a model may be.
 
-Models are stored in the `ModelManager`, which can be accessed through `Minecraft.getInstance().getModelManager()`. For the item pipeline, you can get the associated [`ItemModel`][itemmodels] via `ModelManager#getItemModel` by passing in a [`ResourceLocation`][rl]. For the block state pipeline, you can get the associated `BlockStateModel` via `ModelManager.getBlockModelShaper().getBlockModel()` by passing in a `BlockState`. Mods will basically always reuse a model that was previously automatically loaded and baked.
+Models are stored in the `ModelManager`, which can be accessed through `Minecraft.getInstance().getModelManager()`. For the item pipeline, you can get the associated [`ItemModel`][itemmodels] via `ModelManager#getItemModel` by passing in a [`Identifier`][rl]. For the block state pipeline, you can get the associated `BlockStateModel` via `ModelManager.getBlockModelShaper().getBlockModel()` by passing in a `BlockState`. Mods will basically always reuse a model that was previously automatically loaded and baked.
 
 ## Common Models and Geometry
 
