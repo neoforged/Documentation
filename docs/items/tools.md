@@ -7,7 +7,7 @@ Tools are [items][item] whose primary use is to break [blocks][block]. Many mods
 
 ## Custom Tool Sets
 
-A tool set typically consists of five items: a pickaxe, an axe, a shovel, a hoe and a sword (swords aren't tools in the classical sense, but are included here for consistency as well). All of these tools are implemented using the following eight [data components][datacomponents]:
+A tool set typically consists of six items: a pickaxe, an axe, a shovel, a hoe, a sword, and a spear (swords and spears aren't tools in the classical sense, but are included here for consistency as well). All of these tools are implemented using a combination of the following fourteen [data components][datacomponents]:
 
 - `DataComponents#MAX_DAMAGE` and `#DAMAGE` for durability
 - `#MAX_STACK_SIZE` to set the stack size to `1`
@@ -16,8 +16,15 @@ A tool set typically consists of five items: a pickaxe, an axe, a shovel, a hoe 
 - `#ATTRIBUTE_MODIFIERS` for attack damage and attack speed
 - `#TOOL` for mining information
 - `#WEAPON` for damage taken by the item and shield disabling
+- `#ATTACK_RANGE` for attack range while swinging the weapon
+- `#DAMAGE_TYPE` for the damage type to deal
+- `#MINIMUM_ATTACK_CHARGE` for the minimum amount of ticks required before an attack can be made with this weapon
+- `#SWING_ANIMATION` for the animation to play when swinging the weapon
+- `#PIERCING_WEAPON` for a stab attack with multiple entities
+- `#KINETIC_WEAPON` for a item-use attack with multiple entities based on momentum
+- `#USE_EFFECTS` for applying some effects to the entity when using the item
 
-Commonly, each tool is setup using `Item.Properties#tool`, `#sword`, or one of tool's delegates (`pickaxe`, `axe`, `hoe`, `shovel`). These are typically handled by passing in the utility record `ToolMaterial`. Note that other items usually considered tools, such as shears, do not have their common mining logic implemented through data components. Instead, they directly extend `Item` and handle the mining by overriding the relevant methods. Interact behavior (right-click by default) also does not have a data component, meaning that shovels, axes, and hoes have their own tool classes `ShovelItem`, `AxeItem`, and `HoeItem` respectively.
+Commonly, each tool is setup using `Item.Properties#tool`, `#sword`, `#spear`, or one of tool's delegates (`pickaxe`, `axe`, `hoe`, `shovel`). These are typically handled by passing in the utility record `ToolMaterial`. Note that other items usually considered tools, such as shears, do not have their common mining logic implemented through data components. Instead, they directly extend `Item` and handle the mining by overriding the relevant methods. Interact behavior (right-click by default) also does not have a data component, meaning that shovels, axes, and hoes have their own tool classes `ShovelItem`, `AxeItem`, and `HoeItem` respectively.
 
 To create a standard set of tools, you must first define a `ToolMaterial`. Reference values can be found within the constants in `ToolMaterial`. This example uses copper tools, you can use your own material here and adjust the values as needed.
 
@@ -67,6 +74,36 @@ public static final DeferredItem<Item> COPPER_AXE = ITEMS.registerItem("copper_a
 public static final DeferredItem<Item> COPPER_PICKAXE = ITEMS.registerItem("copper_pickaxe", props -> new Item(props.pickaxe(...)));
 public static final DeferredItem<Item> COPPER_SHOVEL = ITEMS.registerItem("copper_shovel", props -> new Item(props.shovel(...)));
 public static final DeferredItem<Item> COPPER_HOE = ITEMS.registerItem("copper_hoe", props -> new Item(props.hoe(...)));
+
+public static final DeferredItem<Item> COPPER_SPEAR = ITEMS.registerItem(
+    "copper_spear",
+    props -> new Item(
+        props.spear(
+            // The material to use.
+            COPPER_MATERIAL,
+            // The type-specific attack speed modifier. This value is scaled by performing the reciprocal of this value, then
+            // subtracting 4.
+            0.85f,
+            // The damage multiplier applied when using the spear as a kinetic weapon, assuming one of the conditions are met.
+            0.82f,
+            // The number of seconds that must pass before the spear can be used as a kinetic weapon.
+            0.65f,
+            // The maximum number of seconds that can pass while using the kinetic weapon to dismount a hit entity.
+            4.0f,
+            // The minimum speed, in blocks, of the attacker using the kinetic weapon to dismount a hit entity.
+            9.0f,
+            // The maximum number of seconds that can pass while using the kinetic weapon to knockback a hit entity.
+            8.25f,
+            // The minimum speed, in blocks, of the attacker using the kinetic weapon to knockack a hit entity.
+            5.1f,
+            // The maximum number of seconds that can pass while using the kinetic weapon to damage a hit entity.
+            12.5f,
+            // The minimum speed, in blocks, of the attacker using the kinetic weapon to damage a hit entity. This is relative
+            // to the attacked entity's speed.
+            4.6f
+        )
+    )
+);
 ```
 
 :::note
@@ -83,10 +120,10 @@ Alternatively, we can create our own tag, like so:
 
 ```java
 // This tag will allow us to add these blocks to the incorrect tags that cannot mine them
-public static final TagKey<Block> NEEDS_COPPER_TOOL = TagKey.create(BuiltInRegistries.BLOCK.key(), ResourceLocation.fromNamespaceAndPath(MOD_ID, "needs_copper_tool"));
+public static final TagKey<Block> NEEDS_COPPER_TOOL = TagKey.create(BuiltInRegistries.BLOCK.key(), Identifier.fromNamespaceAndPath(MOD_ID, "needs_copper_tool"));
 
 // This tag will be passed into our material
-public static final TagKey<Block> INCORRECT_FOR_COPPER_TOOL = TagKey.create(BuiltInRegistries.BLOCK.key(), ResourceLocation.fromNamespaceAndPath(MOD_ID, "incorrect_for_cooper_tool"));
+public static final TagKey<Block> INCORRECT_FOR_COPPER_TOOL = TagKey.create(BuiltInRegistries.BLOCK.key(), Identifier.fromNamespaceAndPath(MOD_ID, "incorrect_for_cooper_tool"));
 ```
 
 And then, we populate our tag. For example, let's make copper able to mine gold ores, gold blocks and redstone ore, but not diamonds or emeralds. (Redstone blocks are already mineable by stone tools.) The tag file is located at `src/main/resources/data/mod_id/tags/block/needs_copper_tool.json` (where `mod_id` is your mod id):

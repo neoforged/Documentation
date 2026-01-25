@@ -234,6 +234,8 @@ public class MyClientEnumParams {
         HumanoidModel.ArmPose.class,
         // Whether the pose uses both arms
         false,
+        // Whether the offhand location should be affected by the model pose
+        false,
         // The pose transformer
         (IArmPoseTransformer) MyClientEnumParams::applyCustomModelPose
     );

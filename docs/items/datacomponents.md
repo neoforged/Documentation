@@ -64,6 +64,8 @@ Either `persistent` or `networkSynchronized` must be provided in the builder; ot
 
 `cacheEncoding` caches the encoding result of the `Codec` such that any subsequent encodes uses the cached value if the component value hasn't changed. This should only be used if the component value is expected to rarely or never change.
 
+`ignoreSwapAnimation` makes it such that the swap animation can be canceled if an item has this component on it. If this is not set, the animation could still be canceled depending on the client item properties.
+
 `DataComponentType` are registry objects and must be [registered].
 
 ```java
