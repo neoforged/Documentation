@@ -181,7 +181,7 @@ Avatars define not only the player, but also a player-like mannequin. Depending 
 graph LR;
     Avatar-->Mannequin;
     Mannequin-->ClientMannequin;
-    Avatar--Player;
+    Avatar-->Player;
     Player-->AbstractClientPlayer;
     AbstractClientPlayer-->LocalPlayer;
     AbstractClientPlayer-->RemotePlayer;

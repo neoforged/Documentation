@@ -77,7 +77,7 @@ To do so, a `ContextKey<T>` (where `T` is the type of the data you want to chang
 ```java
 public static final ContextKey<String> EXAMPLE_CONTEXT = new ContextKey<>(
     // The id of your context key. Used for distinguishing between keys internally.
-    ResourceLocation.fromNamespaceAndPath("examplemod", "example_context"));
+    Identifier.fromNamespaceAndPath("examplemod", "example_context"));
 
 @SubscribeEvent // on the mod event bus only on the physical client
 public static void registerRenderStateModifiers(RegisterRenderStateModifiersEvent event) {
@@ -232,7 +232,7 @@ Once we have our entity layer definition, we need to register it in `EntityRende
 public static final ModelLayerLocation MY_LAYER = new ModelLayerLocation(
     // Should be the name of the entity this layer belongs to.
     // May be more generic if this layer can be used on multiple entities.
-    ResourceLocation.fromNamespaceAndPath("examplemod", "example_entity"),
+    Identifier.fromNamespaceAndPath("examplemod", "example_entity"),
     // The name of the layer itself. Should be main for the entity's base model,
     // and a more descriptive name (e.g. "wings") for more specific layers.
     "main"
@@ -345,8 +345,8 @@ public class MyEntityRenderer extends LivingEntityRenderer<MyEntity, MyEntityRen
     // In this example, the texture should be located at `assets/examplemod/textures/entity/example_entity.png`.
     // The texture will then be supplied to and used by the model.
     @Override
-    public ResourceLocation getTextureLocation(MyEntityRenderState state) {
-        return ResourceLocation.fromNamespaceAndPath("examplemod", "textures/entity/example_entity.png");
+    public Identifier getTextureLocation(MyEntityRenderState state) {
+        return Identifier.fromNamespaceAndPath("examplemod", "textures/entity/example_entity.png");
     }
 }
 ```
@@ -366,7 +366,7 @@ public class MyEntityRenderState extends LivingEntityRenderState {...}
 ```java
 public class MyEntityModel extends EntityModel<MyEntityRenderState> {
     public static final ModelLayerLocation MY_LAYER = new ModelLayerLocation(
-            ResourceLocation.fromNamespaceAndPath("examplemod", "example_entity"),
+            Identifier.fromNamespaceAndPath("examplemod", "example_entity"),
             "main"
     );
     private final ModelPart head;
@@ -438,8 +438,8 @@ public class MyEntityRenderer extends LivingEntityRenderer<MyEntity, MyEntityRen
     }
 
     @Override
-    public ResourceLocation getTextureLocation(MyEntityRenderState state) {
-        return ResourceLocation.fromNamespaceAndPath("examplemod", "textures/entity/example_entity.png");
+    public Identifier getTextureLocation(MyEntityRenderState state) {
+        return Identifier.fromNamespaceAndPath("examplemod", "textures/entity/example_entity.png");
     }
 }
 ```
@@ -545,7 +545,7 @@ In your model, you can then use the animation like so:
 public class MyEntityModel extends EntityModel<MyEntityRenderState> {
     // Create and store a reference to the animation holder.
     public static final AnimationHolder EXAMPLE_ANIMATION =
-            Model.getAnimation(ResourceLocation.fromNamespaceAndPath("examplemod", "example"));
+            Model.getAnimation(Identifier.fromNamespaceAndPath("examplemod", "example"));
 
     // A field to hold the baked animation
     private final KeyframeAnimation example;
@@ -593,7 +593,7 @@ Custom values can be added by creating a new `AnimationTarget` and registering i
 public static void registerJsonAnimationTypes(RegisterJsonAnimationTypesEvent event) {
     event.registerTarget(
         // The name of the new target, to be used in JSON and other places.
-        ResourceLocation.fromNamespaceAndPath("examplemod", "example"),
+        Identifier.fromNamespaceAndPath("examplemod", "example"),
         // The AnimationTarget to register.
         new AnimationTarget(...)
     );
@@ -614,7 +614,7 @@ Custom interpolations can be added by creating a new `AnimationChannel.Interpola
 public static void registerJsonAnimationTypes(RegisterJsonAnimationTypesEvent event) {
     event.registerInterpolation(
         // The name of the new interpolation, to be used in JSON and other places.
-        ResourceLocation.fromNamespaceAndPath("examplemod", "example"),
+        Identifier.fromNamespaceAndPath("examplemod", "example"),
         // The AnimationChannel.Interpolation to register.
         (vector, keyframeDelta, keyframes, currentKeyframe, nextKeyframe, scale) -> {...}
     );

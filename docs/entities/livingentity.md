@@ -59,7 +59,7 @@ public static void decreaseArmor(LivingIncomingDamageEvent event) {
     // We only apply this decrease to players and leave zombies etc. unchanged
     if (event.getEntity() instanceof Player) {
         // Add our reduction modifier callback.
-        event.getDamageContainer().addModifier(
+        event.addReductionModifier(
             // The reduction to target. See the DamageContainer.Reduction enum for possible values.
             DamageContainer.Reduction.ARMOR,
             // The modification to perform. Gets the damage container and the base reduction as inputs,
@@ -181,7 +181,7 @@ Avatars define not only the player, but also a player-like mannequin. Depending 
 graph LR;
     Avatar-->Mannequin;
     Mannequin-->ClientMannequin;
-    Avatar--Player;
+    Avatar-->Player;
     Player-->AbstractClientPlayer;
     AbstractClientPlayer-->LocalPlayer;
     AbstractClientPlayer-->RemotePlayer;

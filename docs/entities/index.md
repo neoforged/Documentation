@@ -71,13 +71,13 @@ public static final Supplier<EntityType<MyEntity>> MY_ENTITY = ENTITY_TYPES.regi
     // Build the entity type using a resource key. The second parameter should be the same as the entity id.
     .build(ResourceKey.create(
         Registries.ENTITY_TYPE,
-        ResourceLocation.fromNamespaceAndPath("examplemod", "my_entity")
+        Identifier.fromNamespaceAndPath("examplemod", "my_entity")
     ))
 );
 
 // Shorthand version to avoid boilerplate. The following call is the same as
 // ENTITY_TYPES.register("my_entity", () -> EntityType.Builder.of(MyEntity::new, MobCategory.MISC).build(
-//     ResourceKey.create(Registries.ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath("examplemod", "my_entity"))
+//     ResourceKey.create(Registries.ENTITY_TYPE, Identifier.fromNamespaceAndPath("examplemod", "my_entity"))
 // );
 public static final Supplier<EntityType<MyEntity>> MY_ENTITY =
     ENTITY_TYPES.registerEntityType("my_entity", MyEntity::new, MobCategory.MISC);
