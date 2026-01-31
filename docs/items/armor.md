@@ -120,7 +120,7 @@ If you want to create armor or an armor-like item from scratch, it can be implem
 
 `Equippable` is a data component that contains how an entity can equip this item and what handles the rendering in game. This allows any item, regardless of whether it is considered 'armor', to be equipped if this component is available (e.g., saddles, carpets on llamas). Each item with this component can only be equipped to a single `EquipmentSlot`.
 
-An `Equippable` can be created either by directly calling the record constructor or via `Equippable#builder`, which sets the defaults for each field, folowed by `build` once finished:
+An `Equippable` can be created either by directly calling the record constructor or via `Equippable#builder`, which sets the defaults for each field, followed by `build` once finished:
 
 ```java
 // The resource key of the equipment asset used to link
@@ -131,7 +131,7 @@ public static final ResourceKey<EquipmentAsset> EXAMPLE_EQUIPABBLE = ResourceKey
 // Assume there is some DeferredRegister.Items ITEMS
 public static final DeferredItem<Item> EQUIPPABLE = ITEMS.registerSimpleItem(
     "equippable",
-    new Item.Properties().component(
+    props -> props.component(
         DataComponents.EQUIPPABLE,
         // Sets the slot that this item can be equipped to.
         Equippable.builder(EquipmentSlot.HELMET)

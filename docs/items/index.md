@@ -69,7 +69,7 @@ public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(
 public static final DeferredItem<Item> EXAMPLE_ITEM = ITEMS.registerItem(
     "example_item",
     Item::new, // The factory that the properties will be passed into.
-    new Item.Properties() // The properties to use.
+    props -> props // A unary operator of the properties to use.
 );
 ```
 
@@ -80,7 +80,7 @@ If you want to use `Item::new`, you can leave out the factory entirely and use t
 ```java
 public static final DeferredItem<Item> EXAMPLE_ITEM = ITEMS.registerSimpleItem(
     "example_item",
-    new Item.Properties() // The properties to use.
+    props -> props // A unary operator of the properties to use.
 );
 ```
 
@@ -101,7 +101,7 @@ Finally, there's also shortcuts for block items. Along with `setId`, these also 
 public static final DeferredItem<BlockItem> EXAMPLE_BLOCK_ITEM = ITEMS.registerSimpleBlockItem(
     "example_block",
     ExampleBlocksClass.EXAMPLE_BLOCK,
-    new Item.Properties()
+    props -> props
 );
 
 // Variant that omits the properties parameter:
@@ -115,7 +115,7 @@ public static final DeferredItem<BlockItem> EXAMPLE_BLOCK_ITEM = ITEMS.registerS
     // Must be an instance of `Holder<Block>`
     // DeferredBlock<T> also works
     ExampleBlocksClass.EXAMPLE_BLOCK,
-    new Item.Properties()
+    props -> props
 );
 
 // Variant that omits both the name and the properties:

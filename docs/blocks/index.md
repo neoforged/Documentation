@@ -175,12 +175,20 @@ public static final DeferredBlock<Block> EXAMPLE_BLOCK = BLOCKS.register(
     )
 );
 
-// Same as above, except that the block properties are constructed eagerly.
+// Same as above, except that the block properties are supplied separately.
 // setId is also called internally on the properties object.
 public static final DeferredBlock<Block> EXAMPLE_BLOCK = BLOCKS.registerBlock(
     "example_block",
     Block::new, // The factory that the properties will be passed into.
-    BlockBehaviour.Properties.of() // The properties to use.
+    () -> BlockBehaviour.Properties.of() // The supplied properties to use.
+);
+
+// Same as above, except that the `Properties#of` is supplied and operated upon.
+// setId is also called internally on the properties object.
+public static final DeferredBlock<Block> EXAMPLE_BLOCK = BLOCKS.registerBlock(
+    "example_block",
+    Block::new, // The factory that the properties will be passed into.
+    props -> props // A unary operator of the properties to use.
 );
 ```
 
@@ -189,7 +197,12 @@ If you want to use `Block::new`, you can leave out the factory entirely:
 ```java
 public static final DeferredBlock<Block> EXAMPLE_BLOCK = BLOCKS.registerSimpleBlock(
     "example_block",
-    BlockBehaviour.Properties.of() // The properties to use.
+    () -> BlockBehaviour.Properties.of() // The supplied properties to use.
+);
+
+public static final DeferredBlock<Block> EXAMPLE_BLOCK = BLOCKS.registerSimpleBlock(
+    "example_block",
+    props -> props // A unary operator of the properties to use.
 );
 ```
 

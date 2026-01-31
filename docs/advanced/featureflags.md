@@ -75,7 +75,7 @@ In order to flag a given `FeatureElement` as requiring your Feature flag, you si
 
 // Item
 DeferredRegister.Items ITEMS = DeferredRegister.createItems("examplemod");
-DeferredItem<Item> EXPERIMENTAL_ITEM = ITEMS.registerSimpleItem("experimental", new Item.Properties()
+DeferredItem<Item> EXPERIMENTAL_ITEM = ITEMS.registerSimpleItem("experimental", props -> props
     .requiredFeatures(EXPERIMENTAL) // mark as requiring the 'EXPERIMENTAL' flag
 );
 

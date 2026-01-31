@@ -27,7 +27,7 @@ The `Consumable` component can be added by calling `Item.Properties#component`:
 // Assume there is some DeferredRegister.Items ITEMS
 public static final DeferredItem<Item> CONSUMABLE = ITEMS.registerSimpleItem(
     "consumable",
-    new Item.Properties().component(
+    props -> props.component(
         DataComponents.CONSUMABLE,
         Consumable.builder()
             // Spend 2 seconds, or 40 ticks, to consume
@@ -329,7 +329,7 @@ Food is one type of `ConsumableListener` that is part of the hunger system. All 
 // Assume there is some DeferredRegister.Items ITEMS
 public static final DeferredItem<Item> FOOD = ITEMS.registerSimpleItem(
     "food",
-    new Item.Properties().food(
+    props -> props.food(
         new FoodProperties.Builder()
             // Heals 1.5 hearts
             .nutrition(3)
