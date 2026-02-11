@@ -351,7 +351,7 @@ public class MyEquipmentInfoProvider extends EquipmentAssetProvider {
                     EquipmentClientInfo.LayerType.NAUTILUS_BODY,
                     // Base texture
                     new EquipmentClientInfo.Layer(
-                        // Points to assets/examplemod/textures/entity/equipment/nautilus_body/copper/horse.png
+                        // Points to assets/examplemod/textures/entity/equipment/nautilus_body/copper/nautilus.png
                         Identifier.fromNamespaceAndPath("examplemod", "copper/nautilus"),
                         Optional.empty(),
                         true

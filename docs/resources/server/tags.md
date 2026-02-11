@@ -68,7 +68,7 @@ Naming the tag itself also has some conventions to follow:
 
 ## Using Tags
 
-To reference tags in code, you must create a `TagKey<T>`, where `T` is the type of tag (`Block`, `Item`, `EntityType<?>`, etc.), using a [registry key][regkey] and a [resource location][identifier]:
+To reference tags in code, you must create a `TagKey<T>`, where `T` is the type of tag (`Block`, `Item`, `EntityType<?>`, etc.), using a [registry key][regkey] and an [identifier][identifier]:
 
 ```java
 public static final TagKey<Block> MY_TAG = TagKey.create(

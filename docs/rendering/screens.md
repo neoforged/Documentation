@@ -204,7 +204,7 @@ There are two alignments strings can be rendered with: a left-aligned string (`d
 
 If the text should be wrapped within a given bounds, then `drawWordWrap` can be used instead. If the text should have some sort of rectangle backdrop, then `drawStringWithBackdrop` can be used. They both submit a left-aligned string by default.
 
-Strings can also be submitted using an `ActiveTextCollector`, which provides methods for rendering strings with specific metadata, such as alignment, opacity, and scrolling. Text collectors are created via `GuiGraphics#textRenderer` or `textRendererForWidget`, or `ActiveTextCollector` itself can be subclassed, typically taking in a `$HoveredTextEffects` for some basic options on whether to render tooltips or cursor changes. From there, either `accept` or `acceptScrolling` can be used to render the text, taking in and X position relative to the alignment, Y position, a set of parameters from the `GuiGraphics`, the text itself, and optionally the text alignment. `acceptScrolling` also takes in the leftmost, rightmost, topmost, and bottommost position to represent the scrolling bounds.
+Strings can also be submitted using an `ActiveTextCollector`, which provides methods for rendering strings with specific metadata, such as alignment, opacity, and scrolling. Text collectors are created via `GuiGraphics#textRenderer` or `textRendererForWidget`, or `ActiveTextCollector` itself can be subclassed, typically taking in a `$HoveredTextEffects` for some basic options on whether to render tooltips or cursor changes. From there, either `accept` or `acceptScrolling` can be used to render the text, taking in an X position relative to the alignment, a Y position, a set of parameters from the `GuiGraphics`, the text itself, and optionally the text alignment. `acceptScrolling` also takes in the leftmost, rightmost, topmost, and bottommost position to represent the scrolling bounds.
 
 :::note
 Strings should typically be passed in as [`Component`s][component] as they handle a variety of use cases, including the two other overloads of the method.
@@ -497,7 +497,7 @@ All widgets from Minecraft are `NarratableEntry`s, so it typically does not need
 
 With all of the above knowledge, a basic screen can be constructed. To make it easier to understand, the components of a screen will be mentioned in the order they are typically encountered.
 
-First, all screens take in a `Component` which represents the title of the screen. This component is typically drawn to the screen by one of its subtypes. It is only used in the base screen for the narration message. The screen can also take in the `Minecraft` instance and the `Font` to use when rendering text. If not specified in the super, then the default instance and font are used.
+First, all screens take in a `Component` which represents the title of the screen. This component is typically drawn to the screen by one of its subtypes. It is only used in the base screen for the narration message. The screen can also take in the `Minecraft` instance and the `Font` to use when rendering text; if not specified, the default instance and font are used.
 
 ```java
 // In some Screen subclass

@@ -25,7 +25,7 @@ Every frame on the [physical client][physicalside], the `Minecraft` class update
                 - Within the attackers's interaction range and the item's attack range (`DataComponents#ATTACK_RANGE`).
                 - Not invulnerable and can be hit by a projectile.
                 - Not passengers of the same vehicle.
-            - `LivingEntity#stabAttack` is fired for each entity, returning true if the target is successfully damaged, knockbacked, or dismounted:
+            - `LivingEntity#stabAttack` is called for each entity, returning true if the target is successfully damaged, knockbacked, or dismounted:
                 - The damage source is obtained from `ItemStack#getDamageSource`.
                 - [`Entity#hurtServer`][hurt] is called.
                 - If the piercing weapon deals knockback, then `LivingEntity#causeExtraKnockback` is called.
@@ -147,7 +147,7 @@ Returning `InteractionResult#FAIL` here while considering the main hand will pre
         - `Entity#getPickResult` is called. A hotbar slot that matches the resulting `ItemStack` is set active, if such a hotbar slot exists. Otherwise, if the player is in creative, the resulting `ItemStack` is added to the player's inventory.
             - By default, this method forwards to `Entity#getPickResult`, which can be overridden by modders.
     - If you are looking at a [block] that is within your reach:
-        - if `Player#isWithinBlockInteractionRange` returns false, the pipeline ends.
+        - If `Player#isWithinBlockInteractionRange` returns false, the pipeline ends.
         - `IBlockExtension#getCloneItemStack` is called (which by default delegates to `BlockBehaviour#getCloneItemStack`) and becomes the "selected" `ItemStack`.
             - By default, this returns the `Item` representation of the `Block`.
         - If the Control key is held down, the player is in creative and the targeted block has a [`BlockEntity`][blockentity]:

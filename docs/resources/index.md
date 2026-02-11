@@ -68,7 +68,7 @@ Data packs may contain folders with files affecting the following things:
 | `trim_material`, `trim_pattern`                                                                                           | Armor trims                  |
 | `neoforge/data_maps`                                                                                                      | [Data maps][datamap]         |
 | `neoforge/loot_modifiers`                                                                                                 | [Global loot modifiers][glm] |
-| `dimension`, `dimension_type`, `structure`, `timeline` `worldgen`, `neoforge/biome_modifier`                              | Worldgen files               |
+| `dimension`, `dimension_type`, `structure`, `timeline`, `worldgen`, `neoforge/biome_modifier`                             | Worldgen files               |
 
 Additionally, they may also contain subfolders for some systems that integrate with commands. These systems are rarely used in conjunction with mods, but worth mentioning regardless:
 
