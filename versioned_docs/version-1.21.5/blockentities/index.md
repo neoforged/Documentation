@@ -177,7 +177,7 @@ public class MyEntityBlock extends Block implements EntityBlock {
     private static <E extends BlockEntity, A extends BlockEntity> @Nullable BlockEntityTicker<A> createTickerHelper(
         BlockEntityType<A> type, BlockEntityType<E> checkedType, BlockEntityTicker<? super E> ticker
     ) {
-        return checkedType == type ? (BlockEntityTicker<A>)ticker : null;
+        return checkedType == type ? (BlockEntityTicker<A>) ticker : null;
     }
 
     @Override

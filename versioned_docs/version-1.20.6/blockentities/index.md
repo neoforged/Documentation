@@ -61,7 +61,7 @@ If you need a ticking `BlockEntity`, for example to keep track of the progress d
 private static <E extends BlockEntity, A extends BlockEntity> @Nullable BlockEntityTicker<A> createTickerHelper(
     BlockEntityType<A> type, BlockEntityType<E> checkedType, BlockEntityTicker<? super E> ticker
 ) {
-    return checkedType == type ? (BlockEntityTicker<A>)ticker : null;
+    return checkedType == type ? (BlockEntityTicker<A>) ticker : null;
 }
 
 @Nullable
