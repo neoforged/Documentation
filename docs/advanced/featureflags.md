@@ -35,11 +35,11 @@ The definition of the entry consists of a list of Feature flag names, which will
 
 ## Retrieving the Feature Flag
 
-The registered Feature flag can be retrieved via `FeatureFlagRegistry.getFlag(ResourceLocation)`. This can be done at any time during your mod's initialization and is recommended to be stored somewhere for future use, rather than looking up the registry each time you require your flag.
+The registered Feature flag can be retrieved via `FeatureFlagRegistry.getFlag(Identifier)`. This can be done at any time during your mod's initialization and is recommended to be stored somewhere for future use, rather than looking up the registry each time you require your flag.
 
 ```java
 // Look up the 'examplemod:experimental' Feature flag
-public static final FeatureFlag EXPERIMENTAL = FeatureFlags.REGISTRY.getFlag(ResourceLocation.fromNamespaceAndPath("examplemod", "experimental"));
+public static final FeatureFlag EXPERIMENTAL = FeatureFlags.REGISTRY.getFlag(Identifier.fromNamespaceAndPath("examplemod", "experimental"));
 ```
 
 ## Feature Elements
@@ -56,6 +56,7 @@ The following is a complete list of all registries which directly implement the 
 - MenuType
 - Potion
 - MobEffect
+- GameRule
 
 ### Flagging Elements
 
@@ -67,13 +68,14 @@ In order to flag a given `FeatureElement` as requiring your Feature flag, you si
 - `MenuType`: `MenuType#new`
 - `Potion`: `Potion#requiredFeatures`
 - `MobEffect`: `MobEffect#requiredFeatures`
+- `GameRule`: `GameRule#new`
 
 ```java
 // These elements will only become available once the 'EXPERIMENTAL' flag is enabled
 
 // Item
 DeferredRegister.Items ITEMS = DeferredRegister.createItems("examplemod");
-DeferredItem<Item> EXPERIMENTAL_ITEM = ITEMS.registerSimpleItem("experimental", new Item.Properties()
+DeferredItem<Item> EXPERIMENTAL_ITEM = ITEMS.registerSimpleItem("experimental", props -> props
     .requiredFeatures(EXPERIMENTAL) // mark as requiring the 'EXPERIMENTAL' flag
 );
 
@@ -122,6 +124,13 @@ DeferredRegister<Potion> POTIONS = DeferredRegister.create(Registries.POTION, "e
 DeferredHolder<Potion, ExperimentalPotion> EXPERIMENTAL_POTION = POTIONS.register("experimental", registryName -> new ExperimentalPotion(registryName.toString(), new MobEffectInstance(EXPERIMENTAL_MOB_EEFECT))
     .requiredFeatures(EXPERIMENTAL) // mark as requiring the 'EXPERIMENTAL' flag
 );
+
+// GameRule
+DeferredRegister<GameRule> GAME_RULES = DefeferredRegister.create(Registries.GAME_RULE, "examplemod");
+DeferredHolder<GameRule, GameRule> EXPERIMENTAL_GAME_RULE = GAME_RULES.register("experimental", registryName -> new GameRule(
+    GameRuleCategory.MISC, GameRuleType.BOOL, BoolArgumentType.bool(), GameRuleTypeVisitor::visitBoolean, Codec.BOOL, bool -> bool ? 1 : 0, false,
+    FeatureFlagSet.of(EXPERIMENTAL) // mark as requiring the 'EXPERIMENTAL' flag
+));
 ```
 
 ### Validating Enabled Status
@@ -187,7 +196,7 @@ public static void addFeaturePacks(final AddPackFindersEvent event) {
             // Path relative to your mods 'resources' pointing towards this pack
             // Take note this also defines your packs id using the following format
             // mod/<namespace>:<path>`, e.g. `mod/examplemod:data/examplemod/datapacks/experimental`
-            ResourceLocation.fromNamespaceAndPath("examplemod", "data/examplemod/datapacks/experimental"),
+            Identifier.fromNamespaceAndPath("examplemod", "data/examplemod/datapacks/experimental"),
             
             // What kind of resources are contained within this pack
             // 'CLIENT_RESOURCES' for packs with client assets (resource packs)

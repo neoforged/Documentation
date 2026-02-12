@@ -14,6 +14,7 @@ Enums which are not patched to implement the interface cannot have the interface
 ### Creating an Enum Entry
 
 To create new enum entries, a JSON file needs to be created and referenced in the `neoforge.mods.toml` with the `enumExtensions` entry of a `[[mods]]` block. The specified path must be relative to the `resources` directory:
+
 ```toml
 # In neoforge.mods.toml:
 [[mods]]
@@ -99,7 +100,7 @@ The fields and/or methods used as sources for parameter values should be in a se
 Certain parameters have additional rules:
 
 - If the parameter is an int ID parameter related to a `@IndexedEnum` annotation on the enum, then it is ignored and replaced by the entry's ordinal. If said parameter is specified inline in the JSON, then it must be specified as `-1`, otherwise an exception is thrown.
-- If the parameter is a String name parameter related to a `@NamedEnum` annotation on the enum, then it must be prefixed by the mod ID in the `namespace:path` format known from `ResourceLocation`s, otherwise an exception is thrown.
+- If the parameter is a String name parameter related to a `@NamedEnum` annotation on the enum, then it must be prefixed by the mod ID in the `namespace:path` format known from `Identifier`s, otherwise an exception is thrown.
 
 #### Retrieving the Generated Constant
 

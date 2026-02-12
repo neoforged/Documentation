@@ -16,8 +16,30 @@ Every frame on the [physical client][physicalside], the `Minecraft` class update
 ## Left-Clicking an Item
 
 - It is checked that all required [feature flags][featureflag] for the [`ItemStack`][itemstack] in your main hand are enabled. If this check fails, the pipeline ends.
+- If `Player#cannotAttackWithItem`, which checks the attack delay and `DataComponents#MINIMUM_ATTACK_CHARGE`, returns false, the pipeline ends.
 - `InputEvent.InteractionKeyMappingTriggered` is fired with the left mouse button and the main hand. If the [event][event] is [canceled][cancel], the pipeline ends.
 - Depending on what you are looking at (using the [`HitResult`][hitresult] in `Minecraft`), different things happen:
+    - If you are holding an item with some `DataComponents#PIERCING_WEAPON`:
+        - Server-only: `PiercingWeapon#attack` is called.
+            - `ProjectileUtil#getHitEntitiesAlong` is used to get all entities that are:
+                - Within the attackers's interaction range and the item's attack range (`DataComponents#ATTACK_RANGE`).
+                - Not invulnerable and can be hit by a projectile.
+                - Not passengers of the same vehicle.
+            - `LivingEntity#stabAttack` is called for each entity, returning true if the target is successfully damaged, knockbacked, or dismounted:
+                - The damage source is obtained from `ItemStack#getDamageSource`.
+                - [`Entity#hurtServer`][hurt] is called.
+                - If the piercing weapon deals knockback, then `LivingEntity#causeExtraKnockback` is called.
+                - If the piercing weapon dismounts on hit and the target is a passenger, then `Entity#stopRiding` is called.
+                - If the target is a `LivingEntity`, then `ItemStack#hurtEnemy` is called.
+                - If the target is successfully damaged, then `EnchantmentHelper#doPostAttackEffects` is applied.
+                - If the target is successfully damaged, knockbacked, or dismounted, then:  
+                    - `LivingEntity#setLastHurtMob` is called with the target entity.
+                    - `LivingEntity#playAttackSound` is called.
+        - `LivingEntity#onAttack` is called.
+        - `LivingEntity#lungerForwardMaybe` is called. This applies the lunge effects via `EnchantmentHelper#doLungeEffects`.
+        - Server-only: If `LivingEntity#stabAttack` returned true for at least one target, `PiercingWeapon#makeHitSound` is called.
+        - Server-only: `PiercingWeapon#makeSound` is called.
+        - `LivingEntity#swing` is called.
     - If you are looking at an [entity] that is within your reach:
         - `AttackEntityEvent` is fired. If the event is canceled, the pipeline ends.
         - `IItemExtension#onLeftClickEntity` is called. If it returns true, the pipeline ends.
@@ -121,11 +143,11 @@ Returning `InteractionResult#FAIL` here while considering the main hand will pre
 - Depending on what you are looking at (using the `HitResult` in `Minecraft.getInstance().hitResult`), different things happen:
     - If you are looking at an [entity] that is within your reach:
         - If `Entity#isPickable` returns false, the pipeline ends.
-        - If `Player#canInteractWithEntity` returns false, the pipeline ends.
+        - If `Player#isWithinEntityInteractionRange` returns false, the pipeline ends.
         - `Entity#getPickResult` is called. A hotbar slot that matches the resulting `ItemStack` is set active, if such a hotbar slot exists. Otherwise, if the player is in creative, the resulting `ItemStack` is added to the player's inventory.
             - By default, this method forwards to `Entity#getPickResult`, which can be overridden by modders.
     - If you are looking at a [block] that is within your reach:
-        - If `Player#canInteractWithBlock` returns false, the pipeline ends.
+        - If `Player#isWithinBlockInteractionRange` returns false, the pipeline ends.
         - `IBlockExtension#getCloneItemStack` is called (which by default delegates to `BlockBehaviour#getCloneItemStack`) and becomes the "selected" `ItemStack`.
             - By default, this returns the `Item` representation of the `Block`.
         - If the Control key is held down, the player is in creative and the targeted block has a [`BlockEntity`][blockentity]:

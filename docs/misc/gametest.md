@@ -82,7 +82,7 @@ All test instances hold some `TestData` which defines how a game test should be 
 // Let's assume we have some test environment
 public static final ResourceKey<TestEnvironmentDefinition> EXAMPLE_ENVIRONMENT = ResourceKey.create(
     Registries.TEST_ENVIRONMENT,
-    ResourceLocation.fromNamespaceAndPath("examplemod", "example_environment")
+    Identifier.fromNamespaceAndPath("examplemod", "example_environment")
 );
 
 @SubscribeEvent // on the mod event bus
@@ -102,7 +102,7 @@ public static void gatherData(GatherDataEvent.Client event) {
 
                     // The structure used for the game test
                     // Points to 'data/examplemod/structure/example_structure.nbt'
-                    ResourceLocation.fromNamespaceAndPath("examplemod", "example_structure"),
+                    Identifier.fromNamespaceAndPath("examplemod", "example_structure"),
 
                     // The number of ticks that the game test will run until it automatically fails
                     400,
@@ -150,7 +150,7 @@ public static void gatherData(GatherDataEvent.Client event) {
 
 ## Structure Templates
 
-Game Tests are performed within scenes loaded by structures, or templates. All templates define the dimensions of the scene and the initial data (blocks and entities) that will be loaded. The template must be stored as an `.nbt` file within `data/<namespace>/structure`. `TestData#structure` references the NBT file using a relative `ResourceLocation` (e.g., `examplemod:example_structure` points to `data/examplemod/structure/example_structure.nbt`)
+Game Tests are performed within scenes loaded by structures, or templates. All templates define the dimensions of the scene and the initial data (blocks and entities) that will be loaded. The template must be stored as an `.nbt` file within `data/<namespace>/structure`. `TestData#structure` references the NBT file using a relative `Identifier` (e.g., `examplemod:example_structure` points to `data/examplemod/structure/example_structure.nbt`)
 
 ## Test Environments
 
@@ -171,24 +171,11 @@ This environment type sets the game rules to use for the test. During teardown, 
 {
     "type": "minecraft:game_rules",
 
-    // A list of game rules with boolean values to set
-    "bool_rules": [
-        {
-            // The name of the rule
-            "rule": "doFireTick",
-            "value": false
-        }
-        // ...
-    ],
-
-    // A list of game rules with integer values to set
-    "int_rules": [
-        {
-            "rule": "playersSleepingPercentage",
-            "value": 50
-        }
-        // ...
-    ]
+    // A map of game rules to their set values
+    "rules": {
+        "minecraft:fire_damage": false,
+        "minecraft:players_sleeping_percentage": 50
+    }
 }
 ```
 
@@ -200,7 +187,7 @@ This environment type sets the game rules to use for the test. During teardown, 
 // Let's assume we have some test environment
 public static final ResourceKey<TestEnvironmentDefinition> EXAMPLE_ENVIRONMENT = ResourceKey.create(
     Registries.TEST_ENVIRONMENT,
-    ResourceLocation.fromNamespaceAndPath("examplemod", "example_environment")
+    Identifier.fromNamespaceAndPath("examplemod", "example_environment")
 );
 
 @SubscribeEvent // on the mod event bus
@@ -212,24 +199,11 @@ public static void gatherData(GatherDataEvent.Client event) {
             bootstrap.register(
                 EXAMPLE_ENVIRONMENT,
                 new TestEnvironmentDefinition.SetGameRules(
-                    // A list of game rules with boolean values to set
-                    List.of(
-                        new TestEnvironmentDefinition.SetGameRules.Entry(
-                            // The game rule
-                            GameRules.RULE_DOFIRETICK,
-                            GameRules.BooleanValue.create(false)
-                        )
-                        // ...
-                    ),
-                    // A list of game rules with integer values to set
-                    List.of(
-                        new TestEnvironmentDefinition.SetGameRules.Entry(
-                            // The game rule
-                            GameRules.RULE_PLAYERS_SLEEPING_PERCENTAGE,
-                            GameRules.IntegerValue.create(50)
-                        )
-                        // ...
-                    )
+                    new GameRuleMap.Builder()
+                        // A map of game rules to their set values
+                        .set(GameRules.FIRE_DAMAGE, false)
+                        .set(GameRules.PLAYERS_SLEEPING_PERCENTAGE, 50)
+                        .build()
                 )
             );
         })
@@ -271,7 +245,7 @@ This environment type sets the time to some non-negative integer, like how the `
 // Let's assume we have some test environment
 public static final ResourceKey<TestEnvironmentDefinition> EXAMPLE_ENVIRONMENT = ResourceKey.create(
     Registries.TEST_ENVIRONMENT,
-    ResourceLocation.fromNamespaceAndPath("examplemod", "example_environment")
+    Identifier.fromNamespaceAndPath("examplemod", "example_environment")
 );
 
 @SubscribeEvent // on the mod event bus
@@ -329,7 +303,7 @@ This environment type sets the weather, like to how the `/weather` command is us
 // Let's assume we have some test environment
 public static final ResourceKey<TestEnvironmentDefinition> EXAMPLE_ENVIRONMENT = ResourceKey.create(
     Registries.TEST_ENVIRONMENT,
-    ResourceLocation.fromNamespaceAndPath("examplemod", "example_environment")
+    Identifier.fromNamespaceAndPath("examplemod", "example_environment")
 );
 
 @SubscribeEvent // on the mod event bus
@@ -358,7 +332,7 @@ public static void gatherData(GatherDataEvent.Client event) {
 
 ### Minecraft Functions
 
-This environment type provides two ResourceLocations to `mcfunction`s to setup and teardown the level, respectively.
+This environment type provides two Identifiers to `mcfunction`s to setup and teardown the level, respectively.
 
 <Tabs>
 <TabItem value="json" label="JSON" default>
@@ -389,7 +363,7 @@ This environment type provides two ResourceLocations to `mcfunction`s to setup a
 // Let's assume we have some test environment
 public static final ResourceKey<TestEnvironmentDefinition> EXAMPLE_ENVIRONMENT = ResourceKey.create(
     Registries.TEST_ENVIRONMENT,
-    ResourceLocation.fromNamespaceAndPath("examplemod", "example_environment")
+    Identifier.fromNamespaceAndPath("examplemod", "example_environment")
 );
 
 @SubscribeEvent // on the mod event bus
@@ -404,12 +378,12 @@ public static void gatherData(GatherDataEvent.Client event) {
                     // The setup mcfunction to use
                     // If not specified, nothing will be ran
                     // Points to 'data/examplemod/function/example/setup.mcfunction'
-                    Optional.of(ResourceLocation.fromNamespaceAndPath("examplemod", "example/setup")),
+                    Optional.of(Identifier.fromNamespaceAndPath("examplemod", "example/setup")),
 
                     // The teardown mcfunction to use
                     // If not specified, nothing will be ran
                     // Points to 'data/examplemod/function/example/teardown.mcfunction'
-                    Optional.of(ResourceLocation.fromNamespaceAndPath("examplemod", "example/teardown"))
+                    Optional.of(Identifier.fromNamespaceAndPath("examplemod", "example/teardown"))
                 )
             );
         })
@@ -455,7 +429,7 @@ Multiple environments can be merged using the composite environment type. The li
 // Let's assume we have some test environment
 public static final ResourceKey<TestEnvironmentDefinition> EXAMPLE_ENVIRONMENT = ResourceKey.create(
     Registries.TEST_ENVIRONMENT,
-    ResourceLocation.fromNamespaceAndPath("examplemod", "example_environment")
+    Identifier.fromNamespaceAndPath("examplemod", "example_environment")
 );
 
 @SubscribeEvent // on the mod event bus
@@ -563,7 +537,7 @@ Finally, the type can then be used in your environment definition:
 // Let's assume we have some test environment
 public static final ResourceKey<TestEnvironmentDefinition> EXAMPLE_ENVIRONMENT = ResourceKey.create(
     Registries.TEST_ENVIRONMENT,
-    ResourceLocation.fromNamespaceAndPath("examplemod", "example_environment")
+    Identifier.fromNamespaceAndPath("examplemod", "example_environment")
 );
 
 @SubscribeEvent // on the mod event bus
@@ -700,13 +674,13 @@ With the `TestData`, `TestEnvironmentDefinition`, and test function in hand, we 
 // The test instance key
 public static final ResourceKey<GameTestInstance> EXAMPLE_TEST_INSTANCE = ResourceKey.create(
     Registries.TEST_INSTANCE,
-    ResourceLocation.fromNamespaceAndPath("examplemod", "example_test")
+    Identifier.fromNamespaceAndPath("examplemod", "example_test")
 );
 
 // Let's assume we have some test environment
 public static final ResourceKey<TestEnvironmentDefinition> EXAMPLE_ENVIRONMENT = ResourceKey.create(
     Registries.TEST_ENVIRONMENT,
-    ResourceLocation.fromNamespaceAndPath("examplemod", "example_environment")
+    Identifier.fromNamespaceAndPath("examplemod", "example_environment")
 );
 
 @SubscribeEvent // on the mod event bus
@@ -724,7 +698,7 @@ public static void gatherData(GatherDataEvent.Client event) {
                     EXAMPLE_FUNCTION.getKey()
                     new TestData<>(
                         environments.getOrThrow(EXAMPLE_ENVIRONMENT),
-                        ResourceLocation.fromNamespaceAndPath("examplemod", "example_structure"),
+                        Identifier.fromNamespaceAndPath("examplemod", "example_structure"),
                         400,
                         50,
                         true,
@@ -780,13 +754,13 @@ public static void gatherData(GatherDataEvent.Client event) {
 // The test instance key
 public static final ResourceKey<GameTestInstance> EXAMPLE_TEST_INSTANCE = ResourceKey.create(
     Registries.TEST_INSTANCE,
-    ResourceLocation.fromNamespaceAndPath("examplemod", "example_test")
+    Identifier.fromNamespaceAndPath("examplemod", "example_test")
 );
 
 // Let's assume we have some test environment
 public static final ResourceKey<TestEnvironmentDefinition> EXAMPLE_ENVIRONMENT = ResourceKey.create(
     Registries.TEST_ENVIRONMENT,
-    ResourceLocation.fromNamespaceAndPath("examplemod", "example_environment")
+    Identifier.fromNamespaceAndPath("examplemod", "example_environment")
 );
 
 @SubscribeEvent // on the mod event bus
@@ -802,7 +776,7 @@ public static void gatherData(GatherDataEvent.Client event) {
                 new BlockBasedTestInstance(
                     new TestData<>(
                         environments.getOrThrow(EXAMPLE_ENVIRONMENT),
-                        ResourceLocation.fromNamespaceAndPath("examplemod", "example_structure"),
+                        Identifier.fromNamespaceAndPath("examplemod", "example_structure"),
                         400,
                         50,
                         true,
@@ -909,13 +883,13 @@ Then, the test instance can be used in a datapack:
 // The test instance key
 public static final ResourceKey<GameTestInstance> EXAMPLE_TEST_INSTANCE = ResourceKey.create(
     Registries.TEST_INSTANCE,
-    ResourceLocation.fromNamespaceAndPath("examplemod", "example_test")
+    Identifier.fromNamespaceAndPath("examplemod", "example_test")
 );
 
 // Let's assume we have some test environment
 public static final ResourceKey<TestEnvironmentDefinition> EXAMPLE_ENVIRONMENT = ResourceKey.create(
     Registries.TEST_ENVIRONMENT,
-    ResourceLocation.fromNamespaceAndPath("examplemod", "example_environment")
+    Identifier.fromNamespaceAndPath("examplemod", "example_environment")
 );
 
 @SubscribeEvent // on the mod event bus
@@ -933,7 +907,7 @@ public static void gatherData(GatherDataEvent.Client event) {
                     true,
                     new TestData<>(
                         environments.getOrThrow(EXAMPLE_ENVIRONMENT),
-                        ResourceLocation.fromNamespaceAndPath("examplemod", "example_structure"),
+                        Identifier.fromNamespaceAndPath("examplemod", "example_structure"),
                         400,
                         50,
                         true,
@@ -976,7 +950,7 @@ public static void registerTests(RegisterGameTestsEvent event) {
             true,
             new TestData<>(
                 environments.getOrThrow(EXAMPLE_ENVIRONMENT),
-                ResourceLocation.fromNamespaceAndPath("examplemod", "example_structure"),
+                Identifier.fromNamespaceAndPath("examplemod", "example_structure"),
                 400,
                 50,
                 true,

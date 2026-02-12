@@ -5,7 +5,7 @@ import TabItem from '@theme/TabItem';
 
 Client Items are the in-code representation of how an `ItemStack` should be submitted for rendering within the game, specifying what models to use given what state. The client items are located within the `items` subdirectory within the [`assets` folder][assets], specified by the relative location within `DataComponents#ITEM_MODEL`. By default, this is the registry name of the object (e.g. `minecraft:apple` would be located at `assets/minecraft/items/apple.json` by default).
 
-The client items are stored within the `ModelManager`, which can be accessed through `Minecraft.getInstance().modelManager`. Then, you can call `ModelManager#getItemModel` or `getItemProperties` to get the client item information by its [`ResourceLocation`][rl].
+The client items are stored within the `ModelManager`, which can be accessed through `Minecraft.getInstance().modelManager`. Then, you can call `ModelManager#getItemModel` or `getItemProperties` to get the client item information by its [`Identifier`][rl].
 
 :::warning
 These are not to be confused with the actual [models that are baked and actually rendered][models] in-game.
@@ -37,7 +37,9 @@ The JSON of a client item can be broken into two parts: the model, defined by `m
         // When true, allows the model to render outside its defined
         // slot bounds (defined in GuiItemRenderState#bounds) in a GUI
         // instead of being scissored
-        "oversized_in_gui": false
+        "oversized_in_gui": false,
+        // Applies the scalar to the height of the hand when swapping
+        "swap_animation_scale": 1.0
     }
 }
 ```
@@ -53,20 +55,24 @@ The JSON of a client item can be broken into two parts: the model, defined by `m
 protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerators itemModels) {
     itemModels.itemModelOutput.register(
         EXAMPLE_ITEM.get(),
-        new ClientItem(
-            // Defines the model to submit for rendering
-            new BlockModelWrapper.Unbaked(
-                // Points to a model JSON relative to the 'models' directory
-                // Located at 'assets/examplemod/models/item/example_item.json'
-                ModelLocationUtils.getModelLocation(EXAMPLE_ITEM.get()),
-                Collections.emptyList()
-            ),
-            // Defines some settings to use during the rendering process
-            new ClientItem.Properties(
-                // When false, disables the animation where the item is raised
-                // up towards its normal position on item swap
-                false
-            )
+        // Defines the model to submit for rendering
+        new BlockModelWrapper.Unbaked(
+            // Points to a model JSON relative to the 'models' directory
+            // Located at 'assets/examplemod/models/item/example_item.json'
+            ModelLocationUtils.getModelLocation(EXAMPLE_ITEM.get()),
+            Collections.emptyList()
+        ),
+        // Defines some settings to use during the rendering process
+        new ClientItem.Properties(
+            // When false, disables the animation where the item is raised
+            // up towards its normal position on item swap
+            false,
+            // When true, allows the model to render outside its defined
+            // slot bounds (defined in GuiItemRenderState#bounds) in a GUI
+            // instead of being scissored
+            false,
+            // Applies the scalar to the height of the hand when swapping
+            1.0F
         )
     );
 }
@@ -222,7 +228,7 @@ public record DamageBar(int defaultColor) implements ItemTintSource {
 public static void registerItemTintSources(RegisterColorHandlersEvent.ItemTintSources event) {
     event.register(
         // The name to reference as the type
-        ResourceLocation.fromNamespaceAndPath("examplemod", "damage_bar"),
+        Identifier.fromNamespaceAndPath("examplemod", "damage_bar"),
         // The map codec
         DamageBar.MAP_CODEC
     )
@@ -332,13 +338,13 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
             List.of(
                 new BlockModelWrapper.Unbaked(
                     // Points to 'assets/examplemod/models/item/example_item_1.json'
-                    ResourceLocation.fromNamespaceAndPath("examplemod", "item/example_item_1"),
+                    Identifier.fromNamespaceAndPath("examplemod", "item/example_item_1"),
                     // A list of tints to apply
                     Collections.emptyList()
                 ),
                 new BlockModelWrapper.Unbaked(
                     // Points to 'assets/examplemod/models/item/example_item_2.json'
-                    ResourceLocation.fromNamespaceAndPath("examplemod", "item/example_item_2"),
+                    Identifier.fromNamespaceAndPath("examplemod", "item/example_item_2"),
                     // A list of tints to apply
                     Collections.emptyList()
                 )
@@ -440,7 +446,7 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
                     // Can be any unbaked model type
                     new BlockModelWrapper.Unbaked(
                         // Points to 'assets/examplemod/models/item/example_item_1.json'
-                        ResourceLocation.fromNamespaceAndPath("examplemod", "item/example_item_1"),
+                        Identifier.fromNamespaceAndPath("examplemod", "item/example_item_1"),
                         // A list of tints to apply
                         Collections.emptyList()
                     )
@@ -451,7 +457,7 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
                     // Can be any unbaked model type
                     new BlockModelWrapper.Unbaked(
                         // Points to 'assets/examplemod/models/item/example_item_2.json'
-                        ResourceLocation.fromNamespaceAndPath("examplemod", "item/example_item_2"),
+                        Identifier.fromNamespaceAndPath("examplemod", "item/example_item_2"),
                         // A list of tints to apply
                         Collections.emptyList()
                     )
@@ -497,7 +503,7 @@ public record AppliedEnchantments() implements RangeSelectItemModelProperty {
 public static void registerRangeProperties(RegisterRangeSelectItemModelPropertyEvent event) {
     event.register(
         // The name to reference as the type
-        ResourceLocation.fromNamespaceAndPath("examplemod", "applied_enchantments"),
+        Identifier.fromNamespaceAndPath("examplemod", "applied_enchantments"),
         // The map codec
         AppliedEnchantments.MAP_CODEC
     )
@@ -580,7 +586,7 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
                     // Can be any unbaked model type
                     new BlockModelWrapper.Unbaked(
                         // Points to 'assets/examplemod/models/item/example_item_1.json'
-                        ResourceLocation.fromNamespaceAndPath("examplemod", "item/example_item_1"),
+                        Identifier.fromNamespaceAndPath("examplemod", "item/example_item_1"),
                         // A list of tints to apply
                         Collections.emptyList()
                     )
@@ -591,7 +597,7 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
                     // Can be any unbaked model type
                     new BlockModelWrapper.Unbaked(
                         // Points to 'assets/examplemod/models/item/example_item_2.json'
-                        ResourceLocation.fromNamespaceAndPath("examplemod", "item/example_item_2"),
+                        Identifier.fromNamespaceAndPath("examplemod", "item/example_item_2"),
                         // A list of tints to apply
                         Collections.emptyList()
                     )
@@ -687,7 +693,7 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
                         // Can be any unbaked model type
                         new BlockModelWrapper.Unbaked(
                             // Points to 'assets/examplemod/models/item/example_item_1.json'
-                            ResourceLocation.fromNamespaceAndPath("examplemod", "item/example_item_1"),
+                            Identifier.fromNamespaceAndPath("examplemod", "item/example_item_1"),
                             // A list of tints to apply
                             Collections.emptyList()
                         )
@@ -698,7 +704,7 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
                         // Can be any unbaked model type
                         new BlockModelWrapper.Unbaked(
                             // Points to 'assets/examplemod/models/item/example_item_2.json'
-                            ResourceLocation.fromNamespaceAndPath("examplemod", "item/example_item_2"),
+                            Identifier.fromNamespaceAndPath("examplemod", "item/example_item_2"),
                             // A list of tints to apply
                             Collections.emptyList()
                         )
@@ -755,7 +761,7 @@ public record StackRarity() implements SelectItemModelProperty<Rarity> {
 public static void registerSelectProperties(RegisterSelectItemModelPropertyEvent event) {
     event.register(
         // The name to reference as the type
-        ResourceLocation.fromNamespaceAndPath("examplemod", "rarity"),
+        Identifier.fromNamespaceAndPath("examplemod", "rarity"),
         // The property type
         StackRarity.TYPE
     )
@@ -831,7 +837,7 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
                         // Can be any unbaked model type
                         new BlockModelWrapper.Unbaked(
                             // Points to 'assets/examplemod/models/item/example_item_1.json'
-                            ResourceLocation.fromNamespaceAndPath("examplemod", "item/example_item_1"),
+                            Identifier.fromNamespaceAndPath("examplemod", "item/example_item_1"),
                             // A list of tints to apply
                             Collections.emptyList()
                         )
@@ -842,7 +848,7 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
                         // Can be any unbaked model type
                         new BlockModelWrapper.Unbaked(
                             // Points to 'assets/examplemod/models/item/example_item_2.json'
-                            ResourceLocation.fromNamespaceAndPath("examplemod", "item/example_item_2"),
+                            Identifier.fromNamespaceAndPath("examplemod", "item/example_item_2"),
                             // A list of tints to apply
                             Collections.emptyList()
                         )
@@ -918,14 +924,14 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
             // When the boolean is true
             new BlockModelWrapper.Unbaked(
                 // Points to 'assets/examplemod/models/item/example_item_1.json'
-                ResourceLocation.fromNamespaceAndPath("examplemod", "item/example_item_1"),
+                Identifier.fromNamespaceAndPath("examplemod", "item/example_item_1"),
                 // A list of tints to apply
                 Collections.emptyList()
             ),
             // When the boolean is false
             new BlockModelWrapper.Unbaked(
                 // Points to 'assets/examplemod/models/item/example_item_2.json'
-                ResourceLocation.fromNamespaceAndPath("examplemod", "item/example_item_2"),
+                Identifier.fromNamespaceAndPath("examplemod", "item/example_item_2"),
                 // A list of tints to apply
                 Collections.emptyList()
             )
@@ -960,7 +966,7 @@ public record BarVisible() implements ConditionalItemModelProperty {
 public static void registerConditionalProperties(RegisterConditionalItemModelPropertyEvent event) {
     event.register(
         // The name to reference as the type
-        ResourceLocation.fromNamespaceAndPath("examplemod", "bar_visible"),
+        Identifier.fromNamespaceAndPath("examplemod", "bar_visible"),
         // The map codec
         BarVisible.MAP_CODEC
     )
@@ -1015,14 +1021,14 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
             // When the boolean is true
             new BlockModelWrapper.Unbaked(
                 // Points to 'assets/examplemod/models/item/example_item_1.json'
-                ResourceLocation.fromNamespaceAndPath("examplemod", "item/example_item_1"),
+                Identifier.fromNamespaceAndPath("examplemod", "item/example_item_1"),
                 // A list of tints to apply
                 Collections.emptyList()
             ),
             // When the boolean is false
             new BlockModelWrapper.Unbaked(
                 // Points to 'assets/examplemod/models/item/example_item_2.json'
-                ResourceLocation.fromNamespaceAndPath("examplemod", "item/example_item_2"),
+                Identifier.fromNamespaceAndPath("examplemod", "item/example_item_2"),
                 // A list of tints to apply
                 Collections.emptyList()
             )
@@ -1082,7 +1088,7 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
         new SpecialModelWrapper.Unbaked(
             // The parent model to read the particle texture and display transformation from
             // Points to 'assets/minecraft/models/item/template_skull.json'
-            ResourceLocation.fromNamespaceAndPath("minecraft", "item/template_skull"),
+            Identifier.fromNamespaceAndPath("minecraft", "item/template_skull"),
             // The special model renderer to use
             new SkullSpecialRenderer.Unbaked(
                 // The type of the skull block
@@ -1090,7 +1096,7 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
                 // The texture to use when rendering the head
                 // Points to 'assets/examplemod/textures/entity/heads/skeleton_override.png'
                 Optional.of(
-                    ResourceLocation.fromNamespaceAndPath("examplemod", "heads/skeleton_override")
+                    Identifier.fromNamespaceAndPath("examplemod", "heads/skeleton_override")
                 ),
                 // The animation float used to animate the head model
                 0.5f
@@ -1141,9 +1147,9 @@ public record ExampleSpecialRenderer(MaterialSet materialSet, Model.Simple model
 
     // ...
 
-    public record Unbaked(ResourceLocation texture) implements SpecialModelRenderer.Unbaked {
+    public record Unbaked(Identifier texture) implements SpecialModelRenderer.Unbaked {
 
-        public static final MapCodec<ExampleSpecialRenderer.Unbaked> MAP_CODEC = ResourceLocation.CODEC.fieldOf("texture")
+        public static final MapCodec<ExampleSpecialRenderer.Unbaked> MAP_CODEC = Identifier.CODEC.fieldOf("texture")
             .xmap(ExampleSpecialRenderer.Unbaked::new, ExampleSpecialRenderer.Unbaked::texture);
 
         @Override
@@ -1154,7 +1160,7 @@ public record ExampleSpecialRenderer(MaterialSet materialSet, Model.Simple model
         @Override
         public SpecialModelRenderer<?> bake(SpecialModelRenderer.BakingContext ctx) {
             // Resolve resource location to absolute path
-            ResourceLocation textureLoc = this.texture.withPath(path -> "textures/entity/" + path + ".png");
+            Identifier textureLoc = this.texture.withPath(path -> "textures/entity/" + path + ".png");
 
             // Get the model and the material to render
             return new ExampleSpecialRenderer(ctx.materials(), ...);
@@ -1171,7 +1177,7 @@ Finally, we register the objects to their necessary locations. For the client it
 public static void registerSpecialRenderers(RegisterSpecialModelRendererEvent event) {
     event.register(
         // The name to reference as the type
-        ResourceLocation.fromNamespaceAndPath("examplemod", "example_special"),
+        Identifier.fromNamespaceAndPath("examplemod", "example_special"),
         // The map codec
         ExampleSpecialRenderer.Unbaked.MAP_CODEC
     )
@@ -1185,7 +1191,7 @@ public static void registerSpecialBlockRenderers(RegisterSpecialBlockModelRender
         // The block to render for
         EXAMPLE_BLOCK.get()
         // The unbaked instance to use
-        new ExampleSpecialRenderer.Unbaked(ResourceLocation.fromNamespaceAndPath("examplemod", "entity/example_special"))
+        new ExampleSpecialRenderer.Unbaked(Identifier.fromNamespaceAndPath("examplemod", "entity/example_special"))
     )
 }
 ```
@@ -1230,12 +1236,12 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
         new SpecialModelWrapper.Unbaked(
             // The parent model to read the particle texture and display transformation from
             // Points to 'assets/minecraft/models/item/template_skull.json'
-            ResourceLocation.fromNamespaceAndPath("minecraft", "item/template_skull"),
+            Identifier.fromNamespaceAndPath("minecraft", "item/template_skull"),
             // The special model renderer to use
             new ExampleSpecialRenderer.Unbaked(
                 // The texture to use
                 // Points to 'assets/examplemod/textures/entity/example/example_texture.png'
-                ResourceLocation.fromNamespaceAndPath("examplemod", "example/example_texture")
+                Identifier.fromNamespaceAndPath("examplemod", "example/example_texture")
             )
         )
     );
@@ -1325,22 +1331,22 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
                 // - Container base texture
                 // - Container cover texture, if not used as a mask
                 // Points to 'assets/minecraft/textures/item/bucket.png'
-                Optional.of(ResourceLocation.withDefaultNamespace("item/bucket")),
+                Optional.of(Identifier.withDefaultNamespace("item/bucket")),
                 // Sets the texture to use on the first layer, generally the container of the fluid
                 // If not set, the layer will not be added
                 // Points to 'assets/minecraft/textures/item/bucket.png'
-                Optional.of(ResourceLocation.withDefaultNamespace("item/bucket")),
+                Optional.of(Identifier.withDefaultNamespace("item/bucket")),
                 // Sets the texture to use as the mask for the still fluid texture
                 // Areas where the fluid is seen should be pure white
                 // If not set or the fluid is empty, then the layer is not rendered
                 // Points to 'assets/neoforge/textures/item/mask/bucket_fluid.png'
-                Optional.of(ResourceLocation.fromNamespaceAndPath("neoforge", "item/mask/bucket_fluid")),
+                Optional.of(Identifier.fromNamespaceAndPath("neoforge", "item/mask/bucket_fluid")),
                 // Sets the texture to use as either
                 // - The overlay texture when 'cover_is_mask' is false
                 // - The mask to apply to the base texture (should be pure white to see) when 'cover_is_mask' is true
                 // If not set or no base texture is set when 'cover_is_mask' is true, then the layer is not rendered
                 // Points to 'assets/neoforge/textures/item/mask/bucket_fluid_cover.png'
-                Optional.of(ResourceLocation.fromNamespaceAndPath("neoforge", "item/mask/bucket_fluid_cover"))
+                Optional.of(Identifier.fromNamespaceAndPath("neoforge", "item/mask/bucket_fluid_cover"))
             ),
             // When true, rotates the model 180 degrees
             // Defaults to false
@@ -1434,7 +1440,7 @@ public record RenderTypeModelWrapper(List<BakedQuad> quads, List<ItemTintSource>
 
     // ...
 
-     public record Unbaked(ResourceLocation model, List<ItemTintSource> tints, RenderType type) implements ItemModel.Unbaked {
+     public record Unbaked(Identifier model, List<ItemTintSource> tints, RenderType type) implements ItemModel.Unbaked {
         // Create a render type map for the codec
         private static final BiMap<String, RenderType> RENDER_TYPES = Util.make(HashBiMap.create(), map -> {
             map.put("translucent_item", Sheets.translucentItemSheet());
@@ -1445,7 +1451,7 @@ public record RenderTypeModelWrapper(List<BakedQuad> quads, List<ItemTintSource>
         // The map codec to register
         public static final MapCodec<RenderTypeModelWrapper.Unbaked> MAP_CODEC = RecordCodecBuilder.mapCodec(instance ->
             instance.group(
-                ResourceLocation.CODEC.fieldOf("model").forGetter(RenderTypeModelWrapper.Unbaked::model),
+                Identifier.CODEC.fieldOf("model").forGetter(RenderTypeModelWrapper.Unbaked::model),
                 ItemTintSources.CODEC.listOf().optionalFieldOf("tints", List.of()).forGetter(RenderTypeModelWrapper.Unbaked::tints)
                 RENDER_TYPE_CODEC.fieldOf("render_type").forGetter(RenderTypeModelWrapper.Unbaked::type)
             )
@@ -1489,7 +1495,7 @@ Then, we register the map codec via `RegisterItemModelsEvent` on the [mod event 
 public static void registerItemModels(RegisterItemModelsEvent event) {
     event.register(
         // The name to reference as the type
-        ResourceLocation.fromNamespaceAndPath("examplemod", "render_type"),
+        Identifier.fromNamespaceAndPath("examplemod", "render_type"),
         // The map codec
         RenderTypeModelWrapper.Unbaked.MAP_CODEC
     )
@@ -1551,5 +1557,5 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
 [itemmodel]: #manually-rendering-an-item
 [modbus]: ../../../concepts/events.md#event-buses
 [models]: modelsystem.md
-[rl]: ../../../misc/resourcelocation.md
+[rl]: ../../../misc/identifier.md
 [screens]: ../../../rendering/screens.md#items

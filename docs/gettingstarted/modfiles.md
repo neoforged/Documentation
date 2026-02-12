@@ -19,14 +19,11 @@ Most values are also explained as comments in [the MDK's `gradle.properties` fil
 | `minecraft_version`       | The Minecraft version you are modding on. Must match with `neo_version`.                                                                                                                                                                | `minecraft_version=1.20.6`                 |
 | `minecraft_version_range` | The Minecraft version range this mod can use, as a [Maven Version Range][mvr]. Note that [snapshots, pre-releases and release candidates][mcversioning] are not guaranteed to sort properly, as they do not follow maven versioning.    | `minecraft_version_range=[1.20.6,1.21)`    |
 | `neo_version`             | The NeoForge version you are modding on. Must match with `minecraft_version`. See [NeoForge Versioning][neoversioning] for more information on how NeoForge versioning works.                                                           | `neo_version=20.6.62`                      |
-| `neo_version_range`       | The NeoForge version range this mod can use, as a [Maven Version Range][mvr].                                                                                                                                                           | `neo_version_range=[20.6.62,20.7)`         |
 | `mod_id`                  | See [The Mod ID][modid].                                                                                                                                                                                                                | `mod_id=examplemod`                        |
 | `mod_name`                | The human-readable display name of your mod. By default, this can only be seen in the mod list, however, mods such as [JEI][jei] prominently display mod names in item tooltips as well.                                                | `mod_name=Example Mod`                     |
 | `mod_license`             | The license your mod is provided under. It is suggested that this is set to the [SPDX identifier][spdx] you are using and/or a link to the license. You can visit https://choosealicense.com/ to help pick the license you want to use. | `mod_license=MIT`                          |
 | `mod_version`             | The version of your mod, shown in the mod list. See [the page on Versioning][versioning] for more information.                                                                                                                          | `mod_version=1.0`                          |
 | `mod_group_id`            | See [The Group ID][group].                                                                                                                                                                                                              | `mod_group_id=com.example.examplemod`      |
-| `mod_authors`             | The authors of the mod, shown in the mod list.                                                                                                                                                                                          | `mod_authors=ExampleModder`                |
-| `mod_description`         | The description of the mod, as a multiline string, shown in the mod list. Newline characters (`\n`) can be used and will be replaced properly.                                                                                          | `mod_description=Example mod description.` |
 
 ### The Mod ID
 
@@ -113,8 +110,6 @@ modId = "examplemod2"
 | `logoFile`       | string   | _nothing_                    | The name and extension of an image file used on the mods list screen. The location must be an absolute path starting from the root of the JAR or source set (e.g. `src/main/resources` for the main source set). Valid filename characters are lowercase letters (`a-z`), digits (`0-9`), slashes, (`/`), underscores (`_`), periods (`.`) and hyphens (`-`). The complete character set is `[a-z0-9_-.]`.                                                                  | `logoFile="test/example_logo.png"`                              |
 | `logoBlur`       | boolean  | `true`                       | Whether to use `GL_LINEAR*` (true) or `GL_NEAREST*` (false) to render the `logoFile`. In simpler terms, this means whether the logo should be blurred or not when trying to scale the logo.                                                                                    | `logoBlur=false`                                                |
 | `updateJSONURL`  | string   | _nothing_                    | A URL to a JSON used by the [update checker][update] to make sure the mod you are playing is the latest version.                                                                                                                                                               | `updateJSONURL="https://example.github.io/update_checker.json"` |
-| `features`       | table    | `{}`                         | See [features].                                                                                                                                                                                                                                                                | `features={java_version="[17,)"}`                               |
-| `modproperties`  | table    | `{}`                         | A table of key/values associated with this mod. Unused by NeoForge, but is mainly for use by mods.                                                                                                                                                                             | `modproperties={example="value"}`                               |
 | `modUrl`         | string   | _nothing_                    | A URL to the download page of the mod. Currently unused.                                                                                                                                                                                                                       | `modUrl="https://neoforged.net/"`                               |
 | `credits`        | string   | _nothing_                    | Credits and acknowledges for the mod shown on the mod list screen.                                                                                                                                                                                                             | `credits="The person over here and there."`                     |
 | `authors`        | string   | _nothing_                    | The authors of the mod shown on the mod list screen.                                                                                                                                                                                                                           | `authors="Example Person"`                                      |
@@ -124,11 +119,45 @@ modId = "examplemod2"
 
 #### Features
 
-The features system allows mods to demand that certain settings, software, or hardware are available when loading the system. When a feature is not satisfied, mod loading will fail, informing the user about the requirement. Currently, NeoForge provides the following features:
+The features system allows mods to demand that certain settings, software, or hardware are available when loading the system. When a feature is not satisfied, mod loading will fail, informing the user about the requirement. These configurations are created using the [array of tables][array] `[[features.<modid>]]`, where `modid` is the identifier of the mod that consumes the feature. Currently, NeoForge provides the following features:
 
 | Feature          | Description                                                                                                                                                                                                | Example                             |
 |------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------|
-| `javaVersion`   | The acceptable version range of the Java version, expressed as a [Maven Version Range][mvr]. This should be the supported version used by Minecraft.                                                       | `features={javaVersion="[17,)"}`  |
+| `javaVersion`   | The acceptable version range of the Java version, expressed as a [Maven Version Range][mvr]. This should be the supported version used by Minecraft.                                                       | `javaVersion="[17,)"`  |
+
+#### Mod Properties
+
+The mod properties system is a map of arbitrary keys to values that are associated with a particular mod. These can be useful when a mod file defines multiple mods that provide different metadata. From there, the specific property value for some key can be obtained by getting the object value from the map via `IModInfo#getModProperties`. These configurations are created using the [array of tables][array] `[[modproperties.<modid>]]`, where `modid` is the identifier of the mod that consumes the defined properties.
+
+```java
+// Assume we have two mods `mod1` and `mod2` with the following property configuration
+// [[modproperties.mod1]]
+// key="value1"
+// [[modproperties.mod2]]
+// key="value2"
+
+@Mod("mod1")
+public class ModOne {
+
+    private final String key;
+
+    public ModOne(ModContainer container) {
+        // Will store 'value1' in key
+        this.key = (String) container.getModInfo().getModProperties().get("key");
+    }
+}
+
+@Mod("mod2")
+public class ModTwo {
+
+    private final String key;
+
+    public ModTwo(ModContainer container) {
+        // Will store 'value2' in key
+        this.key = (String) container.getModInfo().getModProperties().get("key");
+    }
+}
+```
 
 ### Access Transformer-Specific Properties
 
@@ -219,8 +248,8 @@ An entry in `neoforge.mods.toml` does not need a corresponding `@Mod` annotation
 [javafml]: #javafml-and-mod
 [jei]: https://www.curseforge.com/minecraft/mc-mods/jei
 [mcversioning]: versioning.md#minecraft
-[mdkgradleproperties]: https://github.com/NeoForgeMDKs/MDK-1.21.9-NeoGradle/blob/main/gradle.properties
-[mdkneoforgemodstoml]: https://github.com/NeoForgeMDKs/MDK-1.21.9-NeoGradle/blob/main/src/main/resources/META-INF/neoforge.mods.toml
+[mdkgradleproperties]: https://github.com/NeoForgeMDKs/MDK-1.21.11-NeoGradle/blob/main/gradle.properties
+[mdkneoforgemodstoml]: https://github.com/NeoForgeMDKs/MDK-1.21.11-NeoGradle/blob/main/src/main/resources/META-INF/neoforge.mods.toml
 [neoforgemodstoml]: #neoforgemodstoml
 [mixinconfig]: https://github.com/SpongePowered/Mixin/wiki/Introduction-to-Mixins---The-Mixin-Environment#mixin-configuration-files
 [modbus]: ../concepts/events.md#event-buses

@@ -41,12 +41,10 @@ If you're having trouble finding out how exactly to specify something, have a lo
 
 ### Render Type Groups
 
-Using the optional NeoForge-added `render_type` field, you can set a `RenderTypeGroup` for your model. A render type group is made up of two parts: a `ChunkSectionLayer` for how the model should render when used as a block, and a `RenderType` for how the model should render as an item. If this is not set (as is the case in all vanilla models), the game will fall back to the layers and render types hardcoded in `ItemBlockRenderTypes`. If `ItemBlockRenderTypes` doesn't contain the layer or render types, it will fall back to `ChunkSectionLayer#SOLID` for the block and `Sheets#TRANSLUCENT_ITEM_CULL_BLOCK_SHEET` for the item. Vanilla and NeoForge expose the following render type groups:
+Using the optional NeoForge-added `render_type` field, you can set a `RenderTypeGroup` for your model. A render type group is made up of two parts: a `ChunkSectionLayer` for how the model should render when used as a block, and a `RenderType` for how the model should render as an item. If this is not set (as is the case in all vanilla models), the game will fall back to the layers and render types hardcoded in `ItemBlockRenderTypes`. If `ItemBlockRenderTypes` doesn't contain the layer or render types, it will fall back to `ChunkSectionLayer#SOLID` for the block and `Sheets#TRANSLUCENT_ITEM_SHEET` for regular items, or `Sheets#TRANSLUCENT_BLOCK_ITEM_SHEET` for block items. Vanilla and NeoForge expose the following render type groups:
 
 - `minecraft:solid`: Used for fully solid models, such as stone.
 - `minecraft:cutout`: Used for models where any pixel is either fully solid or fully transparent, i.e. with either full or no transparency, for example glass.
-- `minecraft:cutout_mipped`: Variant of `minecraft:cutout` that will scale down textures at large distances to avoid visual artifacts ([mipmapping]). Does not apply the mipmapping to item rendering, as it is usually undesired on items and may cause artifacts. Used for example by leaves.
-- `minecraft:cutout_mipped_all`: Variant of `minecraft:cutout_mipped` which applies mipmapping to item models as well.
 - `minecraft:translucent`: Used for models where any pixel may be partially transparent, for example stained glass.
 - `minecraft:tripwire`: Used by models with the special requirement of being rendered to the weather target, i.e. tripwire.
 - `neoforge:item_unlit`: NeoForge-added. Should be used by models that, when rendered from an item, do not take the light directions into account.
@@ -55,9 +53,9 @@ Selecting the correct render type group is a question of performance to some deg
 
 If you want, you can also add your own render type group. To do so, subscribe to the [mod bus][modbus] [event] `RegisterNamedRenderTypesEvent` and `#register` your render type groups. `#register` has three parameters:
 
-- The name of the render type group. Should be a `ResourceLocation` prefixed with your mod id.
+- The name of the render type group. Should be a `Identifier` prefixed with your mod id.
 - The chunk section layer. Any `ChunkSectionLayer` can be used.
-- The entity render type. Must be a render type with the `DefaultVertexFormat.NEW_ENTITY` vertex format.
+- A function constructing the entity render type from a texture. Must return a render type with the `DefaultVertexFormat.NEW_ENTITY` vertex format.
 
 ### Elements
 
@@ -83,7 +81,7 @@ Additionally, it can specify the following optional properties:
 
 - `shade`: Only for block models. Optional. Whether the faces of this element should have direction-dependent shading on it or not. Defaults to true.
 - `rotation`: A rotation of the object, specified as a sub object containing the following data:
-    - `angle`: The rotation angle, in degrees. Can be -45 through 45 in steps of 22.5 degrees.
+    - `angle`: The rotation angle, in degrees.
     - `axis`: The axis to rotate around. It is currently not possible to rotate an object around more than one axis.
     - `origin`: Optional. The origin point to rotate around, specified as `[x, y, z]`. Note that these are absolute values, i.e. they are not relative to the cube's position. If unspecified, will use `[0, 0, 0]`.
 
@@ -218,7 +216,7 @@ public static void registerAdditional(ModelEvent.RegisterStandalone event) {
         // Can use the static methods from SimpleUnbakedStandaloneModel<T> for simplicity
         SimpleUnbakedStandaloneModel.quadCollection(
             // The model id, relative to `assets/<namespace>/models/<path>.json`
-            ResourceLocation.fromNamespaceAndPath("examplemod", "block/example_unused_model")
+            Identifier.fromNamespaceAndPath("examplemod", "block/example_unused_model")
         )
     );
 }
@@ -244,6 +242,6 @@ public static void registerAdditional(ModelEvent.RegisterStandalone event) {
 [perspectives]: modelsystem.md#perspectives
 [rendertype]: #render-types
 [roottransforms]: #root-transforms
-[rl]: ../../../misc/resourcelocation.md
+[rl]: ../../../misc/identifier.md
 [textures]: ../textures.md
 [tinting]: #tinting

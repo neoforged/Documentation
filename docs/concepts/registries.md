@@ -7,7 +7,7 @@ Registration is the process of taking the objects of a mod (such as [items][item
 
 A registry is, simply put, a wrapper around a map that maps registry names (read on) to registered objects, often called registry entries. Registry names must be unique within the same registry, but the same registry name may be present in multiple registries. The most common example for this are blocks (in the `BLOCKS` registry) that have an item form with the same registry name (in the `ITEMS` registry).
 
-Every registered object has a unique name, called its registry name. The name is represented as a [`ResourceLocation`][resloc]. For example, the registry name of the dirt block is `minecraft:dirt`, and the registry name of the zombie is `minecraft:zombie`. Modded objects will of course not use the `minecraft` namespace; their mod id will be used instead.
+Every registered object has a unique name, called its registry name. The name is represented as an [`Identifier`][identifier]. For example, the registry name of the dirt block is `minecraft:dirt`, and the registry name of the zombie is `minecraft:zombie`. Modded objects will of course not use the `minecraft` namespace; their mod id will be used instead.
 
 ## Vanilla vs. Modded
 
@@ -52,7 +52,7 @@ public static final DeferredHolder<Block, SlabBlock> EXAMPLE_BLOCK_2 = BLOCKS.re
         // Our registry name.
         "example_block",
         // A function creating the object we want to register
-        // given its registry name as a ResourceLocation.
+        // given its registry name as a Identifier.
         registryName -> new SlabBlock(...)
 );
 ```
@@ -73,7 +73,7 @@ public static final Supplier<SlabBlock> EXAMPLE_BLOCK_2 = BLOCKS.register(
         // Our registry name.
         "example_block",
         // A function creating the object we want to register
-        // given its registry name as a ResourceLocation.
+        // given its registry name as a Identifier.
         registryName -> new SlabBlock(...)
 );
 ```
@@ -111,9 +111,9 @@ public static void register(RegisterEvent event) {
             BuiltInRegistries.BLOCKS,
             // Register your objects here.
             registry -> {
-                registry.register(ResourceLocation.fromNamespaceAndPath(MODID, "example_block_1"), new Block(...));
-                registry.register(ResourceLocation.fromNamespaceAndPath(MODID, "example_block_2"), new Block(...));
-                registry.register(ResourceLocation.fromNamespaceAndPath(MODID, "example_block_3"), new Block(...));
+                registry.register(Identifier.fromNamespaceAndPath(MODID, "example_block_1"), new Block(...));
+                registry.register(Identifier.fromNamespaceAndPath(MODID, "example_block_2"), new Block(...));
+                registry.register(Identifier.fromNamespaceAndPath(MODID, "example_block_3"), new Block(...));
             }
     );
 }
@@ -121,22 +121,22 @@ public static void register(RegisterEvent event) {
 
 ## Querying Registries
 
-Sometimes, you will find yourself in situations where you want to get a registered object by a given id. Or, you want to get the id of a certain registered object. Since registries are basically maps of ids (`ResourceLocation`s) to distinct objects, i.e. a reversible map, both of these operations work:
+Sometimes, you will find yourself in situations where you want to get a registered object by a given id. Or, you want to get the id of a certain registered object. Since registries are basically maps of ids (`Identifier`s) to distinct objects, i.e. a reversible map, both of these operations work:
 
 ```java
-BuiltInRegistries.BLOCKS.getValue(ResourceLocation.fromNamespaceAndPath("minecraft", "dirt")); // returns the dirt block
+BuiltInRegistries.BLOCKS.getValue(Identifier.fromNamespaceAndPath("minecraft", "dirt")); // returns the dirt block
 BuiltInRegistries.BLOCKS.getKey(Blocks.DIRT); // returns the resource location "minecraft:dirt"
 
 // Assume that ExampleBlocksClass.EXAMPLE_BLOCK.get() is a Supplier<Block> with the id "yourmodid:example_block"
-BuiltInRegistries.BLOCKS.getValue(ResourceLocation.fromNamespaceAndPath("yourmodid", "example_block")); // returns the example block
+BuiltInRegistries.BLOCKS.getValue(Identifier.fromNamespaceAndPath("yourmodid", "example_block")); // returns the example block
 BuiltInRegistries.BLOCKS.getKey(ExampleBlocksClass.EXAMPLE_BLOCK.get()); // returns the resource location "yourmodid:example_block"
 ```
 
 If you just want to check for the presence of an object, this is also possible, though only with keys:
 
 ```java
-BuiltInRegistries.BLOCKS.containsKey(ResourceLocation.fromNamespaceAndPath("minecraft", "dirt")); // true
-BuiltInRegistries.BLOCKS.containsKey(ResourceLocation.fromNamespaceAndPath("create", "brass_ingot")); // true only if Create is installed
+BuiltInRegistries.BLOCKS.containsKey(Identifier.fromNamespaceAndPath("minecraft", "dirt")); // true
+BuiltInRegistries.BLOCKS.containsKey(Identifier.fromNamespaceAndPath("create", "brass_ingot")); // true only if Create is installed
 ```
 
 As the last example shows, this is possible with any mod id, and thus a perfect way to check if a certain item from another mod exists.
@@ -144,7 +144,7 @@ As the last example shows, this is possible with any mod id, and thus a perfect 
 Finally, we can also iterate over all entries in a registry, either over the keys or over the entries (entries use the Java `Map.Entry` type):
 
 ```java
-for (ResourceLocation id : BuiltInRegistries.BLOCKS.keySet()) {
+for (Identifier id : BuiltInRegistries.BLOCKS.keySet()) {
     // ...
 }
 for (Map.Entry<ResourceKey<Block>, Block> entry : BuiltInRegistries.BLOCKS.entrySet()) {
@@ -169,13 +169,13 @@ Let's start by creating the [registry key][resourcekey] and the registry itself:
 ```java
 // We use spells as an example for the registry here, without any details about what a spell actually is (as it doesn't matter).
 // Of course, all mentions of spells can and should be replaced with whatever your registry actually is.
-public static final ResourceKey<Registry<Spell>> SPELL_REGISTRY_KEY = ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath("yourmodid", "spells"));
+public static final ResourceKey<Registry<Spell>> SPELL_REGISTRY_KEY = ResourceKey.createRegistryKey(Identifier.fromNamespaceAndPath("yourmodid", "spells"));
 public static final Registry<YourRegistryContents> SPELL_REGISTRY = new RegistryBuilder<>(SPELL_REGISTRY_KEY)
         // If you want to enable integer id syncing, for networking.
         // These should only be used in networking contexts, for example in packets or purely networking-related NBT data.
         .sync(true)
         // The default key. Similar to minecraft:air for blocks. This is optional.
-        .defaultKey(ResourceLocation.fromNamespaceAndPath("yourmodid", "empty"))
+        .defaultKey(Identifier.fromNamespaceAndPath("yourmodid", "empty"))
         // Effectively limits the max count. Generally discouraged, but may make sense in settings such as networking.
         .maxId(256)
         // Build the registry.
@@ -201,7 +201,7 @@ public static final Supplier<Spell> EXAMPLE_SPELL = SPELLS.register("example_spe
 @SubscribeEvent // on the mod event bus
 public static void register(RegisterEvent event) {
     event.register(SPELL_REGISTRY_KEY, registry -> {
-        registry.register(ResourceLocation.fromNamespaceAndPath("yourmodid", "example_spell"), () -> new Spell(...));
+        registry.register(Identifier.fromNamespaceAndPath("yourmodid", "example_spell"), () -> new Spell(...));
     });
 }
 ```
@@ -222,7 +222,7 @@ Datapack registries can be obtained from a `RegistryAccess`. This `RegistryAcces
 Custom datapack registries do not require a `Registry` to be constructed. Instead, they just need a registry key and at least one [`Codec`][codec] to (de-)serialize its contents. Reiterating on the spells example from before, registering our spell registry as a datapack registry looks something like this:
 
 ```java
-public static final ResourceKey<Registry<Spell>> SPELL_REGISTRY_KEY = ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath("yourmodid", "spells"));
+public static final ResourceKey<Registry<Spell>> SPELL_REGISTRY_KEY = ResourceKey.createRegistryKey(Identifier.fromNamespaceAndPath("yourmodid", "spells"));
 
 @SubscribeEvent // on the mod event bus
 public static void registerDatapackRegistries(DataPackRegistryEvent.NewRegistry event) {
@@ -266,7 +266,7 @@ The `bootstrap` lambda parameter is what we actually use to register our objects
 // The resource key of our object.
 public static final ResourceKey<ConfiguredFeature<?, ?>> EXAMPLE_CONFIGURED_FEATURE = ResourceKey.create(
     Registries.CONFIGURED_FEATURE,
-    ResourceLocation.fromNamespaceAndPath(MOD_ID, "example_configured_feature")
+    Identifier.fromNamespaceAndPath(MOD_ID, "example_configured_feature")
 );
 
 new RegistrySetBuilder()
@@ -288,11 +288,11 @@ The `BootstrapContext` can also be used to lookup entries from another registry 
 ```java
 public static final ResourceKey<ConfiguredFeature<?, ?>> EXAMPLE_CONFIGURED_FEATURE = ResourceKey.create(
     Registries.CONFIGURED_FEATURE,
-    ResourceLocation.fromNamespaceAndPath(MOD_ID, "example_configured_feature")
+    Identifier.fromNamespaceAndPath(MOD_ID, "example_configured_feature")
 );
 public static final ResourceKey<PlacedFeature> EXAMPLE_PLACED_FEATURE = ResourceKey.create(
     Registries.PLACED_FEATURE,
-    ResourceLocation.fromNamespaceAndPath(MOD_ID, "example_placed_feature")
+    Identifier.fromNamespaceAndPath(MOD_ID, "example_placed_feature")
 );
 
 new RegistrySetBuilder()
@@ -315,7 +315,7 @@ Finally, we use our `RegistrySetBuilder` in an actual data provider, and registe
 public static void onGatherData(GatherDataEvent.Client event) {
     // Adds the generated registry objects to the current lookup provider for use
     // in other datagen.
-    this.createDatapackRegistryObjects(
+    event.createDatapackRegistryObjects(
         // Our registry set builder to generate the data from.
         new RegistrySetBuilder().add(...),
         // (Optional) A biconsumer that takes in any conditions to load the object
@@ -346,6 +346,6 @@ public static void onGatherData(GatherDataEvent.Client event) {
 [defregitems]: ../items/index.md#deferredregisteritems
 [event]: events.md
 [item]: ../items/index.md
-[resloc]: ../misc/resourcelocation.md
-[resourcekey]: ../misc/resourcelocation.md#resourcekeys
+[identifier]: ../misc/identifier.md
+[resourcekey]: ../misc/identifier.md#resourcekeys
 [singleton]: https://en.wikipedia.org/wiki/Singleton_pattern

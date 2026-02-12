@@ -225,7 +225,7 @@ BUILDER.add(
         // Define the ResourceKey for our enchantment.
         ResourceKey.create(
             Registries.ENCHANTMENT,
-            ResourceLocation.fromNamespaceAndPath("examplemod", "example_enchantment")
+            Identifier.fromNamespaceAndPath("examplemod", "example_enchantment")
         ),
         new Enchantment(
             // The text Component that specifies the enchantment's name.

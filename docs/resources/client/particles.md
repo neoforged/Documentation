@@ -170,17 +170,17 @@ public class MyParticleDescriptionProvider extends ParticleDescriptionProvider {
     protected void addDescriptions() {
         // Adds a single sprite particle definition with the file at
         // assets/examplemod/textures/particle/my_single_particle.png.
-        spriteSet(MyParticleTypes.MY_SINGLE_PARTICLE.get(), ResourceLocation.fromNamespaceAndPath("examplemod", "my_single_particle"));
+        spriteSet(MyParticleTypes.MY_SINGLE_PARTICLE.get(), Identifier.fromNamespaceAndPath("examplemod", "my_single_particle"));
         // Adds a multi sprite particle definition, with a vararg parameter. Alternatively accepts an iterable.
         spriteSet(MyParticleTypes.MY_MULTI_PARTICLE.get(),
-            ResourceLocation.fromNamespaceAndPath("examplemod", "my_multi_particle_0"),
-            ResourceLocation.fromNamespaceAndPath("examplemod", "my_multi_particle_1"),
-            ResourceLocation.fromNamespaceAndPath("examplemod", "my_multi_particle_2")
+            Identifier.fromNamespaceAndPath("examplemod", "my_multi_particle_0"),
+            Identifier.fromNamespaceAndPath("examplemod", "my_multi_particle_1"),
+            Identifier.fromNamespaceAndPath("examplemod", "my_multi_particle_2")
         );
         // Alternative for the above, appends "_<index>" to the base name given, for the given amount of textures.
         spriteSet(MyParticleTypes.MY_ALT_MULTI_PARTICLE.get(),
             // The base name.
-            ResourceLocation.fromNamespaceAndPath("examplemod", "my_multi_particle"),
+            Identifier.fromNamespaceAndPath("examplemod", "my_multi_particle"),
             // The number of textures.
             3,
             // Whether to reverse the list, i.e. start at the last element instead of the first.

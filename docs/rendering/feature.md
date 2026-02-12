@@ -13,7 +13,6 @@ The following methods are made available through the collector, in the order the
 
 | Method                 | Description                                                                                                |
 |:----------------------:|:-----------------------------------------------------------------------------------------------------------|
-| `submitHitbox`         | A wireframe representing the bounding box and a line representing the view vector, typically for entities. |
 | `submitShadow`         | A number of black ovals for the desired radius, location, and opacity.                                     |
 | `submitNameTag`        | Text, transparency sorted.                                                                                 |
 | `submitText`           | Text.                                                                                                      |
@@ -51,18 +50,17 @@ collector.order(1).submitParticleGroup(...);
 
 Feature rendering is handled through the `FeatureRenderDispatcher` via `renderAllFeatures`, which renders the submitted objects within the `SubmitNodeStorage` holding the `SubmitNodeCollection` tree map. The dispatcher contains a list of renderer classes which are responsible for rendering a given type of submitted objects. For a given 'order', the features are rendered in the following order:
 
-* Shadows
-* Opaque models followed by sorted transparent models
-* Model parts
-* Entity flame overlays
-* Sorted transparent name tags followed by opaque name tags
-* Text
-* Hitboxes
-* Leashes
-* Items
-* Moving blocks, blocks, and then block models
-* Custom geometry
-* Particles
+- Shadows
+- Opaque models followed by sorted transparent models
+- Model parts
+- Entity flame overlays
+- Sorted transparent name tags followed by opaque name tags
+- Text
+- Leashes
+- Items
+- Moving blocks, blocks, and then block models
+- Custom geometry
+- Particles
 
 Once the features have finished rendering, the `SubmitNodeStorage` is cleared for its next use. The feature renderer may be called multiple times per frame, as not only is it used for the level, but also for the held item and [picture-in-picture gui renderer][gui]. Note that in those cases, `renderAllFeatures` is followed by `MultiBufferSource.BufferSource#endBatch` to the build the mesh and draw it to the buffer.
 

@@ -258,11 +258,11 @@ public class MySoundDefinitionsProvider extends SoundDefinitionsProvider {
 
     @Override
     public void registerSounds() {
-        // Accepts a Holder<SoundEvent>, a SoundEvent, or a ResourceLocation as the first parameter.
+        // Accepts a Holder<SoundEvent>, a SoundEvent, or a Identifier as the first parameter.
         add(MySoundsClass.MY_SOUND, SoundDefinition.definition()
             // Add sound objects to the sound definition. Parameter is a vararg.
             .with(
-                // Accepts either a string or a ResourceLocation as the first parameter.
+                // Accepts either a string or a Identifier as the first parameter.
                 // The second parameter can be either SOUND or EVENT, and can be omitted if the former.
                 sound("examplemod:sound_1", SoundDefinition.SoundType.SOUND)
                     // Sets the volume. Also has a double counterpart.

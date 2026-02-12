@@ -175,12 +175,20 @@ public static final DeferredBlock<Block> EXAMPLE_BLOCK = BLOCKS.register(
     )
 );
 
-// Same as above, except that the block properties are constructed eagerly.
+// Same as above, except that the block properties are supplied separately.
 // setId is also called internally on the properties object.
 public static final DeferredBlock<Block> EXAMPLE_BLOCK = BLOCKS.registerBlock(
     "example_block",
     Block::new, // The factory that the properties will be passed into.
-    BlockBehaviour.Properties.of() // The properties to use.
+    () -> BlockBehaviour.Properties.of() // The supplied properties to use.
+);
+
+// Same as above, except that the `Properties#of` is supplied and operated upon.
+// setId is also called internally on the properties object.
+public static final DeferredBlock<Block> EXAMPLE_BLOCK = BLOCKS.registerBlock(
+    "example_block",
+    Block::new, // The factory that the properties will be passed into.
+    props -> props // A unary operator of the properties to use.
 );
 ```
 
@@ -189,7 +197,12 @@ If you want to use `Block::new`, you can leave out the factory entirely:
 ```java
 public static final DeferredBlock<Block> EXAMPLE_BLOCK = BLOCKS.registerSimpleBlock(
     "example_block",
-    BlockBehaviour.Properties.of() // The properties to use.
+    () -> BlockBehaviour.Properties.of() // The supplied properties to use.
+);
+
+public static final DeferredBlock<Block> EXAMPLE_BLOCK = BLOCKS.registerSimpleBlock(
+    "example_block",
+    props -> props // A unary operator of the properties to use.
 );
 ```
 
@@ -341,7 +354,7 @@ Ticking is a mechanism that updates (ticks) parts of the game every 1 / 20 secon
 
 #### Server Ticking and Tick Scheduling
 
-`BlockBehaviour#tick` is called in two occasions: either through default [random ticking][randomtick] (see below), or through scheduled ticks. Scheduled ticks can be created through `Level#scheduleTick(BlockPos, Block, int)`, where the `int` denotes a delay. This is used in various places by vanilla, for example, the tilting mechanism of big dripleaves heavily relies on this system. Other prominent users are various redstone components.
+`BlockBehaviour#tick` is called through scheduled ticks. Scheduled ticks can be created through `Level#scheduleTick(BlockPos, Block, int)`, where the `int` denotes a delay. This is used in various places by vanilla, for example, the tilting mechanism of big dripleaves heavily relies on this system. Other prominent users are various redstone components.
 
 #### Client Ticking
 
@@ -372,7 +385,6 @@ Random ticking is used by a wide range of mechanics in Minecraft, such as plant 
 [leftclick]: ../items/interactions.md#left-clicking-an-item
 [loottable]: ../resources/server/loottables/index.md
 [model]: ../resources/client/models/index.md
-[randomtick]: #random-ticking
 [registration]: ../concepts/registries.md#methods-for-registering
 [resources]: ../resources/index.md#assets
 [rightclick]: ../items/interactions.md#right-clicking-an-item

@@ -190,7 +190,7 @@ Starting with the `DisplayContentsFactory`, it is meant to be a transformer for 
 
 - `DisplayContentsFactory.ForStacks`: A transformer that takes in `ItemStack`s.
 - `DisplayContentsFactory.ForRemainders`: A transformer that takes in the input object and a list of remainder objects.
-- `DisplayContentsFactory.ForFluidStacks`: A transformer that takes in a `FluidStack`.
+- `ForFluidStacks`: A transformer that takes in a `FluidStack`.
 
 With this, the `DisplayContentsFactory` can be implemented to transform the provided objects into the desired output. For example, `SlotDisplay.ItemStackContentsFactory`, takes the `ForStacks` transformer and has the stacks transformed into `ItemStack`s.
 
@@ -476,7 +476,7 @@ public interface RightClickBlockRecipeInputs {
 // Server resource listener so it can be reloaded when recipes are.
 public class ServerRightClickBlockRecipeInputs implements ResourceManagerReloadListener, RightClickBlockRecipeInputs {
 
-    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath("examplemod", "block_recipe_inputs");
+    public static final Identifier ID = Identifier.fromNamespaceAndPath("examplemod", "block_recipe_inputs");
 
     private final RecipeManager recipeManager;
 
@@ -614,7 +614,7 @@ public interface RightClickBlockRecipeInputs {
 // Server resource listener so it can be reloaded when recipes are.
 public class ServerRightClickBlockRecipeInputs implements ResourceManagerReloadListener, RightClickBlockRecipeInputs {
 
-    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath("examplemod", "block_recipe_inputs");
+    public static final Identifier ID = Identifier.fromNamespaceAndPath("examplemod", "block_recipe_inputs");
 
     private final RecipeManager recipeManager;
 

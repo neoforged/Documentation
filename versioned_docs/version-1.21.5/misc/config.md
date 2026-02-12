@@ -120,11 +120,11 @@ The values themselves can be obtained using `ConfigValue#get`. The values are ad
 Once a `ModConfigSpec` has been built, it must be registered to allow NeoForge to load, track, and sync the configuration settings as required. Configurations should be registered in the mod constructor via `ModConatiner#registerConfig`. A configuration can be registered with a [given type][configtype] representing the side the config belongs to, the `ModConfigSpec`, and optionally a specific file name for the configuration.
 
 ```java
-// In the main mod file with a ModConfigSpec CONFIG
+// In the main mod file with a ModConfigSpec CONFIG_SPEC
 public ExampleMod(ModContainer container) {
     ...
     //Register the config
-    container.registerConfig(ModConfig.Type.COMMON, ExampleConfig.CONFIG);
+    container.registerConfig(ModConfig.Type.COMMON, ExampleConfig.CONFIG_SPEC);
     ...
 }
 ```
