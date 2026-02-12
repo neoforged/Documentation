@@ -315,7 +315,7 @@ Finally, we use our `RegistrySetBuilder` in an actual data provider, and registe
 public static void onGatherData(GatherDataEvent.Client event) {
     // Adds the generated registry objects to the current lookup provider for use
     // in other datagen.
-    this.createDatapackRegistryObjects(
+    event.createDatapackRegistryObjects(
         // Our registry set builder to generate the data from.
         new RegistrySetBuilder().add(...),
         // (Optional) A biconsumer that takes in any conditions to load the object

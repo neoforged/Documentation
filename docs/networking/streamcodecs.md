@@ -49,8 +49,8 @@ Unless you are manually handling the buffer object, you will generally never cal
 | `STRING_UTF8`  | `String`\*\*  |
 | `TAG`          | `Tag`         |
 | `COMPOUND_TAG` | `CompoundTag` |
-| `VECTOR3F`     | `Vector3f`    |
-| `QUATERNIONF`  | `Quaternionf` |
+| `VECTOR3F`     | `Vector3fc`   |
+| `QUATERNIONF`  | `Quaternionfc`|
 | `GAME_PROFILE` | `GameProfile` |
 
 \* `byte[]` can be limited to a certain number of values via `ByteBufCodecs#byteArray`.
@@ -83,7 +83,7 @@ If a different limit should be used, then a `NbtAccounter` can be supplied with 
 
 ### Vanilla and NeoForge
 
-Minecraft and NeoForge define many stream codecs for objects that are frequently encoded and decoded. Some examples include `ResourceLocation#STREAM_CODEC` for `ResourceLocation`s or `NeoForgeStreamCodecs#CHUNK_POS` for `ChunkPos`s.
+Minecraft and NeoForge define many stream codecs for objects that are frequently encoded and decoded. Some examples include `Identifier#STREAM_CODEC` for `Identifier`s or `NeoForgeStreamCodecs#CHUNK_POS` for `ChunkPos`s.
 
 Most of the stream codecs can be found within the object class itself or within `StreamCodec`, `ByteBufCodecs`, or `NeoForgeStreamCodecs`. 
 
@@ -93,7 +93,7 @@ Stream codecs can be created for reading or writing any object to a stream. This
 
 Stream codecs have two generics: `B` representing the buffer and `V` representing the object value. `B` is generally one of three types: `ByteBuf`, `FriendlyByteBuf`, `RegistryFriendlyByteBuf`, each extending one another. `FriendlyByteBuf` adds Minecraft-specific read and write methods while `RegistryFriendlyByteBuf` provides access to the list of registries and its objects.
 
-When constructing a stream codec, `B` should be the least-specific buffer type. For example, a `ResourceLocation` is sent as a string. As strings are supported by a regular `ByteBuf`, its type should be `StreamCodec<ByteBuf, ResourceLocation>`. `FriendlyByteBuf` contains methods for writing a `ChunkPos`, so its type should be `StreamCodec<FriendlyByteBuf, ChunkPos>`. An `Item` needs access to the registry, so its type should be `StreamCodec<RegistryFriendlyByteBuf, Item>`.
+When constructing a stream codec, `B` should be the least-specific buffer type. For example, a `Identifier` is sent as a string. As strings are supported by a regular `ByteBuf`, its type should be `StreamCodec<ByteBuf, Identifier>`. `FriendlyByteBuf` contains methods for writing a `ChunkPos`, so its type should be `StreamCodec<FriendlyByteBuf, ChunkPos>`. An `Item` needs access to the registry, so its type should be `StreamCodec<RegistryFriendlyByteBuf, Item>`.
 
 Most methods that take in a stream codec look for `? super B` for the buffer type, meaning that all three of the above examples can be used if the buffer type is a `RegistryFriendlyByteBuf`.
 
@@ -122,7 +122,7 @@ public static StreamCodec<ByteBuf, ExampleObject> STREAM_CODEC =
 
 ### Composites
 
-Stream codecs can read and write objects via `StreamCodec#composite`. Each composite stream codec defines a list of stream codecs and getters which are read/written in the order they are provided. `composite` has overloads up to ten parameters.
+Stream codecs can read and write objects via `StreamCodec#composite`. Each composite stream codec defines a list of stream codecs and getters which are read/written in the order they are provided. `composite` has overloads up to twelve parameters.
 
 Every two parameters in a `composite` represents the stream codec used to read/write the field and a getter to get the field to encode from the object. The final parameter is a function to create a new instance of the object when decoding.
 
@@ -158,20 +158,20 @@ Stream codecs can be transformed into equivalent, or partially equivalent, repre
 The `map` method transforms the value using two functions: one to transform the current type into the new type, and one to transform the new type back into the current type. This is analogous to [codec transformers][transformers].
 
 ```java
-public static final StreamCodec<ByteBuf, ResourceLocation> STREAM_CODEC = 
+public static final StreamCodec<ByteBuf, Identifier> STREAM_CODEC = 
     ByteBufCodecs.STRING_UTF8.map(
-        // String -> ResourceLocation
-        ResourceLocation::new,
-        // ResourceLocation -> String
-        ResourceLocation::toString
+        // String -> Identifier
+        Identifier::new,
+        // Identifier -> String
+        Identifier::toString
     );
 ```
 
 The `apply` method transforms the value using a `StreamCodec.CodecOperation`. A `StreamCodec.CodecOperation` takes in a stream codec of the current type and returns a stream codec of the new type. These typically wrap around `map` or take in helper methods.
 
 ```java
-public static final StreamCodec<ByteBuf, List<ResourceLocation>> STREAM_CODEC =
-    ResourceLocation.STREAM_CODEC.apply(ByteBufCodecs.list());
+public static final StreamCodec<ByteBuf, List<Identifier>> STREAM_CODEC =
+    Identifier.STREAM_CODEC.apply(ByteBufCodecs.list());
 ```
 
 The `mapStream` method transforms the buffer using a function that takes in the new buffer type and returns the current buffer type. This method should rarely be used as most methods with stream codecs do not need to change the type of the buffer.

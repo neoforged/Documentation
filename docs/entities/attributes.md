@@ -155,7 +155,7 @@ To get started, let's create an attribute modifier:
 ```java
 // The name of the modifier. This is later used to query the modifier from the attribute map
 // and as such must be (semantically) unique.
-ResourceLocation id = ResourceLocation.fromNamespaceAndPath("yourmodid", "my_modifier");
+Identifier id = Identifier.fromNamespaceAndPath("yourmodid", "my_modifier");
 // The modifier itself.
 AttributeModifier modifier = new AttributeModifier(
     // The name we defined earlier.

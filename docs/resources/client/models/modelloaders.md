@@ -123,7 +123,7 @@ public class MyUnbakedModelLoader implements UnbakedModelLoader<MyUnbakedModel>,
     // It is highly recommended to use a singleton pattern for unbaked model loaders, as all models can be loaded through one loader.
     public static final MyUnbakedModelLoader INSTANCE = new MyUnbakedModelLoader();
     // The id we will use to register this loader. Also used in the loader datagen class.
-    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath("examplemod", "my_custom_loader");
+    public static final Identifier ID = Identifier.fromNamespaceAndPath("examplemod", "my_custom_loader");
 
     // In accordance with the singleton pattern, make the constructor private.        
     private MyUnbakedModelLoader() {}
@@ -331,7 +331,7 @@ In some contexts, it makes sense to reuse the vanilla model loader and just buil
 ```java
 public class MyUnbakedModelLoader implements UnbakedModelLoader<MyUnbakedModel> {
     public static final MyUnbakedModelLoader INSTANCE = new MyUnbakedModelLoader();
-    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath("examplemod", "my_custom_loader");
+    public static final Identifier ID = Identifier.fromNamespaceAndPath("examplemod", "my_custom_loader");
     
     private MyUnbakedModelLoader() {}
 
@@ -416,12 +416,12 @@ public record MyBlockModelPart(QuadCollection quads, boolean useAmbientOcclusion
     }
 
     // The unbaked model that is read from the block state json
-    public record Unbaked(ResourceLocation modelLocation, MyModelState modelState) implements BlockModelPart.Unbaked {
+    public record Unbaked(Identifier modelLocation, MyModelState modelState) implements BlockModelPart.Unbaked {
 
         // Used for the unbaked block state model
         public static final MapCodec<MyBlockModelPart.Unbaked> CODEC = RecordCodecBuilder.mapCodec(
             instance -> instance.group(
-                ResourceLocation.CODEC.fieldOf("model").forGetter(MyBlockModelPart.Unbaked::modelLocation),
+                Identifier.CODEC.fieldOf("model").forGetter(MyBlockModelPart.Unbaked::modelLocation),
                 MyModelState.CODEC.fieldOf("state").forGetter(MyBlockModelPart.Unbaked::modelState)
             ).apply(instance, MyBlockModelPart.Unbaked::new)
         );
@@ -496,7 +496,7 @@ public record MyBlockStateModel(MyBlockModelPart model) implements DynamicBlockS
         public static final MapCodec<MyBlockStateModel.Unbaked> CODEC = MyBlockModelPart.Unbaked.CODEC.xmap(
             MyBlockStateModel.Unbaked::new, MyBlockStateModel.Unbaked::model
         );
-        public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath("examplemod", "my_custom_model_loader");
+        public static final Identifier ID = Identifier.fromNamespaceAndPath("examplemod", "my_custom_model_loader");
 
         @Override
         public void resolveDependencies(ResolvableModel.Resolver resolver) {
@@ -621,7 +621,7 @@ public record MyBlockModelDefinition(MyBlockStateModel.Unbaked model) implements
     public static final MapCodec<MyBlockModelDefinition> CODEC = MyBlockStateModel.Unbaked.CODEC.xmap(
         MyBlockModelDefinition::new, MyBlockModelDefinition::model
     );
-    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath("examplemod", "my_custom_definition_loader");
+    public static final Identifier ID = Identifier.fromNamespaceAndPath("examplemod", "my_custom_definition_loader");
 
     // This method maps all possible states to some unbaked root
     // As the root will generally share block states models, they are typically operated using a `ModelBaker.SharedOperationKey` to cache the loading model

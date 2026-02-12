@@ -6,7 +6,7 @@ Like most JSON data, block and item models, along with their necessary blockstat
 
 Every model starts out as a `ModelTemplate`. For vanilla, the `ModelTemplate` acts as a parent to some pre-generated model file, defining the parent model, the required texture slots, and the file suffix to apply. For the NeoForge case, the `ExtendedModelTemplate` is constructed via an `ExtendedModelTemplateBuilder`, allowing the user to generate the model down to its base elements and faces, along with any NeoForge-added functionality.
 
-A `ModelTemplate` is created by using one of the methods in `ModelTemplates` or calling the constructor. For the constructor, it takes in the optional `ResourceLocation` of the parent model relative to the `models` directory, an optional string to apply to the end of file path (e.g., for a pressed button, it is suffixed with `_pressed`), and a varargs of `TextureSlot`s that must be defined for the datagen not to crash. `TextureSlot`s are just a string that define the 'key' of a texture in the `textures` map. Each key can also have a parent `TextureSlot` that it will resolve to if no texture is specified for the specific slot. For example, `TextureSlot#PARTICLE` will first look for a defined `particle` texture, then check for a defined `texture` value, and finally checking `all`. If the slot or its parents are not defined, then a crash is thrown during data generation.
+A `ModelTemplate` is created by using one of the methods in `ModelTemplates` or calling the constructor. For the constructor, it takes in the optional `Identifier` of the parent model relative to the `models` directory, an optional string to apply to the end of file path (e.g., for a pressed button, it is suffixed with `_pressed`), and a varargs of `TextureSlot`s that must be defined for the datagen not to crash. `TextureSlot`s are just a string that define the 'key' of a texture in the `textures` map. Each key can also have a parent `TextureSlot` that it will resolve to if no texture is specified for the specific slot. For example, `TextureSlot#PARTICLE` will first look for a defined `particle` texture, then check for a defined `texture` value, and finally checking `all`. If the slot or its parents are not defined, then a crash is thrown during data generation.
 
 ```java
 // Assumes there is a texture referenced as '#base'
@@ -32,10 +32,10 @@ The NeoForge-added `ExtendedModelTemplate` can be constructed via `ExtendedModel
 
 | Method                                           | Effect                                                                                                                                                                                                                                                                                                                                                  |
 |--------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `#parent(ResourceLocation parent)`                                         | Sets the parent model location relative to the `models` directory. |
+| `#parent(Identifier parent)`                                         | Sets the parent model location relative to the `models` directory. |
 | `#suffix(String suffix)`                                                   | Appends the string to the end of the model file path. |
 | `#requiredTextureSlot(TextureSlot slot)`                                   | Adds a texture slot that must be defined within the `TextureMapping` for generation. |
-| `#renderType(ResourceLocation renderType)`                                 | Sets the render type. Has an overload where the parameter is a `String`. For a list of valid values, see the `RenderType` class.                                                                                                                                                                                                                        |
+| `#renderType(Identifier renderType)`                                 | Sets the render type. Has an overload where the parameter is a `String`. For a list of valid values, see the `RenderType` class.                                                                                                                                                                                                                        |
 | `transform(ItemDisplayContext type, Consumer<TransformVecBuilder> action)` | Adds a `TransformVecBuilder` that is configured via the consumer, used for setting the `display` on a model. |
 | `#ambientOcclusion(boolean ambientOcclusion)`                              | Sets whether to use [ambient occlusion][ao] or not.                                                                                                                                                                                                                                                                                                     |
 | `#guiLight(UnbakedModel.GuiLight light)`                                   | Sets the GUI light. May be `GuiLight.FRONT` or `GuiLight.SIDE`.                                                                                                                                                                                                                                                                                         |
@@ -49,14 +49,14 @@ While elaborate and complex models can be created through datagen, it is recomme
 
 ### Creating the Model Instance
 
-Now that we have a `ModelTemplate`, we can generate the model itself by calling one of the `ModelTemplate#create*` methods. Although each create method takes in different parameters, at their core, they all take in the `ResourceLocation` representing the name of the file, a `TextureMapping` which maps a `TextureSlot` to some `ResourceLocation` relative to the `textures` directory, and the model output as a `BiConsumer<ResourceLocation, ModelInstance>`. Then, the method essentially creates the `JsonObject` used to generate the model, throwing an error if any duplicates are provided.
+Now that we have a `ModelTemplate`, we can generate the model itself by calling one of the `ModelTemplate#create*` methods. Although each create method takes in different parameters, at their core, they all take in the `Identifier` representing the name of the file, a `TextureMapping` which maps a `TextureSlot` to some `Identifier` relative to the `textures` directory, and the model output as a `BiConsumer<Identifier, ModelInstance>`. Then, the method essentially creates the `JsonObject` used to generate the model, throwing an error if any duplicates are provided.
 
 :::note
 Calling the base `create` method does not apply the stored suffix. Only `create*` methods that takes in the block or item do so.
 :::
 
 ```java
-// Given some BiConsumer<ResourceLocation, ModelInstance> modelOutput
+// Given some BiConsumer<Identifier, ModelInstance> modelOutput
 // Assume there is a DeferredBlock<Block> EXAMPLE_BLOCK
 EXAMPLE_TEMPLATE.create(
     // Creates the model at 'assets/minecraft/models/block/example_block_example.json'
@@ -84,7 +84,7 @@ public static final TexturedModel.Provider EXAMPLE_TEMPLATE_PROVIDER = TexturedM
     EXAMPLE_TEMPLATE
 );
 
-// Given some BiConsumer<ResourceLocation, ModelInstance> modelOutput
+// Given some BiConsumer<Identifier, ModelInstance> modelOutput
 // Assume there is a DeferredBlock<Block> EXAMPLE_BLOCK
 EXAMPLE_TEMPLATE_PROVIDER.create(
     // Creates the model at 'assets/minecraft/models/block/example_block_example.json'
@@ -96,7 +96,7 @@ EXAMPLE_TEMPLATE_PROVIDER.create(
 
 ## `ModelProvider`
 
-Both block and item model datagen utilize generators provided by `registerModels`, named `BlockModelGenerators` and `ItemModelGenerators`, respectively. Each generator generates both the model JSON along with any additional required files (blockstate, client items). Each generator contains various helper methods which batches the construction of all the files into a single, easy-to-use method, such as `ItemModelGenerators#generateFlatItem` to create a basic `item/generated` model or `BlockModelGenerators#createTrivialCube` for a basic `block/cube_all` model.
+Both block and item model datagen utilize generators provided by `registerModels`, named `BlockModelGenerators` and `ItemModelGenerators`, respectively. Each generator generates both the model JSON along with any additional required files (blockstate, client items). Each generator contains various helper methods which batches the construction of all the files into a single, easy-to-use method, such as `ItemModelGenerators#generateFlatItem` with `ModelTemplates#FLAT_ITEM` to create a basic `item/generated` model or `BlockModelGenerators#createTrivialCube` for a basic `block/cube_all` model.
 
 ```java
 public class ExampleModelProvider extends ModelProvider {
@@ -192,7 +192,7 @@ public class ExampleModelProvider extends ModelProvider {
         blockModels.familyWithExistingFullBlock(block).button(block);
 
         // Create a model to use for blockstatefiles
-        ResourceLocation modelLoc = TexturedModel.CUBE.create(block, blockModels.modelOutput);
+        Identifier modelLoc = TexturedModel.CUBE.create(block, blockModels.modelOutput);
 
         // Create a common variant to transform
         Variant variant = new Variant(modelLoc);
@@ -307,6 +307,18 @@ public class ExampleModelProvider extends ModelProvider {
                 ),
                 // When false, use the base bow model
                 bow
+            ),
+            // Some settings to use during the rendering process
+            new ClientItem.Properties(
+                // When false, disables the animation where the item is raised
+                // up towards its normal position on item swap
+                false,
+                // When true, allows the model to render outside its defined
+                // slot bounds (defined in GuiItemRenderState#bounds) in a GUI
+                // instead of being scissored
+                false,
+                // Applies the scalar to the height of the hand when swapping
+                1.0F
             )
         );
     }

@@ -111,8 +111,6 @@ modId = "examplemod2"
 | `logoFile`       | string   | _nothing_                    | The name and extension of an image file used on the mods list screen. The logo must be in the root of the JAR or directly in the root of the source set (e.g. `src/main/resources` for the main source set).                                                                   | `logoFile="example_logo.png"`                                   |
 | `logoBlur`       | boolean  | `true`                       | Whether to use `GL_LINEAR*` (true) or `GL_NEAREST*` (false) to render the `logoFile`. In simpler terms, this means whether the logo should be blurred or not when trying to scale the logo.                                                                                    | `logoBlur=false`                                                |
 | `updateJSONURL`  | string   | _nothing_                    | A URL to a JSON used by the [update checker][update] to make sure the mod you are playing is the latest version.                                                                                                                                                               | `updateJSONURL="https://example.github.io/update_checker.json"` |
-| `features`       | table    | `{}`                         | See [features].                                                                                                                                                                                                                                                                | `features={java_version="[17,)"}`                               |
-| `modproperties`  | table    | `{}`                         | A table of key/values associated with this mod. Unused by NeoForge, but is mainly for use by mods.                                                                                                                                                                             | `modproperties={example="value"}`                               |
 | `modUrl`         | string   | _nothing_                    | A URL to the download page of the mod. Currently unused.                                                                                                                                                                                                                       | `modUrl="https://neoforged.net/"`                               |
 | `credits`        | string   | _nothing_                    | Credits and acknowledges for the mod shown on the mod list screen.                                                                                                                                                                                                             | `credits="The person over here and there."`                     |
 | `authors`        | string   | _nothing_                    | The authors of the mod shown on the mod list screen.                                                                                                                                                                                                                           | `authors="Example Person"`                                      |
@@ -121,12 +119,46 @@ modId = "examplemod2"
 
 #### Features
 
-The features system allows mods to demand that certain settings, software, or hardware are available when loading the system. When a feature is not satisfied, mod loading will fail, informing the user about the requirement. Currently, NeoForge provides the following features:
+The features system allows mods to demand that certain settings, software, or hardware are available when loading the system. When a feature is not satisfied, mod loading will fail, informing the user about the requirement. These configurations are created using the [array of tables][array] `[[features.<modid>]]`, where `modid` is the identifier of the mod that consumes the feature. Currently, NeoForge provides the following features:
 
 | Feature          | Description                                                                                                                                                                                                | Example                             |
 |------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------|
-| `javaVersion`   | The acceptable version range of the Java version, expressed as a [Maven Version Range][mvr]. This should be the supported version used by Minecraft.                                                       | `features={javaVersion="[17,)"}`  |
-| `openGLVersion` | The acceptable version range of the OpenGL version, expressed as a [Maven Version Range][mvr]. Minecraft requires OpenGL 3.2 or newer. If you want to require a newer OpenGL version, you can do so here.  | `features={openGLVersion="[4.6,)"}` |
+| `javaVersion`   | The acceptable version range of the Java version, expressed as a [Maven Version Range][mvr]. This should be the supported version used by Minecraft.                                                       | `javaVersion="[17,)"`  |
+| `openGLVersion` | The acceptable version range of the OpenGL version, expressed as a [Maven Version Range][mvr]. Minecraft requires OpenGL 3.2 or newer. If you want to require a newer OpenGL version, you can do so here.  | `openGLVersion="[4.6,)"` |
+
+#### Mod Properties
+
+The mod properties system is a map of arbitrary keys to values that are associated with a particular mod. These can be useful when a mod file defines multiple mods that provide different metadata. From there, the specific property value for some key can be obtained by getting the object value from the map via `IModInfo#getModProperties`. These configurations are created using the [array of tables][array] `[[modproperties.<modid>]]`, where `modid` is the identifier of the mod that consumes the defined properties.
+
+```java
+// Assume we have two mods `mod1` and `mod2` with the following property configuration
+// [[modproperties.mod1]]
+// key="value1"
+// [[modproperties.mod2]]
+// key="value2"
+
+@Mod("mod1")
+public class ModOne {
+
+    private final String key;
+
+    public ModOne(ModContainer container) {
+        // Will store 'value1' in key
+        this.key = (String) container.getModInfo().getModProperties().get("key");
+    }
+}
+
+@Mod("mod2")
+public class ModTwo {
+
+    private final String key;
+
+    public ModTwo(ModContainer container) {
+        // Will store 'value2' in key
+        this.key = (String) container.getModInfo().getModProperties().get("key");
+    }
+}
+```
 
 ### Access Transformer-Specific Properties
 

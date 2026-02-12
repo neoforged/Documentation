@@ -20,13 +20,13 @@ An armor set for a humanoid entity typically consists of four items: a helmet fo
 - `#ATTRIBUTE_MODIFIERS` for armor, armor toughness, and knockback resistance
 - `#EQUIPPABLE` for how the entity can equip the item.
 
-Commonly, each armor is setup using `Item.Properties#humanoidArmor` for humanoid entities, `wolfArmor` for wolves, and `horseArmor` for horses. They all use `ArmorMaterial` combined with `ArmorType` for humanoids to set up the components. Reference values can be found within `ArmorMaterials`. This example uses a copper armor material, which you can adjust the values of as needed.
+Commonly, each armor is setup using `Item.Properties#humanoidArmor` for humanoid entities, `wolfArmor` for wolves, `horseArmor` for horses, and `nautilusArmor` for nautili. They all use `ArmorMaterial` combined with `ArmorType` for humanoids to set up the components. Reference values can be found within `ArmorMaterials`. This example uses a copper armor material, which you can adjust the values of as needed.
 
 ```java
 // The resource key of the equipment asset used to link
 // the `EquipmentClientInfo` JSON discussed below.
 // Points to assets/examplemod/equipment/copper.json
-public static final ResourceKey<EquipmentAsset> COPPER_ASSET = ResourceKey.create(EquipmentAssets.ROOT_ID, ResourceLocation.fromNamespaceAndPath("examplemod", "copper"));
+public static final ResourceKey<EquipmentAsset> COPPER_ASSET = ResourceKey.create(EquipmentAssets.ROOT_ID, Identifier.fromNamespaceAndPath("examplemod", "copper"));
 
 public static final ArmorMaterial COPPER_ARMOR_MATERIAL = new ArmorMaterial(
     // The durability multiplier of the armor material.
@@ -102,6 +102,9 @@ public static final DeferredItem<Item> COPPER_WOLF_ARMOR = ITEMS.registerItem(
 
 public static final DeferredItem<Item> COPPER_HORSE_ARMOR =
     ITEMS.registerItem("copper_horse_armor", props -> new Item(props.horseArmor(...)));
+
+public static final DeferredItem<Item> COPPER_NAUTILUS_ARMOR =
+    ITEMS.registerItem("copper_nautilus_armor", props -> new Item(props.nautilusArmor(...)));
 ```
 
 If you want to create armor or an armor-like item from scratch, it can be implemented using a combination of the following parts:
@@ -117,18 +120,18 @@ If you want to create armor or an armor-like item from scratch, it can be implem
 
 `Equippable` is a data component that contains how an entity can equip this item and what handles the rendering in game. This allows any item, regardless of whether it is considered 'armor', to be equipped if this component is available (e.g., saddles, carpets on llamas). Each item with this component can only be equipped to a single `EquipmentSlot`.
 
-An `Equippable` can be created either by directly calling the record constructor or via `Equippable#builder`, which sets the defaults for each field, folowed by `build` once finished:
+An `Equippable` can be created either by directly calling the record constructor or via `Equippable#builder`, which sets the defaults for each field, followed by `build` once finished:
 
 ```java
 // The resource key of the equipment asset used to link
 // the `EquipmentClientInfo` JSON discussed below.
 // Points to assets/examplemod/equipment/equippable.json
-public static final ResourceKey<EquipmentAsset> EXAMPLE_EQUIPABBLE = ResourceKey.create(EquipmentAssets.ROOT_ID, ResourceLocation.fromNamespaceAndPath("examplemod", "equippable"));
+public static final ResourceKey<EquipmentAsset> EXAMPLE_EQUIPABBLE = ResourceKey.create(EquipmentAssets.ROOT_ID, Identifier.fromNamespaceAndPath("examplemod", "equippable"));
 
 // Assume there is some DeferredRegister.Items ITEMS
 public static final DeferredItem<Item> EQUIPPABLE = ITEMS.registerSimpleItem(
     "equippable",
-    new Item.Properties().component(
+    props -> props.component(
         DataComponents.EQUIPPABLE,
         // Sets the slot that this item can be equipped to.
         Equippable.builder(EquipmentSlot.HELMET)
@@ -142,7 +145,7 @@ public static final DeferredItem<Item> EQUIPPABLE = ITEMS.registerSimpleItem(
             // The relative location of the texture to overlay on the player screen when wearing (e.g., pumpkin blur).
             // Points to assets/examplemod/textures/equippable.png
             // When not set, does not render an overlay.
-            .setCameraOverlay(ResourceLocation.withDefaultNamespace("examplemod", "equippable"))
+            .setCameraOverlay(Identifier.withDefaultNamespace("examplemod", "equippable"))
             // A HolderSet of entity types (direct or tag) that can equip this item.
             // When not set, any entity can equip this item.
             .setAllowedEntities(EntityType.ZOMBIE)
@@ -252,6 +255,14 @@ Let's create an equipment info for the copper armor material. We'll also assume 
                 "texture": "examplemod:copper/horse",
                 "use_player_texture": true
             }
+        ],
+        // For nautilus armor
+        "nautilus_body": [
+            {
+                // Points to assets/examplemod/textures/entity/equipment/nautilus_body/copper/nautilus.png
+                "texture": "examplemod:copper/nautilus",
+                "use_player_texture": true
+            }
         ]
     }
 }
@@ -281,7 +292,7 @@ public class MyEquipmentInfoProvider extends EquipmentAssetProvider {
                     new EquipmentClientInfo.Layer(
                         // The relative texture of the armor
                         // Points to assets/examplemod/textures/entity/equipment/humanoid/copper/outer.png
-                        ResourceLocation.fromNamespaceAndPath("examplemod", "copper/outer"),
+                        Identifier.fromNamespaceAndPath("examplemod", "copper/outer"),
                         Optional.empty(),
                         false
                     ),
@@ -289,7 +300,7 @@ public class MyEquipmentInfoProvider extends EquipmentAssetProvider {
                     new EquipmentClientInfo.Layer(
                         // The overlay texture
                         // Points to assets/examplemod/textures/entity/equipment/humanoid/copper/outer_overlay.png
-                        ResourceLocation.fromNamespaceAndPath("examplemod", "copper/outer_overlay"),
+                        Identifier.fromNamespaceAndPath("examplemod", "copper/outer_overlay"),
                         // An RGB value (always opaque color)
                         // When not specified, set to 0 (meaning transparent or invisible)
                         Optional.of(new EquipmentClientInfo.Dyeable(Optional.of(0x7683DE))),
@@ -301,13 +312,13 @@ public class MyEquipmentInfoProvider extends EquipmentAssetProvider {
                     EquipmentClientInfo.LayerType.HUMANOID_LEGGINGS,
                     new EquipmentClientInfo.Layer(
                         // Points to assets/examplemod/textures/entity/equipment/humanoid_leggings/copper/inner.png
-                        ResourceLocation.fromNamespaceAndPath("examplemod", "copper/inner"),
+                        Identifier.fromNamespaceAndPath("examplemod", "copper/inner"),
                         Optional.empty(),
                         false
                     ),
                     new EquipmentClientInfo.Layer(
                         // Points to assets/examplemod/textures/entity/equipment/humanoid_leggings/copper/inner_overlay.png
-                        ResourceLocation.fromNamespaceAndPath("examplemod", "copper/inner_overlay"),
+                        Identifier.fromNamespaceAndPath("examplemod", "copper/inner_overlay"),
                         Optional.of(new EquipmentClientInfo.Dyeable(Optional.of(0x7683DE))),
                         false
                     )
@@ -318,7 +329,7 @@ public class MyEquipmentInfoProvider extends EquipmentAssetProvider {
                     // Base texture
                     new EquipmentClientInfo.Layer(
                         // Points to assets/examplemod/textures/entity/equipment/wolf_body/copper/wolf.png
-                        ResourceLocation.fromNamespaceAndPath("examplemod", "copper/wolf"),
+                        Identifier.fromNamespaceAndPath("examplemod", "copper/wolf"),
                         Optional.empty(),
                         // When true, uses the texture passed into the layer renderer instead
                         true
@@ -330,7 +341,18 @@ public class MyEquipmentInfoProvider extends EquipmentAssetProvider {
                     // Base texture
                     new EquipmentClientInfo.Layer(
                         // Points to assets/examplemod/textures/entity/equipment/horse_body/copper/horse.png
-                        ResourceLocation.fromNamespaceAndPath("examplemod", "copper/horse"),
+                        Identifier.fromNamespaceAndPath("examplemod", "copper/horse"),
+                        Optional.empty(),
+                        true
+                    )
+                )
+                // For nautilus armor
+                .addLayers(
+                    EquipmentClientInfo.LayerType.NAUTILUS_BODY,
+                    // Base texture
+                    new EquipmentClientInfo.Layer(
+                        // Points to assets/examplemod/textures/entity/equipment/nautilus_body/copper/nautilus.png
+                        Identifier.fromNamespaceAndPath("examplemod", "copper/nautilus"),
                         Optional.empty(),
                         true
                     )
@@ -372,6 +394,8 @@ By default, the following layers render the associated `EquipmentClientInfo.Laye
 | `ZOMBIE_HORSE_SADDLE`   | `SimpleEquipmentLayer` | Zombie Horse                                                   |
 | `SKELETON_HORSE_SADDLE` | `SimpleEquipmentLayer` | Skeleton Horse                                                 |
 | `HAPPY_GHAST_BODY`      | `SimpleEquipmentLayer` | Happy Ghast                                                    |
+| `NAUTILUS_SADDLE`       | `SimpleEquipmentLayer` | Nautilus                                                       |
+| `NAUTILUS_BODY`         | `SimpleEquipmentLayer` | Nautilus                                                       |
 
 `EquipmentLayerRenderer` has only one method to submit the equipment layers for rendering: `renderLayers`.
 
@@ -398,7 +422,7 @@ this.equipmentLayerRenderer.renderLayers(
     lightCoords,
     // An absolute path of the texture to render when use_player_texture is true for one of the layer if not null
     // Represents an absolute location within the assets folder
-    ResourceLocation.fromNamespaceAndPath("examplemod", "textures/other_texture.png"),
+    Identifier.fromNamespaceAndPath("examplemod", "textures/other_texture.png"),
     // The color of the model outline
     // Only used if the outline color is not 0 and the `RenderType` has or is an outline type
     outlineColor,

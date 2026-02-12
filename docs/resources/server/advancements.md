@@ -247,11 +247,11 @@ builder.rewards(
     // Alternatively, use addExperience() to add to an existing builder.
     AdvancementRewards.Builder.experience(100)
     // Alternatively, use loot() to create a new builder.
-    .addLootTable(ResourceKey.create(Registries.LOOT_TABLE, ResourceLocation.fromNamespaceAndPath("minecraft", "chests/igloo")))
+    .addLootTable(ResourceKey.create(Registries.LOOT_TABLE, Identifier.fromNamespaceAndPath("minecraft", "chests/igloo")))
     // Alternatively, use recipe() to create a new builder.
-    .addRecipe(ResourceKey.create(Registries.RECIPE, ResourceLocation.fromNamespaceAndPath("minecraft", "iron_ingot")))
+    .addRecipe(ResourceKey.create(Registries.RECIPE, Identifier.fromNamespaceAndPath("minecraft", "iron_ingot")))
     // Alternatively, use function() to create a new builder.
-    .runs(ResourceLocation.fromNamespaceAndPath("examplemod", "example_function"))
+    .runs(Identifier.fromNamespaceAndPath("examplemod", "example_function"))
 );
 
 // Adds a criterion with the given name to the advancement. Use the corresponding trigger instance's static method.
@@ -263,7 +263,7 @@ builder.requirements(AdvancementRequirements.allOf(List.of("pickup_dirt")));
 
 // Save the advancement to disk, using the given resource location. This returns an AdvancementHolder,
 // which may be stored in a variable and used as a parent by other advancement builders.
-builder.save(saver, ResourceLocation.fromNamespaceAndPath("examplemod", "example_advancement"));
+builder.save(saver, Identifier.fromNamespaceAndPath("examplemod", "example_advancement"));
 ```
 
 [codec]: ../../datastorage/codecs.md

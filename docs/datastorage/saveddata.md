@@ -31,7 +31,7 @@ As the `SavedData` is simply an object, there needs to be some sort of associate
 There is an additional fourth parameter for the `DataFixTypes`, but as NeoForge does not support data fixers, all vanilla use cases have been patched to allow null values.
 :::
 
-There are two variations of the `SavedDataType` constructor. The first takes in a simple `Supplier` for the constructor and a regular `Codec` for the disk handling. However, if you want to store the current `ServerLevel` or world seed, there is an overload that takes in a `Function` for both, supplying a `SavedData.Context`.
+There are two variations of the `SavedDataType` constructor. The first takes in a simple `Supplier` for the constructor and a regular `Codec` for the disk handling. However, if you want to store the current `ServerLevel` or world seed, there is a NeoForge-added overload that takes in a `SavedDataType.Factory` for both, supplying a `ServerLevel`.
 
 ```java
 // For some saved data implementation
@@ -77,20 +77,20 @@ public class ContextExampleSavedData extends SavedData {
         // The initial constructor
         ContextExampleSavedData::new,
         // The codec used to serialize the data
-        ctx -> RecordCodecBuilder.create(instance -> instance.group(
-            RecordCodecBuilder.point(ctx),
+        level -> RecordCodecBuilder.create(instance -> instance.group(
+            RecordCodecBuilder.point(level),
             Codec.INT.fieldOf("val1").forGetter(sd -> sd.val1),
             BuiltInRegistries.BLOCK.byNameCodec().fieldOf("val2").forGetter(sd -> sd.val2)
         ).apply(instance, ContextExampleSavedData::new))
     );
 
     // Initial constructor
-    public ContextExampleSavedData(SavedData.Context ctx) {
+    public ContextExampleSavedData(ServerLevel level) {
         // ...
     }
 
     // Data constructor
-    public ContextExampleSavedData(SavedData.Context ctx, int val1, Block val2) {
+    public ContextExampleSavedData(ServerLevel level, int val1, Block val2) {
         // ...
     }
 

@@ -68,14 +68,14 @@ Naming the tag itself also has some conventions to follow:
 
 ## Using Tags
 
-To reference tags in code, you must create a `TagKey<T>`, where `T` is the type of tag (`Block`, `Item`, `EntityType<?>`, etc.), using a [registry key][regkey] and a [resource location][resloc]:
+To reference tags in code, you must create a `TagKey<T>`, where `T` is the type of tag (`Block`, `Item`, `EntityType<?>`, etc.), using a [registry key][regkey] and an [identifier][identifier]:
 
 ```java
 public static final TagKey<Block> MY_TAG = TagKey.create(
         // The registry key. The type of the registry must match the generic type of the tag.
         Registries.BLOCK,
         // The location of the tag. This example will put our tag at data/examplemod/tags/blocks/example_tag.json.
-        ResourceLocation.fromNamespaceAndPath("examplemod", "example_tag")
+        Identifier.fromNamespaceAndPath("examplemod", "example_tag")
 );
 ```
 
@@ -139,6 +139,7 @@ The following table shows a list of tag providers for different objects:
 | `PaintingVariant`          | `PaintingVariantTagsProvider`          | `KeyTagProvider`              |
 | `PoiType`                  | `PoiTypeTagsProvider`                  | `KeyTagProvider`              |
 | `Structure`                | `StructureTagsProvider`                | `KeyTagProvider`              |
+| `Timeline`                 | `TimelineTagsProvider`                 | `KeyTagProvider`              |
 | `WorldPreset`              | `WorldPresetTagsProvider`              | `KeyTagProvider`              |
 
 
@@ -163,17 +164,17 @@ public class MyBlockTagsProvider extends BlockTagsProvider {
             .add(Blocks.DIRT, Blocks.COBBLESTONE)
             // Add optional entries that will be ignored if absent. This example uses Botania's Pure Daisy.
             // This is not a vararg parameter.
-            .add(TagEntry.optionalElement(ResourceLocation.fromNamespaceAndPath("botania", "pure_daisy")))
+            .add(TagEntry.optionalElement(Identifier.fromNamespaceAndPath("botania", "pure_daisy")))
             // Add a tag entry.
             .addTag(BlockTags.PLANKS)
             // Add multiple tag entries. This is a vararg parameter.
             // Can cause unchecked warnings that can safely be suppressed.
             .addTags(BlockTags.LOGS, BlockTags.WOODEN_SLABS)
             // Add an optional tag entry that will be ignored if absent.
-            .addOptionalTag(ItemTags.create(ResourceLocation.fromNamespaceAndPath("c", "ingots/tin")))
+            .addOptionalTag(ItemTags.create(Identifier.fromNamespaceAndPath("c", "ingots/tin")))
             // Add multiple optional tag entries. This is a vararg parameter.
             // Can cause unchecked warnings that can safely be suppressed.
-            .addOptionalTags(ItemTags.create(ResourceLocation.fromNamespaceAndPath("c", "nuggets/tin")), ItemTags.create(ResourceLocation.fromNamespaceAndPath("c", "storage_blocks/tin")))
+            .addOptionalTags(ItemTags.create(Identifier.fromNamespaceAndPath("c", "nuggets/tin")), ItemTags.create(Identifier.fromNamespaceAndPath("c", "storage_blocks/tin")))
             // Set the replace property to true.
             .replace()
             // Set the replace property back to false.
@@ -248,7 +249,7 @@ public class MyRecipeTypeTagsProvider extends TagsProvider<RecipeType<?>> {
 }
 ```
 
-From here, tags are generated from the provider by creating a `TagBuilder` via `getOrCreateRawBuilder`. The builder contains methods to add or remove elements and tags by their `ResourceLocation`. Additionally, the builder can specify the `replace` property:
+From here, tags are generated from the provider by creating a `TagBuilder` via `getOrCreateRawBuilder`. The builder contains methods to add or remove elements and tags by their `Identifier`. Additionally, the builder can specify the `replace` property:
 
 ```java
 public class MyRecipeTypeTagsProvider extends TagsProvider<RecipeType<?>> {
@@ -258,13 +259,13 @@ public class MyRecipeTypeTagsProvider extends TagsProvider<RecipeType<?>> {
     // Lets assume the following TagKey<RecipeType<?>> SMELTERS, CRAFTERS, SMITHERS
     @Override
     protected void addTags(HolderLookup.Provider lookupProvider) {
-        // Create a TagBuilder for `ResourceLocation`s.
+        // Create a TagBuilder for `Identifier`s.
         this.getOrCreateRawBuilder(MY_TAG)
             // Add entries.
-            .addElement(ResourceLocation.fromNamespaceAndPath("minecraft", "crafting"))
-            .addElement(ResourceLocation.fromNamespaceAndPath("minecraft", "smelting"))
+            .addElement(Identifier.fromNamespaceAndPath("minecraft", "crafting"))
+            .addElement(Identifier.fromNamespaceAndPath("minecraft", "smelting"))
             // Add optional entries that will be ignored if absent.
-            .addOptionalElement(ResourceLocation.fromNamespaceAndPath("minecraft", "blasting"))
+            .addOptionalElement(Identifier.fromNamespaceAndPath("minecraft", "blasting"))
             // Add a tag entry.
             .addTag(SMELTERS.location())
             // Add an optional tag entry that will be ignored if absent.
@@ -274,14 +275,14 @@ public class MyRecipeTypeTagsProvider extends TagsProvider<RecipeType<?>> {
             // Set the replace property back to false.
             .replace(false)
             // Remove entries.
-            .removeElement(ResourceLocation.fromNamespaceAndPath("minecraft", "campfire_cooking"))
+            .removeElement(Identifier.fromNamespaceAndPath("minecraft", "campfire_cooking"))
             // Remove a tag entry.
             .removeTag(SMITHERS.location());
     }
 }
 ```
 
-Currently, the entire tag is being constructed from `ResourceLocation`s. However, specifying the raw identifier every time can become tedious, especially when the `ResourceKey` or the direct object is available. That's where `TagAppender` comes in. `TagAppender<E, T>` is functionally a wrapper around a `TagBuilder` that takes in some arbitrary entry object `E` and converts it into `TagBuilder` calls for the registry object `T`. The `TagAppender` can be remapped into any arbitrary object via `map`, provided there is a way to convert the new object type into the previous entry object `E`. This is basically what `KeyTagProvider` and `IntrinsicHolderTagsProvider` are doing. They provide a method `tag` that creates a `TagAppender` that maps `ResourceKey`s to `ResourceLocation`s or direct objects to `ResourceLocation`s, respectively:
+Currently, the entire tag is being constructed from `Identifier`s. However, specifying the raw identifier every time can become tedious, especially when the `ResourceKey` or the direct object is available. That's where `TagAppender` comes in. `TagAppender<E, T>` is functionally a wrapper around a `TagBuilder` that takes in some arbitrary entry object `E` and converts it into `TagBuilder` calls for the registry object `T`. The `TagAppender` can be remapped into any arbitrary object via `map`, provided there is a way to convert the new object type into the previous entry object `E`. This is basically what `KeyTagProvider` and `IntrinsicHolderTagsProvider` are doing. They provide a method `tag` that creates a `TagAppender` that maps `ResourceKey`s to `Identifier`s or direct objects to `Identifier`s, respectively:
 
 ```java
 
@@ -292,17 +293,17 @@ public class MyRecipeTypeTagsProvider extends TagsProvider<RecipeType<?>> {
     // Let's assume we have the TagKey<RecipeType<?>>s SMELTERS, CRAFTERS, SMITHERS
     @Override
     protected void addTags(HolderLookup.Provider lookupProvider) {
-        // Create the TagAppender for `ResourceLocation`s.
+        // Create the TagAppender for `Identifier`s.
         this.tag(MY_TAG)
             // Replace property info
             .replace()
             // Handle any optional elements that may not be present
-            .addOptional(ResourceLocation.fromNamespaceAndPath("examplemod", "example_type"))
+            .addOptional(Identifier.fromNamespaceAndPath("examplemod", "example_type"))
             // Can take in a TagKey
             .addOptionalTag(CRAFTERS)
 
             // Map to ResourceKey (KeyTagProvider)
-            .map((Function<ResourceKey<RecipeType<?>>, ResourceLocation>) ResourceKey::location)
+            .map((Function<ResourceKey<RecipeType<?>>, Identifier>) ResourceKey::location)
             .add(BuiltInRegistries.RECIPE_TYPE.getResourceKey(RecipeType.CRAFTING).orElseThrow())
 
             // Map to direct object (IntrinsicHolderTagsProvider)
@@ -313,52 +314,52 @@ public class MyRecipeTypeTagsProvider extends TagsProvider<RecipeType<?>> {
             .remove(SMITHERS);
     }
 
-    private TagAppender<ResourceLocation, RecipeType<?>> tag(TagKey<RecipeType<?>> tag) {
+    private TagAppender<Identifier, RecipeType<?>> tag(TagKey<RecipeType<?>> tag) {
         // Create the builder
         TagBuilder builder = this.getOrCreateRawBuilder(tag);
 
         // Generate the appender (can use TagAppender#forBuilder) instead
-        return new TagAppender<ResourceLocation, T>() {
+        return new TagAppender<Identifier, T>() {
 
             @Override
-            public TagAppender<ResourceLocation, T> add(ResourceLocation element) {
+            public TagAppender<Identifier, T> add(Identifier element) {
                 builder.addElement(element);
                 return this;
             }
 
             @Override
-            public TagAppender<ResourceLocation, T> addOptional(ResourceLocation element) {
+            public TagAppender<Identifier, T> addOptional(Identifier element) {
                 builder.addOptionalElement(element);
                 return this;
             }
 
             @Override
-            public TagAppender<ResourceLocation, T> addTag(TagKey<T> tag) {
+            public TagAppender<Identifier, T> addTag(TagKey<T> tag) {
                 builder.addTag(tag.location());
                 return this;
             }
 
             @Override
-            public TagAppender<ResourceLocation, T> addOptionalTag(TagKey<T> tag) {
+            public TagAppender<Identifier, T> addOptionalTag(TagKey<T> tag) {
                 builder.addOptionalTag(tag.location());
                 return this;
             }
 
             // For situations where you cannot access the current entry object
             @Override
-            public TagAppender<ResourceLocation, T> add(TagEntry entry) {
+            public TagAppender<Identifier, T> add(TagEntry entry) {
                 builder.add(entry);
                 return this;
             }
 
             @Override
-            public TagAppender<ResourceLocation, T> replace(boolean value) {
+            public TagAppender<Identifier, T> replace(boolean value) {
                 builder.replace(value);
                 return this;
             }
 
             @Override
-            public TagAppender<ResourceLocation, T> remove(ResourceLocation element) {
+            public TagAppender<Identifier, T> remove(Identifier element) {
                 builder.removeElement(element);
                 return this;
             }
@@ -413,5 +414,5 @@ public static void gatherData(GatherDataEvent.Client event) {
 [damagetype]: damagetypes.md
 [datagen]: ../index.md#data-generation
 [registry]: ../../concepts/registries.md
-[regkey]: ../../misc/resourcelocation.md#resourcekeys
-[resloc]: ../../misc/resourcelocation.md
+[regkey]: ../../misc/identifier.md#resourcekeys
+[identifier]: ../../misc/identifier.md

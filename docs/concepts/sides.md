@@ -52,7 +52,6 @@ This check should be used as your go-to default. Whenever you have a `Level` ava
 
 `FMLEnvironment#getDist()` is the **physical** counterpart to a `Level#isClientSide()` check. If this field is `Dist.CLIENT`, you are on a physical client. If the field is `Dist.DEDICATED_SERVER`, you are on a physical server.
 
-
 #### `@Mod`
 
 Checking the physical environment is important when dealing with client-only classes. The recommended way to separate code that should only be executed on one physical client is by specifying a separate [`@Mod` annotation][mod], setting the `dist` parameter to the physical side the mod class should be loaded on:

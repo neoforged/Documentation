@@ -64,6 +64,8 @@ Either `persistent` or `networkSynchronized` must be provided in the builder; ot
 
 `cacheEncoding` caches the encoding result of the `Codec` such that any subsequent encodes uses the cached value if the component value hasn't changed. This should only be used if the component value is expected to rarely or never change.
 
+`ignoreSwapAnimation` will cancel the swap animation if an item has this component on it. If this is not set, the animation could still be canceled depending on the client item properties.
+
 `DataComponentType` are registry objects and must be [registered].
 
 ```java
@@ -217,7 +219,7 @@ public static final Item COMPONENT_EXAMPLE = REGISTRAR.register("component",
 );
 ```
 
-If the data component should be added to an existing item that belongs to Vanilla or another mod, then `ModifyDefaultComponentEvent` should be listened for on the [**mod event bus**][modbus]. The event provides the `modify` and `modifyMatching` methods which allows the `DataComponentPatch.Builder` to be modified for the associated items. The builder can either `#set` components or `#remove` existing components.
+If the data component should be added to an existing item that belongs to Vanilla or another mod, then `ModifyDefaultComponentsEvent` should be listened for on the [**mod event bus**][modbus]. The event provides the `modify` and `modifyMatching` methods which allows the `DataComponentPatch.Builder` to be modified for the associated items. The builder can either `#set` components or `#remove` existing components.
 
 ```java
 @SubscribeEvent // on the mod event bus
