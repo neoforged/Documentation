@@ -1,6 +1,10 @@
 ---
 sidebar_position: 1
 ---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 # Registering Payloads
 
 Payloads are a way to send arbitrary data between the client and the server. They are registered using the `PayloadRegistrar` from the `RegisterPayloadHandlersEvent` event.
@@ -191,6 +195,35 @@ With your own payloads you can then use those to configure the client and server
 
 `CustomPacketPayload`s are sent across the network using vanilla's packet system by wrapping the payload via `ServerboundCustomPayloadPacket` when sending to the server, or `ClientboundCustomPayloadPacket` when sending to the client. Payloads sent to the client can only contain at most 1 MiB of data while payloads to the server can only contain less than 32 KiB. 
 
+<Tabs>
+<TabItem value="6" label="1.21.6">
+
+All payloads are sent via `Connection#send` with some level of abstraction; however, it is generally inconvenient to call these methods if you want to send packets to multiple people based on a given condition. Therefore, `PacketDistributor` contains a number of convenience implementations to send payloads. There is only one method to send packets to the server (`sendToServer`); however, there are numerous methods to send packets to the client depending on which players should receive the payload.
+
+
+```java
+// ON THE CLIENT
+
+// Send payload to server
+PacketDistributor.sendToServer(new MyData(...));
+
+// ON THE SERVER
+
+// Send to one player (ServerPlayer serverPlayer)
+PacketDistributor.sendToPlayer(serverPlayer, new MyData(...));
+
+/// Send to all players tracking this chunk (ServerLevel serverLevel, ChunkPos chunkPos)
+PacketDistributor.sendToPlayersTrackingChunk(serverLevel, chunkPos, new MyData(...));
+
+/// Send to all connected players
+PacketDistributor.sendToAllPlayers(new MyData(...));
+```
+
+See the `PacketDistributor` class for more implementations.
+
+</TabItem>
+<TabItem value="78" label="1.21.7 and 1.21.8" default>
+
 All payloads are sent via `Connection#send` with some level of abstraction; however, it is generally inconvenient to call these methods if you want to send packets to multiple people based on a given condition. Therefore, `PacketDistributor` contains a number of convenience implementations to send payloads to the client, and `ClientPacketDistributor` contains one method to send packets to the server (`sendToServer`).
 
 ```java
@@ -212,6 +245,9 @@ PacketDistributor.sendToAllPlayers(new MyData(...));
 ```
 
 See the `PacketDistributor` and `ClientPacketDistributor` classes for more implementations.
+
+</TabItem>
+</Tabs>
 
 [configuration]: configuration-tasks.md
 [sides]: ../concepts/sides.md
