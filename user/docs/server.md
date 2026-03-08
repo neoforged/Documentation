@@ -24,17 +24,17 @@ Running a NeoForge server on Linux, macOS, BSD, or any UNIX-like OS assumes your
 wget https://maven.neoforged.net/releases/net/neoforged/neoforge/21.4.111-beta/neoforge-21.4.111-beta-installer.jar
 ```
 </TabItem>
-<TabItem value="mac" label="macOS:">
+<TabItem value="mac" label="macOS">
 ```shell
 curl -LO https://maven.neoforged.net/releases/net/neoforged/neoforge/21.4.111-beta/neoforge-21.4.111-beta-installer.jar
 ```
 </TabItem>
-<TabItem value="freebsd" label="FreeBSD:">
+<TabItem value="freebsd" label="FreeBSD">
 ```shell
 fetch https://maven.neoforged.net/releases/net/neoforged/neoforge/21.4.111-beta/neoforge-21.4.111-beta-installer.jar
 ```
 </TabItem>
-<TabItem value="openbsd" label="OpenBSD:">
+<TabItem value="openbsd" label="OpenBSD">
 ```shell
 ftp https://maven.neoforged.net/releases/net/neoforged/neoforge/21.4.111-beta/neoforge-21.4.111-beta-installer.jar
 ```
