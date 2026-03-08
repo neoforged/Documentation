@@ -16,7 +16,7 @@ _This article assumes that you [have the correct version of Java installed][java
 Running a NeoForge server on Linux, macOS, BSD, or any UNIX-like OS assumes your ability to use basic terminal commands.
 
 - Navigate to the folder you'd like to install the server into.
-- Download the installer `.jar` from the Maven using `wget` (swap out version numbers and `-beta` labels as needed):
+- Download the installer `.jar` from the Maven using the following command (swap out version numbers and `-beta` labels as needed):
 **GNU/Linux:**
 ```shell
 wget https://maven.neoforged.net/releases/net/neoforged/neoforge/21.4.111-beta/neoforge-21.4.111-beta-installer.jar
