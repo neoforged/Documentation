@@ -11,8 +11,8 @@ _This article assumes that you [have the correct version of Java installed][java
 
 ## Installing
 
-<Tabs defaultValue="linux">
-  <TabItem value="linux" label="Linux/macOS/FreeBSD">
+<Tabs defaultValue="unix">
+  <TabItem value="unix" label="UNIX-like(Linux/macOS/FreeBSD)">
 Running a NeoForge server on Linux, macOS, BSD, or any UNIX-like OS assumes your ability to use basic terminal commands.
 
 - Navigate to the folder you'd like to install the server into.
