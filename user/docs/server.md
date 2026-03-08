@@ -12,7 +12,7 @@ _This article assumes that you [have the correct version of Java installed][java
 ## Installing
 
 <Tabs defaultValue="unix">
-  <TabItem value="unix" label="UNIX-like(Linux/macOS/FreeBSD)">
+  <TabItem value="unix" label="UNIX-like (Linux, macOS, FreeBSD, etc.)">
 Running a NeoForge server on Linux, macOS, BSD, or any UNIX-like OS assumes your ability to use basic terminal commands.
 
 
