@@ -18,7 +18,7 @@ Running a NeoForge server on Linux, macOS, BSD, or any UNIX-like OS assumes your
 
 - Navigate to the folder you'd like to install the server into.
 - Download the installer `.jar` from the Maven using the following command (swap out version numbers and `-beta` labels as needed):
-<Tabs defaultValue="freebsd">
+<Tabs defaultValue="linux">
   <TabItem value="linux" label="GNU/Linux">
 ```shell
 wget https://maven.neoforged.net/releases/net/neoforged/neoforge/21.4.111-beta/neoforge-21.4.111-beta-installer.jar
@@ -39,6 +39,7 @@ fetch https://maven.neoforged.net/releases/net/neoforged/neoforge/21.4.111-beta/
 ftp https://maven.neoforged.net/releases/net/neoforged/neoforge/21.4.111-beta/neoforge-21.4.111-beta-installer.jar
 ```
 </TabItem>
+</Tabs>
 - Run the installer using `java -jar /path/to/neoforge-installer.jar --installServer`.
 - (Optional) Modify the amount of RAM provided to the server, and potentially other JVM arguments, in the newly-created `user_jvm_args.txt` file. See the comments in the file for more information.
 - Start the server using `./run.sh`. It will shut down on the first run.
