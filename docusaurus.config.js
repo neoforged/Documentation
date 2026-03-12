@@ -170,7 +170,10 @@ const config = {
             ],
           },
         ],
-        copyright: `Copyright © ${new Date().getFullYear()}, under the MIT license. Built with Docusaurus.`,
+        copyright: `
+        <p>NOT AN OFFICIAL MINECRAFT WEBSITE. NOT APPROVED BY OR ASSOCIATED WITH MOJANG OR MICROSOFT.</p>
+        <p>Copyright © ${new Date().getFullYear()}, under the MIT license. Built with Docusaurus.</p>
+        `,
       },
       prism: {
         theme: lightTheme,
