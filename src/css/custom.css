@@ -83,3 +83,7 @@ h2 {
 .category {
   padding: 10px;
 }
+
+.footer__copyright > p {
+  margin: 0px;
+}
