@@ -6,9 +6,9 @@ This article will break down how versioning works in Minecraft and NeoForge, and
 
 Minecraft's versioning scheme has changed over the years.
 
-Versions from 1.0 to 1.21.11 follow a [semver](semver)-inspired format, `major.minor.<patch>`, with the patch version omitted for brevity. Examples of these versions would be 1.21 and 1.21.11.
+Versions from 1.0 to 1.21.11 follow a [semver]-inspired format, `major.minor.<patch>`, with the patch version omitted for brevity. Examples of these versions would be 1.21 and 1.21.11.
 
-Versions 26.1 and above follow a [calver](calver)-inspired format, `year.release.<patch>`, with the patch version omitted for brevity. Examples of these versions would be 26.1 and 26.1.1.
+Versions 26.1 and above follow a [calver]-inspired format, `year.release.<patch>`, with the patch version omitted for brevity. Examples of these versions would be 26.1 and 26.1.1.
 
 ### The Early Release Era
 
