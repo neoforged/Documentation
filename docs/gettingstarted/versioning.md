@@ -44,7 +44,7 @@ Similarly, when the pre-release cycle completes, Mojang releases Release Candida
 
 ## NeoForge
 
-NeoForge uses an adapted semver system: The major version is Minecraft's minor version, the minor version is Minecraft's patch version, and the patch version is the "actual" NeoForge version. So for example, NeoForge 20.2.59 is the 60th version (we start at 0) for Minecraft 1.20.2. Versions prefixed by `1` omitted the `1` as it is was believed that this would not change. When this turned out not to be the case, NeoForge's versioning was changed to include the full Minecraft version number, with a `0` in the place of the patch number if needed. For example, NeoForge 26.1.0.5-beta is the 4th version for Minecraft 26.1.
+NeoForge uses an adapted semver system: The major version is Minecraft's minor version, the minor version is Minecraft's patch version, and the patch version is the "actual" NeoForge version. So for example, NeoForge 20.2.59 is the 60th version (we start at 0) for Minecraft 1.20.2. Versions prefixed by `1` omitted the `1` as it is was believed that this would not change. When this turned out not to be the case, NeoForge's versioning was changed to include the full Minecraft version number, with a `0` in the place of the patch number if needed. For example, NeoForge 26.1.0.5-beta is the 6th version for Minecraft 26.1.
 
 A few places in NeoForge also use [Maven version ranges][mvr], for example the Minecraft and NeoForge version ranges in the [`neoforge.mods.toml`][neoforgemodstoml] file. These are mostly, but not fully compatible with semver (the `pre`-tag is not considered by it, for example).
 
