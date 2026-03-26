@@ -305,10 +305,10 @@ public static final Codec<Integer> DEFAULT_CODEC = Codec.INT.orElse(
 
 ### Unit
 
-A codec which supplies an in-code value and encodes to nothing can be represented using `Codec#unit`. This is useful if a codec uses a non-encodable entry within the data object.
+A codec which supplies an in-code value and encodes to nothing can be represented using `MapCodec#unitCodec`. This is useful if a codec uses a non-encodable entry within the data object.
 
 ```java
-public static final Codec<IEventBus> UNIT_CODEC = Codec.unit(
+public static final Codec<IEventBus> UNIT_CODEC = MapCodec.unitCodec(
     () -> NeoForge.EVENT_BUS // Can also be a raw value
 );
 ```
@@ -323,7 +323,7 @@ Sometimes, a codec may rely on data that is not present when it is constructed. 
 
 ```java
 public static final Codec<IEventBus> LAZY_CODEC = Codec.lazyInitialized(
-    () -> Codec.Unit(NeoForge.EVENT_BUS)
+    () -> MapCodec.unitCodec(NeoForge.EVENT_BUS)
 );
 ```
 
