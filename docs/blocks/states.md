@@ -45,13 +45,13 @@ To implement a blockstate property, in your block class, create or reference a `
 
 - `IntegerProperty`
     - Implements `Property<Integer>`. Defines a property that holds an integer value. Note that negative values are not supported.
-    - Created by calling `IntegerProperty#create(String propertyName, int minimum, int maximum)`.
+    - Created by calling `IntegerProperty#create(String name, int min, int max)`.
 - `BooleanProperty`
     - Implements `Property<Boolean>`. Defines a property that holds a `true` or `false` value.
-    - Created by calling `BooleanProperty#create(String propertyName)`.
+    - Created by calling `BooleanProperty#create(String name)`.
 - `EnumProperty<E extends Enum<E>>`
     - Implements `Property<E>`. Defines a property that can take on the values of an Enum class.
-    - Created by calling `EnumProperty#create(String propertyName, Class<E> enumClass)`.
+    - Created by calling `EnumProperty#create(String name, Class<E> enumClass)`.
     - It is also possible to use only a subset of the Enum values (e.g. 4 out of 16 `DyeColor`s), see the overloads of `EnumProperty#create`.
 
 The class `BlockStateProperties` contains shared vanilla properties which should be used or referenced whenever possible, in place of creating your own properties.
@@ -71,8 +71,8 @@ public class EndPortalFrameBlock extends Block {
     public static final EnumProperty<Direction> FACING = BlockStateProperties.FACING;
     public static final BooleanProperty EYE = BlockStateProperties.EYE;
 
-    public EndPortalFrameBlock(BlockBehaviour.Properties pProperties) {
-        super(pProperties);
+    public EndPortalFrameBlock(BlockBehaviour.Properties properties) {
+        super(properties);
         // stateDefinition.any() returns a random BlockState from an internal set,
         // we don't care because we're setting all values ourselves anyway
         this.registerDefaultState(stateDefinition.any()
@@ -82,14 +82,14 @@ public class EndPortalFrameBlock extends Block {
     }
 
     @Override
-    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> pBuilder) {
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         // this is where the properties are actually added to the state
-        pBuilder.add(FACING, EYE);
+        builder.add(FACING, EYE);
     }
 
     @Override
     @Nullable
-    public BlockState getStateForPlacement(BlockPlaceContext pContext) {
+    public BlockState getStateForPlacement(BlockPlaceContext ctx) {
         // code that determines which state will be used when
         // placing down this block, depending on the BlockPlaceContext
     }
