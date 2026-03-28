@@ -270,4 +270,4 @@ An entry in `neoforge.mods.toml` does not need a corresponding `@Mod` annotation
 [uses]: https://docs.oracle.com/javase/specs/jls/se21/html/jls-7.html#jls-7.7.3
 [versioning]: versioning.md
 [enumextension]: ../advanced/extensibleenums.md
-[featureflags]: ../advanced/f
+[featureflags]: ../advanced/featureflags.md
