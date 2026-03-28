@@ -175,7 +175,7 @@ public class ModTwo {
 |:--------:|:------:|:-------------:|:---------------------------------------------:|:----------------------------------|
 | `config` | string | **mandatory** | The location of the mixin configuration file. | `config="examplemod.mixins.json"` |
 | `requiredMods` | array | `[]` | Mod IDs that must be present for these mixins to be applied. | `requiredMods=["sodium"]` |
-| `behaviorVersion` | string | _nothing_ | Mixin may be upgraded after the end of a breaking change window. To avoid breaking mods, and behavioral changes in mixin are gated behind a new behavior version after this point if mixin is upgraded, so if you need to rely on a behavior changed after the breaking change window, you can explicitly mark what mixin version you want the behavior of here. | `behaviorVersion="0.17.1"` |
+| `behaviorVersion` | string | _nothing_ | Mixin may be upgraded after the end of a breaking change window. To avoid breaking mods, any new behavioral changes in mixin are gated behind a new behavior version, so if you need to rely on a behavior changed after the breaking change window, you can explicitly mark what mixin version you want the behavior of here. | `behaviorVersion="0.17.1"` |
 
 ### Dependency Configurations
 
