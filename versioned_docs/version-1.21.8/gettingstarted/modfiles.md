@@ -177,6 +177,7 @@ public class ModTwo {
 | Property |  Type  |    Default    |             Description                       |     Example                       |
 |:--------:|:------:|:-------------:|:---------------------------------------------:|:----------------------------------|
 | `config` | string | **mandatory** | The location of the mixin configuration file. | `config="examplemod.mixins.json"` |
+| `requiredMods` | array | `[]` | Mod IDs that must be present for these mixins to be applied. | `requiredMods=["sodium"]` |
 
 ### Dependency Configurations
 
