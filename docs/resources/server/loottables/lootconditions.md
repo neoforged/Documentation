@@ -123,11 +123,14 @@ During datagen, call `ValueCheckCondition#hasValue` with the number provider and
 
 ## `minecraft:time_check`
 
-This condition checks if the world time is within an `IntRange`. Optionally, a `period` parameter can be provided to modulo the time with; this can be used to e.g. check the time of day if `period` is 24000 (one in-game day/night cycle has 24000 ticks).
+This condition checks if a given `WorldClock` is within an `IntRange`. Optionally, a `period` parameter can be provided to modulo the time with; this can be used to e.g. check the time of day for `minecraft:overworld` if `period` is 24000 (one in-game day/night cycle has 24000 ticks).
 
 ```json5
 {
     "condition": "minecraft:time_check",
+    // The clock instance to check the time of.
+    // Points to a registered clock at `data/<namespace>/world_clock/<path>.json`.
+    "clock": "minecraft:overworld",
     // Optional, can be omitted. If omitted, no modulo operation will take place.
     // We use 24000 here, which is the length of one in-game day/night cycle.
     "period": 24000,
@@ -140,7 +143,7 @@ This condition checks if the world time is within an `IntRange`. Optionally, a `
 }
 ```
 
-During datagen, call `TimeCheck#time` with the desired range to construct a builder for this condition. The `period` value can then be set on the builder using `#setPeriod`.
+During datagen, call `TimeCheck#time` with the clock and desired range to construct a builder for this condition. The `period` value can then be set on the builder using `#setPeriod`.
 
 ## `minecraft:weather_check`
 
@@ -354,6 +357,22 @@ This condition references a predicate file and returns its result. See [Item Pre
 ```
 
 During datagen, call `ConditionReference#conditionReference` with the id of the referenced predicate file to construct a builder for this condition.
+
+## `minecraft:environment_attribute_check`
+
+This condition checks whether an environment attribute in the context dimension matches the given value. If the environment attribute is positional (it can change depending on a player's position in a level), it requires the `minecraft:origin` loot parameter, always failing if that parameter is absent. If the attribute is not present in the dimension, the value will be checked against the default value.
+
+```json5
+{
+    "condition": "minecraft:environment_attribute_check",
+    // The environment attribute to check the value of.
+    "attribute": "minecraft:gameplay/water_evaporates",
+    // The value the environment attribute must be.
+    "value": false
+}
+```
+
+During datagen, call `EnvironmentAttributeCheck#environmentAttribute` registered `EnvironmentAttribute` and its value to construct a builder for this condition.
 
 ## `neoforge:loot_table_id`
 

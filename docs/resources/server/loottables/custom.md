@@ -4,14 +4,25 @@ Due to the complexity of the loot table system, there are several [registries] a
 
 All loot table related registries follow a similar pattern. To add a new registry entry, you generally extend some class or implement some interface that holds your functionality. Then, you define a [codec] for serialization, and register that codec to the corresponding registry, using `DeferredRegister` like normal. This goes along with the "one base object, many instances" approach most registries (for example also blocks/blockstates and items/item stacks) use.
 
-## Custom Loot Entry Types
+## Custom Loot Entries
 
-To create a custom loot entry type, extend `LootPoolEntryContainer` or one of its two direct subclasses, `LootPoolSingletonContainer` or `CompositeEntryBase`. For the sake of example, we want to create a loot entry type that returns the drops of a [entity] - this is purely for example purposes, in practice it would be more ideal to directly reference the other loot table. Let's start by creating our loot entry type class:
+To create a custom loot entry, extend `LootPoolEntryContainer` or one of its two direct subclasses, `LootPoolSingletonContainer` or `CompositeEntryBase`. For the sake of example, we want to create a loot entry that returns the drops of a [entity] - this is purely for example purposes, in practice it would be more ideal to directly reference the other loot table. Let's start by creating our loot entry class:
 
 ```java
 // We extend LootPoolSingletonContainer since we have a "finite" set of drops.
 // Some of this code is adapted from NestedLootTable.
 public class EntityLootEntry extends LootPoolSingletonContainer {
+    public static final MapCodec<EntityLootEntry> CODEC = RecordCodecBuilder.mapCodec(inst ->
+        // Add our own fields.
+        inst.group(
+                        // A value referencing an entity type id.
+                        BuiltInRegistries.ENTITY_TYPE.holderByNameCodec().fieldOf("entity").forGetter(e -> e.entity)
+                )
+                // Add common fields: weight, display, conditions, and functions.
+                .and(singletonFields(inst))
+                .apply(inst, EntityLootEntry::new)
+    );
+
     // A Holder for the entity type we want to roll the other table for.
     private final Holder<EntityType<?>> entity;
 
@@ -24,7 +35,7 @@ public class EntityLootEntry extends LootPoolSingletonContainer {
         this.entity = entity;
     }
 
-    // Static builder method, accepting our custom parameters and combining them with a lambda that supplies the values common to all entry types.
+    // Static builder method, accepting our custom parameters and combining them with a lambda that supplies the values common to all entries.
     public static LootPoolSingletonContainer.Builder<?> entityLoot(Holder<EntityType<?>> entity) {
         // Use the static simpleBuilder() method defined in LootPoolSingletonContainer.
         return simpleBuilder((weight, quality, conditions, functions) -> new EntityLootEntry(entity, weight, quality, conditions, functions));
@@ -40,46 +51,23 @@ public class EntityLootEntry extends LootPoolSingletonContainer {
         // #getRandomItemsRaw calls consumer#accept for us on the results of the roll.
         table.getRandomItemsRaw(context, consumer);
     }
-}
-```
 
-Next up, we create a `MapCodec` for our loot entry:
-
-```java
-// This is placed as a constant in EntityLootEntry.
-public static final MapCodec<EntityLootEntry> CODEC = RecordCodecBuilder.mapCodec(inst ->
-        // Add our own fields.
-        inst.group(
-                        // A value referencing an entity type id.
-                        BuiltInRegistries.ENTITY_TYPE.holderByNameCodec().fieldOf("entity").forGetter(e -> e.entity)
-                )
-                // Add common fields: weight, display, conditions, and functions.
-                .and(singletonFields(inst))
-                .apply(inst, EntityLootEntry::new)
-);
-```
-
-We then use this codec in [registration][registries]:
-
-```java
-public static final DeferredRegister<LootPoolEntryType> LOOT_POOL_ENTRY_TYPES =
-        DeferredRegister.create(Registries.LOOT_POOL_ENTRY_TYPE, ExampleMod.MOD_ID);
-
-public static final Supplier<LootPoolEntryType> ENTITY_LOOT =
-        LOOT_POOL_ENTRY_TYPES.register("entity_loot", () -> new LootPoolEntryType(EntityLootEntry.CODEC));
-```
-
-Finally, in our loot entry class, we must override `getType()`:
-
-```java
-public class EntityLootEntry extends LootPoolSingletonContainer {
-    // other stuff here
-
+    // Tells the entry what to use for serialization.
     @Override
-    public LootPoolEntryType getType() {
-        return ENTITY_LOOT.get();
+    public MapCodec<EntityLootEntry> codec() {
+        return CODEC;
     }
 }
+```
+
+We then use the map codec in [registration][registries]:
+
+```java
+public static final DeferredRegister<MapCodec<? extends LootPoolEntryContainer>> LOOT_POOL_ENTRY_TYPES =
+        DeferredRegister.create(Registries.LOOT_POOL_ENTRY_TYPE, ExampleMod.MOD_ID);
+
+public static final Supplier<MapCodec<EntityLootEntry>> ENTITY_LOOT =
+        LOOT_POOL_ENTRY_TYPES.register("entity_loot", () -> EntityLootEntry.CODEC);
 ```
 
 ## Custom Number Providers
@@ -112,30 +100,23 @@ public record InvertedSignProvider(NumberProvider base) implements NumberProvide
     public Set<ContextKey<?>> getReferencedContextParams() {
         return this.base.getReferencedContextParams();
     }
-}
-```
 
-Like with custom loot entry types, we then use this codec in [registration][registries]:
-
-```java
-public static final DeferredRegister<LootNumberProviderType> LOOT_NUMBER_PROVIDER_TYPES =
-        DeferredRegister.create(Registries.LOOT_NUMBER_PROVIDER_TYPE, ExampleMod.MOD_ID);
-
-public static final Supplier<LootNumberProviderType> INVERTED_SIGN =
-        LOOT_NUMBER_PROVIDER_TYPES.register("inverted_sign", () -> new LootNumberProviderType(InvertedSignProvider.CODEC));
-```
-
-And similarly, in our number provider class, we must override `getType()`:
-
-```java
-public record InvertedSignProvider(NumberProvider base) implements NumberProvider {
-    // other stuff here
-
+    // Tells the provider what to use for serialization.
     @Override
-    public LootNumberProviderType getType() {
-        return INVERTED_SIGN.get();
+    public MapCodec<InvertedSignProvider> codec() {
+        return CODEC;
     }
 }
+```
+
+Like with custom loot entries, we then use this codec in [registration][registries]:
+
+```java
+public static final DeferredRegister<MapCodec<? extends NumberProvider>> LOOT_NUMBER_PROVIDER_TYPES =
+        DeferredRegister.create(Registries.LOOT_NUMBER_PROVIDER_TYPE, ExampleMod.MOD_ID);
+
+public static final Supplier<MapCodec<? extends NumberProvider>> INVERTED_SIGN =
+        LOOT_NUMBER_PROVIDER_TYPES.register("inverted_sign", () -> InvertedSignProvider.CODEC);
 ```
 
 ## Custom Level-Based Values
@@ -154,7 +135,7 @@ public record InvertedSignLevelBasedValue(LevelBasedValue base) implements Level
         return -this.base.calculate(level);
     }
 
-    // Unlike NumberProviders, we don't return the registered type, instead we return the codec directly.
+    // Tells the value what to use for serialization.
     @Override
     public MapCodec<InvertedLevelBasedValue> codec() {
         return CODEC;
@@ -162,13 +143,13 @@ public record InvertedSignLevelBasedValue(LevelBasedValue base) implements Level
 }
 ```
 
-And again, we then use the codec in [registration][registries], though this time directly:
+And again, we then use the codec in [registration][registries]:
 
 ```java
 public static final DeferredRegister<MapCodec<? extends LevelBasedValue>> LEVEL_BASED_VALUES =
         DeferredRegister.create(Registries.ENCHANTMENT_LEVEL_BASED_VALUE_TYPE, ExampleMod.MOD_ID);
 
-public static final Supplier<MapCodec<? extends LevelBasedValue>> INVERTED_SIGN =
+public static final Supplier<MapCodec<InvertedSignLevelBasedValue>> INVERTED_SIGN =
         LEVEL_BASED_VALUES.register("inverted_sign", () -> InvertedSignLevelBasedValue.CODEC);
 ```
 
@@ -197,30 +178,23 @@ public record HasXpLevelCondition(int level) implements LootItemCondition {
     public Set<ContextKey<?>> getReferencedContextParams() {
         return ImmutableSet.of(LootContextParams.KILLER_ENTITY);
     }
-}
-```
 
-We can [register][registries] the condition type to the registry using the condition's codec:
-
-```java
-public static final DeferredRegister<LootItemConditionType> LOOT_CONDITION_TYPES =
-        DeferredRegister.create(Registries.LOOT_CONDITION_TYPE, ExampleMod.MOD_ID);
-
-public static final Supplier<LootItemConditionType> MIN_XP_LEVEL =
-        LOOT_CONDITION_TYPES.register("min_xp_level", () -> new LootItemConditionType(HasXpLevelCondition.CODEC));
-```
-
-After we have done that, we need to override `#getType` in our condition and return the registered type:
-
-```java
-public record HasXpLevelCondition(int level) implements LootItemCondition {
-    // other stuff here
-
+    // Tells the condition what to use for serialization.
     @Override
-    public LootItemConditionType getType() {
-        return MIN_XP_LEVEL.get();
+    public MapCodec<HasXpLevelCondition> codec() {
+        return CODEC;
     }
 }
+```
+
+We can [register][registries] the map codec to the registry:
+
+```java
+public static final DeferredRegister<MapCodec<? extends LootItemCondition>> LOOT_CONDITION_TYPES =
+        DeferredRegister.create(Registries.LOOT_CONDITION_TYPE, ExampleMod.MOD_ID);
+
+public static final Supplier<MapCodec<HasXpLevelCondition>> MIN_XP_LEVEL =
+        LOOT_CONDITION_TYPES.register("min_xp_level", () -> HasXpLevelCondition.CODEC);
 ```
 
 ## Custom Loot Functions
@@ -269,30 +243,23 @@ public class RandomEnchantmentWithLevelFunction extends LootItemConditionalFunct
         }
         return stack;
     }
-}
-```
 
-We can then [register][registries] the function type to the registry using the function's codec:
-
-```java
-public static final DeferredRegister<LootItemFunctionType<?>> LOOT_FUNCTION_TYPES =
-        DeferredRegister.create(Registries.LOOT_FUNCTION_TYPE, ExampleMod.MOD_ID);
-
-public static final Supplier<LootItemFunctionType<RandomEnchantmentWithLevelFunction>> RANDOM_ENCHANTMENT_WITH_LEVEL =
-        LOOT_FUNCTION_TYPES.register("random_enchantment_with_level", () -> new LootItemFunctionType(RandomEnchantmentWithLevelFunction.CODEC));
-```
-
-After we have done that, we need to override `#getType` in our condition and return the registered type:
-
-```java
-public class RandomEnchantmentWithLevelFunction extends LootItemConditionalFunction {
-    // other stuff here
-
+    // Tells the function what to use for serialization.
     @Override
-    public LootItemFunctionType<?> getType() {
-        return RANDOM_ENCHANTMENT_WITH_LEVEL.get();
+    public MapCodec<RandomEnchantmentWithLevelFunction> codec() {
+        return CODEC;
     }
 }
+```
+
+We can then [register][registries] the map codec to the registry:
+
+```java
+public static final DeferredRegister<MapCodec<? extends LootItemFunction>> LOOT_FUNCTION_TYPES =
+        DeferredRegister.create(Registries.LOOT_FUNCTION_TYPE, ExampleMod.MOD_ID);
+
+public static final Supplier<MapCodec<RandomEnchantmentWithLevelFunction>> RANDOM_ENCHANTMENT_WITH_LEVEL =
+        LOOT_FUNCTION_TYPES.register("random_enchantment_with_level", () -> RandomEnchantmentWithLevelFunction.CODEC);
 ```
 
 [codec]: ../../../datastorage/codecs.md
