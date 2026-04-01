@@ -223,8 +223,8 @@ builder.parent(AdvancementSubProvider.createPlaceholder("minecraft:story/root"))
 // Sets the display properties of the advancement. This can either be a DisplayInfo object,
 // or pass in the values directly. If values are passed in directly, a DisplayInfo object will be created for you.
 builder.display(
-        // The advancement icon. Can be an ItemStack or an ItemLike.
-        new ItemStack(Items.GRASS_BLOCK),
+        // The advancement icon. Can be an ItemStackTemplate or an ItemLike.
+        new ItemStackTemplate(Items.GRASS_BLOCK),
         // The advancement title and description. Don't forget to add translations for these!
         Component.translatable("advancements.examplemod.example_advancement.title"),
         Component.translatable("advancements.examplemod.example_advancement.description"),
