@@ -80,7 +80,7 @@ All test instances hold some `TestData` which defines how a game test should be 
 
 ```java
 // Let's assume we have some test environment
-public static final ResourceKey<TestEnvironmentDefinition> EXAMPLE_ENVIRONMENT = ResourceKey.create(
+public static final ResourceKey<TestEnvironmentDefinition<?>> EXAMPLE_ENVIRONMENT = ResourceKey.create(
     Registries.TEST_ENVIRONMENT,
     Identifier.fromNamespaceAndPath("examplemod", "example_environment")
 );
@@ -90,7 +90,7 @@ public static void gatherData(GatherDataEvent.Client event) {
     event.createDatapackRegistryObjects(
         new RegistrySetBuilder().add(Registries.TEST_INSTANCE, bootstrap -> {
             // Use this to get the test environments
-            HolderGetter<TestEnvironmentDefinition> environments = bootstrap.lookup(Registries.TEST_ENVIRONMENT);
+            HolderGetter<TestEnvironmentDefinition<?>> environments = bootstrap.lookup(Registries.TEST_ENVIRONMENT);
 
             // Register a game test
             // Any fields not relevant to the test data are hidden
@@ -185,7 +185,7 @@ This environment type sets the game rules to use for the test. During teardown, 
 
 ```java
 // Let's assume we have some test environment
-public static final ResourceKey<TestEnvironmentDefinition> EXAMPLE_ENVIRONMENT = ResourceKey.create(
+public static final ResourceKey<TestEnvironmentDefinition<?>> EXAMPLE_ENVIRONMENT = ResourceKey.create(
     Registries.TEST_ENVIRONMENT,
     Identifier.fromNamespaceAndPath("examplemod", "example_environment")
 );
@@ -214,9 +214,9 @@ public static void gatherData(GatherDataEvent.Client event) {
 </TabItem>
 </Tabs>
 
-### Time of Day
+### Clock Time
 
-This environment type sets the time to some non-negative integer, like how the `/time set <number>` command is used.
+This environment type sets the specified `WorldClock` time to some non-negative integer, like how the `/time of <clock> set <number>` command is used.
 
 <Tabs>
 <TabItem value="json" label="JSON" default>
@@ -225,14 +225,13 @@ This environment type sets the time to some non-negative integer, like how the `
 // examplemod:example_environment
 // In 'data/examplemod/test_environment/example_environment.json'
 {
-    "type": "minecraft:time_of_day",
+    "type": "minecraft:clock_time",
 
-    // Sets the time of day in the world
-    // Common values:
-    // - Day      -> 1000
-    // - Noon     -> 6000
-    // - Night    -> 13000
-    // - Midnight -> 18000
+    // The clock to set the time of
+    // Points to a registered clock at `data/<namespace>/world_clock/<path>.json`
+    "clock": "minecraft:overworld",
+
+    // Sets the time of the clock
     "time": 13000
 }
 ```
@@ -243,7 +242,7 @@ This environment type sets the time to some non-negative integer, like how the `
 
 ```java
 // Let's assume we have some test environment
-public static final ResourceKey<TestEnvironmentDefinition> EXAMPLE_ENVIRONMENT = ResourceKey.create(
+public static final ResourceKey<TestEnvironmentDefinition<?>> EXAMPLE_ENVIRONMENT = ResourceKey.create(
     Registries.TEST_ENVIRONMENT,
     Identifier.fromNamespaceAndPath("examplemod", "example_environment")
 );
@@ -252,18 +251,75 @@ public static final ResourceKey<TestEnvironmentDefinition> EXAMPLE_ENVIRONMENT =
 public static void gatherData(GatherDataEvent.Client event) {
     event.createDatapackRegistryObjects(
         new RegistrySetBuilder().add(Registries.TEST_ENVIRONMENT, bootstrap -> {
+            // Getting clocks
+            HolderGetter<WorldClock> clocks = bootstrap.lookup(Registries.WORLD_CLOCK);
 
             // Register the environment
             bootstrap.register(
                 EXAMPLE_ENVIRONMENT,
-                new TestEnvironmentDefinition.TimeOfDay(
-                    // Sets the time of day in the world
-                    // Common values:
-                    // - Day      -> 1000
-                    // - Noon     -> 6000
-                    // - Night    -> 13000
-                    // - Midnight -> 18000
+                new TestEnvironmentDefinition.ClockTime(
+                    // The clock to set the time of
+                    clocks.getOrThrow(WorldClocks.OVERWORLD),
+                    // Sets the time of the clock
                     13000
+                )
+            );
+        })
+    );
+}
+```
+
+</TabItem>
+</Tabs>
+
+### Timeline Attributes
+
+This environment type sets the timelines to apply to the environment attributes in a level.
+
+<Tabs>
+<TabItem value="json" label="JSON" default>
+
+```json5
+// examplemod:example_environment
+// In 'data/examplemod/test_environment/example_environment.json'
+{
+    "type": "minecraft:timeline_attributes",
+
+    // The timelines to apply to the level
+    "timelines": [
+        "minecraft:day",
+        "minecraft:moon"
+    ]
+}
+```
+
+</TabItem>
+
+<TabItem value="datagen" label="Datagen">
+
+```java
+// Let's assume we have some test environment
+public static final ResourceKey<TestEnvironmentDefinition<?>> EXAMPLE_ENVIRONMENT = ResourceKey.create(
+    Registries.TEST_ENVIRONMENT,
+    Identifier.fromNamespaceAndPath("examplemod", "example_environment")
+);
+
+@SubscribeEvent // on the mod event bus
+public static void gatherData(GatherDataEvent.Client event) {
+    event.createDatapackRegistryObjects(
+        new RegistrySetBuilder().add(Registries.TEST_ENVIRONMENT, bootstrap -> {
+            // Getting timelines
+            HolderGetter<Timeline> timelines = bootstrap.lookup(Registries.TIMELINE);
+
+            // Register the environment
+            bootstrap.register(
+                EXAMPLE_ENVIRONMENT,
+                new TestEnvironmentDefinition.Timelines(
+                    // The timelines to apply to the level
+                    List.of(
+                        timelines.getOrThrow(Timelines.OVERWORLD_DAY),
+                        timelines.getOrThrow(Timelines.MOON)
+                    )
                 )
             );
         })
@@ -301,7 +357,7 @@ This environment type sets the weather, like to how the `/weather` command is us
 
 ```java
 // Let's assume we have some test environment
-public static final ResourceKey<TestEnvironmentDefinition> EXAMPLE_ENVIRONMENT = ResourceKey.create(
+public static final ResourceKey<TestEnvironmentDefinition<?>> EXAMPLE_ENVIRONMENT = ResourceKey.create(
     Registries.TEST_ENVIRONMENT,
     Identifier.fromNamespaceAndPath("examplemod", "example_environment")
 );
@@ -361,7 +417,7 @@ This environment type provides two Identifiers to `mcfunction`s to setup and tea
 
 ```java
 // Let's assume we have some test environment
-public static final ResourceKey<TestEnvironmentDefinition> EXAMPLE_ENVIRONMENT = ResourceKey.create(
+public static final ResourceKey<TestEnvironmentDefinition<?>> EXAMPLE_ENVIRONMENT = ResourceKey.create(
     Registries.TEST_ENVIRONMENT,
     Identifier.fromNamespaceAndPath("examplemod", "example_environment")
 );
@@ -427,7 +483,7 @@ Multiple environments can be merged using the composite environment type. The li
 
 ```java
 // Let's assume we have some test environment
-public static final ResourceKey<TestEnvironmentDefinition> EXAMPLE_ENVIRONMENT = ResourceKey.create(
+public static final ResourceKey<TestEnvironmentDefinition<?>> EXAMPLE_ENVIRONMENT = ResourceKey.create(
     Registries.TEST_ENVIRONMENT,
     Identifier.fromNamespaceAndPath("examplemod", "example_environment")
 );
@@ -437,7 +493,7 @@ public static void gatherData(GatherDataEvent.Client event) {
     event.createDatapackRegistryObjects(
         new RegistrySetBuilder().add(Registries.TEST_ENVIRONMENT, bootstrap -> {
             // Getting existing environments
-            HolderGetter<TestEnvironmentDefinition> environments = bootstrap.lookup(Registries.TEST_ENVIRONMENT);
+            HolderGetter<TestEnvironmentDefinition<?>> environments = bootstrap.lookup(Registries.TEST_ENVIRONMENT);
 
             // Register the environment
             bootstrap.register(
@@ -464,10 +520,10 @@ public static void gatherData(GatherDataEvent.Client event) {
 
 ### Custom Definition Types
 
-A custom `TestEnvironmentDefinition` type provides three methods: `setup` to modify the `ServerLevel`, `teardown` to reset what was modified, and `codec` to provide the `MapCodec` to encode and decode the type:
+A custom `TestEnvironmentDefinition<SavedDataType>` type provides three methods: `setup` to modify the `ServerLevel` and return the previous `SavedDataType` generic state, `teardown` to reset what was modified using the `SavedDataType`, and `codec` to provide the `MapCodec` to encode and decode the type:
 
 ```java
-public record ExampleEnvironmentType(int value1, boolean value2) implements TestEnvironmentDefinition {
+public record ExampleEnvironmentType(int value1, boolean value2) implements TestEnvironmentDefinition<Pair<Integer, Boolean>> {
 
     // Construct the map codec to register
     public static final MapCodec<ExampleEnvironmentType> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
@@ -477,19 +533,20 @@ public record ExampleEnvironmentType(int value1, boolean value2) implements Test
     );
 
     @Override
-    public void setup(ServerLevel level) {
+    public Pair<Integer, Boolean> setup(ServerLevel level) {
         // Setup whatever is necessary here
+        // return the original values of the modified level data
     }
 
     @Override
-    public void teardown(ServerLevel level) {
+    public void teardown(ServerLevel level, Pair<Integer, Boolean> originalState) {
         // Undo whatever was changed within the setup method
-        // This should either return to default or the previous value
+        // This use the original state to reset the data
     }
 
     @Override
     public MapCodec<ExampleEnvironmentType> codec() {
-        return EXAMPLE_ENVIRONMENT_CODEC.get();
+        return CODEC;
     }
 }
 ```
@@ -505,11 +562,7 @@ public static final DeferredRegister<MapCodec<? extends TestEnvironmentDefinitio
 
 public static final Supplier<MapCodec<ExampleEnvironmentType>> EXAMPLE_ENVIRONMENT_CODEC = TEST_ENVIRONMENT_DEFINITION_TYPES.register(
     "example_environment_type",
-    () -> RecordCodecBuilder.mapCodec(instance -> instance.group(
-            Codec.INT.fieldOf("value1").forGetter(ExampleEnvironmentType::value1),
-            Codec.BOOL.fieldOf("value2").forGetter(ExampleEnvironmentType::value2)
-        ).apply(instance, ExampleEnvironmentType::new)
-    )
+    () -> ExampleEnvironmentType.CODEC
 );
 ```
 
@@ -535,7 +588,7 @@ Finally, the type can then be used in your environment definition:
 
 ```java
 // Let's assume we have some test environment
-public static final ResourceKey<TestEnvironmentDefinition> EXAMPLE_ENVIRONMENT = ResourceKey.create(
+public static final ResourceKey<TestEnvironmentDefinition<?>> EXAMPLE_ENVIRONMENT = ResourceKey.create(
     Registries.TEST_ENVIRONMENT,
     Identifier.fromNamespaceAndPath("examplemod", "example_environment")
 );
@@ -678,7 +731,7 @@ public static final ResourceKey<GameTestInstance> EXAMPLE_TEST_INSTANCE = Resour
 );
 
 // Let's assume we have some test environment
-public static final ResourceKey<TestEnvironmentDefinition> EXAMPLE_ENVIRONMENT = ResourceKey.create(
+public static final ResourceKey<TestEnvironmentDefinition<?>> EXAMPLE_ENVIRONMENT = ResourceKey.create(
     Registries.TEST_ENVIRONMENT,
     Identifier.fromNamespaceAndPath("examplemod", "example_environment")
 );
@@ -688,7 +741,7 @@ public static void gatherData(GatherDataEvent.Client event) {
     event.createDatapackRegistryObjects(
         new RegistrySetBuilder().add(Registries.TEST_INSTANCE, bootstrap -> {
             // Use this to get the test environments
-            HolderGetter<TestEnvironmentDefinition> environments = bootstrap.lookup(Registries.TEST_ENVIRONMENT);
+            HolderGetter<TestEnvironmentDefinition<?>> environments = bootstrap.lookup(Registries.TEST_ENVIRONMENT);
 
             // Register a game test
             // Any fields not relevant to the test data are hidden
@@ -758,7 +811,7 @@ public static final ResourceKey<GameTestInstance> EXAMPLE_TEST_INSTANCE = Resour
 );
 
 // Let's assume we have some test environment
-public static final ResourceKey<TestEnvironmentDefinition> EXAMPLE_ENVIRONMENT = ResourceKey.create(
+public static final ResourceKey<TestEnvironmentDefinition<?>> EXAMPLE_ENVIRONMENT = ResourceKey.create(
     Registries.TEST_ENVIRONMENT,
     Identifier.fromNamespaceAndPath("examplemod", "example_environment")
 );
@@ -768,7 +821,7 @@ public static void gatherData(GatherDataEvent.Client event) {
     event.createDatapackRegistryObjects(
         new RegistrySetBuilder().add(Registries.TEST_INSTANCE, bootstrap -> {
             // Use this to get the test environments
-            HolderGetter<TestEnvironmentDefinition> environments = bootstrap.lookup(Registries.TEST_ENVIRONMENT);
+            HolderGetter<TestEnvironmentDefinition<?>> environments = bootstrap.lookup(Registries.TEST_ENVIRONMENT);
 
             // Register a game test
             // Any fields not relevant to the test data are hidden
@@ -887,7 +940,7 @@ public static final ResourceKey<GameTestInstance> EXAMPLE_TEST_INSTANCE = Resour
 );
 
 // Let's assume we have some test environment
-public static final ResourceKey<TestEnvironmentDefinition> EXAMPLE_ENVIRONMENT = ResourceKey.create(
+public static final ResourceKey<TestEnvironmentDefinition<?>> EXAMPLE_ENVIRONMENT = ResourceKey.create(
     Registries.TEST_ENVIRONMENT,
     Identifier.fromNamespaceAndPath("examplemod", "example_environment")
 );
@@ -897,7 +950,7 @@ public static void gatherData(GatherDataEvent.Client event) {
     event.createDatapackRegistryObjects(
         new RegistrySetBuilder().add(Registries.TEST_INSTANCE, bootstrap -> {
             // Use this to get the test environments
-            HolderGetter<TestEnvironmentDefinition> environments = bootstrap.lookup(Registries.TEST_ENVIRONMENT);
+            HolderGetter<TestEnvironmentDefinition<?>> environments = bootstrap.lookup(Registries.TEST_ENVIRONMENT);
 
             // Register a game test
             // Any fields not relevant to the test data are hidden
@@ -933,7 +986,7 @@ If you don't want to use a datapack to construct your game tests, you can instea
 ```java
 @SubscribeEvent // on the mod event bus
 public static void registerTests(RegisterGameTestsEvent event) {
-    Holder<TestEnvironmentDefinition> environment = event.registerEnvironment(
+    Holder<TestEnvironmentDefinition<?>> environment = event.registerEnvironment(
         // The name of the test environment
         EXAMPLE_ENVIRONMENT.location(),
         // A varargs of test environment definitions
