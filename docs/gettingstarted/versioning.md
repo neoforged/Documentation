@@ -28,7 +28,7 @@ A few places in NeoForge also use [Maven version ranges][mvr], for example the M
 
 ## Mods
 
-There is no definitive best versioning system. Different styles of development, scopes of projects, etc. all influence the decision of what versioning system to use. Sometimes, versioning system can also be combined. This section attempts to give an overview over some commonly used versioning systems, with real-life examples.
+There is no definitive best versioning system. Different styles of development, scopes of projects, etc. all influence the decision of what versioning systems to use. Sometimes, versioning system can also be combined. This section attempts to give an overview over some commonly used versioning systems, with real-life examples.
 
 Usually, a mod's file name looks like `modid-<version>.jar`. So if our mod id is `examplemod` and our version is `1.2.3`, our mod file would be named `examplemod-1.2.3.jar`.
 
