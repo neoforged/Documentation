@@ -62,7 +62,7 @@ As mentioned before, entity render states are used to separate values used for r
 
 ```java
 public class MyEntityRenderState extends EntityRenderState {
-    public ItemStack stackInHand;
+    public ItemStackRenderState stackInHand;
 }
 ```
 
