@@ -115,7 +115,7 @@ public class RightClickBlockRecipe implements Recipe<RightClickBlockInput> {
 You are not required to make use of the `CommonInfo` record, or even make the `show_notification` field available on the JSON. It is up to the modder to decide if it makes sense to use.
 :::
 
-## Recipe Book Information (TODO)
+## Recipe Book Information
 
 Like the common information, there is also fields parsed from the JSON relating to the recipe book: a [GUI][gui] that displays recipes in some transformation menu (e.g., crafting table, furnace, etc.). For these fields, vanilla provides the `Recipe.BookInfo<CategoryType>` interface, where `CategoryType` defines either the category of the recipe (assuming it is serializable) or an intermediate serializable object that can be converted to the category. Like `CommonInfo`, it provides a [map codec][codec] and [stream codec][streamcodec] for integrating with the [`RecipeSerializer`][serializer] below.
 
