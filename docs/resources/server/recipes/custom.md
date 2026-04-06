@@ -40,12 +40,16 @@ public class RightClickBlockRecipe implements Recipe<RightClickBlockInput> {
     // An in-code representation of our recipe data. This can be basically anything you want.
     // Common things to have here is a processing time integer of some kind, or an experience reward.
     // Note that we now use an ingredient instead of an item stack for the input.
+    private final Recipe.CommonInfo commonInfo;
+    private final RightClickBlockRecipe.BlockBookInfo bookInfo;
     private final BlockState inputState;
     private final Ingredient inputItem;
-    private final ItemStack result;
+    private final ItemStackTemplate result;
 
     // Add a constructor that sets all properties. 
-    public RightClickBlockRecipe(BlockState inputState, Ingredient inputItem, ItemStack result) {
+    public RightClickBlockRecipe(Recipe.CommonInfo commonInfo, RightClickBlockRecipe.BlockBookInfo bookInfo, BlockState inputState, Ingredient inputItem, ItemStackTemplate result) {
+        this.commonInfo = commonInfo;
+        this.bookInfo = bookInfo;
         this.inputState = inputState;
         this.inputItem = inputItem;
         this.result = result;
@@ -59,12 +63,11 @@ public class RightClickBlockRecipe implements Recipe<RightClickBlockInput> {
         return this.inputState == input.state() && this.inputItem.test(input.stack());
     }
 
-    // Return the result of the recipe here, based on the given input. The first parameter matches the generic.
-    // IMPORTANT: Always call .copy() if you use an existing result! If you don't, things can and will break,
-    // as the result exists once per recipe, but the assembled stack is created each time the recipe is crafted.
+    // Return the result of the recipe here, based on the given input. The parameter matches the generic.
+    // This can be created using `ItemStackTemplate#create`.
     @Override
-    public ItemStack assemble(RightClickBlockInput input, HolderLookup.Provider registries) {
-        return this.result.copy();
+    public ItemStack assemble(RightClickBlockInput input) {
+        return this.result.create();
     }
 
     // When true, will prevent the recipe from being synced within the recipe book or awarded on use/unlock.
@@ -82,12 +85,111 @@ public class RightClickBlockRecipe implements Recipe<RightClickBlockInput> {
 }
 ```
 
-## Recipe Book Categories
+### Common Information
+
+All recipes have common information which, although may not be implemented the same way, is parsed from the JSON. For all recipes, vanilla provides `Recipe.CommonInfo`. Currently, it allows the recipe to specify whether to show the notification toast or not when unlocking. `CommonInfo` also provides a [map codec][codec] and [stream codec][streamcodec] for integrating with the [`RecipeSerializer`][serializer] below.
+
+As such, the `CommonInfo` can then be used to specify some methods on the `Recipe`:
+
+```java
+public class RightClickBlockRecipe implements Recipe<RightClickBlockInput> {
+    
+    private final Recipe.CommonInfo commonInfo;
+    // Other fields
+
+    public RightClickBlockRecipe(Recipe.CommonInfo commonInfo, ...) {
+        this.commonInfo = commonInfo;
+        // Other initializations
+    }
+
+    @Override
+    public boolean showNotification() {
+        return this.commonInfo.showNotification();
+    }
+
+    // Other methods
+}
+```
+
+:::note
+You are not required to make use of the `CommonInfo` record, or even make the `show_notification` field available on the JSON. It is up to the modder to decide if it makes sense to use.
+:::
+
+## Recipe Book Information (TODO)
+
+Like the common information, there is also fields parsed from the JSON relating to the recipe book: a [GUI][gui] that displays recipes in some transformation menu (e.g., crafting table, furnace, etc.). For these fields, vanilla provides the `Recipe.BookInfo<CategoryType>` interface, where `CategoryType` defines either the category of the recipe (assuming it is serializable) or an intermediate serializable object that can be converted to the category. Like `CommonInfo`, it provides a [map codec][codec] and [stream codec][streamcodec] for integrating with the [`RecipeSerializer`][serializer] below.
+
+For example:
+
+```java
+public class RightClickBlockRecipe implements Recipe<RightClickBlockInput> {
+    
+    private final RightClickBlockRecipe.BlockBookInfo bookInfo;
+    // Other fields
+
+    public RightClickBlockRecipe(RightClickBlockRecipe.BlockBookInfo bookInfo, ...) {
+        this.bookInfo = bookInfo;
+        // Other initializations
+    }
+
+    @Override
+    public String group() {
+        return this.bookInfo.group();
+    }
+
+    @Override
+    public RecipeBookCategory recipeBookCategory() {
+        // Convert the serializable entry to its recipe book category.
+        return switch (this.bookInfo.category()) {
+            case BUILDING -> RecipeBookCategories.CRAFTING_BUILDING_BLOCKS;
+            case EQUIPMENT -> RecipeBookCategories.CRAFTING_EQUIPMENT;
+            case REDSTONE -> RecipeBookCategories.CRAFTING_REDSTONE;
+            case MISC -> RecipeBookCategories.CRAFTING_MISC;
+        };
+    }
+
+    // Other methods
+
+    public record BlockBookInfo(CraftingBookCategory category, String group) implements Recipe.BookInfo<CraftingBookCategory> {
+        public static final MapCodec<BlockBookInfo> MAP_CODEC = Recipe.BookInfo.mapCodec(
+            // Takes in the codec for the generic, the default generic value, and the
+            // constructor of `(category, group) -> bookInfo`.
+            CraftingBookCategory.CODEC, CraftingBookCategory.MISC, BlockBookInfo::new
+        );
+        public static final StreamCodec<RegistryFriendlyByteBuf, BlockBookInfo> STREAM_CODEC = Recipe.BookInfo.streamCodec(
+            // Takes in the stream codec for the generic and the constructor of
+            // `(category, group) -> bookInfo`.
+            CraftingBookCategory.STREAM_CODEC, BlockBookInfo::new
+        );
+    }
+}
+```
+
+:::note
+Like with `CommonInfo`, you are not required to use `BookInfo` or even make fields available on the JSON. It is up to the modder to decide if it makes sense to use for their recipe (i.e., recipes where `Recipe#isSpecial` returns true do not appear in the recipe book, so `BookInfo` should not be used). However, both `Recipe#group` and `recipeBookCategory` must be non-null objects.
+:::
+
+### Recipe Groups
+
+Groups act as a key to group recipes together into a single entry within the recipe book. If the group is set to an empty string, it will be treated as its own unique entry.
+
+```java
+public class RightClickBlockRecipe implements Recipe<RightClickBlockInput> {
+    // other stuff here
+
+    @Override
+    public String group() {
+        return this.bookInfo.group();
+    }
+}
+```
+
+### Book Categories
 
 A `RecipeBookCategory` simply defines a group to display this recipe within in a recipe book. For example, an iron pickaxe crafting recipe would show up in the `RecipeBookCategories#CRAFTING_EQUIPMENT` while a cooked cod recipe would show up in `#FURNANCE_FOOD` or `#SMOKER_FOOD`. Each recipe has one associated `RecipeBookCategory`. The vanilla categories can be found in `RecipeBookCategories`.
 
 :::note
-There are two cooked cod recipes, one for the furnance and one for the smoker. The furnace and smoker recipes have different book categories.
+There are two cooked cod recipes, one for the furnace and one for the smoker. The furnace and smoker recipes have different book categories.
 :::
 
 If your recipe does not fit into one of the existing categories, typically because the recipe does not use one of the existing crafting stations (e.g., crafting table, furnace), then a new `RecipeBookCategory` can be created. Each `RecipeBookCategory` must be [registered][registry] to `BuiltInRegistries#RECIPE_BOOK_CATEGORY`:
@@ -99,7 +201,7 @@ public static final Supplier<RecipeBookCategory> RIGHT_CLICK_BLOCK_CATEGORY = RE
 );
 ```
 
-Then, to set the category, we must override `#recipeBookCategory` like so:
+Then, to set the category, we can override `#recipeBookCategory` to either directly return our category, or use the book info (if implemented) to map to our category, like so:
 
 ```java
 public class RightClickBlockRecipe implements Recipe<RightClickBlockInput> {
@@ -107,7 +209,12 @@ public class RightClickBlockRecipe implements Recipe<RightClickBlockInput> {
 
     @Override
     public RecipeBookCategory recipeBookCategory() {
-        return RIGHT_CLICK_BLOCK_CATEGORY.get();
+        return switch (this.bookInfo.category()) {
+            case BUILDING -> RecipeBookCategories.CRAFTING_BUILDING_BLOCKS;
+            case EQUIPMENT -> RecipeBookCategories.CRAFTING_EQUIPMENT;
+            case REDSTONE -> RecipeBookCategories.CRAFTING_REDSTONE;
+            case MISC -> RIGHT_CLICK_BLOCK_CATEGORY.get();
+        };
     }
 }
 ```
@@ -128,6 +235,9 @@ public static void registerSearchCategories(RegisterRecipeBookSearchCategoriesEv
         // The search category
         RIGHT_CLICK_BLOCK_SEARCH_CATEGORY,
         // All recipe categories within the search category as varargs
+        RecipeBookCategories.CRAFTING_BUILDING_BLOCKS,
+        RecipeBookCategories.CRAFTING_EQUIPMENT,
+        RecipeBookCategories.CRAFTING_REDSTONE,
         RIGHT_CLICK_BLOCK_CATEGORY.get()
     )
 }
@@ -173,12 +283,15 @@ public class RightClickBlockRecipe implements Recipe<RightClickBlockInput> {
 These are the available slot displays provided by Vanilla and NeoForge:
 
 - `SlotDisplay.Empty`: A slot that represents nothing.
-- `SlotDisplay.ItemSlotDisplay`: A slot that respresents an item.
-- `SlotDisplay.ItemStackSlotDisplay`: A slot that represents an item stack.
+- `SlotDisplay.ItemSlotDisplay`: A slot that represents an item.
+- `SlotDisplay.ItemStackSlotDisplay`: A slot that represents an item stack template.
 - `SlotDisplay.TagSlotDisplay`: A slot that represents an item tag.
+- `SlotDisplay.OnlyWithComponent`: A slot that filters some other display to only items with the given data component.
+- `SlotDisplay.WithAnyPotion`: A slot that represents some input with a random `DataComponents#POTION_CONTENTS` value.
 - `SlotDisplay.WithRemainder`: A slot that represents some input that has some crafting remainder.
 - `SlotDisplay.AnyFuel`: A slot that represents all fuel items.
 - `SlotDisplay.Composite`: A slot that represents a combination of other slot displays.
+- `SlotDisplay.DyedSlotDemo`: A slot that represents a dye being applied to some target, setting `DataComponents#DYED_COLOR`. 
 - `SlotDisplay.SmithingTrimDemoSlotDisplay`: A slot that represents a random smithing trim being applied to some base with the given material.
 - `FluidSlotDisplay`: A slot that represents a fluid.
 - `FluidStackSlotDisplay`: A slot that represents a fluid stack.
@@ -297,8 +410,8 @@ public record RightClickBlockRecipeDisplay(
 ) implements RecipeDisplay {
     public static final MapCodec<RightClickBlockRecipeDisplay> MAP_CODEC = RecordCodecBuilder.mapCodec(
         instance -> instance.group(
-                    SlotDisplay.CODEC.fieldOf("inputState").forGetter(RightClickBlockRecipeDisplay::inputState),
-                    SlotDisplay.CODEC.fieldOf("inputState").forGetter(RightClickBlockRecipeDisplay::inputItem),
+                    SlotDisplay.CODEC.fieldOf("input_state").forGetter(RightClickBlockRecipeDisplay::inputState),
+                    SlotDisplay.CODEC.fieldOf("input_item").forGetter(RightClickBlockRecipeDisplay::inputItem),
                     SlotDisplay.CODEC.fieldOf("result").forGetter(RightClickBlockRecipeDisplay::result),
                     SlotDisplay.CODEC.fieldOf("crafting_station").forGetter(RightClickBlockRecipeDisplay::craftingStation)
                 )
@@ -395,12 +508,16 @@ Since recipe serializers can get fairly large, vanilla moves them to separate cl
 // are available, which were omitted from the code above.
 public class RightClickBlockRecipeSerializer implements RecipeSerializer<RightClickBlockRecipe> {
     public static final MapCodec<RightClickBlockRecipe> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
+            Recipe.CommonInfo.MAP_CODEC.forGetter(recipe -> recipe.commonInfo),
+            RightClickBlockRecipe.BlockBookInfo.MAP_CODEC.forGetter(recipe -> recipe.bookInfo)
             BlockState.CODEC.fieldOf("state").forGetter(RightClickBlockRecipe::getInputState),
             Ingredient.CODEC.fieldOf("ingredient").forGetter(RightClickBlockRecipe::getInputItem),
             ItemStack.CODEC.fieldOf("result").forGetter(RightClickBlockRecipe::getResult)
     ).apply(inst, RightClickBlockRecipe::new));
     public static final StreamCodec<RegistryFriendlyByteBuf, RightClickBlockRecipe> STREAM_CODEC =
             StreamCodec.composite(
+                    Recipe.CommonInfo.STREAM_CODEC, recipe -> recipe.commonInfo,
+                    RightClickBlockRecipe.BlockBookInfo.STREAM_CODEC, recipe -> recipe.bookInfo,
                     ByteBufCodecs.idMapper(Block.BLOCK_STATE_REGISTRY), RightClickBlockRecipe::getInputState,
                     Ingredient.CONTENTS_STREAM_CODEC, RightClickBlockRecipe::getInputItem,
                     ItemStack.STREAM_CODEC, RightClickBlockRecipe::getResult,
@@ -767,7 +884,7 @@ public static void useItemOnBlock(UseItemOnBlockEvent event) {
         );
         ItemStack result = optional
             .map(RecipeHolder::value)
-            .map(e -> e.assemble(input, level.registryAccess()))
+            .map(e -> e.assemble(input))
             .orElse(ItemStack.EMPTY);
         
         // If there is a result, break the block and drop the result in the world.
@@ -796,15 +913,22 @@ To create a recipe builder for your own recipe serializer(s), you need to implem
 // It serves the purpose of showing the common part of all (vanilla) recipe builders.
 public abstract class SimpleRecipeBuilder implements RecipeBuilder {
     // Make the fields protected so our subclasses can use them.
-    protected final ItemStack result;
-    protected final Map<String, Criterion<?>> criteria = new LinkedHashMap<>();
-    @Nullable
-    protected final String group;
+    protected final ItemStackTemplate result;
+    protected String group = "";
+    protected boolean showNotification = true;
 
-    // It is common for constructors to accept the result item stack.
+    // Provides a common way to build the recipe unlock advancement.
+    // If used, the builder must also specify a `RecipeCategory` to determine
+    // the output folder.
+    protected final RecipeUnlockAdvancementBuilder advancementBuilder;
+    protected final RecipeCategory category;
+
+    // It is common for constructors to accept the result item stack template.
     // Alternatively, static builder methods are also possible.
-    public SimpleRecipeBuilder(ItemStack result) {
+    public SimpleRecipeBuilder(ItemStackTemplate result, RecipeCategory category) {
         this.result = result;
+        this.category = category;
+        this.advancementBuilder = new RecipeUnlockAdvancementBuilder();
     }
 
     // This method adds a criterion for the recipe advancement.
@@ -818,15 +942,23 @@ public abstract class SimpleRecipeBuilder implements RecipeBuilder {
     // remove the this.group field and make this method no-op (i.e. return this).
     @Override
     public SimpleRecipeBuilder group(@Nullable String group) {
-        this.group = group;
+        this.group = Objects.requireNonNullElse(group, "");
         return this;
     }
 
-    // Vanilla wants an Item here, not an ItemStack. You still can and should use the ItemStack
-    // for serializing the recipes.
+    // This method sets whether to show the notification toast when unlocking. If you want
+    // this value to be hardcoded, remove the this.showNotification field and this method.
+    public SimpleRecipeBuilder showNotification(boolean showNotification) {
+        this.showNotification = showNotification;
+        return this;
+    }
+
+    // Returns the id of the recipe when using `#save(RecipeOutput)`.
     @Override
-    public Item getResult() {
-        return this.result.getItem();
+    public ResourceKey<Recipe<?>> defaultId() {
+        // If the result is not an `ItemStackTemplate`, you will need to manually
+        // construct the `ResourceKey` using the result.
+        return RecipeBuilder.getDefaultRecipeId(this.result);
     }
 }
 ```
@@ -843,8 +975,8 @@ public class RightClickBlockRecipeBuilder extends SimpleRecipeBuilder {
     // Since we have exactly one of each input, we pass them to the constructor.
     // Builders for recipe serializers that have ingredient lists of some sort would usually
     // initialize an empty list and have #addIngredient or similar methods instead.
-    public RightClickBlockRecipeBuilder(ItemStack result, BlockState inputState, Ingredient inputItem) {
-        super(result);
+    public RightClickBlockRecipeBuilder(ItemStackTemplate result, RecipeCategory category, BlockState inputState, Ingredient inputItem) {
+        super(result, category);
         this.inputState = inputState;
         this.inputItem = inputItem;
     }
@@ -852,16 +984,20 @@ public class RightClickBlockRecipeBuilder extends SimpleRecipeBuilder {
     // Saves a recipe using the given RecipeOutput and key. This method is defined in the RecipeBuilder interface.
     @Override
     public void save(RecipeOutput output, ResourceKey<Recipe<?>> key) {
-        // Build the advancement.
-        Advancement.Builder advancement = output.advancement()
-                .addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(key))
-                .rewards(AdvancementRewards.Builder.recipe(key))
-                .requirements(AdvancementRequirements.Strategy.OR);
-        this.criteria.forEach(advancement::addCriterion);
-        // Our factory parameters are the result, the block state, and the ingredient.
-        RightClickBlockRecipe recipe = new RightClickBlockRecipe(this.inputState, this.inputItem, this.result);
-        // Pass the id, the recipe, and the recipe advancement into the RecipeOutput.
-        output.accept(key, recipe, advancement.build(key.location().withPrefix("recipes/")));
+        // Create the recipe.
+        RightClickBlockRecipe recipe = new RightClickBlockRecipe(
+            RecipeBuilder.createCraftingCommonInfo(this.showNotification),
+            new RightClickBlockRecipe.BlockBookInfo(
+                RecipeBuilder.determineCraftingBookCategory(this.category),
+                this.group
+            ),
+            this.inputState,
+            this.inputItem,
+            this.result
+        );
+
+        // Pass the id, recipe, and the recipe advancement into the RecipeOutput.
+        output.accept(key, recipe, this.advancementBuilder.build(output, key, this.category));
     }
 }
 ```
@@ -873,7 +1009,8 @@ And now, during [datagen][recipedatagen], you can call on your recipe builder li
 protected void buildRecipes(RecipeOutput output) {
     new RightClickRecipeBuilder(
             // Our constructor parameters. This example adds the ever-popular dirt -> diamond conversion.
-            new ItemStack(Items.DIAMOND),
+            new ItemStackTemplate(Items.DIAMOND),
+            RecipeCategory.MISC,
             Blocks.DIRT.defaultBlockState(),
             Ingredient.of(Items.APPLE)
     )
@@ -891,8 +1028,10 @@ It is also possible to have `SimpleRecipeBuilder` be merged into `RightClickBloc
 [codec]: ../../../datastorage/codecs.md
 [datagen]: #data-generation
 [event]: ../../../concepts/events.md
+[gui]: ../../../rendering/screens.md
 [ingredients]: ingredients.md
 [networking]: ../../../networking/payload.md
 [recipedatagen]: index.md#data-generation
 [registry]: ../../../concepts/registries.md#methods-for-registering
+[serializer]: #the-recipe-serializer
 [streamcodec]: ../../../networking/streamcodecs.md
