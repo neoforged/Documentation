@@ -22,11 +22,13 @@ A model is a JSON file with the following optional properties in the root tag:
     - `minecraft:item/handheld`: Parent for 2D flat item models that appear to be actually held by the player. Used predominantly by tools. Submodel of `item/generated`, which causes it to ignore the `elements` block as well.
     - Block items commonly (but not always) use their corresponding block models for their [item model][itemmodels]. For example, the cobblestone client item uses the `minecraft:block/cobblestone` model.
 - `ambientocclusion`: Whether to enable [ambient occlusion][ao] or not. Only effective on block models. Defaults to `true`. If your custom block model has weird shading, try setting this to `false`.
-- `render_type`: NeoForge-added. Sets the render type group to use. See [Render Type Groups][rendertype] for more information.
 - `gui_light`: Can be `"front"` or `"side"`. If `"front"`, light will come from the front, useful for flat 2D models. If `"side"`, light will come from the side, useful for 3D models (especially block models). Defaults to `"side"`. Only effective on item models.
-- `textures`: A sub-object that maps names (known as texture variables) to [texture locations][textures]. Texture variables can then be used in [elements]. They can also be specified in elements, but left unspecified in order for child models to specify them.
-    - Block models should additionally specify a `particle` texture. This texture is used when falling on, running across, or breaking the block.
-    - Item models can also use layer textures, named `layer0`, `layer1`, etc., where layers with a higher index are rendered above those with a lower index (e.g. `layer1` would be rendered above `layer0`). Only works if the parent is `item/generated`, and only works for up to 5 layers (`layer0` through `layer4`).
+- `textures`: A sub-object that maps names (known as material variables) to `Material`s. Material variables can then be used in [elements]. They can also be specified in elements, but left unspecified in order for child models to specify them. Block models should additionally specify a `particle` texture. This texture is used when falling on, running across, or breaking the block. Item models can also use layer textures, named `layer0`, `layer1`, etc., where layers with a higher index are rendered above those with a lower index (e.g. `layer1` would be rendered above `layer0`). Only works if the parent is `item/generated`, and only works for up to 5 layers (`layer0` through `layer4`).
+    - `sprite`: The [location of the texture][textures].
+    - `force_translucent`: When `true`, forces the face this texture is applied to render in the 'translucent' layer. When `false`:
+        - If the texture only has opaque pixels (alpha `255`), the face will render in the 'solid' layer
+        - If the texture has pixels that are either opaque or completely transparent (alpha either `0` or `255`), the face will render in the 'cutout' layer
+        - Otherwise, the face will render in the 'translucent' layer
 - `elements`: A list of cuboid [elements].
 - `display`: A sub-object that holds the different display options for different [perspectives], see linked article for possible keys. Only effective on item models, but often specified in block models so that item models can inherit the display options. Every perspective is an optional sub-object that may contain the following options, which are applied in that order:
     - `translation`: The translation of the model, specified as `[x, y, z]`.
@@ -38,24 +40,6 @@ A model is a JSON file with the following optional properties in the root tag:
 :::tip
 If you're having trouble finding out how exactly to specify something, have a look at a vanilla model that does something similar.
 :::
-
-### Render Type Groups
-
-Using the optional NeoForge-added `render_type` field, you can set a `RenderTypeGroup` for your model. A render type group is made up of two parts: a `ChunkSectionLayer` for how the model should render when used as a block, and a `RenderType` for how the model should render as an item. If this is not set (as is the case in all vanilla models), the game will fall back to the layers and render types hardcoded in `ItemBlockRenderTypes`. If `ItemBlockRenderTypes` doesn't contain the layer or render types, it will fall back to `ChunkSectionLayer#SOLID` for the block and `Sheets#TRANSLUCENT_ITEM_SHEET` for regular items, or `Sheets#TRANSLUCENT_BLOCK_ITEM_SHEET` for block items. Vanilla and NeoForge expose the following render type groups:
-
-- `minecraft:solid`: Used for fully solid models, such as stone.
-- `minecraft:cutout`: Used for models where any pixel is either fully solid or fully transparent, i.e. with either full or no transparency, for example glass.
-- `minecraft:translucent`: Used for models where any pixel may be partially transparent, for example stained glass.
-- `minecraft:tripwire`: Used by models with the special requirement of being rendered to the weather target, i.e. tripwire.
-- `neoforge:item_unlit`: NeoForge-added. Should be used by models that, when rendered from an item, do not take the light directions into account.
-
-Selecting the correct render type group is a question of performance to some degree. Solid rendering is faster than cutout rendering, and cutout rendering is faster than translucent rendering. Because of this, you should specify the "strictest" render type applicable for your use case, as it will also be the fastest.
-
-If you want, you can also add your own render type group. To do so, subscribe to the [mod bus][modbus] [event] `RegisterNamedRenderTypesEvent` and `#register` your render type groups. `#register` has three parameters:
-
-- The name of the render type group. Should be a `Identifier` prefixed with your mod id.
-- The chunk section layer. Any `ChunkSectionLayer` can be used.
-- A function constructing the entity render type from a texture. Must return a render type with the `DefaultVertexFormat.NEW_ENTITY` vertex format.
 
 ### Elements
 
@@ -153,21 +137,51 @@ Finally, a `neoforge:definition_type` can specify a custom model loader to regis
 
 ## Tinting
 
-Some blocks, such as grass or leaves, change their texture color based on their location and/or properties. [Model elements][elements] can specify a tint index on their faces, which will allow a color handler to handle the respective faces. The code side of things works through three events, one for block color handlers, one for block tints based on biome (used in conjunction with the block color handlers), and one for item tint sources. They work pretty similar, so let's have a look at a block handler first:
+Some blocks, such as grass or leaves, change their texture color based on their location and/or properties. [Model elements][elements] can specify a tint index on their faces, which will allow a color handler to handle the respective faces. The code side of things works through three events, one for block tint sources, one for block tints based on biome (used in conjunction with the block tint sources), and one for item tint sources. So let's have a look at a block tint source first:
 
 ```java
 @SubscribeEvent // on the mod event bus only on the physical client
 public static void registerBlockColorHandlers(RegisterColorHandlersEvent.Block event) {
     // Parameters are the block's state, the level the block is in, the block's position, and the tint index.
     // The level and position may be null.
-    event.register((state, level, pos, tintIndex) -> {
-        // Replace with your own calculation. See the BlockColors class for vanilla references.
-        // Colors are in ARGB format. Generally, if the tint index is -1, it means that no tinting
-        // should take place and a default value should be used instead.
-        return 0xFFFFFFFF;
-    },
-    // A varargs of blocks to apply the tinting to
-    EXAMPLE_BLOCK.get(), ...);
+    event.register(
+        // A list of tint sources to apply to the block. The 'tintindex' defined in
+        // the model indexes into the list.
+        List.of(
+            // For 'tintindex: 0'.
+            // Takes in the block's state.
+            state -> {
+                // Replace with your own calculation. See the BlockColors class for vanilla references.
+                // Colors are in ARGB format.
+                return 0xFFFFFFFF;
+            },
+            // For 'tintindex: 1',
+            new BlockTintSource() {
+
+                @Override
+                public int color(BlockState state) {
+                    // The default tint to apply.
+                    return 0xFFFFFFFF;
+                }
+
+                @Override
+                public int colorInWorld(BlockState state, BlockAndTintGetter level, BlockPos pos) {
+                    // The tint to apply when the block is in the world.
+                    // Defaults to `color` if not overridden.
+                    return 0xFFFFFFFF;
+                }
+
+                @Override
+                public int colorAsTerrainParticle(BlockState state, BlockAndTintGetter level, BlockPos pos) {
+                    // The tint to apply when a `TerrainParticle` is spawned.
+                    // Defaults to `colorInWorld` if not overridden.
+                    return 0xFFFFFFFF;
+                }
+            }
+        ),
+        // A varargs of blocks to apply the tinting to
+        EXAMPLE_BLOCK.get(), ...
+    );
 }
 ```
 
