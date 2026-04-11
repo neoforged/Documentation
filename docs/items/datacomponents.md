@@ -4,7 +4,7 @@ sidebar_position: 2
 
 # Data Components
 
-Data components are key-value pairs within a map used to store data on an `ItemStack`. Each piece of data, such as firework explosions or tools, are stored as actual objects on the stack, making the values visible and operable without having to dynamically transform a general encoded instance (e.g., `CompoundTag`, `JsonElement`).
+Data components are key-value pairs within a map used to store data on the `Holder` of a registry object. Each piece of data, such as firework explosions or tools, are stored as actual objects on the holder, making the values visible and operable without having to dynamically transform a general encoded instance (e.g., `CompoundTag`, `JsonElement`).
 
 ## `DataComponentType`
 
@@ -54,7 +54,7 @@ public class ExampleClass {
 }
 ```
 
-A standard `DataComponentType` can be created via `DataComponentType#builder` and built using `DataComponentType.Builder#build`. The builder contains three settings: `persistent`, `networkSynchronized`, `cacheEncoding`.
+A standard `DataComponentType` can be created via `DataComponentType#builder` and built using `DataComponentType.Builder#build`. The builder contains four settings: `persistent`, `networkSynchronized`, `cacheEncoding`, and `ignoreSwapAnimation`.
 
 `persistent` specifies the [`Codec`][codec] used to read and write the component value to disk. `networkSynchronized` specifies the `StreamCodec` used to read and write the component across the network. If `networkSynchronized` is not specified, then the `Codec` provided in `persistent` will be wrapped and used as the [`StreamCodec`][streamcodec].
 
@@ -123,13 +123,15 @@ public static final Supplier<DataComponentType<ExampleRecord>> NO_NETWORK_EXAMPL
 
 All data components are stored within a `DataComponentMap`, using the `DataComponentType` as the key and the object as the value. `DataComponentMap` functions similarly to a read-only `Map`. As such, there are methods to `#get` an entry given its `DataComponentType` or provide a default if not present (via `#getOrDefault`).
 
+For a registry object, the `DataComponentMap` can be obtained through `Holder#components`.
+
 ```java
-// For some DataComponentMap map
+// For some Item item
 
 // Will get dye color if component is present
 // Otherwise null
 @Nullable
-DyeColor color = map.get(DataComponents.BASE_COLOR);
+DyeColor color = item.builtInRegistryHolder().components().get(DataComponents.BASE_COLOR);
 ```
 
 ### `PatchedDataComponentMap`
@@ -154,16 +156,20 @@ map.remove(DataComponents.BASE_COLOR);
 Both the prototype and patch map are part of the hash code for the `PatchedDataComponentMap`. As such, any component values within the map should be treated as **immutable**. Always call `#set` or one of its referring methods discussed below after modifying the value of a data component.
 :::
 
+## The Component Getter
+
+All instances that can provide data components usually implement `DataComponentGetter`. `DataComponentGetter` effectively gets the component values for a data type, either through a backing map or creating the value on the fly.
+
 ## The Component Holder
 
-All instances that can hold data components implement `DataComponentHolder`. `DataComponentHolder` is effectively a delegate to the read-only methods within `DataComponentMap`.
+All instances that reference the backing data component map implement `DataComponentHolder`, which extends `DataComponentGetter`. `DataComponentHolder` is effectively a delegate to the read-only methods within `DataComponentMap`.
 
 ```java
-// For some ItemStack stack
+// For some DataComponentHolder holder
 
 // Delegates to 'DataComponentMap#get'
 @Nullable
-DyeColor color = stack.get(DataComponents.BASE_COLOR);
+DyeColor color = holder.get(DataComponents.BASE_COLOR);
 ```
 
 ### `MutableDataComponentHolder`
@@ -205,7 +211,7 @@ stack.update(
 
 ## Adding Default Data Components to Items
 
-Although data components are stored on an `ItemStack`, a map of default components can be set on an `Item` to be passed to the `ItemStack` as a prototype when constructed. A component can be added to the `Item` via `Item.Properties#component`.
+Although the mutable data components are stored on an `ItemStack`, a map of default components can be set through `Item`, to be stored on the `Holder<Item>` and finally passed to the `ItemStack` as a prototype when constructed. A component can be added to the `Item` via `Item.Properties#component`. For components that rely on dynamically generated data, such as [datapack registry objects][datapackregistry], `Item.Properties#delayedComponent` should be used instead, constructing the value given the `HolderLookup.Provider` of registries.
 
 ```java
 // For some DeferredRegister.Items REGISTRAR
@@ -214,12 +220,15 @@ public static final Item COMPONENT_EXAMPLE = REGISTRAR.register("component",
     registryName -> new Item(
         new Item.Properties()
         .setId(ResourceKey.create(Registries.ITEM, registryName))
+        // Passes in the direct component value.
         .component(BASIC_EXAMPLE.get(), new ExampleRecord(24, true))
+        // Passes in a component factory, taking in the registry context and returning the value.
+        .delayedComponent(DataComponents.DAMAGE_RESISTANT, context -> new DamageResistant(context.getOrThrow(DamageTypeTags.IS_EXPLOSION)))
     )
 );
 ```
 
-If the data component should be added to an existing item that belongs to Vanilla or another mod, then `ModifyDefaultComponentsEvent` should be listened for on the [**mod event bus**][modbus]. The event provides the `modify` and `modifyMatching` methods which allows the `DataComponentPatch.Builder` to be modified for the associated items. The builder can either `#set` components or `#remove` existing components.
+If the data component should be added to an existing item that belongs to Vanilla or another mod, then `ModifyDefaultComponentsEvent` should be listened for on the [**mod event bus**][modbus]. The event provides the `modify` and `modifyMatching` methods which allows the `DataComponentPatch.Builder` to be modified for the associated items. The builder can either `#set` or remove existing components.
 
 ```java
 @SubscribeEvent // on the mod event bus
@@ -231,8 +240,8 @@ public static void modifyComponents(ModifyDefaultComponentsEvent event) {
 
     // Removes the component for any items that have a crafting remainder
     event.modifyMatching(
-        item -> !item.getCraftingRemainder().isEmpty(),
-        builder -> builder.remove(DataComponents.BUCKET_ENTITY_DATA)
+        (item, components) -> item.getCraftingRemainder() != null,
+        builder -> builder.set(DataComponents.BUCKET_ENTITY_DATA, null)
     );
 }
 ```
@@ -324,6 +333,7 @@ public class ExampleHolder implements MutableDataComponentHolder {
 
 [Syncing the holder data across the network][network] and reading/writing the data to disk must be done manually.
 
+[datapackregistry]: ../concepts/registries.md#datapack-registries
 [registered]: ../concepts/registries.md
 [codec]: ../datastorage/codecs.md
 [modbus]: ../concepts/events.md#event-buses

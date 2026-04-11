@@ -169,9 +169,15 @@ However, this can sometimes lead to issues when dealing with multiple `ItemStack
 When in doubt, better be safe than sorry and `#copy` the stack.
 :::
 
+## `ItemStackTemplate`s
+
+`ItemStackTemplate`s are the immutable form of `ItemStack`s, typically representing a stack within an immutable context, such as recipes. Templates contain the basic elements that make up an `ItemStack`: the held holder `Item`, the stack size, and the [data components][datacomponents] the item has, stored as a patch.
+
+To create a new `ItemStackTemplate`, call one of the `new ItemTemplate(...)` methods, passing in the `Item` and any other desired elements. Then, when a stack is needed, an `ItemStack` can be created via `ItemStackTemplate#create`.
+
 ### JSON Representation
 
-In many situations, for example [recipes], item stacks need to be represented as JSON objects. An item stack's JSON representation looks the following way:
+In many situations, for example [recipes], `ItemStackTemplate`s need to be represented as JSON objects. An item stack template's JSON representation looks the following way:
 
 ```json5
 {
@@ -185,6 +191,12 @@ In many situations, for example [recipes], item stacks need to be represented as
     }
 }
 ```
+
+## `ItemInstance`
+
+`ItemInstance` is a superinterface to which `ItemStack` and `ItemStackTemplate` implement. Generally, `ItemStack` and `ItemStackTemplate`s are used in isolated contexts. However, when the stack and template can be used interchangeably (e.g. the number of items in the stack / template), the `ItemInstance` superinterface is provided instead of a specific type.
+
+`ItemInstance` provides common methods for checking the `Item` (`#s`), the stack size (`count`), and reading the data components through the `DataComponentGetter`.
 
 ## Creative Tabs
 
