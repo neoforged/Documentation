@@ -23,12 +23,19 @@ A model is a JSON file with the following optional properties in the root tag:
     - Block items commonly (but not always) use their corresponding block models for their [item model][itemmodels]. For example, the cobblestone client item uses the `minecraft:block/cobblestone` model.
 - `ambientocclusion`: Whether to enable [ambient occlusion][ao] or not. Only effective on block models. Defaults to `true`. If your custom block model has weird shading, try setting this to `false`.
 - `gui_light`: Can be `"front"` or `"side"`. If `"front"`, light will come from the front, useful for flat 2D models. If `"side"`, light will come from the side, useful for 3D models (especially block models). Defaults to `"side"`. Only effective on item models.
-- `textures`: A sub-object that maps names (known as material variables) to `Material`s. Material variables can then be used in [elements]. They can also be specified in elements, but left unspecified in order for child models to specify them. Block models should additionally specify a `particle` texture. This texture is used when falling on, running across, or breaking the block. Item models can also use layer textures, named `layer0`, `layer1`, etc., where layers with a higher index are rendered above those with a lower index (e.g. `layer1` would be rendered above `layer0`). Only works if the parent is `item/generated`, and only works for up to 5 layers (`layer0` through `layer4`).
+- `textures`: A sub-object that maps names (known as material variables) to `Material`s. Material variables can then be used in [elements]. They can also be specified in elements, but left unspecified in order for child models to specify them.
     - `sprite`: The [location of the texture][textures].
     - `force_translucent`: When `true`, forces the face this texture is applied to render in the 'translucent' layer. When `false`:
         - If the texture only has opaque pixels (alpha `255`), the face will render in the 'solid' layer
         - If the texture has pixels that are either opaque or completely transparent (alpha either `0` or `255`), the face will render in the 'cutout' layer
         - Otherwise, the face will render in the 'translucent' layer
+
+:::tip
+Block models should additionally specify a `particle` texture. This texture is used when falling on, running across, or breaking the block. 
+
+Item models can also use layer textures, named `layer0`, `layer1`, etc., where layers with a higher index are rendered above those with a lower index (e.g. `layer1` would be rendered above `layer0`). Only works if the parent is `item/generated`, and only works for up to 5 layers (`layer0` through `layer4`).
+:::
+
 - `elements`: A list of cuboid [elements].
 - `display`: A sub-object that holds the different display options for different [perspectives], see linked article for possible keys. Only effective on item models, but often specified in block models so that item models can inherit the display options. Every perspective is an optional sub-object that may contain the following options, which are applied in that order:
     - `translation`: The translation of the model, specified as `[x, y, z]`.
