@@ -196,7 +196,7 @@ In many situations, for example [recipes], `ItemStackTemplate`s need to be repre
 
 `ItemInstance` is a superinterface that `ItemStack` and `ItemStackTemplate` implement. Generally, `ItemStack` and `ItemStackTemplate`s are used in isolated contexts. However, when the stack and template can be used interchangeably (e.g. the number of items in the stack / template), the `ItemInstance` superinterface is provided instead of a specific type.
 
-`ItemInstance` provides common methods for checking the `Item` (`#s`), the stack size (`count`), and reading the data components through the `DataComponentGetter`.
+`ItemInstance` provides common methods for checking the `Item` (`#is`), the stack size (`count`), and reading the data components through the `DataComponentGetter`.
 
 ## Creative Tabs
 

@@ -7,7 +7,7 @@ Minecraft provides a Debug Profiler that provides system data, current game sett
 The Debug Profiler is very simple to use. It requires the debug keybind `F3 + L` to start the profiler. After 10 seconds, it will automatically stop; however, it can be stopped earlier by pressing the keybind again.
 
 :::note
-Naturally, you can only profile code paths that are actually being reached. `Entity`s and `BlockEntity`s that you want to profile must exist in the level to show up in the results.
+Naturally, you can only profile code paths that are actually being reached. [`Entity`s][entity] and [`BlockEntity`s][blockentity] that you want to profile must exist in the level to show up in the results.
 :::
 
 After you have stopped the debugger, it will create a new zip within the `debug/profiling` subdirectory in your run directory.
@@ -73,3 +73,6 @@ Profiler.get().pop();
 ```
 
 Now you just need to search the results file for your section name.
+
+[blockentity]: ../blockentities/index.md
+[entity]: ../entities/index.md

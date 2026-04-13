@@ -298,11 +298,9 @@ CustomCraftingRecipeBuilder.customCrafting(
     .save(this.output, "dyed_leather_boots");
 ```
 
-### Special Recipes (TODO, rewrite)
+### Special Recipes
 
 There are many other crafting recipes that are specifically made for a single purpose (e.g. cloning books, creating fireworks) rather than be applied in a generic manner. Most of the time, this is to set data components on the output by calculating their values from the input stacks. These recipes are still configurable, usually taking in the input ingredients and the template result. For example:
-
-In some cases, outputs must be created dynamically from inputs. Most of the time, this is to set data components on the output by calculating their values from the input stacks. These recipes usually only specify the type and hardcode everything else. For example:
 
 ```json5
 {

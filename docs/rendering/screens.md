@@ -673,7 +673,7 @@ protected void containerTick() {
 
 ### Rendering the Container Screen
 
-The container screen uses all three strata to submit its elements. First, the background stratum submits the background texture by overriding `#extractBackground`. Then, the element stratum submits the widgets like before within `#extractContents`, followed by labels in `#extractLabels`. Finally, `AbstractContainerScreen` sets up the tooltip to be submitted during the hoverable strata via `extractTooltip`
+The container screen uses all three strata to submit its elements. First, the background stratum submits the background texture by overriding `#extractBackground`. Then, the element stratum submits the widgets like before within `#extractContents`, followed by labels in `#extractLabels`. Finally, `AbstractContainerScreen` sets up the tooltip to be submitted during the hoverable strata via `extractTooltip`.
 
 Starting with the background, `extractBackground` is called to submit the background elements of the screen to the background stratum.
 

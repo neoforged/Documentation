@@ -381,7 +381,7 @@ By default, the following layers render the associated `EquipmentClientInfo.Laye
 |:-----------------------:|:----------------------:|:---------------------------------------------------------------|
 | `HUMANOID`              | `HumanoidArmorLayer`   | Player, humanoid mobs (e.g., zombies, skeletons), armor stands |
 | `HUMANOID_LEGGINGS`     | `HumanoidArmorLayer`   | Player, humanoid mobs (e.g., zombies, skeletons), armor stands |
-| `HUMANOID_BABY`         | `HumanoidArmorLayer`   | Player, baby humanoid mobs (e.g. baby zombies), armor stands   |
+| `HUMANOID_BABY`         | `HumanoidArmorLayer`   | Player, baby humanoid mobs (e.g. baby zombies)                 |
 | `WINGS`                 | `WingsLayer`           | Player, humanoid mobs (e.g., zombies, skeletons), armor stands |
 | `WOLF_BODY`             | `WolfArmorLayer`       | Wolf                                                           |
 | `HORSE_BODY`            | `HorseArmorLayer`      | Horse                                                          |
