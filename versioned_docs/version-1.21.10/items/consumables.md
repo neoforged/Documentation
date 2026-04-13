@@ -114,7 +114,7 @@ Consumable.builder()
 
 ### `ItemUseAnimation`
 
-`ItemUseAnimation` is functionally an enum which doesn't define anything besides its id and name. Its uses are hardcoded into `ItemHandRenderer#renderArmWithItem` for first person and `PlayerRenderer#getArmPose` for third person. As such, simply creating a new `ItemUseAnimation` will only function similarly to `ItemUseAnimation#NONE`.
+`ItemUseAnimation` is functionally an enum which doesn't define anything besides its id and name. Its uses are hardcoded into `ItemHandRenderer#renderArmWithItem` for first person and `AvatarRenderer#getArmPose` for third person. As such, simply creating a new `ItemUseAnimation` will only function similarly to `ItemUseAnimation#NONE`.
 
 To apply some animation, you need to implement `IClientItemExtensions#applyForgeHandTransform` for first person and/or `IClientItemExtensions#getArmPose` for third person rendering.
 
