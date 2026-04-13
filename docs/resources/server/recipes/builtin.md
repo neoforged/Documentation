@@ -242,7 +242,7 @@ Additionally, `#addMaterialCountToOutput` can be used to add the number of mater
 
 ### Dying Items
 
-Dye recipes are a special type of single item crafting recipes where the dye stacks' `DataComponents#DYE` are combined into a single `DataComponents#DYED_COLOR` and applied to the target stack to construct the result stack. All other components from the target stack are copied to the result stack, similar to [transmute crafting][transmute].  For example:
+Dye recipes are a special type of single item crafting recipes where the dye stacks' `DataComponents#DYE` are combined into a single `DataComponents#DYED_COLOR` and applied to the target stack to construct the result stack. All other components from the target stack are copied to the result stack, similar to [transmute crafting][transmute]. For example:
 
 ```json5
 {
@@ -261,7 +261,7 @@ Like before, let's digest this line for line:
 
 - `type`: This is the id of the recipe serializer, `minecraft:crafting_transmute`.
 - `category`: This optional field defines the category in the crafting book.
-- `group`: This optional string property creates a group in the recipe book. Recipes in the same group will be displayed as one in the recipe book, which typically makes sense for transmuted recipes.
+- `group`: This optional string property creates a group in the recipe book. Recipes in the same group will be displayed as one in the recipe book, which typically makes sense for dying recipes.
 - `target`: The [ingredient] to apply the dyes to.
 - `dye`: The [ingredient] dyes that are used to dye the stack. They must all have the `DataComponents#DYE` [data component][datacomponent].
 - `result`: The result of the recipe. This is [an item stack template's JSON representation][itemjson].

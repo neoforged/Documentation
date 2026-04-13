@@ -551,7 +551,7 @@ Since screens are subtypes of `GuiEventListener`s, the input handlers can also b
 
 ### Rendering the Screen
 
-Screens submit their elements for rendering through `#extractRenderStateWithTooltipAndSubtitles` in three different strata: the background stratum, the element stratum, and the optional hoverable stratums.
+Screens submit their elements for rendering through `#extractRenderStateWithTooltipAndSubtitles` in three different strata: the background stratum, the element stratum, and the optional hoverable strata.
 
 The background stratum elements are submitted first via `#extractBackground`, generally containing any blurring or background textures.
 
@@ -561,7 +561,7 @@ Blurring, as handled through `GuiGraphicsExtractor#blurBeforeThisStratum`, can o
 
 The element stratum elements are submitted next via the `#extractRenderState` method, provided by being a `Renderable` subtype. This mainly submits widgets and labels, along with setting the hoverables to submit.
 
-Finally, the hoverable stratums submits things that hover over the previous elements, such as tooltips.
+Finally, the hoverable strata submit elements that hover over the previous elements, such as tooltips.
 
 ```java
 // In some Screen subclass
@@ -673,7 +673,7 @@ protected void containerTick() {
 
 ### Rendering the Container Screen
 
-The container screen uses all three strata to submit its elements. First, the background stratum submits the background texture by overriding `#extractBackground`. Then, the element stratum submits the widgets like before within `#extractContents`, followed by labels in `#extractLabels`. Finally, `AbstractContainerScreen` sets up the tooltip to be submitted during the hoverable stratums via `extractTooltip`
+The container screen uses all three strata to submit its elements. First, the background stratum submits the background texture by overriding `#extractBackground`. Then, the element stratum submits the widgets like before within `#extractContents`, followed by labels in `#extractLabels`. Finally, `AbstractContainerScreen` sets up the tooltip to be submitted during the hoverable strata via `extractTooltip`
 
 Starting with the background, `extractBackground` is called to submit the background elements of the screen to the background stratum.
 

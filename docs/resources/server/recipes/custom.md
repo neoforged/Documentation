@@ -87,7 +87,7 @@ public class RightClickBlockRecipe implements Recipe<RightClickBlockInput> {
 
 ### Common Information
 
-All recipes have common information which, although may not be implemented the same way, is parsed from the JSON. For all recipes, vanilla provides `Recipe.CommonInfo`. Currently, it allows the recipe to specify whether to show the notification toast or not when unlocking. `CommonInfo` also provides a [map codec][codec] and [stream codec][streamcodec] for integrating with the [`RecipeSerializer`][serializer] below.
+All recipes have common information which, although it may not be implemented the same way, is parsed from the JSON. For all recipes, vanilla provides `Recipe.CommonInfo`. Currently, it allows the recipe to specify whether to show the notification toast or not when unlocking. `CommonInfo` also provides a [map codec][codec] and [stream codec][streamcodec] for integrating with the [`RecipeSerializer`][serializer] below.
 
 As such, the `CommonInfo` can then be used to specify some methods on the `Recipe`:
 
