@@ -500,52 +500,35 @@ public class RightClickBlockRecipe implements Recipe<RightClickBlockInput> {
 
 A recipe serializer provides two codecs, one map codec and one stream codec, for serialization from/to JSON and from/to network, respectively. This section will not go in depth about how the codecs work, please see [Map Codecs][codec] and [Stream Codecs][streamcodec] for more information.
 
-Since recipe serializers can get fairly large, vanilla moves them to separate classes. It is recommended, but not required to follow the practice - smaller serializers are often defined in anonymous classes within fields of the recipe class. To follow good practice, we will create a separate class that holds our codecs:
+We'll create a map codec and stream codec inside our recipe class.
 
 ```java
-// The generic parameter is our recipe class.
-// Note: This assumes that simple RightClickBlockRecipe#getInputState, #getInputItem and #getResult getters
-// are available, which were omitted from the code above.
-public class RightClickBlockRecipeSerializer implements RecipeSerializer<RightClickBlockRecipe> {
-    public static final MapCodec<RightClickBlockRecipe> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
-            Recipe.CommonInfo.MAP_CODEC.forGetter(recipe -> recipe.commonInfo),
-            RightClickBlockRecipe.BlockBookInfo.MAP_CODEC.forGetter(recipe -> recipe.bookInfo)
-            BlockState.CODEC.fieldOf("state").forGetter(RightClickBlockRecipe::getInputState),
-            Ingredient.CODEC.fieldOf("ingredient").forGetter(RightClickBlockRecipe::getInputItem),
-            ItemStack.CODEC.fieldOf("result").forGetter(RightClickBlockRecipe::getResult)
-    ).apply(inst, RightClickBlockRecipe::new));
-    public static final StreamCodec<RegistryFriendlyByteBuf, RightClickBlockRecipe> STREAM_CODEC =
-            StreamCodec.composite(
-                    Recipe.CommonInfo.STREAM_CODEC, recipe -> recipe.commonInfo,
-                    RightClickBlockRecipe.BlockBookInfo.STREAM_CODEC, recipe -> recipe.bookInfo,
-                    ByteBufCodecs.idMapper(Block.BLOCK_STATE_REGISTRY), RightClickBlockRecipe::getInputState,
-                    Ingredient.CONTENTS_STREAM_CODEC, RightClickBlockRecipe::getInputItem,
-                    ItemStack.STREAM_CODEC, RightClickBlockRecipe::getResult,
-                    RightClickBlockRecipe::new
-            );
+public static final MapCodec<RightClickBlockRecipe> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
+        Recipe.CommonInfo.MAP_CODEC.forGetter(recipe -> recipe.commonInfo),
+        RightClickBlockRecipe.BlockBookInfo.MAP_CODEC.forGetter(recipe -> recipe.bookInfo),
+        BlockState.CODEC.fieldOf("state").forGetter(RightClickBlockRecipe::getInputState),
+        Ingredient.CODEC.fieldOf("ingredient").forGetter(RightClickBlockRecipe::getInputItem),
+        ItemStack.CODEC.fieldOf("result").forGetter(RightClickBlockRecipe::getResult)
+).apply(inst, RightClickBlockRecipe::new));
 
-    // Return our map codec.
-    @Override
-    public MapCodec<RightClickBlockRecipe> codec() {
-        return CODEC;
-    }
-
-    // Return our stream codec.
-    @Override
-    public StreamCodec<RegistryFriendlyByteBuf, RightClickBlockRecipe> streamCodec() {
-        return STREAM_CODEC;
-    }
-}
+public static final StreamCodec<RegistryFriendlyByteBuf, RightClickBlockRecipe> STREAM_CODEC = StreamCodec.composite(
+        Recipe.CommonInfo.STREAM_CODEC, recipe -> recipe.commonInfo,
+        RightClickBlockRecipe.BlockBookInfo.STREAM_CODEC, recipe -> recipe.bookInfo,
+        ByteBufCodecs.idMapper(Block.BLOCK_STATE_REGISTRY), RightClickBlockRecipe::getInputState,
+        Ingredient.CONTENTS_STREAM_CODEC, RightClickBlockRecipe::getInputItem,
+        ItemStack.STREAM_CODEC, RightClickBlockRecipe::getResult,
+        RightClickBlockRecipe::new
+);
 ```
 
-Like with the type, we register our serializer:
+Like with the type, we'll create and register our serializer:
 
 ```java
 public static final DeferredRegister<RecipeType<?>> RECIPE_SERIALIZERS =
         DeferredRegister.create(Registries.RECIPE_SERIALIZER, ExampleMod.MOD_ID);
 
 public static final Supplier<RecipeSerializer<RightClickBlockRecipe>> RIGHT_CLICK_BLOCK =
-        RECIPE_SERIALIZERS.register("right_click_block", RightClickBlockRecipeSerializer::new);
+        RECIPE_SERIALIZERS.register("right_click_block", ()-> new RecipeSerializer<>(RightClickBlockRecipe.CODEC, RightClickBlockRecipe.STREAM_CODEC));
 ```
 
 And similarly, we must also override `#getSerializer` in our recipe, like so:
