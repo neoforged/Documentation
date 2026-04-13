@@ -65,9 +65,9 @@ Data packs may contain folders with files affecting the following things:
 | `recipe`                                                                                                                  | [Recipes][recipes]           |
 | `tags`                                                                                                                    | [Tags][tags]                 |
 | `test_environment`, `test_instance`                                                                                       | [Game tests][gmt]            |
+| `trade_set`, `villager_trade`                                                                                             | Villager trades                |
 | `trial_spawner`                                                                                                           | Combat challenges            |
 | `trim_material`, `trim_pattern`                                                                                           | Armor trims                  |
-| `villager_trade`                                                                                                          | Villager trades                |
 | `neoforge/data_maps`                                                                                                      | [Data maps][datamap]         |
 | `neoforge/loot_modifiers`                                                                                                 | [Global loot modifiers][glm] |
 | `dimension`, `dimension_type`, `structure`, `timeline`, `worldgen`, `neoforge/biome_modifier`                             | Worldgen files               |

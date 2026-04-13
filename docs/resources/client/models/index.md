@@ -141,7 +141,7 @@ Some blocks, such as grass or leaves, change their texture color based on their 
 
 ```java
 @SubscribeEvent // on the mod event bus only on the physical client
-public static void registerBlockColorHandlers(RegisterColorHandlersEvent.Block event) {
+public static void registerBlockColorHandlers(RegisterColorHandlersEvent.BlockTintSources event) {
     // Parameters are the block's state, the level the block is in, the block's position, and the tint index.
     // The level and position may be null.
     event.register(
