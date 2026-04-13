@@ -174,4 +174,4 @@ public net.minecraft.core.UUIDUtil leastMostToIntArray(JJ)[I
 ```
 
 [specs]: https://github.com/NeoForged/AccessTransformers/blob/main/FMLAT.md
-[jvmdescriptors]: https://docs.oracle.com/javase/specs/jvms/se21/html/jvms-4.html#jvms-4.3.2
+[jvmdescriptors]: https://docs.oracle.com/javase/specs/jvms/se25/html/jvms-4.html#jvms-4.3.2

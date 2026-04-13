@@ -101,7 +101,7 @@ Optional<RecipeHolder<? extends CraftingRecipe>> optional = recipes.getRecipeFor
 // Use ItemStack.EMPTY as a fallback.
 ItemStack result = optional
         .map(RecipeHolder::value)
-        .map(recipe -> recipe.assemble(input, serverLevel.registryAccess()))
+        .map(recipe -> recipe.assemble(input))
         .orElse(ItemStack.EMPTY);
 ```
 

@@ -32,7 +32,7 @@ public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(
         // The registry we want to use.
         // Minecraft's registries can be found in BuiltInRegistries, NeoForge's registries can be found in NeoForgeRegistries.
         // Mods may also add their own registries, refer to the individual mod's documentation or source code for where to find them.
-        BuiltInRegistries.BLOCKS,
+        BuiltInRegistries.BLOCK,
         // Our mod id.
         ExampleMod.MOD_ID
 );
@@ -86,7 +86,7 @@ public static void register(RegisterEvent event) {
             // This is the registry key of the registry.
             // Get these from BuiltInRegistries for vanilla registries,
             // or from NeoForgeRegistries.Keys for NeoForge registries.
-            BuiltInRegistries.BLOCKS,
+            BuiltInRegistries.BLOCK,
             // Register your objects here.
             registry -> {
                 registry.register(ResourceLocation.fromNamespaceAndPath(MODID, "example_block_1"), new Block(...));
@@ -102,19 +102,19 @@ public static void register(RegisterEvent event) {
 Sometimes, you will find yourself in situations where you want to get a registered object by a given id. Or, you want to get the id of a certain registered object. Since registries are basically maps of ids (`ResourceLocation`s) to distinct objects, i.e. a reversible map, both of these operations work:
 
 ```java
-BuiltInRegistries.BLOCKS.get(ResourceLocation.fromNamespaceAndPath("minecraft", "dirt")); // returns the dirt block
-BuiltInRegistries.BLOCKS.getKey(Blocks.DIRT); // returns the resource location "minecraft:dirt"
+BuiltInRegistries.BLOCK.get(ResourceLocation.fromNamespaceAndPath("minecraft", "dirt")); // returns the dirt block
+BuiltInRegistries.BLOCK.getKey(Blocks.DIRT); // returns the resource location "minecraft:dirt"
 
 // Assume that ExampleBlocksClass.EXAMPLE_BLOCK.get() is a Supplier<Block> with the id "yourmodid:example_block"
-BuiltInRegistries.BLOCKS.get(ResourceLocation.fromNamespaceAndPath("yourmodid", "example_block")); // returns the example block
-BuiltInRegistries.BLOCKS.getKey(ExampleBlocksClass.EXAMPLE_BLOCK.get()); // returns the resource location "yourmodid:example_block"
+BuiltInRegistries.BLOCK.get(ResourceLocation.fromNamespaceAndPath("yourmodid", "example_block")); // returns the example block
+BuiltInRegistries.BLOCK.getKey(ExampleBlocksClass.EXAMPLE_BLOCK.get()); // returns the resource location "yourmodid:example_block"
 ```
 
 If you just want to check for the presence of an object, this is also possible, though only with keys:
 
 ```java
-BuiltInRegistries.BLOCKS.containsKey(ResourceLocation.fromNamespaceAndPath("minecraft", "dirt")); // true
-BuiltInRegistries.BLOCKS.containsKey(ResourceLocation.fromNamespaceAndPath("create", "brass_ingot")); // true only if Create is installed
+BuiltInRegistries.BLOCK.containsKey(ResourceLocation.fromNamespaceAndPath("minecraft", "dirt")); // true
+BuiltInRegistries.BLOCK.containsKey(ResourceLocation.fromNamespaceAndPath("create", "brass_ingot")); // true only if Create is installed
 ```
 
 As the last example shows, this is possible with any mod id, and thus a perfect way to check if a certain item from another mod exists.
@@ -122,10 +122,10 @@ As the last example shows, this is possible with any mod id, and thus a perfect 
 Finally, we can also iterate over all entries in a registry, either over the keys or over the entries (entries use the Java `Map.Entry` type):
 
 ```java
-for (ResourceLocation id : BuiltInRegistries.BLOCKS.keySet()) {
+for (ResourceLocation id : BuiltInRegistries.BLOCK.keySet()) {
     // ...
 }
-for (Map.Entry<ResourceKey<Block>, Block> entry : BuiltInRegistries.BLOCKS.entrySet()) {
+for (Map.Entry<ResourceKey<Block>, Block> entry : BuiltInRegistries.BLOCK.entrySet()) {
     // ...
 }
 ```

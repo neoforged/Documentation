@@ -4,25 +4,47 @@ This article will break down how versioning works in Minecraft and NeoForge, and
 
 ## Minecraft
 
-Minecraft uses [semantic versioning][semver]. Semantic versioning, or "semver" for short, has the format `major.minor.patch`. So for example, Minecraft 1.20.2 has the major version 1, the minor version 20 and the patch version 2.
+Minecraft's versioning scheme has changed over the years.
 
-Minecraft has used `1` as the major version since 2011, when Minecraft 1.0 was introduced. Before that, the versioning scheme changed often, and there were versions like `a1.1` (Alpha 1.1), `b1.7.3` (Beta 1.7.3) or even the `infdev` versions, which didn't follow a clear versioning scheme at all. Due to the `1` major version holding up for over a decade now, and due to the in-joke that is Minecraft 2, it is generally considered unlikely that this is ever going to change.
+Versions from 1.0 to 1.21.11 follow a [semver]-inspired format, `major.minor.<patch>`, with the patch version omitted for brevity. Examples of these versions would be 1.21 and 1.21.11.
 
-### Snapshots
+Versions 26.1 and above follow a [calver]-inspired format, `year.release.<patch>`, with the patch version omitted for brevity. Examples of these versions would be 26.1 and 26.1.1.
 
-Snapshots deviate from the standard semver scheme. They are labeled as `YYwWWa`, where `YY` represents the last two digits of the year (e.g. `23`) and `WW` represents the week of that year (e.g. `01`). So for example, snapshot `23w01a` is the snapshot released in the first week of 2023.
+### The Early Release Era
 
-The `a` suffix exists for occasions where two snapshots get released in the same week (where the second snapshot would then be named something like `23w01b`). Mojang has occasionally used this in the past. The alternative suffix has also been used for snapshots like `20w14infinite`, which was the [2020 infinite dimensions April Fool's joke][infinite].
+Before the game's release, the versioning scheme changed often, and there were versions like `a1.1` (Alpha 1.1), `b1.7.3` (Beta 1.7.3) or even the `infdev` versions, which didn't follow a clear versioning scheme at all.
 
-### Pre-releases and Release Candidates
+### The Major Update Era
 
-When a snapshot cycle is coming completion, Mojang starts releasing so-called pre-releases. Pre-releases are deemed feature-complete for a version and focus solely on bugfixes. They use the semver notation for the version it is for, suffixed by `-preX`. So for example, the first pre-release for 1.20.2 was named `1.20.2-pre1`. There can be and usually are multiple pre-releases, which are accordingly suffixed with `-pre2`, `-pre3`, etc.
+When the game was officially released as Minecraft 1.0, it adopted a new versioning scheme, using `1` as the major version, a second number to represent a (usually annual) major update, and a third number to represent minor versions and patches. For example, Minecraft 1.20.2 has the major version 1, the minor version 20 and the patch version 2. This format was used from 2011 until 2026, from when Minecraft 1.0 was introduced to the 26.1 update in early 2026. This format worked well until Minecraft began releasing drops, which, being minor updates, only incremented the patch version, leading to the 1.21 update lasting nearly two years.
+
+#### Snapshots
+
+Snapshots for 1.21.11 and below deviated from the standard versioning scheme. They were labeled as `YYwWWa`, where `YY` represents the last two digits of the year (e.g. `23`) and `WW` represents the week of that year (e.g. `01`). So for example, snapshot `23w01a` was the snapshot released in the first week of 2023.
+
+The `a` suffix existed for occasions where two snapshots get released in the same week (where the second snapshot would then be named something like `23w01b`). Mojang has occasionally used this in the past. The alternative suffix has also been used for snapshots like `20w14infinite`, which was the [2020 infinite dimensions April Fool's joke][infinite].
+
+#### Pre-releases and Release Candidates
+
+When a snapshot cycle is nearing completion, Mojang starts releasing so-called pre-releases. Pre-releases are deemed feature-complete for a version and focus solely on bugfixes. They use the semver notation for the version it is for, suffixed by `-preX`. So for example, the first pre-release for 1.20.2 was named `1.20.2-pre1`. There can be and usually are multiple pre-releases, which are accordingly suffixed with `-pre2`, `-pre3`, etc.
 
 Similarly, when the pre-release cycle completes, Mojang releases Release Candidate 1 (suffixing the version with `-rc1`, for example `1.20.2-rc1`). Mojang aims to have one release candidate that they can release if no further bugs occur. However, if an unexpected bug occurs, then there can also be an `-rc2`, `-rc3`, etc. version, similar to pre-releases.
 
+### The Game Drop Era
+
+Due to the decision to change from annual major updates with patches throughout the year to quarterly game drops, Mojang made the decision to change how Minecraft is versioned to a new format, `year.release.<patch>`. As an example, 26.1 will be the first release to adopt this new versioning, representing the first drop of 2026. If a hotfix needs to be released, it will be 26.1.1, and the second drop of 2026 will be 26.2.
+
+#### Snapshots, Pre-Releases, and Release Candidates
+
+As the next update is being developed, Mojang releases early versions called snapshots. Snapshots rapidly change aspects of the game and are quite unstable, but can be a good way to see how the next update is shaping out. Snapshots for 26.1 and above use the calver notation for the version it is for, suffixed by `-snapshot-X`. For example 26.1-snapshot-1 is the first snapshot for the upcoming 26.1 update, with following snapshots labeled as `snapshot-2` or `snapshot-3`.
+
+When a snapshot cycle is nearing completion, Mojang starts releasing so-called pre-releases. Pre-releases are deemed feature-complete for a version and focus solely on bugfixes. Similarly, these versions are suffixed by `-pre-X`. So for example, the first pre-release for 26.1 was named `26.1-pre-1`. There can be and usually are multiple pre-releases, which are accordingly suffixed with `-pre-2`, `-pre-3`, etc.
+
+Similarly, when the pre-release cycle completes, Mojang releases Release Candidate 1 (suffixing the version with `-rc1`, for example `26.1-rc-1`). Mojang aims to have one release candidate that they can release if no further bugs occur. However, if an unexpected bug occurs, then there can also be an `-rc-2`, `-rc-3`, etc. version, similar to pre-releases.
+
 ## NeoForge
 
-NeoForge uses an adapted semver system: The major version is Minecraft's minor version, the minor version is Minecraft's patch version, and the patch version is the "actual" NeoForge version. So for example, NeoForge 20.2.59 is the 60th version (we start at 0) for Minecraft 1.20.2. The `1` at the beginning is omitted because it is very unlikely that it will ever change, see [above][minecraft] for why that is the case.
+NeoForge uses an adapted semver system: The major version is Minecraft's minor version, the minor version is Minecraft's patch version, and the patch version is the "actual" NeoForge version. So for example, NeoForge 20.2.59 is the 60th version (we start at 0) for Minecraft 1.20.2. Versions prefixed by `1` omitted the `1` as it is was believed that this would not change. When this turned out not to be the case, NeoForge's versioning was changed to include the full Minecraft version number, with a `0` in the place of the patch number if needed. For example, NeoForge 26.1.0.5-beta is the 6th version for Minecraft 26.1.
 
 A few places in NeoForge also use [Maven version ranges][mvr], for example the Minecraft and NeoForge version ranges in the [`neoforge.mods.toml`][neoforgemodstoml] file. These are mostly, but not fully compatible with semver (the `pre`-tag is not considered by it, for example).
 
@@ -93,4 +115,5 @@ Maven, the system used for dependency hosting, uses a versioning system that dif
 [pre]: #pre-releases
 [rc]: #release-candidates
 [semver]: https://semver.org/
+[calver]: https://calver.org/
 [supplementaries]: https://www.curseforge.com/minecraft/mc-mods/supplementaries

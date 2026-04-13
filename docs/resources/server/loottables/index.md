@@ -20,13 +20,6 @@ Due to the complexity of the loot table system, loot tables are compromised of s
 
 A loot entry (or loot pool entry), represented in code through the abstract `LootPoolEntryContainer` class, is a singular loot element. It can specify one or multiple items to be dropped.
 
-Vanilla provides a total of 8 different loot entry types. Through the common `LootPoolEntryContainer` superclass, all of them have the following properties:
-
-- `weight`: The weight value. Defaults to 1. This is used for cases where some items should be more common than others. For example, given two loot entries, one with weight 3 and one with weight 1, then there is a 75% chance for the first entry to be chosen, and a 25% chance for the second entry.
-- `quality`: The quality value. Defaults to 0. If this is non-zero, then this value is multiplied by the luck value (set in the [loot context][context]) and added to the weight when rolling the loot table.
-- `conditions`: A list of [loot conditions][lootcondition] to apply to this loot entry. If one condition fails, the entry is treated as if it weren't present.
-- `functions`: A list of [loot functions][lootfunction] to apply to the outputs of this loot entry.
-
 Loot entries are generally split into two groups: singletons (with the common superclass `LootPoolSingletonContainer`) and composites (with the common superclass `CompositeEntryBase`), where composites are made up of multiple singletons. The following singleton types are provided by Minecraft:
 
 - `minecraft:empty`: An empty loot entry, representing no item. Created in code by calling `EmptyLootItem#emptyItem`.
@@ -43,6 +36,14 @@ The following composite types are provided by Minecraft:
 - `minecraft:group`: A loot entry containing a list of other loot entries, which are run in order. Created in code by calling `EntryGroup#list`, or by calling `#append` on another `LootPoolSingletonContainer.Builder`, each with other loot entry builders.
 - `minecraft:sequence`: Like `minecraft:group`, but the loot entry stops running as soon as one sub-entry fails, discarding all entries after that. Created in code by calling `SequentialEntry#sequential`, or by calling `#then` on another `LootPoolSingletonContainer.Builder`, each with other loot entry builders.
 - `minecraft:alternatives`: Sort of an opposite to `minecraft:sequence`, but the loot entry stops running as soon as one sub-entry succeeds (instead of as soon as one fails), discarding all entries after that. Created in code by calling `AlternativesEntry#alternatives`, or by calling `#otherwise` on another `LootPoolSingletonContainer.Builder`, each with other loot entry builders.
+
+Through the common `LootPoolEntryContainer` superclass, all of them have `conditions` property, which provides a list of [loot conditions][lootcondition] to apply to this loot entry. If one condition fails, the entry is treated as if it weren't present.
+
+For the singletons that extend `LootPoolSingletonContainer`, they additionally have:
+
+- `weight`: The weight value. Defaults to 1. This is used for cases where some items should be more common than others. For example, given two loot entries, one with weight 3 and one with weight 1, then there is a 75% chance for the first entry to be chosen, and a 25% chance for the second entry.
+- `quality`: The quality value. Defaults to 0. If this is non-zero, then this value is multiplied by the luck value (set in the [loot context][context]) and added to the weight when rolling the loot table.
+- `functions`: A list of [loot functions][lootfunction] to apply to the outputs of this loot entry.
 
 For modders, it is also possible to define [custom loot entry types][customentry].
 
@@ -67,13 +68,16 @@ Number providers are a way to get (pseudo-)randomized numbers in a datapack cont
 - `minecraft:binomial`: Binomially-distributed random integer values, with n and p values set. See [Binomial Distribution][binomial] for more information on what these values mean. Created through `BinomialDistributionGenerator#binomial`.
 - `minecraft:score`: Given an entity target, a score name and (optionally) a scale value, retrieves the given scoreboard value for the entity target, multiplying it with the given scale value (if available). Created through `ScoreboardValue#fromScoreboard`.
 - `minecraft:storage`: A value from the command storage at a given nbt path. Created through `new StorageValue`.
+- `minecraft:sum`: Sums the values of other number providers together. Created through `new Sum`.
 - `minecraft:enchantment_level`: A provider of values for each enchantment level. Created through `EnchantmentLevelProvider#forEnchantmentLevel`, providing a `LevelBasedValue`. Valid `LevelBasedValue`s are:
     - Simply a constant value, without a specified type. Created through `LevelBasedValue#constant`.
     - `minecraft:linear`: A linearly-increasing value per enchantment level, plus an optional constant base value. Created through `LevelBasedValue#perLevel`.
     - `minecraft:levels_squared`: Squares the enchantment value, and then adds an optional base value to it. Created through `new LevelBasedValue.LevelsSquared`.
     - `minecraft:fraction`: Accepts two other `LevelBasedValue`s, using them to create a fraction. Created through `new LevelBasedValue.Fraction`.
     - `minecraft:clamped`: Accepts another `LevelBasedValue`, alongside min and max values. Calculates the value using the other `LevelBasedValue` and clamps the result. Created through `new LevelBasedValue.Clamped`.
+    - `minecraft:exponent`: Accepts two other `LevelBasedValue`s, raising the first value to the second value. Created through `new LevelBasedValue.Exponent`.
     - `minecraft:lookup`: Accepts a `List<Float>` and a fallback `LevelBasedValue`. Looks up the value to use in the list (level 1 is the first element in the list, level 2 is the second element, etc.), and uses the fallback value if the value for a level is missing. Created through `LevelBasedValue#lookup`.
+- `minecraft:environment_attribute`: Gets the numeric value of an environment attribute at the current position or dimension. Created through `new EnvironmentAttributeValue`
 
 Modders can also register [custom number providers][customnumber] and [custom level-based values][customlevelbased] if needed.
 
@@ -93,10 +97,11 @@ Minecraft provides the following loot parameters:
 - `minecraft:origin`: A location associated with the loot table, e.g. the location of a loot chest. Access via `LootContextParams.ORIGIN`.
 - `minecraft:block_state`: A block state associated with the loot table, e.g. the broken block state. Access via `LootContextParams.BLOCK_STATE`.
 - `minecraft:block_entity`: A block entity associated with the loot table, e.g. the block entity associated with the broken block. Used e.g. by shulker boxes to save their inventory to the dropped item. Access via `LootContextParams.BLOCK_ENTITY`.
-- `minecraft:tool`: An item stack associated with the loot table, e.g. the item used to break a block. This is not necessarily a tool. Access via `LootContextParams.TOOL`.
+- `minecraft:tool`: An item instance associated with the loot table, e.g. the item used to break a block. This is not necessarily a tool. Access via `LootContextParams.TOOL`.
 - `minecraft:explosion_radius`: An explosion radius in the current context. Used primarily to apply explosion decay to drops. Access via `LootContextParams.EXPLOSION_RADIUS`.
 - `minecraft:enchantment_level`: An enchantment level, used by enchantment logic. Access via `LootContextParams.ENCHANTMENT_LEVEL`.
 - `minecraft:enchantment_active`: Whether the used item has an enchantment or not, used e.g. by silk touch checks. Access via `LootContextParams.ENCHANTMENT_ACTIVE`.
+- `minecraft:additional_cost_component_allowed`: Allows a villager trade to incur an additional cost if desired by the trade metadata.
 
 Custom loot parameters can be created by calling `new ContextKey<T>` with the desired id. Since they are merely resource location wrappers, they do not need to be registered.
 
@@ -125,6 +130,7 @@ Vanilla provides the following loot parameter sets (required parameters are **bo
 | `minecraft:generic`              | `ALL_PARAMS`           | **`minecraft:origin`**, **`minecraft:tool`**, **`minecraft:block_state`**, **`minecraft:block_entity`**, **`minecraft:explosion_radius`**, **`minecraft:this_entity`**, **`minecraft:damage_source`**, **`minecraft:attacking_entity`**, **`minecraft:direct_attacking_entity`**, **`minecraft:last_damage_player`** | Validation.                                               |
 | `minecraft:command`              | `COMMAND`              | **`minecraft:origin`**, _`minecraft:this_entity`_                                                                                                                                                                                                                                                                    | Commands.                                                 |
 | `minecraft:selector`             | `SELECTOR`             | **`minecraft:origin`**, _`minecraft:this_entity`_                                                                                                                                                                                                                                                                    | Entity selectors in commands.                             |
+| `minecraft:villager_trade`       | `VILLAGER_TRADE`       | **`minecraft:origin`**, **`minecraft:this_entity`**, **`minecraft:additional_cost_component_allowed`**,                                                                                                                                                                                                                                      | Villager Trades.                                        |
 | `minecraft:block`                | `BLOCK`                | **`minecraft:origin`**, **`minecraft:tool`**, **`minecraft:block_state`**, _`minecraft:block_entity`_, _`minecraft:explosion_radius`_, _`minecraft:this_entity`_                                                                                                                                                     | Block breaking.                                           |
 | `minecraft:block_use`            | `BLOCK_USE`            | **`minecraft:origin`**, **`minecraft:block_state`**, **`minecraft:this_entity`**                                                                                                                                                                                                                                     | No vanilla uses.                                          |
 | `minecraft:block_interact`       | `BLOCK_INTERACT`       | **`minecraft:block_state`**, _`minecraft:block_entity`_, _`minecraft:interacting_entity`_, _`minecraft:tool`_                                                                                                                                                                 | Block interactions.                                         |

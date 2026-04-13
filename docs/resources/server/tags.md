@@ -109,7 +109,21 @@ Stream<Holder<Block>> blocksInTag = level.registryAccess().lookupOrThrow(BuiltIn
 
 ### Tags for Static Registries During Bootstrap
 
-Sometimes, you need to get access to a `HolderSet` during the registry process. In this case, for static registries **only**, you can obtain the necessary `HolderGetter` via `BuiltInRegistries#acquireBootstrapRegistrationLookup`:
+Sometimes, you need to get access to a `HolderSet` during the registry process. In [data component contexts][datacomponent], a `HolderLookup.Provider` is provided as part of the initializer to resolve:
+
+```java
+Item.Properties props = new Item.Properties().delayedComponent(
+    // The component to initialize
+    DataComponents.DAMAGE_RESISTANT,
+    // The initializer function, typically provides at least the registry lookup
+    registries -> new DamageResistant(
+        // Get the HolderSet from the TagKey
+        registries.getOrThrow(DamageTypeTags.IS_FIRE)
+    )
+);
+```
+
+Outside of the data component context, for static registries **only**, you can obtain the necessary `HolderGetter` via `BuiltInRegistries#acquireBootstrapRegistrationLookup`:
 
 ```java
 // Assume access to Level level
@@ -118,7 +132,7 @@ HolderSet<Block> blockTag = BuiltInRegistries.acquireBootstrapRegistrationLookup
 
 ## Datagen
 
-Like many other JSON files, tags can be [datagenned][datagen]. Each kind of tag has its own datagen base class - one class for block tags, one for item tags, etc. -, and as such, we need one class for each kind of tag as well. All of these classes extend from the `TagsProvider<T>` base class, with `T` again being the type of the tag (`Block`, `Item`, etc.) The `TagsProvider`s are then further grouped into two categories: `IntrinsicHolderTagsProvider<T>` for typically static registry objects, allowing you to directly pass the object to the tag; and `KeyTagProvider` for typically datapack registry objects, allowing you to pass the `ResourceKey` of an object to the tag.
+Like many other JSON files, tags can be [datagenned][datagen]. Each kind of tag has its own datagen base class - one class for block tags, one for item tags, etc. -, and as such, we need one class for each kind of tag as well. All of these classes extend from the `TagsProvider<T>` base class, with `T` again being the type of the tag (`Block`, `Item`, etc.) The `TagsProvider`s are then further grouped into two main categories: `IntrinsicHolderTagsProvider<T>` for typically static registry objects, allowing you to directly pass the object to the tag; and `KeyTagProvider` for typically datapack registry objects, allowing you to pass the `ResourceKey` of an object to the tag. There is also an additional category `HolderTagProvider<T>` for `Holder`-wrapped static registry objects, though this is only used by vanilla for potion tags.
 
 The following table shows a list of tag providers for different objects:
 
@@ -127,6 +141,7 @@ The following table shows a list of tag providers for different objects:
 | `BannerPattern`            | `BannerPatternTagsProvider`            | `KeyTagProvider`              |
 | `Biome`                    | `BiomeTagsProvider`                    | `KeyTagProvider`              |
 | `Block`                    | `BlockTagsProvider`\*                  | `IntrinsicHolderTagsProvider` |
+| `ConfiguredFeature`        | `FeatureTagsProvider`                  | `KeyTagProvider`              |
 | `DamageType`               | `DamageTypeTagsProvider`               | `KeyTagProvider`              |
 | `Dialog`                   | `DialogTagsProvider`                   | `KeyTagProvider`              |
 | `Enchantment`              | `EnchantmentTagsProvider`              | `KeyTagProvider`              |
@@ -138,8 +153,10 @@ The following table shows a list of tag providers for different objects:
 | `Item`                     | `ItemTagsProvider`\*                   | `IntrinsicHolderTagsProvider` |
 | `PaintingVariant`          | `PaintingVariantTagsProvider`          | `KeyTagProvider`              |
 | `PoiType`                  | `PoiTypeTagsProvider`                  | `KeyTagProvider`              |
+| `Potion`                   | `PotionTagsProvider`                   | `HolderTagProvider`           |
 | `Structure`                | `StructureTagsProvider`                | `KeyTagProvider`              |
 | `Timeline`                 | `TimelineTagsProvider`                 | `KeyTagProvider`              |
+| `VillagerTrade`            | `VillagerTradesTagsProvider`           | `KeyTagProvider`              |
 | `WorldPreset`              | `WorldPresetTagsProvider`              | `KeyTagProvider`              |
 
 
@@ -249,7 +266,7 @@ public class MyRecipeTypeTagsProvider extends TagsProvider<RecipeType<?>> {
 }
 ```
 
-From here, tags are generated from the provider by creating a `TagBuilder` via `getOrCreateRawBuilder`. The builder contains methods to add or remove elements and tags by their `Identifier`. Additionally, the builder can specify the `replace` property:
+From here, tags are generated from the provider by creating a `TagBuilder` via `getOrCreateRawBuilder`. The builder contains methods to add or remove elements and tags by their `Identifier`. Additionally, the builder can specify the `replace` property via `setReplace`:
 
 ```java
 public class MyRecipeTypeTagsProvider extends TagsProvider<RecipeType<?>> {
@@ -271,9 +288,9 @@ public class MyRecipeTypeTagsProvider extends TagsProvider<RecipeType<?>> {
             // Add an optional tag entry that will be ignored if absent.
             .addOptionalTag(CRAFTERS.location())
             // Set the replace property to true.
-            .replace()
+            .setReplace(true)
             // Set the replace property back to false.
-            .replace(false)
+            .setReplace(false)
             // Remove entries.
             .removeElement(Identifier.fromNamespaceAndPath("minecraft", "campfire_cooking"))
             // Remove a tag entry.
@@ -354,7 +371,7 @@ public class MyRecipeTypeTagsProvider extends TagsProvider<RecipeType<?>> {
 
             @Override
             public TagAppender<Identifier, T> replace(boolean value) {
-                builder.replace(value);
+                builder.setReplace(value);
                 return this;
             }
 
@@ -412,6 +429,7 @@ public static void gatherData(GatherDataEvent.Client event) {
 ```
 
 [damagetype]: damagetypes.md
+[datacomponent]: ../../items/datacomponents.md
 [datagen]: ../index.md#data-generation
 [registry]: ../../concepts/registries.md
 [regkey]: ../../misc/identifier.md#resourcekeys

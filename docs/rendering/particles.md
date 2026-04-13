@@ -20,14 +20,18 @@ First, the `TextureAtlasSprite` is passed into the constructor, either as itself
 If the `age` or `lifetime` field is updated in the particle constructor, `setSpriteFromAge` should be called to display the appropriate texture.
 :::
 
-Then, during the [feature submission process][features], the `SingleQuadParticle.Layer` determines what atlas to use along with the pipeline used to draw the quad to the screen. Vanilla provides three layers by default:
+Then, during the [feature submission process][features], the `SingleQuadParticle.Layer` determines what atlas to use along with the pipeline used to draw the quad to the screen. Vanilla provides six layers by default:
 
-| Layer         | Texture Atlas | For                               |
-|:-------------:|:-------------:|:----------------------------------|
-| `TERRAIN`     | Blocks        | Particles that use block textures |
-| `ITEMS`       | Items         | Particles that use item textures  |
-| `OPAQUE`      | Particles     | Particles with no transparency    |
-| `TRANSLUCENT` | Particles     | Particles with transparency       |
+| Layer                | Texture Atlas | For                                                    |
+|:--------------------:|:-------------:|:-------------------------------------------------------|
+| `OPAQUE_TERRAIN`     | Blocks        | Particles that use block textures with no transparency |
+| `TRANSLUCENT_TERRAIN`| Blocks        | Particles that use block textures with transparency    |
+| `OPAQUE_ITEMS`       | Items         | Particles that use item textures with no transparency  |
+| `TRANSLUCENT_ITEMS`  | Items         | Particles that use item textures with transparency     |
+| `OPAQUE`             | Particles     | Particles with no transparency                         |
+| `TRANSLUCENT`        | Particles     | Particles with transparency                            |
+
+For ease of convenience, if using one of the vanilla layers, you can call `SingleQuadParticle.Layer#bySprite` and pass in the texture to determine what layer your particle should be in.
 
 Custom layers can be easily created by calling the constructor.
 

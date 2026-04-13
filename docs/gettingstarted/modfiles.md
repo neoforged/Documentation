@@ -174,6 +174,8 @@ public class ModTwo {
 | Property |  Type  |    Default    |             Description                       |     Example                       |
 |:--------:|:------:|:-------------:|:---------------------------------------------:|:----------------------------------|
 | `config` | string | **mandatory** | The location of the mixin configuration file. | `config="examplemod.mixins.json"` |
+| `requiredMods` | array | `[]` | Mod IDs that must be present for these mixins to be applied. | `requiredMods=["sodium"]` |
+| `behaviorVersion` | string | _nothing_ | The [version of fabric mixin](https://github.com/FabricMC/Mixin/tags) to match the behavior of. Must be between the default behavior version (fixed each time neo leaves a breaking changes window) and the version of fabric mixin present at runtime. | `behaviorVersion="0.17.1"` |
 
 ### Dependency Configurations
 
@@ -248,8 +250,8 @@ An entry in `neoforge.mods.toml` does not need a corresponding `@Mod` annotation
 [javafml]: #javafml-and-mod
 [jei]: https://www.curseforge.com/minecraft/mc-mods/jei
 [mcversioning]: versioning.md#minecraft
-[mdkgradleproperties]: https://github.com/NeoForgeMDKs/MDK-1.21.11-NeoGradle/blob/main/gradle.properties
-[mdkneoforgemodstoml]: https://github.com/NeoForgeMDKs/MDK-1.21.11-NeoGradle/blob/main/src/main/resources/META-INF/neoforge.mods.toml
+[mdkgradleproperties]: https://github.com/NeoForgeMDKs/MDK-26.1-NeoGradle/blob/main/gradle.properties
+[mdkneoforgemodstoml]: https://github.com/NeoForgeMDKs/MDK-26.1-NeoGradle/blob/main/src/main/resources/META-INF/neoforge.mods.toml
 [neoforgemodstoml]: #neoforgemodstoml
 [mixinconfig]: https://github.com/SpongePowered/Mixin/wiki/Introduction-to-Mixins---The-Mixin-Environment#mixin-configuration-files
 [modbus]: ../concepts/events.md#event-buses
