@@ -62,7 +62,7 @@ As mentioned before, entity render states are used to separate values used for r
 
 ```java
 public class MyEntityRenderState extends EntityRenderState {
-    public ItemStack stackInHand;
+    public ItemStackRenderState stackInHand;
 }
 ```
 
@@ -91,11 +91,20 @@ public static void registerRenderStateModifiers(RegisterRenderStateModifiersEven
     );
     
     // Overload of the above method that accepts a Class<?>.
-    // This should ONLY be used for renderers without any generics, such as PlayerRenderer.
+    // This should ONLY be used for renderers without any generics, such as PigRenderer.
     event.registerEntityModifier(
-        PlayerRenderer.class,
+        PigRenderer.class,
         (entity, state) -> state.setRenderData(EXAMPLE_CONTEXT, "Hello World!");
     );
+
+    // Convenience method for working around issues around modifying an avatar's
+    // render state (e.g. players).
+    event.registerAvatarEntityModifier(new AvatarRenderStateModifier() {
+        @Override
+        public <T extends Avatar & ClientAvatarEntity> void accept(T avatar, AvatarRenderState state) {
+            state.setRenderData(EXAMPLE_CONTEXT, "Hello World!");
+        }
+    });
 }
 ```
 
@@ -131,7 +140,7 @@ graph LR;
 
 - `EntityRenderer`: The abstract base class. Many renderers, notably almost all renderers for non-living entities, extend this class directly.
 - `ArrowRenderer`, `AbstractBoatRenderer`, `AbstractMinecartRenderer`: These exist mainly for convenience, and are used as parents for more specific renderers.
-- `LivingEntityRenderer`: The abstract base class for renderers for [living entities][livingentity]. Direct subclasses include `ArmorStandRenderer` and `PlayerRenderer`.
+- `LivingEntityRenderer`: The abstract base class for renderers for [living entities][livingentity]. Direct subclasses include `ArmorStandRenderer` and `AvatarRenderer`.
 - `ArmorStandRenderer`: Self-explanatory.
 - `AvatarRenderer`: Used to render avatars, such as players. Note that unlike most other renderers, multiple instances of this class used for different contexts may exist at the same time.
 - `MobRenderer`: The abstract base class for renderers for `Mob`s. Many renderers extend this directly.

@@ -54,16 +54,18 @@ Data packs may contain folders with files affecting the following things:
 | `advancement`                                                                                                             | [Advancements][advancements] |
 | `banner_pattern`                                                                                                          | Banner patterns              |
 | `cat_variant`, `chicken_variant`, `cow_variant`, `frog_variant`, `pig_variant`, `wolf_variant`, `zombie_nautilus_variant` | Entity variants              |
+| `cat_sound_variant`, `chicken_sound_variant`, `cow_sound_variant`, `pig_sound_variant`, `wolf_sound_variant`              | Entity sound variants     |
 | `damage_type`                                                                                                             | [Damage types][damagetypes]  |
 | `datapacks`                                                                                                               | Built-in datapacks           |
 | `dialog`                                                                                                                  | Dialog menus                 |
 | `enchantment`, `enchantment_provider`                                                                                     | [Enchantments][enchantment]  |
-| `instrument`, `jukebox_song`, `wolf_sound_variant`                                                                        | Sound reference metadata     |
+| `instrument`, `jukebox_song`                                                                                              | Sound reference metadata     |
 | `painting_variant`                                                                                                        | Paintings                    |
 | `loot_table`                                                                                                              | [Loot tables][loottables]    |
 | `recipe`                                                                                                                  | [Recipes][recipes]           |
 | `tags`                                                                                                                    | [Tags][tags]                 |
 | `test_environment`, `test_instance`                                                                                       | [Game tests][gmt]            |
+| `trade_set`, `villager_trade`                                                                                             | Villager trades                |
 | `trial_spawner`                                                                                                           | Combat challenges            |
 | `trim_material`, `trim_pattern`                                                                                           | Armor trims                  |
 | `neoforge/data_maps`                                                                                                      | [Data maps][datamap]         |
@@ -140,7 +142,7 @@ public class MyRecipeProvider extends RecipeProvider {
         }
 
         @Override
-        protected abstract RecipeProvider createRecipeProvider(HolderLookup.Provider registries, RecipeOutput output) {
+        protected RecipeProvider createRecipeProvider(HolderLookup.Provider registries, RecipeOutput output) {
             return new MyRecipeProvider(registries, output);
         }
     }

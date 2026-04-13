@@ -48,13 +48,6 @@ public class MyContainer implements Container {
         return this.items.get(slot);
     }
 
-    // Call this when changes are done to the container, i.e. when item stacks are added, modified, or removed.
-    // For example, you could call BlockEntity#setChanged here.
-    @Override
-    public void setChanged() {
-
-    }
-
     // Remove the specified amount of items from the given slot, returning the stack that was just removed.
     // We defer to ContainerHelper here, which does this as expected for us.
     // However, we must call #setChanged manually.
@@ -82,6 +75,13 @@ public class MyContainer implements Container {
         this.setChanged();
     }
 
+    // Call this when changes are done to the container, i.e. when item stacks are added, modified, or removed.
+    // For example, you could call BlockEntity#setChanged here.
+    @Override
+    public void setChanged() {
+
+    }
+
     // Whether the container is considered "still valid" for the given player. For example, chests and
     // similar blocks check if the player is still within a given distance of the block here.
     @Override
@@ -100,7 +100,7 @@ public class MyContainer implements Container {
 
 ### `SimpleContainer`
 
-The `SimpleContainer` class is a basic implementation of a container with some sprinkles on top, such as the ability to add `ContainerListener`s. It can be used if you need a container implementation that doesn't have any special requirements.
+The `SimpleContainer` class is a basic implementation of a container with some sprinkles on top. It can be used if you need a container implementation that doesn't have any special requirements.
 
 ### `BaseContainerBlockEntity`
 

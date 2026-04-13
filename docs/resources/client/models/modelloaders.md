@@ -361,18 +361,18 @@ To create your own block state model loader, you need five classes, plus an even
 
 - A `CustomUnbakedBlockStateModel` class to load the block state model
 - A `BlockStateModel` class to bake the model, usually a `DynamicBlockStateModel` instance
-- A `BlockModelPart.Unbaked` to load the model JSON
+- A `BlockStateModelPart.Unbaked` to load the model JSON
 - A `ModelState` to apply any transformations to a given face or model 
-- A `BlockModelPart` to hold the quads, ambient occlusion, and particle texture, commonly a `SimpleModelWrapper`
+- A `BlockStateModelPart` to hold the quads, ambient occlusion, and particle texture, commonly a `SimpleModelWrapper`
 - A [client-side][sides] [event handler][event] for `RegisterBlockStateModels` that registers the codec for the unbaked block state model loader
 
 To illustrate how these classes are connected, we will follow a block state model being loaded:
 
 - During definition loading, a block state model within a variant, multipart, or [custom definition][customdefinition] with the `type` property set to your loader is decoded to your `CustomUnbakedBlockStateModel`.
-- During model baking, `CustomUnbakedBlockStateModel#bake` is called, returning a `BlockStateModel`, which contains some list of `BlockModelPart`s.
-- During model rendering, `BlockStateModel#collectParts` collects the list of `BlockModelPart`s to render.
+- During model baking, `CustomUnbakedBlockStateModel#bake` is called, returning a `BlockStateModel`, which contains some list of `BlockStateModelPart`s.
+- During model rendering, `BlockStateModel#collectParts` collects the list of `BlockStateModelPart`s to render.
 
-Let's illustrate this further through a basic class setup. The baked model is named `MyBlockStateModel`, the unbaked class is an inner record `MyBlockStateModel.Unbaked`, model parts is called `MyBlockModelPart`, the unbaked part class is an inner record `MyBlockModelPart.Unbaked`, and the `ModelState` is named `MyModelState`:
+Let's illustrate this further through a basic class setup. The baked model is named `MyBlockStateModel`, the unbaked class is an inner record `MyBlockStateModel.Unbaked`, model parts is called `MyBlockStateModelPart`, the unbaked part class is an inner record `MyBlockStateModelPart.Unbaked`, and the `ModelState` is named `MyModelState`:
 
 ```java
 // The model state used to apply the necessary transformations
@@ -406,8 +406,8 @@ public class MyModelState implements ModelState {
 }
 
 // The model part representing a baked model
-// useAmbientOcclusion and particleIcon are implemented as part of the record
-public record MyBlockModelPart(QuadCollection quads, boolean useAmbientOcclusion, TextureAtlasSprite particleIcon) implements BlockModelPart {
+// useAmbientOcclusion and particleMaterial are implemented as part of the record
+public record MyBlockStateModelPart(QuadCollection quads, boolean useAmbientOcclusion, Material.Baked particleMaterial) implements BlockStateModelPart {
 
     // Get the baked quads to render
     @Override
@@ -415,15 +415,21 @@ public record MyBlockModelPart(QuadCollection quads, boolean useAmbientOcclusion
         return this.quads.getQuads(direction);
     }
 
+    // The flags of the materials backing the quads.
+    @Override
+    public int materialFlags() {
+        return this.quads.materialFlags();
+    }
+
     // The unbaked model that is read from the block state json
-    public record Unbaked(Identifier modelLocation, MyModelState modelState) implements BlockModelPart.Unbaked {
+    public record Unbaked(Identifier modelLocation, MyModelState modelState) implements BlockStateModelPart.Unbaked {
 
         // Used for the unbaked block state model
-        public static final MapCodec<MyBlockModelPart.Unbaked> CODEC = RecordCodecBuilder.mapCodec(
+        public static final MapCodec<MyBlockStateModelPart.Unbaked> CODEC = RecordCodecBuilder.mapCodec(
             instance -> instance.group(
-                Identifier.CODEC.fieldOf("model").forGetter(MyBlockModelPart.Unbaked::modelLocation),
-                MyModelState.CODEC.fieldOf("state").forGetter(MyBlockModelPart.Unbaked::modelState)
-            ).apply(instance, MyBlockModelPart.Unbaked::new)
+                Identifier.CODEC.fieldOf("model").forGetter(MyBlockStateModelPart.Unbaked::modelLocation),
+                MyModelState.CODEC.fieldOf("state").forGetter(MyBlockStateModelPart.Unbaked::modelState)
+            ).apply(instance, MyBlockStateModelPart.Unbaked::new)
         );
 
         @Override
@@ -433,30 +439,37 @@ public record MyBlockModelPart(QuadCollection quads, boolean useAmbientOcclusion
         }
 
         @Override
-        public BlockModelPart bake(ModelBaker baker) {
+        public BlockStateModelPart bake(ModelBaker baker) {
             // Get the model to bake
             ResolvedModel resolvedModel = baker.getModel(this.modelLocation);
 
             // Get the necessary settings for the model part
             TextureSlots slots = resolvedModel.getTopTextureSlots();
             boolean ao = resolvedModel.getTopAmbientOcclusion();
-            TextureAtlasSprite particle = resolvedModel.resolveParticleSprite(slots, baker);
+            Material.Baked particle = resolvedModel.resolveParticleMaterial(slots, baker);
             QuadCollection quads = resolvedModel.bakeTopGeometry(slots, baker, this.modelState);
             
             // Return the baked part
-            return new MyBlockModelPart(quads, ao, particle);
+            return new MyBlockStateModelPart(quads, ao, particle);
         }
     }
 }
 
 // The state model representing the baked block state
-public record MyBlockStateModel(MyBlockModelPart model) implements DynamicBlockStateModel {
+public record MyBlockStateModel(MyBlockStateModelPart model) implements DynamicBlockStateModel {
 
-    // Sets the particle icon
+    // Sets the particle material
     // While it needs to be implemented, any actual logic should be delegated to the level-aware version
     @Override
-    public TextureAtlasSprite particleIcon() {
-        return this.model.particleIcon();
+    public Material.Baked particleMaterial() {
+        return this.model.particleMaterial();
+    }
+
+    // The flags of the materials backing the quads.
+    // While it needs to be implemented, any actual logic should be delegated to the level-aware version
+    @Override
+    public int materialFlags() {
+        return this.quads.materialFlags();
     }
 
     // This effectively acts as a key to reuse geometry previous produced. This should generally be as deterministic as possible.
@@ -472,7 +485,7 @@ public record MyBlockStateModel(MyBlockModelPart model) implements DynamicBlockS
     // - A random instance.
     // - This list of model parts to be rendered. Add your model parts here.
     @Override
-    public void collectParts(BlockAndTintGetter level, BlockPos pos, BlockState state, RandomSource random, List<BlockModelPart> parts) {
+    public void collectParts(BlockAndTintGetter level, BlockPos pos, BlockState state, RandomSource random, List<BlockStateModelPart> parts) {
         // If you want the block rendered to be dependent on the block entity (e.g., your block entity implements `BlockEntity#getModelData`)
         // You can call `BlockAndTintGetter#getModelData` with the block position
         // You can read the property using `get` with the `ModelProperty` key
@@ -484,16 +497,22 @@ public record MyBlockStateModel(MyBlockModelPart model) implements DynamicBlockS
     }
 
     @Override
-    public TextureAtlasSprite particleIcon(BlockAndTintGetter level, BlockPos pos, BlockState state) {
+    public Material.Baked particleMaterial(BlockAndTintGetter level, BlockPos pos, BlockState state) {
         // Override this if you want to use the level to determine what particle to render
-        return self().particleIcon();
+        return self().particleMaterial();
+    }
+
+    @Override
+    public int materialFlags(BlockAndTintGetter level, BlockPos pos, BlockState state) {
+        // Override this if you want to use the level to determine what material flags the model has
+        return self().materialFlags();
     }
 
     // The unbaked model that is read from the block state json
-    public record Unbaked(MyBlockModelPart.Unbaked model) implements CustomUnbakedBlockStateModel {
+    public record Unbaked(MyBlockStateModelPart.Unbaked model) implements CustomUnbakedBlockStateModel {
 
         // The codec to register
-        public static final MapCodec<MyBlockStateModel.Unbaked> CODEC = MyBlockModelPart.Unbaked.CODEC.xmap(
+        public static final MapCodec<MyBlockStateModel.Unbaked> CODEC = MyBlockStateModelPart.Unbaked.CODEC.xmap(
             MyBlockStateModel.Unbaked::new, MyBlockStateModel.Unbaked::model
         );
         public static final Identifier ID = Identifier.fromNamespaceAndPath("examplemod", "my_custom_model_loader");
@@ -531,7 +550,7 @@ Of course, we can also [datagen] our models. To do so, we need a class that exte
 // The builder used to construct the block state JSON
 public class MyBlockStateModelBuilder extends CustomBlockStateModelBuilder {
 
-    private MyBlockModelPart.Unbaked model;
+    private MyBlockStateModelPart.Unbaked model;
 
     public MyBlockStateModelBuilder() {}
     

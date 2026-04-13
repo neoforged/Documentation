@@ -197,6 +197,43 @@ function linkRemapperPatch(linkMap, line) {
     return line;
 }
 
+const VERSION_PARSERS = [
+    // Pre-Classic
+    {
+        // Regex to determine whether version matches
+        regex: /^rd-[0-9]+$/,
+        // Comparison function to match ascending
+        compare: (a, b) => parseInt(a.substring(3)) - parseInt(b.substring(3))
+    },
+    // Full release
+    {
+        regex: /[0-9]+\.[0-9]+(?:\.[0-9]+)?/,
+        compare: (a, b) => {
+            // Handle missing third part
+            const aVer = a.split('.');
+            if (aVer.length == 2) {
+                aVer.push('0');
+            }
+            const bVer = b.split('.');
+            if (bVer.length == 2) {
+                bVer.push('0');
+            }
+
+            // Compare each part
+            for (var i = 0; i < 3; i++) {
+                if (aVer[i] == bVer[i]) {
+                    continue;
+                }
+
+                return parseInt(aVer[i]) - parseInt(bVer[i]);
+            }
+
+            // Otherwise, assume equal
+            return 0;
+        }
+    }
+];
+
 const PRIMER_PATH = common.primerPath;
 const TOOLCHAIN_PLUGIN_PATH = common.toolchainPluginPath;
 
@@ -223,26 +260,26 @@ if (!fs.existsSync(primerDocs)) {
     })
 
     // Order primers starting from most recent
-    const primers = fs.readdirSync(primerDocs).filter((possible) => {
-        return !isNaN(possible.charAt(0));
+    const primers = fs.readdirSync(primerDocs, { withFileTypes: true }).map((value) => {
+        // Make sure it is a directory
+        if (!value.isDirectory()) return null;
+
+        // Map to version parser
+        for (const [idx, parser] of VERSION_PARSERS.entries()) {
+            if (value.name.match(parser.regex)) return [idx, value.name];
+        }
+        
+        // Otherwise skip
+        return null;
+    }).filter((possible) => {
+        return possible != null;
     }).sort((a, b) => {
-        const aVer = a.split('.');
-        if (aVer.length == 2) {
-            aVer.push('0');
-        }
-        const bVer = b.split('.');
-        if (bVer.length == 2) {
-            bVer.push('0');
-        }
+        // Compare version parsers
+        if (a[0] != b[0]) return -(a[0] - b[0]);
 
-        for (var i = 0; i < 3; i++) {
-            if (aVer[i] == bVer[i]) {
-                continue;
-            }
-
-            return -(parseInt(aVer[i]) - parseInt(bVer[i]));
-        }
-    });
+        // Otherwise, compare the versions themselves
+        return - (VERSION_PARSERS[a[0]].compare(a[1], b[1]));
+    }).map((pair) => pair[1]);
     
     // Loop through primers and apply headers
     const neoNewsVersions = new Set();
@@ -250,7 +287,7 @@ if (!fs.existsSync(primerDocs)) {
     for (const primer of primers) {
         appendHeader(function(fileData) {
             const title = fileData.substring(0, fileData.indexOf('\n'))
-            .match(/[0-9]+(?:\.[0-9]+)*(?:\/[0-9]+(?:\.[0-9]+)*)* \-\> [0-9]+(?:\.[0-9]+)*(?:\/[0-9]+(?:\.[0-9]+)*)*/)[0];
+            .match(/[^ ]+ -> [^ ]+/)[0];
             return `---\ntitle: ${title}\nsidebar_position: ${currentPosition}\n---`;
         }, path.join(primerDocs, primer, 'index.md'));
         
