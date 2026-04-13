@@ -7,7 +7,7 @@ A rendering feature defines a set of objects not baked into the level geometry, 
 
 ## Submitting Features
 
-Feature submission is typically handled by the underlying subsystem responsible for those objects: [`EntityRenderer` for entities][entities], [`BlockEntityRenderer` for block entities][blockentities], [`ParticleGroupRenderState` for particles`][particles], etc. Each provides their own `submit` method, usually taking in some general render state of the object. The necessary elements are then submitted through the `SubmitNodeCollector` and stored in a `SubmitNodeCollection` tree map for rendering.
+Feature submission is typically handled by the underlying subsystem responsible for those objects: [`EntityRenderer` for entities][entities], [`BlockEntityRenderer` for block entities][blockentities], [`ParticleGroupRenderState` for particles][particles], etc. Each provides their own `submit` method, usually taking in some general render state of the object. The necessary elements are then submitted through the `SubmitNodeCollector` and stored in a `SubmitNodeCollection` tree map for rendering.
 
 The following methods are made available through the collector, in the order they are ultimately rendered:
 
