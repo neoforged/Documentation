@@ -90,7 +90,7 @@ Particles whose `SingleQuadParticle.Layer` uses `TextureAtlas#LOCATION_PARTICLES
 If a particle requires something more complex than a quad, then it will need its own `ParticleGroup<P>`, where `P` is the type of the `Particle`. `ParticleGroup`s are responsible for ticking a defined subset of `Particle`s, removing them once `Particle#isAlive` returns false. Each group can queue up to 16,384 particles, evicting the oldest once full. 
 
 ```java
-// Lets assume we have the following particle class
+// Let's assume we have the following particle class
 public class ComplexParticle extends Particle {
 
     // You are not required to use these fields or store these values.
@@ -172,7 +172,7 @@ public class ComplexParticleGroup extends ParticleGroup<ComplexParticle> {
 }
 ```
 
-On its own, a `Particle` does not know what `ParticleGroup` it belongs to, nor does the `ParticleEngine` know that the group exists. These are all linked together using a `ParticleRenderType`: a unique identifier for the group. The `ParticleRenderType` is linked to the `ParticleGroup` via the [client-side][side] [mod bus][modbus] [event] `RegisterParticleGroupsEvent`. Then a `Particle` can use the group by setting `Particle#getGroup` to the created type.
+On its own, a `Particle` does not know what `ParticleGroup` it belongs to, nor does the `ParticleEngine` know that the group exists. These are all linked together using a `ParticleRenderType`: a unique identifier for the group. The `ParticleRenderType` is linked to the `ParticleGroup` via the [client-side][side] [mod bus][modbus] [event] `RegisterParticleGroupsEvent`. Then, a `Particle` can use the group by setting `Particle#getGroup` to the created type.
 
 ```java
 // Create the render type
