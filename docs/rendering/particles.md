@@ -93,6 +93,9 @@ If a particle requires something more complex than a quad, then it will need its
 // Lets assume we have the following particle class
 public class ComplexParticle extends Particle {
 
+    // You are not required to use these fields or store these values.
+    // It is up to you to determine what you wish to render and get the
+    // appropriate data.
     private final Model.Simple model;
     private final SpriteId sprite;
 
@@ -136,7 +139,7 @@ public record ComplexParticleRenderState(List<ComplexParticleRenderState.Entry> 
     @Override
     public void submit(SubmitNodeCollector collector, CameraRenderState camera) {
         // Submit the particle elements to render
-        for (var entry : this.entries) {
+        for (ComplexParticleRenderState.Entry entry : this.entries) {
             collector.submitModel(
                 entry.model, Unit.INSTANCE, entry.pose,
                 0xF000F0, OverlayTexture.NO_OVERLAY, -1,
@@ -157,8 +160,8 @@ public class ComplexParticleGroup extends ParticleGroup<ComplexParticle> {
         // Extract the render state from the particles
         List<ComplexParticleRenderState.Entry> entries = new ArrayList<>();
 
-        for (var particle : this.particles) {
-            var pose = new PoseStack();
+        for (ComplexParticle particle : this.particles) {
+            PoseStack pose = new PoseStack();
             pose.pushPose();
             pose.mulPose(camera.rotation());
             entries.add(new ComplexParticleRenderState.Entry(particle.model(), particle.sprite(), pose));
