@@ -140,12 +140,7 @@ public record ComplexParticleRenderState(List<ComplexParticleRenderState.Entry> 
     public void submit(SubmitNodeCollector collector, CameraRenderState camera) {
         // Submit the particle elements to render
         for (ComplexParticleRenderState.Entry entry : this.entries) {
-            collector.submitModel(
-                entry.model, Unit.INSTANCE, entry.pose,
-                0xF000F0, OverlayTexture.NO_OVERLAY, -1,
-                entry.sprite, Minecraft.getInstance().getAtlasManager(),
-                0, null
-            );
+            collector.submitModel(...);
         }
     }
 }
