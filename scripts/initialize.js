@@ -293,7 +293,10 @@ if (!fs.existsSync(primerDocs)) {
         
         // If a neo news article exists for that version, add it
         const versionSegments = primer.split('.');
-        const neoNews =`${versionSegments.length == 2 ? `${versionSegments[1]}.0` : `${versionSegments[1]}.${versionSegments[2]}`}release`
+        const versionExtractor = parseInt(versionSegments[0]) > 1
+            ? () => primer
+            : () => versionSegments.length == 2 ? `${versionSegments[1]}.0` : `${versionSegments[1]}.${versionSegments[2]}`
+        const neoNews =`${versionExtractor()}release`
         if (fs.existsSync(path.join(tmpPath, 'websites', `${neoNews}.md`))) {
             fs.writeFileSync(path.join(primerDocs, primer, 'neo.md'), `---
                 title: Neo Changes
