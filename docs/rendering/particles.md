@@ -85,6 +85,113 @@ public class MyQuadParticle extends SingleQuadParticle {
 Particles whose `SingleQuadParticle.Layer` uses `TextureAtlas#LOCATION_PARTICLES` must have an associated [particle description][description]. Otherwise, the textures required by the particle will not be added to the atlas.
 :::
 
+## Particle Groups and Render States
+
+If a particle requires something more complex than a quad, then it will need its own `ParticleGroup<P>`, where `P` is the type of the `Particle`. `ParticleGroup`s are responsible for ticking a defined subset of `Particle`s, removing them once `Particle#isAlive` returns false. Each group can queue up to 16,384 particles, evicting the oldest once full. 
+
+```java
+// Let's assume we have the following particle class
+public class ComplexParticle extends Particle {
+
+    // You are not required to use these fields or store these values.
+    // It is up to you to determine what you wish to render and get the
+    // appropriate data.
+    private final Model.Simple model;
+    private final SpriteId sprite;
+
+    public ComplexParticle(ClientLevel level, double x, double y, double z) {
+        super(level, x, y, z);
+        this.model = StandingSignRenderer.createSignModel(
+            Minecraft.getInstance().getEntityModels(), WoodType.OAK, PlainSignBlock.Attachment.GROUND
+        );
+        this.sprite = Sheets.getSignSprite(WoodType.OAK);
+    }
+
+    public Model.Simple model() {
+        return this.model;
+    }
+
+    public SpriteId sprite() {
+        return this.sprite;
+    }
+}
+
+// We can create a basic particle group like so
+public class ComplexParticleGroup extends ParticleGroup<ComplexParticle> {
+
+    public ComplexParticleGroup(ParticleEngine engine) {
+        super(engine);
+    }
+
+    // ...
+}
+```
+
+Once a `Particle` has been added to the `ParticleGroup`, it is extracted during [feature submission][features] to a `ParticleGroupRenderState` via `ParticleGroup#extractRenderState`. `ParticleGroupRenderState` is a mix between a render state containing the extracted particle and a handler to submit the particle elements for rendering (via `#submit`).
+
+```java
+// The particle group render state
+public record ComplexParticleRenderState(List<ComplexParticleRenderState.Entry> entries) implements ParticleGroupRenderState {
+
+    // Each entry represents a particle in the group
+    public record Entry(Model.Simple model, SpriteId sprite, PoseStack pose) {}
+
+    @Override
+    public void submit(SubmitNodeCollector collector, CameraRenderState camera) {
+        // Submit the particle elements to render
+        for (ComplexParticleRenderState.Entry entry : this.entries) {
+            collector.submitModel(...);
+        }
+    }
+}
+
+// And in the group...
+public class ComplexParticleGroup extends ParticleGroup<ComplexParticle> {
+
+    // ...
+
+    @Override
+    public ParticleGroupRenderState extractRenderState(Frustum frustum, Camera camera, float partialTickTime) {
+        // Extract the render state from the particles
+        List<ComplexParticleRenderState.Entry> entries = new ArrayList<>();
+
+        for (ComplexParticle particle : this.particles) {
+            PoseStack pose = new PoseStack();
+            pose.pushPose();
+            pose.mulPose(camera.rotation());
+            entries.add(new ComplexParticleRenderState.Entry(particle.model(), particle.sprite(), pose));
+        }
+
+        return new ComplexParticleRenderState(entries);
+    }
+}
+```
+
+On its own, a `Particle` does not know what `ParticleGroup` it belongs to, nor does the `ParticleEngine` know that the group exists. These are all linked together using a `ParticleRenderType`: a unique identifier for the group. The `ParticleRenderType` is linked to the `ParticleGroup` via the [client-side][side] [mod bus][modbus] [event] `RegisterParticleGroupsEvent`. Then, a `Particle` can use the group by setting `Particle#getGroup` to the created type.
+
+```java
+// Create the render type
+// The string passed in should be a stringified `Identifier`
+public static final ParticleRenderType COMPLEX = new ParticleRenderType("examplemod:complex");
+
+@SubscribeEvent // on the mod event bus only on the physical client
+public static void registerParticleProviders(RegisterParticleGroupsEvent event) {
+    // Link the render type to the particle group
+    event.register(COMPLEX, ComplexParticleGroup::new);
+}
+
+public class ComplexParticle extends Particle {
+
+    // ...
+
+    @Override
+    public ParticleRenderType getGroup() {
+        // Tell the particle to render using the particle group
+        return COMPLEX;
+    }
+}
+```
+
 ## `ParticleProvider`
 
 Once a particle for some particle type has been created, the particle type must be linked through a `ParticleProvider`. `ParticleProvider` is a client-only class responsible for actually creating our `Particle`s from the `ParticleEngine` via `createParticle`. While more elaborate code can be included here, many particle providers are as simple as this:
