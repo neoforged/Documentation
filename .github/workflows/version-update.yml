@@ -31,11 +31,11 @@ jobs:
     runs-on: ubuntu-latest
     if: inputs.update_type == 'major'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ inputs.branch }}
       
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version-file: '.node-version'
           cache: npm
@@ -89,7 +89,7 @@ jobs:
     runs-on: ubuntu-latest
     if: inputs.update_type == 'minor'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ inputs.branch }}
       
