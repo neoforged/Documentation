@@ -58,7 +58,6 @@ const config = {
   projectName: "documentation", // Usually your repo name.
 
   onBrokenLinks: "throw", // Yay multi versioned-docs sites
-  onBrokenMarkdownLinks: "throw",
 
   // Even if you don't use internalization, you can use this field to set useful
   // metadata like html lang. For example, if your site is Chinese, you may want
@@ -192,7 +191,10 @@ const config = {
     }),
 
     markdown: {
-      mermaid: true
+      mermaid: true,
+      hooks: {
+          onBrokenMarkdownLinks: "throw"
+      }
     },
 
     themes: ['@docusaurus/theme-mermaid']
