@@ -1,4 +1,5 @@
 ---
+description: Special properties of entities that can be changed using a modifier system.
 sidebar_position: 4
 ---
 # Attributes

@@ -1,3 +1,7 @@
+---
+description: A class used widely across Minecraft to identify a file or element location.
+sidebar_position: 4
+---
 # Identifiers
 
 `Identifier`s are one of the most important things in Minecraft. They are used as keys in [registries][registries], as identifiers for data or resource files, as references to models in code, and in a lot of other places. An `Identifier` consists of two parts: a namespace and a path, separated by a `:`.

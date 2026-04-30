@@ -1,7 +1,7 @@
 ---
-sidebar_position: 5
+description: How to add custom armor, both for humanoids and animals, as well as the various assets needed to make them work.
+sidebar_position: 6
 ---
-
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 

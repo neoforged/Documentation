@@ -1,4 +1,5 @@
 ---
+description: A high-level overview of rendering features, their difference from pre-baked geometry, the general two-part system of submission and rendering, and various examples for it in Minecraft.
 sidebar_position: 1
 ---
 # Features

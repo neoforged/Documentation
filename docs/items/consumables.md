@@ -1,5 +1,6 @@
 ---
-sidebar_position: 3
+description: How to create custom consumable items, e.g. food or drink items, as well as custom animations for them.
+sidebar_position: 4
 ---
 # Consumables
 

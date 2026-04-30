@@ -1,3 +1,7 @@
+---
+description: A system to allow modders to add values to certain Minecraft enums.
+sidebar_position: 2
+---
 # Extensible Enums
 
 Extensible Enums are an enhancement of specific Vanilla enums to allow new entries to be added. This is done by modifying the compiled bytecode of the enum at runtime to add the elements.
