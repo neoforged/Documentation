@@ -20,7 +20,7 @@ An armor set for a humanoid entity typically consists of four items: a helmet fo
 - `#ATTRIBUTE_MODIFIERS` for armor, armor toughness, and knockback resistance
 - `#EQUIPPABLE` for how the entity can equip the item.
 
-Commonly, each armor is setup using `Item.Properties#humanoidArmor` for humanoid entities, `wolfArmor` for wolves, `horseArmor` for horses, and `nautilusArmor` for nautili. They all use `ArmorMaterial` combined with `ArmorType` for humanoids to set up the components. Reference values can be found within `ArmorMaterials`. This example uses a copper armor material, which you can adjust the values of as needed.
+Commonly, each armor is setup using `Item.Properties#humanoidArmor` for humanoid entities, `wolfArmor` for wolves, `horseArmor` for horses, and `nautilusArmor` for nautilis. They all use `ArmorMaterial` combined with `ArmorType` for humanoids to set up the components. Reference values can be found within `ArmorMaterials`. This example uses a copper armor material, which you can adjust the values of as needed.
 
 ```java
 // The resource key of the equipment asset used to link
