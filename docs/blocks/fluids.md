@@ -117,11 +117,49 @@ For more information, see [I18n and L10n/Datagen][i18n].
 
 ## In-World Fluids
 
-TODO
+When placing fluids in world, `FluidState`s are used instead of `Fluid`s, closely mirroring the use of [`BlockState`s][blockstate] versus `Block`s. Similar to `BlockState`s, `FluidState`s can be set into a level using `Level#setFluidState()`, a `FluidState` at a position can be queried using `Level#getFluidState()`, and the default state can be obtained using `Fluid#defaultFluidState()`.
 
-### `FluidState` and Waterlogging
+However, `FluidState`s also exhibit a few differences to `BlockState`s. Most notably, their different states do not operate using properties, at least not properties defined in the same way as block state properties, instead the exact `FluidState` is computed by the level from fluid spreading mechanics. For most use cases the exact `FluidState` is irrelevant, save for some properties such as `isSource()` which can be queried from the `FluidState` if needed.
 
-TODO
+Unfortunately, the current implementation of `FluidState`s in levels is very much half-baked. Even more unfortunately, it is impossible for NeoForge to fix this without breaking compatibility with vanilla worlds. Basically all `FluidState` logic is tied to `BlockState` in some way, despite there not really being a need to. In the current implementation, `Level#getFluidState()` essentially boils down to `BlockState#getFluidState()`, happening very deep in chunk storage. It is expected that Mojang will eventually rework this, however for now we have to make do with what we have.
+
+### Waterlogging
+
+_See also [Blocks][block] and [Block States][blockstate]._
+
+The epitome of this half-baked `FluidState` system is waterlogging. Waterlogging is the ability of certain non-full blocks, e.g. slabs, to also contain a water source at the same time. This is currently implemented via the `WATERLOGGED` block state property:
+
+```java
+// Implementing SimpleWaterloggedBlock automatically enables bucket pickup
+// and makes some helper methods available.
+public class MyBlock extends Block implements SimpleWaterloggedBlock {
+    // Add the WATERLOGGED property to our class for easy access.
+    public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
+
+    // Set WATERLOGGED to false by default.
+    public MyBlock(Properties properties) {
+        super(properties);
+        registerDefaultState(getStateDefinition().any().setValue(WATERLOGGED, false));
+    }
+
+    // Add WATERLOGGED to the block state definition.
+    @Override
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        super.createBlockStateDefinition(builder);
+        builder.add(WATERLOGGED);
+    }
+
+    // The important part: Query the WATERLOGGED property when asked for the fluid state.
+    // The `false` parameter in Fluids.WATER.getSource(false) means "falling" and is set to false
+    // for all vanilla waterlogging implementations.
+    @Override
+    public FluidState getFluidState(BlockState state) {
+        return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
+    }
+}
+```
+
+The `WATERLOGGED` is also the #1 reason NeoForge cannot easily fix this, because removing the `WATERLOGGED` property would break compatibility with vanilla servers due to a different set of block states.
 
 ### Fluid Blocks
 
@@ -144,6 +182,7 @@ TODO
 TODO
 
 [block]: index.md
+[blockstate]: states.md
 [entity]: ../entities/index.md
 [i18n]: ../resources/client/i18n.md#datagen
 [registries]: ../concepts/registries.md
