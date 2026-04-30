@@ -1,5 +1,5 @@
 ---
-description: This article explains the client-side part to the particle system, i.e., particle rendering.
+description: The client-side component of the particle system, i.e., particle rendering.
 sidebar_position: 2
 ---
 # Client Particles

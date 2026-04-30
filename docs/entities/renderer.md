@@ -1,5 +1,5 @@
 ---
-description: This article explains entity renderers, entity models, entity render states and other related systems.
+description: How to use entity renderers, entity models, entity render states and other related systems.
 sidebar_position: 5
 ---
 # Entity Renderers

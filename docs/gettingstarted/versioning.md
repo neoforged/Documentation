@@ -1,5 +1,5 @@
 ---
-description: This article explains how versioning is used in Minecraft, NeoForge and mods alike.
+description: How versioning is used in Minecraft, NeoForge and mods.
 sidebar_position: 4
 ---
 # Versioning

@@ -1,5 +1,5 @@
 ---
-description: This article explains the mod update checker built into NeoForge.
+description: An overview of the mod update checker built into NeoForge.
 sidebar_position: 6
 ---
 # NeoForge Update Checker

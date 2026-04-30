@@ -1,5 +1,5 @@
 ---
-description: This article explains the various loot functions built into Minecraft.
+description: A list of the various loot functions built into Minecraft.
 sidebar_position: 3
 ---
 # Loot Functions

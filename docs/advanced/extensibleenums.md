@@ -1,5 +1,5 @@
 ---
-description: This article explains the Extensible Enum system, allowing modders to add values to certain Minecraft enums.
+description: A system to allow modders to add values to certain Minecraft enums.
 sidebar_position: 2
 ---
 # Extensible Enums

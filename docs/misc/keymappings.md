@@ -1,6 +1,6 @@
 ---
-description: This article explains how to register and listen for key mappings.
-sidebar_position: 4
+description: How to register and listen for key mappings.
+sidebar_position: 5
 ---
 # Key Mappings
 

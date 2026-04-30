@@ -1,5 +1,5 @@
 ---
-description: This article explains the various files included in a typical mod JAR.
+description: What the various files included in a typical mod JAR do.
 sidebar_position: 2
 ---
 # Mod Files

@@ -1,5 +1,5 @@
 ---
-description: This article gives an overview of Minecraft's model system, including the model file format, blockstate files, model tinting, and how to register custom models.
+description: An overview of Minecraft's model system, including the model file format, blockstate files, model tinting, and how to register custom models.
 sidebar_position: 1
 ---
 # Models

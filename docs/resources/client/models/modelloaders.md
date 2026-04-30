@@ -1,5 +1,5 @@
 ---
-description: This article gives an overview of the custom model loader system, the built-in model loaders, and how to add your own model loaders.
+description: How to use the custom model loader system, the built-in model loaders, and how to add your own model loaders.
 sidebar_position: 4
 ---
 # Custom Model Loaders

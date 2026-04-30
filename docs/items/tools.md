@@ -1,5 +1,5 @@
 ---
-description: This article explains how to work with and add custom tool items, custom tool materials and item abilities.
+description: How to work with and add custom tool items, custom tool materials and item abilities.
 sidebar_position: 5
 ---
 # Tools

@@ -1,5 +1,5 @@
 ---
-description: This article explains how to write and generate advancement files, as well as how to add to related systems, e.g. advancement triggers.
+description: How to write and generate advancement files, as well as how to add to related systems, e.g. advancement triggers.
 sidebar_position: 1
 ---
 # Advancements

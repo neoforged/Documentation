@@ -1,5 +1,5 @@
 ---
-description: This article gives a quick overview of the motivations of networking.
+description: A quick overview of networking.
 sidebar_position: 1
 ---
 # Networking

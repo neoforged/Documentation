@@ -1,5 +1,5 @@
 ---
-description: This article explains how to use NeoForge's Global Loot Modifier system in order to inject your own loot into loot tables. It covers the built-in options as well as how to add custom modifiers.
+description: How to use NeoForge's Global Loot Modifier system in order to inject your own loot into loot tables, using both built-in and custom options.
 sidebar_position: 5
 ---
 # Global Loot Modifiers

@@ -1,5 +1,5 @@
 ---
-description: This articles explains the subgroup of living entities, consisting mainly of mobs and players. It also covers their various unique systems, such as health, damage and spawning.
+description: A subgroup of entities, consisting mainly of mobs and players and featuring a bunch of unique systems such as health, damage and spawning.
 sidebar_position: 3
 ---
 # Living Entities, Mobs & Players

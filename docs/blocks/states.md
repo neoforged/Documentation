@@ -1,5 +1,5 @@
 ---
-description: This article explains what blockstates are, what they are commonly used for and how to implement your own.
+description: What blockstates are, what they are commonly used for and how to implement your own.
 sidebar_position: 2
 ---
 # Blockstates

@@ -1,5 +1,5 @@
 ---
-description: This article gives an overview over the various subsystems at play within the recipe system. It also covers how to use and generate recipes.
+description: An overview over the various subsystems at play within the recipe system, and how to use and generate recipes.
 sidebar_position: 1
 ---
 import Tabs from '@theme/Tabs';

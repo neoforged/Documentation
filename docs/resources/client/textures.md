@@ -1,5 +1,5 @@
 ---
-description: This article explains how Minecraft loads its textures and what metadata can be specified.
+description: An overview of Minecraft's texture loading, and the texture metadata specification.
 sidebar_position: 1
 ---
 # Textures

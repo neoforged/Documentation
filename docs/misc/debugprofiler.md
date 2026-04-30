@@ -1,5 +1,5 @@
 ---
-description: This article explains Minecraft's built-in debug profiler.
+description: How to use Minecraft's built-in debug profiler.
 sidebar_position: 2
 ---
 # Debug Profiler

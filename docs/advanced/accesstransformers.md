@@ -1,5 +1,5 @@
 ---
-description: This article explains access transformers, a tool to make normally inaccessible fields, methods and classes accessible.
+description: A tool to make normally inaccessible fields, methods and classes accessible.
 sidebar_position: 1
 ---
 import Tabs from '@theme/Tabs';

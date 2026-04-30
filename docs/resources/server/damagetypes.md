@@ -1,5 +1,5 @@
 ---
-description: This article explains the damage system in Minecraft, consisting of damage sources and damage types, and where modders can hook into it.
+description: How the damage system in Minecraft works, what the relation between damage sources and damage types is, and where modders can hook into the damage system.
 sidebar_position: 3
 ---
 # Damage Types & Damage Sources

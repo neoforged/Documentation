@@ -1,5 +1,5 @@
 ---
-description: This article explains the format, uses and different kinds of tag files.
+description: The format, uses, and different kinds of tag files.
 sidebar_position: 4
 ---
 # Tags

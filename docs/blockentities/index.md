@@ -1,5 +1,5 @@
 ---
-description: Block entities are a way to store arbitrary data on blocks. This article explains how to work with them and how to add your own.
+description: Storing arbitrary data on blocks using block entities; how to work with them and how to add your own.
 sidebar_position: 1
 ---
 # Block Entities

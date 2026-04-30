@@ -1,5 +1,5 @@
 ---
-description: This article explains the ValueInput and ValueOutput helpers for entity and block entity serialization.
+description: How to use the ValueInput and ValueOutput helpers for entity and block entity serialization.
 sidebar_position: 2
 ---
 # Value I/O

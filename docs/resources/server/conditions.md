@@ -1,5 +1,5 @@
 ---
-description: This article explains how to add load conditions to your data files, so that they only load if e.g. certain mods or registry entries are present. It also covers creating your own conditions.
+description: How to add load conditions to your data files, making data files only load when those conditions are met.
 sidebar_position: 2
 ---
 # Data Load Conditions

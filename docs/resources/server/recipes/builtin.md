@@ -1,5 +1,5 @@
 ---
-description: This article explains the various recipe types built into Minecraft, both in JSON format and in data generation.
+description: A list of the various recipe types built into Minecraft, both in JSON format and in data generation.
 sidebar_position: 2
 ---
 # Built-In Recipe Types

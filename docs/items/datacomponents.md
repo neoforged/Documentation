@@ -1,5 +1,5 @@
 ---
-description: This article explains how data components are, how to use them with items and how to register your own data component types.
+description: What data components are, how to use them with items and how to register your own data component types.
 sidebar_position: 3
 ---
 # Data Components

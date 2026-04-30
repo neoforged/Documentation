@@ -1,5 +1,5 @@
 ---
-description: This article explains the motivation, use and implementation of networking configuration tasks.
+description: How and why to work with network configuration tasks.
 sidebar_position: 4
 ---
 # Using Configuration Tasks

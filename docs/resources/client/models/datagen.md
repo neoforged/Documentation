@@ -1,5 +1,5 @@
 ---
-description: This article explains how to generate model files through data generation, including model templates, block model generation, blockstate file generation and item model generation.
+description: How to generate model files through data generation, including model templates, block model generation, blockstate file generation and item model generation.
 sidebar_position: 3
 ---
 # Model Datagen

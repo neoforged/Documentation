@@ -1,5 +1,5 @@
 ---
-description: This article explains how sounds are registered, how they are bundled into sound events, and how they can be played to the player.
+description: How sounds are registered, how they are bundled into sound events, and how they can be played to the player.
 sidebar_position: 3
 ---
 # Sounds

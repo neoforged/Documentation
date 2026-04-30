@@ -1,5 +1,5 @@
 ---
-description: This article explains how to add and use block entity renderers and the associated block entity render states.
+description: How to add and use block entity renderers and the associated block entity render states.
 sidebar_position: 2
 ---
 # BlockEntityRenderer

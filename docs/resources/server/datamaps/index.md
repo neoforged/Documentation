@@ -1,5 +1,5 @@
 ---
-description: This article explains NeoForge's data map system, with a focus on the general idea and adding data maps through mods.
+description: How to work with NeoForge's data map system, with a focus on the general concepts, and how to add your own data maps.
 sidebar_position: 1
 ---
 # Data Maps

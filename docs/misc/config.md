@@ -1,5 +1,5 @@
 ---
-description: This article explains NeoForge's built-in configuration system, using the Nightconfig library and the TOML language.
+description: How to work with NeoForge's built-in configuration system using the Nightconfig library and the TOML language.
 sidebar_position: 1
 ---
 # Configuration

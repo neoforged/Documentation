@@ -1,5 +1,5 @@
 ---
-description: This article explains screens, Minecraft's main system for GUIs. It also talks about GUI elements and widgets, screen ticking, input handling, and tying screens to menus.
+description: Minecraft's main system for GUIs; including GUI elements and widgets, screen ticking, input handling, and tying screens to menus.
 sidebar_position: 3
 ---
 # Screens

@@ -1,5 +1,5 @@
 ---
-description: This article explains the different components of loot tables, including loot entries, loot pools, loot conditions, loot functions; as well as using and generating loot tables.
+description: An overview of the different components of loot tables, including loot entries, loot pools, loot conditions, loot functions; as well as using and generating loot tables.
 sidebar_position: 1
 ---
 # Loot Tables

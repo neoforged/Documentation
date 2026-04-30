@@ -1,5 +1,5 @@
 ---
-description: This article explains the various data map types built into NeoForge.
+description: A list of the various data map types built into NeoForge.
 sidebar_position: 2
 ---
 # Built-In Data Maps

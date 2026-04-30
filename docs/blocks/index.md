@@ -1,5 +1,5 @@
 ---
-description: This article explains how to add custom blocks, how to work with blocks in general, and how mechanics such as block placing or block breaking work.
+description: How to add custom blocks, how to work with blocks in general, and how mechanics such as block placing or block breaking work.
 sidebar_position: 1
 ---
 # Blocks

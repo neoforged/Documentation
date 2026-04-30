@@ -1,5 +1,5 @@
 ---
-description: This article explains the various loot conditions built into Minecraft.
+description: A list of the various loot conditions built into Minecraft.
 sidebar_position: 2
 ---
 # Loot Conditions

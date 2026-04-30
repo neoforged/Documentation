@@ -1,5 +1,5 @@
 ---
-description: This article explains how to add custom entries to the various registries that are used in the loot table system.
+description: How to add custom entries to the various registries that are used in the loot table system.
 sidebar_position: 4
 ---
 # Custom Loot Objects

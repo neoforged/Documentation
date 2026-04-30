@@ -1,5 +1,5 @@
 ---
-description: This article contains a rundown of how a model is transformed from on-disk files into an in-code object, and how this process can be modified by mods.
+description: A rundown of how a model is transformed from on-disk files into an in-code object, and how this process can be modified by mods.
 sidebar_position: 1
 ---
 # Understanding the Model System

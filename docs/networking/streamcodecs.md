@@ -1,5 +1,5 @@
 ---
-description: This article explains how to use stream codecs for networking formats and serialization.
+description: A codec-like system for networking formats and serialization.
 sidebar_position: 3
 ---
 # Stream Codecs

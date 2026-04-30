@@ -1,5 +1,5 @@
 ---
-description: This article explains the ingredient system used by recipes.
+description: How to work with recipe ingredients.
 sidebar_position: 2
 ---
 # Ingredients

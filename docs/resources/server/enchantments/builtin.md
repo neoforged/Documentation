@@ -1,5 +1,5 @@
 ---
-description: This article explains the various enchantment effect components provided by Minecraft, including both the JSON format and the data generation snippets to generate them.
+description: An overview of the various enchantment effect components provided by Minecraft, including both the JSON format and the data generation snippets to generate them.
 sidebar_position: 2
 ---
 import Tabs from '@theme/Tabs';

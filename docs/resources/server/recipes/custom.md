@@ -1,5 +1,5 @@
 ---
-description: This article explains how to add custom recipes, including recipe inputs, recipe types, recipe serializers, slot displays and other systems that are at play with custom recipes.
+description: How to add custom recipes, including recipe inputs, recipe types, recipe serializers, slot displays and other systems that are at play with custom recipes.
 sidebar_position: 4
 ---
 # Custom Recipes

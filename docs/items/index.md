@@ -1,5 +1,5 @@
 ---
-description: This article explains how to add custom items, how to work with items, and the difference between items and item stacks.
+description: How to add custom items, how to work with items, and an explanation of the difference between items and item stacks.
 sidebar_position: 1
 ---
 # Items

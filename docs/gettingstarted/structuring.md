@@ -1,5 +1,5 @@
 ---
-description: This article explains the different methods to structure your mod files.
+description: An overview of the different methods to structure your mod files.
 sidebar_position: 3
 ---
 # Structuring Your Mod

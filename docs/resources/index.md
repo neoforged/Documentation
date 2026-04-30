@@ -1,5 +1,5 @@
 ---
-description: This article gives a broad overview about Minecraft's resource system. It explains the split into assets and data and dedicates a section to data generation.
+description: What resources are in general, why there is a distinction between assets and data, and how to generate resource files. 
 sidebar_position: 1
 ---
 # Resources
