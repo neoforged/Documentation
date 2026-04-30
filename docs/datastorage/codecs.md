@@ -124,7 +124,7 @@ Codec         | Java Type
 
 ### Vanilla and NeoForge
 
-Minecraft and NeoForge define many codecs for objects that are frequently encoded and decoded. Some examples include `ResourceLocation#CODEC` for `ResourceLocation`s, `ExtraCodecs#INSTANT_ISO8601` for `Instant`s in the `DateTimeFormatter#ISO_INSTANT` format, and `CompoundTag#CODEC` for `CompoundTag`s.
+Minecraft and NeoForge define many codecs for objects that are frequently encoded and decoded. Some examples include `Identifier#CODEC` for `Identifier`s, `ExtraCodecs#INSTANT_ISO8601` for `Instant`s in the `DateTimeFormatter#ISO_INSTANT` format, and `CompoundTag#CODEC` for `CompoundTag`s.
 
 :::caution
 `CompoundTag`s cannot decode lists of numbers from JSON using `JsonOps`. `JsonOps`, when converting, sets a number to its most narrow type. `ListTag`s force a specific type for its data, so numbers with different types (e.g. `64` would be `byte`, `384` would be `short`) will throw an error on conversion.
@@ -306,10 +306,10 @@ public static final Codec<Integer> DEFAULT_CODEC = Codec.INT.orElse(
 
 ### Unit
 
-A codec which supplies an in-code value and encodes to nothing can be represented using `Codec#unit`. This is useful if a codec uses a non-encodable entry within the data object.
+A codec which supplies an in-code value and encodes to nothing can be represented using `MapCodec#unitCodec`. This is useful if a codec uses a non-encodable entry within the data object.
 
 ```java
-public static final Codec<IEventBus> UNIT_CODEC = Codec.unit(
+public static final Codec<IEventBus> UNIT_CODEC = MapCodec.unitCodec(
     () -> NeoForge.EVENT_BUS // Can also be a raw value
 );
 ```
@@ -324,7 +324,7 @@ Sometimes, a codec may rely on data that is not present when it is constructed. 
 
 ```java
 public static final Codec<IEventBus> LAZY_CODEC = Codec.lazyInitialized(
-    () -> Codec.Unit(NeoForge.EVENT_BUS)
+    () -> MapCodec.unitCodec(NeoForge.EVENT_BUS)
 );
 ```
 

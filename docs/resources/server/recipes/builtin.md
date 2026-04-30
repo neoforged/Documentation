@@ -41,7 +41,7 @@ Let's digest this line for line:
 - `key` and `pattern`: Together, these define how the items must be put into the crafting grid.
     - The pattern defines up to three lines of up to three-wide strings that define the shape. All lines must be the same length, i.e. the pattern must form a rectangular shape. Spaces can be used to denote slots that should stay empty.
     - The key associates the characters used in the pattern with [ingredients][ingredient]. In the above example, all `X`s in the pattern must be iron ingots, and all `#`s must be sticks.
-- `result`: The result of the recipe. This is [an item stack's JSON representation][itemjson].
+- `result`: The result of the recipe. This is [an item stack template's JSON representation][itemjson].
 - Not shown in the example is the `group` key. This optional string property creates a group in the recipe book. Recipes in the same group will be displayed as one in the recipe book.
 - Not shown in the example is `show_notification`. This optional boolean, when false, disables the toast shown on the top right hand corner on first use or unlock.
 
@@ -50,7 +50,7 @@ And then, let's have a look at how you'd generate this recipe within `RecipeProv
 ```java
 // We use a builder pattern, therefore no variable is created. Create a new builder by calling
 // ShapedRecipeBuilder#shaped with the recipe category (found in the RecipeCategory enum)
-// and a result item, a result item and count, or a result item stack.
+// and a result item, a result item and count, or a result item stack template.
 ShapedRecipeBuilder.shaped(this.registries.lookupOrThrow(Registries.ITEM), RecipeCategory.TOOLS, Items.IRON_PICKAXE)
         // Create the lines of your pattern. Each call to #pattern adds a new line.
         // Patterns will be validated, i.e. their shape will be checked.
@@ -98,7 +98,7 @@ Like before, let's digest this line for line:
 - `type`: This is the id of the shapeless recipe serializer, `minecraft:crafting_shapeless`.
 - `category`: This optional field defines the category in the crafting book.
 - `ingredients`: A list of [ingredients][ingredient]. The list order is preserved in code for recipe viewing purposes, but the recipe itself accepts the ingredients in any order.
-- `result`: The result of the recipe. This is [an item stack's JSON representation][itemjson].
+- `result`: The result of the recipe. This is [an item stack template's JSON representation][itemjson].
 - Not shown in the example is the `group` key. This optional string property creates a group in the recipe book. Recipes in the same group will be displayed as one in the recipe book.
 
 And then, let's have a look at how you'd generate this recipe in `RecipeProvider#buildRecipes`:
@@ -106,7 +106,7 @@ And then, let's have a look at how you'd generate this recipe in `RecipeProvider
 ```java
 // We use a builder pattern, therefore no variable is created. Create a new builder by calling
 // ShapelessRecipeBuilder#shapeless with the recipe category (found in the RecipeCategory enum)
-// and a result item, a result item and count, or a result item stack.
+// and a result item, a result item and count, or a result item stack template.
 ShapelessRecipeBuilder.shapeless(this.registries.lookupOrThrow(Registries.ITEM), RecipeCategory.MISC, Items.MUSHROOM_STEW)
         // Add the recipe ingredients. This can either accept Ingredients, TagKey<Item>s or ItemLikes.
         // Overloads also exist that additionally accept a count, adding the same ingredient multiple times.
@@ -132,6 +132,64 @@ Additionally, you can call `#group` to set the recipe book group.
 One-item recipes (e.g. storage blocks unpacking) should be shapeless recipes to follow vanilla standards.
 :::
 
+### Imbuing Items
+
+Imbue recipes are a special type of single item crafting recipes where the potion contents of the material stack are copied to the resulting stack. For example:
+
+```json5
+{
+    "type": "minecraft:crafting_imbue",
+    "category": "misc",
+    "material": "minecraft:arrow",
+    "result": {
+        "count": 8,
+        "id": "minecraft:tipped_arrow"
+    },
+    "source": "minecraft:lingering_potion"
+}
+```
+
+Like before, let's digest this line for line:
+
+- `type`: This is the id of the recipe serializer, `minecraft:crafting_imbue`.
+- `category`: This optional field defines the category in the crafting book.
+- `group`: This optional string property creates a group in the recipe book. Recipes in the same group will be displayed as one in the recipe book, which typically makes sense for transmuted recipes.
+- `source`: The [ingredient] that contains the potion contents to imbue.
+- `material`: The [ingredient] used to imbue the source.
+- `result`: The result of the recipe. This is [an item stack template's JSON representation][itemjson].
+
+And then, let's have a look at how you'd generate this recipe in `RecipeProvider#buildRecipes`:
+
+```java
+// We use a builder pattern, therefore no variable is created. Create a new builder by calling
+// CustomCraftingRecipeBuilder#customCrafting with the recipe category (found in the RecipeCategory enum)
+// and a factory function that takes in the `Recipe.CommonInfo` and `CraftingRecipe.CraftingBookInfo`
+// to return the `Recipe` instance.
+CustomCraftingRecipeBuilder.customCrafting(
+    RecipeCategory.MISC,
+    // The function used to construct the recipe instance.
+    (commonInfo, bookInfo) -> new ImbueRecipe(
+        commonInfo, bookInfo,
+        // The source that contains the potion contents.
+        Ingredient.of(Items.LINGERING_POTION),
+        // The material used to imbue the source.
+        Ingredient.of(Items.ARROW),
+        // The resulting template with the potion contents.
+        new ItemStackTemplate(Items.TIPPED_ARROW, 8)
+    )
+)
+    // Creates the recipe advancement. While not mandated by the consuming background systems,
+    // the recipe builder will crash if you omit this. The first parameter is the advancement name,
+    // and the second one is the condition. Normally, you want to use the has() shortcut for the condition.
+    // Multiple advancement requirements can be added by calling #unlockedBy multiple times.
+    .unlockedBy("has_lingering_potion", this.has(Items.LINGERING_POTION))
+    // Stores the recipe in the passed RecipeOutput, to be written to disk.
+    // If you want to add conditions to the recipe, those can be set on the output.
+    .save(this.output, "tipped_arrow");
+```
+
+Additionally, you can call `#group` to set the recipe book group.
+
 ### Transmute Crafting
 
 Transmute recipes are a special type of single item crafting recipes where the input stack's data components are completely copied to the resulting stack. Transmutations usually occur between two different items where one is the dyed version of another. For example:
@@ -143,6 +201,8 @@ Transmute recipes are a special type of single item crafting recipes where the i
     "group": "shulker_box_dye",
     "input": "#minecraft:shulker_boxes",
     "material": "minecraft:blue_dye",
+    "material_count": 1,
+    "add_material_count_to_result": false,
     "result": {
         "id": "minecraft:blue_shulker_box"
     }
@@ -151,12 +211,14 @@ Transmute recipes are a special type of single item crafting recipes where the i
 
 Like before, let's digest this line for line:
 
-- `type`: This is the id of the shapeless recipe serializer, `minecraft:crafting_transmute`.
+- `type`: This is the id of the recipe serializer, `minecraft:crafting_transmute`.
 - `category`: This optional field defines the category in the crafting book.
 - `group`: This optional string property creates a group in the recipe book. Recipes in the same group will be displayed as one in the recipe book, which typically makes sense for transmuted recipes.
 - `input`: The [ingredient] to transmute.
 - `material`: The [ingredient] that transforms the stack into its result.
-- `result`: The result of the recipe. This is [an item stack's JSON representation][itemjson].
+- `material_count`: The number of `material`s required to transform the stack into its result.
+- `result`: The result of the recipe. This is [an item stack template's JSON representation][itemjson].
+- `add_material_count_to_result`: Whether the number of materials used should be added to the number of items returned as a result. This is commonly used for cloning item data, like maps.
 
 And then, let's have a look at how you'd generate this recipe in `RecipeProvider#buildRecipes`:
 
@@ -168,6 +230,8 @@ TransmuteRecipeBuilder.transmute(RecipeCategory.MISC, this.tag(ItemTags.SHULKER_
     Ingredient.of(DyeItem.byColor(DyeColor.BLUE)), ShulkerBoxBlock.getBlockByColor(DyeColor.BLUE).asItem())
         // Sets the group of the recipe to display in the recipe book.
         .group("shulker_box_dye")
+        // Sets the number of materials required to transmute the stack.
+        .setMaterialCount(TransmuteRecipe.DEFAULT_MATERIAL_COUNT)
         // Creates the recipe advancement. While not mandated by the consuming background systems,
         // the recipe builder will crash if you omit this. The first parameter is the advancement name,
         // and the second one is the condition. Normally, you want to use the has() shortcut for the condition.
@@ -178,41 +242,113 @@ TransmuteRecipeBuilder.transmute(RecipeCategory.MISC, this.tag(ItemTags.SHULKER_
         .save(this.output);
 ```
 
-### Special Crafting
+Additionally, `#addMaterialCountToOutput` can be used to add the number of materials used to the result count.
 
-In some cases, outputs must be created dynamically from inputs. Most of the time, this is to set data components on the output by calculating their values from the input stacks. These recipes usually only specify the type and hardcode everything else. For example:
+### Dying Items
+
+Dye recipes are a special type of single item crafting recipes where the dye stacks' `DataComponents#DYE` are combined into a single `DataComponents#DYED_COLOR` and applied to the target stack to construct the result stack. All other components from the target stack are copied to the result stack, similar to [transmute crafting][transmute]. For example:
 
 ```json5
 {
-    "type": "minecraft:crafting_special_armordye"
+    "type": "minecraft:crafting_dye",
+    "category": "misc",
+    "dye": "#minecraft:dyes",
+    "group": "dyed_armor",
+    "result": {
+        "id": "minecraft:leather_boots"
+    },
+    "target": "minecraft:leather_boots"
 }
 ```
 
-This recipe, which is for leather armor dyeing, just specifies the type and hardcodes everything else - most notably the color calculation, which would be hard to express in JSON. Minecraft prefixes most special crafting recipes with `crafting_special_`, however this practice is not necessary to follow.
+Like before, let's digest this line for line:
+
+- `type`: This is the id of the recipe serializer, `minecraft:crafting_transmute`.
+- `category`: This optional field defines the category in the crafting book.
+- `group`: This optional string property creates a group in the recipe book. Recipes in the same group will be displayed as one in the recipe book, which typically makes sense for dying recipes.
+- `target`: The [ingredient] to apply the dyes to.
+- `dye`: The [ingredient] dyes that are used to dye the stack. They must all have the `DataComponents#DYE` [data component][datacomponent].
+- `result`: The result of the recipe. This is [an item stack template's JSON representation][itemjson].
+
+And then, let's have a look at how you'd generate this recipe in `RecipeProvider#buildRecipes`:
+
+```java
+// We use a builder pattern, therefore no variable is created. Create a new builder by calling
+// CustomCraftingRecipeBuilder#customCrafting with the recipe category (found in the RecipeCategory enum)
+// and a factory function that takes in the `Recipe.CommonInfo` and `CraftingRecipe.CraftingBookInfo`
+// to return the `Recipe` instance.
+CustomCraftingRecipeBuilder.customCrafting(
+    RecipeCategory.MISC,
+    // The function used to construct the recipe instance.
+    (commonInfo, bookInfo) -> new DyeRecipe(
+        commonInfo, bookInfo,
+        // The target to apply the dyes to.
+        Ingredient.of(Items.LEATHER_BOOTS),
+        // The dyes that can be applied to the target.
+        this.tag(ItemTags.DYES),
+        // The resulting template with the applied dye color.
+        new ItemStackTemplate(Items.LEATHER_BOOTS)
+    )
+)
+    // Sets the group of the recipe to display in the recipe book.
+    .group("dyed_armor")
+    // Creates the recipe advancement. While not mandated by the consuming background systems,
+    // the recipe builder will crash if you omit this. The first parameter is the advancement name,
+    // and the second one is the condition. Normally, you want to use the has() shortcut for the condition.
+    // Multiple advancement requirements can be added by calling #unlockedBy multiple times.
+    .unlockedBy("has_leather_boots", this.has(Items.LEATHER_BOOTS))
+    // Stores the recipe in the passed RecipeOutput, to be written to disk.
+    // If you want to add conditions to the recipe, those can be set on the output.
+    .save(this.output, "dyed_leather_boots");
+```
+
+### Special Recipes
+
+There are many other crafting recipes that are specifically made for a single purpose (e.g. cloning books, creating fireworks) rather than be applied in a generic manner. Most of the time, this is to set data components on the output by calculating their values from the input stacks. These recipes are still configurable, usually taking in the input ingredients and the template result. For example:
+
+```json5
+{
+    "type": "minecraft:crafting_special_firework_rocket",
+    "fuel": "minecraft:gunpowder",
+    "result": {
+        "count": 3,
+        "id": "minecraft:firework_rocket"
+    },
+    "shell": "minecraft:paper",
+    "star": "minecraft:firework_star"
+}
+```
+
+This recipe, which is for creating a firework rocket, specifies the fuel, shell, and star ingredients used to create the result. However, it assumes that the star ingredient has the `DataComponents#FIREWORK_EXPLOSION` component, as otherwise no explosion is added.
+
+Minecraft prefixes most special crafting recipes with `crafting_special_`, however this practice is not necessary to follow.
 
 Generating this recipe looks as follows in `RecipeProvider#buildRecipes`:
 
 ```java
-// The parameter of #special is a Function<CraftingBookCategory, Recipe<?>>.
-// All vanilla special recipes use a constructor with one CraftingBookCategory parameter for this.
-SpecialRecipeBuilder.special(ArmorDyeRecipe::new)
-        // This overload of #save allows us to specify a name. It can also be used on shaped or shapeless builders.
-        .save(this.output, "armor_dye");
+// The parameter of #special is a Supplier<Recipe<?>>.
+SpecialRecipeBuilder.special(
+    () -> new FireworkRocketRecipe(
+        Ingredient.of(Items.PAPER),
+        Ingredient.of(Items.GUNPOWDER),
+        Ingredient.of(Items.FIREWORK_STAR),
+        new ItemStackTemplate(Items.FIREWORK_ROCKET, 3)
+    )
+)
+    // This overload of #save allows us to specify a name. It can also be used on other recipe builders.
+    .save(this.output, "firework_rocket");
 ```
 
 Vanilla provides the following special crafting serializers (mods may add more):
 
-- `minecraft:crafting_special_armordye`: For dyeing leather armor and other dyeable items.
 - `minecraft:crafting_special_bannerduplicate`: For duplicating banners.
 - `minecraft:crafting_special_bookcloning`: For copying written books. This increases the resulting book's generation property by one.
 - `minecraft:crafting_special_firework_rocket`: For crafting firework rockets.
 - `minecraft:crafting_special_firework_star`: For crafting firework stars.
 - `minecraft:crafting_special_firework_star_fade`: For applying a fade to a firework star.
-- `minecraft:crafting_special_mapcloning`: For copying filled maps. Also works for treasure maps.
 - `minecraft:crafting_special_mapextending`: For extending filled maps.
 - `minecraft:crafting_special_repairitem`: For repairing two broken items into one.
 - `minecraft:crafting_special_shielddecoration`: For applying a banner to a shield.
-- `minecraft:crafting_special_tippedarrow`: For crafting tipped arrows depending on the input potion.
 - `minecraft:crafting_decorated_pot`: For crafting decorated pots from sherds.
 
 ## Furnace-like Recipes
@@ -237,11 +373,11 @@ The second most important group of recipes are the ones made through smelting or
 Let's digest this line by line:
 
 - `type`: This is the id of the recipe serializer, `minecraft:smelting`. This may be different depending on what kind of furnace-like recipe you're making.
-- `category`: This optional field defines the category in the crafting book.
+- `category`: This optional field defines the category in the cooking recipe book.
 - `cookingtime`: This field determines how long the recipes needs to be processed, in ticks. All vanilla furnace recipes use 200, smokers and blast furnaces use 100, and campfires use 600. However, this can be any value you want.
 - `experience`: Determines the amount of experience rewarded when making this recipe. This field is optional, and no experience will be awarded if it is omitted.
 - `ingredient`: The input [ingredient] of the recipe.
-- `result`: The result of the recipe. This is [an item stack's JSON representation][itemjson].
+- `result`: The result of the recipe. This is [an item stack template's JSON representation][itemjson].
 
 Datagen for these recipes looks like this in `RecipeProvider#buildRecipes`:
 
@@ -253,7 +389,8 @@ SimpleCookingRecipeBuilder.smelting(
         Ingredient.of(Items.KELP),
         // Our recipe category.
         RecipeCategory.FOOD,
-        // Our result item. May also be an ItemStack.
+        CookingBookCategory.FOOD
+        // Our result item. May also be an ItemStackTemplate.
         Items.DRIED_KELP,
         // Our experience reward
         0.1f,
@@ -285,7 +422,7 @@ Stonecutter recipes use the `minecraft:stonecutting` recipe type. They are about
 }
 ```
 
-The `type` defines the recipe serializer (`minecraft:stonecutting`). The ingredient is an [ingredient], and the result is a basic [item stack JSON][itemjson]. Like crafting recipes, they can also optionally specify a `group` for grouping in the recipe book.
+The `type` defines the recipe serializer (`minecraft:stonecutting`). The ingredient is an [ingredient], and the result is a basic [item stack template JSON][itemjson]. Like crafting recipes, they can also optionally specify a `group` for grouping in the recipe book.
 
 Datagen is also simple in `RecipeProvider#buildRecipes`:
 
@@ -323,7 +460,7 @@ Let's break this down line by line:
 - `base`: The base [ingredient] of the recipe. Usually, this is some piece of equipment.
 - `template`: The template [ingredient] of the recipe. Usually, this is a smithing template.
 - `addition`: The addition [ingredient] of the recipe. Usually, this is some sort of material, for example a netherite ingot.
-- `result`: The result of the recipe. This is [an item stack's JSON representation][itemjson].
+- `result`: The result of the recipe. This is [an item stack template's JSON representation][itemjson].
 
 During datagen, call on `SmithingTransformRecipeBuilder#smithing` to add your recipe in `RecipeProvider#buildRecipes`:
 
@@ -337,8 +474,8 @@ SmithingTransformRecipeBuilder.smithing(
         this.tag(ItemTags.NETHERITE_TOOL_MATERIALS),
         // The recipe book category.
         RecipeCategory.TOOLS,
-        // The result item. Note that while the recipe codec accepts an item stack here, the builder does not.
-        // If you need an item stack output, you need to use your own builder.
+        // The result item. Note that while the recipe codec accepts an item stack template here, the builder does not.
+        // If you need an item stack template output, you need to use your own builder.
         Items.NETHERITE_AXE
 )
         // The recipe advancement, like with the other recipes above.
@@ -392,5 +529,7 @@ SmithingTrimRecipeBuilder.smithingTrim(
         .save(this.output, "bolt_armor_trim_smithing_template_smithing_trim");
 ```
 
+[datacomponent]: ../../../items/datacomponents.md
 [ingredient]: ingredients.md
 [itemjson]: ../../../items/index.md#json-representation
+[transmute]: #transmute-crafting

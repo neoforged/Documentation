@@ -28,7 +28,7 @@ The `Consumable` component can be added by calling `Item.Properties#component`:
 // Assume there is some DeferredRegister.Items ITEMS
 public static final DeferredItem<Item> CONSUMABLE = ITEMS.registerSimpleItem(
     "consumable",
-    new Item.Properties().component(
+    props -> props.component(
         DataComponents.CONSUMABLE,
         Consumable.builder()
             // Spend 2 seconds, or 40 ticks, to consume
@@ -115,7 +115,7 @@ Consumable.builder()
 
 ### `ItemUseAnimation`
 
-`ItemUseAnimation` is functionally an enum which doesn't define anything besides its id and name. Its uses are hardcoded into `ItemHandRenderer#renderArmWithItem` for first person and `PlayerRenderer#getArmPose` for third person. As such, simply creating a new `ItemUseAnimation` will only function similarly to `ItemUseAnimation#NONE`.
+`ItemUseAnimation` is functionally an enum which doesn't define anything besides its id and name. Its uses are hardcoded into `ItemHandRenderer#renderArmWithItem` for first person and `AvatarRenderer#getArmPose` for third person. As such, simply creating a new `ItemUseAnimation` will only function similarly to `ItemUseAnimation#NONE`.
 
 To apply some animation, you need to implement `IClientItemExtensions#applyForgeHandTransform` for first person and/or `IClientItemExtensions#getArmPose` for third person rendering.
 
@@ -235,6 +235,8 @@ public class MyClientEnumParams {
         HumanoidModel.ArmPose.class,
         // Whether the pose uses both arms
         false,
+        // Whether the offhand location should be affected by the model pose
+        false,
         // The pose transformer
         (IArmPoseTransformer) MyClientEnumParams::applyCustomModelPose
     );
@@ -328,7 +330,7 @@ Food is one type of `ConsumableListener` that is part of the hunger system. All 
 // Assume there is some DeferredRegister.Items ITEMS
 public static final DeferredItem<Item> FOOD = ITEMS.registerSimpleItem(
     "food",
-    new Item.Properties().food(
+    props -> props.food(
         new FoodProperties.Builder()
             // Heals 1.5 hearts
             .nutrition(3)

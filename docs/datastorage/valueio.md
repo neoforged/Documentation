@@ -127,7 +127,7 @@ protected void saveAdditional(ValueOutput output) {
     // Write data to the output
     output.store(
         SingleFile.MAP_CODEC,
-        new SingleFile(ResourceLocation.fromNamespaceAndPath("examplemod", "example"))
+        new SingleFile(Identifier.fromNamespaceAndPath("examplemod", "example"))
     );
 }
 
@@ -292,6 +292,8 @@ public class ExampleObject implements ValueIOSerializable {
     }
 }
 ```
+
+`ValueIOSerializable` can also be written and read via the NeoForge-added methods `ValueOutputExtension#putChild` and `ValueInputExtension#readChild`.
 
 ## Implementations
 

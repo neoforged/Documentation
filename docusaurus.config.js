@@ -58,7 +58,6 @@ const config = {
   projectName: "documentation", // Usually your repo name.
 
   onBrokenLinks: "throw", // Yay multi versioned-docs sites
-  onBrokenMarkdownLinks: "throw",
 
   // Even if you don't use internalization, you can use this field to set useful
   // metadata like html lang. For example, if your site is Chinese, you may want
@@ -170,7 +169,10 @@ const config = {
             ],
           },
         ],
-        copyright: `Copyright © ${new Date().getFullYear()}, under the MIT license. Built with Docusaurus.`,
+        copyright: `
+        <p>NOT AN OFFICIAL MINECRAFT WEBSITE. NOT APPROVED BY OR ASSOCIATED WITH MOJANG OR MICROSOFT.</p>
+        <p>Copyright © ${new Date().getFullYear()}, under the MIT license. Built with Docusaurus.</p>
+        `,
       },
       prism: {
         theme: lightTheme,
@@ -189,7 +191,10 @@ const config = {
     }),
 
     markdown: {
-      mermaid: true
+      mermaid: true,
+      hooks: {
+          onBrokenMarkdownLinks: "throw"
+      }
     },
 
     themes: ['@docusaurus/theme-mermaid']

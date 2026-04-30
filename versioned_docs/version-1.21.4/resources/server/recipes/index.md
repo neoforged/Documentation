@@ -173,7 +173,7 @@ public class MyRecipeProvider extends RecipeProvider {
         }
 
         @Override
-        protected abstract RecipeProvider createRecipeProvider(HolderLookup.Provider provider, RecipeOutput output) {
+        protected RecipeProvider createRecipeProvider(HolderLookup.Provider provider, RecipeOutput output) {
             return new MyRecipeProvider(provider, output);
         }
     }

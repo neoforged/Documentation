@@ -172,13 +172,20 @@ Another very common use of block entities, often in combination with some stored
 public class MyEntityBlock extends Block implements EntityBlock {
     // other stuff here
 
-    @SuppressWarnings("unchecked") // Due to generics, an unchecked cast is necessary here.
+    // We use a second method here due to generic conversions
+    // If extending `BaseEntityBlock`, this method is also available there as a protected static method
+    private static <E extends BlockEntity, A extends BlockEntity> @Nullable BlockEntityTicker<A> createTickerHelper(
+        BlockEntityType<A> type, BlockEntityType<E> checkedType, BlockEntityTicker<? super E> ticker
+    ) {
+        return checkedType == type ? (BlockEntityTicker<A>) ticker : null;
+    }
+
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
         // You can return different tickers here, depending on whatever factors you want. A common use case would be
         // to return different tickers on the client or server, only tick one side to begin with,
         // or only return a ticker for some blockstates (e.g. when using a "my machine is working" blockstate property).
-        return type == MY_BLOCK_ENTITY.get() ? (BlockEntityTicker<T>) MyBlockEntity::tick : null;
+        return createTickerHelper(type, MY_BLOCK_ENTITY.get(), MyBlockEntity::tick);
     }
 }
 

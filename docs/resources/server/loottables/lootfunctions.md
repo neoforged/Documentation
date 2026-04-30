@@ -344,7 +344,9 @@ Randomly enchants the item stack with a given amount of levels. Uses a [number p
     "options": [
         "minecraft:sharpness",
         "minecraft:fire_aspect"
-    ]
+    ],
+    // Whether to allow this function to apply an additional trade cost if successful.
+    "include_additional_cost_component": true
 }
 ```
 
@@ -363,11 +365,13 @@ Enchants the item with one random enchantment.
         "minecraft:fire_aspect"
     ],
     // Whether to only allow compatible enchantments, or any enchantments. Optional, defaults to true.
-    "only_compatible": true
+    "only_compatible": true,
+    // Whether to allow this function to apply an additional trade cost if successful.
+    "include_additional_cost_component": true
 }
 ```
 
-During datagen, call `EnchantRandomlyFunction#randomEnchantment` or `EnchantRandomlyFunction#randomApplicableEnchantment` to construct a builder for this function. Then, if desired, call `#withEnchantment` or `#withOneOf` on the builder.
+During datagen, call `EnchantRandomlyFunction#randomEnchantment` or `EnchantRandomlyFunction#randomApplicableEnchantment` to construct a builder for this function. Then, if desired, call `#withEnchantment`, `#withOneOf`, or `#withOptions` on the builder.
 
 ## `minecraft:set_enchantments`
 
@@ -445,7 +449,10 @@ Attempts to smelt the item as if it were in a furnace, returning the unmodified 
 
 ```json5
 {
-    "function": "minecraft:furnace_smelt"
+    "function": "minecraft:furnace_smelt",
+    // When true, will use the current input material to determine
+    // the base count. Otherwise, will output one result.
+    "use_input_count": true
 }
 ```
 
@@ -517,6 +524,37 @@ Sets a potion on the result item stack.
 ```
 
 During datagen, call `SetPotionFunction#setPotion` with the desired potion to construct a builder for this function.
+
+## `minecraft:set_random_dyes`
+
+Applies a random number of dyes to the result item stack, storing the resulting color in `DataComponents#DYED_COLOR`.
+
+```json5
+{
+    "function": "minecraft:set_random_dyes",
+    // A number provider of the number of dyes to apply to the result.
+    "number_of_dyes": 3
+}
+```
+
+During datagen, call `SetRandomDyesFunction#withCount` with the number of dyes to construct a builder for this function.
+
+## `minecraft:set_random_potion`
+
+Sets a random potion from the options available on the result item stack. If no options are available, picks any registered potion.
+
+```json5
+{
+    "function": "minecraft:set_random_potion",
+    // The potions to choose from.
+    // Can either be a potion id, such as "minecraft:strength",
+    // or a list of potion ids, such as ["minecraft:strength", "minecraft:night_vision", ...],
+    // or a potion tag, such as "#minecraft:tradeable".
+    "options": "minecraft:strength"
+}
+```
+
+During datagen, call `SetRandomPotionFunction#fromTagKey` with optional `HolderSet` of potions to construct a builder for this function.
 
 ## `minecraft:set_stew_effect`
 
@@ -626,11 +664,14 @@ Sets the instrument tag on the result item stack.
 {
     "function": "minecraft:set_instrument",
     // The instrument tag to use.
-    "options": "minecraft:goat_horns"
+    // Can either be an instrument id, such as "minecraft:admire_goat_horn",
+    // or a list of instrument ids, such as ["minecraft:admire_goat_horn", "minecraft:seek_goat_horn", ...],
+    // or a instrument tag, such as "#minecraft:goat_horns".
+    "options": "#minecraft:goat_horns"
 }
 ```
 
-During datagen, call `SetInstrumentFunction#setInstrumentOptions` with the desired instrument tag to construct a builder for this function.
+During datagen, call `SetInstrumentFunction#setInstrumentOptions` with a `HolderSet` of the instruments to construct a builder for this function.
 
 ## `minecraft:set_fireworks`
 
@@ -821,7 +862,7 @@ During datagen, call `new SetCustomModelDataFunction()` with the list of conditi
 
 ## `minecraft:filtered`
 
-This function accepts an `ItemPredicate` that is checked against the generated stack; if the check succeeds, the other function is run. An `ItemPredicate` can specify a list of valid item ids (`items`), a min/max range for the item count (`count`), a `DataComponentPredicate` (`components`) and a map of `ItemSubPredicate`s (`predicates`); all fields are optional.
+This function accepts an `ItemPredicate` that is checked against the generated stack. Depending on if the check succeeds (`on_pass`) or fails (`on_fail`), the defined function is run. An `ItemPredicate` can specify a list of valid item ids (`items`), a min/max range for the item count (`count`), a `DataComponentPredicate` (`components`) and a map of `ItemSubPredicate`s (`predicates`); all fields are optional.
 
 ```json5
 {
@@ -832,8 +873,12 @@ This function accepts an `ItemPredicate` that is checked against the generated s
             "minecraft:diamond_shovel"
         ]
     },
-    // The other loot function to run, as either a loot modifier file or an in-line list of functions.
-    "modifier": "examplemod:example_modifier"
+    // The loot function to run if the predicate succeeds.
+    // A loot modifier file or an in-line list of functions.
+    "on_pass": "examplemod:example_pass",
+    // The loot function to run if the predicate fails.
+    // A loot modifier file or an in-line list of functions.
+    "on_fail": "examplemod:example_fail"
 }
 ```
 
@@ -877,7 +922,20 @@ This function runs other loot functions one after another.
 }
 ```
 
-During datagen, call `SequenceFunction#of` with the other functions to construct a builder for this condition.
+During datagen, call `SequenceFunction#of` with the other functions to construct a builder for this function.
+
+## `minecraft:discard`
+
+This function discards the original stack, returning an empty item.
+
+```json5
+{
+    "function": "minecraft:discard"
+}
+```
+
+During datagen, call `DiscardItem#discardItem` with the other functions to construct a builder for this function.
+
 
 ## See Also
 

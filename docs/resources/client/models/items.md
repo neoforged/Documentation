@@ -9,7 +9,7 @@ import TabItem from '@theme/TabItem';
 
 Client Items are the in-code representation of how an `ItemStack` should be submitted for rendering within the game, specifying what models to use given what state. The client items are located within the `items` subdirectory within the [`assets` folder][assets], specified by the relative location within `DataComponents#ITEM_MODEL`. By default, this is the registry name of the object (e.g. `minecraft:apple` would be located at `assets/minecraft/items/apple.json` by default).
 
-The client items are stored within the `ModelManager`, which can be accessed through `Minecraft.getInstance().modelManager`. Then, you can call `ModelManager#getItemModel` or `getItemProperties` to get the client item information by its [`ResourceLocation`][rl].
+The client items are stored within the `ModelManager`, which can be accessed through `Minecraft.getInstance().modelManager`. Then, you can call `ModelManager#getItemModel` or `getItemProperties` to get the client item information by its [`Identifier`][rl].
 
 :::warning
 These are not to be confused with the actual [models that are baked and actually rendered][models] in-game.
@@ -41,7 +41,9 @@ The JSON of a client item can be broken into two parts: the model, defined by `m
         // When true, allows the model to render outside its defined
         // slot bounds (defined in GuiItemRenderState#bounds) in a GUI
         // instead of being scissored
-        "oversized_in_gui": false
+        "oversized_in_gui": false,
+        // Applies the scalar to the height of the hand when swapping
+        "swap_animation_scale": 1.0
     }
 }
 ```
@@ -57,20 +59,25 @@ The JSON of a client item can be broken into two parts: the model, defined by `m
 protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerators itemModels) {
     itemModels.itemModelOutput.register(
         EXAMPLE_ITEM.get(),
-        new ClientItem(
-            // Defines the model to submit for rendering
-            new BlockModelWrapper.Unbaked(
-                // Points to a model JSON relative to the 'models' directory
-                // Located at 'assets/examplemod/models/item/example_item.json'
-                ModelLocationUtils.getModelLocation(EXAMPLE_ITEM.get()),
-                Collections.emptyList()
-            ),
-            // Defines some settings to use during the rendering process
-            new ClientItem.Properties(
-                // When false, disables the animation where the item is raised
-                // up towards its normal position on item swap
-                false
-            )
+        // Defines the model to submit for rendering
+        new CuboidItemModelWrapper.Unbaked(
+            // Points to a model JSON relative to the 'models' directory
+            // Located at 'assets/examplemod/models/item/example_item.json'
+            ModelLocationUtils.getModelLocation(EXAMPLE_ITEM.get()),
+            Optional.empty(),
+            Collections.emptyList()
+        ),
+        // Defines some settings to use during the rendering process
+        new ClientItem.Properties(
+            // When false, disables the animation where the item is raised
+            // up towards its normal position on item swap
+            false,
+            // When true, allows the model to render outside its defined
+            // slot bounds (defined in GuiItemRenderState#bounds) in a GUI
+            // instead of being scissored
+            false,
+            // Applies the scalar to the height of the hand when swapping
+            1.0F
         )
     );
 }
@@ -83,7 +90,7 @@ More information about how item models are submitted for rendering can be found 
 
 ## A Basic Model
 
-The `type` field within `model` determines how to choose the model being submitted to render for the item. The simplest type is handled by `minecraft:model` (or `BlockModelWrapper`), which functionally defines the model JSON being submitted to render, relative to the `models` directory (e.g. `assets/<namespace>/models/<path>.json`).
+The `type` field within `model` determines how to choose the model being submitted to render for the item. The simplest type is handled by `minecraft:model` (or `CuboidItemModelWrapper`), which functionally defines the model JSON being submitted to render, relative to the `models` directory (e.g. `assets/<namespace>/models/<path>.json`).
 
 <Tabs>
 <TabItem value="json" label="JSON" default>
@@ -112,10 +119,99 @@ The `type` field within `model` determines how to choose the model being submitt
 protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerators itemModels) {
     itemModels.itemModelOutput.accept(
         EXAMPLE_ITEM.get(),
-        new BlockModelWrapper.Unbaked(
+        new CuboidItemModelWrapper.Unbaked(
             // Points to a model JSON relative to the 'models' directory
             // Located at 'assets/examplemod/models/item/example_item.json'
             ModelLocationUtils.getModelLocation(EXAMPLE_ITEM.get()),
+            Optional.empty(),
+            Collections.emptyList()
+        )
+    );
+}
+```
+
+</TabItem>
+</Tabs>
+
+### Local Transforms
+
+Most client item models can specify a `Transformation` for the item model, similar to model JSONs. These `Transformation`s are applied after the model JSON transform for the associated display context. This is set through the `minecraft:model` type `transformation` field.
+
+<Tabs>
+<TabItem value="json" label="JSON" default>
+
+```json5
+// For some item 'examplemod:example_item'
+// JSON at 'assets/examplemod/items/example_item.json'
+{
+    "model": {
+        "type": "minecraft:model",
+        // Points to 'assets/examplemod/models/item/example_item.json'
+        "model": "examplemod:item/example_item",
+        // The transformations to apply after the model JSON transforms.
+        "transformation": {
+            // The translation of the client item, specified as `[x, y, z]`.
+            "translation": [
+                0.5,
+                0.0,
+                0.5
+            ],
+            // The initial rotation of the client item, specified as:
+            // - `[x, y, z, w]`
+            // - { angle, [x, y, z] rotation axis }
+            "left_rotation": [
+                1.0,
+                0.0,
+                0.0,
+                0.0
+            ],
+            // The scale of the client item, specified as `[x, y, z]`.
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            // The rotation of the client item after scaling, specified as:
+            // - `[x, y, z, w]`
+            // - { angle, [x, y, z] rotation axis }
+            "right_rotation": {
+                "angle": 0,
+                "axis": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            }
+        }
+    }
+}
+```
+
+</TabItem>
+
+<TabItem value="datagen" label="Datagen">
+
+```java
+// Assume there is some DeferredItem<Item> EXAMPLE_ITEM
+// Within an extended ModelProvider
+@Override
+protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerators itemModels) {
+    itemModels.itemModelOutput.accept(
+        EXAMPLE_ITEM.get(),
+        new CuboidItemModelWrapper.Unbaked(
+            // Points to 'assets/examplemod/models/item/example_item.json'
+            ModelLocationUtils.getModelLocation(EXAMPLE_ITEM.get()),
+            // The transformations to apply after the model JSON transforms.
+            Optional.of(new Transformation(
+                // The translation of the client item.
+                new Vector3f(0.5f, 0f, 0.5f),
+                // The initial rotation of the client item.
+                new Quaternionf(1f, 0f, 0f, 0f),
+                // The scale of the client item.
+                new Vector3f(1f, 1f, 1f),
+                // The rotation of the client item after scaling.
+                new Quaternionf(new AxisAngle4f(0f, 0f, 0f, 0f))
+            )),
             Collections.emptyList()
         )
     );
@@ -171,9 +267,10 @@ Like most models, client items can change the color of the specified texture bas
 protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerators itemModels) {
     itemModels.itemModelOutput.accept(
         EXAMPLE_ITEM.get(),
-        new BlockModelWrapper.Unbaked(
+        new CuboidItemModelWrapper.Unbaked(
             // Points to 'assets/examplemod/models/item/example_item.json'
             ModelLocationUtils.getModelLocation(EXAMPLE_ITEM.get()),
+            Optional.empty(),
             // A list of tints to apply
             List.of(
                 // For when tintindex: 0
@@ -226,7 +323,7 @@ public record DamageBar(int defaultColor) implements ItemTintSource {
 public static void registerItemTintSources(RegisterColorHandlersEvent.ItemTintSources event) {
     event.register(
         // The name to reference as the type
-        ResourceLocation.fromNamespaceAndPath("examplemod", "damage_bar"),
+        Identifier.fromNamespaceAndPath("examplemod", "damage_bar"),
         // The map codec
         DamageBar.MAP_CODEC
     )
@@ -268,9 +365,10 @@ public static void registerItemTintSources(RegisterColorHandlersEvent.ItemTintSo
 protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerators itemModels) {
     itemModels.itemModelOutput.accept(
         EXAMPLE_ITEM.get(),
-        new BlockModelWrapper.Unbaked(
+        new CuboidItemModelWrapper.Unbaked(
             // Points to 'assets/examplemod/models/item/example_item.json'
             ModelLocationUtils.getModelLocation(EXAMPLE_ITEM.get()),
+            Optional.empty(),
             // A list of tints to apply
             List.of(
                 // For when tintindex: 0
@@ -334,16 +432,16 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
             // The models to submit for rendering
             // Will be drawn in the order they appear in the list
             List.of(
-                new BlockModelWrapper.Unbaked(
+                new CuboidItemModelWrapper.Unbaked(
                     // Points to 'assets/examplemod/models/item/example_item_1.json'
-                    ResourceLocation.fromNamespaceAndPath("examplemod", "item/example_item_1"),
-                    // A list of tints to apply
+                    Identifier.fromNamespaceAndPath("examplemod", "item/example_item_1"),
+                    Optional.empty(),
                     Collections.emptyList()
                 ),
-                new BlockModelWrapper.Unbaked(
+                new CuboidItemModelWrapper.Unbaked(
                     // Points to 'assets/examplemod/models/item/example_item_2.json'
-                    ResourceLocation.fromNamespaceAndPath("examplemod", "item/example_item_2"),
-                    // A list of tints to apply
+                    Identifier.fromNamespaceAndPath("examplemod", "item/example_item_2"),
+                    Optional.empty(),
                     Collections.emptyList()
                 )
             )
@@ -442,10 +540,10 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
                     // When the count is a third of its current max stack size
                     0.33,
                     // Can be any unbaked model type
-                    new BlockModelWrapper.Unbaked(
+                    new CuboidItemModelWrapper.Unbaked(
                         // Points to 'assets/examplemod/models/item/example_item_1.json'
-                        ResourceLocation.fromNamespaceAndPath("examplemod", "item/example_item_1"),
-                        // A list of tints to apply
+                        Identifier.fromNamespaceAndPath("examplemod", "item/example_item_1"),
+                        Optional.empty(),
                         Collections.emptyList()
                     )
                 ),
@@ -453,20 +551,20 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
                     // When the count is two thirds of its current max stack size
                     0.66,
                     // Can be any unbaked model type
-                    new BlockModelWrapper.Unbaked(
+                    new CuboidItemModelWrapper.Unbaked(
                         // Points to 'assets/examplemod/models/item/example_item_2.json'
-                        ResourceLocation.fromNamespaceAndPath("examplemod", "item/example_item_2"),
-                        // A list of tints to apply
+                        Identifier.fromNamespaceAndPath("examplemod", "item/example_item_2"),
+                        Optional.empty(),
                         Collections.emptyList()
                     )
                 )
             ),
             // The fallback model to use if no threshold matches
             Optional.of(
-                new BlockModelWrapper.Unbaked(
+                new CuboidItemModelWrapper.Unbaked(
                     // Points to 'assets/examplemod/models/item/example_item.json'
                     ModelLocationUtils.getModelLocation(EXAMPLE_ITEM.get()),
-                    // A list of tints to apply
+                    Optional.empty(),
                     Collections.emptyList()
                 )
             )
@@ -501,7 +599,7 @@ public record AppliedEnchantments() implements RangeSelectItemModelProperty {
 public static void registerRangeProperties(RegisterRangeSelectItemModelPropertyEvent event) {
     event.register(
         // The name to reference as the type
-        ResourceLocation.fromNamespaceAndPath("examplemod", "applied_enchantments"),
+        Identifier.fromNamespaceAndPath("examplemod", "applied_enchantments"),
         // The map codec
         AppliedEnchantments.MAP_CODEC
     )
@@ -582,10 +680,10 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
                     // When there is at least one enchantment present
                     0.5,
                     // Can be any unbaked model type
-                    new BlockModelWrapper.Unbaked(
+                    new CuboidItemModelWrapper.Unbaked(
                         // Points to 'assets/examplemod/models/item/example_item_1.json'
-                        ResourceLocation.fromNamespaceAndPath("examplemod", "item/example_item_1"),
-                        // A list of tints to apply
+                        Identifier.fromNamespaceAndPath("examplemod", "item/example_item_1"),
+                        Optional.empty(),
                         Collections.emptyList()
                     )
                 ),
@@ -593,20 +691,20 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
                     // When there are at least two enchantments present
                     1,
                     // Can be any unbaked model type
-                    new BlockModelWrapper.Unbaked(
+                    new CuboidItemModelWrapper.Unbaked(
                         // Points to 'assets/examplemod/models/item/example_item_2.json'
-                        ResourceLocation.fromNamespaceAndPath("examplemod", "item/example_item_2"),
-                        // A list of tints to apply
+                        Identifier.fromNamespaceAndPath("examplemod", "item/example_item_2"),
+                        Optional.empty(),
                         Collections.emptyList()
                     )
                 )
             ),
             // The fallback model to use if no threshold matches
             Optional.of(
-                new BlockModelWrapper.Unbaked(
+                new CuboidItemModelWrapper.Unbaked(
                     // Points to 'assets/examplemod/models/item/example_item.json'
                     ModelLocationUtils.getModelLocation(EXAMPLE_ITEM.get()),
-                    // A list of tints to apply
+                    Optional.empty(),
                     Collections.emptyList()
                 )
             )
@@ -689,10 +787,10 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
                         // The list of cases to match for this model
                         List.of(ItemDisplayContext.GUI),
                         // Can be any unbaked model type
-                        new BlockModelWrapper.Unbaked(
+                        new CuboidItemModelWrapper.Unbaked(
                             // Points to 'assets/examplemod/models/item/example_item_1.json'
-                            ResourceLocation.fromNamespaceAndPath("examplemod", "item/example_item_1"),
-                            // A list of tints to apply
+                            Identifier.fromNamespaceAndPath("examplemod", "item/example_item_1"),
+                            Optional.empty(),
                             Collections.emptyList()
                         )
                     ),
@@ -700,10 +798,10 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
                         // The list of cases to match for this model
                         List.of(ItemDisplayContext.FIRST_PERSON_RIGHT_HAND),
                         // Can be any unbaked model type
-                        new BlockModelWrapper.Unbaked(
+                        new CuboidItemModelWrapper.Unbaked(
                             // Points to 'assets/examplemod/models/item/example_item_2.json'
-                            ResourceLocation.fromNamespaceAndPath("examplemod", "item/example_item_2"),
-                            // A list of tints to apply
+                            Identifier.fromNamespaceAndPath("examplemod", "item/example_item_2"),
+                            Optional.empty(),
                             Collections.emptyList()
                         )
                     )
@@ -711,10 +809,10 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
             ),
             // The fallback model to use if no case matches
             Optional.of(
-                new BlockModelWrapper.Unbaked(
+                new CuboidItemModelWrapper.Unbaked(
                     // Points to 'assets/examplemod/models/item/example_item.json'
                     ModelLocationUtils.getModelLocation(EXAMPLE_ITEM.get()),
-                    // A list of tints to apply
+                    Optional.empty(),
                     Collections.emptyList()
                 )
             )
@@ -759,7 +857,7 @@ public record StackRarity() implements SelectItemModelProperty<Rarity> {
 public static void registerSelectProperties(RegisterSelectItemModelPropertyEvent event) {
     event.register(
         // The name to reference as the type
-        ResourceLocation.fromNamespaceAndPath("examplemod", "rarity"),
+        Identifier.fromNamespaceAndPath("examplemod", "rarity"),
         // The property type
         StackRarity.TYPE
     )
@@ -833,10 +931,10 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
                         // The list of cases to match for this model
                         List.of(Rarity.UNCOMMON),
                         // Can be any unbaked model type
-                        new BlockModelWrapper.Unbaked(
+                        new CuboidItemModelWrapper.Unbaked(
                             // Points to 'assets/examplemod/models/item/example_item_1.json'
-                            ResourceLocation.fromNamespaceAndPath("examplemod", "item/example_item_1"),
-                            // A list of tints to apply
+                            Identifier.fromNamespaceAndPath("examplemod", "item/example_item_1"),
+                            Optional.empty(),
                             Collections.emptyList()
                         )
                     ),
@@ -844,10 +942,10 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
                         // The list of cases to match for this model
                         List.of(Rarity.RARE),
                         // Can be any unbaked model type
-                        new BlockModelWrapper.Unbaked(
+                        new CuboidItemModelWrapper.Unbaked(
                             // Points to 'assets/examplemod/models/item/example_item_2.json'
-                            ResourceLocation.fromNamespaceAndPath("examplemod", "item/example_item_2"),
-                            // A list of tints to apply
+                            Identifier.fromNamespaceAndPath("examplemod", "item/example_item_2"),
+                            Optional.empty(),
                             Collections.emptyList()
                         )
                     )
@@ -855,10 +953,10 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
             ),
             // The fallback model to use if no case matches
             Optional.of(
-                new BlockModelWrapper.Unbaked(
+                new CuboidItemModelWrapper.Unbaked(
                     // Points to 'assets/examplemod/models/item/example_item.json'
                     ModelLocationUtils.getModelLocation(EXAMPLE_ITEM.get()),
-                    // A list of tints to apply
+                    Optional.empty(),
                     Collections.emptyList()
                 )
             )
@@ -920,17 +1018,17 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
             // The property to check
             new Damaged(),
             // When the boolean is true
-            new BlockModelWrapper.Unbaked(
+            new CuboidItemModelWrapper.Unbaked(
                 // Points to 'assets/examplemod/models/item/example_item_1.json'
-                ResourceLocation.fromNamespaceAndPath("examplemod", "item/example_item_1"),
-                // A list of tints to apply
+                Identifier.fromNamespaceAndPath("examplemod", "item/example_item_1"),
+                Optional.empty(),
                 Collections.emptyList()
             ),
             // When the boolean is false
-            new BlockModelWrapper.Unbaked(
+            new CuboidItemModelWrapper.Unbaked(
                 // Points to 'assets/examplemod/models/item/example_item_2.json'
-                ResourceLocation.fromNamespaceAndPath("examplemod", "item/example_item_2"),
-                // A list of tints to apply
+                Identifier.fromNamespaceAndPath("examplemod", "item/example_item_2"),
+                Optional.empty(),
                 Collections.emptyList()
             )
         )
@@ -964,7 +1062,7 @@ public record BarVisible() implements ConditionalItemModelProperty {
 public static void registerConditionalProperties(RegisterConditionalItemModelPropertyEvent event) {
     event.register(
         // The name to reference as the type
-        ResourceLocation.fromNamespaceAndPath("examplemod", "bar_visible"),
+        Identifier.fromNamespaceAndPath("examplemod", "bar_visible"),
         // The map codec
         BarVisible.MAP_CODEC
     )
@@ -1017,17 +1115,17 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
             // The property to check
             new BarVisible(),
             // When the boolean is true
-            new BlockModelWrapper.Unbaked(
+            new CuboidItemModelWrapper.Unbaked(
                 // Points to 'assets/examplemod/models/item/example_item_1.json'
-                ResourceLocation.fromNamespaceAndPath("examplemod", "item/example_item_1"),
-                // A list of tints to apply
+                Identifier.fromNamespaceAndPath("examplemod", "item/example_item_1"),
+                Optional.empty(),
                 Collections.emptyList()
             ),
             // When the boolean is false
-            new BlockModelWrapper.Unbaked(
+            new CuboidItemModelWrapper.Unbaked(
                 // Points to 'assets/examplemod/models/item/example_item_2.json'
-                ResourceLocation.fromNamespaceAndPath("examplemod", "item/example_item_2"),
-                // A list of tints to apply
+                Identifier.fromNamespaceAndPath("examplemod", "item/example_item_2"),
+                Optional.empty(),
                 Collections.emptyList()
             )
         )
@@ -1086,7 +1184,7 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
         new SpecialModelWrapper.Unbaked(
             // The parent model to read the particle texture and display transformation from
             // Points to 'assets/minecraft/models/item/template_skull.json'
-            ResourceLocation.fromNamespaceAndPath("minecraft", "item/template_skull"),
+            Identifier.fromNamespaceAndPath("minecraft", "item/template_skull"),
             // The special model renderer to use
             new SkullSpecialRenderer.Unbaked(
                 // The type of the skull block
@@ -1094,7 +1192,7 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
                 // The texture to use when rendering the head
                 // Points to 'assets/examplemod/textures/entity/heads/skeleton_override.png'
                 Optional.of(
-                    ResourceLocation.fromNamespaceAndPath("examplemod", "heads/skeleton_override")
+                    Identifier.fromNamespaceAndPath("examplemod", "heads/skeleton_override")
                 ),
                 // The animation float used to animate the head model
                 0.5f
@@ -1109,16 +1207,16 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
 
 Creating your own `SpecialModelRenderer` is broken into three parts: the `SpecialModelRenderer` instance used to submit the [features] used to render the item, the `SpecialModelRenderer.Unbaked` instance used to read and write to JSON, and the registration to use the renderer when as an item or, if necessary, when as a block.
 
-First, there is the `SpecialModelRenderer`. This works similarly to any other renderer class (e.g. block entity renderers, entity renderers). It should take in the static data used during the submission process (e.g., the `Model` subclass, the `Material` of the texture, etc.). There are two methods to be aware of. First, there is `extractArgument`. This is used to limit the amount of data available to the `submit` method by only supplying what is necessary from the `ItemStack`.
+First, there is the `SpecialModelRenderer`. This works similarly to any other renderer class (e.g. block entity renderers, entity renderers). It should take in the static data used during the submission process (e.g., the `Model` subclass, the `SpriteId` of the texture, etc.). There are two methods to be aware of. First, there is `extractArgument`. This is used to limit the amount of data available to the `submit` method by only supplying what is necessary from the `ItemStack`.
 
 :::note
 If you don't know what data you may need, you can just have this return the `ItemStack` in question. If you need no data from the stack, you can instead use `NoDataSpecialModelRenderer`, which implements this method for you.
 :::
 
-Next is the `submit` method. This takes in value returned from `extractArgument`, the display context of the item, the pose stack, the collector used to submit the desired features, the packed light, the overlay texture, if the stack is foiled (e.g. enchanted), and the outline color. All feature submissions should happen in this method.
+Next is the `submit` method. This takes in value returned from `extractArgument`, the pose stack, the collector used to submit the desired features, the packed light, the overlay texture, if the stack is foiled (e.g. enchanted), and the outline color. All feature submissions should happen in this method.
 
 ```java
-public record ExampleSpecialRenderer(MaterialSet materialSet, Model.Simple model, Material material) implements SpecialModelRenderer<Boolean> {
+public record ExampleSpecialRenderer(SpriteGetter spriteGetter, Model.Simple model, SpriteId sprite) implements SpecialModelRenderer<Boolean> {
 
     @Nullable
     public Boolean extractArgument(ItemStack stack) {
@@ -1128,11 +1226,11 @@ public record ExampleSpecialRenderer(MaterialSet materialSet, Model.Simple model
 
     // Submit the features of the model
     @Override
-    public void submit(ItemDisplayContext displayContext, PoseStack poseStack, SubmitNodeCollector collector, int lightCoords, int overlayCoords, boolean hasFoil, int outlineColor) {
+    public void submit(Boolean argument, PoseStack poseStack, SubmitNodeCollector collector, int lightCoords, int overlayCoords, boolean hasFoil, int outlineColor) {
         collector.submitModel(
             this.model, Unit.INSTANCE,
-            poseStack, this.material.renderType(barVisible ? RenderType::entityCutout : RenderType::entitySolid),
-            lightCoords, overlayCoords, -1, this.materialSet.get(this.material), outlineColor, null
+            poseStack, this.sprite.renderType(barVisible ? RenderType::entityCutout : RenderType::entitySolid),
+            lightCoords, overlayCoords, -1, this.spriteGetter.get(this.sprite), outlineColor, null
         );
     }
 }
@@ -1141,13 +1239,13 @@ public record ExampleSpecialRenderer(MaterialSet materialSet, Model.Simple model
 Next is the `SpecialModelRenderer.Unbaked` instance. This should contain data that can be read from a file to determine what to pass into the special renderer. This also contains two methods: `bake`, which is used to construct the special renderer instance; and `type`, which defines the `MapCodec` to use for encoding/decoding to file.
 
 ```java
-public record ExampleSpecialRenderer(MaterialSet materialSet, Model.Simple model, Material material) implements SpecialModelRenderer<Boolean> {
+public record ExampleSpecialRenderer(SpriteGetter spriteGetter, Model.Simple model, SpriteId sprite) implements SpecialModelRenderer<Boolean> {
 
     // ...
 
-    public record Unbaked(ResourceLocation texture) implements SpecialModelRenderer.Unbaked {
+    public record Unbaked(Identifier texture) implements SpecialModelRenderer.Unbaked {
 
-        public static final MapCodec<ExampleSpecialRenderer.Unbaked> MAP_CODEC = ResourceLocation.CODEC.fieldOf("texture")
+        public static final MapCodec<ExampleSpecialRenderer.Unbaked> MAP_CODEC = Identifier.CODEC.fieldOf("texture")
             .xmap(ExampleSpecialRenderer.Unbaked::new, ExampleSpecialRenderer.Unbaked::texture);
 
         @Override
@@ -1158,16 +1256,16 @@ public record ExampleSpecialRenderer(MaterialSet materialSet, Model.Simple model
         @Override
         public SpecialModelRenderer<?> bake(SpecialModelRenderer.BakingContext ctx) {
             // Resolve resource location to absolute path
-            ResourceLocation textureLoc = this.texture.withPath(path -> "textures/entity/" + path + ".png");
+            Identifier textureLoc = this.texture.withPath(path -> "textures/entity/" + path + ".png");
 
-            // Get the model and the material to render
-            return new ExampleSpecialRenderer(ctx.materials(), ...);
+            // Get the model and the sprites to render
+            return new ExampleSpecialRenderer(ctx.sprites(), ...);
         }
     }
 }
 ```
 
-Finally, we register the objects to their necessary locations. For the client items, this is done via `RegisterSpecialModelRendererEvent` on the [mod event bus][modbus]. If the special renderer should also be used as part of a `BlockEntityRenderer`, such as when rendering in some item-like context (e.g., enderman holding the block), then an `Unbaked` version for the block should be registered via `RegisterSpecialBlockModelRendererEvent` on the [mod event bus][modbus].
+Finally, we register the objects to their necessary locations. For the client items, this is done via `RegisterSpecialModelRendererEvent` on the [mod event bus][modbus]. If the special renderer should also be used as part of a `BlockEntityRenderer`, such as when rendering in some item-like context (e.g., enderman holding the block), then an `Unbaked` version for the block should be registered via `RegisterBlockModelsEvent` on the [mod event bus][modbus].
 
 ```java
 // In some event handler class
@@ -1175,22 +1273,25 @@ Finally, we register the objects to their necessary locations. For the client it
 public static void registerSpecialRenderers(RegisterSpecialModelRendererEvent event) {
     event.register(
         // The name to reference as the type
-        ResourceLocation.fromNamespaceAndPath("examplemod", "example_special"),
+        Identifier.fromNamespaceAndPath("examplemod", "example_special"),
         // The map codec
         ExampleSpecialRenderer.Unbaked.MAP_CODEC
-    )
+    );
 }
 
 // For rendering a block in an item-like context
 // Assume some DeferredBlock<ExampleBlock> EXAMPLE_BLOCK
 @SubscribeEvent // on the mod event bus only on the physical client
-public static void registerSpecialBlockRenderers(RegisterSpecialBlockModelRendererEvent event) {
+public static void registerSpecialBlockRenderers(RegisterBlockModelsEvent event) {
     event.register(
+        // The unbaked instance to use
+        new SpecialBlockModelWrapper.Unbaked(
+            new ExampleSpecialRenderer.Unbaked(Identifier.fromNamespaceAndPath("examplemod", "entity/example_special")),
+            Optional.empty()
+        ),
         // The block to render for
         EXAMPLE_BLOCK.get()
-        // The unbaked instance to use
-        new ExampleSpecialRenderer.Unbaked(ResourceLocation.fromNamespaceAndPath("examplemod", "entity/example_special"))
-    )
+    );
 }
 ```
 
@@ -1234,12 +1335,12 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
         new SpecialModelWrapper.Unbaked(
             // The parent model to read the particle texture and display transformation from
             // Points to 'assets/minecraft/models/item/template_skull.json'
-            ResourceLocation.fromNamespaceAndPath("minecraft", "item/template_skull"),
+            Identifier.fromNamespaceAndPath("minecraft", "item/template_skull"),
             // The special model renderer to use
             new ExampleSpecialRenderer.Unbaked(
                 // The texture to use
                 // Points to 'assets/examplemod/textures/entity/example/example_texture.png'
-                ResourceLocation.fromNamespaceAndPath("examplemod", "example/example_texture")
+                Identifier.fromNamespaceAndPath("examplemod", "example/example_texture")
             )
         )
     );
@@ -1329,22 +1430,22 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
                 // - Container base texture
                 // - Container cover texture, if not used as a mask
                 // Points to 'assets/minecraft/textures/item/bucket.png'
-                Optional.of(ResourceLocation.withDefaultNamespace("item/bucket")),
+                Optional.of(Identifier.withDefaultNamespace("item/bucket")),
                 // Sets the texture to use on the first layer, generally the container of the fluid
                 // If not set, the layer will not be added
                 // Points to 'assets/minecraft/textures/item/bucket.png'
-                Optional.of(ResourceLocation.withDefaultNamespace("item/bucket")),
+                Optional.of(Identifier.withDefaultNamespace("item/bucket")),
                 // Sets the texture to use as the mask for the still fluid texture
                 // Areas where the fluid is seen should be pure white
                 // If not set or the fluid is empty, then the layer is not rendered
                 // Points to 'assets/neoforge/textures/item/mask/bucket_fluid.png'
-                Optional.of(ResourceLocation.fromNamespaceAndPath("neoforge", "item/mask/bucket_fluid")),
+                Optional.of(Identifier.fromNamespaceAndPath("neoforge", "item/mask/bucket_fluid")),
                 // Sets the texture to use as either
                 // - The overlay texture when 'cover_is_mask' is false
                 // - The mask to apply to the base texture (should be pure white to see) when 'cover_is_mask' is true
                 // If not set or no base texture is set when 'cover_is_mask' is true, then the layer is not rendered
                 // Points to 'assets/neoforge/textures/item/mask/bucket_fluid_cover.png'
-                Optional.of(ResourceLocation.fromNamespaceAndPath("neoforge", "item/mask/bucket_fluid_cover"))
+                Optional.of(Identifier.fromNamespaceAndPath("neoforge", "item/mask/bucket_fluid_cover"))
             ),
             // When true, rotates the model 180 degrees
             // Defaults to false
@@ -1386,7 +1487,7 @@ Please make sure to check that your required item model can not be created with 
 First, there is the `ItemModel`. This is responsible for updating the `ItemStackRenderState` such that the item is drawn correctly. It should take in the static data used during the submission process (e.g., the list of `BakedQuad`s, property information, etc.). The only method is `update`, which takes in the render state, stack, model resolver, display context, level, item owner, and some seeded value to update the `ItemStackRenderState`. `ItemStackRenderState` should be the only parameter modified, with the rest treated as read-only data.
 
 ```java
-public record RenderTypeModelWrapper(List<BakedQuad> quads, List<ItemTintSource> tints, ModelRenderProperties properties, RenderType type) implements ItemModel {
+public record ExampleModelWrapper(QuadCollection quads, List<ItemTintSource> tints, ModelRenderProperties properties, Matrix4fc transformation) implements ItemModel {
 
     // Update the render state
     @Override
@@ -1401,7 +1502,6 @@ public record RenderTypeModelWrapper(List<BakedQuad> quads, List<ItemTintSource>
         if (stack.hasFoil()) {
             layerState.setFoilType(ItemStackRenderState.FoilType.STANDARD);
             state.appendModelIdentityElement(ItemStackRenderState.FoilType.STANDARD);
-            layerState.setAnimated();
         }
 
 
@@ -1417,16 +1517,21 @@ public record RenderTypeModelWrapper(List<BakedQuad> quads, List<ItemTintSource>
 
         // Computes the bounds of the model
         // Used for GUI render bounds (when oversized) and item entity bobbing
-        layerState.setExtents(BlockModelWrapper.computeExtents(this.quads));
+        layerState.setExtents(CuboidItemModelWrapper.computeExtents(this.quads.getAll()));
 
-        // Sets the current render type
-        layerState.setRenderType(this.type);
+        // Set the local transforms to apply for the client item
+        layerState.setLocalTransform(this.transformation);
 
         // Set other common model properties
         this.properties.applyToLayer(layerState, displayContext);
 
         // Adds the quads to submit
-        layerState.prepareQuadList().addAll(this.quads);
+        layerState.prepareQuadList().addAll(this.quads.getAll());
+
+        // Set animated if it has the associated material flag
+        if (this.quads.hasMaterialFlag(BakedQuad.FLAG_ANIMATED)) {
+            layerState.setAnimated();
+        }
     }
 }
 ```
@@ -1434,26 +1539,19 @@ public record RenderTypeModelWrapper(List<BakedQuad> quads, List<ItemTintSource>
 Next is the `ItemModel.Unbaked` instance. This should contain data that can be read from a file to determine what to pass into the item model. This also contains two methods: `bake`, which is used to construct the `ItemModel` instance; and `type`, which defines the `MapCodec` to use for encoding/decoding to file.
 
 ```java
-public record RenderTypeModelWrapper(List<BakedQuad> quads, List<ItemTintSource> tints, ModelRenderProperties properties, RenderType type) implements ItemModel {
+public record ExampleModelWrapper(QuadCollection quads, List<ItemTintSource> tints, ModelRenderProperties properties, Matrix4fc transformation) implements ItemModel {
 
     // ...
 
-     public record Unbaked(ResourceLocation model, List<ItemTintSource> tints, RenderType type) implements ItemModel.Unbaked {
-        // Create a render type map for the codec
-        private static final BiMap<String, RenderType> RENDER_TYPES = Util.make(HashBiMap.create(), map -> {
-            map.put("translucent_item", Sheets.translucentItemSheet());
-            map.put("cutout_block", Sheets.cutoutBlockSheet());
-        });
-        private static final Codec<RenderType> RENDER_TYPE_CODEC = ExtraCodecs.idResolverCodec(Codec.STRING, RENDER_TYPES::get, RENDER_TYPES.inverse()::get);
-
+     public record Unbaked(Identifier model, List<ItemTintSource> tints, Optional<Transformation> transformation) implements ItemModel.Unbaked {
         // The map codec to register
-        public static final MapCodec<RenderTypeModelWrapper.Unbaked> MAP_CODEC = RecordCodecBuilder.mapCodec(instance ->
+        public static final MapCodec<ExampleModelWrapper.Unbaked> MAP_CODEC = RecordCodecBuilder.mapCodec(instance ->
             instance.group(
-                ResourceLocation.CODEC.fieldOf("model").forGetter(RenderTypeModelWrapper.Unbaked::model),
-                ItemTintSources.CODEC.listOf().optionalFieldOf("tints", List.of()).forGetter(RenderTypeModelWrapper.Unbaked::tints)
-                RENDER_TYPE_CODEC.fieldOf("render_type").forGetter(RenderTypeModelWrapper.Unbaked::type)
+                Identifier.CODEC.fieldOf("model").forGetter(ExampleModelWrapper.Unbaked::model),
+                ItemTintSources.CODEC.listOf().optionalFieldOf("tints", List.of()).forGetter(ExampleModelWrapper.Unbaked::tints)
+                Transformation.EXTENDED_CODEC.optionalFieldOf("transformation").forGetter(ExampleModelWrapper.Unbaked::transformation)
             )
-            .apply(instance, RenderTypeModelWrapper.Unbaked::new)
+            .apply(instance, ExampleModelWrapper.Unbaked::new)
         );
 
         @Override
@@ -1463,22 +1561,22 @@ public record RenderTypeModelWrapper(List<BakedQuad> quads, List<ItemTintSource>
         }
 
         @Override
-        public ItemModel bake(ItemModel.BakingContext context) {
+        public ItemModel bake(ItemModel.BakingContext context, Matrix4fc parentTransform) {
             // Get the baked quads and return
             ModelBaker baker = context.blockModelBaker();
             ResolvedModel resolvedModel = baker.getModel(this.model);
             TextureSlots slots = resolvedModel.getTopTextureSlots();
 
-            return new RenderTypeModelWrapper(
-                resolvedModel.bakeTopGeometry(slots, baker, BlockModelRotation.X0_Y0).getAll(),
+            return new ExampleModelWrapper(
+                resolvedModel.bakeTopGeometry(slots, baker, BlockModelRotation.IDENTITY),
                 this.tints,
                 ModelRenderProperties.fromResolvedModel(baker, resolvedModel, slots),
-                this.type
+                Transformation.compose(parentTransform, this.transformation)
             );
         }
 
         @Override
-        public MapCodec<RenderTypeModelWrapper.Unbaked> type() {
+        public MapCodec<ExampleModelWrapper.Unbaked> type() {
             return MAP_CODEC;
         }
     }
@@ -1493,9 +1591,9 @@ Then, we register the map codec via `RegisterItemModelsEvent` on the [mod event 
 public static void registerItemModels(RegisterItemModelsEvent event) {
     event.register(
         // The name to reference as the type
-        ResourceLocation.fromNamespaceAndPath("examplemod", "render_type"),
+        Identifier.fromNamespaceAndPath("examplemod", "render_type"),
         // The map codec
-        RenderTypeModelWrapper.Unbaked.MAP_CODEC
+        ExampleModelWrapper.Unbaked.MAP_CODEC
     )
 }
 ```
@@ -1515,8 +1613,6 @@ Finally, we can use the `ItemModel` in our JSON or as part of the datagen proces
         "model": "examplemod:item/example_item",
         // Any tints to apply to the model texture
         "tints": []
-        // Set the render type to use when rendering
-        "render_type": "cutout_block"
     }
 }
 ```
@@ -1532,13 +1628,13 @@ Finally, we can use the `ItemModel` in our JSON or as part of the datagen proces
 protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerators itemModels) {
     itemModels.itemModelOutput.accept(
         EXAMPLE_ITEM.get(),
-        new RenderTypeModelWrapper.Unbaked(
+        new ExampleModelWrapper.Unbaked(
             // Points to 'assets/examplemod/models/item/example_item.json'
             ModelLocationUtils.getModelLocation(EXAMPLE_ITEM.get()),
             // Any tints to apply to the model texture
             List.of(),
-            // Set the render type to use when rendering
-            Sheets.cutoutBlockSheet()
+            // The transformations to apply after the model JSON transforms
+            Optional.empty()
         )
     );
 }
@@ -1555,5 +1651,5 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
 [itemmodel]: #manually-rendering-an-item
 [modbus]: ../../../concepts/events.md#event-buses
 [models]: modelsystem.md
-[rl]: ../../../misc/resourcelocation.md
+[rl]: ../../../misc/identifier.md
 [screens]: ../../../rendering/screens.md#items

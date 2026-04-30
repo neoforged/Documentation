@@ -60,7 +60,7 @@ This biome modifier has no operation and will do no modification. Pack makers an
 // Define the ResourceKey for our BiomeModifier.
 public static final ResourceKey<BiomeModifier> NO_OP_EXAMPLE = ResourceKey.create(
     NeoForgeRegistries.Keys.BIOME_MODIFIERS, // The registry this key is for
-    ResourceLocation.fromNamespaceAndPath(MOD_ID, "no_op_example") // The registry name
+    Identifier.fromNamespaceAndPath(MOD_ID, "no_op_example") // The registry name
 );
 
 // BUILDER is a RegistrySetBuilder passed to DatapackBuiltinEntriesProvider
@@ -106,7 +106,7 @@ This biome modifier type adds `PlacedFeature`s (such as trees or ores) to biomes
 // Define the ResourceKey for our BiomeModifier.
 public static final ResourceKey<BiomeModifier> ADD_FEATURES_EXAMPLE = ResourceKey.create(
     NeoForgeRegistries.Keys.BIOME_MODIFIERS, // The registry this key is for
-    ResourceLocation.fromNamespaceAndPath(MOD_ID, "add_features_example") // The registry name
+    Identifier.fromNamespaceAndPath(MOD_ID, "add_features_example") // The registry name
 );
 
 // BUILDER is a RegistrySetBuilder passed to DatapackBuiltinEntriesProvider
@@ -174,7 +174,7 @@ This biome modifier type removes features (such as trees or ores) from biomes so
 // Define the ResourceKey for our BiomeModifier.
 public static final ResourceKey<BiomeModifier> REMOVE_FEATURES_EXAMPLE = ResourceKey.create(
     NeoForgeRegistries.Keys.BIOME_MODIFIERS, // The registry this key is for
-    ResourceLocation.fromNamespaceAndPath(MOD_ID, "remove_features_example") // The registry name
+    Identifier.fromNamespaceAndPath(MOD_ID, "remove_features_example") // The registry name
 );
 
 // BUILDER is a RegistrySetBuilder passed to DatapackBuiltinEntriesProvider
@@ -252,7 +252,7 @@ If you are a modder adding a new entity, make sure the entity has a spawn restri
 // Define the ResourceKey for our BiomeModifier.
 public static final ResourceKey<BiomeModifier> ADD_SPAWNS_EXAMPLE = ResourceKey.create(
     NeoForgeRegistries.Keys.BIOME_MODIFIERS, // The registry this key is for
-    ResourceLocation.fromNamespaceAndPath(MOD_ID, "add_spawns_example") // The registry name
+    Identifier.fromNamespaceAndPath(MOD_ID, "add_spawns_example") // The registry name
 );
 
 // BUILDER is a RegistrySetBuilder passed to DatapackBuiltinEntriesProvider
@@ -309,7 +309,7 @@ This biome modifier type removes entity spawns from biomes. The modifier takes i
 // Define the ResourceKey for our BiomeModifier.
 public static final ResourceKey<BiomeModifier> REMOVE_SPAWNS_EXAMPLE = ResourceKey.create(
     NeoForgeRegistries.Keys.BIOME_MODIFIERS, // The registry this key is for
-    ResourceLocation.fromNamespaceAndPath(MOD_ID, "remove_spawns_example") // The registry name
+    Identifier.fromNamespaceAndPath(MOD_ID, "remove_spawns_example") // The registry name
 );
 
 // BUILDER is a RegistrySetBuilder passed to DatapackBuiltinEntriesProvider
@@ -376,7 +376,7 @@ If you are a modder adding a new entity, make sure the entity has a spawn restri
 // Define the ResourceKey for our BiomeModifier.
 public static final ResourceKey<BiomeModifier> ADD_SPAWN_COSTS_EXAMPLE = ResourceKey.create(
     NeoForgeRegistries.Keys.BIOME_MODIFIERS, // The registry this key is for
-    ResourceLocation.fromNamespaceAndPath(MOD_ID, "add_spawn_costs_example") // The registry name
+    Identifier.fromNamespaceAndPath(MOD_ID, "add_spawn_costs_example") // The registry name
 );
 
 // BUILDER is a RegistrySetBuilder passed to DatapackBuiltinEntriesProvider
@@ -435,7 +435,7 @@ Allows for removing a spawn cost from a biome. Spawn costs are a newer way of ma
 // Define the ResourceKey for our BiomeModifier.
 public static final ResourceKey<BiomeModifier> REMOVE_SPAWN_COSTS_EXAMPLE = ResourceKey.create(
     NeoForgeRegistries.Keys.BIOME_MODIFIERS, // The registry this key is for
-    ResourceLocation.fromNamespaceAndPath(MOD_ID, "remove_spawn_costs_example") // The registry name
+    Identifier.fromNamespaceAndPath(MOD_ID, "remove_spawn_costs_example") // The registry name
 );
 
 // BUILDER is a RegistrySetBuilder passed to DatapackBuiltinEntriesProvider
@@ -491,7 +491,7 @@ This biome modifier type allows adding carver caves and ravines to biomes. These
 // Define the ResourceKey for our BiomeModifier.
 public static final ResourceKey<BiomeModifier> ADD_CARVERS_EXAMPLE = ResourceKey.create(
     NeoForgeRegistries.Keys.BIOME_MODIFIERS, // The registry this key is for
-    ResourceLocation.fromNamespaceAndPath(MOD_ID, "add_carvers_example") // The registry name
+    Identifier.fromNamespaceAndPath(MOD_ID, "add_carvers_example") // The registry name
 );
 
 // BUILDER is a RegistrySetBuilder passed to DatapackBuiltinEntriesProvider
@@ -545,7 +545,7 @@ This biome modifier type allows removing carver caves and ravines from biomes. T
 // Define the ResourceKey for our BiomeModifier.
 public static final ResourceKey<BiomeModifier> REMOVE_CARVERS_EXAMPLE = ResourceKey.create(
     NeoForgeRegistries.Keys.BIOME_MODIFIERS, // The registry this key is for
-    ResourceLocation.fromNamespaceAndPath(MOD_ID, "remove_carvers_example") // The registry name
+    Identifier.fromNamespaceAndPath(MOD_ID, "remove_carvers_example") // The registry name
 );
 
 // BUILDER is a RegistrySetBuilder passed to DatapackBuiltinEntriesProvider
@@ -652,7 +652,7 @@ For more information on how `RegistrySetBuilder` and `DatapackBuiltinEntriesProv
 // Define the ResourceKey for our BiomeModifier.
 public static final ResourceKey<BiomeModifier> EXAMPLE_MODIFIER = ResourceKey.create(
     NeoForgeRegistries.Keys.BIOME_MODIFIERS, // The registry this key is for
-    ResourceLocation.fromNamespaceAndPath(MOD_ID, "example_modifier") // The registry name
+    Identifier.fromNamespaceAndPath(MOD_ID, "example_modifier") // The registry name
 );
 
 // BUILDER is a RegistrySetBuilder passed to DatapackBuiltinEntriesProvider

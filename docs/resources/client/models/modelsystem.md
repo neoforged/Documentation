@@ -6,7 +6,7 @@ sidebar_position: 1
 
 Models within Minecraft are simply a list of quads with attached textures. Each part of the modeling process has their own separate implementation, with the underlying model JSON deserialized into an `UnbakedModel`. In the end, each part of the pipelines takes in some `List<BakedQuad>` and properties necessary for their own pipelines. Some [block entity renderers][ber] also make use of these models. There is no limit to how complex a model may be.
 
-Models are stored in the `ModelManager`, which can be accessed through `Minecraft.getInstance().getModelManager()`. For the item pipeline, you can get the associated [`ItemModel`][itemmodels] via `ModelManager#getItemModel` by passing in a [`ResourceLocation`][rl]. For the block state pipeline, you can get the associated `BlockStateModel` via `ModelManager.getBlockModelShaper().getBlockModel()` by passing in a `BlockState`. Mods will basically always reuse a model that was previously automatically loaded and baked.
+Models are stored in the `ModelManager`, which can be accessed through `Minecraft.getInstance().getModelManager()`. For the item pipeline, you can get the associated [`ItemModel`][itemmodels] via `ModelManager#getItemModel` by passing in a [`Identifier`][rl]. For the block state pipeline, you can get the associated `BlockStateModel` via `ModelManager.getBlockStateModelSet().get()` by passing in a `BlockState`. Mods will basically always reuse a model that was previously automatically loaded and baked.
 
 ## Common Models and Geometry
 
@@ -23,22 +23,23 @@ The block state definition JSON (in `assets/<namespace>/blockstates`) is compile
 - During the loading process:
     - The block state definition JSON is loaded into a `BlockStateModel.UnbakedRoot`. The root is a general shared cache system used to link a `BlockState` to some set of `BlockStateModel`s.
     - The `BlockStateModel.UnbakedRoot` loads in the `BlockStateModel.Unbaked` and gets ready to link them to their appropriate `BlockState`.
-    - The `BlockStateModel.Unbaked` loads in its `BlockModelPart.Unbaked`, which is used to get the common `UnbakedModel` (or more specifically the `ResolvedModel`).
+    - The `BlockStateModel.Unbaked` loads in its `BlockStateModelPart.Unbaked`, which is used to get the common `UnbakedModel` (or more specifically the `ResolvedModel`).
 - During the baking process:
     - `BlockStateModel.UnbakedRoot#bake` is called for every `BlockState`.
     - `BlockStateModel.Unbaked#bake` is called for a given `BlockState`, creating a `BlockStateModel`.
-    - `BlockModelPart.Unbaked#bake` is called for the model parts within a `BlockStateModel`, inlining the `ResolvedModel` to a `QuadCollection`, along with getting the ambient occlusion settings, the particle icon, and the render type by default.
+    - `BlockStateModelPart.Unbaked#bake` is called for the model parts within a `BlockStateModel`, inlining the `ResolvedModel` to a `QuadCollection`, along with getting the ambient occlusion settings, the particle icon, and the render type by default.
 
-The most important method within `BlockStateModel` is `collectParts`, which is responsible for returning a list of `BlockModelPart`s to render. Remember that every `BlockModelPart` contains its list of `BakedQuad`s, via `BlockModelPart#getQuads`, which is then uploaded to the vertex consumer and rendered. `collectParts` has four parameters:
+The most important method within `BlockStateModel` is `collectParts`, which is responsible for appending to the list of `BlockStateModelPart`s to render. Remember that every `BlockStateModelPart` contains its list of `BakedQuad`s, via `BlockStateModelPart#getQuads`, which is then uploaded to the vertex consumer and rendered. `collectParts` has five parameters:
 
 - A `BlockAndTintGetter`: A representation of the level the `BlockState` is rendered within.
 - A `BlockPos`: The position that the block is rendered at.
 - A `BlockState`: The [blockstate] being rendered. May be null, indicating that an item is being rendered.
 - A `RandomSource`: A client-bound random source you can use for randomization.
+- A `List<BlockStateModelPart>`: The list that should receive the parts to render.
 
 ### Model Data
 
-Sometimes, a `BlockStateModel` may rely on the `BlockEntity` to determine what `BlockModelPart`s to choose in `collectParts`. NeoForge provides the `ModelData` system to sync and pass data from the `BlockEntity`. To do so, a `BlockEntity` must implement `getModelData` and return the data it wants to sync. The data can then be sent to the client by calling `BlockEntity#requestModelDataUpdate`. Then, within `collectParts`, `getModelData` can be called on the `BlockAndTintGetter` with the `BlockPos` to get the data.
+Sometimes, a `BlockStateModel` may rely on the `BlockEntity` to determine what `BlockStateModelPart`s to choose in `collectParts`. NeoForge provides the `ModelData` system to sync and pass data from the `BlockEntity`. To do so, a `BlockEntity` must implement `getModelData` and return the data it wants to sync. The data can then be sent to the client by calling `BlockEntity#requestModelDataUpdate`. Then, within `collectParts`, `getModelData` can be called on the `BlockAndTintGetter` with the `BlockPos` to get the data.
 
 ## Item Models
 
@@ -144,7 +145,7 @@ It is generally encouraged to use a [custom model loader][modelloader] over wrap
 [livingentity]: ../../../entities/livingentity.md
 [modbus]: ../../../concepts/events.md#event-buses
 [modelloader]: modelloaders.md
-[rl]: ../../../misc/resourcelocation.md
+[rl]: ../../../misc/identifier.md
 [perspective]: #perspectives
 [rendertype]: index.md#render-types
 [sides]: ../../../concepts/sides.md

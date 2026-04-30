@@ -63,7 +63,7 @@ As mentioned before, entity render states are used to separate values used for r
 
 ```java
 public class MyEntityRenderState extends EntityRenderState {
-    public ItemStack stackInHand;
+    public ItemStackRenderState stackInHand;
 }
 ```
 
@@ -78,7 +78,7 @@ To do so, a `ContextKey<T>` (where `T` is the type of the data you want to chang
 ```java
 public static final ContextKey<String> EXAMPLE_CONTEXT = new ContextKey<>(
     // The id of your context key. Used for distinguishing between keys internally.
-    ResourceLocation.fromNamespaceAndPath("examplemod", "example_context"));
+    Identifier.fromNamespaceAndPath("examplemod", "example_context"));
 
 @SubscribeEvent // on the mod event bus only on the physical client
 public static void registerRenderStateModifiers(RegisterRenderStateModifiersEvent event) {
@@ -92,11 +92,20 @@ public static void registerRenderStateModifiers(RegisterRenderStateModifiersEven
     );
     
     // Overload of the above method that accepts a Class<?>.
-    // This should ONLY be used for renderers without any generics, such as PlayerRenderer.
+    // This should ONLY be used for renderers without any generics, such as PigRenderer.
     event.registerEntityModifier(
-        PlayerRenderer.class,
+        PigRenderer.class,
         (entity, state) -> state.setRenderData(EXAMPLE_CONTEXT, "Hello World!");
     );
+
+    // Convenience method for working around issues around modifying an avatar's
+    // render state (e.g. players).
+    event.registerAvatarEntityModifier(new AvatarRenderStateModifier() {
+        @Override
+        public <T extends Avatar & ClientAvatarEntity> void accept(T avatar, AvatarRenderState state) {
+            state.setRenderData(EXAMPLE_CONTEXT, "Hello World!");
+        }
+    });
 }
 ```
 
@@ -132,7 +141,7 @@ graph LR;
 
 - `EntityRenderer`: The abstract base class. Many renderers, notably almost all renderers for non-living entities, extend this class directly.
 - `ArrowRenderer`, `AbstractBoatRenderer`, `AbstractMinecartRenderer`: These exist mainly for convenience, and are used as parents for more specific renderers.
-- `LivingEntityRenderer`: The abstract base class for renderers for [living entities][livingentity]. Direct subclasses include `ArmorStandRenderer` and `PlayerRenderer`.
+- `LivingEntityRenderer`: The abstract base class for renderers for [living entities][livingentity]. Direct subclasses include `ArmorStandRenderer` and `AvatarRenderer`.
 - `ArmorStandRenderer`: Self-explanatory.
 - `AvatarRenderer`: Used to render avatars, such as players. Note that unlike most other renderers, multiple instances of this class used for different contexts may exist at the same time.
 - `MobRenderer`: The abstract base class for renderers for `Mob`s. Many renderers extend this directly.
@@ -233,7 +242,7 @@ Once we have our entity layer definition, we need to register it in `EntityRende
 public static final ModelLayerLocation MY_LAYER = new ModelLayerLocation(
     // Should be the name of the entity this layer belongs to.
     // May be more generic if this layer can be used on multiple entities.
-    ResourceLocation.fromNamespaceAndPath("examplemod", "example_entity"),
+    Identifier.fromNamespaceAndPath("examplemod", "example_entity"),
     // The name of the layer itself. Should be main for the entity's base model,
     // and a more descriptive name (e.g. "wings") for more specific layers.
     "main"
@@ -346,8 +355,8 @@ public class MyEntityRenderer extends LivingEntityRenderer<MyEntity, MyEntityRen
     // In this example, the texture should be located at `assets/examplemod/textures/entity/example_entity.png`.
     // The texture will then be supplied to and used by the model.
     @Override
-    public ResourceLocation getTextureLocation(MyEntityRenderState state) {
-        return ResourceLocation.fromNamespaceAndPath("examplemod", "textures/entity/example_entity.png");
+    public Identifier getTextureLocation(MyEntityRenderState state) {
+        return Identifier.fromNamespaceAndPath("examplemod", "textures/entity/example_entity.png");
     }
 }
 ```
@@ -367,7 +376,7 @@ public class MyEntityRenderState extends LivingEntityRenderState {...}
 ```java
 public class MyEntityModel extends EntityModel<MyEntityRenderState> {
     public static final ModelLayerLocation MY_LAYER = new ModelLayerLocation(
-            ResourceLocation.fromNamespaceAndPath("examplemod", "example_entity"),
+            Identifier.fromNamespaceAndPath("examplemod", "example_entity"),
             "main"
     );
     private final ModelPart head;
@@ -439,8 +448,8 @@ public class MyEntityRenderer extends LivingEntityRenderer<MyEntity, MyEntityRen
     }
 
     @Override
-    public ResourceLocation getTextureLocation(MyEntityRenderState state) {
-        return ResourceLocation.fromNamespaceAndPath("examplemod", "textures/entity/example_entity.png");
+    public Identifier getTextureLocation(MyEntityRenderState state) {
+        return Identifier.fromNamespaceAndPath("examplemod", "textures/entity/example_entity.png");
     }
 }
 ```
@@ -546,7 +555,7 @@ In your model, you can then use the animation like so:
 public class MyEntityModel extends EntityModel<MyEntityRenderState> {
     // Create and store a reference to the animation holder.
     public static final AnimationHolder EXAMPLE_ANIMATION =
-            Model.getAnimation(ResourceLocation.fromNamespaceAndPath("examplemod", "example"));
+            Model.getAnimation(Identifier.fromNamespaceAndPath("examplemod", "example"));
 
     // A field to hold the baked animation
     private final KeyframeAnimation example;
@@ -594,7 +603,7 @@ Custom values can be added by creating a new `AnimationTarget` and registering i
 public static void registerJsonAnimationTypes(RegisterJsonAnimationTypesEvent event) {
     event.registerTarget(
         // The name of the new target, to be used in JSON and other places.
-        ResourceLocation.fromNamespaceAndPath("examplemod", "example"),
+        Identifier.fromNamespaceAndPath("examplemod", "example"),
         // The AnimationTarget to register.
         new AnimationTarget(...)
     );
@@ -615,7 +624,7 @@ Custom interpolations can be added by creating a new `AnimationChannel.Interpola
 public static void registerJsonAnimationTypes(RegisterJsonAnimationTypesEvent event) {
     event.registerInterpolation(
         // The name of the new interpolation, to be used in JSON and other places.
-        ResourceLocation.fromNamespaceAndPath("examplemod", "example"),
+        Identifier.fromNamespaceAndPath("examplemod", "example"),
         // The AnimationChannel.Interpolation to register.
         (vector, keyframeDelta, keyframes, currentKeyframe, nextKeyframe, scale) -> {...}
     );
@@ -630,5 +639,5 @@ public static void registerJsonAnimationTypes(RegisterJsonAnimationTypesEvent ev
 [geckolib]: https://github.com/bernie-g/geckolib
 [livingentity]: livingentity.md
 [renderlayer]: #creating-a-render-layer-and-baking-a-layer-definition
-[rl]: ../misc/resourcelocation.md
+[rl]: ../misc/identifier.md
 [sides]: ../concepts/sides.md

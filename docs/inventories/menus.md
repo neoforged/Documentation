@@ -415,6 +415,7 @@ Once again, this is the simplest way to implement the logic, not the only way.
 [mt]: #menutype
 [qms]: #quickmovestack
 [cap]: capabilities.md#neoforge-provided-capabilities
+[container]: container.md
 [screen]: ../rendering/screens.md
 [icf]: #icontainerfactory
 [side]: ../concepts/sides.md#the-logical-side

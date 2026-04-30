@@ -26,14 +26,14 @@ Information on how to relativize your coordinates is in the [screen] section.
 If you choose to use fixed coordinates or incorrectly scale the screen, the rendered objects may look strange or misplaced. An easy way to check if you relativized your coordinates correctly is to click the 'Gui Scale' button in your video settings. This value is used as the divisor to the width and height of your display when determining the scale at which a GUI should render.
 :::
 
-### GuiGraphics
+### GuiGraphicsExtractor
 
-Any element submitted to the `GuiRenderState` is typically handled via `GuiGraphics`. `GuiGraphics` is the first parameter to almost every method during the submission phase, containing methods for submitting commonly used objects to be rendered.
+Any element submitted to the `GuiRenderState` is typically handled via `GuiGraphicsExtractor`. `GuiGraphicsExtractor` is the first parameter to almost every method during the submission phase, containing methods for submitting commonly used objects to be rendered.
 
-`GuiGraphics` exposes the current pose as a `Matrix3x2fStack` to apply any XY transformations:
+`GuiGraphicsExtractor` exposes the current pose as a `Matrix3x2fStack` to apply any XY transformations:
 
 ```java
-// For some GuiGraphics graphics
+// For some GuiGraphicsExtractor graphics
 
 // Push a new matrix onto the stack
 graphics.pose().pushMatrix();
@@ -57,7 +57,7 @@ graphics.pose().popMatrix();
 Additionally, elements can be cropped to a specific area using `enableScissor` and `disableScissor`:
 
 ```java
-// For some GuiGraphics graphics
+// For some GuiGraphicsExtractor graphics
 
 // Enable the scissor with the bounds to render within
 graphics.enableScissor(
@@ -88,7 +88,7 @@ The `GuiRenderState` is made up of `GuiRenderState.Node`s as a single-linked lis
 Although `ScreenArea#bounds` is marked as nullable, a element being submitted to the render state will not be added if the bounds is not defined. The method is only nullable as elements submitted during the render phase are added to the current node rather than computing its node based on the bounds.
 :::
 
-Each node list is known as a stratum within the render state. A render state can have multiple strata by calling `GuiGraphics#nextStratum`, creating a new node list. The new stratum will render above all the previous stratum's elements (e.g., item tooltips). You cannot navigate back to the previous stratum once you call `nextStratum`.
+Each node list is known as a stratum within the render state. A render state can have multiple strata by calling `GuiGraphicsExtractor#nextStratum`, creating a new node list. The new stratum will render above all the previous stratum's elements (e.g., item tooltips). You cannot navigate back to the previous stratum once you call `nextStratum`.
 
 ### `GuiElementRenderState`
 
@@ -98,10 +98,10 @@ A `GuiElementRenderState` holds the metadata on how a GUI element is rendered to
 
 The remaining three methods handle the actual rendering of the element. `pipeline` defines the shaders and metadata used by the element. `textureSetup` can specify either `Sampler0`, `Sampler1`, `Sampler2`, or some combination in the fragment shader. Finally, `buildVertices` passes the vertices to upload to the buffer. It takes in the `VertexConsumer` to pass the vertices to.
 
-NeoForge adds the method `GuiGraphics#submitGuiElementRenderState` to submit a custom element render state if the available methods provided by `GuiGraphics` is not enough.
+NeoForge adds the method `GuiGraphicsExtractor#submitGuiElementRenderState` to submit a custom element render state if the available methods provided by `GuiGraphicsExtractor` is not enough.
 
 ```java
-// For some GuiGraphics graphics
+// For some GuiGraphicsExtractor graphics
 graphics.submitGuiElementRenderState(new GuiElementRenderState() {
 
     // Store the current pose of the stack
@@ -184,19 +184,19 @@ Elements with no specified `scissorArea` will always be rendered first, followed
 On a technical level, element ordering is not deterministic due to the `RenderPipeline` and `TextureSetup`. This is because the goal of sorting is not determinism, but rather to render the elements with the least amount of pipeline and texture switches possible.
 :::
 
-## Methods in `GuiGraphics`
+## Methods in `GuiGraphicsExtractor`
 
-`GuiGraphics` contains methods used to submit commonly used objects for rendering. These fall into six categories: colored rectangles, strings, textures, items, tooltips, and picture-in-pictures. Each of these methods submit an element, inheriting the current pose from `pose` and the scissor area from `peekScissorStack` based on `enableScissor` / `disableScissor`. Any colors provided to the methods must be in [ARGB][argb] format.
+`GuiGraphicsExtractor` contains methods used to submit commonly used objects for rendering. These fall into six categories: colored rectangles, strings, textures, items, tooltips, and picture-in-pictures. Each of these methods submit an element, inheriting the current pose from `pose` and the scissor area from `peekScissorStack` based on `enableScissor` / `disableScissor`. Any colors provided to the methods must be in [ARGB][argb] format.
 
 ### Colored Rectangles
 
 Colored rectangles are submitted using a `ColoredRectangleRenderState`. All fill methods can take in an optional `RenderPipeline` and `TextureSetup` to specify how the rectangle should be rendered. There are three types of colored rectangles that can be submitted.
 
-First, there is a colored horizontal and vertical one-pixel wide line, `hLine` and `vLine` respectively. `hLine` takes in two X coordinates defining the left and right (inclusively), the top Y coordinate, and the color. `vLine` takes in the left X coordinate, two Y coordinates defining the top and bottom (inclusively), and the color.
+First, there is a colored horizontal and vertical one-pixel wide line, `horizontalLine` and `verticalLine` respectively. `horizontalLine` takes in two X coordinates defining the left and right (inclusively), the top Y coordinate, and the color. `verticalLine` takes in the left X coordinate, two Y coordinates defining the top and bottom (inclusively), and the color.
 
 Second, there is the `fill` method, which submits a rectangle to be drawn to the screen. The line methods internally call this method. This takes in the left X coordinate, the top Y coordinate, the right X coordinate, the bottom Y coordinate, and the color.
 
-Third, there is the `submitOutline` method, which submits four rectangles that are one-pixel wide to act as an outline. This takes in the left X coordinate, the top Y coordinate, the width of the outline, the height of the outline, and the color.
+Third, there is the `outline` method, which submits four rectangles that are one-pixel wide to act as an outline. This takes in the left X coordinate, the top Y coordinate, the width of the outline, the height of the outline, and the color.
 
 Finally, there is the `fillGradient` method, which draws a rectangle with a vertical gradient. This takes in the left X coordinate, the top Y coordinate, the right X coordinate, the bottom Y coordinate, and the bottom and top colors.
 
@@ -204,9 +204,11 @@ Finally, there is the `fillGradient` method, which draws a rectangle with a vert
 
 Strings, [`Component`s][component], and `FormattedCharSequence`s are submitted using a `GuiTextRenderState`. Each string is drawn through the provided `Font`, which is used to create a `BakedGlyph.GlyphInstance` and optionally a `BakedGlyph.Effect`, using the specified `GlyphRenderTypes#guiPipeline`. The text render state is then transformed into `GlyphRenderState`s and potentially a `GlyphEffectRenderState` per character in the string during the render phase.
 
-There are two alignments strings can be rendered with: a left-aligned string (`drawString`) and a center-aligned string (`drawCenteredString`). These both take in the font the string will be rendered in, the string to draw, the X coordinate representing the left or center of the string respectively, the top Y coordinate, and the color. The left-aligned strings may also take in whether to draw a drop shadow for the text.
+There are two alignments strings can be rendered with: a left-aligned string (`text`) and a center-aligned string (`centeredText`). These both take in the font the string will be rendered in, the string to draw, the X coordinate representing the left or center of the string respectively, the top Y coordinate, and the color. The left-aligned strings may also take in whether to draw a drop shadow for the text.
 
-If the text should be wrapped within a given bounds, then `drawWordWrap` can be used instead. If the text should have some sort of rectangle backdrop, then `drawStringWithBackdrop` can be used. They both submit a left-aligned string by default.
+If the text should be wrapped within a given bounds, then `textWithWordWrap` can be used instead. If the text should have some sort of rectangle backdrop, then `textWithBackdrop` can be used. They both submit a left-aligned string by default.
+
+Strings can also be submitted using an `ActiveTextCollector`, which provides methods for rendering strings with specific metadata, such as alignment, opacity, and scrolling. Text collectors are created via `GuiGraphicsExtractor#textRenderer` or `textRendererForWidget`, or `ActiveTextCollector` itself can be subclassed, typically taking in a `$HoveredTextEffects` for some basic options on whether to render tooltips or cursor changes. From there, either `accept` or `acceptScrolling` can be used to render the text, taking in an X position relative to the alignment, a Y position, a set of parameters from the `GuiGraphicsExtractor`, the text itself, and optionally the text alignment. `acceptScrolling` also takes in the leftmost, rightmost, topmost, and bottommost position to represent the scrolling bounds.
 
 :::note
 Strings should typically be passed in as [`Component`s][component] as they handle a variety of use cases, including the two other overloads of the method.
@@ -214,11 +216,11 @@ Strings should typically be passed in as [`Component`s][component] as they handl
 
 ### Textures
 
-Textures are submitted through a `BlitRenderState`, hence the method name `blit`. The `BlitRenderState` copies the bits of an image and renders them to the screen through the `RenderPipeline` parameter. Each `blit` also takes in a `ResourceLocation`, which represents the absolute location of the texture:
+Textures are submitted through a `BlitRenderState`, hence the method name `blit`. The `BlitRenderState` copies the bits of an image and renders them to the screen through the `RenderPipeline` parameter. Each `blit` also takes in a `Identifier`, which represents the absolute location of the texture:
 
 ```java
 // Points to 'assets/examplemod/textures/gui/container/example_container.png'
-private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath("examplemod", "textures/gui/container/example_container.png");
+private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath("examplemod", "textures/gui/container/example_container.png");
 ```
 
 While there are many different `blit` overloads, we will only discuss two of them.
@@ -237,7 +239,7 @@ The second `blit` adds an additional integer at the end which represents the tin
 
 ```java
 // Points to 'assets/examplemod/textures/gui/sprites/container/example_container/example_sprite.png'
-private static final ResourceLocation SPRITE = ResourceLocation.fromNamespaceAndPath("examplemod", "container/example_container/example_sprite");
+private static final Identifier SPRITE = Identifier.fromNamespaceAndPath("examplemod", "container/example_container/example_sprite");
 ```
 
 One set of `blitSprite` methods have the same parameters as `blit`, except for the the four integers dealing with the coordinates, width, and height of the PNG.
@@ -306,9 +308,9 @@ This is set by adding the `gui.scaling` JSON object in an mcmeta file with the s
 
 Items are submitted using a `GuiItemRenderState`. The item render state is then transformed into a `BlitRenderState` or `OversizedItemRenderState`, depending on the item bounds and client item properties, during the render phase.
 
-`renderItem` takes in an `ItemStack`, in addition to the left X and top Y coordinate on screen. It can optionally take in the holding `LivingEntity`, the current `Level` the stack is in, and a seeded value. There is also an alternative `renderFakeItem` which sets the `LivingEntity` to `null`.
+`item` takes in an `ItemStack`, in addition to the left X and top Y coordinate on screen. It can optionally take in the holding `LivingEntity`, the current `Level` the stack is in, and a seeded value. There is also an alternative `fakeItem` which sets the `LivingEntity` to `null`.
 
-The item decorations - such as the durability bar, cooldown, and count - are handled through `renderItemDecorations`. It takes in the same parameters as the base `renderItem`, in addition to the `Font` and a count text override.
+The item decorations - such as the durability bar, cooldown, and count - are handled through `itemDecorations`. It takes in the same parameters as the base `item`, in addition to the `Font` and a count text override.
 
 ### Tooltips
 
@@ -316,11 +318,11 @@ Tooltips are submitted through a variety of the above render states. The tooltip
 
 Next frame tooltips don't actually submit the tooltip on the next frame, but instead defer the tooltip submission until after `Screen#render` is called. The tooltip is added to a new stratum, meaning it will render on top of all elements in the screen. Next frame methods are in the form of `set*Tooltip*ForNextFrame`. They also can take in an additional boolean indicating whether to override the currently deferred tooltip if present, and an `ItemStack` that the rendered tooltip should use.
 
-Immediate tooltips, on the other hand, are submitted immediately when the method is called. Immediate methods are in the form of `renderTooltip`. They also take in the `ItemStack` that the tooltip is hovering over.
+Immediate tooltips, on the other hand, are submitted immediately when the method is called. Immediate methods are in the form of `tooltip`. They also take in the `ItemStack` that the tooltip is hovering over.
 
 ### Picture-in-Picture
 
-Picture-in-Picture (PiP) allows for arbitrary objects to be drawn to the screen. Instead of drawing directly to the output, PiP draws the object to an intermediary texture, or a 'picture', that is then submitted to the `GuiRenderState` as a `BlitRenderState` during the render phase (by default). `GuiGraphics` provides methods for maps, entities, player skins, book models, banner pattern, signs, and the profiler chart via `submit*RenderState`.
+Picture-in-Picture (PiP) allows for arbitrary objects to be drawn to the screen. Instead of drawing directly to the output, PiP draws the object to an intermediary texture, or a 'picture', that is then submitted to the `GuiRenderState` as a `BlitRenderState` during the render phase (by default). `GuiGraphicsExtractor` provides methods for maps (`map`), entities (`entity`), player skins (`skin`), book models (`book`), banner pattern (`bannerPattern`), signs (`sign`), and the profiler chart (`profilerChart`).
 
 :::note
 Items that exceed the default 16x16 bounds, when `ClientItem.Properties#oversizedInGui` is true, use the `OversizedItemRenderer` PiP as its rendering mechanism.
@@ -445,10 +447,10 @@ public static void registerPip(RegisterPictureInPictureRenderersEvent event) {
 }
 ```
 
-The PiP render state can then be submitted using the NeoForge-added `GuiGraphics#submitPictureInPictureRenderState`:
+The PiP render state can then be submitted using the NeoForge-added `GuiGraphicsExtractor#submitPictureInPictureRenderState`:
 
 ```java
-// For some GuiGraphics graphics
+// For some GuiGraphicsExtractor graphics
 graphics.submitPictureInPictureRenderState(new ExampleRenderState(
     0, 0,
     10, 10,
@@ -463,13 +465,13 @@ NeoForge fixes a bug that prevents multiple instances of a PiP render state to b
 
 ## Renderable
 
-`Renderable`s are essentially objects that are rendered. These include screens, buttons, chat boxes, lists, etc. `Renderable`s only have one method: `#render`. This takes in the `GuiGraphics` used to render things to the screen, the x and y positions of the mouse scaled to the relative screen size, and the tick delta (how many ticks have passed since the last frame).
+`Renderable`s are essentially objects that are rendered. These include screens, buttons, chat boxes, lists, etc. `Renderable`s only have one method: `#extractRenderState`. This takes in the `GuiGraphicsExtractor` used to submit elements to the screen, the x and y positions of the mouse scaled to the relative screen size, and the tick delta (how many ticks have passed since the last frame).
 
-Some common renderables are screens and 'widgets': interactable elements which typically render on the screen such as `Button`, its subtype `ImageButton`, and `EditBox` which is used to input text on the screen.
+Some common renderables are screens and 'widgets': interactable elements such as `Button`, its subtype `ImageButton`, and `EditBox` which is used to input text on the screen.
 
 ## GuiEventListener
 
-Any screen rendered in Minecraft implements `GuiEventListener`. `GuiEventListener`s are responsible for handling user interaction with the screen. These include inputs from the mouse (movement, clicked, released, dragged, scrolled, mouseover) and keyboard (pressed, released, typed). Each method returns whether the associated action affected the screen successfully. Widgets like buttons, chat boxes, lists, etc. also implement this interface.
+Any screen in Minecraft implements `GuiEventListener`. `GuiEventListener`s are responsible for handling user interaction with the screen. These include inputs from the mouse (movement, clicked, released, dragged, scrolled, mouseover) and keyboard (pressed, released, typed). Each method returns whether the associated action affected the screen successfully. Widgets like buttons, chat boxes, lists, etc. also implement this interface.
 
 ### ContainerEventHandler
 
@@ -499,12 +501,12 @@ All widgets from Minecraft are `NarratableEntry`s, so it typically does not need
 
 With all of the above knowledge, a basic screen can be constructed. To make it easier to understand, the components of a screen will be mentioned in the order they are typically encountered.
 
-First, all screens take in a `Component` which represents the title of the screen. This component is typically drawn to the screen by one of its subtypes. It is only used in the base screen for the narration message.
+First, all screens take in a `Component` which represents the title of the screen. This component is typically drawn to the screen by one of its subtypes. It is only used in the base screen for the narration message. The screen can also take in the `Minecraft` instance and the `Font` to use when rendering text; if not specified, the default instance and font are used.
 
 ```java
 // In some Screen subclass
 public MyScreen(Component title) {
-    super(title);
+    super(Minecraft.getInstance(), Minecraft.getInstance().font, title);
 }
 ```
 
@@ -553,34 +555,34 @@ Since screens are subtypes of `GuiEventListener`s, the input handlers can also b
 
 ### Rendering the Screen
 
-Screens submit their elements through `#renderWithTooltipAndSubtitles` in three different strata: the background stratum, the render stratum, and the optional tooltip stratum.
+Screens submit their elements for rendering through `#extractRenderStateWithTooltipAndSubtitles` in three different strata: the background stratum, the element stratum, and the optional hoverable strata.
 
-The background stratum elements are submitted first via `#renderBackground`, generally containing any blurring or background textures.
+The background stratum elements are submitted first via `#extractBackground`, generally containing any blurring or background textures.
 
 :::warning
-Blurring, as handled through `GuiGraphics#blurBeforeThisStratum`, can only be called once on any given frame. Attempting to render a second blur will cause an exception to be thrown.
+Blurring, as handled through `GuiGraphicsExtractor#blurBeforeThisStratum`, can only be called once on any given frame. Attempting to submit a second blur will cause an exception to be thrown.
 :::
 
-The render stratum elements are submitted next via the `#render` method, provided by being a `Renderable` subtype. This mainly submits widgets and labels, along with setting the tooltips to render in the next stratum.
+The element stratum elements are submitted next via the `#extractRenderState` method, provided by being a `Renderable` subtype. This mainly submits widgets and labels, along with setting the hoverables to submit.
 
-Finally, the tooltip stratum submits the set tooltip. Tooltips are submitted in the render stratum via `GuiGraphics#setTooltipForNextFrame` or `GuiGraphics#setComponentTooltipFromElementsForNextFrame`, which can take in the text or tooltip components being submitted and the XY relative coordinates on where the tooltip should be rendered on the screen.
+Finally, the hoverable strata submit elements that hover over the previous elements, such as tooltips.
 
 ```java
 // In some Screen subclass
 
 // mouseX and mouseY indicate the scaled coordinates of where the cursor is in on the screen
 @Override
-public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
     // Submit things on the background stratum
-    this.renderTransparentBackground(graphics);
+    this.extractTransparentBackground(graphics);
 }
 
 @Override
-public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
     // Submit things before widgets
 
     // Then the widgets if this is a direct child of the Screen
-    super.render(graphics, mouseX, mouseY, partialTick);
+    super.extractRenderState(graphics, mouseX, mouseY, partialTick);
 
     // Submit things after widgets
 
@@ -621,12 +623,17 @@ public void removed() {
 
 If a screen is directly attached to a [menu][menus], then an `AbstractContainerScreen` should be subclassed instead. An `AbstractContainerScreen` acts as the screen and input handler of a menu and contains logic for syncing and interacting with slots. As such, only two methods typically need to be overridden or implemented to have a working container screen. Once again, to make it easier to understand, the components of a container screen will be mentioned in the order they are typically encountered.
 
-An `AbstractContainerScreen` typically requires three parameters: the container menu being opened (represented by the generic `T`), the player inventory (only for the display name), and the title of the screen itself. Within here, a number of positioning fields can be set:
+An `AbstractContainerScreen` typically requires five parameters: the container menu being opened (represented by the generic `T`), the player inventory (only for the display name), the title of the screen itself, and the width and height of the background texture.
+
+:::note
+The background texture width and height can be omitted from the super constructor if is 176 x 166. This does not refer to the image size, which is typically a PNG of 256 x 256, but the specific texture bounds within.
+:::
+
+
+Within here, a number of positioning fields can be set:
 
 Field             | Description
 :---:             | :---
-`imageWidth`      | The width of the texture used for the background. This is typically inside a PNG of 256 x 256 and defaults to 176.
-`imageHeight`     | The height of the texture used for the background. This is typically inside a PNG of 256 x 256 and defaults to 166.
 `titleLabelX`     | The relative x coordinate of where the screen title will be rendered.
 `titleLabelY`     | The relative y coordinate of where the screen title will be rendered.
 `inventoryLabelX` | The relative x coordinate of where the player inventory name will be rendered.
@@ -637,19 +644,16 @@ In a previous section, it was mentioned that precomputed relative coordinates sh
 
 The image values are static and non-changing, as they represent the background texture size. To make things easier when rendering, two additional values (`leftPos` and `topPos`) are precomputed in the `init` method, marking the top left corner of where the background will be rendered. The label coordinates are relative to these values.
 
-The `leftPos` and `topPos` is also used as a convenient way to render the background as they already represent the position to pass into `GuiGraphics#blit`.
+The `leftPos` and `topPos` is also used as a convenient way to render the background as they already represent the position to pass into `GuiGraphicsExtractor#blit`.
 :::
 
 ```java
 // In some AbstractContainerScreen subclass
 public MyContainerScreen(MyMenu menu, Inventory playerInventory, Component title) {
-    super(menu, playerInventory, title);
+    super(menu, playerInventory, title, 176, 166);
 
     this.titleLabelX = 10;
     this.inventoryLabelX = 10;
-
-    // If the 'imageHeight' is changed, 'inventoryLabelY' must also be
-    // changed as the value depends on the 'imageHeight' value.
 }
 ```
 
@@ -673,33 +677,20 @@ protected void containerTick() {
 
 ### Rendering the Container Screen
 
-The container screen uses all three strata to submit its elements. First, the background stratum submits the background texture via `#renderBg`. Then, the render stratum submits the widgets like before via `#render` followed by any text via `#renderLabels`. Finally, `AbstractContainerScreen` also provides the helper method `renderTooltip` to submit the tooltip to the tooltip stratum.
+The container screen uses all three strata to submit its elements. First, the background stratum submits the background texture by overriding `#extractBackground`. Then, the element stratum submits the widgets like before within `#extractContents`, followed by labels in `#extractLabels`. Finally, `AbstractContainerScreen` sets up the tooltip to be submitted during the hoverable strata via `extractTooltip`.
 
-Starting with `render`, the most common override (and typically the only case) calls the super to submit the container screen elements, followed by `renderTooltip`.
-
-```java
-// In some AbstractContainerScreen subclass
-@Override
-public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-    // Submits the widgets and labels to be rendered
-    super.render(graphics, mouseX, mouseY, partialTick);
-
-    // This method is added by the container screen to submit
-    // the tooltip of the hovered slot in the tooltip stratum.
-    this.renderTooltip(graphics, mouseX, mouseY);
-}
-```
-
-`renderBg` is called to submit the background elements of the screen to the background stratum.
+Starting with the background, `extractBackground` is called to submit the background elements of the screen to the background stratum.
 
 ```java
 // In some AbstractContainerScreen subclass
 
 // The location of the background texture (assets/<namespace>/<path>)
-private static final ResourceLocation BACKGROUND_LOCATION = ResourceLocation.fromNamespaceAndPath(MOD_ID, "textures/gui/container/my_container_screen.png");
+private static final Identifier BACKGROUND_LOCATION = Identifier.fromNamespaceAndPath(MOD_ID, "textures/gui/container/my_container_screen.png");
 
 @Override
-protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
+protected void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+    super.extractBackground(graphics, mouseX, mouseY, a);
+
     // Submits the background texture. 'leftPos' and 'topPos' should
     // already represent the top left corner of where the texture
     // should be rendered as it was precomputed from the 'imageWidth'
@@ -717,19 +708,19 @@ protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int
 }
 ```
 
-`renderLabels` is called to submit any text after the widgets in the render stratum. This calls `drawString` with the screen font to submit the associated components.
+`extractLabels` is called to submit any text after the widgets in the render stratum. This calls `text` with the screen font to submit the associated components.
 
 ```java
 // In some AbstractContainerScreen subclass
 @Override
-protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
-    super.renderLabels(graphics, mouseX, mouseY);
+protected void extractLabels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+    super.extractLabels(graphics, mouseX, mouseY);
 
     // Assume we have some Component 'label'
     // 'label' is drawn at 'labelX' and 'labelY'
     // The color is an ARGB value
     // The final boolean renders the drop shadow when true
-    graphics.drawString(this.font, this.label, this.labelX, this.labelY, 0xFF404040, false);
+    graphics.text(this.font, this.label, this.labelX, this.labelY, 0xFF404040, false);
 }
 ```
 

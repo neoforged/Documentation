@@ -340,7 +340,7 @@ Ticking is a mechanism that updates (ticks) parts of the game every 1 / 20 secon
 
 #### Server Ticking and Tick Scheduling
 
-`BlockBehaviour#tick` is called in two occasions: either through default [random ticking][randomtick] (see below), or through scheduled ticks. Scheduled ticks can be created through `Level#scheduleTick(BlockPos, Block, int)`, where the `int` denotes a delay. This is used in various places by vanilla, for example, the tilting mechanism of big dripleaves heavily relies on this system. Other prominent users are various redstone components.
+`BlockBehaviour#tick` is called through scheduled ticks. Scheduled ticks can be created through `Level#scheduleTick(BlockPos, Block, int)`, where the `int` denotes a delay. This is used in various places by vanilla, for example, the tilting mechanism of big dripleaves heavily relies on this system. Other prominent users are various redstone components.
 
 #### Client Ticking
 
@@ -371,7 +371,6 @@ Random ticking is used by a wide range of mechanics in Minecraft, such as plant 
 [leftclick]: ../items/interactions.md#left-clicking-an-item
 [loottable]: ../resources/server/loottables/index.md
 [model]: ../resources/client/models/index.md
-[randomtick]: #random-ticking
 [registration]: ../concepts/registries.md#methods-for-registering
 [resources]: ../resources/index.md#assets
 [rightclick]: ../items/interactions.md#right-clicking-an-item

@@ -227,8 +227,8 @@ builder.parent(AdvancementSubProvider.createPlaceholder("minecraft:story/root"))
 // Sets the display properties of the advancement. This can either be a DisplayInfo object,
 // or pass in the values directly. If values are passed in directly, a DisplayInfo object will be created for you.
 builder.display(
-        // The advancement icon. Can be an ItemStack or an ItemLike.
-        new ItemStack(Items.GRASS_BLOCK),
+        // The advancement icon. Can be an ItemStackTemplate or an ItemLike.
+        new ItemStackTemplate(Items.GRASS_BLOCK),
         // The advancement title and description. Don't forget to add translations for these!
         Component.translatable("advancements.examplemod.example_advancement.title"),
         Component.translatable("advancements.examplemod.example_advancement.description"),
@@ -251,11 +251,11 @@ builder.rewards(
     // Alternatively, use addExperience() to add to an existing builder.
     AdvancementRewards.Builder.experience(100)
     // Alternatively, use loot() to create a new builder.
-    .addLootTable(ResourceKey.create(Registries.LOOT_TABLE, ResourceLocation.fromNamespaceAndPath("minecraft", "chests/igloo")))
+    .addLootTable(ResourceKey.create(Registries.LOOT_TABLE, Identifier.fromNamespaceAndPath("minecraft", "chests/igloo")))
     // Alternatively, use recipe() to create a new builder.
-    .addRecipe(ResourceKey.create(Registries.RECIPE, ResourceLocation.fromNamespaceAndPath("minecraft", "iron_ingot")))
+    .addRecipe(ResourceKey.create(Registries.RECIPE, Identifier.fromNamespaceAndPath("minecraft", "iron_ingot")))
     // Alternatively, use function() to create a new builder.
-    .runs(ResourceLocation.fromNamespaceAndPath("examplemod", "example_function"))
+    .runs(Identifier.fromNamespaceAndPath("examplemod", "example_function"))
 );
 
 // Adds a criterion with the given name to the advancement. Use the corresponding trigger instance's static method.
@@ -267,7 +267,7 @@ builder.requirements(AdvancementRequirements.allOf(List.of("pickup_dirt")));
 
 // Save the advancement to disk, using the given resource location. This returns an AdvancementHolder,
 // which may be stored in a variable and used as a parent by other advancement builders.
-builder.save(saver, ResourceLocation.fromNamespaceAndPath("examplemod", "example_advancement"));
+builder.save(saver, Identifier.fromNamespaceAndPath("examplemod", "example_advancement"));
 ```
 
 [codec]: ../../datastorage/codecs.md
