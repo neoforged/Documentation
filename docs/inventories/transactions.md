@@ -152,7 +152,7 @@ int amountInserted = handler.insert(0, ItemResource.of(Items.APPLE), 5, ctx);
 int amountExtracted = handler.extract(ItemResource.of(Items.APPLE), 2, ctx);
 ```
 
-There are many different types of `ResourceHandler`s depending on what the backing inventory is. Some handlers wrap around existing vanilla inventories (e.g., `VanillaContainerWrapper` for [`Container`s][container], `PlayerInventoryWrapper` for the [player's `Inventory`][playerinv], `LivingEntityEquipmentWrapper` for a [living entity's][livingentity] equipment slots).
+There are many different types of `ResourceHandler`s depending on what the backing inventory is. Some handlers wrap around existing vanilla inventories (e.g., `VanillaContainerWrapper` for [`Container`s][container], `PlayerInventoryWrapper` for [player `Inventory`s][playerinv], `LivingEntityEquipmentWrapper` for a [living entity's][livingentity] equipment slots).
 
 ```java
 // Wrapping around an existing inventory.
