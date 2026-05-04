@@ -101,8 +101,8 @@ private static void registerFluidModels(RegisterFluidModelsEvent event) {
             // The fluid tint source. We leave it at null, which means no tint. See below for more info.
             null),
             // Suppliers for the still and flowing fluids.
-            ModFluids.MOLTEN_IRON::value,
-            ModFluids.FLOWING_MOLTEN_IRON::value
+            ModFluids.MOLTEN_IRON,
+            ModFluids.FLOWING_MOLTEN_IRON
     );
 }
 ```
@@ -119,14 +119,16 @@ Let's start by adding the texture files. When creating your assets, it is recomm
 
 :::warning
 These paths match the paths we passed into `RegisterFluidModelsEvent#register()` before. You can place the files elsewhere, but you will need to adjust the paths in the renderer as well.
+
+Be aware that fluid textures generally live in the block atlas, so they should be located in a `textures/block` folder.
 :::
 
 Most fluids are animated, so they will also need accompanying `.png.mcmeta` files. Again, you can base these off the vanilla files. For more information, see the article on [textures].
 
-
 Finally, the translations. The translation key used by fluids is defined by `FluidType#descriptionId()`, and we can get it from a `FluidType` using `#getDescriptionId()`:
 
 ```java
+// In your LanguageProvider
 @Override
 protected void addTranslations() {
     add(ModFluids.MOLTEN_IRON_TYPE.getDescriptionId(), "Molten Iron");
@@ -150,7 +152,8 @@ public final class MoltenIronTintSource implements FluidTintSource {
 
     @Override
     public int color(FluidState state) {
-        // Return whatever color you want here.
+        // Return whatever color you want here. The value is in ARGB; make sure that you include
+        // a proper alpha value, otherwise the rendering will be invisible.
         return 0xff000000;
     }
 }

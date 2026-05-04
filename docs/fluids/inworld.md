@@ -261,8 +261,8 @@ private static void registerCauldronFluidContent(RegisterCauldronFluidContentEve
             ModBlocks.MOLTEN_IRON_CAULDRON.get(),
             // The fluid.
             ModFluids.MOLTEN_IRON.get(),
-            // The amount. 1000 is one bucket.
-            1000,
+            // The amount.
+            FluidType.BUCKET_VOLUME,
             // The "level" block state property. Since we don't have one, we pass null.
             null);
 }
