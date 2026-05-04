@@ -94,23 +94,19 @@ While our fluid now exists, we aren't done yet: we still need to add the resourc
 
 Let's start by adding the texture files. When creating your assets, it is recommended to use the vanilla water or lava texture as a basis; this is especially important with flowing fluids as they use what is effectively a 2x2 texture that is sampled by the flowing fluid renderer. The texture files must be named and placed as follows (where `examplemod` is your mod id):
 
-- `assets/examplemod/textures/block/molten_iron_still.png` for the still texture, and
-- `assets/examplemod/textures/block/molten_iron_flowing.png` for the flowing texture.
+- `assets/examplemod/textures/block/molten_iron_still.png` for the still texture,
+- `assets/examplemod/textures/block/molten_iron_flowing.png` for the flowing texture, and
+- `assets/examplemod/textures/block/molten_iron_overlay.png` for the overlay texture (the overlay texture is optional and only used if the fluid has an associated block; it is displayed transparently when the player is inside the fluid's block).
 
 Most fluids are animated, so they will also need accompanying `.png.mcmeta` files. Again, you can base these off the vanilla files. For more information, see the article on [textures].
 
-Now for the translations. The translation key used by fluids is defined by `FluidType#descriptionId()`. In our example, we used `block.examplemod.molten_iron`, so we would add a translation like so:
+Now for the translations. The translation key used by fluids is defined by `FluidType#descriptionId()`, and we can get it from a `FluidType` using `#getDescriptionId()`:
 
 ```java
-    @Override
-    protected void addTranslations() {
-        // other translations here
-    
-        add("block.examplemod.molten_iron", "Molten Iron");
-        
-        // Alternatively, once you have created a fluid block later:
-        addBlock(ModBlocks.MOLTEN_IRON.get(), "Molten Iron");
-    }
+@Override
+protected void addTranslations() {
+    add(AMFluids.MOLTEN_IRON_TYPE.getDescriptionId(), "Molten Iron");
+}
 ```
 
 For more information, see [I18n and L10n/Datagen][i18n].
@@ -159,15 +155,396 @@ public class MyBlock extends Block implements SimpleWaterloggedBlock {
 }
 ```
 
-The `WATERLOGGED` is also the #1 reason NeoForge cannot easily fix this, because removing the `WATERLOGGED` property would break compatibility with vanilla servers due to a different set of block states.
-
 ### Fluid Blocks
 
-TODO
+In order to be able to place our fluid in the world, we need to create a `LiquidBlock` for it:
+
+```java
+// Assuming a DeferredRegister.Blocks named BLOCKS, and assuming the fluid stuff
+// is in another class named ModFluids.
+public static final DeferredBlock<LiquidBlock> MOLTEN_IRON = BLOCKS.registerBlock(
+        // The block registry name.
+        "molten_iron",
+        // The liquid block factory.
+        properties -> new LiquidBlock(ModFluids.MOLTEN_IRON.get(), properties),
+        // The block properties.
+        () -> BlockBehaviour.Properties.of()
+                // Standard properties for both vanilla fluids. Strength 100 disables vanilla TNT
+                // from having effects while allowing modded explosives to still work.
+                .liquid()
+                .noLootTable()
+                .noCollision()
+                .replaceable()
+                .pushReaction(PushReaction.DESTROY)
+                .sound(SoundType.EMPTY)
+                .strength(100)
+                // You may define additional properties depending on what your fluid does.
+                // For example, we could make our molten iron fluid glow slightly:
+                .lightLevel(_ -> 5)
+);
+```
+
+The block should then be added to the fluid properties like so:
+
+```java
+public static final BaseFlowingFluid.Properties MOLTEN_IRON_PROPERTIES =
+        new BaseFlowingFluid.Properties(MOLTEN_IRON_TYPE, MOLTEN_IRON, FLOWING_MOLTEN_IRON)
+                // Set the block, assuming it is located in the `ModBlocks` class.
+                // Make sure that `ModBlocks` is classloaded before `ModFluids`!
+                .block(ModBlocks.MOLTEN_IRON);
+```
+
+Finally, the block needs a model and a renderer. Let's start with the model, which is fairly simple to [generate][modeldatagen]:
+
+```java
+@Override
+protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerators itemModels) {
+    blockModels.createNonTemplateModelBlock(ModBlocks.MOLTEN_IRON.get());
+}
+```
+
+The renderer, on the other hand, is registered in a [client-only][sides] [mod bus][modbus] [event handler][events]:
+
+```java
+@SubscribeEvent // on the mod event bus only on the physical client
+private static void registerFluidModels(RegisterFluidModelsEvent event) {
+    event.register(new FluidModel.Unbaked(
+            // The still, flowing and overlay texture materials.
+            // The overlay material is nullable; if null, no overlay will be displayed.
+            new Material(Identifier.fromNamespaceAndPath(ExampleMod.MOD_ID, "block/molten_iron_still")),
+            new Material(Identifier.fromNamespaceAndPath(ExampleMod.MOD_ID, "block/molten_iron_flowing")),
+            new Material(Identifier.fromNamespaceAndPath(ExampleMod.MOD_ID, "block/molten_iron_overlay")),
+            // The fluid tint source. We leave it at null, which means no tint. See below for more info.
+            null),
+            // Suppliers for the still and flowing fluids.
+            ModFluids.MOLTEN_IRON::value,
+            ModFluids.FLOWING_MOLTEN_IRON::value
+    );
+}
+```
+
+### Fluid Tint Sources
+
+_See also: [Tinting][tinting]_
+
+Like blocks, fluids can be tinted. In vanilla, water does this, while lava does not. NeoForge patches this system to enable mod support. All related logic goes through the `FluidTintSource` interface. In a simple implementation, it only overrides `#color()`:
+
+```java
+// If possible, we want to use a singleton.
+public final class MoltenIronTintSource implements FluidTintSource {
+    public static final MoltenIronTintSource INSTANCE = new MoltenIronTintSource();
+    
+    private MoltenIronTintSource() {}
+
+    @Override
+    public int color(FluidState state) {
+        // Return whatever color you want here.
+        return 0xff000000;
+    }
+}
+```
+
+Once we have our tint source, we use it in the `RegisterFluidModelsEvent` like so:
+
+```java
+@SubscribeEvent // on the mod event bus only on the physical client
+private static void registerFluidModels(RegisterFluidModelsEvent event) {
+    event.register(new FluidModel.Unbaked(
+            new Material(Identifier.fromNamespaceAndPath(ExampleMod.MOD_ID, "block/molten_iron_still")),
+            new Material(Identifier.fromNamespaceAndPath(ExampleMod.MOD_ID, "block/molten_iron_flowing")),
+            new Material(Identifier.fromNamespaceAndPath(ExampleMod.MOD_ID, "block/molten_iron_overlay")),
+            // Use our tint source instance here.
+            MoltenIronTintSource.INSTANCE),
+            ModFluids.MOLTEN_IRON::value,
+            ModFluids.FLOWING_MOLTEN_IRON::value
+    );
+}
+```
+
+:::tip
+If the implementation only overrides `#color(FluidState)`, you can also use a functional interface lambda instead of a singleton class.
+:::
+
+For more complex behavior, additional methods are available, both of which defer to `#color(FluidState)` by default:
+
+- `colorInWorld(FluidState fluidState, BlockState blockState, BlockAndTintGetter level, BlockPos pos)` - A position-sensitive method used when displaying the fluid in world. Water uses this for biome-dependent colors.
+- `colorAsStack(FluidStack stack)` - A `FluidStack`-sensitive method, which can be used for e.g. [data component][datacomponent]-sensitive tinting. Unused in vanilla, as `FluidStack` is a NeoForge system.
+
+In addition, `FluidTintSource` extends `BlockTintSource`, which means that all the `BlockState`-sensitive methods are available as well.
+
+### Buckets
+
+Fluids can usually be picked up in a bucket. A custom bucket for our fluid can be added like so:
+
+```java
+// Assuming a DeferredRegister.Items named ITEMS, and assuming the fluid stuff
+// is in another class named ModFluids.
+public static final DeferredItem<BucketItem> MOLTEN_IRON_BUCKET = ITEMS.registerItem(
+        // The registry name.
+        "molten_iron_bucket",
+        // The bucket item factory.
+        properties -> new BucketItem(AMFluids.LIQUID_ETHERIUM.get(), properties),
+        // The properties supplier. Buckets stack to 1 and return a bucket when used in crafting.
+        () -> new Item.Properties().stacksTo(1).craftRemainder(Items.BUCKET)
+);
+```
+
+We then add it to our fluid properties like so:
+
+```java
+public static final BaseFlowingFluid.Properties MOLTEN_IRON_PROPERTIES =
+        new BaseFlowingFluid.Properties(MOLTEN_IRON_TYPE, MOLTEN_IRON, FLOWING_MOLTEN_IRON)
+                .block(ModBlocks.MOLTEN_IRON)
+                // Set the bucket, assuming it is located in the `ModItems` class.
+                // Make sure that `ModItems` is classloaded before `ModFluids`!
+                .bucket(ModItems.MOLTEN_IRON_BUCKET);
+```
+
+Next, it is recommended (but not required) to add a dispenser behavior for the bucket:
+
+```java
+@SubscribeEvent // on the mod event bus
+private static void commonSetup(FMLCommonSetupEvent event) {
+    // `DispenserBlock#registerBehavior` is not thread-safe so we wrap it in a lambda.
+    // The anonymous class seen here is copied from `DispenseItemBehavior#bootStrap()`.
+    event.enqueueWork(() -> DispenserBlock.registerBehavior(ModItems.MOLTEN_IRON_BUCKET, new DefaultDispenseItemBehavior() {
+        private final DefaultDispenseItemBehavior defaultDispenseItemBehavior = new DefaultDispenseItemBehavior();
+
+        @Override
+        public ItemStack execute(BlockSource source, ItemStack dispensed) {
+            DispensibleContainerItem bucket = (DispensibleContainerItem) dispensed.getItem();
+            BlockPos target = source.pos().relative(source.state().getValue(DispenserBlock.FACING));
+            Level level = source.level();
+            if (bucket.emptyContents(null, level, target, null, dispensed)) {
+                bucket.checkExtraContent(null, level, dispensed, target);
+                return this.consumeWithRemainder(source, dispensed, new ItemStack(Items.BUCKET));
+            } else {
+                return this.defaultDispenseItemBehavior.dispense(source, dispensed);
+            }
+        }
+    }));
+}
+```
+
+:::tip
+If you have multiple buckets, you can reuse the same `DispenseItemBehavior` instance for all buckets.
+:::
+
+Finally, all that's left is a translation and a model:
+
+```java
+// In the language provider
+@Override
+protected void addTranslations() {
+    add(AMFluids.MOLTEN_IRON_TYPE.get().getDescriptionId(), "Molten Iron");
+    addItem(AMItems.MOLTEN_IRON_BUCKET, "Molten Iron Bucket");
+}
+
+// In the model provider
+@Override
+protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerators itemModels) {
+    blockModels.createNonTemplateModelBlock(ModBlocks.MOLTEN_IRON.get());
+    // We use NeoForge's `DynamicFluidContainerModel`.
+    itemModels.itemModelOutput.accept(AMItems.LIQUID_ETHERIUM_BUCKET.get(), new DynamicFluidContainerModel.Unbaked(
+        // The model's textures.
+        new DynamicFluidContainerModel.Textures(
+                Optional.of(new Material(Identifier.withDefaultNamespace("item/bucket"))),
+                Optional.of(new Material(Identifier.withDefaultNamespace("item/bucket"))),
+                Optional.of(new Material(Identifier.fromNamespaceAndPath("neoforge", "item/mask/bucket_fluid"))),
+                Optional.empty()
+        ),
+        // The fluid to use.
+        AMFluids.LIQUID_ETHERIUM.get(),
+        // Whether the bucket model should be flipped, commonly used for "gaseous" fluids.
+        false,
+        // If true, the "cover" texture is a mask. We generally want this for buckets.
+        true,
+        // If this is true, if the fluid emits light, the fluid element of the model becomes emissive.
+        true));
+}
+```
 
 ### Cauldrons
 
-TODO
+In addition to buckets, it is common for fluids to go in a cauldron. For this, a separate cauldron block is necessary:
+
+```java
+public class MoltenIronCauldronBlock extends AbstractCauldronBlock {
+    // Block codec boilerplate.
+    private static final MapCodec<MoltenIronCauldronBlock> CODEC = simpleCodec(MoltenIronCauldronBlock::new);
+
+    @Override
+    protected MapCodec<? extends AbstractCauldronBlock> codec() {
+        return CODEC;
+    }
+
+    // The cauldron interaction dispatcher. See below for more info.
+    public static final CauldronInteraction.Dispatcher CAULDRON_INTERACTIONS =
+        new CauldronInteraction.Dispatcher();
+
+    // Pass our `CauldronInteraction.Dispatcher` to super.
+    public MoltenIronCauldronBlock(Properties properties) {
+        super(properties, CAULDRON_INTERACTIONS);
+    }
+
+    // We assume that our cauldron can only ever be completely full, i.e. that we don't have "bottles"
+    // or a similar intermediary unit present.
+    @Override
+    public boolean isFull(BlockState state) {
+        return true;
+    }
+
+    // Vanilla water cauldrons output 1-3 based on the fill level, we are always full and therefore output 3.
+    @Override
+    protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos, Direction direction) {
+        return 3;
+    }
+
+    // A full cauldron has its visual height at 0.9375 (= 15/16).
+    @Override
+    protected double getContentHeight(BlockState state) {
+        return 0.9375;
+    }
+}
+```
+
+We then use this cauldron in registration:
+
+```java
+// Assuming a DeferredRegister.Blocks named BLOCKS.
+public static final DeferredBlock<MoltenIronCauldronBlock> MOLTEN_IRON_CAULDRON = BLOCKS.registerBlock(
+        // The registry name.
+        "molten_iron_cauldron",
+        // The cauldron constructor reference.
+        MoltenIronCauldronBlock::new,
+        // The properties to use. We generally copy the vanilla cauldron.
+        // Since we gave molten iron a glow, we also apply that to the cauldron.
+        () -> BlockBehaviour.Properties.ofFullCopy(Blocks.CAULDRON).lightLevel(_ -> 5)
+);
+```
+
+Next, we need to associate a fluid with the cauldron. We do this in `RegisterCauldronFluidContentEvent` like so:
+
+```java
+@SubscribeEvent // on the mod event bus
+private static void registerCauldronFluidContent(RegisterCauldronFluidContentEvent event) {
+    event.register(
+            // The cauldron block.
+            ModBlocks.MOLTEN_IRON_CAULDRON.get(),
+            // The fluid.
+            ModFluids.MOLTEN_IRON.get(),
+            // The amount. 1000 is one bucket.
+            1000,
+            // The "level" block state property. Since we don't have one, we pass null.
+            null);
+}
+```
+
+Finally, since a fluid cauldron is a block like any other, we need some datagen setup. This includes a translation, a block model, a [loot table][loottable] and some [tags]:
+
+```java
+// In the language provider
+@Override
+protected void addTranslations() {
+    add(AMFluids.MOLTEN_IRON_TYPE.get().getDescriptionId(), "Molten Iron");
+    addItem(ModItems.MOLTEN_IRON_BUCKET, "Molten Iron Bucket");
+    addBlock(ModBlocks.MOLTEN_IRON_CAULDRON, "Molten Iron Cauldron");
+}
+
+// In the model provider
+@Override
+protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerators itemModels) {
+    blockModels.createNonTemplateModelBlock(ModBlocks.MOLTEN_IRON.get());
+    itemModels.itemModelOutput.accept(...);
+    blockModels.blockStateOutput.accept(BlockModelGenerators.createSimpleBlock(
+        // Our cauldron block.
+        ModBlocks.MOLTEN_IRON_CAULDRON.get(),
+        // We use the `CAULDRON_FULL` model template.
+        BlockModelGenerators.plainVariant(ModelTemplates.CAULDRON_FULL.create(
+                // Our cauldron block.
+                ModBlocks.MOLTEN_IRON_CAULDRON.get(),
+                // The cauldron fluid texture mapping.
+                TextureMapping.cauldron(TextureMapping.getBlockTexture(ModBlocks.MOLTEN_IRON.get(), "_still")),
+                blockModels.modelOutput))));
+}
+
+// In the block loot sub provider
+@Override
+protected void generate() {
+    // Drop an empty cauldron when mined.
+    dropOther(ModBlocks.MOLTEN_IRON_CAULDRON.get(), Items.CAULDRON);
+}
+
+// In the block tags provider
+@Override
+protected void addTags(HolderLookup.Provider provider) {
+    tag(BlockTags.CAULDRONS).add(ModBlocks.MOLTEN_IRON_CAULDRON.get());
+}
+```
+
+### Cauldron Interactions
+
+We now have our cauldron, however we can't yet interact with it, or even obtain it in survival. For that to work, we need to register cauldron interactions. If you recall back to the cauldron class, we had a `CauldronInteraction.Dispatcher`, which we are going to use now.
+
+Cauldron interactions happen in two events. First, we need to register the `CauldronInteraction.Dispatcher` like so:
+
+```java
+@SubscribeEvent // on the mod event bus
+private static void registerCauldronInteractionDispatchers(RegisterCauldronInteractionEvent.Dispatcher event) {
+    event.register(
+            // A unique identifier.
+            Identifier.fromNamespaceAndPath(ExampleMod.MOD_ID, "molten_iron_cauldron"),
+            // Our `CauldronInteraction.Dispatcher`.
+            MoltenIronCauldronBlock.CAULDRON_INTERACTIONS);
+}
+```
+
+Secondly, we need to register the actual interactions. That works like so:
+
+```java
+@SubscribeEvent
+private static void registerCauldronInteractions(RegisterCauldronInteractionEvent.Interaction event) {
+    // Empty our cauldron when it is right-clicked with an empty bucket.
+    MoltenIronCauldronBlock.CAULDRON_INTERACTIONS.put(Items.BUCKET,
+        // Input parameters are the cauldron blockstate, the level, the position,
+        // the player, the used hand, and the used item stack
+        (state, level, pos, player, hand, stack) -> CauldronInteractions.fillBucket(
+            // Pass along the input parameters.
+            state, level, pos, player, hand, stack,
+            // The resulting item stack.
+            ModItems.MOLTEN_IRON_BUCKET.toStack(),
+            // A predicate for additional checks if the bucket can be filled.
+            // We have no additional checks, so we just always return true.
+            _ -> true,
+            // The sound event to play when emptying the cauldron.
+            SoundEvents.BUCKET_FILL_LAVA));
+    
+    // For compat with vanilla, we need to add handling for when our cauldron is right-clicked
+    // with water, lava and powder snow buckets. Compat with other mods is handled
+    // by the bucket fill handler method, see below.
+    LiquidEtheriumCauldronBlock.CAULDRON_INTERACTIONS
+        .put(Items.LAVA_BUCKET, CauldronInteractions::fillLavaInteraction);
+    LiquidEtheriumCauldronBlock.CAULDRON_INTERACTIONS
+        .put(Items.WATER_BUCKET, CauldronInteractions::fillWaterInteraction);
+    LiquidEtheriumCauldronBlock.CAULDRON_INTERACTIONS
+        .put(Items.POWDER_SNOW_BUCKET, CauldronInteractions::fillPowderSnowInteraction);
+
+    // When **any** cauldron is right-clicked with our bucket, replace with our cauldron.
+    // To do so, we use `event#registerToAll()` instead of `CauldronInteraction.Dispatcher#put()`.
+    event.registerToAll(ModItems.MOLTEN_IRON_BUCKET.get(),
+        // Input parameters are the cauldron blockstate, the level, the position,
+        // the player, the used hand, and the used item stack
+        (state, level, pos, player, hand, stack) -> CauldronInteractions.fillBucket(
+            // Pass along the input parameters, except the state.
+            level, pos, player, hand, stack,
+            // The resulting block state.
+            ModBlocks.MOLTEN_IRON_CAULDRON.get().defaultBlockState(),
+            // The sound event to play when filling the cauldron.
+            SoundEvents.BUCKET_EMPTY_LAVA));
+}
+```
+
+Cauldron interactions are not limited to buckets. Vanilla adds a couple of other cauldron recipes, mostly for "cleaning" colored items. These work through generally the same mechanism. For more information, see the `CauldronInteractions` class. This is also where you can find the vanilla cauldron interaction dispatchers.
 
 ## Fluids in Recipes
 
@@ -183,8 +560,15 @@ TODO
 
 [block]: index.md
 [blockstate]: states.md
+[datacomponent]: ../items/datacomponents.md
 [entity]: ../entities/index.md
+[events]: ../concepts/events.md
 [i18n]: ../resources/client/i18n.md#datagen
+[loottable]: ../resources/server/loottables/index.md#datagen
+[modbus]: ../concepts/events.md#event-buses
+[modeldatagen]: ../resources/client/models/datagen.md
 [registries]: ../concepts/registries.md
+[sides]: ../concepts/sides.md
 [tags]: ../resources/server/tags.md#datagen
 [textures]: ../resources/client/textures.md
+[tinting]: ../resources/client/models/index.md#tinting
