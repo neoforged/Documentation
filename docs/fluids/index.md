@@ -129,7 +129,7 @@ Finally, the translations. The translation key used by fluids is defined by `Flu
 ```java
 @Override
 protected void addTranslations() {
-    add(AMFluids.MOLTEN_IRON_TYPE.getDescriptionId(), "Molten Iron");
+    add(ModFluids.MOLTEN_IRON_TYPE.getDescriptionId(), "Molten Iron");
 }
 ```
 

@@ -109,7 +109,7 @@ public static final DeferredItem<BucketItem> MOLTEN_IRON_BUCKET = ITEMS.register
         // The registry name.
         "molten_iron_bucket",
         // The bucket item factory.
-        properties -> new BucketItem(AMFluids.LIQUID_ETHERIUM.get(), properties),
+        properties -> new BucketItem(ModFluids.MOLTEN_IRON.get(), properties),
         // The properties supplier. Buckets stack to 1 and return a bucket when used in crafting.
         () -> new Item.Properties().stacksTo(1).craftRemainder(Items.BUCKET)
 );
@@ -162,8 +162,8 @@ Finally, all that's left is a translation and a model:
 // In the language provider
 @Override
 protected void addTranslations() {
-    add(AMFluids.MOLTEN_IRON_TYPE.get().getDescriptionId(), "Molten Iron");
-    addItem(AMItems.MOLTEN_IRON_BUCKET, "Molten Iron Bucket");
+    add(ModFluids.MOLTEN_IRON_TYPE.get().getDescriptionId(), "Molten Iron");
+    addItem(ModItems.MOLTEN_IRON_BUCKET, "Molten Iron Bucket");
 }
 
 // In the model provider
@@ -171,7 +171,7 @@ protected void addTranslations() {
 protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerators itemModels) {
     blockModels.createNonTemplateModelBlock(ModBlocks.MOLTEN_IRON.get());
     // We use NeoForge's `DynamicFluidContainerModel`.
-    itemModels.itemModelOutput.accept(AMItems.LIQUID_ETHERIUM_BUCKET.get(), new DynamicFluidContainerModel.Unbaked(
+    itemModels.itemModelOutput.accept(ModItems.MOLTEN_IRON_BUCKET.get(), new DynamicFluidContainerModel.Unbaked(
         // The model's textures.
         new DynamicFluidContainerModel.Textures(
                 Optional.of(new Material(Identifier.withDefaultNamespace("item/bucket"))),
@@ -180,7 +180,7 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
                 Optional.empty()
         ),
         // The fluid to use.
-        AMFluids.LIQUID_ETHERIUM.get(),
+        ModFluids.MOLTEN_IRON.get(),
         // Whether the bucket model should be flipped, commonly used for "gaseous" fluids.
         false,
         // If true, the "cover" texture is a mask. We generally want this for buckets.
@@ -274,7 +274,7 @@ Finally, since a fluid cauldron is a block like any other, we need some datagen 
 // In the language provider
 @Override
 protected void addTranslations() {
-    add(AMFluids.MOLTEN_IRON_TYPE.get().getDescriptionId(), "Molten Iron");
+    add(ModFluids.MOLTEN_IRON_TYPE.get().getDescriptionId(), "Molten Iron");
     addItem(ModItems.MOLTEN_IRON_BUCKET, "Molten Iron Bucket");
     addBlock(ModBlocks.MOLTEN_IRON_CAULDRON, "Molten Iron Cauldron");
 }
@@ -350,11 +350,11 @@ private static void registerCauldronInteractions(RegisterCauldronInteractionEven
     // For compat with vanilla, we need to add handling for when our cauldron is right-clicked
     // with water, lava and powder snow buckets. Compat with other mods is handled
     // by the bucket fill handler method, see below.
-    LiquidEtheriumCauldronBlock.CAULDRON_INTERACTIONS
+    MoltenIronCauldronBlock.CAULDRON_INTERACTIONS
         .put(Items.LAVA_BUCKET, CauldronInteractions::fillLavaInteraction);
-    LiquidEtheriumCauldronBlock.CAULDRON_INTERACTIONS
+    MoltenIronCauldronBlock.CAULDRON_INTERACTIONS
         .put(Items.WATER_BUCKET, CauldronInteractions::fillWaterInteraction);
-    LiquidEtheriumCauldronBlock.CAULDRON_INTERACTIONS
+    MoltenIronCauldronBlock.CAULDRON_INTERACTIONS
         .put(Items.POWDER_SNOW_BUCKET, CauldronInteractions::fillPowderSnowInteraction);
 
     // When **any** cauldron is right-clicked with our bucket, replace with our cauldron.
