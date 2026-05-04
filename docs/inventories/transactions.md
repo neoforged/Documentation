@@ -1,6 +1,6 @@
 # Transactions
 
-Transactions are a NeoForged-added system for managing the communication between different inventories transferring their contents. Each transfer is managed through three basic concepts: the `Resource`s being transferred, the `ResourceHandler`s representing the inventory, and the `Transaction` facilitating the communication.
+Transactions are a NeoForged-added system for managing the communication between different inventories transferring their contents. Each transfer is managed through three basic concepts: the `Resource`s being transferred, the `ResourceHandler`s representing the inventories, and the `Transaction` facilitating the communication.
 
 ## Resources
 
@@ -369,9 +369,9 @@ NeoForge also provides a `ResourceStacksResourceHandler`, using `ResourceStack`s
 
 ### Energy Handler
 
-`EnergyHandler` is a trimmed down version of `ResourceHandler`, only containing one index storing a `long`. As such, it only checks how many units can be stored (`getCapacityAsLong` / `getCapacityAsInt`) along with how many units already stored (`getAmountAsLong` / `getAmountAsInt`). Additionally, `insert` and `extract` no longer take in an index since there's only one, and a `Resource` as the backing object is a primitive.
+`EnergyHandler` is a trimmed down version of `ResourceHandler`, only containing one index storing a `long`. As such, it only checks how many units can be stored (`getCapacityAsLong` / `getCapacityAsInt`) along with how many units already stored (`getAmountAsLong` / `getAmountAsInt`). Additionally, `insert` and `extract` no longer take in an index since there's only one, and also no longer require a `Resource`, as the backing object is a primitive.
 
-Like `ResourceHandler`, there are different types of `EnergyHandler`s depending on usecase. The most common is `SimpleEnergyHandler`, which provides a basic implementation along with any limits on insert / extract.
+Like `ResourceHandler`, there are different types of `EnergyHandler`s depending on your use case. The most common one is `SimpleEnergyHandler`, which provides a basic implementation along with a limit for insert / extract.
 
 ```java
 // Create an energy handler.
@@ -496,7 +496,7 @@ public class ExampleResourceHandler extends SnapshotJournal<ExampleObject> imple
         // This should be immutable.
         ExampleObject original = this.object;
         this.object = new ExampleObject(
-            original.id(), original.count(), new HashMap<>(original.flags())
+            original.id(), original.count(), ImmutableMap.copyOf(original.flags())
         );
         return original;
     }
