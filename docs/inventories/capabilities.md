@@ -32,14 +32,14 @@ Here is an example of discouraged capability usage:
 
 NeoForge provides capabilities for the following three [resource handlers][resourcehandler]: `ResourceHandler<ItemResource>`, `ResourceHandler<FluidResource>` and `EnergyHandler`.
 
-`ResourceHandler<ItemResource>` exposes a resource handler for handling inventory slots. The capabilities of type `ResourceHandler<ItemResource>` are:
+`ResourceHandler<ItemResource>` exposes an interface for managing inventory slots. The capabilities of type `ResourceHandler<ItemResource>` are:
 
 - `Capabilities.Item.BLOCK`: automation-accessible inventory of a block (for chests, machines, etc).
 - `Capabilities.Item.ENTITY`: inventory contents of an entity (extra player slots, mob/creature inventories/bags).
 - `Capabilities.Item.ENTITY_AUTOMATION`: automation-accessible inventory of an entity (boats, minecarts, etc).
 - `Capabilities.Item.ITEM`: contents of an item stack (portable backpacks and such).
 
-`ResourceHandler<FluidResource>` exposes a resource handler for handling fluid inventories. The capabilities of type `ResourceHandler<FluidResource>` are:
+`ResourceHandler<FluidResource>` exposes an interface for managing fluid inventories. The capabilities of type `ResourceHandler<FluidResource>` are:
 
 - `Capabilities.Fluid.BLOCK`: automation-accessible fluid inventory of a block.
 - `Capabilities.Fluid.ENTITY`: fluid inventory of an entity.

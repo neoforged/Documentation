@@ -130,7 +130,7 @@ While `Resource`s can be used for primitives, they are not strictly necessary (e
 
 ## Resource Handlers
 
-`ResourceHandler<T>`s represent the backing inventories within a transaction, where `T` is the type of the `Resource` backing the object. Each handler maps to its associated contents using an index (e.g., index `0` maps to slot 1, index `1` maps to slot 2, etc). For every index, you can check whether a `Resource` can be contained at the location (`isValid`) or what `Resource` is already stored there (`getResource`). You can also check how many `Resource`s can be stored at the location (`getCapacityAsLong` / `getCapacityAsInt`) along with how many of a `Resource` is stored there (`getAmountAsLong` / `getAmountAsInt`). The number of indices accessible to the handler represents its `size`.
+`ResourceHandler<T>`s represent the backing inventories within a transaction, where `T` is the type of the `Resource` backing the object. Each handler maps to its associated contents using an index (e.g., index `0` maps to the first slot, index `1` maps to the second, etc). For every index, you can check whether a `Resource` can be contained at the location (`isValid`) or what `Resource` is already stored there (`getResource`). You can also check how many `Resource`s can be stored at the location (`getCapacityAsLong` / `getCapacityAsInt`) along with how many of a `Resource` is stored there (`getAmountAsLong` / `getAmountAsInt`). The number of indices accessible to the handler represents its `size`.
 
 To modify the contents of the backing inventory, `ResourceHandler` provides two methods: `insert` to put a `Resource` in, and `extract` to take a `Resource` out. `insert` and `extract` take in three arguments: the `Resource` being operated upon, the `int` amount to put in / take out, and a `TransactionContext` representing what [transaction] that is performing the operation, returning the amount put in / taken out. Both of these methods will find the first indices available to put in / take out the contents to / from. If the handler should only transact on one specific index, then both `insert` and `extract` provide an overload that takes in the `int` index to put in / take out `Resource`s to / from.
 
@@ -144,18 +144,13 @@ int count = handler.getAmountAsInt(0);
 // Get information about the handler itself.
 int handlerSize = handler.size();
 int indexCapacity = handler.getCapacityAsInt(0);
-boolean canUseApples = handler.isValid(0, ItemResource.of(Items.APPLE));
-
-// Put a resource in at a specific index given some `TransactionContext` ctx.
-int amountInserted = handler.insert(0, ItemResource.of(Items.APPLE), 5, ctx);
-// Extract a resource given some `TransactionContext` ctx.
-int amountExtracted = handler.extract(ItemResource.of(Items.APPLE), 2, ctx);
+boolean canAcceptApples = handler.isValid(0, ItemResource.of(Items.APPLE));
 ```
 
 There are many different types of `ResourceHandler`s depending on what the backing inventory is. Some handlers wrap around existing vanilla inventories (e.g., `VanillaContainerWrapper` for [`Container`s][container], `PlayerInventoryWrapper` for [player `Inventory`s][playerinv], `LivingEntityEquipmentWrapper` for a [living entity's][livingentity] equipment slots).
 
 ```java
-// Wrapping around an existing inventory.
+// Wrapping around an existing container.
 Container container = new SimpleContainer(5);
 ResourceHandler<ItemResource> containerWrapper = VanillaContainerWrapper.of(container);
 
@@ -191,7 +186,7 @@ public class ExampleBlockEntity extends BlockEntity {
     private final ItemStacksResourceHandler storage = new ItemStacksResourceHandler(5) {
         @Override
         protected void onContentsChanged(int index, ItemStack previousContents) {
-            // Mark the block entity as dirty
+            // Schedule the block entity for saving
             BlockEntity.this.setChanged();
         }
     };
@@ -379,16 +374,11 @@ Like `ResourceHandler`, there are different types of `EnergyHandler`s depending 
 ```java
 // Create an energy handler.
 EnergyHandler energy = new SimpleEnergyHandler(1000);
-
-// Put energy in given some `TransactionContext` ctx.
-int amountInserted = energy.insert(100, ctx);
-// Take energy out given some `TransactionContext` ctx.
-int amountExtracted = energy.extract(10, ctx);
 ```
 
 ### Item Access
 
-`ItemAccess` is also a trimmed down version of `ResourceHandler`, providing access to a single item in a specific storage location. As such, it only provides the resource (`getResource`) and amount of the item currently present (`getAmount`). Additionally, `insert` and `extract` no longer take in an index since there's only one. However, as items can also store data, the `ItemAccess` provides a way to access the stored data in through [capabilities] via `getCapability`, assuming it is an `ItemCapability` with an `ItemAccess` context.
+`ItemAccess` is also a trimmed down version of `ResourceHandler`, providing access to a single item in a specific storage location. This is typically used within [item capabilities][capabilities] to modify the item the capability is attached to. As such, it only provides the resource (`getResource`) and amount of the item currently present (`getAmount`). Additionally, `insert` and `extract` no longer take in an index since there's only one. However, as items can also store data, the `ItemAccess` provides a way to access the stored data in through [capabilities] via `getCapability`, assuming it is an `ItemCapability` with an `ItemAccess` context.
 
 Like `ResourceHandler`, there are different types of `ItemAccess`es depending on usecase. The two most common are `PlayerItemAccess`, which wraps around a specific slot in the player inventory; and `HandlerItemAccess`, which wraps around a specific index in a `ResourceHandler`.
 
@@ -400,11 +390,6 @@ ItemAccess access = ItemAccess.forPlayerInteraction(player, InteractionHand.MAIN
 // Get the data about the referenced item
 ItemResource item = access.getResource();
 int count = access.getAmount();
-
-// Add items given some `TransactionContext` ctx.
-int amountInserted = access.insert(ItemResource.of(Items.EMERALD), 10, ctx);
-// Take items out given some `TransactionContext` ctx.
-int amountExtracted = access.extract(ItemResource.of(Items.EMERALD), 5, ctx);
 
 // Gets the item capability on the stack.
 // For example, if the item is a fluid container:
@@ -422,7 +407,7 @@ ResourceHandler<FluidResource> fluidContainer = access.getCapability(Capabilitie
 
 // Open the transaction.
 try (Transaction tx = Transaction.openRoot()) {
-    // Insert and extract from resource handlers
+    // Insert and extract from resource handlers.
     ItemResource appleResource = ItemResource.of(Items.APPLE);
     ItemResource emeraldResource = ItemResource.of(Items.EMERALD);
 
@@ -435,12 +420,49 @@ try (Transaction tx = Transaction.openRoot()) {
         numOfApples = emeralds.insert(appleResource, numOfApples, tx);
 
         if (numOfApples == 5 && numOfEmeralds == 1) {
-            // Mark the transaction as complete
+            // Mark the transaction as complete.
             tx.commit();
         }
     }
 }
 ```
+
+:::tip
+
+`ResourceHandlerUtil` provides a number of useful methods for checking the current state of a `ResourceHandler` or transacting between handlers in general. For example, the emerald to apples trade above could've been simplified like so:
+
+```java
+// Let's assume we have two `ResourceHandler<ItemResource>`s apples, emeralds.
+
+// Open the transaction.
+try (Transaction tx = Transaction.openRoot()) {
+    // Insert and extract from resource handlers.
+    ItemResource appleResource = ItemResource.of(Items.APPLE);
+    ItemResource emeraldResource = ItemResource.of(Items.EMERALD);
+
+    int applesMoved = ResourceHandlerUtil.moveStacking(
+        // Moving from apples -> emeralds.
+        apples, emeralds,
+        // Checks what resource(s) to move.
+        appleResource::equals,
+        // The number of the resource to move.
+        5,
+        // The transaction context.
+        tx
+    );
+    int emeraldsMoved = ResourceHandlerUtil.moveStacking(
+        emeralds, apples, emeraldResource::equals, 1, tx
+    );;
+
+    // Perform any validation necessary.
+    if (applesMoved == 5 && emeraldsMoved == 1) {
+        // Mark the transaction as complete.
+        tx.commit();
+    }
+}
+```
+
+:::
 
 `Transaction`s can also have `Transaction`s within themselves via `Transation#open` if multiple are occurring at the same time.
 
