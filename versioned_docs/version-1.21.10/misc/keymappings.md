@@ -125,17 +125,17 @@ Do not use the `InputEvent`s as an alternative to `ClientTickEvent.Post`. There 
 
 Within a GUI, a mapping can be checked within one of the `GuiEventListener` methods using `IKeyMappingExtension#isActiveAndMatches`. The most common methods which can be checked are `#keyPressed` and `#mouseClicked`. 
 
-`#keyPressed` takes in the `GLFW` key token, the platform-specific scan code, and a bitfield of the held down modifiers. A key can be checked against a mapping by creating the input using `InputConstants#getKey`. The modifiers are already checked within the mapping methods itself.
+`#keyPressed` takes in a `KeyEvent` containing the `GLFW` key token, the platform-specific scan code, and a bitfield of the held down modifiers. A key can be checked against a mapping by creating the input using `InputConstants#getKey`. The modifiers are already checked within the mapping methods itself.
 
 ```java
 // In some Screen subclass
 @Override
-public boolean keyPressed(int key, int scancode, int mods) {
-    if (EXAMPLE_MAPPING.get().isActiveAndMatches(InputConstants.getKey(key, scancode))) {
+public boolean keyPressed(KeyEvent event) {
+    if (EXAMPLE_MAPPING.get().isActiveAndMatches(InputConstants.getKey(event))) {
         // Execute logic to perform on key press here
         return true;
     }
-    return super.keyPressed(x, y, button);
+    return super.keyPressed(event);
 } 
 ```
 
@@ -143,17 +143,17 @@ public boolean keyPressed(int key, int scancode, int mods) {
 If you do not own the screen which you are trying to check a **key** for, you can listen to the `Pre` or `Post` events of `ScreenEvent.KeyPressed` on the [game event bus][eventbus] instead.
 :::
 
-`#mouseClicked` takes in the mouse's x position, y position, and the button clicked. A mouse button can be checked against a mapping by creating the input using `InputConstants.Type#getOrCreate` with the `MOUSE` input.
+`#mouseClicked` takes in a `MouseButtonEvent` containing the mouse's x position, y position, and the `MouseButtonInfo` clicked; along with a `boolean` for if the user made a double click. A mouse button can be checked against a mapping by creating the input using `InputConstants.Type#getOrCreate` with the `MOUSE` input.
 
 ```java
 // In some Screen subclass
 @Override
-public boolean mouseClicked(double x, double y, int button) {
-    if (EXAMPLE_MAPPING.get().isActiveAndMatches(InputConstants.TYPE.MOUSE.getOrCreate(button))) {
+public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+    if (EXAMPLE_MAPPING.get().isActiveAndMatches(InputConstants.Type.MOUSE.getOrCreate(event.button()))) {
         // Execute logic to perform on mouse click here
         return true;
     }
-    return super.mouseClicked(x, y, button);
+    return super.mouseClicked(event, doubleClick);
 } 
 ```
 
