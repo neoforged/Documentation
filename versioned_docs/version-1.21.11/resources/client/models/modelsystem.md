@@ -118,7 +118,7 @@ public static void modifyBakingResult(ModelEvent.ModifyBakingResult event) {
     event.getBakingResult().itemStackModels().computeIfPresent(
         // The resource location the model to modify.
         // Typically the item registry name; however, can be anything due to the ITEM_MODEL data component
-        MyItemsClass.EXAMPLE_ITEM.getKey().location(),
+        MyItemsClass.EXAMPLE_ITEM.getKey().identifier(),
         // A BiFunction with the location and the original models as parameters, returning the new model.
         (location, model) -> new MyDelegateItemModel(model);
     );

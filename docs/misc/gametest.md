@@ -988,7 +988,7 @@ If you don't want to use a datapack to construct your game tests, you can instea
 public static void registerTests(RegisterGameTestsEvent event) {
     Holder<TestEnvironmentDefinition<?>> environment = event.registerEnvironment(
         // The name of the test environment
-        EXAMPLE_ENVIRONMENT.location(),
+        EXAMPLE_ENVIRONMENT.identifier(),
         // A varargs of test environment definitions
         new ExampleEnvironmentType(
             0, true
@@ -997,7 +997,7 @@ public static void registerTests(RegisterGameTestsEvent event) {
 
     event.registerTest(
         // The name of the test instance
-        EXAMPLE_TEST_INSTANCE.location(),
+        EXAMPLE_TEST_INSTANCE.identifier(),
         new ExampleTestInstance(
             0,
             true,
