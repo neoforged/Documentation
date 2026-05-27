@@ -1,3 +1,7 @@
+---
+sidebar_position: 1
+---
+
 # Resource Metadata
 
 `.mcmeta` file extensions can hold JSON metadata for any asset or data object within the game. These are most commonly used to define information for a pack and how textures are applied; however, they can be used on any file by adding a `.mcmeta` to the end of the filename (e.g., `apple.png` has a resource metadata `apple.png.mcmeta`).
