@@ -975,7 +975,7 @@ public static void registerTests(RegisterGameTestsEvent event) {
             0,
             true,
             new TestData<>(
-                environments.getOrThrow(EXAMPLE_ENVIRONMENT),
+                environment,
                 ResourceLocation.fromNamespaceAndPath("examplemod", "example_structure"),
                 400,
                 50,
