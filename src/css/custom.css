@@ -87,3 +87,12 @@ h2 {
 .footer__copyright > p {
   margin: 0px;
 }
+
+@media (min-width: 997px) and (max-width: 1425px) {
+  .navbar {
+    height: 80px;
+  }
+  .navbar__item {
+    text-align: center;
+  }
+}
