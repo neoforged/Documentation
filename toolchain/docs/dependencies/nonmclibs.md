@@ -34,7 +34,7 @@ dependencies {
     additionalRuntimeClasspath 'com.example:example:1.0'
 }
 ```
-
+:::warning
 However, using a library that has transitive dependencies will require you to manually exclude and `additionalRuntimeClasspath` / `implementation` the dependency yourself. This is only needed if that specific module is required at runtime; compilation will proceed fine.
 
 ```gradle
@@ -43,13 +43,14 @@ dependencies {
     implementation 'com.example:example:1.0'
     // This adds the library to all the runs
     additionalRuntimeClasspath 'com.example:example:1.0' {
-        // exclude the module you want to add to the classpath
-        exclude 'com.example:my_module'
+        // exclude the transitive dependency you want to add to the classpath
+        exclude 'com.example:dependency'
     }
     // add the module back to the classpath
     additionalRuntimeClasspath 'com.example:my_module:1.0'
 }
 ```
+:::
 
 </TabItem>
 <TabItem value="ng" label="NeoGradle">
