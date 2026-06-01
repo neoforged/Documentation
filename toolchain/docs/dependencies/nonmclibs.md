@@ -35,7 +35,7 @@ dependencies {
 }
 ```
 :::warning
-However, using a library that has transitive dependencies will require you to manually exclude and `additionalRuntimeClasspath` / `implementation` the dependency yourself. This is only needed if that specific module is required at runtime; compilation will proceed fine.
+If the library contains any transitive dependencies required at runtime, the transitive dependencies have to be manually excluded and readded to the `additionalRuntimeClasspath` configuration.
 
 ```gradle
 dependencies {
