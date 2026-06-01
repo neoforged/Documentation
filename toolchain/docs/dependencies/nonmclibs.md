@@ -34,6 +34,7 @@ dependencies {
     additionalRuntimeClasspath 'com.example:example:1.0'
 }
 ```
+
 :::warning
 If the library contains any transitive dependencies required at runtime, the transitive dependencies have to be manually excluded and readded to the `additionalRuntimeClasspath` configuration.
 
