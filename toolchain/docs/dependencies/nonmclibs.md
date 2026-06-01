@@ -43,11 +43,11 @@ dependencies {
     implementation 'com.example:example:1.0'
     // This adds the library to all the runs
     additionalRuntimeClasspath 'com.example:example:1.0' {
-        // exclude the transitive dependency you want to add to the classpath
+        // Exclude the transitive dependency that is required at runtime
         exclude 'com.example:dependency'
     }
-    // add the module back to the classpath
-    additionalRuntimeClasspath 'com.example:my_module:1.0'
+    // Add the module back to the runtime classpath
+    additionalRuntimeClasspath 'com.example:dependency:1.0'
 }
 ```
 :::
