@@ -86,7 +86,7 @@ public static final BaseFlowingFluid.Properties MOLTEN_IRON_PROPERTIES =
         new BaseFlowingFluid.Properties(MOLTEN_IRON_TYPE, MOLTEN_IRON, FLOWING_MOLTEN_IRON);
 ```
 
-With this done, your fluid should now be loaded into the game, and recipes will be able to make use of it. However, rendering will be broken. To fix that, we need to register a renderer in a [client-only][sides] [mod bus][modbus] [event handler][events]:
+With this done, your fluid should now be loaded into the game, and recipes will be able to make use of it. However, rendering will be broken. To fix that, we need to register a fluid model in a [client-only][sides] [mod bus][modbus] [event handler][events]:
 
 ```java
 @SubscribeEvent // on the mod event bus only on the physical client
@@ -99,6 +99,9 @@ private static void registerFluidModels(RegisterFluidModelsEvent event) {
             new Material(Identifier.fromNamespaceAndPath(ExampleMod.MOD_ID, "block/molten_iron_flowing")),
             new Material(Identifier.fromNamespaceAndPath(ExampleMod.MOD_ID, "block/molten_iron_overlay")),
             // The fluid tint source. We leave it at null, which means no tint. See below for more info.
+            null,
+            // The fluid renderer. Can be supplied for entirely custom fluid rendering.
+            // This parameter is optional and will default to null if omitted.
             null),
             // Suppliers for the still and flowing fluids.
             ModFluids.MOLTEN_IRON,
@@ -170,8 +173,8 @@ private static void registerFluidModels(RegisterFluidModelsEvent event) {
             new Material(Identifier.fromNamespaceAndPath(ExampleMod.MOD_ID, "block/molten_iron_overlay")),
             // Use our tint source instance here.
             MoltenIronTintSource.INSTANCE),
-            ModFluids.MOLTEN_IRON::value,
-            ModFluids.FLOWING_MOLTEN_IRON::value
+            ModFluids.MOLTEN_IRON,
+            ModFluids.FLOWING_MOLTEN_IRON
     );
 }
 ```

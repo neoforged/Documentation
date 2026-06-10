@@ -43,11 +43,48 @@ public class MyBlock extends Block implements SimpleWaterloggedBlock {
     public FluidState getFluidState(BlockState state) {
         return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
     }
+
+    // When placing this block in water, place the waterlogged state.
+    @Override
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
+        return defaultBlockState().setValue(
+            WATERLOGGED,
+            context.getLevel().getFluidState(context.getClickedPos()).is(Fluids.WATER)
+        );
+    }
+    
+    // When this block receives a block update (because e.g. a neighbor changed),
+    // a tick should be scheduled.
+    @Override
+    protected BlockState updateShape(
+        BlockState state,
+        LevelReader level,
+        ScheduledTickAccess ticks,
+        BlockPos pos,
+        Direction directionToNeighbour,
+        BlockPos neighbourPos,
+        BlockState neighbourState,
+        RandomSource random
+    ) {
+        if (state.getValue(WATERLOGGED)) {
+            ticks.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
+        }
+        return super.updateShape(state,
+            level,
+            ticks,
+            pos,
+            directionToNeighbour,
+            neighbourPos,
+            neighbourState,
+            random);
+    }
 }
 ```
 
 :::info
 "Lavalogging" or similar fluid-logging with other fluids is easily possible. To do so, simply create a new `BooleanProperty`, add it to the block as usual, and have `Block#getFluidState()` return the desired fluid if the property is true.
+
+However, be aware that waterlogging is hardcoded in some instances, such as world generation or piston moving logic.
 :::
 
 ## Fluid Blocks
@@ -132,28 +169,12 @@ Next, it is recommended (but not required) to add a dispenser behavior for the b
 @SubscribeEvent // on the mod event bus
 private static void commonSetup(FMLCommonSetupEvent event) {
     // `DispenserBlock#registerBehavior` is not thread-safe so we wrap it in a lambda.
-    // The anonymous class seen here is copied from `DispenseItemBehavior#bootStrap()`.
-    event.enqueueWork(() -> DispenserBlock.registerBehavior(ModItems.MOLTEN_IRON_BUCKET, new DefaultDispenseItemBehavior() {
-        private final DefaultDispenseItemBehavior defaultDispenseItemBehavior = new DefaultDispenseItemBehavior();
-
-        @Override
-        public ItemStack execute(BlockSource source, ItemStack dispensed) {
-            DispensibleContainerItem bucket = (DispensibleContainerItem) dispensed.getItem();
-            BlockPos target = source.pos().relative(source.state().getValue(DispenserBlock.FACING));
-            Level level = source.level();
-            if (bucket.emptyContents(null, level, target, null, dispensed)) {
-                bucket.checkExtraContent(null, level, dispensed, target);
-                return this.consumeWithRemainder(source, dispensed, new ItemStack(Items.BUCKET));
-            } else {
-                return this.defaultDispenseItemBehavior.dispense(source, dispensed);
-            }
-        }
-    }));
+    event.enqueueWork(() -> DispenserBlock.registerBehavior(ModItems.MOLTEN_IRON_BUCKET, DispenseFluidContainer.getInstance()));
 }
 ```
 
 :::tip
-If you have multiple buckets, you can reuse the same `DispenseItemBehavior` instance for all buckets.
+If you want custom dispenser behavior for your bucket, you can also create a custom `DispenseItemBehavior`. See the source of `DispenseFluidContainer` for what to implement.
 :::
 
 Finally, all that's left is a translation and a model:
@@ -172,18 +193,22 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
     blockModels.createNonTemplateModelBlock(ModBlocks.MOLTEN_IRON.get());
     // We use NeoForge's `DynamicFluidContainerModel`.
     itemModels.itemModelOutput.accept(ModItems.MOLTEN_IRON_BUCKET.get(), new DynamicFluidContainerModel.Unbaked(
-        // The model's textures.
+        // The model's textures. The model is rendered in the order of base, fluid, cover (lowest to highest).
         new DynamicFluidContainerModel.Textures(
+                // The particle texture.
                 Optional.of(new Material(Identifier.withDefaultNamespace("item/bucket"))),
+                // The base texture.
                 Optional.of(new Material(Identifier.withDefaultNamespace("item/bucket"))),
+                // The fluid texture, i.e. the part that actually contains the fluid.
                 Optional.of(new Material(Identifier.fromNamespaceAndPath("neoforge", "item/mask/bucket_fluid"))),
+                // The cover texture. This is rendered last and can be a mask (see booleans below).
                 Optional.empty()
         ),
         // The fluid to use.
         ModFluids.MOLTEN_IRON.get(),
         // Whether the bucket model should be flipped, commonly used for "gaseous" fluids.
         false,
-        // If true, the "cover" texture is a mask. We generally want this for buckets.
+        // If true, the cover texture is a mask, that is, it "cuts off" all pixels it doesn't cover.
         true,
         // If this is true, if the fluid emits light, the fluid element of the model becomes emissive.
         true));
@@ -205,9 +230,11 @@ public class MoltenIronCauldronBlock extends AbstractCauldronBlock {
         return CODEC;
     }
 
-    // The cauldron interaction dispatcher. See below for more info.
+    // The cauldron interaction dispatcher and its id. See below for more info.
     public static final CauldronInteraction.Dispatcher CAULDRON_INTERACTIONS =
         new CauldronInteraction.Dispatcher();
+    public static final Identifier CAULDRON_INTERACTIONS =
+        Identifier.fromNamespaceAndPath(ExampleMod.MOD_ID, "molten_iron_cauldron");
 
     // Pass our `CauldronInteraction.Dispatcher` to super.
     public MoltenIronCauldronBlock(Properties properties) {
@@ -321,7 +348,7 @@ Cauldron interactions happen in two events. First, we need to register the `Caul
 private static void registerCauldronInteractionDispatchers(RegisterCauldronInteractionEvent.Dispatcher event) {
     event.register(
             // A unique identifier.
-            Identifier.fromNamespaceAndPath(ExampleMod.MOD_ID, "molten_iron_cauldron"),
+            MoltenIronCauldronBlock.CAULDRON_INTERACTIONS_ID,
             // Our `CauldronInteraction.Dispatcher`.
             MoltenIronCauldronBlock.CAULDRON_INTERACTIONS);
 }
@@ -333,9 +360,13 @@ Secondly, we need to register the actual interactions. That works like so:
 @SubscribeEvent
 private static void registerCauldronInteractions(RegisterCauldronInteractionEvent.Interaction event) {
     // Empty our cauldron when it is right-clicked with an empty bucket.
-    MoltenIronCauldronBlock.CAULDRON_INTERACTIONS.put(Items.BUCKET,
-        // Input parameters are the cauldron blockstate, the level, the position,
-        // the player, the used hand, and the used item stack
+    event.register(
+        // The id of our cauldron interactions.
+        MoltenIronCauldronBlock.CAULDRON_INTERACTIONS_ID,
+        // The item we're right-clicking with.
+        Items.BUCKET,
+        // A callback called when right-clicking. Input parameters are the cauldron blockstate,
+        // the level, the position, the player, the used hand, and the used item stack.
         (state, level, pos, player, hand, stack) -> CauldronInteractions.fillBucket(
             // Pass along the input parameters.
             state, level, pos, player, hand, stack,
@@ -350,18 +381,24 @@ private static void registerCauldronInteractions(RegisterCauldronInteractionEven
     // For compat with vanilla, we need to add handling for when our cauldron is right-clicked
     // with water, lava and powder snow buckets. Compat with other mods is handled
     // by the bucket fill handler method, see below.
-    MoltenIronCauldronBlock.CAULDRON_INTERACTIONS
-        .put(Items.LAVA_BUCKET, CauldronInteractions::fillLavaInteraction);
-    MoltenIronCauldronBlock.CAULDRON_INTERACTIONS
-        .put(Items.WATER_BUCKET, CauldronInteractions::fillWaterInteraction);
-    MoltenIronCauldronBlock.CAULDRON_INTERACTIONS
-        .put(Items.POWDER_SNOW_BUCKET, CauldronInteractions::fillPowderSnowInteraction);
+    event.register(
+        MoltenIronCauldronBlock.CAULDRON_INTERACTIONS_ID,
+        Items.LAVA_BUCKET,
+        CauldronInteractions::fillLavaInteraction);
+    event.register(
+        MoltenIronCauldronBlock.CAULDRON_INTERACTIONS_ID,
+        Items.WATER_BUCKET,
+        CauldronInteractions::fillWaterInteraction);
+    event.register(
+        MoltenIronCauldronBlock.CAULDRON_INTERACTIONS_ID,
+        Items.POWDER_SNOW_BUCKET,
+        CauldronInteractions::fillPowderSnowInteraction);
 
     // When **any** cauldron is right-clicked with our bucket, replace with our cauldron.
-    // To do so, we use `event#registerToAll()` instead of `CauldronInteraction.Dispatcher#put()`.
+    // To do so, we use `event#registerToAll()` instead of `event#register()`.
     event.registerToAll(ModItems.MOLTEN_IRON_BUCKET.get(),
-        // Input parameters are the cauldron blockstate, the level, the position,
-        // the player, the used hand, and the used item stack
+        // A callback called when right-clicking. Input parameters are the cauldron blockstate,
+        // the level, the position, the player, the used hand, and the used item stack.
         (state, level, pos, player, hand, stack) -> CauldronInteractions.fillBucket(
             // Pass along the input parameters, except the state.
             level, pos, player, hand, stack,
