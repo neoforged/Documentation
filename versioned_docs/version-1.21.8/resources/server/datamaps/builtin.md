@@ -4,7 +4,7 @@ NeoForge provides various built-in [data maps][datamap] for common use cases, re
 
 ## `neoforge:acceptable_villager_distances`
 
-Allows configuring the maximum block distance that villagers will notice an entity, as a replacement for `VillagerHostilesSensor.ACCEPTABLE_DISTANCE_FROM_HOSTILES` (which will be ignored in 1.22). This data map is located at `neoforge/data_maps/entity_type/acceptable_villager_distances.json` and its objects have the following structure:
+Allows configuring the maximum block distance that villagers will notice an entity, as a replacement for `VillagerHostilesSensor.ACCEPTABLE_DISTANCE_FROM_HOSTILES` (which will be ignored in 26.2). This data map is located at `neoforge/data_maps/entity_type/acceptable_villager_distances.json` and its objects have the following structure:
 
 ```json5
 {
@@ -226,7 +226,7 @@ Example:
 
 ## `neoforge:villager_types`
 
-Allows configuring the villager type that will spawn based on its biome, as a replacement for `VillagerType#BY_BIOME` (which will be ignored in 1.22). It is located at `neoforge/data_maps/worldgen/biome/villager_types.json` and its objects have the following structure:
+Allows configuring the villager type that will spawn based on its biome, as a replacement for `VillagerType#BY_BIOME` (which will be ignored in 26.2). It is located at `neoforge/data_maps/worldgen/biome/villager_types.json` and its objects have the following structure:
 
 ```json5
 {

@@ -249,16 +249,8 @@ public ItemStack quickMoveStack(Player player, int quickMovedSlotIndex) {
             quickMovedSlot.setChanged();
         }
 
-        /*
-        The following if statement and Slot#onTake call can be removed if the
-        menu does not represent a container that can transform stacks (e.g.
-        chests).
-        */
-        if (rawStack.getCount() == quickMovedStack.getCount()) {
-            // If the raw stack was not able to be moved to another slot, no longer quick move
-            return ItemStack.EMPTY;
-        }
         // Execute logic on what to do post move with the remaining stack
+        // This can be removed if there are no `Slot` subtypes that override `onTake`
         quickMovedSlot.onTake(player, rawStack);
     }
 

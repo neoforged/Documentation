@@ -861,7 +861,7 @@ public class RightClickBlockRecipeBuilder extends SimpleRecipeBuilder {
         // Our factory parameters are the result, the block state, and the ingredient.
         RightClickBlockRecipe recipe = new RightClickBlockRecipe(this.inputState, this.inputItem, this.result);
         // Pass the id, the recipe, and the recipe advancement into the RecipeOutput.
-        output.accept(key, recipe, advancement.build(key.location().withPrefix("recipes/")));
+        output.accept(key, recipe, advancement.build(key.identifier().withPrefix("recipes/")));
     }
 }
 ```

@@ -30,22 +30,22 @@ Here is an example of discouraged capability usage:
 
 ## NeoForge-provided capabilities
 
-NeoForge provides capabilities for the following three interfaces: `ResourceHandler<ItemResource>`, `ResourceHandler<FluidResource>` and `EnergyHandler`.
+NeoForge provides capabilities for the following three [resource handlers][resourcehandler]: `ResourceHandler<ItemResource>`, `ResourceHandler<FluidResource>` and `EnergyHandler`.
 
-`ResourceHandler<ItemResource>` exposes an interface for handling inventory slots. The capabilities of type `ResourceHandler<ItemResource>` are:
+`ResourceHandler<ItemResource>` exposes an interface for managing inventory slots. The capabilities of type `ResourceHandler<ItemResource>` are:
 
 - `Capabilities.Item.BLOCK`: automation-accessible inventory of a block (for chests, machines, etc).
 - `Capabilities.Item.ENTITY`: inventory contents of an entity (extra player slots, mob/creature inventories/bags).
 - `Capabilities.Item.ENTITY_AUTOMATION`: automation-accessible inventory of an entity (boats, minecarts, etc).
 - `Capabilities.Item.ITEM`: contents of an item stack (portable backpacks and such).
 
-`ResourceHandler<FluidResource>` exposes an interface for handling fluid inventories. The capabilities of type `ResourceHandler<FluidResource>` are:
+`ResourceHandler<FluidResource>` exposes an interface for managing fluid inventories. The capabilities of type `ResourceHandler<FluidResource>` are:
 
 - `Capabilities.Fluid.BLOCK`: automation-accessible fluid inventory of a block.
 - `Capabilities.Fluid.ENTITY`: fluid inventory of an entity.
 - `Capabilities.Fluid.ITEM`: fluid inventory of an item stack.
 
-`EnergyHandler` exposes an interface for handling energy containers. It is based on the RedstoneFlux API by TeamCoFH. The capabilities of type `EnergyHandler` are:
+`EnergyHandler` exposes an interface for handling energy containers. It is based on the RedstoneFlux API by TeamCoFH. The capabilities of type [`EnergyHandler`][energyhandler] are:
 
 - `Capabilities.Energy.BLOCK`: energy contained inside a block.
 - `Capabilities.Energy.ENTITY`: energy containing inside an entity.
@@ -62,7 +62,7 @@ Capabilities allow looking up implementations of some APIs with some dispatching
 - `EntityCapability`: capabilities for entities: behavior depends on the specific `EntityType`.
     - The capability commonly specifies a `Direction` context for different resources depending on the side.
 - `ItemCapability`: capabilities for item stacks: behavior depends on the specific `Item`.
-    - The capability commonly specifies an `ItemAccess` context for the holding item resource.
+    - The capability commonly specifies an [`ItemAccess`][itemaccess] context for the holding item resource.
 
 :::tip
 For compatibility with other mods, we recommend using the capabilities provided by NeoForge in the `Capabilities` class if possible. Otherwise, you can create your own as described in this section.
@@ -347,4 +347,7 @@ See [`CapabilityHooks`][capability-hooks] for a list of the providers registered
 
 [block-cap-provider]: https://github.com/neoforged/NeoForge/blob/26.1.x/src/main/java/net/neoforged/neoforge/capabilities/IBlockCapabilityProvider.java
 [capability-hooks]: https://github.com/neoforged/NeoForge/blob/26.1.x/src/main/java/net/neoforged/neoforge/capabilities/CapabilityHooks.java
+[energyhandler]: transactions.md#energy-handler
 [invalidation]: #block-capability-invalidation
+[itemaccess]: transactions.md#item-access
+[resourcehandler]: transactions.md#resource-handlers

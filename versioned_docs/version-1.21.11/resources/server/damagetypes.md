@@ -108,7 +108,7 @@ public static void onGatherData(GatherDataEvent.Client event) {
             // Use new DamageType() to create an in-code representation of a damage type.
             // The parameters map to the values of the JSON file, in the order seen above.
             // All parameters except for the message id and the exhaustion value are optional.
-            bootstrap.register(EXAMPLE_DAMAGE, new DamageType(EXAMPLE_DAMAGE.location(),
+            bootstrap.register(EXAMPLE_DAMAGE, new DamageType(EXAMPLE_DAMAGE.identifier(),
                 DamageScaling.WHEN_CAUSED_BY_LIVING_NON_PLAYER,
                 0.1f,
                 DamageEffects.HURT,

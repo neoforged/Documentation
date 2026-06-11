@@ -4,37 +4,15 @@ Global Loot Modifiers, or GLMs for short, are a data-driven way to modify drops 
 
 GLMs work by first rolling the associated [loot table][loottable] and then applying the GLM to the result of rolling the table. GLMs are also stacking, rather than last-load-wins, to allow for multiple mods to modify the same loot table, this is similar to [tags].
 
-To register a GLM, you will need four things:
+To register a GLM, you will need three things:
 
-- A `global_loot_modifiers.json` file, located at `data/neoforge/loot_modifiers/global_loot_modifiers.json` (**not in your mod's namespace**). This file tells NeoForge what modifiers to apply, and in what order.
 - A JSON file representing your loot modifier. This file contains all the data for your modification, allowing data packs to tweak your effect. It is located at `data/<namespace>/loot_modifiers/<path>.json`.
 - A class that implements `IGlobalLootModifier` or extends `LootModifier` (which in turn implements `IGlobalLootModifier`). This class contains the code that makes the modifier work.
 - A map [codec] to encode and decode your loot modifier class. Usually, this is implemented as a `public static final` field in the loot modifier class.
 
-## `global_loot_modifiers.json`
-
-The `global_loot_modifiers.json` file tells NeoForge what modifiers to apply to loot tables. The file may contain two keys:
-
-- `entries` is a list of modifiers that should be loaded. The [`Identifier`][identifier]s specified points to their associated entry within `data/<namespace>/loot_modifiers/<path>.json`. This list is ordered, meaning that modifiers will apply in the specified order, which is sometimes relevant when mod compatibility issues occur.
-- `replace` denotes whether the modifiers should replace old ones (`true`) or simply add to the existing list (`false`). This works similar to the `replace` key in [tags], however unlike tags, the key is required here. Generally, modders should always use `false` here; the ability to use `true` is directed at modpack or data pack developers.
-
-Example usage:
-
-```json5
-{
-    "replace": false, // must be present
-    "entries": [
-        // represents a loot modifier in data/examplemod/loot_modifiers/example_glm_1.json
-        "examplemod:example_glm_1",
-        "examplemod:example_glm_2"
-        // ...
-    ]
-}
-```
-
 ## The Loot Modifier JSON
 
-This file contains all values related to your modifier, for example chances to apply, what items to add, etc. It is recommended to avoid hard-coded values wherever possible so that data pack makers can adjust balance if they wish to. A loot modifier must contain at least two fields and may contain more, depending on the circumstances:
+This file contains all values related to your modifier, for example chances to apply, what items to add, etc. The JSON can be found at `data/<namespace>/loot_modifiers/<path>.json`, where `<namespace>` and `<path>` are parts of the unique [`Identifier`][identifier]. It is recommended to avoid hard-coded values wherever possible so that data pack makers can adjust balance if they wish to. A loot modifier must contain at least two fields and may contain more, depending on the circumstances:
 
 - The `type` field contains the registry name of the loot modifier.
 - The `conditions` field is a list of loot table conditions for this modifier to activate.
@@ -53,6 +31,11 @@ An example usage may look something like this:
     "conditions": [
         // Loot table conditions here
     ],
+    // An optional property typically provided by loot modifiers
+    // to denote the order that the modifiers should be applied,
+    // from highest to lowest.
+    // Typically defaults to 1000.
+    "priority": 900,
     // Extra properties specified by the codec
     "field1": "somestring",
     "field2": 10,
@@ -62,7 +45,7 @@ An example usage may look something like this:
 
 ## `IGlobalLootModifier` and `LootModifier`
 
-To actually apply the loot modifier to the loot table, a `IGlobalLootModifier` implementation must be specified. In most cases, you will want to use the `LootModifier` subclass, which handles things like conditions for you. To get started, we extend `LootModifier` in our loot modifier class:
+To actually apply the loot modifier to the loot table, a `IGlobalLootModifier` implementation must be specified. In most cases, you will want to use the `LootModifier` subclass, which handles things like conditions and priorities for you. To get started, we extend `LootModifier` in our loot modifier class:
 
 ```java
 // We cannot use a record because records cannot extend other classes.
@@ -75,8 +58,8 @@ public class MyLootModifier extends LootModifier {
     private final Item field3;
     
     // First constructor parameter is the list of conditions. The rest is our extra properties.
-    public MyLootModifier(LootItemCondition[] conditions, String field1, int field2, Item field3) {
-        super(conditions);
+    public MyLootModifier(LootItemCondition[] conditions, int priority, String field1, int field2, Item field3) {
+        super(conditions, priority);
         this.field1 = field1;
         this.field2 = field2;
         this.field3 = field3;
@@ -99,7 +82,7 @@ public class MyLootModifier extends LootModifier {
 ```
 
 :::info
-The returned list of drops from a modifier is fed into other modifiers in the order they are registered. As such, modified loot can and should be expected to be modified by another loot modifier.
+The returned list of drops from a modifier is fed into other modifiers in `priority` order, from highest to lowest. As such, modified loot can and should be expected to be modified by another loot modifier.
 :::
 
 ## The Loot Modifier Codec
@@ -139,6 +122,7 @@ This loot modifier rolls a second loot table and adds the results to the loot ta
 {
     "type": "neoforge:add_table",
     "conditions": [], // the required loot conditions
+    "priority": 1000, // the optional priority of execution
     "table": "minecraft:chests/abandoned_mineshaft" // the second table to roll
 }
 ```
@@ -163,7 +147,7 @@ public class MyGlobalLootModifierProvider extends GlobalLootModifierProvider {
                 // The loot modifier to add. For the sake of example, we add a weather loot condition.
                 new MyLootModifier(new LootItemCondition[] {
                         WeatherCheck.weather().setRaining(true).build()
-                }, "somestring", 10, Items.DIRT),
+                }, 900, "somestring", 10, Items.DIRT),
                 // A list of data load conditions. Note that these are unrelated to the loot conditions
                 // specified on the modifier itself. For the sake of example, we add a mod loaded condition.
                 // An overload of #add is available that accepts a vararg of conditions instead of a list.
