@@ -54,7 +54,7 @@ Data packs may contain folders with files affecting the following things:
 | `advancement`                                                                                                             | [Advancements][advancements] |
 | `banner_pattern`                                                                                                          | Banner patterns              |
 | `cat_variant`, `chicken_variant`, `cow_variant`, `frog_variant`, `pig_variant`, `wolf_variant`, `zombie_nautilus_variant` | Entity variants              |
-| `cat_sound_variant`, `chicken_sound_variant`, `cow_sound_variant`, `pig_sound_variant`, `wolf_sound_variant`              | Entity sound variants     |
+| `cat_sound_variant`, `chicken_sound_variant`, `cow_sound_variant`, `pig_sound_variant`, `wolf_sound_variant`              | Entity sound variants        |
 | `damage_type`                                                                                                             | [Damage types][damagetypes]  |
 | `datapacks`                                                                                                               | Built-in datapacks           |
 | `dialog`                                                                                                                  | Dialog menus                 |
@@ -65,7 +65,7 @@ Data packs may contain folders with files affecting the following things:
 | `recipe`                                                                                                                  | [Recipes][recipes]           |
 | `tags`                                                                                                                    | [Tags][tags]                 |
 | `test_environment`, `test_instance`                                                                                       | [Game tests][gmt]            |
-| `trade_set`, `villager_trade`                                                                                             | Villager trades                |
+| `trade_set`, `villager_trade`                                                                                             | Villager trades              |
 | `trial_spawner`                                                                                                           | Combat challenges            |
 | `trim_material`, `trim_pattern`                                                                                           | Armor trims                  |
 | `neoforge/data_maps`                                                                                                      | [Data maps][datamap]         |
@@ -85,7 +85,7 @@ Additionally, they may also contain subfolders for some systems that integrate w
 
 _See also: [`pack.mcmeta` (Resource Pack)][packmcmetaresourcepack] and [`pack.mcmeta` (Data Pack)][packmcmetadatapack] on the [Minecraft Wiki][mcwiki]_
 
-`pack.mcmeta` files hold the metadata of a resource or data pack. For mods, NeoForge makes this file obsolete, as the `pack.mcmeta` is generated synthetically. In case you still need a `pack.mcmeta` file, the full specification can be found in the linked Minecraft Wiki articles.
+[`pack.mcmeta` files][meta] hold the metadata of a resource or data pack. For mods, NeoForge makes this file obsolete, as the `pack.mcmeta` is generated synthetically. In case you still need a `pack.mcmeta` file, the full specification can be found in the linked Minecraft Wiki articles.
 
 ## Data Generation
 
@@ -120,6 +120,7 @@ All data providers extend the `DataProvider` interface and usually require one m
 | [`GlobalLootModifierProvider`][glmprovider]          | `start()`                        | Global loot modifiers                                                   | Server |                                                                                                                 |
 | [`DatapackBuiltinEntriesProvider`][datapackprovider] | N/A                              | Datapack builtin entries, e.g. worldgen and [damage types][damagetypes] | Server | No method overriding, instead entries are added in a lambda in the constructor. See linked article for details. |
 | `JsonCodecProvider` (abstract class)                 | `gather()`                       | Objects with a codec                                                    | Both   | This can be extended for use with any object that has a [codec] to encode data to.                              |
+| [`PackMetadataGenerator`][metagen]                   | `add(MetadataSectionType<T>, T)` | `pack.mcmeta`                                                           | Both |                                                                                                                 |
 
 All of these providers follow the same pattern. First, you create a subclass and add your own resources to be generated. Then, you add the provider to the event in an [event handler][eventhandler]. An example using a `RecipeProvider`:
 
@@ -255,6 +256,8 @@ runs {
 [mcwiki]: https://minecraft.wiki
 [mcwikidatapacks]: https://minecraft.wiki/w/Data_pack
 [mcwikiresourcepacks]: https://minecraft.wiki/w/Resource_pack
+[meta]: metadata.md
+[metagen]: metadata.md#packmetadatagenerator
 [modelprovider]: client/models/datagen.md
 [models]: client/models/index.md
 [packmcmeta]: #packmcmeta
