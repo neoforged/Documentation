@@ -7,9 +7,7 @@ sidebar_position: 1
 `.mcmeta` file extensions can hold JSON metadata for any asset or data object within the game. These are most commonly used to define information for a pack and how textures are applied; however, they can be used on any file by adding a `.mcmeta` to the end of the filename (e.g., `apple.png` has a resource metadata `apple.png.mcmeta`).
 
 :::note
-
 While the JSON objects within data packs can have resource metadata, it goes unused since the metadata could be within the JSON file itself.
-
 :::
 
 ## Metadata Sections
@@ -31,9 +29,7 @@ Vanilla and NeoForge currently provides the following metadata sections:
 | `villager`                       | `VillagerMetadataSection`                                     | `.png.mcmeta` (Texture) | Villager hat visibility                                       |
 
 :::note
-
-The `PackMetadataSection` is not required for the main mod `pack.mcmeta` as NeoForge generates it synthetically. However, it is required for any bundled packs added through the `AddPackFindersEvent` mod bus event.
-
+The `PackMetadataSection` is not required for the main mod `pack.mcmeta` as NeoForge generates it synthetically. However, it is required for any bundled packs added through the [`AddPackFindersEvent` mod bus event][events].
 :::
 
 Obtaining the data within the metadata section requires access to the file's `Resource` obtained from the `ResourceManager`, calling `Resource#metadata` to get the `ResourceMetadata`, followed by `ResourceMetadata#getSection` with the `MetadataSectionType`.
@@ -210,7 +206,7 @@ public class ResourceMetadataProvider implements DataProvider {
 }
 ```
 
-Which can then be added to the gather data event:
+Which can then be added to the `GatherDataEvent`:
 
 ```java
 @SubscribeEvent // on the mod event bus
@@ -221,6 +217,7 @@ public static void gatherData(GatherDataEvent.Client event) {
 
 [animation]: client/textures.md#animated-textures
 [codec]: ../datastorage/codecs.md
+[events]: ../concepts/events.md
 [features]: ../advanced/featureflags.md#feature-packs
 [pack]: index.md#packmcmeta
 [texture]: client/textures.md#texture-metadata
