@@ -201,19 +201,37 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
                 Optional.of(new Material(Identifier.withDefaultNamespace("item/bucket"))),
                 // The fluid texture, i.e. the part that actually contains the fluid.
                 Optional.of(new Material(Identifier.fromNamespaceAndPath("neoforge", "item/mask/bucket_fluid"))),
-                // The cover texture. This is rendered last and can be a mask (see booleans below).
+                // The cover texture. This is rendered last and can be a mask (see below).
                 Optional.empty()
         ),
         // The fluid to use.
         ModFluids.MOLTEN_IRON.get(),
         // Whether the bucket model should be flipped, commonly used for "gaseous" fluids.
         false,
-        // If true, the cover texture is a mask, that is, it "cuts off" all pixels it doesn't cover.
+        // If true, the cover texture is a mask. If false, the cover texture is rendered normally.
+        // See below for more info.
         true,
         // If this is true, if the fluid emits light, the fluid element of the model becomes emissive.
         true));
 }
 ```
+
+### Bucket Mask Textures
+
+If the `coverIsMask` boolean is true, the cover texture is instead treated as a mask texture. Mask textures are textures containing either a full white (`0xfffffff`) or transparent black (`0x00000000` or just `0`) pixels, acting as a stencil of sorts. Their function is best exemplified by having a look at them:
+
+TODO
+
+Only the white pixels in the mask will be included in rendering, and pixels overlapping with the transparent part of the mask will be discarded.
+
+:::tip
+The mask textures seen above are shipped by Neo, at the following respective locations:
+
+- `assets/neoforge/textures/item/mask/bucket_fluid.png`
+- `assets/neoforge/textures/item/mask/bucket_fluid_drip.png`
+- `assets/neoforge/textures/item/mask/bucket_fluid_cover.png`
+- `assets/neoforge/textures/item/mask/bucket_fluid_cover_drip.png`
+:::
 
 ## Cauldrons
 

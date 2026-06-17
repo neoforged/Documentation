@@ -20,6 +20,12 @@ Before we can register a fluid, we must first understand a few design decisions 
 
 In Minecraft, water and lava each have two variants: a flowing fluid and a source fluid. The way this works is mostly due to hardcoding, in some association with `FluidState`s (see below). Since this hardcoding is inconvenient at best and practically impossible to use at worst, NeoForge introduces the `FluidType` class and patches a ton of places to use it. The main purpose of the `FluidType` is to contain the common logic of the fluid - e.g. the sounds it makes, whether boats can be used in it, etc. - and only leave the actual flowing logic in the fluid itself. `FluidType`s live in a separate registry added by NeoForge, and thus must be registered in addition to `Fluid`s.
 
+:::info
+`FluidType` is merely a utility system. While strongly recommended as it makes things a lot easier, it is not strictly necessary to use `FluidType` for creating fluids. For vanilla reference, see `WaterFluid` and `LavaFluid`.
+
+The rest of this documentation will focus on `FluidType`-backed fluids only.
+:::
+
 With that in mind, let's start creating our fluid! For the sake of example, we're going to create a molten iron fluid. To get started, we need two [registries][registries]:
 
 ```java
