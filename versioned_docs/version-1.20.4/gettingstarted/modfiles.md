@@ -6,7 +6,7 @@ The mod files are responsible for determining what mods are packaged into your J
 
 The `gradle.properties` file holds various common properties of your mod, such as the mod id or mod version. During building, Gradle reads the values in these files and inlines them in various places, such as the [mods.toml][modstoml] file. This way, you only need to change values in one place, and they are then applied everywhere for you.
 
-Most values are also explained as comments in [the MDK's `gradle.properties` file].
+Most values are also explained as comments in [the MDK's `gradle.properties` file][mdkgradleproperties].
 
 | Property                  | Description                                                                                                                                                                                                                                                                                           | Example                                   |
 |---------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------|
