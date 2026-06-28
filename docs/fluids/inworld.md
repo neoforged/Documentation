@@ -251,7 +251,7 @@ public class MoltenIronCauldronBlock extends AbstractCauldronBlock {
     // The cauldron interaction dispatcher and its id. See below for more info.
     public static final CauldronInteraction.Dispatcher CAULDRON_INTERACTIONS =
         new CauldronInteraction.Dispatcher();
-    public static final Identifier CAULDRON_INTERACTIONS =
+    public static final Identifier CAULDRON_INTERACTIONS_ID =
         Identifier.fromNamespaceAndPath(ExampleMod.MOD_ID, "molten_iron_cauldron");
 
     // Pass our `CauldronInteraction.Dispatcher` to super.
@@ -417,7 +417,7 @@ private static void registerCauldronInteractions(RegisterCauldronInteractionEven
     event.registerToAll(ModItems.MOLTEN_IRON_BUCKET.get(),
         // A callback called when right-clicking. Input parameters are the cauldron blockstate,
         // the level, the position, the player, the used hand, and the used item stack.
-        (state, level, pos, player, hand, stack) -> CauldronInteractions.fillBucket(
+        (state, level, pos, player, hand, stack) -> CauldronInteractions.emptyBucket(
             // Pass along the input parameters, except the state.
             level, pos, player, hand, stack,
             // The resulting block state.
