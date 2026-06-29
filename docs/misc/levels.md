@@ -76,6 +76,12 @@ Provides various helper methods related to redstone signals, such as `hasSignal(
 
 It is not implemented by anything else, and only ever encountered in the context of a `LevelReader`. Presumably, the redstone stuff was moved out of `LevelReader` for readability and/or legacy purposes.
 
+### `BiomeManager.NoiseBiomeSource`
+
+Defines a single method `getNoiseBiome()`, returning the `Biome` at the given position.
+
+Also implemented by `ChunkAccess`, and has a direct implementation in `FixedBiomeSource`, a class used for single biome worlds.
+
 ### `LevelReader`
 
 `LevelReader` is the biggest interface in this hierarchy, together with `LevelAccessor`. It defines a ton of methods, with many of them relating to chunk or biome management, such as the following:
