@@ -34,7 +34,7 @@ public static void registerCommands(RegisterCommandsEvent event) {
 `Commands#literal` starts a literal builder, `#then` attaches a child node, and `#executes` supplies a `Command` callback whose returned `int` is the result count reported back to the caller. The example above registers `/mymod reload` and `/mymod reload force`.
 
 :::note
-For more advanced command trees that requires registry access, you can access `RegisterCommandsEvent#getBuildContext` to get a `CommandBuildContext` that can be passed to argument types that require it.
+For more advanced command trees that require registry access, `RegisterCommandsEvent#getBuildContext` provides a `CommandBuildContext` that can be passed to argument types that require it.
 :::
 
 ## Arguments
@@ -54,7 +54,7 @@ Commands.literal("give")
 
 Every `ArgumentType` provides a builder used when declaring the argument and most often a static getter used when accessing the parsed value. The getter throws if the supplied name does not match a declared argument on the current path, which is why the declaration name and the access name must agree.
 
-_If an `ArgumentType` does not provide a static getter, the parsed value can be accessed through `CommandContext#getArgument` with the argument name and the expected class._
+If an `ArgumentType` does not provide a static getter, the parsed value can be accessed through `CommandContext#getArgument` with the argument name and the expected class.
 
 :::note
 An argument is not made optional through a flag. Instead, `#executes` is attached at more than one depth of the tree: once on the parent node for the case where the argument is absent, and again on the argument node for the case where it is provided.
@@ -66,7 +66,7 @@ The following tables list common argument types. Each row pairs the builder used
 
 ### Brigadier
 
-Brigadier provides the primitive types, found in `com.mojang.brigadier.arguments`. These are synchronized to the client automatically.
+Brigadier provides the primitive types, found in `com.mojang.brigadier.arguments`. These types are synchronized to the client automatically.
 
 | Argument Type         | Declares (builder)                     | Accesses (getter) | Description                                              |
 | --------------------- | -------------------------------------- | ----------------- | -------------------------------------------------------- |
@@ -79,9 +79,7 @@ Brigadier provides the primitive types, found in `com.mojang.brigadier.arguments
 
 ### Built-in Minecraft
 
-Minecraft adds game-specific argument types, found in `net.minecraft.commands.arguments`.
-
-_This list is not exhaustive._
+Minecraft adds game-specific argument types, found in `net.minecraft.commands.arguments`. This is not an exhaustive list.
 
 | Argument Type         | Declares (builder)                            | Accesses (getter)                                                                                        | Description                                                                |
 | --------------------- | --------------------------------------------- | -------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
@@ -103,8 +101,5 @@ NeoForge adds additional argument types in `net.neoforged.neoforge.server.comman
 | `ModIdArgument` | `#modIdArgument`   | `CommandContext#getArgument` with the keyed name and `String.class` | A mod ID.      |
 
 [Brigadier]: https://github.com/Mojang/brigadier
-[NeoForge]: https://github.com/neoforged/NeoForge/
-[Parchment]: https://github.com/ParchmentMC/Parchment
-[registries]: ../concepts/registries.md
 [event]: ../concepts/events.md
 [functions]: https://minecraft.wiki/w/Function_(Java_Edition)
