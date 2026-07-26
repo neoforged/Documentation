@@ -104,6 +104,82 @@ NeoForge adds additional argument types in `net.neoforged.neoforge.server.comman
 | `EnumArgument`  | `#enumArgument`    | `CommandContext#getArgument` with the keyed name and the enum class | An enum value. |
 | `ModIdArgument` | `#modIdArgument`   | `CommandContext#getArgument` with the keyed name and `String.class` | A mod ID.      |
 
+## Custom Argument Types
+
+A value that none of the existing types can parse is handled by implementing a custom argument type via. `ArgumentType<T>`, which reads the raw command text from a `StringReader` and returns a value of type `T`.
+
+```java
+public class SpellArgument implements ArgumentType<Spell> {
+    private static final DynamicCommandExceptionType ERROR_UNKNOWN_SPELL = new DynamicCommandExceptionType(
+            name -> Component.translatableEscape("commands.examplemod.spell.unknown", name)
+    );
+
+    // Follows the naming scheme of the vanilla argument types, used when declaring the argument
+    public static SpellArgument spell() {
+        return new SpellArgument();
+    }
+
+    // Consumes as much of the input as the argument needs
+    @Override
+    public Spell parse(StringReader reader) throws CommandSyntaxException {
+        String name = reader.readUnquotedString();
+        // Look up the spell, throwing ERROR_UNKNOWN_SPELL#createWithContext if there is none
+    }
+
+    // Optional, defaults to no suggestions: the completions offered while typing the argument
+    @Override
+    public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
+        // Suggest the names of the available spells or none
+        return Suggestions.empty();
+    }
+
+    // Optional, defaults to an empty list: example inputs used by Brigadier to detect
+    // ambiguities between sibling nodes
+    @Override
+    public Collection<String> getExamples() {
+        return List.of("fireball", "heal");
+    }
+}
+```
+
+As no static getter exists for a new type, one is usually added next to the builder, so that the value can be accessed like that of a built-in type:
+
+```java
+public static Spell getSpell(CommandContext<CommandSourceStack> context, String name) {
+    return context.getArgument(name, Spell.class);
+}
+```
+
+:::tip
+If an existing argument type already parses the desired value and only the suggestions should differ, `#suggests` on the argument node replaces them without a custom type. Suggestions added this way are requested from the server as the player types.
+:::
+
+### Synchronization
+
+The server sends its command tree to every client, allowing commands to be parsed and completed locally while being typed. Each argument node is described by an `ArgumentTypeInfo`, looked up from the `COMMAND_ARGUMENT_TYPE` registry by the class of the `ArgumentType`. The types listed in the argument types tables above already have one. A custom type without one cannot be sent to the client.
+
+`ArgumentTypeInfos#registerByClass` associates the `ArgumentType` class with its info and returns the info, so it can be [registered][registration] in the same statement:
+
+```java
+public static final DeferredRegister<ArgumentTypeInfo<?, ?>> COMMAND_ARGUMENT_TYPES =
+        DeferredRegister.create(Registries.COMMAND_ARGUMENT_TYPE, ExampleMod.MOD_ID);
+
+public static final DeferredHolder<ArgumentTypeInfo<?, ?>, SingletonArgumentInfo<SpellArgument>> SPELL = COMMAND_ARGUMENT_TYPES.register(
+        // The registry name of the argument type.
+        "spell",
+        () -> ArgumentTypeInfos.registerByClass(
+                // The class of the argument type.
+                SpellArgument.class,
+                // The info describing it. 'contextFree' is used for argument types
+                // constructed without parameters, 'contextAware' for those requiring
+                // a CommandBuildContext.
+                SingletonArgumentInfo.contextFree(SpellArgument::spell)
+        )
+);
+```
+
+An argument type that holds parameters of its own, such as the bounds of `IntegerArgumentType`, needs those parameters on the client as well and therefore cannot use `SingletonArgumentInfo`. Instead, `ArgumentTypeInfo` is implemented directly, along with an `ArgumentTypeInfo.Template` holding the parameters: `#serializeToNetwork` and `#deserializeFromNetwork` transfer the template, `#serializeToJson` writes it into the JSON representation of the command tree, `#unpack` creates a template from an argument type, and `Template#instantiate` creates an argument type from a template. `EnumArgument.Info` is a small example of such an implementation.
+
 [Brigadier]: https://github.com/Mojang/brigadier
 [event]: ../concepts/events.md
 [functions]: https://minecraft.wiki/w/Function_(Java_Edition)
