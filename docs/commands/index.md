@@ -54,11 +54,11 @@ Commands.literal("give")
 
 Every `ArgumentType` provides a builder used when declaring the argument and most often a static getter used when accessing the parsed value. The getter throws if the supplied name does not match a declared argument on the current path, which is why the declaration name and the access name must agree.
 
-If an `ArgumentType` does not provide a static getter, the parsed value can be accessed through `CommandContext#getArgument` with the argument name and the expected class.
-
 :::note
-An argument is not made optional through a flag. Instead, `#executes` is attached at more than one depth of the tree: once on the parent node for the case where the argument is absent, and again on the argument node for the case where it is provided.
+If an `ArgumentType` does not provide a static getter, the parsed value can be accessed through `CommandContext#getArgument` with the argument name and the expected class.
 :::
+
+An argument is not made optional through a flag. Instead, `#executes` is attached at more than one depth of the tree: once on the parent node for the case where the argument is absent, and again on the argument node for the case where it is provided.
 
 ## Argument Types
 
@@ -66,34 +66,38 @@ The following tables list common argument types. Each row pairs the builder used
 
 ### Brigadier
 
-Brigadier provides the primitive types, found in `com.mojang.brigadier.arguments`. These types are synchronized to the client automatically.
+Brigadier provides the primitive types, found in `com.mojang.brigadier.arguments`.
 
-| Argument Type         | Declares (builder)                     | Accesses (getter) | Description                                              |
-| --------------------- | -------------------------------------- | ----------------- | -------------------------------------------------------- |
-| `BoolArgumentType`    | `#bool`                                | `#getBool`        | A boolean.                                               |
-| `IntegerArgumentType` | `#integer` (optional min and max)      | `#getInteger`     | A 32-bit integer.                                        |
-| `LongArgumentType`    | `#longArg` (optional min and max)      | `#getLong`        | A 64-bit integer.                                        |
-| `FloatArgumentType`   | `#floatArg` (optional min and max)     | `#getFloat`       | A single-precision decimal.                              |
-| `DoubleArgumentType`  | `#doubleArg` (optional min and max)    | `#getDouble`      | A double-precision decimal.                              |
-| `StringArgumentType`  | `#word`, `#string`, or `#greedyString` | `#getString`      | A single word, a quotable string, or the remaining text. |
+| Argument Type         | Declares (builder)                     | Accesses (getter) | Description                          |
+| --------------------- | -------------------------------------- | ----------------- | ------------------------------------ |
+| `BoolArgumentType`    | `#bool`                                | `#getBool`        | A boolean.                           |
+| `IntegerArgumentType` | `#integer` (optional min and max)      | `#getInteger`     | A 32-bit integer.                    |
+| `LongArgumentType`    | `#longArg` (optional min and max)      | `#getLong`        | A 64-bit integer.                    |
+| `FloatArgumentType`   | `#floatArg` (optional min and max)     | `#getFloat`       | A single-precision decimal.          |
+| `DoubleArgumentType`  | `#doubleArg` (optional min and max)    | `#getDouble`      | A double-precision decimal.          |
+| `StringArgumentType`  | `#word`, `#string`, or `#greedyString` | `#getString`      | A piece of text, see the note below. |
+
+:::note
+The three `StringArgumentType` builders differ in how much text they consume. `#word` reads a single unquoted word, ending at the first space. `#string` reads a single word as well, unless the input is wrapped in double quotes (`"hello world"`), in which case the whole quoted text is read. `#greedyString` reads everything after the argument, spaces included, and therefore cannot be followed by further nodes.
+:::
 
 ### Built-in Minecraft
 
 Minecraft adds game-specific argument types, found in `net.minecraft.commands.arguments`. This is not an exhaustive list.
 
-| Argument Type         | Declares (builder)                            | Accesses (getter)                                                                                        | Description                                                                |
-| --------------------- | --------------------------------------------- | -------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
-| `EntityArgument`      | `#entity`, `#entities`, `#player`, `#players` | `#getEntity`, `#getEntities`, `#getOptionalEntities`, `#getPlayer`, `#getPlayers`, `#getOptionalPlayers` | A single entity, player, or multiple entities, and players via a selector. |
-| `BlockPosArgument`    | `#blockPos`                                   | `#getLoadedBlockPos`, `#getBlockPos`                                                                     | A block position.                                                          |
-| `Vec3Argument`        | `#vec3`                                       | `#getVec3`                                                                                               | A position in the world.                                                   |
-| `ItemArgument`        | `#item`                                       | `#getItem`                                                                                               | An item stack, including data components.                                  |
-| `BlockStateArgument`  | `#block`                                      | `#getBlock`                                                                                              | A block state, including block entity data.                                |
-| `ResourceArgument`    | `#resource`                                   | `#getResource`                                                                                           | A namespaced identifier for a given registry.                              |
-| `ResourceKeyArgument` | `#key`                                        | `#getRegistryKey`                                                                                        | A resource key for a given registry.                                       |
+| Argument Type         | Declares (builder)                            | Accesses (getter)                                                                                        | Description                                                                                      |
+| --------------------- | --------------------------------------------- | -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `EntityArgument`      | `#entity`, `#entities`, `#player`, `#players` | `#getEntity`, `#getEntities`, `#getOptionalEntities`, `#getPlayer`, `#getPlayers`, `#getOptionalPlayers` | One or multiple entities or players, selected by name, UUID, or a selector such as `@p` or `@e`. |
+| `BlockPosArgument`    | `#blockPos`                                   | `#getLoadedBlockPos`, `#getBlockPos`                                                                     | A block position.                                                                                |
+| `Vec3Argument`        | `#vec3`                                       | `#getVec3`                                                                                               | A position in the world.                                                                         |
+| `ItemArgument`        | `#item`                                       | `#getItem`                                                                                               | An item stack, including data components.                                                        |
+| `BlockStateArgument`  | `#block`                                      | `#getBlock`                                                                                              | A block state, including block entity data.                                                      |
+| `ResourceArgument`    | `#resource`                                   | `#getResource`                                                                                           | An [`Identifier`][identifier] pointing to an entry of a given registry.                          |
+| `ResourceKeyArgument` | `#key`                                        | `#getRegistryKey`                                                                                        | A [`ResourceKey`][resourcekey] for a given registry.                                             |
 
 ### NeoForge
 
-NeoForge adds additional argument types in `net.neoforged.neoforge.server.command`. These are synchronized to the client automatically.
+NeoForge adds additional argument types in `net.neoforged.neoforge.server.command`.
 
 | Argument Type   | Declares (builder) | Accesses (getter)                                                   | Description    |
 | --------------- | ------------------ | ------------------------------------------------------------------- | -------------- |
@@ -103,3 +107,6 @@ NeoForge adds additional argument types in `net.neoforged.neoforge.server.comman
 [Brigadier]: https://github.com/Mojang/brigadier
 [event]: ../concepts/events.md
 [functions]: https://minecraft.wiki/w/Function_(Java_Edition)
+[identifier]: ../misc/identifier.md
+[registration]: ../concepts/registries.md#methods-for-registering
+[resourcekey]: ../misc/identifier.md#resourcekeys
