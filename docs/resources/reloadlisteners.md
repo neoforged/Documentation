@@ -64,11 +64,22 @@ And then, the reload listener can be accessed - from the correct side - through 
 
 ## Types of Reload Listeners
 
+```mermaid
+graph LR;
+    PreparableReloadListener --> ResourceManagerReloadListener;
+    PreparableReloadListener --> ContextAwareReloadListener --> SimplePreparableReloadListener --> SimpleJsonResourceReloadListener;
+    
+    class PreparableReloadListener,ResourceManagerReloadListener green;
+    class ContextAwareReloadListener,SimplePreparableReloadListener,SimpleJsonResourceReloadListener blue;
+```
+
+_Interfaces in green, abstract classes in blue._
+
 All reload listeners implement the `PreparableReloadListener` interface. However, in order to make things more understandable, we will first cover the `SimpleJsonResourceReloadListener`, which is used to load JSON files and implements most things for you already. Then, we will gradually go up the class hierarchy and explain what is done for you and what you can modify yourself in each level.
 
 ### `SimpleJsonResourceReloadListener`
 
-`SimpleJsonResourceReloadListener<T>` is what you want to use for loading most JSON files. It scans a certain folder for JSON files, converts the contents into objects according to the provided codec, puts the filenames and associated objects into a `Map<Identifier, T>`, and provides that map to you in `#apply`. The simplest implementation looks like this:
+`SimpleJsonResourceReloadListener<T>` is what you want to use for loading most JSON files. It scans a certain folder for JSON files, converts the contents into objects according to the provided codec, puts the filenames and associated objects into a `Map<Identifier, T>`, and provides that map to you in `#apply()`. The simplest implementation looks like this:
 
 ```java
 // Assuming a type MyObject, and MyObject.CODEC to be a Codec<MyObject>.
@@ -142,19 +153,19 @@ In order to avoid conflicts where two mods add a registry that is named the same
 
 `SimplePreparableReloadListener<T>` splits its reload into two distinct cycles: `prepare` and `apply`. First, `prepare` is called to collect the files and convert them into `T`s. Once **all** files have been collected, `apply` is called to do something with them - usually store them for later use.
 
-For a simple reference implementation of `SimplePreparableReloadListener` that loads from a single file, see `SplashManager`. For an implementation for merging JSON files, see the merging of [`sounds.json`][soundsjson] in `SoundManager#prepare`, `SoundManager#apply` and the related fields in `SoundManager`.
+For a simple reference implementation of `SimplePreparableReloadListener` that loads from a single file, see `SplashManager`. For an implementation for merging JSON files, see the merging of [`sounds.json`][soundsjson] in `SoundManager#prepare()`, `SoundManager#apply()` and the related fields in `SoundManager`. For an implementation of folder scanning, see `SimpleJsonResourceReloadListener#prepare()`.
 
 ### `ContextAwareReloadListener`
 
-Next up in the hierarchy is `ContextAwareReloadListener`. This is a utility class added into the hierarchy by NeoForge in order to supply a [load condition][conditions] context, obtainable via `#getContext()`. Additionally, it provides a registry access via `#getRegistryLookup`.
+Next up in the hierarchy is `ContextAwareReloadListener`. This is a utility class added into the hierarchy by NeoForge in order to supply a [load condition][conditions] context, obtainable via `#getContext()`. Additionally, it provides a registry access via `#getRegistryLookup()`.
 
 ### `ResourceManagerReloadListener`
 
-Outside the class hierarchy described so far, `ResourceManagerReloadListener` is a utility interface that runs once the reload itself has completed, providing the fully-populated `ResourceManager` in its only method `#onResourceManagerReload`. Classes implementing this interface mainly do post-reload cleanup work or build caches.
+Outside the class hierarchy described so far, `ResourceManagerReloadListener` is a utility interface that runs once the reload itself has completed, providing the fully-populated `ResourceManager` in its only method `#onResourceManagerReload()`. Classes implementing this interface mainly do post-reload cleanup work or build caches.
 
 ### `PreparableReloadListener`
 
-Finally, `PreparableReloadListener` sits at the top of the hierarchy, and is the type accepted by the events above. It defines a method `#reload` that returns a `CompletableFuture<Void>` and accepts four parameters:
+Finally, `PreparableReloadListener` sits at the top of the hierarchy, and is the type accepted by the events above. It defines a method `#reload()` that returns a `CompletableFuture<Void>` and accepts four parameters:
 
 - `PreparableReloadListener.SharedState currentReload`: This holds the "global state" of the reload, most notably including the partially-initialized `ResourceManager`.
 - `Executor taskExecutor`: The `Executor` for the bulk of the tasks. This executor runs on multiple threads.
