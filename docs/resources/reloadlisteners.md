@@ -3,13 +3,13 @@ sidebar_position: 3
 ---
 # Reload Listeners
 
-In some situations, integrating with the existing resource systems provided by Minecraft or NeoForge just isn't going to cut it. Instead, having your system load files by itself from a resource or data pack is more desirable. For this purpose, you can register a custom reload listener, implementing `PreparableReloadListener` or one of its subinterfaces/subclasses.
+In some situations, integrating with the [existing resource systems][resources] provided by Minecraft or NeoForge just isn't going to cut it. Instead, having your system load files by itself from a resource or data pack is more desirable. For this purpose, you can register a custom reload listener, implementing `PreparableReloadListener` or one of its subinterfaces/subclasses.
 
 The idea behind a reload listener is simple: When a resource pack or data pack reload happens, the listener is called upon to read its contents from the new set of resource or data packs. It will then keep the contents until the next reload, at which point the contents will be discarded and the cycle starts anew.
 
 ## Reloading
 
-Both resource pack and data pack reload function similar in principle, and only differ in timing and the location files are loaded from.
+Both resource pack and data pack reload function similar in principle and only differ in the associated [side][sides], and by extension the timing and the location files are loaded from.
 
 Client reload listeners load from resource packs (the `assets` folder). The first reload happens during startup on the physical client, and **never** on the physical server. Subsequent reloads are triggered when resource packs are changed in the Options menu, or by pressing F3+T.
 
@@ -23,7 +23,7 @@ Reloading happens on multiple threads, as reload listeners are unrelated to one 
 
 ## Adding a Reload Listener
 
-All reload listeners are registered using the same basic principle. First, we need a reload listener instance. Vanilla typically stores its reload listeners, such as the texture or recipe managers, as fields in `Minecraft` (for client-side listeners) or `ServerLevel` (for server-side listeners), however in modded contexts, a singleton instance is usually fine as well:
+All reload listeners are registered using the same basic principle. First, we need a reload listener instance. Vanilla typically stores its reload listeners, such as the [texture][textures] or [recipe managers][recipes], as fields in `Minecraft` (for client-side listeners) or `ServerLevel` (for server-side listeners), however in modded contexts, a singleton instance is usually fine as well:
 
 ```java
 // Instead of PreparableReloadListener, extend one of its subclasses if applicable, see below.
@@ -40,7 +40,7 @@ public class MyReloadListener implements PreparableReloadListener {
 }
 ```
 
-Then, depending on whether the reload listener is for client data (resource packs) or server data (data packs), the listener is registered to one of two events:
+Then, depending on whether the reload listener is for client data (resource packs) or server data (data packs), the listener is registered to one of two [events][events]:
 
 ```java
 // For client-side reload listeners
@@ -57,7 +57,7 @@ public static void addServerReloadListeners(AddServerReloadListenersEvent event)
 ```
 
 :::danger
-Do not register the same reload listener on both sides! All of your file-driven systems should be designed for one side only, otherwise behavior might differ between singleplayer and multiplayer.
+Do not register the same reload listener on both sides! All of your file-driven systems should be designed for one side only, otherwise desyncs and similar issues will arise.
 :::
 
 And then, the reload listener can be accessed - from the correct side - through the singleton `INSTANCE`.
@@ -112,7 +112,7 @@ And then simply access your values like so:
 MyObject myObject = MyReloadListener.INSTANCE.get(Identifier.fromNamespaceAndPath("mymod", "example"));
 ```
 
-Note that `SimpleJsonResourceReloadListener` goes through the resource packs top to bottom, and only retains the top-most entry for each filename. If you wish to perform merging (similar to e.g. tags) or other operations that involve all the files for each filename from different resource/data packs, see the next section.
+Note that `SimpleJsonResourceReloadListener` goes through the resource packs top to bottom, and only retains the top-most entry for each filename. If you wish to perform merging (similar to e.g. [tags][tags]) or other operations that involve all the files for each filename from different resource/data packs, see the next section.
 
 ### `SimplePreparableReloadListener`
 
@@ -120,7 +120,7 @@ Note that `SimpleJsonResourceReloadListener` goes through the resource packs top
 
 `SimplePreparableReloadListener<T>` splits its reload into two distinct cycles: `prepare` and `apply`. First, `prepare` is called to collect the files and convert them into `T`s. Once **all** files have been collected, `apply` is called to do something with them - usually store them for later use.
 
-For a simple reference implementation of `SimplePreparableReloadListener` that loads from a single file, see `SplashManager`. For an implementation for merging JSON files, see `SoundManager#prepare`, `SoundManager#apply` and the related fields in `SoundManager`.
+For a simple reference implementation of `SimplePreparableReloadListener` that loads from a single file, see `SplashManager`. For an implementation for merging JSON files, see the merging of [`sounds.json`][soundsjson] in `SoundManager#prepare`, `SoundManager#apply` and the related fields in `SoundManager`.
 
 ### `ContextAwareReloadListener`
 
@@ -133,3 +133,11 @@ TODO
 ## `FileToIdConverter`
 
 TODO
+
+[events]: ../concepts/events.md
+[recipes]: server/recipes/index.md
+[resources]: index.md
+[sides]: ../concepts/sides.md
+[soundsjson]: client/sounds.md#soundsjson
+[tags]: server/tags.md
+[textures]: client/textures.md
