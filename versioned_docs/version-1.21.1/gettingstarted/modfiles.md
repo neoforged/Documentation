@@ -245,7 +245,6 @@ An entry in `neoforge.mods.toml` does not need a corresponding `@Mod` annotation
 
 [accesstransformer]: ../advanced/accesstransformers.md#adding-ats
 [array]: https://toml.io/en/v1.0.0#array-of-tables
-[table]: https://toml.io/en/v1.0.0#table
 [atlasviewer]: https://github.com/XFactHD/AtlasViewer/blob/1.20.2/neoforge/src/main/resources/META-INF/services/xfacthd.atlasviewer.platform.services.IPlatformHelper
 [events]: ../concepts/events.md
 [features]: #features
@@ -271,6 +270,7 @@ An entry in `neoforge.mods.toml` does not need a corresponding `@Mod` annotation
 [serviceload]: https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/ServiceLoader.html#load(java.lang.Class)
 [sides]: ../concepts/sides.md
 [spdx]: https://spdx.org/licenses/
+[table]: https://toml.io/en/v1.0.0#table
 [toml]: https://toml.io/
 [update]: ../misc/updatechecker.md
 [uses]: https://docs.oracle.com/javase/specs/jls/se21/html/jls-7.html#jls-7.7.3
