@@ -1,3 +1,6 @@
+---
+sidebar_position: 3
+---
 # Reload Listeners
 
 In some situations, integrating with the existing resource systems provided by Minecraft or NeoForge just isn't going to cut it. Instead, having your system load files by itself from a resource or data pack is more desirable. For this purpose, you can register a custom reload listener, implementing `PreparableReloadListener` or one of its subinterfaces/subclasses.
