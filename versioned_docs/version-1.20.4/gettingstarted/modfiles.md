@@ -113,7 +113,7 @@ Some properties (`displayName` and `description`) can also be localized using la
 
 #### Features
 
-The features system allows mods to demand that certain settings, software, or hardware are available when loading the system. When a feature is not satisfied, mod loading will fail, informing the user about the requirement. These configurations are created using the [array of tables][array] `[[features.<modid>]]`, where `modid` is the identifier of the mod that consumes the feature. Currently, NeoForge provides the following features:
+The features system allows mods to demand that certain settings, software, or hardware are available when loading the system. When a feature is not satisfied, mod loading will fail, informing the user about the requirement. These configurations are created using a [table] `[features.<modid>]`, where `modid` is the identifier of the mod that consumes the feature. Currently, NeoForge provides the following features:
 
 | Feature          | Description                                                                                                                                                                                                | Example                             |
 |------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------|
@@ -122,13 +122,13 @@ The features system allows mods to demand that certain settings, software, or ha
 
 #### Mod Properties
 
-The mod properties system is a map of arbitrary keys to values that are associated with a particular mod. These can be useful when a mod file defines multiple mods that provide different metadata. From there, the specific property value for some key can be obtained by getting the object value from the map via `IModInfo#getModProperties`. These configurations are created using the [array of tables][array] `[[modproperties.<modid>]]`, where `modid` is the identifier of the mod that consumes the defined properties.
+The mod properties system is a map of arbitrary keys to values that are associated with a particular mod. These can be useful when mod files define identical keys that provide different metadata. From there, the specific property value for some key can be obtained by getting the object value from the map via `IModInfo#getModProperties`. These configurations are created using a [table] `[modproperties.<modid>]`, where `modid` is the identifier of the mod that consumes the defined properties.
 
 ```java
-// Assume we have two mods `mod1` and `mod2` with the following property configuration
-// [[modproperties.mod1]]
+// Assume we have two mods `mod1` and `mod2` with the following property configuration in separate files
+// [modproperties.mod1]
 // key="value1"
-// [[modproperties.mod2]]
+// [modproperties.mod2]
 // key="value2"
 
 @Mod("mod1")
@@ -198,6 +198,7 @@ There must be a 1-to-1 matching of mods in the `mods.toml` file and `@Mod` entry
 `lowcodefml` is a language loader used as a way to distribute datapacks and resource packs as mods without the need of an in-code entrypoint. It is specified as `lowcodefml` rather than `nocodefml` for minor additions in the future that might require minimal coding.
 
 [array]: https://toml.io/en/v1.0.0#array-of-tables
+[table]: https://toml.io/en/v1.0.0#table
 [atlasviewer]: https://github.com/XFactHD/AtlasViewer/blob/1.20.2/neoforge/src/main/resources/META-INF/services/xfacthd.atlasviewer.platform.services.IPlatformHelper
 [events]: ../concepts/events.md
 [features]: #features
