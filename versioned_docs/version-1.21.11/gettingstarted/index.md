@@ -18,19 +18,24 @@ Make sure you are using a 64-bit JVM. One way of checking is to run `java -versi
 ## Setting Up the Workspace
 
 - Go to the [Mod Generator][modgen] webpage, type in a mod name (and optionally a mod id), package name, Minecraft version, and Gradle plugin (either [ModDevGradle][mdg] or [NeoGradle][ng]), click "Download Mod Project", and extract the downloaded ZIP file.
-- Open your IDE and import the Gradle project. Eclipse and IntelliJ IDEA will do this automatically for you. If you have an IDE that does not do this, you can also do it via the `gradlew` terminal command.
+- Open your IDE and import the Gradle project. IntelliJ IDEA and Eclipse will do this automatically for you. If you have an IDE that does not do this, you can also do it via the `gradlew` terminal command.
     - When doing this for the first time, Gradle will download all dependencies of NeoForge, including Minecraft itself, and decompile them. This can take a fair amount of time (up to an hour, depending on your hardware and network strength).
     - Whenever you make a change to the Gradle files, the Gradle changes will need to be reloaded, either through the "Reload Gradle" button in your IDE, or again through the `gradlew` terminal command.
 
 ### Minecraft Source Code
 
-Once Gradle has successfully loaded, not only will you have an example mod project, but your workspace will also contain the (patched) sources and [resource files][resources] of Minecraft and NeoForge for you to reference. These sources can be found under `External Libraries` in IntelliJ, or `Referenced Libraries` in Eclipse, and have a different name depending on the Gradle plugin used:
+Once Gradle has successfully loaded, not only will you have an example mod project, but your workspace will also contain the (patched) sources and [resource files][resources] of Minecraft and NeoForge for you to reference. These sources can be found under `External Libraries` in IntelliJ IDEA, or `Referenced Libraries` in Eclipse, and have a different name depending on the Gradle plugin used (where `<version>` is the version of NeoForge used):
 
-- NeoGradle: `ng_dummy_ng.net.neoforged.neoforge:<version>`
-- ModDevGradle: `neoforge-<version>-merged.jar`
-    - ModDevGradle also has the resource files only in a separate library called `neoforge-<version>-client-extra-aka-minecraft-resources.jar`.
+| Gradle Plugin | Minecraft Sources                              | NeoForge Sources                             |
+|---------------|------------------------------------------------|----------------------------------------------|
+| NeoGradle     | `ng_dummy_ng.net.neoforged:neoforge:<version>` | `net.neoforged:neoforge:universal:<version>` |
+| ModDevGradle  | `minecraft-patched-<version>-merged.jar`       | `net.neoforged:neoforge:universal:<version>` |
 
-Additionally, you can use your IDE's search feature - by default it's Double Shift in IntelliJ, and Ctrl+H in Eclipse - to search for specific Minecraft classes.
+Additionally, you can use your IDE's search feature - by default it's Double Shift in IntelliJ IDEA, and Ctrl+H in Eclipse - to search for specific Minecraft classes or files.
+
+:::warning
+Other IDEs may not have this integration. If you want to look at the source code - which is vital for implementing many features -, we only support IntelliJ IDEA or Eclipse.
+:::
 
 ## Customizing Your Mod Information
 
