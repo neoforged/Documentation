@@ -5,7 +5,7 @@ sidebar_position: 3
 
 In some situations, integrating with the [existing resource systems][resources] provided by Minecraft or NeoForge just isn't going to cut it. Instead, having your system load files by itself from a resource or data pack is more desirable. For this purpose, you can register a custom reload listener, implementing `PreparableReloadListener` or one of its subinterfaces/subclasses.
 
-The idea behind a reload listener is simple: When a resource pack or data pack reload happens, the listener is called upon to read its contents from the new set of resource or data packs. It will then keep the contents until the next reload, at which point the contents will be discarded and the cycle starts anew.
+The idea behind a reload listener is simple: When a resource pack or data pack reload happens, the listener is called upon to read its contents from the new set of resource or data packs, loaded into a global `ResourceManager` and usually reference-copied into other places for easier access. It will then keep the contents until the next reload, at which point the contents will be discarded and the cycle starts anew.
 
 ## Reloading
 
@@ -16,7 +16,7 @@ Client reload listeners load from resource packs (the `assets` folder). The firs
 Server reload listeners load from data packs (the `data` folder). The first reload happens during world loading, which happens on world/server join on the physical client, and on startup on the physical server. Subsequent reloads are triggered using the `/reload` command, or by switching worlds/servers on the physical client.
 
 :::info
-The `/reload` command also triggers reloads of some other datapack-driven systems, such as datapack registries; this is by design and cannot be circumvented. Datapack registries are reloaded before reload listeners, meaning you can use their values in your server-side reload listeners if needed.
+The `/reload` command also triggers reloads of some other datapack-driven systems, such as [datapack registries][datapackregistries]; this is by design and cannot be circumvented. Datapack registries are reloaded before reload listeners, meaning you can use their values in your server-side reload listeners if needed.
 :::
 
 Reloading happens on multiple threads, as reload listeners are unrelated to one another. If you need to access another reload listener's values, consider delaying execution until the first use of your system after the reload has complete, or avoid access altogether.
@@ -112,7 +112,29 @@ And then simply access your values like so:
 MyObject myObject = MyReloadListener.INSTANCE.get(Identifier.fromNamespaceAndPath("mymod", "example"));
 ```
 
-Note that `SimpleJsonResourceReloadListener` goes through the resource packs top to bottom, and only retains the top-most entry for each filename. If you wish to perform merging (similar to e.g. [tags][tags]) or other operations that involve all the files for each filename from different resource/data packs, see the next section.
+Note that `SimpleJsonResourceReloadListener` goes through the resource packs top to bottom, and only retains the top-most entry for each filename. If you wish to perform merging (similar to e.g. [tags][tags]) or other operations that involve all the files for each filename from different resource/data packs, use a [`SimplePreparableReloadListener`][simplepreparablereloadlistener] instead.
+
+#### `FileToIdConverter`
+
+`FileToIdConverter` is a utility record used for converting filenames into [`Identifier`s][identifier]. It defines a namespace-local prefix and an extension, which are stripped away. For example:
+
+```java
+FileToIdConverter converter = new FileToIdConverter("mymod/my_listener", ".json");
+// Equivalent:
+FileToIdConverter converter = FileToIdConverter.json("mymod/my_listener");
+```
+
+The above converter will convert paths as follows:
+
+- `assets/mymod/mymod/my_listener/example_1.json` -> `mymod:example_1`
+- `assets/mymod/mymod/my_listener/subfolder/example_2.json` -> `mymod:subfolder/example_2`
+- `assets/othermod/mymod/my_listener/example_3.json` -> `othermod:example_3`
+
+Besides `FileToIdConverter#json()`, there is an additional helper `FileToIdConverter#registry()` that accepts a [`ResourceKey<? extends Registry<?>>`][resourcekey] and converts the registry key to a namespace-and-path string, like the ones above.
+
+:::tip
+In order to avoid conflicts where two mods add a registry that is named the same, it is strongly recommended to prefix your reload listener's folder with a folder named after the mod id, as seen above with `mymod/my_listener`.
+:::
 
 ### `SimplePreparableReloadListener`
 
@@ -124,20 +146,34 @@ For a simple reference implementation of `SimplePreparableReloadListener` that l
 
 ### `ContextAwareReloadListener`
 
-TODO
+Next up in the hierarchy is `ContextAwareReloadListener`. This is a utility class added into the hierarchy by NeoForge in order to supply a [load condition][conditions] context, obtainable via `#getContext()`. Additionally, it provides a registry access via `#getRegistryLookup`.
+
+### `ResourceManagerReloadListener`
+
+Outside the class hierarchy described so far, `ResourceManagerReloadListener` is a utility interface that runs once the reload itself has completed, providing the fully-populated `ResourceManager` in its only method `#onResourceManagerReload`. Classes implementing this interface mainly do post-reload cleanup work or build caches.
 
 ### `PreparableReloadListener`
 
-TODO
+Finally, `PreparableReloadListener` sits at the top of the hierarchy, and is the type accepted by the events above. It defines a method `#reload` that returns a `CompletableFuture<Void>` and accepts four parameters:
 
-## `FileToIdConverter`
+- `PreparableReloadListener.SharedState currentReload`: This holds the "global state" of the reload, most notably including the partially-initialized `ResourceManager`.
+- `Executor taskExecutor`: The `Executor` for the bulk of the tasks. This executor runs on multiple threads.
+- `PreparableReloadListener.PreparationBarrier barrier`: A threading barrier object. When creating a `CompletableFuture` yourself, a call to `thenCompose(barrier::wait)` should be added to make sure all the `CompletableFuture`s have caught up. See vanilla uses of `barrier#wait()` for reference.
+- `Executor reloadExecutor`: The `Executor` for tasks that need to run on the main tasks. Called the reload executor as commonly those are tasks towards the end of the reload.
 
-TODO
+You can load basically anything here. For example, this is used by many reload listeners that load binary data ([textures][textures], fonts, etc., but not [sounds][sounds]), as well as some others such as [data maps][datamaps].
 
+[conditions]: server/conditions.md
+[datamaps]: server/datamaps/index.md
+[datapackregistries]: ../concepts/registries.md#datapack-registries
 [events]: ../concepts/events.md
+[identifier]: ../misc/identifier.md
 [recipes]: server/recipes/index.md
+[resourcekey]: ../misc/identifier.md#resourcekeys
 [resources]: index.md
 [sides]: ../concepts/sides.md
+[simplepreparablereloadlistener]: #simplepreparablereloadlistener
+[sounds]: client/sounds.md
 [soundsjson]: client/sounds.md#soundsjson
 [tags]: server/tags.md
 [textures]: client/textures.md
