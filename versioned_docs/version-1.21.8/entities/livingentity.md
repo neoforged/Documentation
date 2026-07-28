@@ -225,27 +225,29 @@ public static void registerSpawnPlacements(RegisterSpawnPlacementsEvent event) {
     event.register(
         // The EntityType<?> to register the spawn placement for.
         MY_ENTITY.get(),
-        // The SpawnPlacementType to use. Options include
-        // NO_RESTRICTIONS, IN_WATER, IN_LAVA and ON_GROUND.
-        // You can also add your own, see SpawnPlacementTypes for reference.
+        // SpawnPlacementType is a functional interface that checks whether a given position is valid
+        // for spawning. You can add your own SpawnPlacementType if needed,
+        // see the implementation of SpawnPlacementTypes for reference.
+        // Vanilla values include NO_RESTRICTIONS, IN_WATER, IN_LAVA and ON_GROUND.
         SpawnPlacementTypes.ON_GROUND,
-        // The heightmap type to use. Options include
+        // The heightmap type to use. This provides the initial height to check during world generation,
+        // later this is ignored and just uses the world surface. Possible values are
         // WORLD_SURFACE, OCEAN_FLOOR, MOTION_BLOCKING and MOTION_BLOCKING_NO_LEAVES.
         Heightmap.Types.WORLD_SURFACE,
-        // A predicate to check the spawn rules. Can either be specified here
+        // A predicate to check additional spawn rules, e.g. light. Can either be specified here
         // as a lambda, or (more commonly) as a static method in the entity class.
         (entityType, level, spawnReason, pos, random) -> {
             // Make our mob only spawn on grass blocks.
             return level.getBlockState(pos.below()).is(Blocks.GRASS_BLOCK)
                 || Mob.checkMobSpawnRules(entityType, level, spawnReason, pos, random);
         },
-        // For our own mobs, we always REPLACE.
-        RegisterSpawnPlacementsEvent.Operation.REPLACE
+        // For our own mobs, any operation may be used.
+        RegisterSpawnPlacementsEvent.Operation.OR
     );
 }
 ```
 
-It is also possible to modify vanilla's or other mods' spawn placements. You can either use `Operation.REPLACE` like above - in which case a [low-priority event listener][priority] should be used -, or use one of `Operation.AND` (for extra spawn restrictions) or `Operation.OR` (for alternate spawn mechanisms) like so:
+It is also possible to modify vanilla's or other mods' spawn placements. You can use one of `Operation.AND` (for extra spawn restrictions), `Operation.OR` (for alternate spawn mechanisms) or `Operation.REPLACE` (to completely replace the spawn placement, use a [low-priority event listener][priority] in this case) like so:
 
 ```java
 @SubscribeEvent // on the mod event bus
@@ -265,6 +267,18 @@ public static void registerSpawnPlacements(RegisterSpawnPlacementsEvent event) {
         // Use the appropriate Operation here.
         RegisterSpawnPlacementsEvent.Operation.AND
     );
+}
+```
+
+The event also provides two utility overloads (where `spawnPredicate` is the lambda we used earlier):
+
+```java
+@SubscribeEvent // on the mod event bus
+public static void registerSpawnPlacements(RegisterSpawnPlacementsEvent event) {
+    // Identical to event.register(MY_ENTITY.get(), null, null, spawnPredicate, Operation.OR)
+    event.register(MY_ENTITY.get(), spawnPredicate);
+    // Identical to event.register(MY_ENTITY.get(), null, null, spawnPredicate, operation)
+    event.register(MY_ENTITY.get(), spawnPredicate, operation);
 }
 ```
 
