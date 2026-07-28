@@ -5,21 +5,28 @@ sidebar_position: 3
 
 In some situations, integrating with the [existing resource systems][resources] provided by Minecraft or NeoForge just isn't going to cut it. Instead, having your system load files by itself from a resource or data pack is more desirable. For this purpose, you can register a custom reload listener, implementing `PreparableReloadListener` or one of its subinterfaces/subclasses.
 
-The idea behind a reload listener is simple: When a resource pack or data pack reload happens, the listener is called upon to read its contents from the new set of resource or data packs, loaded into a global `ResourceManager` and usually reference-copied into other places for easier access. It will then keep the contents until the next reload, at which point the contents will be discarded and the cycle starts anew.
+The idea behind a reload listener is simple: When a resource pack or data pack reload happens, the listener is called upon to read its contents from the new set of resource or data packs. It will then keep the contents until the next reload, at which point the contents will be discarded and the cycle starts anew.
+
+:::info
+On the server [side][sides], the more robust [datapack registry][datapackregistries] or [data map][datamaps] systems should be preferred over a reload listener, if possible.
+:::
 
 ## Reloading
 
-Both resource pack and data pack reload function similar in principle and only differ in the associated [side][sides], and by extension the timing and the location files are loaded from.
+Both resource pack and data pack reload function similar in principle and only differ in the associated physical and logical [side][sides], and by extension the timing and the location files are loaded from.
 
-Client reload listeners load from resource packs (the `assets` folder). The first reload happens during startup on the physical client, and **never** on the physical server. Subsequent reloads are triggered when resource packs are changed in the Options menu, or by pressing F3+T.
+|                                              | Client Reload Listener                                                                                                             | Server Reload Listener                                                                                                |
+|----------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------|
+| **Loads From**                               | Resource packs (`assets` folder)                                                                                                   | Data packs (`data` folder)                                                                                            |
+| **First Reload**<br/>(Physical Client)       | - Startup                                                                                                                          | - Creating a new world<br/>("Preparing for world creation...")<br/>- Joining an existing world<br/>- Joining a server |
+| **Subsequent Reloads**<br/>(Physical Client) | - Changing resource packs in the Options menu<br/>- Downloading a server's custom resource pack on server join<br/>- Pressing F3+T | - Leaving a world or server<br/>(unloads the listener)                                                                |
+| **First Reload**<br/>(Physical Server)       | _never_                                                                                                                            | - Startup                                                                                                             |
+| **Subsequent Reloads**<br/>(Physical Server) | _never_                                                                                                                            | - `/reload` command                                                                                                   |
 
-Server reload listeners load from data packs (the `data` folder). The first reload happens during world loading, which happens on world/server join on the physical client, and on startup on the physical server. Subsequent reloads are triggered using the `/reload` command, or by switching worlds/servers on the physical client.
 
 :::info
-The `/reload` command also triggers reloads of some other datapack-driven systems, such as [datapack registries][datapackregistries]; this is by design and cannot be circumvented. Datapack registries are reloaded before reload listeners, meaning you can use their values in your server-side reload listeners if needed.
+The `/reload` command also triggers reloads of some other datapack-driven systems, such as [tags][tags]. This is by design and cannot be circumvented.
 :::
-
-Reloading happens on multiple threads, as reload listeners are unrelated to one another. If you need to access another reload listener's values, consider delaying execution until the first use of your system after the reload has complete, or avoid access altogether.
 
 ## Adding a Reload Listener
 
@@ -58,6 +65,8 @@ public static void addServerReloadListeners(AddServerReloadListenersEvent event)
 
 :::danger
 Do not register the same reload listener on both sides! All of your file-driven systems should be designed for one side only, otherwise desyncs and similar issues will arise.
+
+Also, since servers sync their reload listener data to the client, make sure the client implementation either properly clears out those values on disconnect, or never uses them in contexts without a server.
 :::
 
 And then, the reload listener can be accessed - from the correct side - through the singleton `INSTANCE`.
@@ -117,7 +126,7 @@ public class MyReloadListener extends SimpleJsonResourceReloadListener<MyObject>
 }
 ```
 
-And then simply access your values like so:
+And then simply access your values like so (of course making sure that key actually exists):
 
 ```java
 MyObject myObject = MyReloadListener.INSTANCE.get(Identifier.fromNamespaceAndPath("mymod", "example"));
@@ -141,7 +150,7 @@ The above converter will convert paths as follows:
 - `assets/mymod/mymod/my_listener/subfolder/example_2.json` -> `mymod:subfolder/example_2`
 - `assets/othermod/mymod/my_listener/example_3.json` -> `othermod:example_3`
 
-Besides `FileToIdConverter#json()`, there is an additional helper `FileToIdConverter#registry()` that accepts a [`ResourceKey<? extends Registry<?>>`][resourcekey] and converts the registry key to a namespace-and-path string, like the ones above.
+Besides the constructor and the `FileToIdConverter#json()` helper, there is an additional helper `FileToIdConverter#registry()` that accepts a [`ResourceKey<? extends Registry<?>>`][resourcekey] and converts the registry key to a namespace-and-path string, like the ones above.
 
 :::tip
 In order to avoid conflicts where two mods add a registry that is named the same, it is strongly recommended to prefix your reload listener's folder with a folder named after the mod id, as seen above with `mymod/my_listener`.
@@ -167,12 +176,42 @@ Outside the class hierarchy described so far, `ResourceManagerReloadListener` is
 
 Finally, `PreparableReloadListener` sits at the top of the hierarchy, and is the type accepted by the events above. It defines a method `#reload()` that returns a `CompletableFuture<Void>` and accepts four parameters:
 
-- `PreparableReloadListener.SharedState currentReload`: This holds the "global state" of the reload, most notably including the partially-initialized `ResourceManager`.
+- `SharedState currentReload`: This holds the shared state of the reload, see below.
 - `Executor taskExecutor`: The `Executor` for the bulk of the tasks. This executor runs on multiple threads.
-- `PreparableReloadListener.PreparationBarrier barrier`: A threading barrier object. When creating a `CompletableFuture` yourself, a call to `thenCompose(barrier::wait)` should be added to make sure all the `CompletableFuture`s have caught up. See vanilla uses of `barrier#wait()` for reference.
+- `PreparationBarrier barrier`: A threading barrier object. When creating a `CompletableFuture` yourself, a call to `thenCompose(barrier::wait)` should be added to make sure all the `CompletableFuture`s have caught up. See vanilla uses of `barrier#wait()` for reference.
 - `Executor reloadExecutor`: The `Executor` for tasks that need to run on the main tasks. Called the reload executor as commonly those are tasks towards the end of the reload.
 
 You can load basically anything here. For example, this is used by many reload listeners that load binary data ([textures][textures], fonts, etc., but not [sounds][sounds]), as well as some others such as [data maps][datamaps].
+
+## Shared Reloading State
+
+Reloading happens on multiple threads, as reload listeners are generally unrelated to one another. If you need to access another reload listener's values, you must set a shared state. To do so, in your reload listener, override the default `prepareSharedState()` method:
+
+```java
+// Create a record (or class) holding our data to pass to another listener
+public record MyPendingResources(/* any data here */) {}
+
+// Can also extend/implement any subclass/subinterface of PreparableReloadListener
+public class MyReloadListener implements PreparableReloadListener {
+    // other stuff here
+
+    // Create a StateKey with our record as the type
+    public static final StateKey<MyPendingResources> STATE_KEY = new StateKey<>();
+    
+    // Override prepareSharedState() to add our pending resources
+    @Override
+    public void prepareSharedState(PreparableReloadListener.SharedState currentReload) {
+        currentReload.set(STATE_KEY, new MyPendingResources(/* any data here */));
+    }
+
+    // Then, use in reload() like so:
+    @Override
+    public CompletableFuture<Void> reload(SharedState currentReload, Executor taskExecutor, PreparationBarrier barrier, Executor reloadExecutor) {
+        MyPendingResources pending = currentReload.get(STATE_KEY);
+        // do the reload here, using `pending`
+    }
+}
+```
 
 [conditions]: server/conditions.md
 [datamaps]: server/datamaps/index.md
