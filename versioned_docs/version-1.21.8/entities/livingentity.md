@@ -215,6 +215,59 @@ DeferredItem<SpawnEggItem> MY_ENTITY_SPAWN_EGG = ITEMS.registerItem("my_entity_s
 
 As an item like any other, the item should be added to a [creative tab][creative], and a [client item][clientitem], [model] and [translation] should be added.
 
+### Spawn Placements
+
+By default, spawning will be possible anywhere, including inside blocks and in midair. To prevent this, a spawn placement must be registered. This happens in the `RegisterSpawnPlacementsEvent` like so:
+
+```java
+@SubscribeEvent // on the mod event bus
+public static void registerSpawnPlacements(RegisterSpawnPlacementsEvent event) {
+    event.register(
+        // The EntityType<?> to register the spawn placement for.
+        MY_ENTITY.get(),
+        // The SpawnPlacementType to use. Options include
+        // NO_RESTRICTIONS, IN_WATER, IN_LAVA and ON_GROUND.
+        // You can also add your own, see SpawnPlacementTypes for reference.
+        SpawnPlacementTypes.ON_GROUND,
+        // The heightmap type to use. Options include
+        // WORLD_SURFACE, OCEAN_FLOOR, MOTION_BLOCKING and MOTION_BLOCKING_NO_LEAVES.
+        Heightmap.Types.WORLD_SURFACE,
+        // A predicate to check the spawn rules. Can either be specified here
+        // as a lambda, or (more commonly) as a static method in the entity class.
+        (entityType, level, spawnReason, pos, random) -> {
+            // Make our mob only spawn on grass blocks.
+            return level.getBlockState(pos.below()).is(Blocks.GRASS_BLOCK)
+                || Mob.checkMobSpawnRules(entityType, level, spawnReason, pos, random);
+        },
+        // For our own mobs, we always REPLACE.
+        RegisterSpawnPlacementsEvent.Operation.REPLACE
+    );
+}
+```
+
+It is also possible to modify vanilla's or other mods' spawn placements. You can either use `Operation.REPLACE` like above - in which case a [low-priority event listener][priority] should be used -, or use one of `Operation.AND` (for extra spawn restrictions) or `Operation.OR` (for alternate spawn mechanisms) like so:
+
+```java
+@SubscribeEvent // on the mod event bus
+public static void registerSpawnPlacements(RegisterSpawnPlacementsEvent event) {
+    event.register(
+        // The EntityType<?> to register the spawn placement for.
+        MY_ENTITY.get(),
+        // When not using Operation.REPLACE, leave the spawn placement type
+        // and the heightmap type at null.
+        null,
+        null,
+        // Like above, check the additional/alternate spawn rules.
+        (entityType, level, spawnReason, pos, random) -> {
+            return level.getBlockState(pos.below()).is(Blocks.GRASS_BLOCK)
+                || Mob.checkMobSpawnRules(entityType, level, spawnReason, pos, random);
+        },
+        // Use the appropriate Operation here.
+        RegisterSpawnPlacementsEvent.Operation.AND
+    );
+}
+```
+
 ### Natural Spawning
 
 _See also [Entities/`MobCategory`][mobcategory], [Worldgen/Biome Modifers/Add Spawns][addspawns], [Worldgen/Biome Modifers/Add Spawn Costs][addspawncosts]; and [Spawn Cycle][spawncycle] on the [Minecraft Wiki][mcwiki]._
