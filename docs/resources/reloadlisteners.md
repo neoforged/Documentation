@@ -7,7 +7,7 @@ In some situations, integrating with the [existing resource systems][resources] 
 
 The idea behind a reload listener is simple: When a resource pack or data pack reload happens, the listener is called upon to read its contents from the new set of resource or data packs. It will then keep the contents until the next reload, at which point the contents will be discarded and the cycle starts anew.
 
-:::info
+:::warning
 On the server [side][sides], the more robust [datapack registry][datapackregistries] or [data map][datamaps] systems should be preferred over a reload listener, if possible.
 :::
 
@@ -23,10 +23,40 @@ Both resource pack and data pack reload function similar in principle and only d
 | **First Reload**<br/>(Physical Server)       | _never_                                                                                                                            | - Startup                                                                                                             |
 | **Subsequent Reloads**<br/>(Physical Server) | _never_                                                                                                                            | - `/reload` command                                                                                                   |
 
-
 :::info
 The `/reload` command also triggers reloads of some other datapack-driven systems, such as [tags][tags]. This is by design and cannot be circumvented.
 :::
+
+### Multi-Threaded Reloading
+
+Conceptually, the work of a single reload listener can commonly be split into two stages:
+
+- **Preparation**: The necessary files are collected, validated and parsed into some object that can be used in the next step. The preparation stage is run on **multiple threads**.
+- **Application**: The object from the previous step is "applied" to the game, usually by means of setting some field or adding to some collection. The application stage is run on the **main thread**.
+
+To ensure synchronization, after preparation, a `PreparationBarrier` is `wait`ed for by the underlying `CompletableFuture`. Only once all preparation threads have run, the application is allowed to run. In code, this looks roughly as follows:
+
+```java
+@Override
+public CompletableFuture<Void> reload(
+    SharedState currentReload,
+    Executor taskExecutor,
+    PreparationBarrier barrier,
+    Executor reloadExecutor
+) {
+    return CompletableFuture
+        .supplyAsync(() -> {
+            // Collect and return the result of the preparation stage here.
+        })
+        .thenCompose(barrier::wait)
+        .thenAcceptAsync(preparations -> {
+            // Run the application stage.
+            // `preparations` is the return value of the `supplyAsync` call above.
+        });
+}
+```
+
+See [`PreparableReloadListener`][preparablereloadlistener] below for an explanation of the parameters.
 
 ## Adding a Reload Listener
 
@@ -84,14 +114,75 @@ graph LR;
 
 _Interfaces in green, abstract classes in blue._
 
-All reload listeners implement the `PreparableReloadListener` interface. However, in order to make things more understandable, we will first cover the `SimpleJsonResourceReloadListener`, which is used to load JSON files and implements most things for you already. Then, we will gradually go up the class hierarchy and explain what is done for you and what you can modify yourself in each level.
+### `PreparableReloadListener`
+
+`PreparableReloadListener` sits at the top of the hierarchy, and is the type accepted by the events above. It defines a method `#reload()` that returns a `CompletableFuture<Void>` and accepts four parameters:
+
+- `SharedState currentReload`: The [shared state][sharedstate] of the reload.
+- `Executor taskExecutor`: An `Executor` for tasks that can run on multiple threads.
+- `PreparationBarrier barrier`: A threading barrier object.
+- `Executor reloadExecutor`: An `Executor` for tasks that need to run on the main thread.
+
+Additionally, it defines two default methods:
+
+- `prepareSharedState(SharedState currentReload)`: Does nothing by default. See [Shared Reloading State][sharedstate].
+- `getName()`: Returns a name to use in logging. By default, returns the class name.
+
+In a `PreparableReloadListener`, you can load basically anything here. For example, this is directly implemented by many reload listeners that load binary data ([textures][textures], fonts, etc., but not [sounds][sounds]), as well as some others such as [data maps][datamaps]. However, many systems - for example many JSON-based systems - use one of the abstract classes below instead.
+
+### `ContextAwareReloadListener`
+
+`ContextAwareReloadListener` is a utility class that supplies a [load condition][conditions] context, obtainable via `#getContext()`. Additionally, it provides a registry access via `#getRegistryLookup()`.
+
+:::info
+This class is added into the hierarchy by NeoForge, as load conditions are a NeoForge system.
+:::
+
+### `SimplePreparableReloadListener`
+
+`SimplePreparableReloadListener<T>` is an example implementation of a `PreparableReloadListener` that splits the preparation and application stages (see [Multi-Threaded Reloading][multithreading]) into two entirely separate methods. Instead of `#reload()`, you must now override `#prepare()` and `#apply()`. For example:
+
+```java
+// The generic type denotes the type of the object that is passed from #prepare() to #apply().
+// For example, in many cases, this will be a List<MyObject>, Map<?, MyObject> or similar.
+// This is often (but not necessarily) the same as the type of the stored data.
+public class MyReloadListener extends SimplePreparableReloadListener<MyObject> {
+    // As above.
+    public static final Identifier ID = Identifier.fromNamespaceAndPath("mymod", "my_listener");
+    public static final MyReloadListener INSTANCE = new MyReloadListener();
+    private MyReloadListener() {}
+
+    // A field to hold our object.
+    private MyObject myObject;
+
+    @Override    
+    protected MyObject prepare(ResourceManager manager, ProfilerFiller profiler) {
+        // Run whatever logic to collect, parse and validate the files.
+        return new MyObject();
+    }
+
+    @Override
+    protected void apply(MyObject preparations, ResourceManager manager, ProfilerFiller profiler) {
+        // Set the field in our object to the prepared objects, for later use.
+        this.myObject = preparations;
+    }
+
+    // Provide access to the values in whatever way you deem necessary. For example:
+    public MyObject getMyObject() {
+        return myObject;
+    }
+}
+```
 
 ### `SimpleJsonResourceReloadListener`
 
-`SimpleJsonResourceReloadListener<T>` is what you want to use for loading most JSON files. It scans a certain folder for JSON files, converts the contents into objects according to the provided codec, puts the filenames and associated objects into a `Map<Identifier, T>`, and provides that map to you in `#apply()`. The simplest implementation looks like this:
+`SimpleJsonResourceReloadListener<T>` is a further specialization of `SimplePreparableReloadListener` that loads and parses JSON files using a [`Codec`][codec]. It extends `SimplePreparableReloadListener<Map<Identifier, T>>`, meaning a map of filenames (represented as [identifiers][identifier]) to whatever type you want to parse your JSONs to.
+
+The class also completely implements the preparation stage for you, in the manner that most JSON systems work: going through the resource packs top to bottom, and only retains the top-most entry for each filename. This means that to perform merging (similar to e.g. [tags][tags]) or other operations that involve all the files for each filename from different resource/data packs, you need to implement folder scanning yourself.
+
+All that remains for you to do is store the `Map<Identifier, T>` in `#apply()`. The simplest implementation looks like this:
 
 ```java
-// Assuming a type MyObject, and MyObject.CODEC to be a Codec<MyObject>.
 public class MyReloadListener extends SimpleJsonResourceReloadListener<MyObject> {
     // As above.
     public static final Identifier ID = Identifier.fromNamespaceAndPath("mymod", "my_listener");
@@ -100,18 +191,16 @@ public class MyReloadListener extends SimpleJsonResourceReloadListener<MyObject>
     private final Map<Identifier, MyObject> values = new HashMap<>();
 
     private MyReloadListener() {
-        // Add a super call here. The parameters are the codec
+        // Add a super call here. The parameters are the codec (assuming MyObject.CODEC to be a Codec<MyObject>)
         // and a FileToIdConverter, see the FileToIdConverter section below.
         super(MyObject.CODEC, FileToIdConverter.json("mymod/my_listener"));
     }
 
     @Override
-    protected void apply(Map<Identifier, MyObject> map, ResourceManager resourceManager, ProfilerFiller profiler) {
-        // Clear out the old values.
+    protected void apply(Map<Identifier, MyObject> preparations, ResourceManager resourceManager, ProfilerFiller profiler) {
+        // Clear out the old values and add our new ones.
         values.clear();
-        // In the most simple implementation, blindly add all the values we get into the map.
-        // If needed, you can perform validations, duplicate removal or similar here.
-        values.putAll(map);
+        values.putAll(preparations);
     }
 
     // Provide access to the values in whatever way you deem necessary. For example:
@@ -132,60 +221,50 @@ And then simply access your values like so (of course making sure that key actua
 MyObject myObject = MyReloadListener.INSTANCE.get(Identifier.fromNamespaceAndPath("mymod", "example"));
 ```
 
-Note that `SimpleJsonResourceReloadListener` goes through the resource packs top to bottom, and only retains the top-most entry for each filename. If you wish to perform merging (similar to e.g. [tags][tags]) or other operations that involve all the files for each filename from different resource/data packs, use a [`SimplePreparableReloadListener`][simplepreparablereloadlistener] instead.
-
 #### `FileToIdConverter`
 
-`FileToIdConverter` is a utility record used for converting filenames into [`Identifier`s][identifier]. It defines a namespace-local prefix and an extension, which are stripped away. For example:
+`FileToIdConverter` is a utility record used for converting filenames into [`Identifier`s][identifier]. It defines a namespace-local prefix and an extension, which are stripped away. According to these, the converter splits each file path into five parts:
+
+- The `assets` or `data` directory
+- The namespace, consisting of the next subdirectory's name
+- The prefix of the `FileToIdConverter` (which may contain slashes, making it span multiple directory layers)
+- The path of the file (which again may contain slashes to span multiple directory layers)
+- The extension of the file.
+
+It will then construct an `Identifier` from the namespace and the path of the file, i.e., the second and fourth part. For example, consider the following `FileToIdConverter`:
 
 ```java
 FileToIdConverter converter = new FileToIdConverter("mymod/my_listener", ".json");
-// Equivalent:
+// Equivalent, automatically sets the .json extension:
 FileToIdConverter converter = FileToIdConverter.json("mymod/my_listener");
 ```
 
-The above converter will convert paths as follows:
+The above converter will split the path `assets/mymod/mymod/my_listener/example_1.json` as follows:
 
-- `assets/mymod/mymod/my_listener/example_1.json` -> `mymod:example_1`
+- `assets`
+- `mymod` is the namespace
+- `mymod/my_listener` is the prefix of the `FileToIdConverter`
+- `example_1` is the path
+- `.json` is the extension of the `FileToIdConverter`
+
+So the resulting `Identifier` will be `mymod:example_1`. Other examples:
+
 - `assets/mymod/mymod/my_listener/subfolder/example_2.json` -> `mymod:subfolder/example_2`
 - `assets/othermod/mymod/my_listener/example_3.json` -> `othermod:example_3`
 
 Besides the constructor and the `FileToIdConverter#json()` helper, there is an additional helper `FileToIdConverter#registry()` that accepts a [`ResourceKey<? extends Registry<?>>`][resourcekey] and converts the registry key to a namespace-and-path string, like the ones above.
 
 :::tip
-In order to avoid conflicts where two mods add a registry that is named the same, it is strongly recommended to prefix your reload listener's folder with a folder named after the mod id, as seen above with `mymod/my_listener`.
+In order to avoid conflicts where two mods add a registry that is named the same, it is strongly recommended to prefix your reload listener's folder with a folder named after the mod id, as seen above with `mymod/my_listener`. The `#registry()` helper does this for you automatically.
 :::
-
-### `SimplePreparableReloadListener`
-
-`SimplePreparableReloadListener<T>` sits a layer above `SimpleJsonResourceReloadListener<T>`, and is also usable for non-JSON files, as well as (JSON or non-JSON) files with the same name from different resource/data packs.
-
-`SimplePreparableReloadListener<T>` splits its reload into two distinct cycles: `prepare` and `apply`. First, `prepare` is called to collect the files and convert them into `T`s. Once **all** files have been collected, `apply` is called to do something with them - usually store them for later use.
-
-For a simple reference implementation of `SimplePreparableReloadListener` that loads from a single file, see `SplashManager`. For an implementation for merging JSON files, see the merging of [`sounds.json`][soundsjson] in `SoundManager#prepare()`, `SoundManager#apply()` and the related fields in `SoundManager`. For an implementation of folder scanning, see `SimpleJsonResourceReloadListener#prepare()`.
-
-### `ContextAwareReloadListener`
-
-Next up in the hierarchy is `ContextAwareReloadListener`. This is a utility class added into the hierarchy by NeoForge in order to supply a [load condition][conditions] context, obtainable via `#getContext()`. Additionally, it provides a registry access via `#getRegistryLookup()`.
 
 ### `ResourceManagerReloadListener`
 
-Outside the class hierarchy described so far, `ResourceManagerReloadListener` is a utility interface that runs once the reload itself has completed, providing the fully-populated `ResourceManager` in its only method `#onResourceManagerReload()`. Classes implementing this interface mainly do post-reload cleanup work or build caches.
-
-### `PreparableReloadListener`
-
-Finally, `PreparableReloadListener` sits at the top of the hierarchy, and is the type accepted by the events above. It defines a method `#reload()` that returns a `CompletableFuture<Void>` and accepts four parameters:
-
-- `SharedState currentReload`: This holds the shared state of the reload, see below.
-- `Executor taskExecutor`: The `Executor` for the bulk of the tasks. This executor runs on multiple threads.
-- `PreparationBarrier barrier`: A threading barrier object. When creating a `CompletableFuture` yourself, a call to `thenCompose(barrier::wait)` should be added to make sure all the `CompletableFuture`s have caught up. See vanilla uses of `barrier#wait()` for reference.
-- `Executor reloadExecutor`: The `Executor` for tasks that need to run on the main tasks. Called the reload executor as commonly those are tasks towards the end of the reload.
-
-You can load basically anything here. For example, this is used by many reload listeners that load binary data ([textures][textures], fonts, etc., but not [sounds][sounds]), as well as some others such as [data maps][datamaps].
+`ResourceManagerReloadListener` is a special utility interface that runs once the reload itself has completed, providing the fully-populated `ResourceManager` in its only method `#onResourceManagerReload()`. Classes implementing this interface mainly do post-reload cleanup work or build caches.
 
 ## Shared Reloading State
 
-Reloading happens on multiple threads, as reload listeners are generally unrelated to one another. If you need to access another reload listener's values, you must set a shared state. To do so, in your reload listener, override the default `prepareSharedState()` method:
+As mentioned before, reloading happens on multiple threads since reload listeners are generally unrelated to one another. If you need to access another reload listener's values, you must set a shared state. To do so, in your reload listener, override the default `prepareSharedState()` method:
 
 ```java
 // Create a record (or class) holding our data to pass to another listener
@@ -213,16 +292,21 @@ public class MyReloadListener implements PreparableReloadListener {
 }
 ```
 
+The reload system will then ensure for you that the pending resources are available in the reload.
+
+[codec]: ../datastorage/codecs.md
 [conditions]: server/conditions.md
 [datamaps]: server/datamaps/index.md
 [datapackregistries]: ../concepts/registries.md#datapack-registries
 [events]: ../concepts/events.md
 [identifier]: ../misc/identifier.md
+[multithreading]: #multi-threaded-reloading
+[preparablereloadlistener]: #preparablereloadlistener
 [recipes]: server/recipes/index.md
 [resourcekey]: ../misc/identifier.md#resourcekeys
 [resources]: index.md
+[sharedstate]: #shared-reloading-state
 [sides]: ../concepts/sides.md
-[simplepreparablereloadlistener]: #simplepreparablereloadlistener
 [sounds]: client/sounds.md
 [soundsjson]: client/sounds.md#soundsjson
 [tags]: server/tags.md
