@@ -1,5 +1,6 @@
 ---
-sidebar_position: 4
+description: How to work with and add custom tool items, custom tool materials and item abilities.
+sidebar_position: 5
 ---
 # Tools
 

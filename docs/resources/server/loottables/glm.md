@@ -1,3 +1,7 @@
+---
+description: How to use NeoForge's Global Loot Modifier system in order to inject your own loot into loot tables, using both built-in and custom options.
+sidebar_position: 5
+---
 # Global Loot Modifiers
 
 Global Loot Modifiers, or GLMs for short, are a data-driven way to modify drops without the need to overwrite dozens or hundreds of vanilla loot tables, or to handle effects that would require interactions with another mod's loot tables without knowing what mods are loaded.

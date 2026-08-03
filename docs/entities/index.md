@@ -1,4 +1,5 @@
 ---
+description: Non-static parts of a Minecraft world; how to work with them, what different parts and types there are, common use cases of entities, and how to add your own.
 sidebar_position: 1
 ---
 # Entities

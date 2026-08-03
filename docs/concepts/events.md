@@ -1,4 +1,5 @@
 ---
+dsecription: What events are, how to register event handlers, how to fire and implement your own events, what event buses are, and various other event options.
 sidebar_position: 3
 ---
 import Tabs from '@theme/Tabs';
