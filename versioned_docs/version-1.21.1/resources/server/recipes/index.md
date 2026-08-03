@@ -384,7 +384,7 @@ Like most other JSON files, recipes can be datagenned. For recipes, we want to e
 public class MyRecipeProvider extends RecipeProvider {
     // Get the parameters from GatherDataEvent.
     public MyRecipeProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider) {
-        super(output, registries);
+        super(output, lookupProvider);
     }
 
     @Override
