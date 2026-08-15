@@ -106,9 +106,10 @@ NeoForge adds additional argument types in `net.neoforged.neoforge.server.comman
 
 ## Custom Argument Types
 
-A value that none of the existing types can parse is handled by implementing a custom argument type via. `ArgumentType<T>`, which reads the raw command text from a `StringReader` and returns a value of type `T`.
+A value that none of the existing types can parse is handled by implementing a custom argument type via `ArgumentType<T>`, which reads the raw command text from a `StringReader` and returns a value of type `T`.
 
 ```java
+// Spell is a custom type for the sake of this example.
 public class SpellArgument implements ArgumentType<Spell> {
     private static final DynamicCommandExceptionType ERROR_UNKNOWN_SPELL = new DynamicCommandExceptionType(
             name -> Component.translatableEscape("commands.examplemod.spell.unknown", name)
