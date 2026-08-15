@@ -31,7 +31,7 @@ public static void registerCommands(RegisterCommandsEvent event) {
 }
 ```
 
-`Commands#literal` starts a literal builder, `#then` attaches a child node, and `#executes` supplies a `Command` callback whose returned `int` is the result count reported back to the caller. The example above registers `/mymod reload` and `/mymod reload force`.
+`Commands#literal` starts a literal builder, `#then` attaches a child node, and `#executes` supplies a `Command` callback whose returned `int` is the result count reported back to the caller, often indicating how many players were affected. The example above registers `/mymod reload` and `/mymod reload force`.
 
 :::note
 For more advanced command trees that require registry access, `RegisterCommandsEvent#getBuildContext` provides a `CommandBuildContext` that can be passed to argument types that require it.
@@ -47,7 +47,9 @@ Commands.literal("give")
         .executes(context -> {
             // Access the value declared above as "count"
             int count = IntegerArgumentType.getInteger(context, "count");
-            // Use count
+
+            // Use count...
+
             return count;
         }))
 ```
