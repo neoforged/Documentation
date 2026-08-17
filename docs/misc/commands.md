@@ -37,6 +37,23 @@ public static void registerCommands(RegisterCommandsEvent event) {
 For more advanced command trees that require registry access, `RegisterCommandsEvent#getBuildContext` provides a `CommandBuildContext` that can be passed to argument types that require it.
 :::
 
+### Permissions
+
+A permission node is added with `#requires`, supplying a predicate that returns `true` for a given `CommandSourceStack` if the command can be executed by the caller. The predicate is evaluated on the server, so it can check the caller's permission level or other state.
+
+```java
+Commands.literal("op-me")
+        .requires(source -> source.hasPermission(4))
+        .executes(context -> {
+            // Perform the command logic here
+            return 1;
+        })
+```
+
+:::note
+`CommandSourceStack#hasPermission` checks the caller's permission level, which is set by the server and defaults to 0 for players and 4 for OP's which is configurable in `server.properties`. A level of 4 is required to run vanilla commands such as `/op` or `/stop`.
+:::
+
 ## Arguments
 
 An argument node is added with `Commands#argument`, supplying the argument name and an `ArgumentType`. The parsed value is read back inside `#executes` through the static getter that pairs with the chosen type, keyed by the same name.
@@ -126,7 +143,7 @@ public class SpellArgument implements ArgumentType<Spell> {
     @Override
     public Spell parse(StringReader reader) throws CommandSyntaxException {
         String name = reader.readUnquotedString();
-        // Look up the spell, throwing ERROR_UNKNOWN_SPELL#createWithContext if there is none
+        // Validate the supplied spell exists, throwing ERROR_UNKNOWN_SPELL#createWithContext if not
     }
 
     // Optional, defaults to no suggestions: the completions offered while typing the argument
