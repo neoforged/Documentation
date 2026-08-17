@@ -33,6 +33,8 @@ public static void registerCommands(RegisterCommandsEvent event) {
 
 `Commands#literal` starts a literal builder, `#then` attaches a child node, and `#executes` supplies a `Command` callback whose returned `int` is the result count reported back to the caller, often indicating how many players were affected. The example above registers `/mymod reload` and `/mymod reload force`.
 
+To register a client side only command use `RegisterClientCommandsEvent`.
+
 :::note
 For more advanced command trees that require registry access, `RegisterCommandsEvent#getBuildContext` provides a `CommandBuildContext` that can be passed to argument types that require it.
 :::
@@ -43,7 +45,7 @@ A permission node is added with `#requires`, supplying a predicate that returns 
 
 ```java
 Commands.literal("op-me")
-        .requires(source -> source.hasPermission(4))
+        .requires(Commands.hasPermission(Commands.LEVEL_OWNERS))
         .executes(context -> {
             // Perform the command logic here
             return 1;
@@ -51,7 +53,9 @@ Commands.literal("op-me")
 ```
 
 :::note
-`CommandSourceStack#hasPermission` checks the caller's permission level, which is set by the server and defaults to 0 for players and 4 for OP's which is configurable in `server.properties`. A level of 4 is required to run vanilla commands such as `/op` or `/stop`.
+`Commands#hasPermissions` is a helper method that checks the caller's permission level against a given threshold. The levels are defined in `Commands` as `LEVEL_GAMEMASTERS`, `LEVEL_ADMINS`, and `LEVEL_OWNERS`.
+
+You can also supply a custom `PermissionCheck`.
 :::
 
 ## Arguments
@@ -146,7 +150,8 @@ public class SpellArgument implements ArgumentType<Spell> {
         // Validate the supplied spell exists, throwing ERROR_UNKNOWN_SPELL#createWithContext if not
     }
 
-    // Optional, defaults to no suggestions: the completions offered while typing the argument
+    // Optional, defaults to no suggestions: the completions offered while typing the argument,
+    // see the note below
     @Override
     public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
         // Suggest the names of the available spells or none
@@ -161,6 +166,10 @@ public class SpellArgument implements ArgumentType<Spell> {
     }
 }
 ```
+
+:::note
+`listSuggestions` is called while the client parses the synced command tree as the player types, so it can only suggest data the client already holds, such as an entry of a synced registry. Data known only to the server has to be sent to the client with a custom [payload][payload] before it can be suggested here, or be suggested by the server itself through `#suggests` on the argument node.
+:::
 
 As no static getter exists for a new type, one is usually added next to the builder, so that the value can be accessed like that of a built-in type:
 
@@ -204,5 +213,6 @@ An argument type that holds parameters of its own, such as the bounds of `Intege
 [event]: ../concepts/events.md
 [functions]: https://minecraft.wiki/w/Function_(Java_Edition)
 [identifier]: ../misc/identifier.md
+[payload]: ../networking/payload.md
 [registration]: ../concepts/registries.md#methods-for-registering
 [resourcekey]: ../misc/identifier.md#resourcekeys
