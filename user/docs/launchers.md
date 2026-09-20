@@ -61,5 +61,12 @@ A fork of PolyMC, which in turn is a fork of the old MultiMC launcher. Allows in
 
 One of the oldest launchers. Has some exclusive modpacks, and has an integrated server hosting service.
 
+## MeshMC
+
+- **Operating Systems:** Windows, Linux, Mac
+- **Download:** [https://projecttick.org/download/](https://projecttick.org/download/)
+
+A fork of MultiMC. Allows installing mods from both Modrinth and CurseForge. This launcher is open-source software.
+
 [curseforge]: https://www.curseforge.com/minecraft/search?class=mc-mods
 [modrinth]: https://modrinth.com/mods
