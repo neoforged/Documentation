@@ -152,6 +152,54 @@ Ties together the `LevelReader`, `EntityGetter` and `LevelSimulatedRW` into a si
 - `getBlockEntity()`: Defined in both `BlockGetter` and `LevelSimulatedReader`, forwarded to `BlockGetter`.
 - `getHeightmapPos()`: Defined in both `LevelReader` and `LevelSimulatedReader`, forwarded to `LevelReader`.
 
+### `ScheduledTickAccess`
+
+TODO
+
+### `LevelAccessor`
+
+TODO
+
+### `ServerLevelAccessor`
+
+TODO
+
+### `Level`
+
+TODO
+
+### `BlockAndTintGetter`
+
+:::warning
+This is a [client-only interface][sides]. Attempting to classload it on the server will crash with a `ClassNotFoundException`.
+:::
+
+TODO
+
+### `ClientLevel`
+
+:::warning
+This is a [client-only class][sides]. Attempting to classload it on the server will crash with a `ClassNotFoundException`.
+:::
+
+TODO
+
+### `WorldGenLevel`
+
+TODO
+
+### `WorldGenRegion`
+
+TODO
+
+### `ServerLevel`
+
+TODO
+
+## Hierarchy of `LevelChunk`
+
+TODO
+
 ## See Also
 
 - [Dimension][mcwikidimension] on the [Minecraft Wiki][mcwiki]
