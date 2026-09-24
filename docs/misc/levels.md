@@ -8,7 +8,7 @@ Each of these systems lives in a relatively complex class hierarchy. This is owe
 
 ## Hierarchy of `Level`
 
-Let's start with `Level`, which has the most complex class hierarchy of them all (interfaces in green, `abstract` classes in red, non-`abstract` classes in blue, [client-only][sides] classes or interfaces in _italics_):
+Let's start with `Level`, which has the most complex class hierarchy of them all (interfaces in green, `abstract` classes in yellow, non-`abstract` classes in blue, [client-only][sides] classes or interfaces in _italics_):
 
 ```mermaid
 graph TB
@@ -29,7 +29,7 @@ graph TB
     NoiseBiomeSource --> LevelReader
 
     class WorldGenLevel,ServerLevelAccessor,LevelAccessor,CommonLevelAccessor,EntityGetter,ServerEntityGetter,BlockAndLightGetter,BlockAndTintGetter,ScheduledTickAccess,LevelSimulatedRW,LevelSimulatedReader,LevelWriter,LevelReader,NoiseBiomeSource,CollisionGetter,SignalGetter,BlockGetter,LevelHeightAccessor green
-    class Level red
+    class Level yellow
     class ClientLevel,ServerLevel,WorldGenRegion blue
 ```
 
