@@ -4,7 +4,7 @@
 
 A world can therefore be thought of as a collection of levels, plus some additional metadata (such as the name, the icon, the creation date etc.) Each level then holds the [block states][blockstate], [block entities][blockentity] and lots of other data in **chunks**. Chunks are partitions of the world, sized 16x16 blocks horizontally and spanning the entire world height vertically. In some situations, they are also partitioned vertically into cubes of 16x16x16, called **chunk sections** (or just sections for short).
 
-Each of these systems lives in a relatively complex class hierarchy. This is owed to the fact that at different stages of loading a level, different subsystems are available or not yet available (for example, blocks and entities are loaded at completely different times). This makes the systems very hard to digest, so the purpose of this article is to provide an overview of the various classes and interfaces involved.
+Both levels and chunks each live in a relatively complex class hierarchy. This is owed to the fact that at different stages of loading a level, different subsystems are available or not yet available (for example, blocks and entities are loaded at completely different times). This makes the systems very hard to digest, so the purpose of this article is to provide an overview of the various classes and interfaces involved.
 
 ## Hierarchy of `Level`
 
@@ -52,7 +52,7 @@ Sits at the root of the hierarchy of block-related interfaces. It has two vital 
 
 Declares three methods crucial to many level operations: [`getBlockState(BlockPos)`][blockstate], `getFluidState(BlockPos)` and [`getBlockEntity(BlockPos)`][blockentity]. Additionally, it defines helper operations for clipping (a.k.a. raycasting) via `clip()` and related methods.
 
-Outside of its immediate relevancy for levels, `BlockGetter` is also implemented by `LightChunk`, making it and [`BiomeManager.NoiseBiomeSource`][noisebiomesource] the common ancestors of `Level` and `LevelChunk`.
+Outside its immediate relevancy for levels, `BlockGetter` is also implemented by `LightChunk`, making it and [`BiomeManager.NoiseBiomeSource`][noisebiomesource] the common ancestors of `Level` and `LevelChunk`.
 
 If for some reason you need a placeholder `BlockGetter` in your code, you can find one at `EmptyBlockGetter.INSTANCE`.
 
@@ -201,7 +201,28 @@ TODO
 
 ## Hierarchy of `LevelChunk`
 
-TODO
+The hierarchy of `LevelChunk` is considerably smaller than that of `Level`. The main quirks are its relation to `Level`s via `BlockGetter` and `BiomeManager.NoiseBiomeSource`, and the split into `LevelChunk`s and `ProtoChunk`s (interfaces in green, `abstract` classes in yellow, non-`abstract` classes in blue, elements marked with \* have uses outside this hierarchy):
+
+```mermaid
+graph TB
+    LevelHeightAccessor["LevelHeightAccessor*"]
+    BlockGetter["BlockGetter*"]
+    NoiseBiomeSource["`BiomeManager.
+    NoiseBiomeSource*`"]
+
+    LevelHeightAccessor --> BlockGetter --> LightChunk --> ChunkAccess --> LevelChunk --> EmptyLevelChunk
+    NoiseBiomeSource & StructureAccess --> ChunkAccess --> ProtoChunk --> ImposterProtoChunk
+
+    class LevelHeightAccessor,BlockGetter,LightChunk,NoiseBiomeSource,StructureAccess green
+    class ChunkAccess yellow
+    class LevelChunk,EmptyLevelChunk,ProtoChunk,ImposterProtoChunk blue
+```
+
+Again, let's digest this loosely from top to bottom:
+
+### `LevelHeightAccessor`
+
+_See [Hierarchy of `Level`/`LevelHeightAccessor`][levelheightaccessor]._
 
 ### `BlockGetter`
 
@@ -210,6 +231,30 @@ _See [Hierarchy of `Level`/`BlockGetter`][blockgetter]._
 ### `BiomeManager.NoiseBiomeSource`
 
 _See [Hierarchy of `Level`/`BiomeManager.NoiseBiomeSource`][noisebiomesource]._
+
+### `StructureAccess`
+
+TODO
+
+### `ChunkAccess`
+
+TODO
+
+### `LevelChunk`
+
+TODO
+
+### `EmptyLevelChunk`
+
+TODO
+
+### `ProtoChunk`
+
+TODO
+
+### `ImposterProtoChunk`
+
+TODO
 
 ## See Also
 
@@ -224,6 +269,7 @@ _See [Hierarchy of `Level`/`BiomeManager.NoiseBiomeSource`][noisebiomesource]._
 [dpregistries]: ../concepts/registries.md#datapack-registries
 [entity]: ../entities/index.md
 [featureflags]: ../advanced/featureflags.md
+[levelheightaccessor]: #levelheightaccessor
 [mcwiki]: https://minecraft.wiki/
 [mcwikichunk]: https://minecraft.wiki/w/Chunk
 [mcwikidimension]: https://minecraft.wiki/w/Dimension
