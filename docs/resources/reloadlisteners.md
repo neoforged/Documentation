@@ -1,5 +1,5 @@
 ---
-sidebar_position: 3
+sidebar_position: 4
 ---
 # Reload Listeners
 
@@ -7,8 +7,8 @@ In some situations, integrating with the [existing resource systems][resources] 
 
 The idea behind a reload listener is simple: When a resource pack or data pack reload happens, the listener is called upon to read its contents from the new set of resource or data packs. It will then keep the contents until the next reload, at which point the contents will be discarded and the cycle starts anew.
 
-:::warning
-On the server [side][sides], the more robust [datapack registry][datapackregistries] or [data map][datamaps] systems should be preferred over a reload listener, if possible.
+:::tip
+On the server [side][sides], the [datapack registry][datapackregistries] or [data map][datamaps] systems may be better suited for many use cases.
 :::
 
 ## Reloading
@@ -19,9 +19,11 @@ Both resource pack and data pack reload function similar in principle and only d
 |----------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------|
 | **Loads From**                               | Resource packs (`assets` folder)                                                                                                   | Data packs (`data` folder)                                                                                            |
 | **First Reload**<br/>(Physical Client)       | - Startup                                                                                                                          | - Creating a new world<br/>("Preparing for world creation...")<br/>- Joining an existing world<br/>- Joining a server |
-| **Subsequent Reloads**<br/>(Physical Client) | - Changing resource packs in the Options menu<br/>- Downloading a server's custom resource pack on server join<br/>- Pressing F3+T | - Leaving a world or server<br/>(unloads the listener)                                                                |
+| **Subsequent Reloads**<br/>(Physical Client) | - Changing resource packs in the Options menu<br/>- Downloading a server's custom resource pack on server join<br/>- Pressing F3+T | - Leaving a world or server\*<br/>                                                                                    |
 | **First Reload**<br/>(Physical Server)       | _never_                                                                                                                            | - Startup                                                                                                             |
 | **Subsequent Reloads**<br/>(Physical Server) | _never_                                                                                                                            | - `/reload` command                                                                                                   |
+
+\*When leaving a world, any stored data becomes stale. Depending on how your system is set up, **this can cause memory leaks**. See [Server-Side Reload Listeners][serverlisteners] below for what mechanisms to use to avoid memory leaks.
 
 :::info
 The `/reload` command also triggers reloads of some other datapack-driven systems, such as [tags][tags]. This is by design and cannot be circumvented.
@@ -34,7 +36,7 @@ Conceptually, the work of a single reload listener can commonly be split into tw
 - **Preparation**: The necessary files are collected, validated and parsed into some object that can be used in the next step. The preparation stage is run on **multiple threads**.
 - **Application**: The object from the previous step is "applied" to the game, usually by means of setting some field or adding to some collection. The application stage is run on the **main thread**.
 
-To ensure synchronization, after preparation, a `PreparationBarrier` is `wait`ed for by the underlying `CompletableFuture`. Only once all preparation threads have run, the application is allowed to run. In code, this looks roughly as follows:
+To ensure synchronization, after preparation, a `PreparationBarrier` is `wait`ed for by the underlying `CompletableFuture`. Only once all preparation threads have run, the application stage is allowed to run. In code, this looks roughly as follows:
 
 ```java
 @Override
@@ -58,50 +60,85 @@ public CompletableFuture<Void> reload(
 
 See [`PreparableReloadListener`][preparablereloadlistener] below for an explanation of the parameters.
 
-## Adding a Reload Listener
+## Adding and Retrieving Reload Listeners
 
-All reload listeners are registered using the same basic principle. First, we need a reload listener instance. Vanilla typically stores its reload listeners, such as the [texture][textures] or [recipe managers][recipes], as fields in `Minecraft` (for client-side listeners) or `ServerLevel` (for server-side listeners), however in modded contexts, a singleton instance is usually fine as well:
+All reload listeners are registered using the same basic principle, though with some differences depending on the logical [side][sides]. First, we need a reload listener class. Then, we register it to the side-specific [event][events]. Finally, we can retrieve the reload listener in a side-specific way and operate on it.
+
+### Client-Side Reload Listeners
+
+On the client side, it is sufficient to hold the reload listener in a singleton instance, like so:
 
 ```java
 // Instead of PreparableReloadListener, extend one of its subclasses if applicable, see below.
-public class MyReloadListener implements PreparableReloadListener {
+public class MyClientReloadListener implements PreparableReloadListener {
     // The id we're going to use in registration below
-    public static final Identifier ID = Identifier.fromNamespaceAndPath("mymod", "my_listener");
+    public static final Identifier ID = Identifier.fromNamespaceAndPath("mymod", "my_client_listener");
     // The instance through which the listener is accessed
-    public static final MyReloadListener INSTANCE = new MyReloadListener();
-    
+    public static final MyClientReloadListener INSTANCE = new MyClientReloadListener();
+
     // Hide the constructor in accordance with the singleton pattern
-    private MyReloadListener() {}
+    private MyClientReloadListener() {
+    }
 
     // other methods added here later
 }
 ```
 
-Then, depending on whether the reload listener is for client data (resource packs) or server data (data packs), the listener is registered to one of two [events][events]:
+Next, we add the reload listener in the `AddClientReloadListenersEvent` like so:
 
 ```java
-// For client-side reload listeners
 @SubscribeEvent // on the game event bus only on the physical client
 public static void addClientReloadListeners(AddClientReloadListenersEvent event) {
-    event.addListener(MyReloadListener.ID, MyReloadListener.INSTANCE);
-}
-
-// For server-side reload listeners
-@SubscribeEvent // on the game event bus
-public static void addServerReloadListeners(AddServerReloadListenersEvent event) {
-    event.addListener(MyReloadListener.ID, MyReloadListener.INSTANCE);
+    event.addListener(MyClientReloadListener.ID, MyClientReloadListener.INSTANCE);
 }
 ```
 
-:::danger
-Do not register the same reload listener on both sides! All of your file-driven systems should be designed for one side only, otherwise desyncs and similar issues will arise.
+And that's it! To access the reload listener, simply access the `MyClientReloadListener.INSTANCE` field.
 
-Also, since servers sync their reload listener data to the client, make sure the client implementation either properly clears out those values on disconnect, or never uses them in contexts without a server.
-:::
+### Server-Side Reload Listeners
 
-And then, the reload listener can be accessed - from the correct side - through the singleton `INSTANCE`.
+On the server side, it is theoretically possible to follow the same singleton pattern as above, and just register to `AddServerReloadListenersEvent`. However, this poses a high risk of memory leaks at reloading time if not handled properly; furthermore, it can also lead to unintended "reaching across sides" in the form of client code accessing the server's reload listeners.
 
-## Types of Reload Listeners
+To combat this, NeoForge introduces the concept of retained listeners. Retained listener are accessed from a `MinecraftServer` instance (which can be retrieved from a `ServerLevel`) rather than a singleton instance, using a `ListenerKey<T>`.
+
+The reload listener class itself looks fairly similar to a [client-side reload listener][clientlisteners], though replaces the singleton `INSTANCE` with a `LISTENER_KEY`:
+
+```java
+// Instead of PreparableReloadListener, extend one of its subclasses if applicable, see below.
+public class MyServerReloadListener implements PreparableReloadListener {
+    // The id we're going to use in registration below
+    public static final Identifier ID = Identifier.fromNamespaceAndPath("mymod", "my_server_listener");
+    // Create a listener key for use in the event
+    public static final ListenerKey<MyServerReloadListener> LISTENER_KEY = ListenerKey.create(ID);
+
+    // We now have a public constructor.
+    public MyServerReloadListener() {
+    }
+
+    // other methods added here later
+}
+```
+
+Next, we register a retained listener to the `AddServerReloadListenersEvent` like so:
+
+```java
+@SubscribeEvent // on the game event bus
+public static void addServerReloadListeners(AddServerReloadListenersEvent event) {
+    event.addRetainedListener(MyServerReloadListener.LISTENER_KEY, new MyServerReloadListener());
+}
+```
+
+And finally, we can access the listener from a `ServerLevel` like so:
+
+```java
+MyServerReloadListener listener = serverLevel
+        .getServer()
+        .getServerResources()
+        .managers()
+        .getListener(MyServerReloadListener.LISTENER_KEY);
+```
+
+## Reload Listener Class Hierarchy
 
 ```mermaid
 graph LR;
@@ -128,14 +165,14 @@ Additionally, it defines two default methods:
 - `prepareSharedState(SharedState currentReload)`: Does nothing by default. See [Shared Reloading State][sharedstate].
 - `getName()`: Returns a name to use in logging. By default, returns the class name.
 
-In a `PreparableReloadListener`, you can load basically anything here. For example, this is directly implemented by many reload listeners that load binary data ([textures][textures], fonts, etc., but not [sounds][sounds]), as well as some others such as [data maps][datamaps]. However, many systems - for example many JSON-based systems - use one of the abstract classes below instead.
+In a `PreparableReloadListener`, you can load basically anything. For example, this is directly implemented by many reload listeners that load binary data ([textures][textures], fonts, etc., but notably not [sounds][sounds]), as well as some others such as [data maps][datamaps]. However, many systems - for example many JSON-based systems - use one of the abstract classes below instead.
 
 ### `ContextAwareReloadListener`
 
-`ContextAwareReloadListener` is a utility class that supplies a [load condition][conditions] context, obtainable via `#getContext()`. Additionally, it provides a registry access via `#getRegistryLookup()`.
+`ContextAwareReloadListener` is a utility class that supplies a [data load condition][conditions] context, obtainable via `#getContext()`. Additionally, it provides a registry access via `#getRegistryLookup()`.
 
 :::info
-This class is added into the hierarchy by NeoForge, as load conditions are a NeoForge system.
+This class is added into the hierarchy by NeoForge, as data load conditions are a NeoForge system.
 :::
 
 ### `SimplePreparableReloadListener`
@@ -147,7 +184,8 @@ This class is added into the hierarchy by NeoForge, as load conditions are a Neo
 // For example, in many cases, this will be a List<MyObject>, Map<?, MyObject> or similar.
 // This is often (but not necessarily) the same as the type of the stored data.
 public class MyReloadListener extends SimplePreparableReloadListener<MyObject> {
-    // As above.
+    // We use the singleton pattern of client reload listeners here for the sake of example.
+    // This part can be adjusted as needed if you're using a server reload listener.
     public static final Identifier ID = Identifier.fromNamespaceAndPath("mymod", "my_listener");
     public static final MyReloadListener INSTANCE = new MyReloadListener();
     private MyReloadListener() {}
@@ -260,7 +298,7 @@ In order to avoid conflicts where two mods add a registry that is named the same
 
 ### `ResourceManagerReloadListener`
 
-`ResourceManagerReloadListener` is a special utility interface that runs once the reload itself has completed, providing the fully-populated `ResourceManager` in its only method `#onResourceManagerReload()`. Classes implementing this interface mainly do post-reload cleanup work or build caches.
+`ResourceManagerReloadListener` is a special utility interface that runs once the reload itself has completed, providing the fully-populated `ResourceManager` in its only method `#onResourceManagerReload()`. Classes implementing this interface mainly do post-reload cleanup work, cache building or similar.
 
 ## Shared Reloading State
 
@@ -294,6 +332,7 @@ public class MyReloadListener implements PreparableReloadListener {
 
 The reload system will then ensure for you that the pending resources are available in the reload.
 
+[clientlisteners]: #client-side-reload-listeners
 [codec]: ../datastorage/codecs.md
 [conditions]: server/conditions.md
 [datamaps]: server/datamaps/index.md
@@ -305,9 +344,9 @@ The reload system will then ensure for you that the pending resources are availa
 [recipes]: server/recipes/index.md
 [resourcekey]: ../misc/identifier.md#resourcekeys
 [resources]: index.md
+[serverlisteners]: #server-side-reload-listeners
 [sharedstate]: #shared-reloading-state
 [sides]: ../concepts/sides.md
 [sounds]: client/sounds.md
-[soundsjson]: client/sounds.md#soundsjson
 [tags]: server/tags.md
 [textures]: client/textures.md
