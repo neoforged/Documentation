@@ -8,14 +8,17 @@ Each of these systems lives in a relatively complex class hierarchy. This is owe
 
 ## Hierarchy of `Level`
 
-Let's start with `Level`, which has the most complex class hierarchy of them all (interfaces in green, `abstract` classes in yellow, non-`abstract` classes in blue, [client-only][sides] classes or interfaces in _italics_):
+Let's start with `Level`, which has the most complex class hierarchy of them all (interfaces in green, `abstract` classes in yellow, non-`abstract` classes in blue, [client-only][sides] classes or interfaces in _italics_, elements marked with \* have uses outside this hierarchy):
 
 ```mermaid
 graph TB
-    BlockAndTintGetter["`*BlockAndTintGetter*`"]
-    ClientLevel["`*ClientLevel*`"]
+    LevelHeightAccessor["LevelHeightAccessor*"]
+    BlockGetter["BlockGetter*"]
+    BlockAndTintGetter["`_BlockAndTintGetter_*`"]
+    CollisionGetter["CollisionGetter*"]
+    ClientLevel["`_ClientLevel_`"]
     NoiseBiomeSource["`BiomeManager.
-    NoiseBiomeSource`"]
+    NoiseBiomeSource*`"]
     
     BlockAndLightGetter --> BlockAndTintGetter --> ClientLevel
     LevelAccessor --> Level --> ClientLevel & ServerLevel
@@ -49,7 +52,7 @@ Sits at the root of the hierarchy of block-related interfaces. It has two vital 
 
 Declares three methods crucial to many level operations: [`getBlockState(BlockPos)`][blockstate], `getFluidState(BlockPos)` and [`getBlockEntity(BlockPos)`][blockentity]. Additionally, it defines helper operations for clipping (a.k.a. raycasting) via `clip()` and related methods.
 
-Outside of its immediate relevancy for levels, `BlockGetter` is also implemented by `LightChunk`, making it the common ancestor of `Level` and `LevelChunk`.
+Outside of its immediate relevancy for levels, `BlockGetter` is also implemented by `LightChunk`, making it and [`BiomeManager.NoiseBiomeSource`][noisebiomesource] the common ancestors of `Level` and `LevelChunk`.
 
 If for some reason you need a placeholder `BlockGetter` in your code, you can find one at `EmptyBlockGetter.INSTANCE`.
 
@@ -80,7 +83,7 @@ It is not implemented by anything else, and only ever encountered in the context
 
 Defines a single method `getNoiseBiome()`, returning the `Biome` at the given position.
 
-Also implemented by `ChunkAccess`, and has a direct implementation in `FixedBiomeSource`, a class used for single biome worlds.
+Also implemented by `ChunkAccess`, making it and [`BlockGetter`][blockgetter] the common ancestors of `Level` and `LevelChunk`, and additionally has a direct implementation in `FixedBiomeSource`, a class used for single biome worlds.
 
 ### `LevelReader`
 
@@ -200,6 +203,14 @@ TODO
 
 TODO
 
+### `BlockGetter`
+
+_See [Hierarchy of `Level`/`BlockGetter`][blockgetter]._
+
+### `BiomeManager.NoiseBiomeSource`
+
+_See [Hierarchy of `Level`/`BiomeManager.NoiseBiomeSource`][noisebiomesource]._
+
 ## See Also
 
 - [Chunk][mcwikichunk] on the [Minecraft Wiki][mcwiki]
@@ -208,6 +219,7 @@ TODO
 
 [addfreshentity]: ../entities/index.md#spawning-entities
 [blockentity]: ../blockentities/index.md
+[blockgetter]: #blockgetter
 [blockstate]: ../blocks/states.md
 [dpregistries]: ../concepts/registries.md#datapack-registries
 [entity]: ../entities/index.md
@@ -216,6 +228,7 @@ TODO
 [mcwikichunk]: https://minecraft.wiki/w/Chunk
 [mcwikidimension]: https://minecraft.wiki/w/Dimension
 [mcwikiworld]: https://minecraft.wiki/w/World
+[noisebiomesource]: #biomemanagernoisebiomesource
 [player]: ../entities/livingentity.md#living-entities-mobs--players
 [setblock]: ../blocks/states.md#levelsetblock
 [sides]: ../concepts/sides.md
