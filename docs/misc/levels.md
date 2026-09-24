@@ -6,9 +6,9 @@ A world can therefore be thought of as a collection of levels, plus some additio
 
 Both levels and chunks each live in a relatively complex class hierarchy. This is owed to the fact that at different stages of loading a level, different subsystems are available or not yet available (for example, blocks and entities are loaded at completely different times). This makes the systems very hard to digest, so the purpose of this article is to provide an overview of the various classes and interfaces involved.
 
-## Hierarchy of `Level`
+## Level Hierarchy
 
-Let's start with `Level`, which has the most complex class hierarchy of them all (interfaces in green, `abstract` classes in yellow, non-`abstract` classes in blue, [client-only][sides] classes or interfaces in _italics_, elements marked with \* have uses outside this hierarchy):
+The level hierarchy, centered around the abstract `Level` class, has one of the most complex class hierarchies in the entire game (interfaces in green, `abstract` classes in yellow, non-`abstract` classes in blue, [client-only][sides] classes or interfaces in _italics_, elements marked with \* have uses outside this hierarchy):
 
 ```mermaid
 graph TB
@@ -199,9 +199,9 @@ TODO
 
 TODO
 
-## Hierarchy of `LevelChunk`
+## Chunk Hierarchy
 
-The hierarchy of `LevelChunk` is considerably smaller than that of `Level`. The main quirks are its relation to `Level`s via `BlockGetter` and `BiomeManager.NoiseBiomeSource`, and the split into `LevelChunk`s and `ProtoChunk`s (interfaces in green, `abstract` classes in yellow, non-`abstract` classes in blue, elements marked with \* have uses outside this hierarchy):
+The hierarchy of chunks is considerably smaller than that of levels. The main quirks are its relation to `Level`s via `BlockGetter` and `BiomeManager.NoiseBiomeSource`, and the split into `LevelChunk`s and `ProtoChunk`s (interfaces in green, `abstract` classes in yellow, non-`abstract` classes in blue, elements marked with \* have uses outside this hierarchy):
 
 ```mermaid
 graph TB
