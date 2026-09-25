@@ -71,9 +71,9 @@ Now, to connect your sound event to actual sound files, we need to create sound 
                 // Location of the sound file, relative to the namespace's sounds folder.
                 // This example references a sound at assets/examplemod/sounds/sound_1.ogg.
                 "name": "examplemod:sound_1",
-                // May be "sound" or "event". "sound" causes the name to refer to a sound file.
-                // "event" causes the name to refer to another sound event. Defaults to "sound".
-                "type": "sound",
+                // May be "file" or "event". "file" causes the name to refer to a sound file.
+                // "event" causes the name to refer to another sound event. Defaults to "file".
+                "type": "file",
                 // The volume this sound will be played at. Must be between 0.0 and 1.0 (default).
                 "volume": 0.8,
                 // The pitch value the sound will be played at.
@@ -264,6 +264,7 @@ public class MySoundDefinitionsProvider extends SoundDefinitionsProvider {
             .with(
                 // Accepts either a string or a Identifier as the first parameter.
                 // The second parameter can be either SOUND or EVENT, and can be omitted if the former.
+                // A type of SOUND refer to the "file" type mentioned previously
                 sound("examplemod:sound_1", SoundDefinition.SoundType.SOUND)
                     // Sets the volume. Also has a double counterpart.
                     .volume(0.8f)
