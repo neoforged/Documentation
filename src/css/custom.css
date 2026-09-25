@@ -96,3 +96,17 @@ h2 {
     text-align: center;
   }
 }
+
+/* Keep version dropdown and color mode in mobile. */
+@media (max-width: 996px) {
+  .colorModeToggle_DEke {
+    display: block !important;
+  }
+  .navbarSearchContainer_Bca1 {
+    position: static !important;
+    padding: 0 var(--ifm-navbar-item-padding-horizontal) !important;
+  }
+  .navbar__items > .dropdown {
+    display: block !important;
+  }
+}

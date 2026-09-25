@@ -120,23 +120,20 @@ This data can then be retrieved via `EntityRenderState#getRenderData` where need
 
 ## Hierarchy
 
-Like entities themselves, entity renderers have a class hierarchy, though not as layered. The most important classes of the hierarchy are related like this (red classes are `abstract`, blue classes are not):
+Like entities themselves, entity renderers have a class hierarchy, though not as layered. The most important classes of the hierarchy are related like this:
 
 ```mermaid
 graph LR;
-    EntityRenderer-->AbstractBoatRenderer;
-    EntityRenderer-->AbstractMinecartRenderer;
-    EntityRenderer-->ArrowRenderer;
-    EntityRenderer-->LivingEntityRenderer;
-    LivingEntityRenderer-->ArmorStandRenderer;
-    LivingEntityRenderer-->MobRenderer;
-    MobRenderer-->AgeableMobRenderer;
-    AgeableMobRenderer-->HumanoidMobRenderer;
-    LivingEntityRenderer-->AvatarRenderer;
-    
-    class EntityRenderer,AbstractBoatRenderer,AbstractMinecartRenderer,ArrowRenderer,LivingEntityRenderer,MobRenderer,AgeableMobRenderer,HumanoidMobRenderer red;
+    EntityRenderer --> ArrowRenderer & LivingEntityRenderer & AbstractBoatRenderer & AbstractMinecartRenderer;
+    LivingEntityRenderer --> ArmorStandRenderer;
+    LivingEntityRenderer --> MobRenderer --> AgeableMobRenderer --> HumanoidMobRenderer;
+    LivingEntityRenderer --> AvatarRenderer;
+
+    class EntityRenderer,AbstractBoatRenderer,AbstractMinecartRenderer,ArrowRenderer,LivingEntityRenderer,MobRenderer,AgeableMobRenderer,HumanoidMobRenderer yellow;
     class ArmorStandRenderer,AvatarRenderer blue;
 ```
+
+_<span class="mermaid-desc-yellow">Yellow</span> classes are `abstract`, <span class="mermaid-desc-blue">blue</span> classes are not `abstract`._
 
 - `EntityRenderer`: The abstract base class. Many renderers, notably almost all renderers for non-living entities, extend this class directly.
 - `ArrowRenderer`, `AbstractBoatRenderer`, `AbstractMinecartRenderer`: These exist mainly for convenience, and are used as parents for more specific renderers.

@@ -1,5 +1,5 @@
 /* LIGHT THEME */
-html[data-theme="light"] .docusaurus-mermaid-container {
+html[data-theme="light"] .docusaurus-mermaid-container, .mermaid-desc-yellow, .mermaid-desc-red, .mermaid-desc-blue, .mermaid-desc-green {
     --diagram-red:          hsl(10, 40%, 70%);
     --diagram-red-stroke:   hsl(10, 40%, 60%);
 
@@ -14,7 +14,7 @@ html[data-theme="light"] .docusaurus-mermaid-container {
 }
 
 /* DARK THEME */
-html[data-theme="dark"] .docusaurus-mermaid-container {
+html[data-theme="dark"] .docusaurus-mermaid-container, .mermaid-desc-yellow, .mermaid-desc-red, .mermaid-desc-blue, .mermaid-desc-green {
     --diagram-red:          hsl(10, 40%, 20%);
     --diagram-red-stroke:   hsl(10, 40%, 30%);
 
@@ -54,4 +54,20 @@ html[data-theme="dark"] .docusaurus-mermaid-container {
     fill: var(--diagram-yellow, #cc9) !important;
     stroke: var(--diagram-yellow-stroke, #aa7) !important;
     stroke-width: 2px !important;
+}
+
+.mermaid-desc-yellow {
+    background-color: var(--diagram-yellow);
+}
+
+.mermaid-desc-red {
+    background-color: var(--diagram-red);
+}
+
+.mermaid-desc-blue {
+    background-color: var(--diagram-blue);
+}
+
+.mermaid-desc-green {
+    background-color: var(--diagram-green);
 }

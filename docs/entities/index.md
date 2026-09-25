@@ -322,40 +322,28 @@ EntityType.Builder.of(...)
 
 Due to the many different types of entities, there is a complex hierarchy of subclasses of `Entity`. These are important to know about when choosing what class to extend when making your own entity, as you will be able to save a lot of work by reusing their code.
 
-The vanilla entity hierarchy looks like this (red classes are `abstract`, blue classes are not):
+The vanilla entity hierarchy looks like this:
 
 ```mermaid
 graph LR;
-    Entity-->Projectile;
-    Entity-->LivingEntity;
-    Entity-->BlockAttachedEntity;
-    BlockAttachedEntity-->LeashFenceKnotEntity;
-    BlockAttachedEntity-->HangingEntity;
-    HangingEntity-->ItemFrame;
-    ItemFrame-->GlowItemFrame;
-    HangingEntity-->Painting;
-    Entity-->PartEntity;
-    PartEntity-->EnderDragonPart;
-    Entity-->VehicleEntity;
-    VehicleEntity-->AbstractBoat;
-    AbstractBoat-->AbstractChestBoat;
-    AbstractChestBoat-->ChestBoat;
-    AbstractChestBoat-->ChestRaft;
-    AbstractBoat-->Boat;
-    AbstractBoat-->Raft;
-    VehicleEntity-->AbstractMinecart;
-    AbstractMinecart-->AbstractMinecartContainer;
-    AbstractMinecartContainer-->MinecartChest;
-    AbstractMinecartContainer-->MinecartHopper;
-    AbstractMinecart-->Minecart;
-    AbstractMinecart-->MinecartCommandBlock;
-    AbstractMinecart-->MinecartFurnace;
-    AbstractMinecart-->MinecartSpawner;
-    AbstractMinecart-->MinecartTNT;
-    
-    class Entity,Projectile,LivingEntity,BlockAttachedEntity,HangingEntity,PartEntity,VehicleEntity,AbstractBoat,AbstractChestBoat,AbstractMinecart,AbstractMinecartContainer red;
+    Entity --> Projectile & LivingEntity & BlockAttachedEntity;
+    BlockAttachedEntity --> LeashFenceKnotEntity & HangingEntity;
+    HangingEntity --> ItemFrame --> GlowItemFrame;
+    HangingEntity --> Painting;
+    Entity --> PartEntity --> EnderDragonPart;
+    Entity --> VehicleEntity;
+    VehicleEntity --> AbstractBoat;
+    AbstractBoat --> AbstractChestBoat --> ChestBoat & ChestRaft;
+    AbstractBoat --> Boat & Raft;
+    VehicleEntity --> AbstractMinecart;
+    AbstractMinecart --> AbstractMinecartContainer & Minecart & MinecartCommandBlock & MinecartFurnace & MinecartSpawner & MinecartTNT;
+    AbstractMinecartContainer --> MinecartChest & MinecartHopper;
+
+    class Entity,Projectile,LivingEntity,BlockAttachedEntity,HangingEntity,PartEntity,VehicleEntity,AbstractBoat,AbstractChestBoat,AbstractMinecart,AbstractMinecartContainer yellow;
     class LeashFenceKnotEntity,ItemFrame,GlowItemFrame,Painting,EnderDragonPart,ChestBoat,ChestRaft,Boat,Raft,MinecartChest,MinecartHopper,Minecart,MinecartCommandBlock,MinecartCommandBlock,MinecartFurnace,MinecartSpawner,MinecartTNT blue;
 ```
+
+_<span class="mermaid-desc-yellow">Yellow</span> classes are `abstract`, <span class="mermaid-desc-blue">blue</span> classes are not `abstract`._
 
 Let's break these down:
 
@@ -388,36 +376,22 @@ The class hierarchy of projectiles looks as follows (red classes are `abstract`,
 
 ```mermaid
 graph LR;
-    Projectile-->AbstractArrow;
-    AbstractArrow-->Arrow;
-    AbstractArrow-->SpectralArrow;
-    AbstractArrow-->ThrownTrident;
-    Projectile-->AbstractHurtingProjectile;
-    AbstractHurtingProjectile-->AbstractWindCharge;
-    AbstractWindCharge-->BreezeWindCharge;
-    AbstractWindCharge-->WindCharge;
-    AbstractHurtingProjectile-->DragonFireball;
-    AbstractHurtingProjectile-->Fireball;
-    Fireball-->LargeFireball;
-    Fireball-->SmallFireball;
-    AbstractHurtingProjectile-->WitherSkull;
-    Projectile-->FireworkRocketEntity;
-    Projectile-->FishingHook;
-    Projectile-->LlamaSpit;
-    Projectile-->ShulkerBullet;
-    Projectile-->ThrowableProjectile;
-    ThrowableProjectile-->ThrowableItemProjectile;
-    ThrowableItemProjectile-->AbstractThrownPotion;
-    AbstractThrownPotion-->ThrownLingeringPotion;
-    AbstractThrownPotion-->ThrownSplashPotion;
-    ThrowableItemProjectile-->Snowball;
-    ThrowableItemProjectile-->ThrownEgg;
-    ThrowableItemProjectile-->ThrownEnderpearl;
-    ThrowableItemProjectile-->ThrownExperienceBottle;
+    Projectile --> AbstractArrow --> Arrow & SpectralArrow & ThrownTrident;
+    Projectile --> AbstractHurtingProjectile;
+    AbstractHurtingProjectile --> AbstractWindCharge --> BreezeWindCharge & WindCharge;
+    AbstractHurtingProjectile --> DragonFireball;
+    AbstractHurtingProjectile --> Fireball --> LargeFireball & SmallFireball;
+    AbstractHurtingProjectile --> WitherSkull;
+    Projectile --> FireworkRocketEntity & FishingHook & LlamaSpit & ShulkerBullet;
+    Projectile --> ThrowableProjectile --> ThrowableItemProjectile;
+    ThrowableItemProjectile --> AbstractThrownPotion --> ThrownLingeringPotion & ThrownSplashPotion;
+    ThrowableItemProjectile --> Snowball & ThrownEgg & ThrownEnderpearl & ThrownExperienceBottle;
 
-    class Projectile,AbstractArrow,AbstractHurtingProjectile,AbstractWindCharge,Fireball,ThrowableProjectile,ThrowableItemProjectile,AbstractThrownPotion red;
+    class Projectile,AbstractArrow,AbstractHurtingProjectile,AbstractWindCharge,Fireball,ThrowableProjectile,ThrowableItemProjectile,AbstractThrownPotion yellow;
     class Arrow,SpectralArrow,ThrownTrident,BreezeWindCharge,WindCharge,DragonFireball,LargeFireball,SmallFireball,WitherSkull,FireworkRocketEntity,FishingHook,LlamaSpit,ShulkerBullet,Snowball,ThrownEgg,ThrownEnderpearl,ThrownExperienceBottle,ThrownLingeringPotion,ThrownSplashPotion blue;
 ```
+
+_<span class="mermaid-desc-yellow">Yellow</span> classes are `abstract`, <span class="mermaid-desc-blue">blue</span> classes are not `abstract`._
 
 Of note are the three direct abstract subclasses of `Projectile`:
 
