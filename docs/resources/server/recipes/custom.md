@@ -548,7 +548,7 @@ public class RightClickBlockRecipe implements Recipe<RightClickBlockInput> {
 
 Now that all parts of your recipe are complete, you can make yourself some recipe JSONs (see the [datagen] section for that) and then query the recipe manager for your recipes, like above. What you then do with the recipe is up to you. A common use case would be a machine that can process your recipes, storing the active recipe as a field.
 
-In our case, however, we want to apply the recipe when an item is right-clicked on a block. We will do so using an [event handler][event]. Keep in mind that this is an example implementation, and you can alter this in any way you like (so long as you run it on the server). As we want the interaction state to match on both the client and server, we will also need to [sync any relevant input states across the network][networking].
+In our case, however, we want to apply the recipe when an item is right-clicked on a block. We will do so using a [reload listener][reloadlistener] and an [event handler][event]. Keep in mind that this is an example implementation, and you can alter this in any way you like (so long as you run it on the server). As we want the interaction state to match on both the client and server, we will also need to [sync any relevant input states across the network][networking].
 
 We can set up a simple network implementation to sync the recipe inputs like so:
 
@@ -1015,6 +1015,7 @@ It is also possible to have `SimpleRecipeBuilder` be merged into `RightClickBloc
 [ingredients]: ingredients.md
 [networking]: ../../../networking/payload.md
 [recipedatagen]: index.md#data-generation
+[reloadlistener]: ../../reloadlisteners.md
 [registry]: ../../../concepts/registries.md#methods-for-registering
 [serializer]: #the-recipe-serializer
 [streamcodec]: ../../../networking/streamcodecs.md
