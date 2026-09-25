@@ -1,4 +1,5 @@
 ---
+description: How to use codecs to represent data formats.
 sidebar_position: 2
 ---
 # Codecs

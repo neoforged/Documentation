@@ -1,3 +1,7 @@
+---
+description: How the damage system in Minecraft works, what the relation between damage sources and damage types is, and where modders can hook into the damage system.
+sidebar_position: 3
+---
 # Damage Types & Damage Sources
 
 A damage type denotes what kind of damage is being applied to an [entity] - physical damage, fire damage, drowning damage, magic damage, void damage, etc. The distinction into damage types is used for various immunities (e.g. blazes won't take fire damage), enchantments (e.g. blast protection will only protect against explosion damage), and many more use cases.
