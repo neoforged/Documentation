@@ -104,62 +104,46 @@ _See [Containers on Entities][containers]._
 
 ## Hierarchy
 
-Living entities have a complex class hierarchy. As mentioned before, there are three direct subclasses (red classes are `abstract`, blue classes are not):
+Living entities have a complex class hierarchy. As mentioned before, there are three direct subclasses:
 
 ```mermaid
 graph LR;
-    LivingEntity-->ArmorStand;
-    LivingEntity-->Mob;
-    LivingEntity-->Avatar;
+    LivingEntity --> ArmorStand & Mob & Avatar;
     
-    class LivingEntity,Mob,Avatar red;
+    class LivingEntity,Mob,Avatar yellow;
     class ArmorStand blue;
 ```
+
+_<span class="mermaid-desc-yellow">Yellow</span> classes are `abstract`, <span class="mermaid-desc-blue">blue</span> classes are not `abstract`._
 
 Of these, `ArmorStand` has no subclasses (and is also the only non-abstract class), so we will focus on the class hierarchy of `Mob` and `Avatar`.
 
 ### Hierarchy of `Mob`
 
-The class hierarchy of `Mob` looks as follows (red classes are `abstract`, blue classes are not):
+The class hierarchy of `Mob` looks as follows:
 
 ```mermaid
 graph LR;
-    Mob-->AmbientCreature;
-    AmbientCreature-->Bat;
-    Mob-->EnderDragon;
-    Mob-->Ghast;
-    Mob-->Phantom;
-    Mob-->PathfinderMob;
-    PathfinderMob-->AbstractGolem;
-    AbstractGolem-->CopperGolem;
-    AbstractGolem-->IronGolem;
-    AbstractGolem-->Shulker;
-    AbstractGolem-->SnowGolem;
-    PathfinderMob-->AgeableMob;
-    AgeableMob-->AbstractVillager;
-    AbstractVillager-->Villager;
-    AbstractVillager-->WanderingTrader;
-    AgeableMob-->AgeableWaterCreature;
-    AgeableWaterCreature-->Dolphin;
-    AgeableWaterCreature-->Squid;
-    Squid-->GlowSquid;
-    AgeableMob-->Animal;
-    PathfinderMob-->Allay;
-    PathfinderMob-->Monster;
-    PathfinderMob-->WaterAnimal;
-    WaterAnimal-->AbstractFish;
-    AbstractFish-->AbstractSchoolingFish;
-    AbstractSchoolingFish-->Cod;
-    AbstractSchoolingFish-->Salmon;
-    AbstractSchoolingFish-->TropicalFish;
-    AbstractFish-->Pufferfish;
-    AbstractFish-->Tadpole;
-    Mob-->Slime;
-    Slime-->MagmaCube;
-    
-    class Mob,AmbientCreature,PathfinderMob,AbstractGolem,AgeableMob,AbstractVillager,AgeableWaterCreature,Animal,Monster,WaterAnimal,AbstractFish,AbstractSchoolingFish red;
+    Mob --> AmbientCreature --> Bat;
+    Mob --> EnderDragon & Ghast & Phantom & PathfinderMob;
+    PathfinderMob --> AbstractGolem --> CopperGolem & IronGolem & Shulker & SnowGolem;
+    PathfinderMob --> AgeableMob;
+    AgeableMob --> AbstractVillager --> Villager & WanderingTrader;
+    AgeableMob --> AgeableWaterCreature;
+    AgeableWaterCreature --> Dolphin;
+    AgeableWaterCreature --> Squid --> GlowSquid;
+    AgeableMob --> Animal;
+    PathfinderMob --> Allay & Monster & WaterAnimal;
+    WaterAnimal --> AbstractFish;
+    AbstractFish --> AbstractSchoolingFish --> Cod & Salmon & TropicalFish;
+    AbstractFish --> Pufferfish & Tadpole;
+    Mob --> Slime --> MagmaCube;
+
+    class Mob,AmbientCreature,PathfinderMob,AbstractGolem,AgeableMob,AbstractVillager,AgeableWaterCreature,Animal,Monster,WaterAnimal,AbstractFish,AbstractSchoolingFish yellow;
     class Bat,CopperGolem,EnderDragon,Ghast,Phantom,IronGolem,Shulker,SnowGolem,Villager,WanderingTrader,Dolphin,Squid,GlowSquid,Allay,Cod,Salmon,TropicalFish,Pufferfish,Tadpole,Slime,MagmaCube blue;
 ```
+
+_<span class="mermaid-desc-yellow">Yellow</span> classes are `abstract`, <span class="mermaid-desc-blue">blue</span> classes are not `abstract`._
 
 All other living entities missing from the diagram are subclasses of either `Animal` or `Monster`.
 
@@ -179,18 +163,16 @@ Avatars define not only the player, but also a player-like mannequin. Depending 
 
 ```mermaid
 graph LR;
-    Avatar-->Mannequin;
-    Mannequin-->ClientMannequin;
-    Avatar-->Player;
-    Player-->AbstractClientPlayer;
-    AbstractClientPlayer-->LocalPlayer;
-    AbstractClientPlayer-->RemotePlayer;
-    Player-->ServerPlayer;
-    ServerPlayer-->FakePlayer;
-    
-    class Avatar,Player,AbstractClientPlayer red;
-    class ClientMannequin,LocalPlayer,RemotePlayer,ServerPlayer,FakePlayer blue;
+    Avatar --> Mannequin --> ClientMannequin;
+    Avatar --> Player;
+    Player --> AbstractClientPlayer --> LocalPlayer & RemotePlayer;
+    Player --> ServerPlayer --> FakePlayer;
+
+    class Avatar,Player,AbstractClientPlayer yellow;
+    class Mannequin,ClientMannequin,LocalPlayer,RemotePlayer,ServerPlayer,FakePlayer blue;
 ```
+
+_<span class="mermaid-desc-yellow">Yellow</span> classes are `abstract`, <span class="mermaid-desc-blue">blue</span> classes are not `abstract`._
 
 - `AbstractClientPlayer`: This class is used as a base for the two client players, both used to represent players on the [logical client][logicalsides].
 - `LocalPlayer`: This class is used to represent the player currently running the game.

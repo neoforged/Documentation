@@ -115,16 +115,14 @@ If you listen to an `abstract` event, your game will crash, as this is never wha
 
 ```mermaid
 graph TD;
-    Event-->BlockEvent;
-    BlockEvent-->BlockDropsEvent;
-    Event-->EntityEvent;
-    EntityEvent-->LivingEvent;
-    LivingEvent-->PlayerEvent;
-    PlayerEvent-->CanPlayerSleepEvent;
+    Event --> BlockEvent --> BlockDropsEvent;
+    Event --> EntityEvent --> LivingEvent --> PlayerEvent --> CanPlayerSleepEvent;
 
-    class Event,BlockEvent,EntityEvent,LivingEvent,PlayerEvent red;
+    class Event,BlockEvent,EntityEvent,LivingEvent,PlayerEvent yellow;
     class BlockDropsEvent,CanPlayerSleepEvent blue;
 ```
+
+_<span class="mermaid-desc-yellow">Yellow</span> classes are `abstract`, <span class="mermaid-desc-blue">blue</span> classes are not `abstract`._
 
 ### Cancellable Events
 
