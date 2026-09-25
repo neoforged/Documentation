@@ -33,8 +33,8 @@ The `/reload` command also triggers reloads of some other datapack-driven system
 
 Conceptually, the work of a single reload listener can commonly be split into two stages:
 
-- **Preparation**: The necessary files are collected, validated and parsed into some object that can be used in the next step. The preparation stage is run on **multiple threads**.
-- **Application**: The object from the previous step is "applied" to the game, usually by means of setting some field or adding to some collection. The application stage is run on the **main thread**.
+- **Preparation**: The necessary files are collected, validated and parsed into some object that can be used in the next step. The preparation stage is run on **multiple threads**, using what is called the **task executor**.
+- **Application**: The object from the previous step is "applied" to the game, usually by means of setting some field or adding to some collection. The application stage is run on the **main thread**, using what is called the **reload executor**.
 
 To ensure synchronization, after preparation, a `PreparationBarrier` is `wait`ed for by the underlying `CompletableFuture`. Only once all preparation threads have run, the application stage is allowed to run. In code, this looks roughly as follows:
 
@@ -49,12 +49,12 @@ public CompletableFuture<Void> reload(
     return CompletableFuture
         .supplyAsync(() -> {
             // Collect and return the result of the preparation stage here.
-        })
+        }, taskExecutor) // Use the task executor for this call.
         .thenCompose(barrier::wait)
         .thenAcceptAsync(preparations -> {
             // Run the application stage.
             // `preparations` is the return value of the `supplyAsync` call above.
-        });
+        }, reloadExecutor); // Use the reload executor for this call.
 }
 ```
 
@@ -306,7 +306,8 @@ As mentioned before, reloading happens on multiple threads since reload listener
 
 ```java
 // Create a record (or class) holding our data to pass to another listener
-public record MyPendingResources(/* any data here */) {}
+// Instead of Object, use whatever actual type you need
+public record MyPendingResources(CompletableFuture<Object> future) {}
 
 // Can also extend/implement any subclass/subinterface of PreparableReloadListener
 public class MyReloadListener implements PreparableReloadListener {
@@ -317,20 +318,63 @@ public class MyReloadListener implements PreparableReloadListener {
     
     // Override prepareSharedState() to add our pending resources
     @Override
-    public void prepareSharedState(PreparableReloadListener.SharedState currentReload) {
-        currentReload.set(STATE_KEY, new MyPendingResources(/* any data here */));
+    public void prepareSharedState(SharedState sharedState) {
+        sharedState.set(STATE_KEY, new MyPendingResources(/* any data here */));
+    }
+
+    // Again, instead of Object, use (and return) whatever type you need
+    private Object prepare(ResourceManager resourceManager) {
+        return new Object();
     }
 
     // Then, use in reload() like so:
     @Override
-    public CompletableFuture<Void> reload(SharedState currentReload, Executor taskExecutor, PreparationBarrier barrier, Executor reloadExecutor) {
-        MyPendingResources pending = currentReload.get(STATE_KEY);
-        // do the reload here, using `pending`
+    public CompletableFuture<Void> reload(SharedState sharedState, Executor taskExecutor, PreparationBarrier barrier, Executor reloadExecutor) {
+        // Begin by calling prepare():
+        return CompletableFuture.supplyAsync(() -> prepare(sharedState.resourceManager()), taskExecutor)
+                // Set the shared state:
+                .whenComplete((data, error) -> {
+                    // Again, use whatever type you need instead of Object
+                    CompletableFuture<Object> future = sharedState.get(STATE_KEY).future;
+                    if (data != null) {
+                        future.complete(data);
+                    } else {
+                        future.completeExceptionally(error);
+                    }
+                })
+                // Wait for the preparation and proceed to the application stage
+                .thenCompose(preparationBarrier::wait)
+                .thenAcceptAsync(preparations -> {
+                    // Application stage here
+                }, reloadExecutor);
     }
 }
 ```
 
-The reload system will then ensure for you that the pending resources are available in the reload.
+Then, in a dependent reload listener, access the data like so:
+
+```java
+public class MyDependentReloadListener implements PreparableReloadListener {
+    @Override
+    public CompletableFuture<Void> reload(SharedState sharedState, Executor taskExecutor, PreparationBarrier preparationBarrier, Executor reloadExecutor) {
+        return sharedState.get(MyReloadListener.STATE_KEY)
+                .future()
+                .thenApplyAsync(this::prepare, taskExecutor)
+                .thenCompose(preparationBarrier::wait)
+                .thenAcceptAsync(this::apply, reloadExecutor);
+    }
+
+    // Preparation stage; yet again, use whatever type you need instead of Object
+    private Object prepare(Object data) {
+        return data;
+    }
+
+    // Application stage
+    private void apply(Object data) {
+        // ...
+    }
+}
+```
 
 [clientlisteners]: #client-side-reload-listeners
 [codec]: ../datastorage/codecs.md
