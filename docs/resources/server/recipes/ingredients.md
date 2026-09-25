@@ -157,6 +157,6 @@ An example for a vanilla tag ingredient:
 [itemstack]: ../../../items/index.md#itemstacks
 [recipes]: index.md
 [registry]: ../../../concepts/registries.md
-[slotdisplay]: index.md#slot-displays
+[slotdisplay]: custom.md#slot-displays
 [streamcodec]: ../../../networking/streamcodecs.md
 [tag]: ../tags.md
