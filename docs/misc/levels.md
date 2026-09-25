@@ -8,33 +8,34 @@ Both levels and chunks each live in a relatively complex class hierarchy. This i
 
 ## Level Hierarchy
 
-The level hierarchy, centered around the abstract `Level` class, has one of the most complex class hierarchies in the entire game (interfaces in green, `abstract` classes in yellow, non-`abstract` classes in blue, [client-only][sides] classes or interfaces in _italics_, elements marked with \* have uses outside this hierarchy):
+The level hierarchy, centered around the abstract `Level` class, has one of the most complex class hierarchies in the entire game:
 
 ```mermaid
 graph TB
-    LevelHeightAccessor["LevelHeightAccessor*"]
-    BlockGetter["BlockGetter*"]
-    BlockAndTintGetter["`_BlockAndTintGetter_*`"]
-    CollisionGetter["CollisionGetter*"]
-    ClientLevel["`_ClientLevel_`"]
+    LevelHeightAccessor["LevelHeightAccessor*"];
+    BlockGetter["BlockGetter*"];
+    BlockAndTintGetter["BlockAndTintGetter*"];
+    CollisionGetter["CollisionGetter*"];
     NoiseBiomeSource["`BiomeManager.
-    NoiseBiomeSource*`"]
+    NoiseBiomeSource*`"];
     
-    BlockAndLightGetter --> BlockAndTintGetter --> ClientLevel
-    LevelAccessor --> Level --> ClientLevel & ServerLevel
-    EntityGetter --> ServerEntityGetter --> ServerLevel
-    LevelAccessor --> ServerLevelAccessor --> WorldGenLevel --> ServerLevel & WorldGenRegion
-    Level ~~~ BlockAndTintGetter & ServerEntityGetter
-    ScheduledTickAccess & CommonLevelAccessor --> LevelAccessor
-    LevelReader & EntityGetter --> CommonLevelAccessor
-    LevelSimulatedReader & LevelWriter --> LevelSimulatedRW --> CommonLevelAccessor
-    LevelHeightAccessor --> BlockGetter --> BlockAndLightGetter & CollisionGetter & SignalGetter --> LevelReader
-    NoiseBiomeSource --> LevelReader
+    BlockAndLightGetter --> BlockAndTintGetter --> ClientLevel;
+    LevelAccessor --> Level --> ClientLevel & ServerLevel;
+    EntityGetter --> ServerEntityGetter --> ServerLevel;
+    LevelAccessor --> ServerLevelAccessor --> WorldGenLevel --> ServerLevel & WorldGenRegion;
+    Level ~~~ BlockAndTintGetter & ServerEntityGetter;
+    ScheduledTickAccess & CommonLevelAccessor --> LevelAccessor;
+    LevelReader & EntityGetter --> CommonLevelAccessor;
+    LevelSimulatedReader & LevelWriter --> LevelSimulatedRW --> CommonLevelAccessor;
+    LevelHeightAccessor --> BlockGetter --> BlockAndLightGetter & CollisionGetter & SignalGetter --> LevelReader;
+    NoiseBiomeSource --> LevelReader;
 
-    class WorldGenLevel,ServerLevelAccessor,LevelAccessor,CommonLevelAccessor,EntityGetter,ServerEntityGetter,BlockAndLightGetter,BlockAndTintGetter,ScheduledTickAccess,LevelSimulatedRW,LevelSimulatedReader,LevelWriter,LevelReader,NoiseBiomeSource,CollisionGetter,SignalGetter,BlockGetter,LevelHeightAccessor green
-    class Level yellow
-    class ClientLevel,ServerLevel,WorldGenRegion blue
+    class WorldGenLevel,ServerLevelAccessor,LevelAccessor,CommonLevelAccessor,EntityGetter,ServerEntityGetter,BlockAndLightGetter,BlockAndTintGetter,ScheduledTickAccess,LevelSimulatedRW,LevelSimulatedReader,LevelWriter,LevelReader,NoiseBiomeSource,CollisionGetter,SignalGetter,BlockGetter,LevelHeightAccessor green;
+    class Level yellow;
+    class ClientLevel,ServerLevel,WorldGenRegion blue;
 ```
+
+_<span class="mermaid-desc-green">Green</span> elements are interfaces, <span class="mermaid-desc-yellow">yellow</span> classes are `abstract`, <span class="mermaid-desc-blue">blue</span> classes are not `abstract`, elements marked with \* have uses outside this hierarchy._
 
 In order to digest this, let's go through each class separately, from loosely top to bottom:
 
@@ -201,22 +202,24 @@ TODO
 
 ## Chunk Hierarchy
 
-The hierarchy of chunks is considerably smaller than that of levels. The main quirks are its relation to `Level`s via `BlockGetter` and `BiomeManager.NoiseBiomeSource`, and the split into `LevelChunk`s and `ProtoChunk`s (interfaces in green, `abstract` classes in yellow, non-`abstract` classes in blue, elements marked with \* have uses outside this hierarchy):
+The hierarchy of chunks is considerably smaller than that of levels. The main quirks are its relation to `Level`s via `BlockGetter` and `BiomeManager.NoiseBiomeSource`, and the split into `LevelChunk`s and `ProtoChunk`s:
 
 ```mermaid
-graph TB
-    LevelHeightAccessor["LevelHeightAccessor*"]
-    BlockGetter["BlockGetter*"]
+graph TB;
+    LevelHeightAccessor["LevelHeightAccessor*"];
+    BlockGetter["BlockGetter*"];
     NoiseBiomeSource["`BiomeManager.
-    NoiseBiomeSource*`"]
+    NoiseBiomeSource*`"];
 
-    LevelHeightAccessor --> BlockGetter --> LightChunk --> ChunkAccess --> LevelChunk --> EmptyLevelChunk
-    NoiseBiomeSource & StructureAccess --> ChunkAccess --> ProtoChunk --> ImposterProtoChunk
+    LevelHeightAccessor --> BlockGetter --> LightChunk --> ChunkAccess --> LevelChunk --> EmptyLevelChunk;
+    NoiseBiomeSource & StructureAccess --> ChunkAccess --> ProtoChunk --> ImposterProtoChunk;
 
-    class LevelHeightAccessor,BlockGetter,LightChunk,NoiseBiomeSource,StructureAccess green
-    class ChunkAccess yellow
-    class LevelChunk,EmptyLevelChunk,ProtoChunk,ImposterProtoChunk blue
+    class LevelHeightAccessor,BlockGetter,LightChunk,NoiseBiomeSource,StructureAccess green;
+    class ChunkAccess yellow;
+    class LevelChunk,EmptyLevelChunk,ProtoChunk,ImposterProtoChunk blue;
 ```
+
+_<span class="mermaid-desc-green">Green</span> elements are interfaces, <span class="mermaid-desc-yellow">yellow</span> classes are `abstract`, <span class="mermaid-desc-blue">blue</span> classes are not `abstract`, elements marked with \* have uses outside this hierarchy._
 
 Again, let's digest this loosely from top to bottom:
 
