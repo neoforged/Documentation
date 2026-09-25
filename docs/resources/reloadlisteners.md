@@ -146,10 +146,10 @@ graph LR;
     PreparableReloadListener --> ContextAwareReloadListener --> SimplePreparableReloadListener --> SimpleJsonResourceReloadListener;
     
     class PreparableReloadListener,ResourceManagerReloadListener green;
-    class ContextAwareReloadListener,SimplePreparableReloadListener,SimpleJsonResourceReloadListener blue;
+    class ContextAwareReloadListener,SimplePreparableReloadListener,SimpleJsonResourceReloadListener yellow;
 ```
 
-_Interfaces in green, abstract classes in blue._
+_<span class="mermaid-desc-green">Green</span> elements are interfaces, <span class="mermaid-desc-yellow">yellow</span> classes are `abstract`._
 
 ### `PreparableReloadListener`
 
