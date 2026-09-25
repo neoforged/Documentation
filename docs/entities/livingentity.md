@@ -168,8 +168,8 @@ graph LR;
     Player --> AbstractClientPlayer --> LocalPlayer & RemotePlayer;
     Player --> ServerPlayer --> FakePlayer;
 
-    class Avatar,Mannequin,Player,AbstractClientPlayer yellow;
-    class ClientMannequin,LocalPlayer,RemotePlayer,ServerPlayer,FakePlayer blue;
+    class Avatar,Player,AbstractClientPlayer yellow;
+    class Mannequin,ClientMannequin,LocalPlayer,RemotePlayer,ServerPlayer,FakePlayer blue;
 ```
 
 _<span class="mermaid-desc-yellow">Yellow</span> classes are `abstract`, <span class="mermaid-desc-blue">blue</span> classes are not `abstract`._
