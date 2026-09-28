@@ -236,9 +236,8 @@ public static void registerSpawnPlacements(RegisterSpawnPlacementsEvent event) {
         // see the implementation of SpawnPlacementTypes for reference.
         // Vanilla values include NO_RESTRICTIONS, IN_WATER, IN_LAVA and ON_GROUND.
         SpawnPlacementTypes.ON_GROUND,
-        // The heightmap type to use. This provides the initial height to check during world generation,
-        // later this is ignored and just uses the world surface. Possible values are
-        // WORLD_SURFACE, OCEAN_FLOOR, MOTION_BLOCKING and MOTION_BLOCKING_NO_LEAVES.
+        // The heightmap type to use. This provides the initial height to check during world generation.
+        // Possible values are WORLD_SURFACE, OCEAN_FLOOR, MOTION_BLOCKING and MOTION_BLOCKING_NO_LEAVES.
         Heightmap.Types.WORLD_SURFACE,
         // A predicate to check additional spawn rules, e.g. light. Can either be specified here
         // as a lambda, or (more commonly) as a static method in the entity class.
