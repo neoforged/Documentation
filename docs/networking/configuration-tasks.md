@@ -1,5 +1,6 @@
 ---
-sidebar_position: 3
+description: How and why to work with network configuration tasks.
+sidebar_position: 4
 ---
 # Using Configuration Tasks
 

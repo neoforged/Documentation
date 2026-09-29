@@ -1,5 +1,6 @@
 ---
-sidebar_position: 0
+description: How Minecraft uses the container system to store items in places such as entity or block entity inventories.
+sidebar_position: 1
 ---
 # Containers
 

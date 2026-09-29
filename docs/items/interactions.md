@@ -1,5 +1,6 @@
 ---
-sidebar_position: 1
+description: What code paths Minecraft takes when left-clicking, right-clicking or middle-clicking with or without an item.
+sidebar_position: 2
 ---
 # Interactions
 

@@ -1,3 +1,7 @@
+---
+description: How to add load conditions to your data files, making data files only load when those conditions are met.
+sidebar_position: 2
+---
 # Data Load Conditions
 
 Sometimes, it is desirable to disable or enable certain features if another mod is present, or if any mod adds another type of ore, etc. For these use cases, NeoForge adds data load conditions. These were originally called recipe conditions, since recipes were the original use case for this system, but it has since been extended to other systems. This is also why some of the built-in conditions are limited to items.

@@ -1,5 +1,6 @@
 ---
-sidebar_position: 2
+description: A codec-like system for networking formats and serialization.
+sidebar_position: 3
 ---
 # Stream Codecs
 
