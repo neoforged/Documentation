@@ -153,7 +153,7 @@ An `ItemStack` consists of three major parts:
 - The stack size, typically between 1 and 64, obtainable through `getCount` and changeable through `setCount` or `shrink`.
 - The [data components][datacomponents] map, where stack-specific data is stored. Obtainable through `getComponents`. The components values are typically accessed and mutated via `has`, `get`, `set`, `update`, and `remove`.
 
-To create a new `ItemStack`, call `new ItemStack(Item)`, passing in the backing item. By default, this uses a count of 1 and no NBT data; there are constructor overloads that accept a count and NBT data as well if needed. Note that an `ItemStack` cannot exist until components are bound/until a level exists. Until then, you should use an `ItemStackTemplate` as detailed below.
+To create a new `ItemStack`, call `new ItemStack(Item)`, passing in the backing item. By default, this uses a count of 1 and no NBT data; there are constructor overloads that accept a count and NBT data as well if needed. Note that an `ItemStack` cannot exist until components are bound/until a [level][level] exists. Until then, you should use an `ItemStackTemplate` as detailed below.
 
 `ItemStack`s are mutable objects (see below), however it is sometimes required to treat them as immutables. If you need to modify an `ItemStack` that is to be treated immutable, you can clone the stack using `#copy` or `#copyWithCount` if a specific stack size should be used.
 
@@ -266,14 +266,14 @@ It is also possible to implement `ItemLike` on your custom objects. Simply overr
 [entity]: ../entities/index.md
 [food]: consumables.md#food
 [hunger]: https://minecraft.wiki/w/Hunger#Mechanics
+[i18n]: ../resources/client/i18n.md
 [interactions]: interactions.md
+[level]: ../misc/levels.md
 [loottables]: ../resources/server/loottables/index.md
 [modbus]: ../concepts/events.md#event-buses
 [recipes]: ../resources/server/recipes/index.md
 [registering]: ../concepts/registries.md#methods-for-registering
 [sides]: ../concepts/sides.md
-[tools]: tools.md
-[datagen]: ../resources/index.md#data-generation
-[i18n]: ../resources/client/i18n.md
-[texture]: ../resources/client/textures.md
 [tags]: ../resources/server/tags.md
+[texture]: ../resources/client/textures.md
+[tools]: tools.md
