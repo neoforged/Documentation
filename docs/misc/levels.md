@@ -194,7 +194,18 @@ Has three methods:
 
 ### `Level`
 
-TODO
+`Level` is the core class tying almost all interfaces together. All essential logic that is the same between client and server is concentrated here. Explaining all methods is way outside the scope of the article, but the most notable ones include:
+
+- Implementations of tons of methods related to world storage, such as `getChunk()`, `getBlock`/`FluidState()`, `setBlock()`, `get`/`setBlockEntity()`, and many related methods.
+- Adding, updating, querying, and removal of [entities][entity] and [block entities][blockentity] in the level.
+- Various [datapack registry][dpregistries]-related accessors such as `dimension()`, `dimensionType()`, `registryAccess()`, `damageSources()`, `recipeAccess()`, `getBiomeManager()`, `potionBrewing()` and `fuelValues()`.
+- Time and weather management methods. A lot of it is also split off into `ServerLevel`.
+- The level random via `getRandom()`.
+- Implementations and overloads of [`playSound()`][playsound] and other sound playing methods.
+- Implementations and overloads of [`addParticle()`][spawningparticles] and other particle spawning methods.
+- Various overloads of `explode()`.
+- Various methods for world bounds checks, such as `isInWorldBounds()`.
+- Various methods for lighting checks, e.g. `isBrightOutside()` and `isDarkOutside()`.
 
 `Level` additionally extends `AttachmentHolder`, meaning that it supports [data attachments][attachments].
 
