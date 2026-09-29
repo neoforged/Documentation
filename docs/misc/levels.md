@@ -172,6 +172,8 @@ TODO
 
 TODO
 
+`Level` additionally extends `AttachmentHolder`, meaning that it supports [data attachments][attachments].
+
 ### `BlockAndTintGetter`
 
 :::warning
@@ -243,6 +245,8 @@ TODO
 
 TODO
 
+`ChunkAccess` additionally implements `IAttachmentHolder`, meaning that it supports [data attachments][attachments].
+
 ### `LevelChunk`
 
 TODO
@@ -266,6 +270,7 @@ TODO
 - [World][mcwikiworld] on the [Minecraft Wiki][mcwiki]
 
 [addfreshentity]: ../entities/index.md#spawning-entities
+[attachments]: ../datastorage/attachments.md
 [blockentity]: ../blockentities/index.md
 [blockgetter]: #blockgetter
 [blockstate]: ../blocks/states.md
