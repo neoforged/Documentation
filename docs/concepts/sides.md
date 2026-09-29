@@ -13,6 +13,10 @@ Turns out, not so much. A lot of the confusion stems from Minecraft having two d
 
 When you open your Minecraft launcher, select a Minecraft installation and press play, you boot up a **physical client**. The word "physical" is used here in the sense of "this is a client program". This especially means that client-side functionality, such as all the rendering stuff, is available here and can be used as needed. In contrast, the **physical server**, also known as dedicated server, is what opens when you launch a Minecraft server JAR. While the Minecraft server comes with a rudimentary GUI, it is missing all client-only functionality. Most notably, this means that various client classes are missing from the server JAR. Calling these classes on the physical server will lead to missing class errors, i.e. crashes, so we need to safeguard against this.
 
+:::info
+The game is started from the `Main` class. Depending on the physical side, `Main` then instantiates either `Minecraft` (client) or [`MinecraftServer`][server] (server). Both `Minecraft` and `MinecraftServer` are big, monolithic singleton classes that contain a ton of fields and methods you might need to access.
+:::
+
 ### The Logical Side
 
 The logical side is mainly focused on the internal program structure of Minecraft. The **logical server** is where the game logic runs. Things like time and weather changing, entity ticking, entity spawning, etc. all run on the server. All kinds of data, such as inventory contents, are the server's responsibility as well. The **logical client**, on the other hand, is responsible for displaying everything there is to display. Minecraft keeps all the client code in an isolated `net.minecraft.client` package, and runs it in a separate thread called the Render Thread, while everything else is considered common (i.e. client and server) code.
@@ -84,5 +88,6 @@ Mods are generally expected to work on either side. This especially means that i
 :::
 
 [level]: ../misc/levels.md
-[networking]: ../networking/index.md
 [mod]: ../gettingstarted/modfiles.md#javafml-and-mod
+[networking]: ../networking/index.md
+[server]: ../misc/levels.md#minecraftserver

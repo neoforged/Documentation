@@ -1,10 +1,80 @@
-# Levels & Worlds
+# Levels, Worlds & Servers
 
-**Levels** or **dimensions** are parallel "world layers" within a Minecraft **world** (or **save**), each with their own 3D space and usually characterized by certain world generation elements. In vanilla Minecraft, each world consists of three dimensions: the Overworld, the Nether and the End.
+**Levels** are parallel "world layers" within a Minecraft **world** (or **save**), each with their own 3D space and usually characterized by certain world generation elements. In vanilla Minecraft, each world consists of three levels: the Overworld, the Nether and the End. To players, levels are often called **dimensions**, while in modding, dimensions refer to a related but distinct concept used in world generation.
 
 A world can therefore be thought of as a collection of levels, plus some additional metadata (such as the name, the icon, the creation date etc.) Each level then holds the [block states][blockstate], [block entities][blockentity] and lots of other data in **chunks**. Chunks are partitions of the world, sized 16x16 blocks horizontally and spanning the entire world height vertically. In some situations, they are also partitioned vertically into cubes of 16x16x16, called **chunk sections** (or just sections for short).
 
+When a client creates a new world or joins an existing world, it internally spins up a pseudo-server called the **integrated server**, so that the `ClientLevel` and `ServerLevel` separation is kept intact. In multiplayer, this does not happen; instead, the client connects to a **dedicated server** that is a completely different computer process (and in most cases hosted on a different computer). A server is represented in code by the abstract [`MinecraftServer`][server] class, in the form of an `IntegratedServer` or a `DedicatedServer`, respectively. See also the article on [Sides][sides] for this.
+
 Both levels and chunks each live in a relatively complex class hierarchy. This is owed to the fact that at different stages of loading a level, different subsystems are available or not yet available (for example, blocks and entities are loaded at completely different times). This makes the systems very hard to digest, so the purpose of this article is to provide an overview of the various classes and interfaces involved.
+
+## Overview
+
+Without getting too much into the internals yet, there's a few classes to look out for:
+
+- `Level`: Probably the most prominent class described on this page. Basically level code that runs on both logical sides will have an associated `Level`.
+- `ClientLevel` and `ServerLevel`: The client-side and server-side level implementations.
+- `WorldGenRegion`: Created on demand by `ServerLevel` to parallelize world generation. Has a reference to its owning `ServerLevel` and lives in the greater level hierarchy, but is **not `instanceof Level`**.
+- `ChunkAccess`: The abstract class for chunk operations. Everything in the chunk hierarchy eventually runs through this class.
+- `LevelChunk` and `EmptyLevelChunk`: The main class for chunks during regular gameplay, and an empty implementation for use during chunk loading.
+- `ProtoChunk`: The `WorldGenRegion` equivalent of a `Level`/`ServerLevel`.
+- `ImposterProtoChunk`: A `LevelChunk` wrapped as a `ProtoChunk`.
+
+All of these classes have a complex superinterface hierarchy attached to them, which along with the classes themselves are described in more detail below.
+
+## Obtaining a Level
+
+In almost all contexts, a `Level` (or `ClientLevel`/`ServerLevel`) will be provided to you. Usually this happens as a parameter (e.g. `Level level`) or as a field in a context object (e.g. `event.getLevel()`). Entities have a `level()` method, and block entities have a `getLevel()` method - in both cases, be careful to not query that before the (block) entity is added to the level though, especially during level loading.
+
+Sometimes, you will not get a `Level`, but one of its superinterfaces instead. In most (but not all!) contexts, it can be downcast to `Level`. To find out whether downcasting is possible or if the given object may also be a different class, check the level hierarchy below - if the interface has an asterisk (*) next to it, it is used elsewhere; if not, then you're good.
+
+For good measure, it is recommended to not use a cast, but instead use an `instanceof` check with a pattern variable like so:
+
+```java
+LevelReader levelReader = ...;
+if (levelReader instanceof Level level) {
+    // ...
+}
+```
+
+:::caution
+By downcasting to `Level`, you lose potential `WorldGenRegion`s. This is not an issue in most contexts, but something to look out for if you are in a world generation context.
+:::
+
+Similarly, you can also check for a `ClientLevel` or `ServerLevel` when given a `Level` or any of its superinterfaces. Here, it is recommended to check [`Level#isClientSide()`][isclientside] first, and only do an `instanceof` check if access to `ClientLevel`/`ServerLevel`-specific fields or methods is really needed:
+
+```java
+Level level = ...;
+
+// Client side
+if (level.isClientSide()) {
+    // some code here
+}
+if (level.isClientSide() && level instanceof ClientLevel clientLevel) {
+    // some code that uses clientLevel here
+}
+
+// Server side
+if (!level.isClientSide()) {
+    // some code here
+}
+if (!level.isClientSide() && level instanceof ServerLevel serverLevel) {
+    // some code that uses serverLevel here
+}
+```
+
+If you find yourself without any level context at all, it is also possible to obtain a `Level` from the following places, depending on the side:
+
+```java
+// Client level. Is null when the player is not in a level, e.g. when on the main menu.
+ClientLevel clientLevel = Minecraft.getInstance().level;
+
+// Server level. Obtained from the MinecraftServer instance, see later in this article.
+// Note that a MinecraftServer has multiple levels and we need to specify which one we want.
+// `Level.OVERWORLD`, `Level.NETHER` and `Level.END` are available as level resource keys
+// for the three vanilla levels. Other level resource keys can be created as needed.
+ServerLevel serverLevel = ServerLifecycleHooks.getCurrentServer().getLevel(Level.OVERWORLD);
+```
 
 ## Level Hierarchy
 
@@ -14,6 +84,7 @@ The level hierarchy, centered around the abstract `Level` class, has one of the 
 graph TB
     LevelHeightAccessor["LevelHeightAccessor*"];
     BlockGetter["BlockGetter*"];
+    BlockAndLightGetter["BlockAndLightGetter*"];
     BlockAndTintGetter["BlockAndTintGetter*"];
     CollisionGetter["CollisionGetter*"];
     NoiseBiomeSource["`BiomeManager.
@@ -37,9 +108,7 @@ graph TB
 
 _<span class="mermaid-desc-green">Green</span> elements are interfaces, <span class="mermaid-desc-yellow">yellow</span> classes are `abstract`, <span class="mermaid-desc-blue">blue</span> classes are not `abstract`, elements marked with \* have uses outside this hierarchy._
 
-An important thing to notice is the three non-`abstract` classes at the bottom: `ClientLevel`, `ServerLevel` and `WorldGenRegion`. While the former two obviously resemble the client and server sides of a level, `WorldGenRegion` is used to parallelize world generation by `ServerLevel`. As such, each `WorldGenRegion` represents a part of its owning `ServerLevel`, however without extending neither `ServerLevel` nor `Level` at all.
-
-In order to digest this whole diagram, let's go through each class separately, from loosely top to bottom:
+In order to digest this diagram, let's go through each class separately, from loosely top to bottom:
 
 ### `LevelHeightAccessor`
 
@@ -102,7 +171,7 @@ Also implemented by `ChunkAccess`, making it and [`BlockGetter`][blockgetter] th
 - `getSkyDarken()`: Returns the sky darkness value. This is then used in various helpers, such as `getEffectiveSkyBrightness()` or `getMaxLocalRawBrightness()`, as well as in the phantom spawning mechanism.
 - `dimensionType()`: Returns the level's `DimensionType`, i.e., the in-code representation of the level's JSON file.
 - `getMinY()` and `getHeight()`: Overridden to use the values from `dimensionType()`.
-- `isClientSide()`: Returns true or false depending on if this is a `ClientLevel` or not. Used all across the codebase for [side checks][sides].
+- `isClientSide()`: Returns true or false depending on if this is a `ClientLevel` or not. Used all across the codebase for [side checks][isclientside].
 - `registryAccess()`: Returns the level's `RegistryAccess`, which holds the level's [datapack registries][dpregistries].
 - `enabledFeatures()`: Returns the level's active [`FeatureFlagSet`][featureflags].
 - `environmentAttributes()`: Returns the level's `EnvironmentAttributeReader`.
@@ -205,7 +274,7 @@ Has three methods:
 - Implementations and overloads of [`addParticle()`][spawningparticles] and other particle spawning methods.
 - Various overloads of `explode()`.
 - Various methods for world bounds checks, such as `isInWorldBounds()`.
-- Various methods for lighting checks, e.g. `isBrightOutside()` and `isDarkOutside()`.
+- A few methods for spawn light checks, e.g. `isBrightOutside()` and `isDarkOutside()`.
 
 `Level` additionally extends `AttachmentHolder`, meaning that it supports [data attachments][attachments].
 
@@ -272,6 +341,10 @@ _See [Hierarchy of `Level`/`BlockGetter`][blockgetter]._
 
 _See [Hierarchy of `Level`/`BiomeManager.NoiseBiomeSource`][noisebiomesource]._
 
+### `LightChunk`
+
+TODO
+
 ### `StructureAccess`
 
 TODO
@@ -298,6 +371,10 @@ TODO
 
 TODO
 
+## `MinecraftServer`
+
+TODO
+
 ## `GameEvent`s
 
 TODO
@@ -321,6 +398,7 @@ TODO
 [entity]: ../entities/index.md
 [featureflags]: ../advanced/featureflags.md
 [gameevent]: #gameevents
+[isclientside]: ../concepts/sides.md#levelisclientside
 [levelevent]: #levelevents
 [levelheightaccessor]: #levelheightaccessor
 [mcwiki]: https://minecraft.wiki/
@@ -330,6 +408,7 @@ TODO
 [noisebiomesource]: #biomemanagernoisebiomesource
 [player]: ../entities/livingentity.md#living-entities-mobs--players
 [playsound]: ../resources/client/sounds.md#playing-sounds
+[server]: #minecraftserver
 [setblock]: ../blocks/states.md#levelsetblock
 [sides]: ../concepts/sides.md
 [spawningparticles]: ../resources/client/particles.md#spawning-particles
