@@ -37,7 +37,9 @@ graph TB
 
 _<span class="mermaid-desc-green">Green</span> elements are interfaces, <span class="mermaid-desc-yellow">yellow</span> classes are `abstract`, <span class="mermaid-desc-blue">blue</span> classes are not `abstract`, elements marked with \* have uses outside this hierarchy._
 
-In order to digest this, let's go through each class separately, from loosely top to bottom:
+An important thing to notice is the three non-`abstract` classes at the bottom: `ClientLevel`, `ServerLevel` and `WorldGenRegion`. While the former two obviously resemble the client and server sides of a level, `WorldGenRegion` is used to parallelize world generation by `ServerLevel`. As such, each `WorldGenRegion` represents a part of its owning `ServerLevel`, however without extending neither `ServerLevel` nor `Level` at all.
+
+In order to digest this whole diagram, let's go through each class separately, from loosely top to bottom:
 
 ### `LevelHeightAccessor`
 
@@ -158,15 +160,37 @@ Ties together the `LevelReader`, `EntityGetter` and `LevelSimulatedRW` into a si
 
 ### `ScheduledTickAccess`
 
-TODO
+`ScheduledTickAccess` is an interface providing the following methods:
+
+- `getBlockTicks()`: Returns a tick access interface for a level's or chunk's block tick scheduler.
+- `getFluidTicks()`: Same as above, but for fluid ticks.
+- `createTick(BlockPos pos, T type, int tickDelay)`: Schedules a tick at the given position for the given type after the given delay. `T` is the type of the associated `LevelTickAccess`, so `Block` or `Fluid` in the vanilla uses. Comes with an overload that additionally accepts a `TickPriority` parameter.
+- `scheduleTick(BlockPos pos, Block type, int tickDelay)`: Helper method to schedule a block tick. Also comes in a fluid variant, and in variants that additionally accept a `TickPriority` parameter.
 
 ### `LevelAccessor`
 
-TODO
+Integrates certain other systems into the `Level` system. Methods include:
+
+- `getLevelData()`: Access to the `LevelData`, which holds properties such as game time, hardcore and difficulty settings, and the world spawn (in the `LevelData.RespawnData` record).
+- `getGameTime()` and `getDifficulty()`: Utility accessors for game time and difficulty, respectively, both of which query the `LevelData`.
+- `getServer()`: Returns the `MinecraftServer` instance. `ClientLevel`s return `null` here, while `ServerLevel`s and `WorldGenRegion`s return non-`null`.
+- `getRandom()`: Returns the level's `RandomSource`, used heavily in world generation and many other places.
+- `getChunkSource()`: Returns the level's `ChunkSource`, which is responsible for loading and saving chunks.
+- `hasChunk()`: Returns whether a chunk exists at the given x and z chunk coordinate.
+- `updateNeighborsAt()`: No-op by default. Overridden in `ServerLevel` to send neighbor update notifications, used by the redstone system.
+- `neighborShapeChanged()`: Notifies neighbors that the shape at the given position has changed. Used to propagate e.g. fence or wall updating their shapes.
+- `playSound()`: See [Sounds/Playing Sounds][playsound].
+- `addParticle()`: See [Particles/Spawning Particles][spawningparticles].
+- `gameEvent()`: See [`GameEvent`s][gameevent]. Comes in various overloads.
+- `levelEvent()`: See [`LevelEvent`s][levelevent]. Comes in various overloads.
 
 ### `ServerLevelAccessor`
 
-TODO
+Has three methods:
+
+- `getLevel()`: Returns a `ServerLevel`. Overridden in `ServerLevel` to return `this`, and in `WorldGenRegion` to return the backing `ServerLevel`.
+- `getCurrentDifficultyAt()`: Returns the local difficulty at the given position.
+- `addFreshEntityWithPassengers()`: A utility method that [adds an entity][addfreshentity] and all its passengers. Used mainly in spawning of e.g. chicken jockeys or similar multi-entity spawns.
 
 ### `Level`
 
@@ -263,6 +287,14 @@ TODO
 
 TODO
 
+## `GameEvent`s
+
+TODO
+
+## `LevelEvent`s
+
+TODO
+
 ## See Also
 
 - [Chunk][mcwikichunk] on the [Minecraft Wiki][mcwiki]
@@ -277,6 +309,8 @@ TODO
 [dpregistries]: ../concepts/registries.md#datapack-registries
 [entity]: ../entities/index.md
 [featureflags]: ../advanced/featureflags.md
+[gameevent]: #gameevents
+[levelevent]: #levelevents
 [levelheightaccessor]: #levelheightaccessor
 [mcwiki]: https://minecraft.wiki/
 [mcwikichunk]: https://minecraft.wiki/w/Chunk
@@ -284,5 +318,7 @@ TODO
 [mcwikiworld]: https://minecraft.wiki/w/World
 [noisebiomesource]: #biomemanagernoisebiomesource
 [player]: ../entities/livingentity.md#living-entities-mobs--players
+[playsound]: ../resources/client/sounds.md#playing-sounds
 [setblock]: ../blocks/states.md#levelsetblock
 [sides]: ../concepts/sides.md
+[spawningparticles]: ../resources/client/particles.md#spawning-particles
