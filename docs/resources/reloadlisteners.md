@@ -19,11 +19,11 @@ Both resource pack and data pack reload function similar in principle and only d
 |----------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------|
 | **Loads From**                               | Resource packs (`assets` folder)                                                                                                   | Data packs (`data` folder)                                                                                            |
 | **First Reload**<br/>(Physical Client)       | - Startup                                                                                                                          | - Creating a new world<br/>("Preparing for world creation...")<br/>- Joining an existing world<br/>- Joining a server |
-| **Subsequent Reloads**<br/>(Physical Client) | - Changing resource packs in the Options menu<br/>- Downloading a server's custom resource pack on server join<br/>- Pressing F3+T | - Leaving a world or server\*<br/>                                                                                    |
+| **Subsequent Reloads**<br/>(Physical Client) | - Changing resource packs in the Options menu<br/>- Downloading a server's custom resource pack on server join<br/>- Pressing F3+T | - `/reload` command                                                                                                   |
 | **First Reload**<br/>(Physical Server)       | _never_                                                                                                                            | - Startup                                                                                                             |
 | **Subsequent Reloads**<br/>(Physical Server) | _never_                                                                                                                            | - `/reload` command                                                                                                   |
 
-\*When leaving a world, any stored data becomes stale. Depending on how your system is set up, **this can cause memory leaks**. See [Server-Side Reload Listeners][serverlisteners] below for what mechanisms to use to avoid memory leaks.
+On the physical client, when leaving a world, any stored data becomes stale. Depending on how your system is set up, **this can cause memory leaks**. See [Server-Side Reload Listeners][serverlisteners] below for what mechanisms to use to avoid memory leaks.
 
 :::info
 The `/reload` command also triggers reloads of some other datapack-driven systems, such as [tags][tags]. This is by design and cannot be circumvented.
@@ -66,7 +66,7 @@ All reload listeners are registered using the same basic principle, though with 
 
 ### Client-Side Reload Listeners
 
-On the client side, it is sufficient to hold the reload listener in a singleton instance, like so:
+On the client side, reload listeners are only collected once during startup. It is therefore sufficient to hold the reload listener in a singleton instance, like so:
 
 ```java
 // Instead of PreparableReloadListener, extend one of its subclasses if applicable, see below.
@@ -97,11 +97,47 @@ And that's it! To access the reload listener, simply access the `MyClientReloadL
 
 ### Server-Side Reload Listeners
 
-On the server side, it is theoretically possible to follow the same singleton pattern as above, and just register to `AddServerReloadListenersEvent`. However, this poses a high risk of memory leaks at reloading time if not handled properly; furthermore, it can also lead to unintended "reaching across sides" in the form of client code accessing the server's reload listeners.
+Server-side reload listeners can be implemented in two ways, depending on what they do:
+
+- If they only run code (e.g. clearing or building a cache) and don't store any data, they can be singletons just like a [client-side reload listener][clientlisteners].
+- If they need to load and store data, they should be **retained**.
+
+#### Singleton Server-Side Reload Listeners
+
+For singletons, we use code that is very similar to the client-side reload listener code above:
+
+```java
+// Instead of PreparableReloadListener, extend one of its subclasses if applicable, see below.
+public class MyServerReloadListener implements PreparableReloadListener {
+    // The id we're going to use in registration below
+    public static final Identifier ID = Identifier.fromNamespaceAndPath("mymod", "my_server_reload_listener");
+    // No instance, since there's no data to access;
+    // also no hiding the constructor since we'll need to construct our class directly
+
+    // other methods added here later that do not store any data
+}
+```
+
+And then, we add the reload listener in the `AddServerReloadListenersEvent` like so:
+
+```java
+@SubscribeEvent // on the game event bus
+public static void addServerReloadListeners(AddServerReloadListenersEvent event) {
+    event.addListener(MyServerReloadListener.ID, new MyServerReloadListener());
+}
+```
+
+:::info
+Be aware that you will and should not be able to access the singleton reload listener at any time. If you need access to the listener, use a retained listener instead.
+:::
+
+#### Retained Server-Side Reload Listeners
+
+When storing data, it is theoretically possible to follow the same singleton pattern as above, and just register to `AddServerReloadListenersEvent`. However, since server-side reload listeners are collected at the beginning of every datapack reload, this poses a high risk of memory leaks at reloading time if not handled properly. Furthermore, it can also lead to unintended "reaching across sides" in the form of client code accessing the server's reload listeners.
 
 To combat this, NeoForge introduces the concept of retained listeners. Retained listener are accessed from a `MinecraftServer` instance (which can be retrieved from a `ServerLevel`) rather than a singleton instance, using a `ListenerKey<T>`.
 
-The reload listener class itself looks fairly similar to a [client-side reload listener][clientlisteners], though replaces the singleton `INSTANCE` with a `LISTENER_KEY`:
+Not too much changes from the other two approaches, the main change is the addition of a `LISTENER_KEY`:
 
 ```java
 // Instead of PreparableReloadListener, extend one of its subclasses if applicable, see below.
@@ -110,10 +146,6 @@ public class MyServerReloadListener implements PreparableReloadListener {
     public static final Identifier ID = Identifier.fromNamespaceAndPath("mymod", "my_server_listener");
     // Create a listener key for use in the event
     public static final ListenerKey<MyServerReloadListener> LISTENER_KEY = ListenerKey.create(ID);
-
-    // We now have a public constructor.
-    public MyServerReloadListener() {
-    }
 
     // other methods added here later
 }
