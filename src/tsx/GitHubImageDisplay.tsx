@@ -1,9 +1,10 @@
 import React from "react";
 
-export default function GitHubImageDisplay({repository, branch, path, clazz, alt}: {repository: string, branch: string, path: string, clazz: string, alt: string}) {
+export default function GitHubImageDisplay({repository, branch, path, clazz, alt, caption = alt, width}: {repository: string, branch: string, path: string, clazz: string, alt: string, caption: string, width: number}) {
     return (
-        <div class="display-image">
+        <figure class="display-image" style={{width: `${width}px`}}>
             <img src={`https://raw.githubusercontent.com/${repository}/refs/heads/${branch}/${path}`} decoding="async" loading="lazy" className={clazz} alt={alt}/>
-        </div>
+            <figcaption>{caption}</figcaption>
+        </figure>
     );
 }

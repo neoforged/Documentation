@@ -221,25 +221,16 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
 
 ### Bucket Mask Textures
 
-If the `coverIsMask` boolean is true, the cover texture is instead treated as a mask texture. Mask textures are textures containing either a full white (`0xffffffff`) or transparent black (`0x00000000`; shown here in full black to contrast against the site background) pixel in each position, acting as a stencil of sorts. Their function is best exemplified by having a look at them:
+If the `coverIsMask` boolean is true, the cover texture is instead treated as a mask texture. NeoForge provides four default mask textures for buckets. Mask textures are textures containing either a full white (`0xffffffff`) or transparent black (`0x00000000`; shown here in full black to contrast against the site background) pixel in each position, acting as a stencil of sorts. Their function is best exemplified by having a look at them:
 
 <div class="display-image-container">
-    <GitHubImageDisplay repository="neoforged/NeoForge" branch="26.1.x" path="src/main/resources/assets/neoforge/textures/item/mask/bucket_fluid.png" clazz="texture-16" alt="Bucket Fluid Mask"/>
-    <GitHubImageDisplay repository="neoforged/NeoForge" branch="26.1.x" path="src/main/resources/assets/neoforge/textures/item/mask/bucket_fluid_drip.png" clazz="texture-16" alt="Bucket Fluid Drip Mask"/>
-    <GitHubImageDisplay repository="neoforged/NeoForge" branch="26.1.x" path="src/main/resources/assets/neoforge/textures/item/mask/bucket_fluid_cover.png" clazz="texture-16" alt="Bucket Fluid Cover Mask"/>
-    <GitHubImageDisplay repository="neoforged/NeoForge" branch="26.1.x" path="src/main/resources/assets/neoforge/textures/item/mask/bucket_fluid_cover_drip.png" clazz="texture-16" alt="Bucket Fluid Cover Drip Mask"/>
+    <GitHubImageDisplay repository="neoforged/NeoForge" branch="26.1.x" path="src/main/resources/assets/neoforge/textures/item/mask/bucket_fluid.png" clazz="texture-16" alt="Bucket Fluid Mask" caption="assets/neoforge/textures/item/mask/bucket_fluid.png" width="200"/>
+    <GitHubImageDisplay repository="neoforged/NeoForge" branch="26.1.x" path="src/main/resources/assets/neoforge/textures/item/mask/bucket_fluid_drip.png" clazz="texture-16" alt="Bucket Fluid Drip Mask" caption="assets/neoforge/textures/item/mask/bucket_fluid_drip.png" width="200"/>
+    <GitHubImageDisplay repository="neoforged/NeoForge" branch="26.1.x" path="src/main/resources/assets/neoforge/textures/item/mask/bucket_fluid_cover.png" clazz="texture-16" alt="Bucket Fluid Cover Mask" caption="assets/neoforge/textures/item/mask/bucket_fluid_cover.png" width="200"/>
+    <GitHubImageDisplay repository="neoforged/NeoForge" branch="26.1.x" path="src/main/resources/assets/neoforge/textures/item/mask/bucket_fluid_cover_drip.png" clazz="texture-16" alt="Bucket Fluid Cover Drip Mask" caption="assets/neoforge/textures/item/mask/bucket_fluid_cover_drip.png" width="200"/>
 </div>
 
 Only the white pixels in the mask will be included in rendering, and pixels overlapping with the black/transparent part of the mask will be discarded.
-
-:::tip
-The mask textures seen above are shipped by Neo, at the following respective locations:
-
-- `assets/neoforge/textures/item/mask/bucket_fluid.png`
-- `assets/neoforge/textures/item/mask/bucket_fluid_drip.png`
-- `assets/neoforge/textures/item/mask/bucket_fluid_cover.png`
-- `assets/neoforge/textures/item/mask/bucket_fluid_cover_drip.png`
-:::
 
 ## Cauldrons
 
