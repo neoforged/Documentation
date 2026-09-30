@@ -7,6 +7,13 @@ In some situations, integrating with the [existing resource systems][resources] 
 
 The idea behind a reload listener is simple: When a resource pack or data pack reload happens, the listener is called upon to read its contents from the new set of resource or data packs. It will then keep the contents until the next reload, at which point the contents will be discarded and the cycle starts anew.
 
+When creating a custom reload listener, you should ask yourself two different questions:
+
+1. What context/[side][sides] does the reload listener run in? See [Adding and Retrieving Reload Listeners][adding] for available options.
+2. What kind of data does the reload listener load (if any at all?) See [Reload Listener Class Hierarchy][hierarchy] for available options.
+
+The former determines which event is used for registration, and where the reload listener instance will be located; while the latter determines which base class or interface is used, and which methods need to be overridden.
+
 :::tip
 On the server [side][sides], the [datapack registry][datapackregistries] or [data map][datamaps] systems may be better suited for many use cases.
 :::
@@ -98,10 +105,9 @@ And that's it! To access the reload listener, simply access the `MyClientReloadL
 
 ### Server-Side Reload Listeners
 
-Server-side reload listeners can be implemented in three ways, depending on what they do:
+Server-side reload listeners can be implemented in two ways, depending on what they do:
 
 - If they do not need to store any data and just run some code, they should be **disposable**, meaning no reference to them (that is visible from the outside) is held at all.
-- If they store data that is not unique, e.g. caches, they can be singletons just like a [client-side reload listener][clientlisteners].
 - If they need to load and store data by themselves, they should be **retained**.
 
 #### Disposable Server-Side Reload Listeners
@@ -129,38 +135,6 @@ public static void addServerReloadListeners(AddServerReloadListenersEvent event)
     event.addListener(MyDisposableReloadListener.ID, new MyDisposableReloadListener());
 }
 ```
-
-#### Singleton Server-Side Reload Listeners
-
-For singletons, we use code that is very similar to the client-side reload listener code above:
-
-```java
-// Instead of PreparableReloadListener, extend one of its subclasses if applicable, see below.
-public class MySingletonReloadListener implements PreparableReloadListener {
-    // The id we're going to use in registration below
-    public static final Identifier ID =
-            Identifier.fromNamespaceAndPath("mymod", "my_singleton_reload_listener");
-    // The instance through which the listener is accessed
-    public static final MySingletonReloadListener INSTANCE = new MySingletonReloadListener();
-
-    // Hide the constructor in accordance with the singleton pattern
-    private MySingletonReloadListener() {
-    }
-
-    // other methods added here later that do not store any data
-}
-```
-
-Next, we add the reload listener in the `AddServerReloadListenersEvent` like so:
-
-```java
-@SubscribeEvent // on the game event bus
-public static void addServerReloadListeners(AddServerReloadListenersEvent event) {
-    event.addListener(MySingletonReloadListener.ID, new MySingletonReloadListener());
-}
-```
-
-And then, like in a client-side reload listener, we simply access the `INSTANCE` as needed.
 
 #### Retained Server-Side Reload Listeners
 
@@ -440,12 +414,14 @@ public class MyDependentReloadListener implements PreparableReloadListener {
 }
 ```
 
+[adding]: #adding-and-retrieving-reload-listeners
 [clientlisteners]: #client-side-reload-listeners
 [codec]: ../datastorage/codecs.md
 [conditions]: server/conditions.md
 [datamaps]: server/datamaps/index.md
 [datapackregistries]: ../concepts/registries.md#datapack-registries
 [events]: ../concepts/events.md
+[hierarchy]: #reload-listener-class-hierarchy
 [identifier]: ../misc/identifier.md
 [multithreading]: #multi-threaded-reloading
 [preparablereloadlistener]: #preparablereloadlistener
