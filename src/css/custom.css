@@ -106,6 +106,7 @@ h2 {
     width: auto;
     height: 200px;
     image-rendering: pixelated;
+    background: black;
 }
 
 @media (min-width: 997px) and (max-width: 1425px) {

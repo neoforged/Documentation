@@ -221,7 +221,7 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
 
 ### Bucket Mask Textures
 
-If the `coverIsMask` boolean is true, the cover texture is instead treated as a mask texture. Mask textures are textures containing either a full white (`0xffffffff`) or transparent black (`0x00000000` or just `0`) pixels, acting as a stencil of sorts. Their function is best exemplified by having a look at them:
+If the `coverIsMask` boolean is true, the cover texture is instead treated as a mask texture. Mask textures are textures containing either a full white (`0xffffffff`) or transparent black (`0x00000000`; shown here in full black to contrast against the site background) pixel in each position, acting as a stencil of sorts. Their function is best exemplified by having a look at them:
 
 <div class="display-image-container">
     <GitHubImageDisplay repository="neoforged/NeoForge" branch="26.1.x" path="src/main/resources/assets/neoforge/textures/item/mask/bucket_fluid.png" clazz="texture-16" alt="Bucket Fluid Mask"/>
@@ -230,7 +230,7 @@ If the `coverIsMask` boolean is true, the cover texture is instead treated as a 
     <GitHubImageDisplay repository="neoforged/NeoForge" branch="26.1.x" path="src/main/resources/assets/neoforge/textures/item/mask/bucket_fluid_cover_drip.png" clazz="texture-16" alt="Bucket Fluid Cover Drip Mask"/>
 </div>
 
-Only the white pixels in the mask will be included in rendering, and pixels overlapping with the transparent part of the mask will be discarded.
+Only the white pixels in the mask will be included in rendering, and pixels overlapping with the black/transparent part of the mask will be discarded.
 
 :::tip
 The mask textures seen above are shipped by Neo, at the following respective locations:
