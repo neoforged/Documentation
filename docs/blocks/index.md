@@ -234,7 +234,7 @@ Block placement logic is called from `BlockItem#useOn` (or some subclass's imple
 - `BlockBehaviour#canBeReplaced` is called for the block currently at the position where the block is attempted to be placed. If it returns `false`, the pipeline ends. Prominent cases that return `true` here are tall grass or snow layers.
 - `Block#getStateForPlacement` is called. This is where, depending on the context (which includes information like the position, the rotation and the side the block is placed on), different block states can be returned. This is useful for example for blocks that can be placed in different directions.
 - `BlockBehaviour#canSurvive` is called with the blockstate obtained in the previous step. If it returns `false`, the pipeline ends.
-- The blockstate is set into the level via a `Level#setBlock` call.
+- The blockstate is set into the level via a [`Level#setBlock`][setblock] call.
     - In that `Level#setBlock` call, `BlockBehaviour#onPlace` is called.
 - `Block#setPlacedBy` is called.
 
@@ -291,12 +291,12 @@ The following subsections further break down these stages into actual method cal
     - Server-only: `PlayerEvent.HarvestCheck` is fired if `IBlockExtension#canHarvestBlock` is not overridden without its super call. If `HarvestCheck#canHarvest` returns `false`, then `Block#playerDestroy` will not be called, preventing any resources or experience from dropping.
 - Server-only: `Item#mineBlock` is called.
 - `IBlockExtension#onDestroyedByPlayer` is called. If it returns `false`, the pipeline moves to the "finishing" stage.
-    - The blockstate is removed from the level via a `Level#setBlock` call with `Blocks.AIR.defaultBlockState()` or the current logged fluid as the blockstate parameter.
+    - The blockstate is removed from the level via a [`Level#setBlock`][setblock] call with `Blocks.AIR.defaultBlockState()` or the current logged fluid as the blockstate parameter.
         - In that `Level#setBlock` call, `Block#onRemove` is called.
     - `Block#destroy` is called if `IBlockExtension#onDestroyedByPlayer` returns `true`.
 - Server-only: If the previous call to `IBlockExtension#canHarvestBlock` and `IBlockExtension#onDestroyedByPlayer` return `true`, then `Block#playerDestroy` is called.
     - Server-only: `Block#dropResources` is called. This determines what drops from the block when mined, including experience.
-        - Server-only: `BlockDropsEvent` is fired. If the event is canceled, then nothing is dropped when the block breaks. Otherwise, every `ItemEntity` in `BlockDropsEvent#getDrops` is added to the current level. Additionally, `Block#popExperience` is called if `getDroppedExperience` is greater than 0.
+        - Server-only: `BlockDropsEvent` is fired. If the event is canceled, then nothing is dropped when the block breaks. Otherwise, every `ItemEntity` in `BlockDropsEvent#getDrops` is added to the current [level][level]. Additionally, `Block#popExperience` is called if `getDroppedExperience` is greater than 0.
             - Server-only: `IBlockExtension#getExpDrop` is called, augmented by `EnchantmentHelper#processBlockExperience`. This is the initial value set for `BlockDropsEvent#getDroppedExperience` before potentally being modified.
 - Server-only: `PlayerDestroyItemEvent` is fired if the item used to mine the block broke at any point in the above process.
 
@@ -354,7 +354,7 @@ Ticking is a mechanism that updates (ticks) parts of the game every 1 / 20 secon
 
 #### Server Ticking and Tick Scheduling
 
-`BlockBehaviour#tick` is called through scheduled ticks. Scheduled ticks can be created through `Level#scheduleTick(BlockPos, Block, int)`, where the `int` denotes a delay. This is used in various places by vanilla, for example, the tilting mechanism of big dripleaves heavily relies on this system. Other prominent users are various redstone components.
+`BlockBehaviour#tick` is called through scheduled ticks. Scheduled ticks can be created through [`Level#scheduleTick(BlockPos, Block, int)`][scheduledtickaccess], where the `int` denotes a delay. This is used in various places by vanilla, for example, the tilting mechanism of big dripleaves heavily relies on this system. Other prominent users are various redstone components.
 
 #### Client Ticking
 
@@ -383,11 +383,14 @@ Random ticking is used by a wide range of mechanics in Minecraft, such as plant 
 [i18n]: ../resources/client/i18n.md
 [item]: ../items/index.md
 [leftclick]: ../items/interactions.md#left-clicking-an-item
+[level]: ../misc/levels.md
 [loottable]: ../resources/server/loottables/index.md
 [model]: ../resources/client/models/index.md
 [registration]: ../concepts/registries.md#methods-for-registering
 [resources]: ../resources/index.md#assets
 [rightclick]: ../items/interactions.md#right-clicking-an-item
+[scheduledtickaccess]: ../misc/levels.md#scheduledtickaccess
+[setblock]: states.md#levelsetblock
 [sounds]: ../resources/client/sounds.md
 [tags]: ../resources/server/tags.md
 [textures]: ../resources/client/textures.md

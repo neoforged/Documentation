@@ -215,7 +215,7 @@ Datapack registries allow their contents to be specified in JSON files. This mea
 - Minecraft's datapack registries use the format `data/yourmodid/registrypath` (for example `data/yourmodid/worldgen/biome`, where `worldgen/biome` is the registry path).
 - All other datapack registries (NeoForge or modded) use the format `data/yourmodid/registrynamespace/registrypath` (for example `data/yourmodid/neoforge/biome_modifier`, where `neoforge` is the registry namespace and `biome_modifier` is the registry path).
 
-Datapack registries can be obtained from a `RegistryAccess`. This `RegistryAccess` can be retrieved by calling `ServerLevel#registryAccess()` if on the server, or `Minecraft.getInstance().getConnection()#registryAccess()` if on the client (the latter only works if you are actually connected to a world, as otherwise the connection will be null). The result of these calls can then be used like any other registry to get specific elements, or to iterate over the contents.
+Datapack registries can be obtained from a `RegistryAccess`. This `RegistryAccess` can be retrieved by calling [`ServerLevel#registryAccess()`][serverlevel] if on the server, or `Minecraft.getInstance().getConnection()#registryAccess()` if on the client (the latter only works if you are actually connected to a world, as otherwise the connection will be null). The result of these calls can then be used like any other registry to get specific elements, or to iterate over the contents.
 
 ### Custom Datapack Registries
 
@@ -348,4 +348,5 @@ public static void onGatherData(GatherDataEvent.Client event) {
 [item]: ../items/index.md
 [identifier]: ../misc/identifier.md
 [resourcekey]: ../misc/identifier.md#resourcekeys
+[serverlevel]: ../misc/levels.md#serverlevel
 [singleton]: https://en.wikipedia.org/wiki/Singleton_pattern

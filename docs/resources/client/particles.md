@@ -215,4 +215,5 @@ As a reminder from before, the server only knows [`ParticleType`s][particletype]
 [particle]: ../../rendering/particles.md
 [particletype]: #registering-particletypes
 [provider]: ../../rendering/particles.md#particleprovider
+[registry]: ../../concepts/registries.md
 [side]: ../../concepts/sides.md
