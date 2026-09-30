@@ -2,6 +2,9 @@
 description: How to add and work with fluids in-world.
 sidebar_position: 2
 ---
+
+import GitHubImageDisplay from "@site/src/tsx/GitHubImageDisplay.tsx";
+
 # In-World Fluids
 
 When placing [fluids][fluid] in world, `FluidState`s are used instead of `Fluid`s, closely mirroring the use of [`BlockState`s][blockstate] versus [`Block`s][block]. Similar to `BlockState`s, a `FluidState` at a position can be queried using `Level#getFluidState()`, and the default state can be obtained using `Fluid#defaultFluidState()`.
@@ -218,9 +221,14 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
 
 ### Bucket Mask Textures
 
-If the `coverIsMask` boolean is true, the cover texture is instead treated as a mask texture. Mask textures are textures containing either a full white (`0xfffffff`) or transparent black (`0x00000000` or just `0`) pixels, acting as a stencil of sorts. Their function is best exemplified by having a look at them:
+If the `coverIsMask` boolean is true, the cover texture is instead treated as a mask texture. Mask textures are textures containing either a full white (`0xffffffff`) or transparent black (`0x00000000` or just `0`) pixels, acting as a stencil of sorts. Their function is best exemplified by having a look at them:
 
-TODO
+<div class="display-image-container">
+    <GitHubImageDisplay repository="neoforged/NeoForge" branch="26.1.x" path="src/main/resources/assets/neoforge/textures/item/mask/bucket_fluid.png" clazz="texture-16" alt="Bucket Fluid Mask"/>
+    <GitHubImageDisplay repository="neoforged/NeoForge" branch="26.1.x" path="src/main/resources/assets/neoforge/textures/item/mask/bucket_fluid_drip.png" clazz="texture-16" alt="Bucket Fluid Drip Mask"/>
+    <GitHubImageDisplay repository="neoforged/NeoForge" branch="26.1.x" path="src/main/resources/assets/neoforge/textures/item/mask/bucket_fluid_cover.png" clazz="texture-16" alt="Bucket Fluid Cover Mask"/>
+    <GitHubImageDisplay repository="neoforged/NeoForge" branch="26.1.x" path="src/main/resources/assets/neoforge/textures/item/mask/bucket_fluid_cover_drip.png" clazz="texture-16" alt="Bucket Fluid Cover Drip Mask"/>
+</div>
 
 Only the white pixels in the mask will be included in rendering, and pixels overlapping with the transparent part of the mask will be discarded.
 
