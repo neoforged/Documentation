@@ -72,7 +72,8 @@ On the client side, reload listeners are only collected once during startup. It 
 // Instead of PreparableReloadListener, extend one of its subclasses if applicable, see below.
 public class MyClientReloadListener implements PreparableReloadListener {
     // The id we're going to use in registration below
-    public static final Identifier ID = Identifier.fromNamespaceAndPath("mymod", "my_client_listener");
+    public static final Identifier ID =
+            Identifier.fromNamespaceAndPath("mymod", "my_client_reload_listener");
     // The instance through which the listener is accessed
     public static final MyClientReloadListener INSTANCE = new MyClientReloadListener();
 
@@ -97,24 +98,26 @@ And that's it! To access the reload listener, simply access the `MyClientReloadL
 
 ### Server-Side Reload Listeners
 
-Server-side reload listeners can be implemented in two ways, depending on what they do:
+Server-side reload listeners can be implemented in three ways, depending on what they do:
 
-- If they only run code (e.g. clearing or building a cache) and don't store any data, they can be singletons just like a [client-side reload listener][clientlisteners].
-- If they need to load and store data, they should be **retained**.
+- If they do not need to store any data and just run some code, they should be **disposable**, meaning no reference to them (that is visible from the outside) is held at all.
+- If they store data that is not unique, e.g. caches, they can be singletons just like a [client-side reload listener][clientlisteners].
+- If they need to load and store data by themselves, they should be **retained**.
 
-#### Singleton Server-Side Reload Listeners
+#### Disposable Server-Side Reload Listeners
 
-For singletons, we use code that is very similar to the client-side reload listener code above:
+For a disposable reload listener, we use code that is very similar to the client-side reload listener code above, however we simply do not keep a reference around at all:
 
 ```java
 // Instead of PreparableReloadListener, extend one of its subclasses if applicable, see below.
-public class MyServerReloadListener implements PreparableReloadListener {
+public class MyDisposableReloadListener implements PreparableReloadListener {
     // The id we're going to use in registration below
-    public static final Identifier ID = Identifier.fromNamespaceAndPath("mymod", "my_server_reload_listener");
+    public static final Identifier ID =
+            Identifier.fromNamespaceAndPath("mymod", "my_disposable_reload_listener");
     // No instance, since there's no data to access;
-    // also no hiding the constructor since we'll need to construct our class directly
+    // also no hiding the constructor since we'll construct our class directly
 
-    // other methods added here later that do not store any data
+    // other methods added here later
 }
 ```
 
@@ -123,13 +126,41 @@ And then, we add the reload listener in the `AddServerReloadListenersEvent` like
 ```java
 @SubscribeEvent // on the game event bus
 public static void addServerReloadListeners(AddServerReloadListenersEvent event) {
-    event.addListener(MyServerReloadListener.ID, new MyServerReloadListener());
+    event.addListener(MyDisposableReloadListener.ID, new MyDisposableReloadListener());
 }
 ```
 
-:::info
-Be aware that you will and should not be able to access the singleton reload listener at any time. If you need access to the listener, use a retained listener instead.
-:::
+#### Singleton Server-Side Reload Listeners
+
+For singletons, we use code that is very similar to the client-side reload listener code above:
+
+```java
+// Instead of PreparableReloadListener, extend one of its subclasses if applicable, see below.
+public class MySingletonReloadListener implements PreparableReloadListener {
+    // The id we're going to use in registration below
+    public static final Identifier ID =
+            Identifier.fromNamespaceAndPath("mymod", "my_singleton_reload_listener");
+    // The instance through which the listener is accessed
+    public static final MySingletonReloadListener INSTANCE = new MySingletonReloadListener();
+
+    // Hide the constructor in accordance with the singleton pattern
+    private MySingletonReloadListener() {
+    }
+
+    // other methods added here later that do not store any data
+}
+```
+
+Next, we add the reload listener in the `AddServerReloadListenersEvent` like so:
+
+```java
+@SubscribeEvent // on the game event bus
+public static void addServerReloadListeners(AddServerReloadListenersEvent event) {
+    event.addListener(MySingletonReloadListener.ID, new MySingletonReloadListener());
+}
+```
+
+And then, like in a client-side reload listener, we simply access the `INSTANCE` as needed.
 
 #### Retained Server-Side Reload Listeners
 
@@ -141,11 +172,12 @@ Not too much changes from the other two approaches, the main change is the addit
 
 ```java
 // Instead of PreparableReloadListener, extend one of its subclasses if applicable, see below.
-public class MyServerReloadListener implements PreparableReloadListener {
+public class MyRetainedReloadListener implements PreparableReloadListener {
     // The id we're going to use in registration below
-    public static final Identifier ID = Identifier.fromNamespaceAndPath("mymod", "my_server_listener");
+    public static final Identifier ID =
+            Identifier.fromNamespaceAndPath("mymod", "my_retained_reload_listener");
     // Create a listener key for use in the event
-    public static final ListenerKey<MyServerReloadListener> LISTENER_KEY = ListenerKey.create(ID);
+    public static final ListenerKey<MyRetainedReloadListener> LISTENER_KEY = ListenerKey.create(ID);
 
     // other methods added here later
 }
@@ -156,7 +188,7 @@ Next, we register a retained listener to the `AddServerReloadListenersEvent` lik
 ```java
 @SubscribeEvent // on the game event bus
 public static void addServerReloadListeners(AddServerReloadListenersEvent event) {
-    event.addRetainedListener(MyServerReloadListener.LISTENER_KEY, new MyServerReloadListener());
+    event.addRetainedListener(MyRetainedReloadListener.LISTENER_KEY, new MyRetainedReloadListener());
 }
 ```
 
@@ -167,7 +199,7 @@ MyServerReloadListener listener = serverLevel
         .getServer()
         .getServerResources()
         .managers()
-        .getListener(MyServerReloadListener.LISTENER_KEY);
+        .getListener(MyRetainedReloadListener.LISTENER_KEY);
 ```
 
 ## Reload Listener Class Hierarchy
@@ -367,7 +399,7 @@ public class MyReloadListener implements PreparableReloadListener {
                 // Set the shared state:
                 .whenComplete((data, error) -> {
                     // Again, use whatever type you need instead of Object
-                    CompletableFuture<Object> future = sharedState.get(STATE_KEY).future;
+                    CompletableFuture<Object> future = sharedState.get(STATE_KEY).future();
                     if (data != null) {
                         future.complete(data);
                     } else {
