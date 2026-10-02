@@ -51,8 +51,8 @@ public class MyBlock extends Block implements SimpleWaterloggedBlock {
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         return defaultBlockState().setValue(
-            WATERLOGGED,
-            context.getLevel().getFluidState(context.getClickedPos()).is(Fluids.WATER)
+                WATERLOGGED,
+                context.getLevel().getFluidState(context.getClickedPos()).is(Fluids.WATER)
         );
     }
     
@@ -60,26 +60,26 @@ public class MyBlock extends Block implements SimpleWaterloggedBlock {
     // a tick should be scheduled.
     @Override
     protected BlockState updateShape(
-        BlockState state,
-        LevelReader level,
-        ScheduledTickAccess ticks,
-        BlockPos pos,
-        Direction directionToNeighbour,
-        BlockPos neighbourPos,
-        BlockState neighbourState,
-        RandomSource random
+            BlockState state,
+            LevelReader level,
+            ScheduledTickAccess ticks,
+            BlockPos pos,
+            Direction directionToNeighbour,
+            BlockPos neighbourPos,
+            BlockState neighbourState,
+            RandomSource random
     ) {
         if (state.getValue(WATERLOGGED)) {
             ticks.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
         }
         return super.updateShape(state,
-            level,
-            ticks,
-            pos,
-            directionToNeighbour,
-            neighbourPos,
-            neighbourState,
-            random);
+                level,
+                ticks,
+                pos,
+                directionToNeighbour,
+                neighbourPos,
+                neighbourState,
+                random);
     }
 }
 ```
@@ -196,26 +196,26 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
     blockModels.createNonTemplateModelBlock(ModBlocks.MOLTEN_IRON.get());
     // We use NeoForge's `DynamicFluidContainerModel`.
     itemModels.itemModelOutput.accept(ModItems.MOLTEN_IRON_BUCKET.get(), new DynamicFluidContainerModel.Unbaked(
-        // The model's textures. The model is rendered in the order of base, fluid, cover (lowest to highest).
-        new DynamicFluidContainerModel.Textures(
-                // The particle texture.
-                Optional.of(new Material(Identifier.withDefaultNamespace("item/bucket"))),
-                // The base texture.
-                Optional.of(new Material(Identifier.withDefaultNamespace("item/bucket"))),
-                // The fluid texture, i.e. the part that actually contains the fluid.
-                Optional.of(new Material(Identifier.fromNamespaceAndPath("neoforge", "item/mask/bucket_fluid"))),
-                // The cover texture. This is rendered last and can be a mask (see below).
-                Optional.empty()
-        ),
-        // The fluid to use.
-        ModFluids.MOLTEN_IRON.get(),
-        // Whether the bucket model should be flipped, commonly used for "gaseous" fluids.
-        false,
-        // If true, the cover texture is a mask. If false, the cover texture is rendered normally.
-        // See below for more info.
-        true,
-        // If this is true, if the fluid emits light, the fluid element of the model becomes emissive.
-        true));
+            // The model's textures. The model is rendered in the order of base, fluid, cover (lowest to highest).
+            new DynamicFluidContainerModel.Textures(
+                    // The particle texture.
+                    Optional.of(new Material(Identifier.withDefaultNamespace("item/bucket"))),
+                    // The base texture.
+                    Optional.of(new Material(Identifier.withDefaultNamespace("item/bucket"))),
+                    // The fluid texture, i.e. the part that actually contains the fluid.
+                    Optional.of(new Material(Identifier.fromNamespaceAndPath("neoforge", "item/mask/bucket_fluid"))),
+                    // The cover texture. This is rendered last and can be a mask (see below).
+                    Optional.empty()
+            ),
+            // The fluid to use.
+            ModFluids.MOLTEN_IRON.get(),
+            // Whether the bucket model should be flipped, commonly used for "gaseous" fluids.
+            false,
+            // If true, the cover texture is a mask. If false, the cover texture is rendered normally.
+            // See below for more info.
+            true,
+            // If this is true, if the fluid emits light, the fluid element of the model becomes emissive.
+            true));
 }
 ```
 
@@ -244,7 +244,7 @@ In addition to buckets, it is common for fluids to go in a cauldron. For this, a
 public class MoltenIronCauldronBlock extends AbstractCauldronBlock {
     // Block codec boilerplate.
     private static final MapCodec<MoltenIronCauldronBlock> CODEC =
-        simpleCodec(MoltenIronCauldronBlock::new);
+            simpleCodec(MoltenIronCauldronBlock::new);
 
     @Override
     protected MapCodec<? extends AbstractCauldronBlock> codec() {
@@ -253,9 +253,9 @@ public class MoltenIronCauldronBlock extends AbstractCauldronBlock {
 
     // The cauldron interaction dispatcher and its id. See below for more info.
     public static final CauldronInteraction.Dispatcher CAULDRON_INTERACTIONS =
-        new CauldronInteraction.Dispatcher();
+            new CauldronInteraction.Dispatcher();
     public static final Identifier CAULDRON_INTERACTIONS_ID =
-        Identifier.fromNamespaceAndPath(ExampleMod.MOD_ID, "molten_iron_cauldron");
+            Identifier.fromNamespaceAndPath(ExampleMod.MOD_ID, "molten_iron_cauldron");
 
     // Pass our `CauldronInteraction.Dispatcher` to super.
     public MoltenIronCauldronBlock(Properties properties) {
@@ -333,15 +333,15 @@ protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerat
     blockModels.createNonTemplateModelBlock(ModBlocks.MOLTEN_IRON.get());
     itemModels.itemModelOutput.accept(...);
     blockModels.blockStateOutput.accept(BlockModelGenerators.createSimpleBlock(
-        // Our cauldron block.
-        ModBlocks.MOLTEN_IRON_CAULDRON.get(),
-        // We use the `CAULDRON_FULL` model template.
-        BlockModelGenerators.plainVariant(ModelTemplates.CAULDRON_FULL.create(
             // Our cauldron block.
             ModBlocks.MOLTEN_IRON_CAULDRON.get(),
-            // The cauldron fluid texture mapping.
-            TextureMapping.cauldron(TextureMapping.getBlockTexture(ModBlocks.MOLTEN_IRON.get(), "_still")),
-            blockModels.modelOutput))));
+            // We use the `CAULDRON_FULL` model template.
+            BlockModelGenerators.plainVariant(ModelTemplates.CAULDRON_FULL.create(
+                    // Our cauldron block.
+                    ModBlocks.MOLTEN_IRON_CAULDRON.get(),
+                    // The cauldron fluid texture mapping.
+                    TextureMapping.cauldron(TextureMapping.getBlockTexture(ModBlocks.MOLTEN_IRON.get(), "_still")),
+                    blockModels.modelOutput))));
 }
 
 // In the block loot sub provider
@@ -382,55 +382,87 @@ Secondly, we need to register the actual interactions. That works like so:
 private static void registerCauldronInteractions(RegisterCauldronInteractionEvent.Interaction event) {
     // Empty our cauldron when it is right-clicked with an empty bucket.
     event.register(
-        // The id of our cauldron interactions.
-        MoltenIronCauldronBlock.CAULDRON_INTERACTIONS_ID,
-        // The item we're right-clicking with.
-        Items.BUCKET,
-        // A callback called when right-clicking. Input parameters are the cauldron blockstate,
-        // the level, the position, the player, the used hand, and the used item stack.
-        (state, level, pos, player, hand, stack) -> CauldronInteractions.fillBucket(
-            // Pass along the input parameters.
-            state, level, pos, player, hand, stack,
-            // The resulting item stack.
-            ModItems.MOLTEN_IRON_BUCKET.toStack(),
-            // A predicate for additional checks if the bucket can be filled.
-            // We have no additional checks, so we just always return true.
-            _ -> true,
-            // The sound event to play when emptying the cauldron.
-            SoundEvents.BUCKET_FILL_LAVA));
+            // The id of our cauldron interactions.
+            MoltenIronCauldronBlock.CAULDRON_INTERACTIONS_ID,
+            // The item we're right-clicking with.
+            Items.BUCKET,
+            // A callback called when right-clicking. Input parameters are the cauldron blockstate,
+            // the level, the position, the player, the used hand, and the used item stack.
+            (state, level, pos, player, hand, stack) -> CauldronInteractions.fillBucket(
+                    // Pass along the input parameters.
+                    state, level, pos, player, hand, stack,
+                    // The resulting item stack.
+                    ModItems.MOLTEN_IRON_BUCKET.toStack(),
+                    // A predicate for additional checks if the bucket can be filled.
+                    // We have no additional checks, so we just always return true.
+                    _ -> true,
+                    // The sound event to play when emptying the cauldron.
+                    SoundEvents.BUCKET_FILL_LAVA));
     
     // For compat with vanilla, we need to add handling for when our cauldron is right-clicked
     // with water, lava and powder snow buckets. Compat with other mods is handled
     // by the bucket fill handler method, see below.
     event.register(
-        MoltenIronCauldronBlock.CAULDRON_INTERACTIONS_ID,
-        Items.LAVA_BUCKET,
-        CauldronInteractions::fillLavaInteraction);
+            MoltenIronCauldronBlock.CAULDRON_INTERACTIONS_ID,
+            Items.LAVA_BUCKET,
+            CauldronInteractions::fillLavaInteraction);
     event.register(
-        MoltenIronCauldronBlock.CAULDRON_INTERACTIONS_ID,
-        Items.WATER_BUCKET,
-        CauldronInteractions::fillWaterInteraction);
+            MoltenIronCauldronBlock.CAULDRON_INTERACTIONS_ID,
+            Items.WATER_BUCKET,
+            CauldronInteractions::fillWaterInteraction);
     event.register(
-        MoltenIronCauldronBlock.CAULDRON_INTERACTIONS_ID,
-        Items.POWDER_SNOW_BUCKET,
-        CauldronInteractions::fillPowderSnowInteraction);
+            MoltenIronCauldronBlock.CAULDRON_INTERACTIONS_ID,
+            Items.POWDER_SNOW_BUCKET,
+            CauldronInteractions::fillPowderSnowInteraction);
 
     // When **any** cauldron is right-clicked with our bucket, replace with our cauldron.
     // To do so, we use `event#registerToAll()` instead of `event#register()`.
     event.registerToAll(ModItems.MOLTEN_IRON_BUCKET.get(),
-        // A callback called when right-clicking. Input parameters are the cauldron blockstate,
-        // the level, the position, the player, the used hand, and the used item stack.
-        (state, level, pos, player, hand, stack) -> CauldronInteractions.emptyBucket(
-            // Pass along the input parameters, except the state.
-            level, pos, player, hand, stack,
-            // The resulting block state.
-            ModBlocks.MOLTEN_IRON_CAULDRON.get().defaultBlockState(),
-            // The sound event to play when filling the cauldron.
-            SoundEvents.BUCKET_EMPTY_LAVA));
+            // A callback called when right-clicking. Input parameters are the cauldron blockstate,
+            // the level, the position, the player, the used hand, and the used item stack.
+            (state, level, pos, player, hand, stack) -> CauldronInteractions.emptyBucket(
+                    // Pass along the input parameters, except the state.
+                    level, pos, player, hand, stack,
+                    // The resulting block state.
+                    ModBlocks.MOLTEN_IRON_CAULDRON.get().defaultBlockState(),
+                    // The sound event to play when filling the cauldron.
+                    SoundEvents.BUCKET_EMPTY_LAVA));
 }
 ```
 
 Cauldron interactions are not limited to buckets. Vanilla adds a couple of other cauldron recipes, mostly for "cleaning" colored items. These work through generally the same mechanism. For more information, see the `CauldronInteractions` class. This is also where you can find the vanilla cauldron interaction dispatchers.
+
+### Dripstone Dripping
+
+Using a setup of dripstones and cauldrons, water and lava can be made renewable. It is possible to extend this functionality to our modded cauldrons by calling `addDripstoneDripping()` on our `FluidType.Properties`, like so:
+
+```java
+FluidType.Properties.create()
+        .addDripstoneDripping(
+                // Probability per attempt to fill the cauldron. Vanilla values can be found
+                // at PointedDripstoneBlock.WATER_TRANSFER_PROBABILITY_PER_RANDOM_TICK
+                // and PointedDripstoneBlock.LAVA_TRANSFER_PROBABILITY_PER_RANDOM_TICK
+                // and are ~17.5% and 5.9%, respectively. Water is 3 times more likely to drip
+                // as it fills the cauldron in 3 levels, while lava cauldrons fill all at once.
+                // With our molten iron fluid, we follow the lava mechanics.
+                PointedDripstoneBlock.LAVA_TRANSFER_PROBABILITY_PER_RANDOM_TICK,
+                // The dripping particle to use. May be null, in which case the dimension's
+                // default dripping particle - lava dripping in the nether, water dripping
+                // in all others - will be used instead. Let's assume that we made a particle
+                // at ModParticles.DRIPPING_DRIPSTONE_MOLTEN_IRON, and use it here.
+                ModParticles.DRIPPING_DRIPSTONE_MOLTEN_IRON.get(),
+                // The filled cauldron block to turn the empty cauldron into upon dripping.
+                ModBlocks.MOLTEN_IRON_CAULDRON.get(),
+                // The sound to play when filling the cauldron. May be null, in which case no sound
+                // will be played. As with the particle, let's assume that we made a sound event
+                // at ModSounds.POINTED_DRIPSTONE_DRIP_MOLTEN_IRON_INTO_CAULDRON, and use it here.
+                ModSounds.POINTED_DRIPSTONE_DRIP_MOLTEN_IRON_INTO_CAULDRON.get()
+        );
+```
+
+:::tip
+To create a custom particle or sound event for dripstone dripping, see the articles on [particles][particles] and [sounds][sounds], respectively.
+:::
 
 [block]: ../blocks/index.md
 [blockstate]: ../blocks/states.md
@@ -438,4 +470,6 @@ Cauldron interactions are not limited to buckets. Vanilla adds a couple of other
 [i18n]: ../resources/client/i18n.md#datagen
 [loottable]: ../resources/server/loottables/index.md#datagen
 [models]: ../resources/client/models/datagen.md
+[particles]: ../resources/client/particles.md
+[sounds]: ../resources/client/sounds.md
 [tags]: ../resources/server/tags.md#datagen

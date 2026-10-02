@@ -73,14 +73,14 @@ public class MinEnchantedFluidIngredient extends FluidIngredient {
     private final Map<Holder<Enchantment>, Integer> enchantments;
     // The codec for serializing the ingredient.
     public static final MapCodec<MinEnchantedFluidIngredient> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
-        TagKey.codec(Registries.FLUID).fieldOf("tag").forGetter(e -> e.tag),
-        Codec.unboundedMap(Enchantment.CODEC, Codec.INT)
-            .optionalFieldOf("enchantments", Map.of())
-            .forGetter(e -> e.enchantments)
+            TagKey.codec(Registries.FLUID).fieldOf("tag").forGetter(e -> e.tag),
+            Codec.unboundedMap(Enchantment.CODEC, Codec.INT)
+                    .optionalFieldOf("enchantments", Map.of())
+                    .forGetter(e -> e.enchantments)
     ).apply(inst, MinEnchantedFluidIngredient::new));
     // Create a stream codec for the ingredient. For our use case, creating one from the regular codec will suffice.
     public static final StreamCodec<RegistryFriendlyByteBuf, MinEnchantedFluidIngredient> STREAM_CODEC =
-        ByteBufCodecs.fromCodecWithRegistries(CODEC.codec());
+            ByteBufCodecs.fromCodecWithRegistries(CODEC.codec());
 
     // Constructor that initializes the fields. You may also use a #of() pattern or similar instead.
     public MinEnchantedFluidIngredient(TagKey<Fluid> tag, Map<Holder<Enchantment>, Integer> enchantments) {
