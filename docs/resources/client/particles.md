@@ -122,7 +122,7 @@ A particle description looks something like this:
 }
 ```
 
-During resource reload, the `ParticleResources` loads all particle descriptions and stitches the textures into the `TextureAtlas#LOCATION_PARTICLES` atlas. Then, a `SpriteSet` is created for each description, containing a list of the specified `TextureAtlasSprite`s.
+During [resource reload][reload], the `ParticleResources` loads all particle descriptions and stitches the textures into the `TextureAtlas#LOCATION_PARTICLES` atlas. Then, a `SpriteSet` is created for each description, containing a list of the specified `TextureAtlasSprite`s.
 
 ### Using the Description
 
@@ -216,4 +216,5 @@ As a reminder from before, the server only knows [`ParticleType`s][particletype]
 [particletype]: #registering-particletypes
 [provider]: ../../rendering/particles.md#particleprovider
 [registry]: ../../concepts/registries.md
+[reload]: ../reloadlisteners.md#reloading
 [side]: ../../concepts/sides.md

@@ -1,3 +1,6 @@
+---
+sidebar_position: 0
+---
 # Resources
 
 Resources are external files that are used by the game, but are not code. The most prominent kinds of resources are textures, however, many other types of resources exist in the Minecraft ecosystem. Of course, all these resources require a consumer on the code side, so the consuming systems are grouped in this section as well.
