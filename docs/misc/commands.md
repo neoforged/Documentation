@@ -33,7 +33,7 @@ public static void registerCommands(RegisterCommandsEvent event) {
 
 `Commands#literal` starts a literal builder, `#then` attaches a child node, and `#executes` supplies a `Command` callback whose returned `int` is the result count reported back to the caller, often indicating how many players were affected. The example above registers `/mymod reload` and `/mymod reload force`.
 
-To register a client side only command use `RegisterClientCommandsEvent`.
+Commands can also be made client-side by registering them to `RegisterClientCommandsEvent` instead of `RegisterCommandsEvent`. Client commands will show up and run only on the client [side][sides]; the server will not have them available.
 
 :::note
 For more advanced command trees that require registry access, `RegisterCommandsEvent#getBuildContext` provides a `CommandBuildContext` that can be passed to argument types that require it.
@@ -48,7 +48,7 @@ Commands.literal("op-me")
         .requires(Commands.hasPermission(Commands.LEVEL_OWNERS))
         .executes(context -> {
             // Perform the command logic here
-            return 1;
+            return Command.SINGLE_SUCCESS;
         })
 ```
 
@@ -216,3 +216,4 @@ An argument type that holds parameters of its own, such as the bounds of `Intege
 [payload]: ../networking/payload.md
 [registration]: ../concepts/registries.md#methods-for-registering
 [resourcekey]: ../misc/identifier.md#resourcekeys
+[sides]: ../concepts/sides.md
