@@ -34,6 +34,23 @@ dependencies {
     additionalRuntimeClasspath 'com.example:example:1.0'
 }
 ```
+:::warning
+If the library contains any transitive dependencies required at runtime, the transitive dependencies have to be manually excluded and readded to the `additionalRuntimeClasspath` configuration.
+
+```gradle
+dependencies {
+    // This is required to add the library at compile time
+    implementation 'com.example:example:1.0'
+    // This adds the library to all the runs
+    additionalRuntimeClasspath 'com.example:example:1.0' {
+        // Exclude the transitive dependency that is required at runtime
+        exclude 'com.example:dependency'
+    }
+    // Add the module back to the runtime classpath
+    additionalRuntimeClasspath 'com.example:dependency:1.0'
+}
+```
+:::
 
 </TabItem>
 <TabItem value="ng" label="NeoGradle">
