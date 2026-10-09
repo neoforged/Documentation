@@ -1,6 +1,65 @@
 # Configuration
 
-Configurations define settings and consumer preferences that can be applied to a mod instance. NeoForge uses a configuration system using [TOML][toml] files and read with [NightConfig][nightconfig].
+## Overview
+
+In its base form, a configuration is a persistent collection of named values that can be changed by the user. Neoforge provides a configuration system that takes care of the "persistent" and "can be changed by the user" parts, as well as more Minecraft-specific tasks like syncing configs from the server to the client.
+
+Configuration values in this system have a name (called "key" in the code) and are part of a section, i.e. a named collection of values. They also have a data type, which may be `String`, `Integer`, `Long`, `Double`, `Enum` or `List` (of all of these but Enum). In addition, you can define a translation key that is used by the UI to show the name of the value, a comment that is added to the file the configuration is saved in, a tooltip for the UI (this one defaults to the comment), and further restrictions on the value.
+
+Sections can be nested to any depth, allowing you to build a tree to your liking. However, you don't just have one root; you have 4. Those represent the four different types of config: startup, client, server and common. Each is stored in its own file. The startup config is loaded early in the startup process, the client config only is loaded on the physical client, the common config is loaded on both client and server independently, and the server config is loaded on the server when a world is loaded and is synced over the network to the client.
+
+For this to work, NeoForge's configuration system naturally needs to know about your configuration values. To accomplish this, you first acquire a `Builder`, then tell that Builder about all your configuration values. For each one, the Builder will give you a provider you can later use to get the current value. When you're done, the Builder will give you a `ModConfigSpec` object that you need to register with the configuration system.
+
+You also need to register to use NeoForge's configuration UI so users can edit your config in the game. This is optional, and you can create your own configuration UI if you want.
+
+In the background, NeoForge uses [TOML][toml] files read with [NightConfig][nightconfig].
+
+## Quick Examples
+
+There are multiple ways of creating a configuration. The most straightforward way is to put them into static fields and statically fill them:
+
+```java
+public class Config {
+	private static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
+
+	public static final ModConfigSpec.ConfigValue<Boolean> LOG_DIRT_BLOCK = BUILDER
+		.comment("Whether to log the dirt block on common setup")
+		.define("logDirtBlock", true);
+
+	public final ModConfigSpec SPEC = BUILDER.build();
+```
+
+The Builder doesn't depend on any load order, so you don't have to take any precautions here.
+
+The next step is to register your configuration. This should be done in your mod's constructor like so:
+
+```java
+@Mod(ExampleMod.MODID)
+public class ExampleMod {
+	public ExampleMod(ModContainer modContainer) {
+		modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+	}
+```
+
+If you want to use NeoForge's configuration UI, you need to register for it like this:
+
+```java
+@Mod(ExampleMod.MODID, dist = Dist.CLIENT)
+public class ExampleModClientMod {
+	public ExampleMod(ModContainer modContainer) {
+		container.registerExtensionPoint(IConfigScreenFactory.class, (mc, parent) -> new ConfigurationScreen(container, parent));
+	}
+```
+
+To later query your configuration values, simply call `get()` on your static values:
+
+```java
+if (Config.LOG_DIRT_BLOCK.get()) {
+	LOGGER.info("dirt!");
+}
+```
+
+Note that the value you get is live. It can change at any time, for example, when a config file is changed and reloaded or when the user uses the configuration UI. If you need to rely on some config values to stay stable and/or in sync, you need to make a copy of the values. This can also be used to transform values that cannot be stored directly, e.g. converting `String`s first to `ResourceLocation`s and then to `Item`s. To update your copy, listen to the `ModConfigEvent`s on the mod event bus.
 
 ## Creating a Configuration
 
@@ -58,6 +117,11 @@ The `ConfigValue` specific methods take in two additional components:
 
 - A validator to make sure the deserialized object is valid
 - A class representing the data type of the config value
+
+For lists, there are two additional components you can supply:
+
+- A supplier for new elements. This is used by the UI to allow the user adding new elements.
+- A size range to limit the size of the list, e.g. to require them to have at least one entry.
 
 ```java
 //Store the config properties as public finals
