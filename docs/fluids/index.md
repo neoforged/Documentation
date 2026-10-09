@@ -123,7 +123,7 @@ Let's start by adding the texture files. When creating your assets, it is recomm
 :::warning
 These paths match the paths we passed into `RegisterFluidModelsEvent#register()` before. You can place the files elsewhere, but you will need to adjust the paths in the renderer as well.
 
-Fluid textures live in the block atlas. As such, while not strictly required, it is recommended that they be located in a `textures/block` folder.
+Fluid textures live in the block atlas. As such, they should be located in a `textures/block` folder.
 :::
 
 Most fluids are animated, so they will also need accompanying `.png.mcmeta` files. Again, you can base these off the vanilla files. For more information, see the article on [textures].
