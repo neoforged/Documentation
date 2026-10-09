@@ -210,6 +210,8 @@ Minecraft offers various methods to play sounds, and it is sometimes unclear whi
 
 ### `Level`
 
+_See also: [Levels & Worlds/`Level`][level]_
+
 - `playSeededSound(Entity entity, double x, double y, double z, Holder<SoundEvent> soundEvent, SoundSource soundSource, float volume, float pitch, long seed)`
     - Client behavior: If the player passed in is the local player, play the sound event to the player at the given location, otherwise no-op.
     - Server behavior: A packet instructing the client to play the sound event to the player at the given location is sent to all players except the one passed in.
@@ -303,6 +305,7 @@ public static void gatherData(GatherDataEvent.Client event) {
 
 [bug]: https://bugs.mojang.com/browse/MC-146721
 [datagen]: ../index.md#data-generation
+[level]: ../../misc/levels.md
 [mcwiki]: https://minecraft.wiki
 [mcwikisounds]: https://minecraft.wiki/w/Sounds.json
 [modbus]: ../../concepts/events.md#event-buses

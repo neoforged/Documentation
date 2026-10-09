@@ -1,6 +1,6 @@
 # Feature Flags
 
-Feature flags are a system that allows developers to gate a set of features behind some set of required flags, that being registered elements, gameplay mechanics, data pack entries or some other unique system to your mod.
+Feature flags are a system that allows developers to gate a set of features behind some set of required flags, that being registered elements, gameplay mechanics, data pack entries or some other unique system to your mod. Feature flags are applied per [world][levels].
 
 A common use case would be gating experimental features/elements behind a experimental flag, allowing users to easily switch them on and play around with them before they are finalized.
 
@@ -135,7 +135,7 @@ DeferredHolder<GameRule, GameRule> EXPERIMENTAL_GAME_RULE = GAME_RULES.register(
 
 ### Validating Enabled Status
 
-In order to validate if features should be enabled or not, you must first acquire the set of enabled features. This can be done in a variety of ways, but the common and recommended method is `LevelReader#enabledFeatures`.  
+In order to validate if features should be enabled or not, you must first acquire the set of enabled features. This can be done in a variety of ways, but the common and recommended method is [`LevelReader#enabledFeatures`][levelreader].
 
 ```java
 level.enabledFeatures(); // from a 'LevelReader' instance
@@ -294,3 +294,6 @@ public static void gatherData(final GatherDataEvent.Client event) {
     // Register additional providers (recipes, loot tables) to `featurePack` to write any generated resources into this pack, rather than the root pack.
 }
 ```
+
+[levelreader]: ../misc/levels.md#levelreader
+[levels]: ../misc/levels.md

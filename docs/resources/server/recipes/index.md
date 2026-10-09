@@ -42,7 +42,7 @@ A full list of types provided by Minecraft can be found in the [Built-In Recipe 
 
 ## Using Recipes
 
-Recipes are loaded, stored and obtained via the `RecipeManager` class, which is in turn obtained via `ServerLevel#recipeAccess` or - if you don't have a `ServerLevel` available - `ServerLifecycleHooks.getCurrentServer()#getRecipeManager`. The server does not sync the recipes to the client by default, instead it only sends the `RecipePropertySet`s for restricting inputs on menu slots. Additionally, whenever a recipe is unlocked for the recipe book, its `RecipeDisplay`s and the corresponding `RecipeDisplayEntry`s are sent to the client (excluding all recipes where `Recipe#isSpecial` returns true) As such, recipe logic should always run on the server.
+Recipes are loaded, stored and obtained via the `RecipeManager` class, which is in turn obtained via [`ServerLevel#recipeAccess`][serverlevel] or - if you don't have a `ServerLevel` available - `ServerLifecycleHooks.getCurrentServer()#getRecipeManager`. The server does not sync the recipes to the client by default, instead it only sends the `RecipePropertySet`s for restricting inputs on menu slots. Additionally, whenever a recipe is unlocked for the recipe book, its `RecipeDisplay`s and the corresponding `RecipeDisplayEntry`s are sent to the client (excluding all recipes where `Recipe#isSpecial` returns true) As such, recipe logic should always run on the server.
 
 The easiest way to get a recipe is by its resource key:
 
@@ -229,7 +229,7 @@ The `ShapedRecipePattern` class, responsible for holding the in-memory represent
 
 By default, vanilla does not send any recipes to the [logical client][logicalside]. Instead, the `RecipePropertySet` / `SelectableRecipe.SingleInputSet` is synced to handle proper client-side behavior during user interactions. Additionally, when a recipe is unlocked in the recipe book, its `RecipeDisplay` is synced. However, these two cases are limited in scope, especially when more data is needed from the recipe itself. In these instances, NeoForge provides a way to send the full recipes for a given `RecipeType` to the client.
 
-There are two events that must be listened to on the [game event bus][events]: `OnDatapackSyncEvent` and `RecipesReceivedEvent`. First, specify the `RecipeType`s to sync to the client by calling `OnDatapackSyncEvent#sendRecipes`. Then, the recipes can be accessed from the provided `RecipeMap` via `RecipesReceivedEvent#getRecipeMap`. Additionally, any recipes stored on the client should be cleared once the player logs out of the world via `ClientPlayerNetworkEvent.LoggingOut`.
+There are two events that must be listened to on the [game event bus][event]: `OnDatapackSyncEvent` and `RecipesReceivedEvent`. First, specify the `RecipeType`s to sync to the client by calling `OnDatapackSyncEvent#sendRecipes`. Then, the recipes can be accessed from the provided `RecipeMap` via `RecipesReceivedEvent#getRecipeMap`. Additionally, any recipes stored on the client should be cleared once the player logs out of the world via `ClientPlayerNetworkEvent.LoggingOut`.
 
 ```java
 // Assume we have some custom RecipeType<ExampleRecipe> EXAMPLE_RECIPE_TYPE
@@ -325,5 +325,6 @@ The recipe provider also adds helpers for common scenarios, such as `twoByTwoPac
 [event]: ../../../concepts/events.md
 [ingredients]: ingredients.md
 [logicalside]: ../../../concepts/sides.md#the-logical-side
+[serverlevel]: ../../../misc/levels.md#serverlevel
 [streamcodec]: ../../../networking/streamcodecs.md
 [tags]: ../tags.md
