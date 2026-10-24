@@ -160,7 +160,7 @@ public class ModTwo {
         this.key = (String) container.getModInfo().getModProperties().get("key");
     }
 }
-```                                                    | `features={javaVersion="[17,)"}`  |
+```
 
 ### Access Transformer-Specific Properties
 
