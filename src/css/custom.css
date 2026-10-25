@@ -47,6 +47,32 @@ html[data-theme="dark"] {
   --content-divier: #2e2e32;
 }
 
+[data-theme='dark'] .DocSearch {
+  --docsearch-text-color: var(--ifm-font-color-base);
+  --docsearch-muted-color: var(--ifm-color-secondary-darkest);
+  --docsearch-container-background: rgba(47, 55, 69, 0.7);
+
+  --docsearch-modal-background: var(--ifm-background-color);
+  --docsearch-search-button-background: var(--ifm-background-color);
+  --docsearch-search-button-text-color: var(--docsearch-muted-color);
+  --docsearch-searchbox-background: var(--ifm-background-color);
+  --docsearch-searchbox-focus-background: var(--ifm-color-black);
+  --docsearch-highlight-color: var(--ifm-link-color);
+  --docsearch-background-color: #252b81;
+
+  --docsearch-hit-color: var(--ifm-font-color-base);
+  --docsearch-hit-active-color: var(--ifm-color-white);
+  --docsearch-hit-highlight-color: #100b2c;
+  --docsearch-hit-background: var(--ifm-color-emphasis-100);
+
+  --docsearch-footer-background: var(--ifm-background-surface-color);
+  --docsearch-key-gradient: linear-gradient(
+    -26.5deg,
+    var(--ifm-color-emphasis-200) 0%,
+    var(--ifm-color-emphasis-100) 100%
+  );
+}
+
 .menu__caret:before {
   background: var(--ifm-menu-link-sublist-icon) 50%/1.65rem;
 }
