@@ -154,7 +154,7 @@ Game Tests are performed within scenes loaded by structures, or templates. All t
 
 ## Test Environments
 
-All game tests run in some `TestEnvironmentDefinition`, determining how the current `ServerLevel` should be set up. Then, once the test has finished, the environment is tore down, letting the next instance or instances run. All environments are batched, meaning that if multiple test instances have the same environment, they will run at the same time. All test environments are located within `data/<namespace>/test_environment/<path>.json`.
+All game tests run in some `TestEnvironmentDefinition`, determining how the current [`ServerLevel`][serverlevel] should be set up. Then, once the test has finished, the environment is tore down, letting the next instance or instances run. All environments are batched, meaning that if multiple test instances have the same environment, they will run at the same time. All test environments are located within `data/<namespace>/test_environment/<path>.json`.
 
 Vanilla provides `minecraft:default`, which does not modify the `ServerLevel`. However, there are other supported definition types that can be used to construct an environment.
 
@@ -1052,6 +1052,7 @@ property 'neoforge.enableGameTest', 'true'
 ```
 
 [datapacks]: ../resources/index.md#data
-[registered]: ../concepts/registries.md#methods-for-registering
-[test]: #running-game-tests
 [event]: ../concepts/events.md#registering-an-event-handler
+[registered]: ../concepts/registries.md#methods-for-registering
+[serverlevel]: levels.md#serverlevel
+[test]: #running-game-tests

@@ -164,7 +164,7 @@ public class MyEntityBlock extends Block implements EntityBlock {
 
 ## Tickers
 
-Another very common use of block entities, often in combination with some stored data, is ticking. Ticking means executing some code every game tick. This is done by overriding `EntityBlock#getTicker` and returning a `BlockEntityTicker`, which is basically a consumer with four arguments (level, position, blockstate and block entity), like so:
+Another very common use of block entities, often in combination with some stored data, is ticking. Ticking means executing some code every game tick. This is done by overriding `EntityBlock#getTicker` and returning a `BlockEntityTicker`, which is basically a consumer with four arguments ([level][level], position, blockstate and block entity), like so:
 
 ```java
 // Note: The ticker is defined in the block, not the block entity. However, it is good practice to
@@ -277,6 +277,7 @@ It is important that you do safety checks, as the `BlockEntity` might already be
 [container]: ../inventories/container.md
 [dataattachments]: ../datastorage/attachments.md
 [entities]: ../entities/index.md
+[level]: ../misc/levels.md
 [modbus]: ../concepts/events.md#event-buses
 [networking]: ../networking/index.md
 [registration]: ../concepts/registries.md#methods-for-registering

@@ -177,7 +177,7 @@ _See [Entities/Entity Renderers][renderer]._
 
 If we now boot up the game now and enter a world, we have exactly one way of spawning: through the [`/summon`][summon] command (assuming `EntityType.Builder#noSummon` was not called).
 
-Obviously, we want to add our entities some other way. The easiest way to do so is through the `LevelWriter#addFreshEntity` method. This method simply accepts an `Entity` instance and adds it to the world, like so:
+Obviously, we want to add our entities some other way. The easiest way to do so is through the [`LevelWriter#addFreshEntity`][levelwriter] method. This method simply accepts an `Entity` instance and adds it to the world, like so:
 
 ```java
 // In some method that has a level available, only on the server
@@ -423,6 +423,7 @@ A new projectile can be created by extending `Projectile` or a fitting subclass,
 [item]: ../items/index.md
 [itemstack]: ../items/index.md#itemstacks
 [leftclick]: ../items/interactions.md#left-clicking-an-item
+[levelwriter]: ../misc/levels.md#levelwriter
 [livingentity]: livingentity.md
 [middleclick]: ../items/interactions.md#middle-clicking
 [mobeffect]: ../items/mobeffects.md

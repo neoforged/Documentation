@@ -60,7 +60,7 @@ When a consumable has finished being used, you may want to trigger some kind of 
 
 A list of vanilla effects can be found in `ConsumeEffect`.
 
-Every `ConsumeEffect` has two methods: `getType`, which specifies the registry object `ConsumeEffect.Type`; and `apply`, which is called on the item when it has been fully consumed. `apply` takes three arguments: the `Level` the consuming entity is in, the `ItemStack` the consumable was called on, and the `LivingEntity` consuming the object. When the effect is successfully applied, the method returns `true`, or `false` if it failed.
+Every `ConsumeEffect` has two methods: `getType`, which specifies the registry object `ConsumeEffect.Type`; and `apply`, which is called on the item when it has been fully consumed. `apply` takes three arguments: the [`Level`][level] the consuming entity is in, the `ItemStack` the consumable was called on, and the `LivingEntity` consuming the object. When the effect is successfully applied, the method returns `true`, or `false` if it failed.
 
 A `ConsumeEffect` can be created by implementing the interface and [registering] the `ConsumeEffect.Type` with the associated `MapCodec` and `StreamCodec` to `BuiltInRegistries#CONSUME_EFFECT_TYPE`:
 
@@ -299,7 +299,7 @@ public class MyEntity extends LivingEntity implements Consumable.OverrideConsume
 
 While consumables and effects that are applied after consumption are useful, sometimes the properties of an effect need to be externally available as other [data components][datacomponents]. For example, cats and wolves also eat [food] and query its nutrition, or item with potion contents query its color for rendering. In these instances, data components implement `ConsumableListener` to provide consumption logic.
 
-A `ConsumableListener` only has one method: `#onConsume`, which takes in the current level, the entity consuming the item, the item being consumed, and the `Consumable` instance on the item. `onConsume` is called during `Item#finishUsingItem` when the item has been fully consumed.
+A `ConsumableListener` only has one method: `#onConsume`, which takes in the current [level][level], the entity consuming the item, the item being consumed, and the `Consumable` instance on the item. `onConsume` is called during `Item#finishUsingItem` when the item has been fully consumed.
 
 Adding your own `ConsumableListener` is simply [registering a new data component][datacompreg] and implementing `ConsumableListener`.
 
@@ -362,6 +362,7 @@ The contents of a [potion][potions] via `PotionContents` is another `ConsumableL
 [food]: #food
 [hunger]: https://minecraft.wiki/w/Hunger#Mechanics
 [item]: index.md
+[level]: ../misc/levels.md
 [livingentity]: ../entities/livingentity.md
 [modbus]: ../concepts/events.md#event-buses
 [mobeffectinstance]: mobeffects.md#mobeffectinstances

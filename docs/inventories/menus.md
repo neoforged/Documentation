@@ -80,7 +80,7 @@ Each menu implementation must implement two methods: `#stillValid` and [`#quickM
 
 `#stillValid` determines whether the menu should remain open for a given player. This is typically directed to the static `#stillValid` which takes in a `ContainerLevelAccess`, the player, and the `Block` this menu is attached to. The client menu must always return `true` for this method, which the static `#stillValid` does default to. This implementation checks whether the player is within eight blocks of where the data storage object is located.
 
-A `ContainerLevelAccess` supplies the current level and block position within an enclosed scope. When constructing the menu on the server, a new access can be created by calling `ContainerLevelAccess#create`. The client menu constructor can pass in `ContainerLevelAccess#NULL`, which will do nothing.
+A `ContainerLevelAccess` supplies the current [level][level] and block position within an enclosed scope. When constructing the menu on the server, a new access can be created by calling `ContainerLevelAccess#create`. The client menu constructor can pass in `ContainerLevelAccess#NULL`, which will do nothing.
 
 ```java
 // Client menu constructor
@@ -401,14 +401,15 @@ public class MyMob extends Mob implements MenuProvider {
 Once again, this is the simplest way to implement the logic, not the only way.
 :::
 
-[registered]: ../concepts/registries.md#methods-for-registering
 [acm]: #abstractcontainermenu
-[mt]: #menutype
-[qms]: #quickmovestack
 [cap]: capabilities.md#neoforge-provided-capabilities
 [container]: container.md
-[screen]: ../rendering/screens.md
 [icf]: #icontainerfactory
-[side]: ../concepts/sides.md#the-logical-side
 [interaction]: ../items/interactions.md#right-clicking-an-item
 [itemstack]: ../items/index.md#itemstacks
+[level]: ../misc/levels.md
+[mt]: #menutype
+[qms]: #quickmovestack
+[registered]: ../concepts/registries.md#methods-for-registering
+[screen]: ../rendering/screens.md
+[side]: ../concepts/sides.md#the-logical-side

@@ -45,7 +45,7 @@ The same format is also used for vanilla's damage types, and pack developers can
  
 ## Creating and Using Damage Sources
 
-`DamageSource`s are usually created on the fly when [`Entity#hurt`][entityhurt] is called. Be aware that since damage types are a [datapack registry][dr], you will need a `RegistryAccess` to query them, which can be obtained via `Level#registryAccess`. To create a `DamageSource`, call the `DamageSource` constructor with up to four parameters:
+`DamageSource`s are usually created on the fly when [`Entity#hurt`][entityhurt] is called. Be aware that since damage types are a [datapack registry][dr], you will need a `RegistryAccess` to query them, which can be obtained via [`Level#registryAccess`][level]. To create a `DamageSource`, call the `DamageSource` constructor with up to four parameters:
 
 ```java
 DamageSource damageSource = new DamageSource(
@@ -129,5 +129,6 @@ public static void onGatherData(GatherDataEvent.Client event) {
 [entity]: ../../entities/index.md
 [entityhurt]: ../../entities/index.md#damaging-entities
 [extenum]: ../../advanced/extensibleenums.md
+[level]: ../../misc/levels.md#level
 [rk]: ../../misc/identifier.md#resourcekeys
 [tags]: tags.md

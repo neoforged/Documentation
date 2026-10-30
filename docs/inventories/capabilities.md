@@ -138,7 +138,7 @@ if (object != null) {
 }
 ```
 
-Block capabilities are used a bit differently because blocks without a block entity can have capabilities as well. The query is now performed on a `level`, with the `pos`ition that we are looking for as an additional parameter:
+Block capabilities are used a bit differently because blocks without a block entity can have capabilities as well. The query is now performed on a [`level`][level], with the `pos`ition that we are looking for as an additional parameter:
 
 ```java
 var object = level.getCapability(CAP, pos, context);
@@ -180,7 +180,7 @@ The implementation is rather efficient, but for queries that are performed frequ
 Generally, a `BlockCapabilityCache` will be created once and then stored in a field of the object performing frequent capability queries. When and where exactly you store the cache is up to you.
 :::
 
-To create a cache, call `BlockCapabilityCache.create` with the capability to query, the level, the position, and the query context.
+To create a cache, call `BlockCapabilityCache.create` with the capability to query, the [level][level], the position, and the query context.
 
 ```java
 // Declare the field:
@@ -350,4 +350,5 @@ See [`CapabilityHooks`][capability-hooks] for a list of the providers registered
 [energyhandler]: transactions.md#energy-handler
 [invalidation]: #block-capability-invalidation
 [itemaccess]: transactions.md#item-access
+[level]: ../misc/levels.md
 [resourcehandler]: transactions.md#resource-handlers

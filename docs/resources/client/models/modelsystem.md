@@ -28,7 +28,7 @@ The block state definition JSON (in `assets/<namespace>/blockstates`) is compile
 
 The most important method within `BlockStateModel` is `collectParts`, which is responsible for appending to the list of `BlockStateModelPart`s to render. Remember that every `BlockStateModelPart` contains its list of `BakedQuad`s, via `BlockStateModelPart#getQuads`, which is then uploaded to the vertex consumer and rendered. `collectParts` has five parameters:
 
-- A `BlockAndTintGetter`: A representation of the level the `BlockState` is rendered within.
+- A [`BlockAndTintGetter`][blockandtintgetter]: A client-side representation of the level the `BlockState` is rendered within.
 - A `BlockPos`: The position that the block is rendered at.
 - A `BlockState`: The [blockstate] being rendered. May be null, indicating that an item is being rendered.
 - A `RandomSource`: A client-bound random source you can use for randomization.
@@ -132,17 +132,17 @@ It is generally encouraged to use a [custom model loader][modelloader] over wrap
 
 [ao]: https://en.wikipedia.org/wiki/Ambient_occlusion
 [ber]: ../../../blockentities/ber.md
+[blockandtintgetter]: ../../../misc/levels.md#blockandtintgetter
 [blockstate]: ../../../blocks/states.md
 [bsd]: #block-state-definitions
 [clientitem]: items.md
 [event]: ../../../concepts/events.md
 [extended]: ../../../advanced/extensibleenums.md#creating-an-enum-entry
-[itemmodels]: items.md#manually-rendering-an-item
+[itemmodels]: items.md#manually-submitting-an-item-for-rendering
 [itemmodelsection]: #item-models
 [livingentity]: ../../../entities/livingentity.md
 [modbus]: ../../../concepts/events.md#event-buses
 [modelloader]: modelloaders.md
-[rl]: ../../../misc/identifier.md
 [perspective]: #perspectives
-[rendertype]: index.md#render-types
+[rl]: ../../../misc/identifier.md
 [sides]: ../../../concepts/sides.md

@@ -157,7 +157,7 @@ Vanilla provides the following loot parameter sets (required parameters are **bo
 
 The loot context is an object containing situational information for rolling loot tables. The information includes:
 
-- The `ServerLevel` the loot table is rolled in. Get via `#getLevel`.
+- The [`ServerLevel`][serverlevel] the loot table is rolled in. Get via `#getLevel`.
 - The `RandomSource` used to roll the loot table. Get via `#getRandom`.
 - The loot parameters. Check presence using `#hasParameter`, and get single parameters using `#getParameter`.
 - The luck value, used for calculating bonus rolls and quality values. Usually populated via the entity's luck attribute. Get via `#getLuck`.
@@ -436,7 +436,7 @@ new LootTableProvider(output, Set.of(), List.of(new SubProviderEntry(
 [block]: ../../../blocks/index.md
 [conditions]: ../conditions.md
 [context]: #loot-context
-[customentry]: custom.md#custom-loot-entry-types
+[customentry]: custom.md#custom-loot-entries
 [customlevelbased]: custom.md#custom-level-based-values
 [customnumber]: custom.md#custom-number-providers
 [damagesource]: ../damagetypes.md#creating-and-using-damage-sources
@@ -448,5 +448,6 @@ new LootTableProvider(output, Set.of(), List.of(new SubProviderEntry(
 [lootfunction]: lootfunctions
 [parameters]: #loot-parameters
 [raidherogifts]: ../datamaps/builtin.md#neoforgeraid_hero_gifts
+[serverlevel]: ../../../misc/levels.md#serverlevel
 [sides]: ../../../concepts/sides.md
 [tags]: ../tags.md
