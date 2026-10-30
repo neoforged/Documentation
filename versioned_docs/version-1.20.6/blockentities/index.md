@@ -140,7 +140,7 @@ Level#sendBlockUpdated(BlockPos pos, BlockState oldState, BlockState newState, i
 
 ### Synchronizing Using a Custom Network Message
 
-This way of synchronizing is probably the most complicated but is usually the most optimized, as you can make sure that only the data you need to be synchronized is actually synchronized. You should first check out the [`Networking`][networking] section and especially [`PayloadRegistrar`][payload] before attempting this. Once you've created your custom network message, you can send it to all users that have the `BlockEntity` loaded with `PacketDistrubtor#sendToPlayersTrackingChunk`.
+This way of synchronizing is probably the most complicated but is usually the most optimized, as you can make sure that only the data you need to be synchronized is actually synchronized. You should first check out the [`Networking`][networking] section and especially [`PayloadRegistrar`][payload] before attempting this. Once you've created your custom network message, you can send it to all users that have the `BlockEntity` loaded with `PacketDistributor#sendToPlayersTrackingChunk`.
 
 :::caution
 It is important that you do safety checks, the `BlockEntity` might already be destroyed/replaced when the message arrives at the player! You should also check if the chunk is loaded (`Level#hasChunkAt(BlockPos)`).

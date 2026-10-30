@@ -265,7 +265,7 @@ To actually send the packet, an update notification must be triggered on the ser
 
 ### Using a Custom Packet
 
-By using a dedicated update packet, you can send packets yourself whenever you need to. This is the most versatile, but also the most complex variant, as it requires setting up a network handler. You can send a packet to all players tracking the block entity by using `PacketDistrubtor#sendToPlayersTrackingChunk`. Please see the [Networking][networking] section for more information.
+By using a dedicated update packet, you can send packets yourself whenever you need to. This is the most versatile, but also the most complex variant, as it requires setting up a network handler. You can send a packet to all players tracking the block entity by using `PacketDistributor#sendToPlayersTrackingChunk`. Please see the [Networking][networking] section for more information.
 
 :::caution
 It is important that you do safety checks, as the `BlockEntity` might already be destroyed/replaced when the message arrives at the player. You should also check if the chunk is loaded via `Level#hasChunkAt`.
