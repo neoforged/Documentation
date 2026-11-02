@@ -4,7 +4,7 @@ A biome is a region in a world with distinct geographical features, plants, mobs
 
 # Generating your own biome
 
-A new biome can be added by creating a JSON file in your namespace's `worldgen/biome` subfolder. So for example, if you want to add a biome named `example_biome` for a mod id `examplemod`, it will be located at `data/examplemod/worldgen/biome/example_biome.json`. A biome's ID will be related to the `biome` directory, so for our example, it would be `examplemod:example_biome`. name can be chosen, and the biome will automatically be picked up by the game. Java code is needed if you want to add additional Environment Attributes, custom carvers, custom features etc.
+A new biome can be added by creating a JSON file in your namespace's `worldgen/biome` subfolder. So for example, if you want to add a biome named `example_biome` for a mod id `examplemod`, it will be located at `data/examplemod/worldgen/biome/example_biome.json`. A biome's ID will be related to the `biome` directory, so for our example, it would be `examplemod:example_biome`. name can be chosen, and the biome will automatically be picked up by the game. Java code is needed if you want to add additional Environment Attributes, custom carvers, custom features etc. Can be datagenned using [Datapack Registry][datapackregistries] as showing in [Data generation section](#data-generation).
 
 # Specification
 
@@ -20,9 +20,9 @@ A biome JSON file may contain the following entries:
     - `dry_foliage_color`: Color for leaf litter color.  Optional, if absent the value depends on `temperature` and `downfall`. Can take integer corresponding to hex color, RGB value as a list like [0,0,0] or hexadecimal value as string `#77e68f`.
     - `grass_color`: Color for grass blocks, short grass, tall grass, ferns, tall ferns, and sugar cane. Optional, if absent the value depends on `temperature` and `downfall`. Can take integer corresponding to hex color, RGB value as a list like [0,0,0] or hexadecimal value as string `#77e68f`.
     - `grass_color_modifier`: Some biomes have specific multiplier hard coded for the grass color this is to select one of those modifiers. Accepts `none`, `dark_forest` or `swamp`. Optional, defaults to `none`. It can be extended using [extensible enum][enumextension].
-- `attributes`: Map of environment attributes applying to biome. There are tons of environment attributes provided by minecraft and mod can create their own with Java code. Optional;
-- `carvers`: Any number of carvers, can take tag with `#`, an array containing IDs or a singular value of carver. Required but can be empty. Can be created through JSON files.
-- `features`: List of generation steps (can be empty). Usually contains 11 steps but can be more. Each entry on the list can be any number of placed features (can take tags, list of id or whole JSON object of placed feature). Placed feature determines where a Configured feature should be attempted to be placed using placement modifiers.
+- `attributes`: Map of environment attributes applying to biome. There are tons of environment attributes provided by minecraft and mod can create their own with Java code. Optional; Environment attributes are responsible for variety of different biome functionality like sky color, background music, ambient music, fog color, water evaporation(like in nether). List of environment attributes can be found in [Minecraft wiki][enviromentattributelist]. Can be created through JSON files or datagen.
+- `carvers`: Any number of carvers, can take tag with `#`, an array containing IDs or a singular value of carver. Required but can be empty. Can be created through JSON files or datagen.
+- `features`: List of generation steps (can be empty). Usually contains 11 steps but can be more. Each entry on the list can be any number of placed features (can take tags, list of id or whole JSON object of placed feature). Placed feature determines where a Configured feature should be attempted to be placed using placement modifiers. Can be created through JSON files or datagen.
 
 ## Available Values for Decoration Steps
 
@@ -87,5 +87,6 @@ For modifying an existing biome please refer to [Biome Modifiers][biomemodifiers
 
 [biomemodifiers]: ./biomemodifier.md
 [datagen]: ../resources/index.md#data-generation
+[enviromentattributelist]: https://minecraft.wiki/w/Environment_attribute#List_of_attributes
 [enumextension]: ../advanced/extensibleenums.md
 [datapackregistries]: ../concepts/registries.md#custom-datapack-registries
