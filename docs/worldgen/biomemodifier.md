@@ -72,7 +72,7 @@ BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
 
 ### Add Features
 
-This biome modifier type adds `PlacedFeature`s (such as trees or ores) to biomes so that they can spawn during world generation. The modifier takes in the biome id or tag of the biomes the features are added to, a `PlacedFeature` id or tag to add to the selected biomes, and the [`GenerationStep.Decoration`](#Available-Values-for-Decoration-Steps) the features will be generated within.
+This biome modifier type adds `PlacedFeature`s (such as trees or ores) to biomes so that they can spawn during world generation. The modifier takes in the biome id or tag of the biomes the features are added to, a `PlacedFeature` id or tag to add to the selected biomes, and the [`GenerationStep.Decoration`](availabledecorationsteps) the features will be generated within.
 
 <Tabs>
 <TabItem value="json" label="JSON" default>
@@ -139,7 +139,7 @@ Vanilla `PlacedFeature`s can be referenced in biome JSONs or added via biome mod
 
 ### Remove Features
 
-This biome modifier type removes features (such as trees or ores) from biomes so that they will no longer spawn during world generation. The modifier takes in the biome id or tag of the biomes the features are removed from, a `PlacedFeature` id or tag to remove from the selected biomes, and the [`GenerationStep.Decoration`](#Available-Values-for-Decoration-Steps)s that the features will be removed from.
+This biome modifier type removes features (such as trees or ores) from biomes so that they will no longer spawn during world generation. The modifier takes in the biome id or tag of the biomes the features are removed from, a `PlacedFeature` id or tag to remove from the selected biomes, and the [`GenerationStep.Decoration`](availabledecorationsteps)s that the features will be removed from.
 
 <Tabs>
 <TabItem value="json" label="JSON" default>
@@ -567,25 +567,6 @@ BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
 </TabItem>
 </Tabs>
 
-### Available Values for Decoration Steps
-
-The `step` or `steps` fields in many of the aforementioned JSONs are referring to the `GenerationStep.Decoration` enum. This enum has the steps listed out in the following order, which is the same order that the game uses for generating during worldgen. Try to put features in the step that makes the most sense for them.
-
-|           Step           | Description                                                                             |
-|:------------------------:|:----------------------------------------------------------------------------------------|
-|     `raw_generation`     | First to run. This is used for special terrain-like features such as Small End Islands. |
-|         `lakes`          | Dedicated to spawning pond-like feature such as Lava Lakes.                             |
-|  `local_modifications`   | For modifications to terrain such as Geodes, Icebergs, Boulders, or Dripstone.          |
-| `underground_structures` | Used for small underground structure-like features such as Dungeons or Fossils.         |
-|   `surface_structures`   | For small surface only structure-like features such as Desert Wells.                    |
-|      `strongholds`       | Dedicated for Stronghold structures. No feature is added here in unmodified Minecraft.  |
-|    `underground_ores`    | The step for all Ores and Veins to be added to. This includes Gold, Dirt, Granite, etc. |
-| `underground_decoration` | Used typically for decorating caves. Dripstone Cluster and Sculk Vein are here.         |
-|     `fluid_springs`      | The small Lavafalls and Waterfalls come from features in this stage.                    |
-|   `vegetal_decoration`   | Nearly all plants (flowers, trees, vines, and more) are added to this stage.            |
-| `top_layer_modification` | Last to run. Used for placing Snow and Ice on the surface of cold biomes.               |
-
-
 ## Creating Custom Biome Modifiers
 
 ### The `BiomeModifier` Implementation
@@ -716,5 +697,6 @@ protected void addTags(HolderLookup.Provider registries) {
 [datapackdatagen]: ../concepts/registries#data-generation-for-datapack-registries
 [datapacks]: ../resources/index.md#data
 [datareg]: ../concepts/registries.md#datapack-registries
+[availabledecorationsteps]: biome.md#available-values-for-decoration-steps
 [spawning]: ../entities/livingentity.md#natural-spawning
 [staticreg]: ../concepts/registries.md#methods-for-registering
