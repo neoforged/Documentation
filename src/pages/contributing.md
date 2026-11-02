@@ -22,6 +22,7 @@ Finally, this documentation is **not** meant to explain Java concepts. This docu
 
 - [JetBrains Academy][jetbrains]
 - [Codeacademy][codeacademy]
+- [Coddy][coddy]
 - [University of Helsinki][helsinki]
 - [Oracle][oracle]
 - [Introduction to Programming using Java by David J. Eck][eck]
@@ -340,6 +341,7 @@ graph LR;
 
 [jetbrains]: https://www.jetbrains.com/academy/
 [codeacademy]: https://www.codecademy.com/learn/learn-java
+[coddy]: https://coddy.tech/landing/java
 [helsinki]: https://java-programming.mooc.fi/
 [oracle]: https://docs.oracle.com/javase/tutorial/
 [eck]: http://math.hws.edu/javanotes/
