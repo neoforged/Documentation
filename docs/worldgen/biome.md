@@ -63,9 +63,6 @@ Vanilla `PlacedFeature`s can be referenced in biome JSONs or added via biome mod
 
 # Data Generation
 
-Biomes can be [datagenned][datagen] as using a [Custom Datapack Registries][datapackregistries].
-To Start, create an instance of `RegistrySetBuilder` within `GatherDataEvents` or you can use existing one you have:
-
 <Tabs>
 <TabItem value="json" label="JSON" default>
 
@@ -95,6 +92,9 @@ To Start, create an instance of `RegistrySetBuilder` within `GatherDataEvents` o
 </TabItem>
 
 <TabItem value="datagen" label="Datagen">
+
+Biomes can be [datagenned][datagen] as using a [Custom Datapack Registries][datapackregistries].
+To Start, create an instance of `RegistrySetBuilder` within `GatherDataEvents` or you can use existing one you have:
 
 ```java
 @SubscribeEvent
