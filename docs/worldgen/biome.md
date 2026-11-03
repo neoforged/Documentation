@@ -11,7 +11,7 @@ A new biome can be added by creating a JSON file in your namespace's `worldgen/b
 
 # Specification
 
-A biome JSON file may contain the following entries:
+A biome JSON file has the following entries:
 
 - `has_precipitation`: Determines whether the biome has precipitation. Boolean; if true this biome will have rain/snow depending on the `temperature`. 
 - `temperature`: Controls the gameplay features like grass and foliage color if not overridden by effects (see below). Also, will determine whether it rains or snows when `has_precipitation` is `true`. It can also determine generation of some features. It snows if temperature is below 0.15 and rains if the temperature is above 0.15. It also affects surface generation in some capacity.   
