@@ -8,22 +8,22 @@ Biome Modifiers are a data-driven system that allows for changing many aspects o
 ### Recommended Section To Read:
 
 - Players or pack developers:
-- [Applying Biome Modifiers](#applying-biome-modifiers)
-- [Built-in Neoforge Biome Modifiers](#built-in-biome-modifiers)
+    - [Applying Biome Modifiers](#applying-biome-modifiers)
+    - [Built-in Neoforge Biome Modifiers](#built-in-biome-modifiers)
 
 
 - Modders doing simple additions or removal biome modifications:
-- [Applying Biome Modifiers](#applying-biome-modifiers)
-- [Built-in Neoforge Biome Modifiers](#built-in-biome-modifiers)
-- [Datagenning Biome Modifiers](#datagenning-biome-modifiers)
-- [Targeting Biomes That May Not Exist](#targeting-biomes-that-may-not-exist)
+    - [Applying Biome Modifiers](#applying-biome-modifiers)
+    - [Built-in Neoforge Biome Modifiers](#built-in-biome-modifiers)
+    - [Datagenning Biome Modifiers](#datagenning-biome-modifiers)
+    - [Targeting Biomes That May Not Exist](#targeting-biomes-that-may-not-exist)
 
 
 - Modders who want to do custom or complex biome modifications:
-- [Applying Biome Modifiers](#applying-biome-modifiers)
-- [Creating Custom Biome Modifiers](#creating-custom-biome-modifiers)
-- [Datagenning Biome Modifiers](#datagenning-biome-modifiers)
-- [Targeting Biomes That May Not Exist](#targeting-biomes-that-may-not-exist)
+    - [Applying Biome Modifiers](#applying-biome-modifiers)
+    - [Creating Custom Biome Modifiers](#creating-custom-biome-modifiers)
+    - [Datagenning Biome Modifiers](#datagenning-biome-modifiers)
+    - [Targeting Biomes That May Not Exist](#targeting-biomes-that-may-not-exist)
 
 
 ## Applying Biome Modifiers
