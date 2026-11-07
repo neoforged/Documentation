@@ -45,7 +45,7 @@ This biome modifier has no operation and will do no modification. Pack makers an
 
 ```json5
 {
-  "type": "neoforge:none"
+    "type": "neoforge:none"
 }
 ```
 
@@ -55,15 +55,15 @@ This biome modifier has no operation and will do no modification. Pack makers an
 ```java
 // Define the ResourceKey for our BiomeModifier.
 public static final ResourceKey<BiomeModifier> NO_OP_EXAMPLE = ResourceKey.create(
-                NeoForgeRegistries.Keys.BIOME_MODIFIERS, // The registry this key is for
-                Identifier.fromNamespaceAndPath(MOD_ID, "no_op_example") // The registry name
-        );
+    NeoForgeRegistries.Keys.BIOME_MODIFIERS, // The registry this key is for
+    Identifier.fromNamespaceAndPath(MOD_ID, "no_op_example") // The registry name
+);
 
 // BUILDER is a RegistrySetBuilder passed to DatapackBuiltinEntriesProvider
 // in a listener for the `GatherDataEvent`s.
 BUILDER.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, bootstrap -> {
-        // Register the biome modifiers.
-        bootstrap.register(NO_OP_EXAMPLE, NoneBiomeModifier.INSTANCE);
+    // Register the biome modifiers.
+    bootstrap.register(NO_OP_EXAMPLE, NoneBiomeModifier.INSTANCE);
 });
 ```
 
