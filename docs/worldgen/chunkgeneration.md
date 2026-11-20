@@ -12,10 +12,10 @@ This page describes the generation pyramid.
 
 ## Dependencies and Write Radius
 
-Each stage is a `ChunkStep`, which declares two things:
+Each stage is a `ChunkStep`, which declares the task to run along with the following:
 
-- **Dependencies:** The minimum `ChunkStatus` that the surrounding chunks must have reached before the stage runs on the chunk being generated. Dependencies are given per chessboard (Chebyshev) distance: distance 0 is the chunk being generated, distance 1 is the ring of 8 chunks around it, and distance N is the ring of chunks N chunks away. A stage always requires the chunk itself to have reached the previous status.
-- **Write radius:** How many chunks away from the chunk being generated blocks may be set, per axis. A value of -1 means that no blocks may be set through the region at all.
+- **Dependencies:** The minimum `ChunkStatus` that the surrounding chunks must have reached before the stage runs on the chunk being generated. Dependencies are given per chessboard (Chebyshev) distance: distance 0 is the chunk being generated, distance 1 is the ring of 8 chunks around it, and distance N is the ring of chunks N chunks away. Every stage after `EMPTY` requires the chunk itself to have reached the previous status.
+- **Write radius:** The maximum distance, in chunks, from the chunk being generated at which blocks may be set. The limit applies to the x and z axes separately. A value of -1 means that no blocks may be set through the region at all.
 
 Most stages run against a `WorldGenRegion`, a `WorldGenLevel` centered on the chunk being generated. The region enforces the declared dependencies and write radius:
 
@@ -50,19 +50,19 @@ The 8 chunk distance matches `ChunkStatus#MAX_STRUCTURE_DISTANCE`.
 
 ### `EMPTY`
 
-The starting point of every chunk. The chunk holds no data, and no task runs.
+The starting point of every chunk. The chunk holds no data, and the task of this stage does nothing.
 
 ### `STRUCTURE_STARTS`
 
 If structure generation is enabled in the world settings, `ChunkGenerator#createStructures` decides which structures start in the chunk, and stores their `StructureStart`s, including their bounding boxes, in the chunk. Afterward, `ServerLevel#onStructureStartsAvailable` is called.
 
-No `WorldGenRegion` is created for this stage. The generator only receives the chunk itself, so no neighboring chunks and no block writes are available.
+No `WorldGenRegion` is created for this stage. The generator receives the chunk itself, but no access to neighboring chunks, and no blocks can be set.
 
 ### `STRUCTURE_REFERENCES`
 
 `ChunkGenerator#createReferences` loops over all chunks in the 17x17 area around the chunk being generated. For every valid structure start whose bounding box intersects the chunk, a reference to that start is added to the chunk.
 
-Because the search area extends 8 chunks in each direction, a structure start can only be referenced by, and therefore only place blocks in, chunks within 8 chunks of the chunk it starts in. No blocks can be set.
+Because the search area extends 8 chunks in each direction, a structure start can only be referenced from chunks within 8 chunks of its own chunk, and can therefore only place blocks in those chunks. No blocks can be set in this stage.
 
 ### `BIOMES`
 
@@ -76,17 +76,17 @@ This is the first stage that places blocks. The write radius is 0, so only the c
 
 ### `SURFACE`
 
-`ChunkGenerator#buildSurface` applies the surface rules to the terrain, for example grass blocks and dirt, or sand in deserts. The write radius is 0.
+`ChunkGenerator#buildSurface` builds the surface of the terrain. For `NoiseBasedChunkGenerator`, this applies the surface rules of the noise settings, for example grass blocks and dirt, or sand in deserts. The write radius is 0.
 
 ### `CARVERS`
 
-`ChunkGenerator#applyCarvers` goes through every chunk in the 17x17 area. The carvers of that chunk's biome may start there (see `ConfiguredWorldCarver`), but each carver only carves into the chunk being generated. Carved positions are recorded in the chunk's `CarvingMask`. The write radius is 0.
+`ChunkGenerator#applyCarvers` carves into the terrain. For `NoiseBasedChunkGenerator`, it goes through every chunk in the 17x17 area. The carvers of that chunk's biome may start there (see `ConfiguredWorldCarver`), but each carver only carves into the chunk being generated. Carved positions are recorded in the chunk's `CarvingMask`. The write radius is 0.
 
 Neighboring chunks are only guaranteed to be at `STRUCTURE_STARTS`, so a carver must not rely on the terrain of neighboring chunks. Carvers can be added to or removed from biomes using [biome modifiers][biomemodifier].
 
 ### `FEATURES`
 
-First, the final heightmaps are primed (see [Heightmaps](#heightmaps)). Then, `ChunkGenerator#applyBiomeDecoration` goes through the `GenerationStep.Decoration` steps in order. In each decoration step, the following happens:
+First, the final heightmaps are primed (see [Heightmaps][heightmaps]). Then, `ChunkGenerator#applyBiomeDecoration` goes through the `GenerationStep.Decoration` steps in order. In each decoration step, the following happens:
 
 1. The pieces of all structures referenced by the chunk whose `Structure#step` is the current decoration step are placed. The pieces are clipped to the chunk being generated, which is a 16x16 column box.
 1. The placed features of the current decoration step are placed, using the features of the biomes found in the surrounding 3x3 chunks.
@@ -101,7 +101,7 @@ A custom feature placed in this stage can therefore read and write blocks in the
 
 ### `SPAWN`
 
-Unless the chunk is being upgraded from an older version, `ChunkGenerator#spawnOriginalMobs` spawns the initial mobs of the chunk, using the biome at the chunk. For `NoiseBasedChunkGenerator`, this only happens if the noise settings do not disable mob generation. The mob spawns of a biome can be changed using [biome modifiers][biomemodifier].
+Unless the chunk is being upgraded below the old world bottom (see `BelowZeroRetrogen`), `ChunkGenerator#spawnOriginalMobs` is called. For `NoiseBasedChunkGenerator`, this spawns the initial mobs of the chunk using the biome at the top of the chunk's corner column, unless the noise settings disable mob generation. The mob spawns of a biome can be changed using [biome modifiers][biomemodifier].
 
 NeoForge patches `WorldGenRegion#addFreshEntity` so that a `Mob` whose spawn was cancelled (`Mob#isSpawnCancelled`) is not added. No blocks can be set.
 
@@ -109,16 +109,17 @@ NeoForge patches `WorldGenRegion#addFreshEntity` so that a `Mob` whose spawn was
 
 On the main thread, the `ProtoChunk` is converted into a `LevelChunk`. If the chunk was already a `LevelChunk` wrapped in an `ImposterProtoChunk`, the wrapped `LevelChunk` is used instead. Entities stored in the `ProtoChunk` are added to the level, and block entities and ticks are registered.
 
-NeoForge fires `ChunkEvent.Load` here on the [NeoForge event bus][events] (`NeoForge#EVENT_BUS`). `ChunkEvent.Load#isNewChunk` returns whether the chunk was newly generated instead of loaded from disk. After this stage, the chunk is the normal chunk players interact with.
+NeoForge fires `ChunkEvent.Load` here on the [NeoForge event bus][events] (`NeoForge#EVENT_BUS`). `ChunkEvent.Load#isNewChunk` returns whether the chunk is newly generated instead of loaded from disk as a full chunk. After this stage, the chunk is the normal chunk players interact with.
 
 ## Heightmaps
 
 When a block is set on a `ProtoChunk`, the heightmaps that are updated depend on the chunk's current persisted status:
 
-- Up to and including `SURFACE`, the worldgen heightmaps `OCEAN_FLOOR_WG` and `WORLD_SURFACE_WG` are updated.
-- From `CARVERS` onward, the final heightmaps `OCEAN_FLOOR`, `WORLD_SURFACE`, `MOTION_BLOCKING` and `MOTION_BLOCKING_NO_LEAVES` are updated.
+- If the persisted status is `SURFACE` or earlier, the worldgen heightmaps `OCEAN_FLOOR_WG` and `WORLD_SURFACE_WG` are updated.
+- If the persisted status is `CARVERS` or later, the final heightmaps `OCEAN_FLOOR`, `WORLD_SURFACE`, `MOTION_BLOCKING` and `MOTION_BLOCKING_NO_LEAVES` are updated.
 
 While a chunk is being generated, its persisted status is the previous one. Block writes during `NOISE`, `SURFACE` and `CARVERS` therefore update the worldgen heightmaps, while block writes during `FEATURES` update the final heightmaps. At the start of `FEATURES`, `Heightmap#primeHeightmaps` computes the four final heightmaps, so that they are available before anything is placed.
 
 [biomemodifier]: biomemodifier.md
+[heightmaps]: #heightmaps
 [events]: ../concepts/events.md
