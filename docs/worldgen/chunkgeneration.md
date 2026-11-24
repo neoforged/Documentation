@@ -21,11 +21,11 @@ Most stages run against a `WorldGenRegion`, a `WorldGenLevel` centered on the ch
 
 - `WorldGenRegion#getChunk` throws a `ReportedException` ("Requested chunk unavailable during world generation") if the chunk is farther away than the dependency radius, or if a status later than the one guaranteed at that distance is requested. Methods such as `#getBlockState`, `#getFluidState` and heightmap queries go through `#getChunk`, so reading outside of the range crashes.
 - Reading blocks from a neighbor that is only guaranteed to be at an earlier status does not crash. The neighbor returns whatever it has so far. For example, a neighbor that has only reached `BIOMES` has no terrain blocks yet.
-- `WorldGenRegion#setBlock` does not throw when the position is outside of the write radius. Instead, it logs the error "Detected setBlock in a far chunk" and returns `false`, and the block is not placed. In a development environment run from an IDE, the game additionally pauses for a breakpoint.
+- `WorldGenRegion#setBlock` does not throw when the position is outside of the write radius. Instead, it logs the error "Detected setBlock in a far chunk" and returns `false`, and the block is not placed.
 - Asking a `ProtoChunk` for its biomes (`#getNoiseBiome`) before it has reached `BIOMES` throws an `IllegalStateException`.
 
 :::tip
-Use the `WorldGenLevel` that is passed to the code during generation. Do not retrieve chunks through the `ServerLevel`.
+If a `WorldGenLevel` is available during generation, such as the one returned by `FeaturePlaceContext#level` for features or the one passed as the first parameter of `StructurePiece#postProcess` for structure pieces, use it to read and write blocks instead of the `ServerLevel`. The chunks being generated are still `ProtoChunk`s that have not reached `FULL`, so their blocks cannot be read through the `ServerLevel` yet: methods such as `ServerLevel#getBlockState` request the chunk at `FULL`, and when called from a worldgen thread, `ServerChunkCache#getChunk` waits for the main thread to load or generate the chunk up to that status. The `WorldGenLevel` provides access to the chunks that are available at the current stage instead.
 :::
 
 The following table summarizes the requirements of each stage in the generation pyramid:
@@ -120,6 +120,9 @@ When a block is set on a `ProtoChunk`, the heightmaps that are updated depend on
 
 While a chunk is being generated, its persisted status is the previous one. Block writes during `NOISE`, `SURFACE` and `CARVERS` therefore update the worldgen heightmaps, while block writes during `FEATURES` update the final heightmaps. At the start of `FEATURES`, `Heightmap#primeHeightmaps` computes the four final heightmaps, so that they are available before anything is placed.
 
+When a chunk is saved, vanilla only stores the heightmaps of its persisted status, so a `ProtoChunk` whose persisted status is `CARVERS` or later loses its worldgen heightmaps. If the world is closed while a chunk is in the middle of generation, features and structures that snap to the worldgen heightmaps may be placed incorrectly once the chunk is loaded again, for example on top of trees ([MC-308222][mc308222]). NeoForge additionally saves and loads `OCEAN_FLOOR_WG` and `WORLD_SURFACE_WG` for every status before `FULL` to prevent this.
+
 [biomemodifier]: biomemodifier.md
 [heightmaps]: #heightmaps
 [events]: ../concepts/events.md
+[mc308222]: https://bugs.mojang.com/browse/MC-308222
